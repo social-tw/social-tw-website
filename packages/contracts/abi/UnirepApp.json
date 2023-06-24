@@ -21,6 +21,102 @@
         "type": "constructor"
     },
     {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "epochKey",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "contentHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "Post",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "epochKeyPostIndex",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "epochKeyPostVoteMap",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "upVote",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "downVote",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "contentHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "post",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -37,7 +133,11 @@
                 "name": "fieldIndex",
                 "type": "uint256"
             },
-            { "internalType": "uint256", "name": "val", "type": "uint256" }
+            {
+                "internalType": "uint256",
+                "name": "val",
+                "type": "uint256"
+            }
         ],
         "name": "submitAttestation",
         "outputs": [],
@@ -61,7 +161,11 @@
                 "name": "fieldIndices",
                 "type": "uint256[]"
             },
-            { "internalType": "uint256[]", "name": "vals", "type": "uint256[]" }
+            {
+                "internalType": "uint256[]",
+                "name": "vals",
+                "type": "uint256[]"
+            }
         ],
         "name": "submitManyAttestations",
         "outputs": [],
@@ -72,7 +176,11 @@
         "inputs": [],
         "name": "unirep",
         "outputs": [
-            { "internalType": "contract Unirep", "name": "", "type": "address" }
+            {
+                "internalType": "contract Unirep",
+                "name": "",
+                "type": "address"
+            }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -109,7 +217,13 @@
             }
         ],
         "name": "verifyDataProof",
-        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
         "stateMutability": "view",
         "type": "function"
     }

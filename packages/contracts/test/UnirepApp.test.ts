@@ -60,6 +60,14 @@ describe('Unirep App', function () {
         userState.sync.stop()
     })
 
+    it('user post', async()=>{
+        const userState = await genUserState(id, app)
+        const { publicSignals, proof } =
+            await userState.genEpochKeyProof()
+        const content = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("testing"))
+        await app.post(publicSignals, proof, content).then(t=>t.wait())
+    })
+
     it('submit attestations', async () => {
         const userState = await genUserState(id, app)
 

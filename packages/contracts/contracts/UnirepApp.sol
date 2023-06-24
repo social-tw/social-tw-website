@@ -14,8 +14,18 @@ interface IVerifier {
 
 
 contract UnirepApp {
+    struct postVote {
+        uint256 upVote;
+        uint256 downVote;
+    }
+
     Unirep public unirep;
     IVerifier internal dataVerifier;
+    mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
+    mapping(uint256 => uint256) public epochKeyPostIndex;
+    mapping(bytes32 => bool) public proofNullifier;
+
+    event Post(uint256 indexed epochKey, uint256 indexed postId, bytes32 contentHash);
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -35,6 +45,20 @@ contract UnirepApp {
     ) public {
         unirep.userSignUp(publicSignals, proof);
     }
+
+    function post(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        bytes32 contentHash
+    ) public {
+        unirep.verifyEpochKeyProof(publicSignals, proof);
+        Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(publicSignals);
+        uint256 postId = epochKeyPostIndex[signals.epochKey];
+        epochKeyPostIndex[signals.epochKey] = postId + 1;
+
+        emit Post(signals.epochKey, postId, contentHash);
+    }
+
 
     function submitManyAttestations(
         uint256 epochKey,
