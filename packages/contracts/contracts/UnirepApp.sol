@@ -51,6 +51,10 @@ contract UnirepApp {
         uint256[8] memory proof,
         bytes32 contentHash
     ) public {
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        require(!proofNullifier[nullifier], "The proof has been used before");
+        proofNullifier[nullifier] = true;
+
         unirep.verifyEpochKeyProof(publicSignals, proof);
         Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(publicSignals);
         uint256 postId = epochKeyPostIndex[signals.epochKey];
