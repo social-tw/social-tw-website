@@ -16,8 +16,10 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             const user = await db.findOne('User', {
                 where: { userId: hashUserId }
             })
+            // to make sure user already login 
             if (user == null)
                 res.status(500).json({ error: "Please login first" })
+            // to avoid double apply
             if (user.status != 0)
                 res.status(500).json({ error: "Already registered" })
 
@@ -48,8 +50,8 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 calldata
             )
 
-            // TODO once queue transaction should update DB or SC
-            // Not finish this part yet  
+            // TODO once finish the transaction 
+            //  should update user status to final status in DB or SC
 
             res.json({ hash })
         } catch (error) {
