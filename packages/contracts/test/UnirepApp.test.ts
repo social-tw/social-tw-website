@@ -60,15 +60,34 @@ describe('Unirep App', function () {
         userState.sync.stop()
     })
 
-    it('user post', async()=>{
-        const userState = await genUserState(id, app)
-        const { publicSignals, proof } =
-            await userState.genEpochKeyProof()
-        const content = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("testing"))
-        expect(await app.post(publicSignals, proof, content))
-        .to.emit(app, "Post")
-        .withArgs(publicSignals[0], 0, content);
+    describe('user post', ()=>{
+        it('post with valid proof', async()=>{
+            const userState = await genUserState(id, app)
+            const { publicSignals, proof } =
+                await userState.genEpochKeyProof()
+            const content = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("testing"))
+            expect(app.post(publicSignals, proof, content))
+            .to.emit(app, "Post")
+            .withArgs(publicSignals[0], 0, content);
+        })
+
+        it('revert post with reused proof', async()=>{
+            const userState = await genUserState(id, app)
+            const { publicSignals, proof } =
+                await userState.genEpochKeyProof()
+            const content = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("testing"))
+            
+            expect(app.post(publicSignals, proof, content))
+            .to.emit(app, "Post")
+            .withArgs(publicSignals[0], 0, content);
+
+            expect(app.post(publicSignals, proof, content))
+            .to.be.revertedWith("The proof has been used before") 
+        })
+
     })
+
+    
 
     it('submit attestations', async () => {
         const userState = await genUserState(id, app)
