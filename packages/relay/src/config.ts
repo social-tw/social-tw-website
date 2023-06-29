@@ -1,5 +1,7 @@
 import { ethers } from 'ethers'
+
 import _config from '../../config'
+
 import { config } from 'dotenv'
 config()
 
@@ -24,3 +26,4 @@ export const TWITTER_USER_URL = process.env.TWITTER_USER_URL ?? 'https://api.twi
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID
 export const TWITTER_CLIENT_KEY = process.env.TWITTER_CLIENT_KEY
+
