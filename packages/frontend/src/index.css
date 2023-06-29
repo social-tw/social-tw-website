@@ -1,5 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
     /* font-family: sans-serif, helvetica; */
     font-family: 'Azeret Mono';
     font-weight: 200;
+    /*  background color  */
+    background-color: #05101D;
+}
+
+.h-screen-min {
+    min-height: 100vh;
 }

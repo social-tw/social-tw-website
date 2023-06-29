@@ -2,3 +2,6 @@ node_modules/
 
 .DS_Store
 /config.ts
+dist
+.idea
+.env
