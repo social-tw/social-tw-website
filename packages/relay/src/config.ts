@@ -1,5 +1,7 @@
 import { ethers } from 'ethers'
-import _config from '../../../config'
+
+import _config from '../../config'
+
 import { config } from 'dotenv'
 config()
 
@@ -15,3 +17,13 @@ export const DB_PATH = process.env.DB_PATH ?? ':memory:'
 export const provider = ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
     : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
+
+export const CALLBACK_URL = process.env.CALLBACK_URL ?? 'http://127.0.0.1:3000'
+
+// twitter related settings
+export const TWITTER_ACCESS_TOKEN_URL = process.env.TWITTER_ACCESS_TOKEN_URL ?? 'https://api.twitter.com/2/oauth2/token'
+export const TWITTER_USER_URL = process.env.TWITTER_USER_URL ?? 'https://api.twitter.com/2/users/me'
+
+export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID
+export const TWITTER_CLIENT_KEY = process.env.TWITTER_CLIENT_KEY
+
