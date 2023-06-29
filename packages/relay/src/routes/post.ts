@@ -10,8 +10,9 @@ import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/post', async (req, res) => {
         try {
-            const { reqData, publicSignals, proof } = req.body
+            const { content, publicSignals, proof } = req.body
 
+            // verify epochKeyProof of user
             const epochKeyProof = new EpochKeyProof(
                 publicSignals,
                 proof,
@@ -22,26 +23,20 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 res.status(400).json({ error: 'Invalid proof' })
                 return
             }
+
+            // get current epoch and unirep contract
             const epoch = await synchronizer.loadCurrentEpoch()
             const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
 
-            const keys = Object.keys(reqData)
+            // post content
             let calldata: any
-            if (keys.length === 1) {
-                calldata = appContract.interface.encodeFunctionData(
-                    'submitAttestation',
-                    [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]]
-                )
-            } else if (keys.length > 1) {
-                calldata = appContract.interface.encodeFunctionData(
-                    'submitManyAttestations',
-                    [
-                        epochKeyProof.epochKey,
-                        epoch,
-                        keys,
-                        keys.map((k) => reqData[k]),
-                    ]
-                )
+            if (content) {
+                // if the content is not empty, post the content
+                calldata = appContract.interface.encodeFunctionData('post', [
+                    epochKeyProof.epochKey,
+                    epoch,
+                    ethers.utils.formatBytes32String(content),
+                ])
             }
 
             const hash = await TransactionManager.queueTransaction(
