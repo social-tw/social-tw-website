@@ -14,7 +14,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
         }))
     })
 
-    app.get('/api/callback', async (req, res) => {
+    app.get('/api/user', async (req, res) => {
         try {
             const { code, state } = req.query;
             if (state !== STATE)

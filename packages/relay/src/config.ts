@@ -16,7 +16,7 @@ export const provider = ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
     : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
 
-export const CALLBACK_URL = process.env.CALLBACK_URL ?? 'http://127.0.0.1:8000/api/callback'
+export const CALLBACK_URL = process.env.CALLBACK_URL ?? 'http://127.0.0.1:3000'
 
 // twitter related settings
 export const TWITTER_ACCESS_TOKEN_URL = process.env.TWITTER_ACCESS_TOKEN_URL ?? 'https://api.twitter.com/2/oauth2/token'
