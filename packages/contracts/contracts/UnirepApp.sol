@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import { Unirep } from "@unirep/contracts/Unirep.sol";
+import {Unirep} from '@unirep/contracts/Unirep.sol';
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -11,7 +11,6 @@ interface IVerifier {
         uint256[8] calldata proof
     ) external view returns (bool);
 }
-
 
 contract UnirepApp {
     struct postVote {
@@ -25,7 +24,11 @@ contract UnirepApp {
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
 
-    event Post(uint256 indexed epochKey, uint256 indexed postId, bytes32 contentHash);
+    event Post(
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        bytes32 contentHash
+    );
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -52,17 +55,18 @@ contract UnirepApp {
         bytes32 contentHash
     ) public {
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
-        require(!proofNullifier[nullifier], "The proof has been used before");
+        require(!proofNullifier[nullifier], 'The proof has been used before');
         proofNullifier[nullifier] = true;
 
         unirep.verifyEpochKeyProof(publicSignals, proof);
-        Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(publicSignals);
+        Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(
+            publicSignals
+        );
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
         emit Post(signals.epochKey, postId, contentHash);
     }
-
 
     function submitManyAttestations(
         uint256 epochKey,
@@ -82,21 +86,13 @@ contract UnirepApp {
         uint256 fieldIndex,
         uint256 val
     ) public {
-        unirep.attest(
-            epochKey,
-            targetEpoch,
-            fieldIndex,
-            val
-        );
+        unirep.attest(epochKey, targetEpoch, fieldIndex, val);
     }
 
     function verifyDataProof(
         uint256[5] calldata publicSignals,
         uint256[8] calldata proof
-    ) public view returns(bool) {
-        return dataVerifier.verifyProof(
-            publicSignals,
-            proof
-        );
+    ) public view returns (bool) {
+        return dataVerifier.verifyProof(publicSignals, proof);
     }
 }
