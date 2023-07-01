@@ -1,26 +1,35 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
+import crypto from 'crypto'
 import TwitterClient from '../singletons/TwitterClient'
-import crypto from 'crypto';
-
-const STATE = crypto.randomUUID()
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+    // for backend test use
     app.get('/api/login', async (req, res) => {
-        res.redirect(TwitterClient.authClient.generateAuthURL({
-            state: STATE,
-            code_challenge: crypto.randomUUID()
-        }))
+        const code_challenge = crypto.randomUUID()
+        console.log('code challenge', code_challenge)
+        res.redirect(
+            TwitterClient.authClient.generateAuthURL({
+                state: 'state',
+                code_challenge,
+            })
+        )
     })
 
-    app.get('/api/user', async (req, res) => {
+    // for backend test use
+    app.get('/api/callback', async (req, res) => {
+        res.json(req.query)
+    })
+
+    app.post('/api/user', async (req, res) => {
         try {
-            const { code, state } = req.query;
-            if (state !== STATE)
-                return res.status(500).json({
-                    error: "State isn't matching"
-                });
+            const { state, code, code_verifier } = req.body;
+
+            TwitterClient.authClient.generateAuthURL({
+                state,
+                code_challenge: code_verifier,
+            })
             
             TwitterClient.authClient.requestAccessToken(code as string)
                 .then(_ => TwitterClient.client.users.findMyUser())
