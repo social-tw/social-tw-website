@@ -27,7 +27,7 @@ contract UnirepApp {
     event Post(
         uint256 indexed epochKey,
         uint256 indexed postId,
-        bytes32 contentHash
+        string content
     );
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
@@ -52,7 +52,7 @@ contract UnirepApp {
     function post(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
-        bytes32 contentHash
+        string memory content
     ) public {
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         require(!proofNullifier[nullifier], 'The proof has been used before');
@@ -65,7 +65,7 @@ contract UnirepApp {
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
-        emit Post(signals.epochKey, postId, contentHash);
+        emit Post(signals.epochKey, postId, content);
     }
 
     function submitManyAttestations(

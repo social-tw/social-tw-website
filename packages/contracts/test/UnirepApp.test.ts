@@ -64,9 +64,7 @@ describe('Unirep App', function () {
         it('post with valid proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
-            const content = ethers.utils.keccak256(
-                ethers.utils.toUtf8Bytes('testing')
-            )
+            const content = 'testing'
             expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 0, content)
@@ -75,10 +73,7 @@ describe('Unirep App', function () {
         it('revert post with reused proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
-            const content = ethers.utils.keccak256(
-                ethers.utils.toUtf8Bytes('testing')
-            )
-
+            const content = 'testing'
             expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 1, content)
