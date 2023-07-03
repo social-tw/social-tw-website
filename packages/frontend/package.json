@@ -22,6 +22,7 @@
         "ethers": "^5.7.2",
         "file-loader": "^6.2.0",
         "mobx-react-lite": "^3.4.0",
+        "react-icons": "^4.10.1",
         "react-twitter-login": "^1.5.0"
     },
     "devDependencies": {

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './pages/Header'
 import Login from './pages/Login'
+import Navbar from './pages/Navbar'
 import './styles/main.css'
 
 export default function App() {
@@ -10,10 +11,8 @@ export default function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path='/login' element={<Login/>} />
-                <Route path="/" element={<Header />}>
-                    {/* <Route index element={<Start />} />
-                    <Route path="dashboard" element={<Dashboard />} /> */}
+                <Route path="/" element={<Navbar />}>
+                    <Route path="/login" element={<Login />} />
                 </Route>
             </Routes>
         </BrowserRouter>
