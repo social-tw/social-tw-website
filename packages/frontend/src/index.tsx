@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import './styles/main.css'
 
 export default function App() {
+    console.log(process.env)
     return (
         <BrowserRouter>
             <Routes>
