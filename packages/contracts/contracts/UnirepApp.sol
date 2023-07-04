@@ -16,6 +16,12 @@ interface IVerifier {
 contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
+    
+    // store all users
+    mapping(uint256 => bool) userRegistry;
+    
+    event UserSignUpSuccess(uint256 hashUserId);
+    event UserAlreadySignedUp(uint256 hashUserId);
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -31,9 +37,17 @@ contract UnirepApp {
     // sign up users in this app
     function userSignUp(
         uint256[] memory publicSignals,
-        uint256[8] memory proof
+        uint256[8] memory proof,
+        uint256 hashUserId
     ) public {
-        unirep.userSignUp(publicSignals, proof);
+        if (userRegistry[hashUserId]) {
+            emit UserAlreadySignedUp(hashUserId);
+        }
+        else {
+            userRegistry[hashUserId] = true;
+            unirep.userSignUp(publicSignals, proof);
+            emit UserSignUpSuccess(hashUserId);
+        }
     }
 
     function submitManyAttestations(
