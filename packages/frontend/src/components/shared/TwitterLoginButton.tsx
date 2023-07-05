@@ -42,6 +42,8 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
 
         if (hashUserId) {
             setHashUserId(hashUserId)
+            // TODO not sure store in localstorage is proper
+            localStorage.setItem('hashUserId', hashUserId)
             // todo generate the identity
 
             // Check if MetaMask is installed
@@ -70,7 +72,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                             console.log(`Signature: ${signature}`)
                             // TODO not sure store in localstorage is proper
                             localStorage.setItem('signature', signature)
-                            localStorage.setItem('hashUserId', hashUserId)
+                            userContext.load()
                         })
                         .catch((error: any) => {
                             console.error('Error signing message:', error)
