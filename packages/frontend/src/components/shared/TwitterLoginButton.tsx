@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 interface TwitterLoginButtonProps {
     icon: IconType;
@@ -19,9 +18,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
             method: 'GET',
         });
 
-    // Redirect to login URL
-    window.location.href = loginUrl;
-  };
+        const data = await response.json();
 
         // Redirect the user to Twitter for authorization
         window.location.href = data.url
@@ -41,7 +38,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     return (
         <button
             type="button"
-            onClick={handleTwitterLogin}
+            onClick={() => handleTwitterLogin()}
             className="
         inline-flex
         w-full
