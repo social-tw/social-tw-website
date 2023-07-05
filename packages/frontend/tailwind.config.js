@@ -4,10 +4,10 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    daisyui: {
+      themes: ["light", "dark", "halloween"],
+    },
     extend: {
-      fontFamily: {
-        'inter': ['Inter', 'sans-serif'],
-      },
       colors: {
         'btn-signup' : "#74C5F8",
         'btn-login' : "#DC832B",
