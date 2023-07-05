@@ -6,11 +6,10 @@ import TwitterClient from '../singletons/TwitterClient'
 import { CLIENT_URL } from '../config'
 
 const STATE = "state"
+const code_challenge = crypto.randomUUID()
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.get('/api/login', async (_, res) => {
-        const code_challenge = crypto.randomUUID()
-        console.log('code challenge', code_challenge)
         const url = await TwitterClient.authClient.generateAuthURL({
             state: STATE,
             code_challenge,
