@@ -20,7 +20,6 @@ export const provider = ETH_PROVIDER_URL.startsWith('http')
 
 export const CLIENT_URL = process.env.CLIENT_URL ?? 'http://127.0.0.1:3000'
 export const CALLBACK_URL = process.env.CALLBACK_URL ?? 'http://127.0.0.1:8000/api/user'
-export const CALLBACK_TEST_URL = process.env.CALLBACK_URL ?? 'http://127.0.0.1:8000/api/callback'
 
 // twitter related settings
 export const TWITTER_ACCESS_TOKEN_URL = process.env.TWITTER_ACCESS_TOKEN_URL ?? 'https://api.twitter.com/2/oauth2/token'
