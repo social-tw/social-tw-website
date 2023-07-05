@@ -20,6 +20,14 @@ const _schema = [
             ['nonce', 'Int'],
         ],
     },
+    {
+        name: 'User',
+        primaryKey: 'userId',
+        rows: [
+            ['userId', 'String'],
+            ['status', 'Int'] // 0: init, 1: registered 
+        ]
+    }
 ]
 
 export default _schema
