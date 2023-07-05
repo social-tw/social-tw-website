@@ -10,37 +10,33 @@ interface TwitterLoginButtonProps {
 const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
     const navigate = useNavigate()
-    const [user, setUser] = useState(null);
+    const [hashUserId, setHashUserId] = useState('');
 
-  const handleTwitterLogin = async () => {
-    // Fetch login URL
-    const response = await axios.get("http://localhost:8000/api/login");
-    const loginUrl = response.data;
+    const handleTwitterLogin = async () => {
+        // Make a backend call to get the request token from Twitter
+        const response = await fetch('http://localhost:8000/api/login', {
+            method: 'GET',
+        });
 
     // Redirect to login URL
     window.location.href = loginUrl;
   };
 
-  const handleCallback = async (code: string, state: string, codeVerifier: string) => {
-    const response = await axios.post("http://localhost:8000/api/user", {
-      state,
-      code,
-      code_verifier: codeVerifier
-    });
-    setUser(response.data);
-  };
+        // Redirect the user to Twitter for authorization
+        window.location.href = data.url
+    }
 
-  // Extracting query parameters from the URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get("code");
-  const state = urlParams.get("state");
-  const codeVerifier = ""; // You need to implement how to generate and store the code verifier
-
-  if (code && state) {
-    handleCallback(code, state, codeVerifier);
-  }
+    // once redirect back, the hashUserId will carry in the param of url 
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashUserId = urlParams.get('code');
+        
+        if (hashUserId) {
+            setHashUserId(hashUserId);
+            // todo generate the identity
+        }
+    }, []);
     
     return (
         <button
