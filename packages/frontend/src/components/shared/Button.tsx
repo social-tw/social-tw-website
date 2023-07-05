@@ -7,7 +7,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ color, text }) => {
     return (
-        <button className={`sm:w-full sm:max-w-md p-3 rounded-md text-m text-white font-bold ${color} tracking-widest`}>
+        <button className={`sm:w-full sm:max-w-md px-4 py-2 rounded-md text-m text-white font-bold ${color} tracking-widest`}>
             {text}
         </button>
     );
