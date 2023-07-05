@@ -10,18 +10,7 @@ import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/signup', async (req, res) => {
         try {
-            const { publicSignals, proof, hashUserId } = req.body
-
-            // todo change to use sc or circuit
-            const user = await db.findOne('User', {
-                where: { userId: hashUserId }
-            })
-            // to make sure user already login 
-            if (user == null)
-                res.status(500).json({ error: "Please login first" })
-            // to avoid double apply
-            if (user.status != 0)
-                res.status(500).json({ error: "Already registered" })
+            const { publicSignals, proof } = req.body
 
             const signupProof = new SignupProof(
                 publicSignals,
@@ -49,10 +38,6 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 APP_ADDRESS,
                 calldata
             )
-
-            // TODO once finish the transaction 
-            //  should update user status to final status in DB or SC
-
             res.json({ hash })
         } catch (error) {
             res.status(500).json({ error })
