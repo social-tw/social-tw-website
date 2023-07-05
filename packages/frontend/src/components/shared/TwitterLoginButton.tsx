@@ -9,12 +9,10 @@ interface TwitterLoginButtonProps {
 const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
     const navigate = useNavigate()
-    const [oauthToken, setOauthToken] = useState('');
-    const [oauthTokenSecret, setOauthTokenSecret] = useState('');
+    const [hashUserId, setHashUserId] = useState('');
 
-    const getRequestToken = async () => {
+    const handleTwitterLogin = async () => {
         // Make a backend call to get the request token from Twitter
         const response = await fetch('http://localhost:8000/api/login', {
             method: 'GET',
@@ -22,44 +20,18 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
 
         const data = await response.json();
 
-        setOauthToken(data.oauth_token);
-        setOauthTokenSecret(data.oauth_token_secret);
-
         // Redirect the user to Twitter for authorization
-        window.location.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${data.oauth_token}`;
+        window.location.href = data.url
     }
 
-    const getAccessToken = async (oauthVerifier: any) => {
-        // Make a backend call to exchange the request token for an access token
-        const response = await fetch('http://localhost:8000/api/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                oauth_token: oauthToken,
-                oauth_verifier: oauthVerifier,
-            }),
-        });
-
-        const data = await response.json();
-
-        // Now you have the access token and can use it to access user data
-        console.log(data);
-    }
-
-    const handleTwitterLogin = () => {
-        getRequestToken();
-    }
-
-    // When the component mounts, check if the oauth_verifier is in the URL
-    // If it is, then this is the redirect from Twitter and we need to get the access token
+    // once redirect back, the hashUserId will carry in the param of url 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const oauthVerifier = urlParams.get('oauth_verifier');
-
-        if (oauthVerifier) {
-            getAccessToken(oauthVerifier);
+        const hashUserId = urlParams.get('code');
+        
+        if (hashUserId) {
+            setHashUserId(hashUserId);
+            // todo generate the identity
         }
     }, []);
     
