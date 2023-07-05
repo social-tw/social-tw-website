@@ -10,6 +10,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
     const navigate = useNavigate()
+    // TODO: maybe can use useRef
     const [hashUserId, setHashUserId] = useState('')
 
     const handleTwitterLogin = async () => {
@@ -31,7 +32,10 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         
         if (hashUserId) {
             setHashUserId(hashUserId)
-            // todo generate the identity
+            console.log(hashUserId)
+            // Connect to wallet and get signature
+            // TODO: generate the identity 
+            // call siginin function in user.ts
         }
     }, [])
     

@@ -6,7 +6,9 @@ const Home = () => {
   return (
     <div data-theme="dark" className='flex h-full flex-col justify-center'>
       <Navbar />
-      <Outlet />
+      <div className="h-full">
+        <Outlet />
+      </div>
     </div>
   )
 }

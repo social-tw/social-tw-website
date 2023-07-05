@@ -100,8 +100,11 @@ class User {
             body: JSON.stringify({
                 publicSignals: signupProof.publicSignals,
                 proof: signupProof.proof,
+                hashUserId: this.hashUserId
             }),
         }).then((r) => r.json())
+
+        // TODO: handle error
         await this.provider.waitForTransaction(data.hash)
         await this.userState.waitForSync()
         this.hasSignedUp = await this.userState.hasSignedUp()
