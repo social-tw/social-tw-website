@@ -16,21 +16,26 @@ class User {
     provableData: bigint[] = []
     userState?: UserState
     provider: any
-    isLogin: boolean = false
-    hashUserId: string = ""
+    hashUserId: string = '' // TODO not sure how to setup inital data
 
     constructor() {
         makeAutoObservable(this)
-        this.load()
     }
 
     async load() {
+
+        console.log("load .....")
         const id: string = localStorage.getItem('id') ?? ''
-        const identity = new Identity(id)
-        if (!id) {
-            localStorage.setItem('id', identity.toString())
+        this.hashUserId = localStorage.getItem('hashUserId') ?? ''
+        
+        if (!id && this.hashUserId?.length == 0) {
+            console.error("HashUserId is wrong")
+            return
         }
 
+        // TODO change hashUserId to signature
+        // const identity = new Identity(signature)
+        const identity = new Identity(this.hashUserId)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
             `${SERVER}/api/config`
         ).then((r) => r.json())
@@ -54,7 +59,6 @@ class User {
         this.userState = userState
         await userState.waitForSync()
         // todo check here to modify
-        this.isLogin = this.hashUserId != null && this.hashUserId.length > 0
         this.hasSignedUp = await userState.hasSignedUp()
         await this.loadData()
         this.latestTransitionedEpoch =
@@ -83,11 +87,6 @@ class User {
         this.provableData = await this.userState.getProvableData()
     }
 
-    async login() { 
-        const data = await fetch(`${SERVER}/api/login`).then((r) => r.json())
-        return data.url
-    }
-
     async signup() {
         if (!this.userState) throw new Error('user state not initialized')
 
@@ -100,6 +99,7 @@ class User {
             body: JSON.stringify({
                 publicSignals: signupProof.publicSignals,
                 proof: signupProof.proof,
+                hashUserId: this.hashUserId,
             }),
         }).then((r) => r.json())
         await this.provider.waitForTransaction(data.hash)

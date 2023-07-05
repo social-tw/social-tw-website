@@ -1,6 +1,8 @@
+import React from "react"
 import { useEffect, useState } from "react"
 import { IconType } from "react-icons"
 import { useNavigate } from "react-router-dom"
+import User from "../../contexts/User"
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -9,6 +11,7 @@ interface TwitterLoginButtonProps {
 const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
+    const userContext = React.useContext(User)
     const navigate = useNavigate()
     const [hashUserId, setHashUserId] = useState('')
 
@@ -32,6 +35,12 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         if (hashUserId) {
             setHashUserId(hashUserId)
             // todo generate the identity
+            
+            // TODO not sure if set it in localstorage is proper
+            console.log(hashUserId)
+            localStorage.setItem('hashUserId', hashUserId)
+            // TODO we use load method to update user identity
+            userContext.load()
         }
     }, [])
     
