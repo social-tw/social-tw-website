@@ -12,14 +12,12 @@
         "keys": "sh scripts/loadKeys.sh"
     },
     "dependencies": {
-        "@types/crypto-js": "^4.1.1",
         "@unirep-app/contracts": "1.0.0",
         "@unirep/core": "2.0.0-beta-3",
         "anondb": "^0.0.13",
         "dotenv": "^16.0.3",
         "ethers": "^5.7.2",
-        "express": "^4.18.2",
-        "twitter-api-sdk": "^1.2.1"
+        "express": "^4.18.2"
     },
     "main": "index.js",
     "devDependencies": {

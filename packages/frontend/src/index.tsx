@@ -1,16 +1,18 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Login from './pages/Login'
-import './styles/main.css'
-import Home from './pages/Home'
+import Header from './pages/Header'
+import Start from './pages/Start'
+import Dashboard from './pages/Dashboard'
+import './index.css'
 
 export default function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home />}>
-                    <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Header />}>
+                    <Route index element={<Start />} />
+                    <Route path="dashboard" element={<Dashboard />} />
                 </Route>
             </Routes>
         </BrowserRouter>

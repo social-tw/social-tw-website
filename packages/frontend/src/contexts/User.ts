@@ -16,8 +16,6 @@ class User {
     provableData: bigint[] = []
     userState?: UserState
     provider: any
-    isLogin: boolean = false
-    hashUserId: string = ""
 
     constructor() {
         makeAutoObservable(this)
@@ -39,7 +37,7 @@ class User {
             ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
- 
+
         const userState = new UserState(
             {
                 provider,
@@ -53,8 +51,6 @@ class User {
         await userState.sync.start()
         this.userState = userState
         await userState.waitForSync()
-        // todo check here to modify
-        this.isLogin = this.hashUserId != null && this.hashUserId.length > 0
         this.hasSignedUp = await userState.hasSignedUp()
         await this.loadData()
         this.latestTransitionedEpoch =
@@ -81,11 +77,6 @@ class User {
 
         this.data = await this.userState.getData()
         this.provableData = await this.userState.getProvableData()
-    }
-
-    async login() { 
-        const data = await fetch(`${SERVER}/api/login`).then((r) => r.json())
-        return data.url
     }
 
     async signup() {
