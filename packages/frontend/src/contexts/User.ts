@@ -39,7 +39,7 @@ class User {
             ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
-
+ 
         const userState = new UserState(
             {
                 provider,

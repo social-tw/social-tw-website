@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react"
 import { IconType } from "react-icons"
 import { useNavigate } from "react-router-dom"
+import { ethers } from 'ethers';
+
+// At the top of your TypeScript file
+declare global {
+    interface Window {
+      ethereum: any;
+    }
+  }
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -31,7 +39,34 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         
         if (hashUserId) {
             setHashUserId(hashUserId)
-            // todo generate the identity
+            // todo generate the 
+            
+            // Check if MetaMask is installed
+            if (!window.ethereum) {
+                console.error("Please install MetaMask");
+                return;
+            }
+            // Request account access
+            window.ethereum.request({ method: 'eth_requestAccounts' })
+            .then((accounts: string[]) => {
+                const account = accounts[0];
+
+                // Sign the message
+                window.ethereum.request({
+                method: 'personal_sign',
+                params: [ethers.utils.hexlify(ethers.utils.toUtf8Bytes(hashUserId)), account],
+                })
+                .then((signature: string) => {
+                console.log(`Signature: ${signature}`);
+                // TODO: Use the signature for something
+                })
+                .catch((error: any) => {
+                console.error("Error signing message:", error);
+                });
+            })
+            .catch((error: any) => {
+                console.error("Error requesting account access:", error);
+            });
         }
     }, [])
     
