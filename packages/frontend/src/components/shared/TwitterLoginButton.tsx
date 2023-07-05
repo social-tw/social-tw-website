@@ -1,8 +1,16 @@
-import React from "react"
-import { useEffect, useState } from "react"
-import { IconType } from "react-icons"
-import { useNavigate } from "react-router-dom"
-import User from "../../contexts/User"
+import React from 'react'
+import { useEffect, useState } from 'react'
+import { IconType } from 'react-icons'
+import { useNavigate } from 'react-router-dom'
+import User from '../../contexts/User'
+import { ethers } from 'ethers'
+
+// At the top of your TypeScript file
+declare global {
+    interface Window {
+        ethereum: any
+    }
+}
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -27,23 +35,53 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         window.location.href = data.url
     }
 
-    // once redirect back, the hashUserId will carry in the param of url 
+    // once redirect back, the hashUserId will carry in the param of url
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const hashUserId = urlParams.get('code')
-        
+
         if (hashUserId) {
             setHashUserId(hashUserId)
             // todo generate the identity
-            
-            // TODO not sure if set it in localstorage is proper
-            console.log(hashUserId)
-            localStorage.setItem('hashUserId', hashUserId)
-            // TODO we use load method to update user identity
-            userContext.load()
+
+            // Check if MetaMask is installed
+            if (!window.ethereum) {
+                console.error('Please install MetaMask')
+                return
+            }
+            // Request account access
+            window.ethereum
+                .request({ method: 'eth_requestAccounts' })
+                .then((accounts: string[]) => {
+                    const account = accounts[0]
+
+                    // Sign the message
+                    window.ethereum
+                        .request({
+                            method: 'personal_sign',
+                            params: [
+                                ethers.utils.hexlify(
+                                    ethers.utils.toUtf8Bytes(hashUserId)
+                                ),
+                                account,
+                            ],
+                        })
+                        .then((signature: string) => {
+                            console.log(`Signature: ${signature}`)
+                            // TODO not sure store in localstorage is proper
+                            localStorage.setItem('signature', signature)
+                            localStorage.setItem('hashUserId', hashUserId)
+                        })
+                        .catch((error: any) => {
+                            console.error('Error signing message:', error)
+                        })
+                })
+                .catch((error: any) => {
+                    console.error('Error requesting account access:', error)
+                })
         }
     }, [])
-    
+
     return (
         <button
             type="button"

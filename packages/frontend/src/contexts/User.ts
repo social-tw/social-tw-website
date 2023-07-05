@@ -16,6 +16,7 @@ class User {
     provableData: bigint[] = []
     userState?: UserState
     provider: any
+    signature: string = '' // TODO not sure how to setup inital data
     hashUserId: string = '' // TODO not sure how to setup inital data
 
     constructor() {
@@ -26,16 +27,17 @@ class User {
 
         console.log("load .....")
         const id: string = localStorage.getItem('id') ?? ''
+        this.signature = localStorage.getItem('signature') ?? ''
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
         
-        if (!id && this.hashUserId?.length == 0) {
+        if (!id && this.hashUserId?.length == 0 && this.signature?.length == 0) {
             console.error("HashUserId is wrong")
             return
         }
 
         // TODO change hashUserId to signature
         // const identity = new Identity(signature)
-        const identity = new Identity(this.hashUserId)
+        const identity = new Identity(this.signature)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
             `${SERVER}/api/config`
         ).then((r) => r.json())
@@ -44,7 +46,7 @@ class User {
             ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
-
+ 
         const userState = new UserState(
             {
                 provider,
