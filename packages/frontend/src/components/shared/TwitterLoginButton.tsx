@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface TwitterLoginButtonProps {
     icon: IconType;
@@ -11,62 +12,40 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const navigate = useNavigate()
-    const [oauthToken, setOauthToken] = useState('');
-    const [oauthTokenSecret, setOauthTokenSecret] = useState('');
+    const [user, setUser] = useState(null);
 
-    const getRequestToken = async () => {
-        // Make a backend call to get the request token from Twitter
-        const response = await fetch('http://localhost:8000/api/login', {
-            method: 'GET',
-        });
+  const handleTwitterLogin = async () => {
+    // Fetch login URL
+    const response = await axios.get("http://localhost:8000/api/login");
+    const loginUrl = response.data;
 
-        const data = await response.json();
+    // Redirect to login URL
+    window.location.href = loginUrl;
+  };
 
-        setOauthToken(data.oauth_token);
-        setOauthTokenSecret(data.oauth_token_secret);
+  const handleCallback = async (code: string, state: string, codeVerifier: string) => {
+    const response = await axios.post("http://localhost:8000/api/user", {
+      state,
+      code,
+      code_verifier: codeVerifier
+    });
+    setUser(response.data);
+  };
 
-        // Redirect the user to Twitter for authorization
-        window.location.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${data.oauth_token}`;
-    }
+  // Extracting query parameters from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+  const state = urlParams.get("state");
+  const codeVerifier = ""; // You need to implement how to generate and store the code verifier
 
-    const getAccessToken = async (oauthVerifier: any) => {
-        // Make a backend call to exchange the request token for an access token
-        const response = await fetch('http://localhost:8000/api/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                oauth_token: oauthToken,
-                oauth_verifier: oauthVerifier,
-            }),
-        });
-
-        const data = await response.json();
-
-        // Now you have the access token and can use it to access user data
-        console.log(data);
-    }
-
-    const handleTwitterLogin = () => {
-        getRequestToken();
-    }
-
-    // When the component mounts, check if the oauth_verifier is in the URL
-    // If it is, then this is the redirect from Twitter and we need to get the access token
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const oauthVerifier = urlParams.get('oauth_verifier');
-
-        if (oauthVerifier) {
-            getAccessToken(oauthVerifier);
-        }
-    }, []);
+  if (code && state) {
+    handleCallback(code, state, codeVerifier);
+  }
     
     return (
         <button
             type="button"
-            onClick={() => handleTwitterLogin()}
+            onClick={handleTwitterLogin}
             className="
         inline-flex
         w-full

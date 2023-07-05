@@ -9,7 +9,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.get('/api/login', async (req, res) => {
         const code_challenge = crypto.randomUUID()
         console.log('code challenge', code_challenge)
-        res.redirect(
+        res.json(
             TwitterClient.authClient.generateAuthURL({
                 state: 'state',
                 code_challenge,
@@ -19,6 +19,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
     // for backend test use
     app.get('/api/callback', async (req, res) => {
+        console.log(req.query)
         res.json(req.query)
     })
 
