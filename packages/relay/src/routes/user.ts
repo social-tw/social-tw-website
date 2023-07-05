@@ -3,43 +3,36 @@ import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
 import TwitterClient from '../singletons/TwitterClient'
+import { CLIENT_URL } from '../config'
+
+const STATE = "state"
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
-    // for backend test use
-    app.get('/api/login', async (req, res) => {
+    app.get('/api/login', async (_, res) => {
         const code_challenge = crypto.randomUUID()
         console.log('code challenge', code_challenge)
-        res.redirect(
-            TwitterClient.authClient.generateAuthURL({
-                state: 'state',
-                code_challenge,
-            })
-        )
+        const url = await TwitterClient.authClient.generateAuthURL({
+            state: STATE,
+            code_challenge,
+        })
+        res.status(200).json({url: url})
     })
 
-    // for backend test use
-    app.get('/api/callback', async (req, res) => {
-        res.json(req.query)
-    })
-
-    app.post('/api/user', async (req, res) => {
+    app.get('/api/user', async (req, res) => {
         try {
-            const { state, code, code_verifier } = req.body;
+            const { state, code } = req.query;
 
-            TwitterClient.authClient.generateAuthURL({
-                state,
-                code_challenge: code_verifier,
-            })
-            
+            if (state != STATE) res.status(500).json({ "error": "wrong callback value" })
+
             TwitterClient.authClient.requestAccessToken(code as string)
                 .then(_ => TwitterClient.client.users.findMyUser())
                 .then(async userInfo => {
-                    
+
                     // todo check hash function require?
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
                     const hashUserId = hash.update(userId).digest('hex')
-                    
+
                     // todo change to use sc below
                     // check user already signup, if not yet, then record it with status
                     const user = await db.findOne('User', {
@@ -49,14 +42,16 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         db.create('User', { userId: hashUserId, status: 0 })
                     }
 
-                    res.json({ userId: hashUserId })
+                    res.redirect(`${CLIENT_URL}?code=${hashUserId}`)
                 })
-                .catch(err => res.status(500).json({
-                    error: `Failed in getting userID with ${err}`
-                }))
+                .catch(err => () => {
+                    console.error(err)
+                    res.redirect(`${CLIENT_URL}?error="apiError"`)
+                })
 
         } catch (error) {
-            res.status(500).json({ error })
+            console.error(error)
+            res.redirect(`${CLIENT_URL}?error="generalError"`)
         }
     })
 }
