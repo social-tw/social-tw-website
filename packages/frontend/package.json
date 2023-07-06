@@ -25,6 +25,7 @@
         "iconoir-react": "^6.9.0",
         "lexical": "^0.11.1",
         "mobx-react-lite": "^3.4.0",
+        "react-hot-toast": "^2.4.1",
         "react-twitter-login": "^1.5.0"
     },
     "devDependencies": {

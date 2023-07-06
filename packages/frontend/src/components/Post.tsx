@@ -18,7 +18,7 @@ export default function ({
     downCount: number
 }) {
     const publishedTime = dayjs(publishedAt)
-    const publishedLabel = publishedTime.isBefore(dayjs())
+    const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
 
@@ -53,7 +53,9 @@ export default function ({
                     </button>
                 </section>
                 <section>
-                    <p className="text-2xl font-medium text-black">{content}</p>
+                    <p className="text-2xl font-medium text-black break-all whitespace-pre-wrap">
+                        {content}
+                    </p>
                     <div className="flex justify-between mt-8">
                         <span className="text-2xl text-blue-300">
                             {publishedLabel}
