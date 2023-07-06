@@ -1,9 +1,8 @@
-import React from 'react'
-import { observer } from 'mobx-react-lite'
 import './dashboard.css'
+import { observer } from 'mobx-react-lite'
+import React from 'react'
 import Button from '../components/Button'
 import Tooltip from '../components/Tooltip'
-
 import User from '../contexts/User'
 
 type ReqInfo = {
@@ -58,7 +57,7 @@ export default observer(() => {
     }
 
     return (
-        <div>
+        <div className="dashboard">
             <h1>Dashboard</h1>
             <div className="container">
                 <div className="info-container">

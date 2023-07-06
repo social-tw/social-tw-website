@@ -1,11 +1,11 @@
+import { DB } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
-import { DB } from 'anondb/node'
-import { Synchronizer } from '@unirep/core'
+import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 import { EpochKeyProof } from '@unirep/circuits'
+import { Synchronizer } from '@unirep/core'
 import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/post', async (req, res) => {
@@ -33,8 +33,8 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             if (content) {
                 // if the content is not empty, post the content
                 calldata = appContract.interface.encodeFunctionData('post', [
-                    epochKeyProof.epochKey,
-                    epoch,
+                    epochKeyProof.publicSignals,
+                    epochKeyProof.proof,
                     ethers.utils.formatBytes32String(content),
                 ])
             }
