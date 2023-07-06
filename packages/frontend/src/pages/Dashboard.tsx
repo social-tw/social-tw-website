@@ -4,7 +4,7 @@ import './dashboard.css'
 import Button from '../components/Button'
 import Tooltip from '../components/Tooltip'
 
-import User from '../contexts/User'
+import { User, UserContext } from '../contexts/User'
 
 type ReqInfo = {
     nonce: number
@@ -17,7 +17,7 @@ type ProofInfo = {
 }
 
 export default observer(() => {
-    const userContext = React.useContext(User)
+    const userContext = React.useContext(UserContext)
     const [remainingTime, setRemainingTime] = React.useState<number | string>(0)
     const [reqData, setReqData] = React.useState<{
         [key: number]: number | string

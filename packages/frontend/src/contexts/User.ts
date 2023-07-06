@@ -23,6 +23,10 @@ class User {
         makeAutoObservable(this)
     }
 
+    // toggleSignUpStatus() {
+    //     this.hasSignedUp = !this.hasSignedUp;
+    //   }
+
     async load() {
 
         console.log("load .....")
@@ -112,6 +116,8 @@ class User {
                 hashUserId: this.hashUserId,
             }),
         }).then((r) => r.json())
+
+        console.log(data)
 
         // TODO: handle error
         await this.provider.waitForTransaction(data.hash)
@@ -214,4 +220,8 @@ class User {
     }
 }
 
-export default createContext(new User())
+const defaultValue = new User()
+
+const UserContext = createContext<User>(defaultValue)
+
+export { User, UserContext };

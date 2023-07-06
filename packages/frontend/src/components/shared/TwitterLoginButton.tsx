@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import { useEffect, useState } from "react"
 import { IconType } from "react-icons"
 import { ethers } from "ethers"
-import User from "../../contexts/User"
+import { User, UserContext } from "../../contexts/User"
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -18,10 +18,11 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
     // TODO: fix the type
-    const userContext = React.useContext(User)
+    const userContext = useContext(UserContext)
     // TODO: maybe can use useRef
     const [hashUserId, setHashUserId] = useState<string>('')
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isVerified, setIsVerified] = useState<boolean>(false);
 
     // TODO: use User.tx method
     const handleTwitterLogin = async () => {
@@ -43,7 +44,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         const urlParams = new URLSearchParams(window.location.search)
         const hashUserId = urlParams.get('code')
 
-        if (hashUserId) {
+        if (hashUserId && !isVerified) {
             setHashUserId(hashUserId)
             console.log(hashUserId)
             // Connect to wallet and get signature
@@ -83,6 +84,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                         .then(async () => {
                             await userContext.signup()
                             setIsLoading(false)
+                            console.log(userContext.hasSignedUp)
                             console.log("logged in")
                         })
                         .catch((error: any) => {
@@ -92,6 +94,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                 .catch((error: any) => {
                     console.error('Error requesting account access:', error)
                 })
+            setIsVerified(true)
         }
     }, [hashUserId])
 
