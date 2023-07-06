@@ -17,12 +17,12 @@ declare global {
 const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
-    // TODO: fix the type
+    // TODO: set up loading page when sign up
     const userContext = useContext(UserContext)
     // TODO: maybe can use useRef
     const [hashUserId, setHashUserId] = useState<string>('')
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isVerified, setIsVerified] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isVerified, setIsVerified] = useState<boolean>(false)
 
     // TODO: use User.tx method
     const handleTwitterLogin = async () => {

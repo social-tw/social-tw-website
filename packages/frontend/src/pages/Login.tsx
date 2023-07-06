@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import AuthForm from '../components/login/AuthForm'
 import { User, UserContext } from '../contexts/User'
+import { observer } from 'mobx-react-lite'
 
-const Login: React.FC = () => {
-    const userContext = React.useContext(UserContext)
-    
+const Login: React.FC = observer(() => {
+    const userContext = useContext(UserContext)
+
     return (
         <div
             data-theme="dark"
@@ -17,10 +18,10 @@ const Login: React.FC = () => {
                 <h2 className="mt-6 text-center text-m font-medium tracking-wider">
                     使用第三方平台進行登入，即表示同意Unirep Social的使用者規章及條款
                 </h2>
-            </div>            
+            </div>
             <AuthForm />
         </div>
     )
-}
+})
 
 export default Login
