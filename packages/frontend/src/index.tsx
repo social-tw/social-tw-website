@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import './styles/main.css'
 import Home from './pages/Home'
+import User from './contexts/User'
+
+export const userContext = React.createContext(User)
 
 export default function App() {
     return (

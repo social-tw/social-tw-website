@@ -29,13 +29,17 @@ class User {
         const id: string = localStorage.getItem('id') ?? ''
         this.signature = localStorage.getItem('signature') ?? ''
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
+
+        console.log(id)
+        console.log(this.signature)
+        console.log(this.hashUserId)
         
         if (!id && this.hashUserId?.length == 0 && this.signature?.length == 0) {
             console.error("HashUserId is wrong")
             return
         }
 
-        // TODO change hashUserId to signature
+        // TODO: change hashUserId to signature
         // const identity = new Identity(signature)
         const identity = new Identity(this.signature)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
@@ -59,6 +63,7 @@ class User {
         )
         await userState.sync.start()
         this.userState = userState
+        console.log(this.userState)
         await userState.waitForSync()
         // todo check here to modify
         this.hasSignedUp = await userState.hasSignedUp()
@@ -90,9 +95,12 @@ class User {
     }
 
     async signup() {
+        console.log(this.userState)
         if (!this.userState) throw new Error('user state not initialized')
 
         const signupProof = await this.userState.genUserSignUpProof()
+        console.log(signupProof)
+
         const data = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
             headers: {

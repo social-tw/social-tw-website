@@ -1,7 +1,10 @@
 import React from 'react'
 import AuthForm from '../components/login/AuthForm'
+import User from '../contexts/User'
 
 const Login: React.FC = () => {
+    const userContext = React.useContext(User)
+    
     return (
         <div
             data-theme="dark"

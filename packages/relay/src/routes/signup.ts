@@ -17,11 +17,15 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 where: { userId: hashUserId }
             })
             // to make sure user already login 
-            if (user == null)
+            if (user == null) {
                 res.status(500).json({ error: "Please login first" })
+                return
+            }
             // to avoid double apply
-            if (user.status != 0)
+            if (user.status != 0) {
                 res.status(500).json({ error: "Already registered" })
+                return
+            }
 
             const signupProof = new SignupProof(
                 publicSignals,
@@ -42,11 +46,13 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             console.log("before signup")
             // make a transaction lil bish
             const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
+            console.log("test1")
             // const contract =
             const calldata = appContract.interface.encodeFunctionData(
                 'userSignUp',
                 [signupProof.publicSignals, signupProof.proof]
             )
+            console.log("test2")
             const hash = await TransactionManager.queueTransaction(
                 APP_ADDRESS,
                 calldata
