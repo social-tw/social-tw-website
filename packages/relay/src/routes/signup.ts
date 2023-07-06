@@ -38,6 +38,8 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 res.status(400).json({ error: 'Wrong epoch' })
                 return
             }
+
+            console.log("before signup")
             // make a transaction lil bish
             const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
             // const contract =
@@ -50,8 +52,13 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 calldata
             )
 
-            // TODO once finish the transaction 
-            //  should update user status to final status in DB or SC
+            console.log("after signup")
+            await db.update('User', {
+                where: { userId: hashUserId }, 
+                update: { status: 1 }, // update to middle status 
+            })
+
+            // TODO need to update User status once txn has finished
 
             res.json({ hash })
         } catch (error) {
