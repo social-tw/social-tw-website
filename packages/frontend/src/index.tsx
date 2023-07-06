@@ -1,5 +1,7 @@
 // import './index.css'
 import './styles/main.css'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
@@ -7,6 +9,8 @@ import Header from './pages/Header'
 import PostCreate from './pages/PostCreate'
 import PostList from './pages/PostList'
 import Start from './pages/Start'
+
+dayjs.extend(relativeTime)
 
 export default function App() {
     return (
