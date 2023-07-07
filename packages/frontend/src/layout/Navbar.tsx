@@ -1,14 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import React, { useContext } from 'react'
 import { BsTwitter } from 'react-icons/bs'
 import { VscAccount } from 'react-icons/vsc'
 
 import Button from '../components/shared/Button'
 import TwitterLoginButton from '../components/shared/TwitterLoginButton'
 import { UserContext } from '../contexts/User'
-import React, { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
-
-
 
 const Navbar: React.FC = observer(() => {
     const userContext = useContext(UserContext)

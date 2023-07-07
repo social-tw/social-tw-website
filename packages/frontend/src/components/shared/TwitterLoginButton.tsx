@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { IconType } from "react-icons"
 import { ethers } from "ethers"
 import { User, UserContext } from "../../contexts/User"
+import { LoadingContext } from "../../contexts/Loading"
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -21,7 +22,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     const userContext = useContext(UserContext)
     // TODO: maybe can use useRef
     const [hashUserId, setHashUserId] = useState<string>('')
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const { isLoading, setIsLoading } = useContext(LoadingContext)
     const [isVerified, setIsVerified] = useState<boolean>(false)
 
     // TODO: use User.tx method
@@ -33,7 +34,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         })
 
         const data = await response.json()
-
+        setIsLoading(false)
         // Redirect the user to Twitter for authorization
         window.location.href = data.url
     }
@@ -45,12 +46,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
 
         if (hashUserId && !isVerified) {
             setHashUserId(hashUserId)
-            console.log(hashUserId)
-            // Connect to wallet and get signature
-            // TODO: generate the identity 
-            // call siginin function in user.ts
             localStorage.setItem('hashUserId', hashUserId)
-            // todo generate the identity
 
             // Check if MetaMask is installed
             if (!window.ethereum) {
@@ -61,7 +57,9 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
             window.ethereum
                 .request({ method: 'eth_requestAccounts' })
                 .then((accounts: string[]) => {
+                    setIsLoading(true)
                     const account = accounts[0]
+                    console.log(isLoading)
 
                     // Sign the message
                     window.ethereum
@@ -83,17 +81,17 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                         .then(async () => {
                             await userContext.signup()
                             setIsLoading(false)
-                            console.log(userContext.hasSignedUp)
-                            console.log("logged in")
                         })
                         .catch((error: any) => {
                             console.error('Error signing message:', error)
+                            setIsLoading(false)
                         })
                 })
                 .catch((error: any) => {
                     console.error('Error requesting account access:', error)
+                    setIsLoading(false)
                 })
-            setIsVerified(true)
+            setIsVerified(true)        
         }
     }, [hashUserId])
 

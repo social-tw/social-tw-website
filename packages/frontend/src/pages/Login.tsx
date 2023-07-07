@@ -6,7 +6,6 @@ const Login: React.FC = observer(() => {
 
     return (
         <div
-            data-theme="dark"
             className="flex h-full flex-col justify-center sm:px-6 lg-px-8"
         >
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
