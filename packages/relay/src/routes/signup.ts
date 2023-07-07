@@ -46,13 +46,11 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             console.log("before signup")
             // make a transaction lil bish
             const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
-            console.log("test1")
             // const contract =
             const calldata = appContract.interface.encodeFunctionData(
                 'userSignUp',
                 [signupProof.publicSignals, signupProof.proof]
             )
-            console.log("test2")
             const hash = await TransactionManager.queueTransaction(
                 APP_ADDRESS,
                 calldata

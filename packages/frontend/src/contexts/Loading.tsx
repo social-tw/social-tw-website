@@ -5,7 +5,7 @@ interface LoadingContextType {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-type LoadingProps = {
+interface LoadingProps {
   children: React.ReactNode; 
 };
 
@@ -14,12 +14,12 @@ const LoadingContext = createContext<LoadingContextType>({
   setIsLoading: () => {},
 })
 
-const LoadingProvider = (props: LoadingProps) => {
+const LoadingProvider = ({children}: LoadingProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
   return (
     <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
-      {props.children}
+      {children}
     </LoadingContext.Provider>
   )
 }

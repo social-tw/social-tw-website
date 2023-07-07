@@ -23,7 +23,6 @@ const Navbar: React.FC = observer(() => {
                 <VscAccount size={32} />
             ) : (
                 <div className="gap-4 sm:flex">
-                    <Button color={`bg-btn-login`} text={`註冊 / 登入`} />
                     <div>
                         <TwitterLoginButton icon={BsTwitter} />
                     </div>

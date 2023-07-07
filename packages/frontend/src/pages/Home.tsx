@@ -23,7 +23,7 @@ const Home = observer(() => {
     <div data-theme="dark" className='flex h-full flex-col justify-center'>
       <Navbar />
       <div className="h-full">
-        {isLoading ? <Loading /> : <Outlet />}
+        <Outlet />
       </div>
     </div>
   )
