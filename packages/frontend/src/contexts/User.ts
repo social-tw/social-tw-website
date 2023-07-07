@@ -22,19 +22,14 @@ class User {
     constructor() {
         makeAutoObservable(this)
     }
-    
+
     async load() {
 
         console.log("load .....")
-        const id: string = localStorage.getItem('id') ?? ''
         this.signature = localStorage.getItem('signature') ?? ''
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
-
-        console.log(id)
-        console.log(this.signature)
-        console.log(this.hashUserId)
         
-        if (!id && this.hashUserId?.length == 0 && this.signature?.length == 0) {
+        if (this.hashUserId?.length == 0 && this.signature?.length == 0) {
             console.error("HashUserId is wrong")
             return
         }
