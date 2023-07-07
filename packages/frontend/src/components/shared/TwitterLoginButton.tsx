@@ -1,50 +1,52 @@
-import React from 'react'
-import { useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
-import { useNavigate } from 'react-router-dom'
-import User from '../../contexts/User'
-import { ethers } from 'ethers'
+import React, { useContext } from "react"
+import { useEffect, useState } from "react"
+import { IconType } from "react-icons"
+import { ethers } from "ethers"
+import { User, UserContext } from "../../contexts/User"
+import { LoadingContext } from "../../contexts/Loading"
 
-// At the top of your TypeScript file
+interface TwitterLoginButtonProps {
+    icon: IconType
+}
+
 declare global {
     interface Window {
         ethereum: any
     }
 }
 
-interface TwitterLoginButtonProps {
-    icon: IconType
-}
-
 const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
     icon: Icon,
 }) => {
-    const userContext = React.useContext(User)
-    const navigate = useNavigate()
-    const [hashUserId, setHashUserId] = useState('')
+    // TODO: set up loading page when sign up
+    const userContext = useContext(UserContext)
+    // TODO: maybe can use useRef
+    const [hashUserId, setHashUserId] = useState<string>('')
+    const { isLoading, setIsLoading } = useContext(LoadingContext)
+    const [isVerified, setIsVerified] = useState<boolean>(false)
 
+    // TODO: use User.tx method
     const handleTwitterLogin = async () => {
+        setIsLoading(true)
         // Make a backend call to get the request token from Twitter
         const response = await fetch('http://localhost:8000/api/login', {
             method: 'GET',
         })
 
         const data = await response.json()
-
+        setIsLoading(false)
         // Redirect the user to Twitter for authorization
         window.location.href = data.url
     }
 
-    // once redirect back, the hashUserId will carry in the param of url
+    // once redirect back, the hashUserId will carry in the param of url 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const hashUserId = urlParams.get('code')
 
-        if (hashUserId) {
+        if (hashUserId && !isVerified) {
             setHashUserId(hashUserId)
-            // TODO not sure store in localstorage is proper
             localStorage.setItem('hashUserId', hashUserId)
-            // todo generate the identity
 
             // Check if MetaMask is installed
             if (!window.ethereum) {
@@ -55,7 +57,9 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
             window.ethereum
                 .request({ method: 'eth_requestAccounts' })
                 .then((accounts: string[]) => {
+                    setIsLoading(true)
                     const account = accounts[0]
+                    console.log(isLoading)
 
                     // Sign the message
                     window.ethereum
@@ -68,26 +72,34 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                                 account,
                             ],
                         })
-                        .then((signature: string) => {
+                        .then(async (signature: string) => {
                             console.log(`Signature: ${signature}`)
-                            // TODO not sure store in localstorage is proper
+                            // TODO: not sure store in localstorage is proper
                             localStorage.setItem('signature', signature)
-                            userContext.load()
+                            await userContext.load()
+                        })
+                        .then(async () => {
+                            await userContext.signup()
+                            setIsLoading(false)
                         })
                         .catch((error: any) => {
                             console.error('Error signing message:', error)
+                            setIsLoading(false)
                         })
                 })
                 .catch((error: any) => {
                     console.error('Error requesting account access:', error)
+                    setIsLoading(false)
                 })
+            setIsVerified(true)        
         }
-    }, [])
+    }, [hashUserId])
 
     return (
         <button
             type="button"
             onClick={() => handleTwitterLogin()}
+            disabled={isLoading}
             className="
         inline-flex
         w-full
