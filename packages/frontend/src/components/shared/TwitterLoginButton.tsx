@@ -38,7 +38,6 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
         window.location.href = data.url
     }
 
-    // TODO: fix dependency
     // once redirect back, the hashUserId will carry in the param of url 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)

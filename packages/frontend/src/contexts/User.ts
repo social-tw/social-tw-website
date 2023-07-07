@@ -22,11 +22,7 @@ class User {
     constructor() {
         makeAutoObservable(this)
     }
-
-    // toggleSignUpStatus() {
-    //     this.hasSignedUp = !this.hasSignedUp;
-    //   }
-
+    
     async load() {
 
         console.log("load .....")

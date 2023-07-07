@@ -1,16 +1,29 @@
 // App.tsx
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import Login from './pages/Login'
 import './styles/main.css'
 import Home from './pages/Home'
 import { User, UserContext } from './contexts/User'
+import { observer } from 'mobx-react-lite'
 
 const user = new User
 
-export default function App() {
+const App = observer(() =>{
+    
+    useEffect(() => {
+        const initUser = async () => {
+            try {
+                await user.load()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        initUser()
+    }, [user])
+
     return (
         <UserContext.Provider value={user}> 
             <BrowserRouter>
@@ -22,7 +35,9 @@ export default function App() {
             </BrowserRouter>
         </UserContext.Provider>
     )
-}
+})
+
+export default App
 
 const rootElement = document.getElementById('root')
 if (rootElement) {
