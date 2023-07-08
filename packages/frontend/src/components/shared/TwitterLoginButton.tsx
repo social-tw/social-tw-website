@@ -4,6 +4,7 @@ import { IconType } from "react-icons"
 import { ethers } from "ethers"
 import { User, UserContext } from "../../contexts/User"
 import { LoadingContext } from "../../contexts/Loading"
+import { toast } from "react-hot-toast"
 
 interface TwitterLoginButtonProps {
     icon: IconType
@@ -51,6 +52,7 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
             // Check if MetaMask is installed
             if (!window.ethereum) {
                 console.error('Please install MetaMask')
+                toast.error("請下載MetaMask錢包")
                 return
             }
             // Request account access
@@ -59,7 +61,6 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                 .then((accounts: string[]) => {
                     setIsLoading(true)
                     const account = accounts[0]
-                    console.log(isLoading)
 
                     // Sign the message
                     window.ethereum
@@ -73,22 +74,30 @@ const TwitterLoginButton: React.FC<TwitterLoginButtonProps> = ({
                             ],
                         })
                         .then(async (signature: string) => {
-                            console.log(`Signature: ${signature}`)
                             // TODO: not sure store in localstorage is proper
                             localStorage.setItem('signature', signature)
                             await userContext.load()
                         })
                         .then(async () => {
-                            await userContext.signup()
+                            await toast.promise(
+                                userContext.signup(),
+                                {
+                                  loading: '登錄中...', 
+                                  success: <b>錢包驗證成功!</b>, 
+                                  error: <b>錢包驗證失敗!</b>, 
+                                }
+                              )
                             setIsLoading(false)
                         })
                         .catch((error: any) => {
                             console.error('Error signing message:', error)
+                            toast.error("錢包驗證失敗")
                             setIsLoading(false)
                         })
                 })
                 .catch((error: any) => {
                     console.error('Error requesting account access:', error)
+                    toast.error("錢包連線失敗")
                     setIsLoading(false)
                 })
             setIsVerified(true)        

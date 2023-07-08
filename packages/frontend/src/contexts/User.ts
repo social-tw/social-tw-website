@@ -23,6 +23,8 @@ class User {
         makeAutoObservable(this)
     }
 
+    // TODO: if user has login with twitter but doesn't sign up with signature
+
     async load() {
 
         console.log("load .....")
