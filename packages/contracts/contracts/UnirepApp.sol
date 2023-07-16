@@ -27,6 +27,7 @@ contract UnirepApp {
     event Post(
         uint256 indexed epochKey,
         uint256 indexed postId,
+        uint256 indexed epoch,
         string content
     );
 
@@ -65,7 +66,7 @@ contract UnirepApp {
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
-        emit Post(signals.epochKey, postId, content);
+        emit Post(signals.epochKey, postId, signals.epoch, content);
     }
 
     function submitManyAttestations(
