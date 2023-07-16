@@ -20,6 +20,42 @@ const _schema = [
             ['nonce', 'Int'],
         ],
     },
+    {
+        name: 'Post',
+        rows: [
+            {
+                name: 'publishedAt',
+                type: 'Int',
+                default: () => +new Date(),
+            },
+            ['onChainId', 'String', { optional: true }],
+            ['transactionHash', 'String', { optional: true }],
+            ['content', 'String', { optional: true }],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            {
+                name: 'upCount',
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'downCount',
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'voteSum',
+                type: 'Int',
+                default: () => 0,
+            },
+            ['status', 'Int'],
+            {
+                name: 'commentCount',
+                type: 'Int',
+                default: () => 0,
+            },
+        ],
+    },
 ]
 
 export default _schema
