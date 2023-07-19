@@ -52,7 +52,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
 
         const epochKey = BigInt(event.topics[1]).toString(10)
-        const onChainId = BigInt(event.topics[2]).toString()
+        const postId = BigInt(event.topics[2]).toString()
         const epoch = Number(event.topics[3])
         const hashedContent = decodedData.contentHash
 
@@ -64,13 +64,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 },
                 update: {
                     status: 1,
-                    onChainId,
+                    postId,
                 },
             })
         } else {
             db.create('Post', {
                 hashedContent,
-                onChainId,
+                postId,
                 epochKey,
                 epoch,
                 transactionHash,

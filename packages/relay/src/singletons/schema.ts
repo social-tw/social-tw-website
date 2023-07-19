@@ -28,7 +28,7 @@ const _schema = [
                 type: 'Int',
                 default: () => +new Date(),
             },
-            ['onChainId', 'String', { optional: true }],
+            ['postId', 'String', { optional: true }],
             ['transactionHash', 'String', { optional: true }],
             ['content', 'String', { optional: true }],
             ['epoch', 'Int'],
