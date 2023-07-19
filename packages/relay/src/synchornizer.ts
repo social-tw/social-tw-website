@@ -54,7 +54,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epochKey = BigInt(event.topics[1]).toString(10)
         const postId = BigInt(event.topics[2]).toString()
         const epoch = Number(event.topics[3])
-        const hashedContent = decodedData.contentHash
+        const content = decodedData.content
 
         db.upsert('Post', {
             where: {
@@ -66,6 +66,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 epoch,
                 transactionHash,
                 status: 1,
+                content,
             },
             update: {
                 status: 1,
