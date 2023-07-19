@@ -56,26 +56,21 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(event.topics[3])
         const hashedContent = decodedData.contentHash
 
-        if (findPost) {
-            db.update('Post', {
-                where: {
-                    _id: findPost._id,
-                    hashedContent,
-                },
-                update: {
-                    status: 1,
-                    postId,
-                },
-            })
-        } else {
-            db.create('Post', {
-                hashedContent,
+        db.upsert('Post', {
+            where: {
+                _id: findPost._id,
+            },
+            create: {
                 postId,
                 epochKey,
                 epoch,
                 transactionHash,
                 status: 1,
-            })
-        }
+            },
+            update: {
+                status: 1,
+                postId,
+            },
+        })
     }
 }
