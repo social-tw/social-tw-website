@@ -28,18 +28,10 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
 async function fetchPosts(req, res, db: DB) {
     try {
-        console.log('check')
-        const post = await db.findMany('Post', {
-            where: {},
-        })
-        console.log(post)
-        res.json(post)
-        return
-
         if (req.query.query === undefined) {
             const posts = await db.findMany('Post', {
                 where: {
-                    status: 0,
+                    status: 1,
                 },
             })
             res.json(posts)
