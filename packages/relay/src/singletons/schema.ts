@@ -31,7 +31,6 @@ const _schema = [
             ['postId', 'String', { optional: true }],
             ['transactionHash', 'String', { optional: true }],
             ['content', 'String', { optional: true }],
-            ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
             {

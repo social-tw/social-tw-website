@@ -7,7 +7,6 @@ import { Synchronizer } from '@unirep/core'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
-import {dynamicImport} from 'tsimportlib';
 
 export const LOAD_POST_COUNT = 10
 
@@ -76,7 +75,6 @@ async function createPost(req, res, db: DB, synchronizer: Synchronizer) {
 
         // post content
         let calldata: any
-        let cid: any
         if (content) {
             // if the content is not empty, post the content
             calldata = appContract.interface.encodeFunctionData('post', [
@@ -84,18 +82,6 @@ async function createPost(req, res, db: DB, synchronizer: Synchronizer) {
                 epochKeyProof.proof,
                 content,
             ])
-
-            // dynamic import ipfs client
-            const { create} = await dynamicImport('kubo-rpc-client', module) as typeof import('kubo-rpc-client');
-            // Create ipfs client to connect to kubo ipfs node
-            const client = await create();
-            const IPFSContent = {
-                content: content
-            }
-            const file = await client.add(JSON.stringify(IPFSContent))
-            cid = file.cid.toString()
-
-
         }
 
         const hash = await TransactionManager.queueTransaction(
@@ -105,7 +91,6 @@ async function createPost(req, res, db: DB, synchronizer: Synchronizer) {
 
         const post = await db.create('Post', {
             content,
-            cid,
             epochKey: epochKeyProof.epochKey,
             epoch: epoch,
             transactionHash: hash,
