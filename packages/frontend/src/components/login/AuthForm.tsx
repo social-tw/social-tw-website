@@ -82,7 +82,7 @@ const AuthForm: React.FC = () => {
 
     return (
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <div className="flex justify-center px-4 py-8 shadow sm:rounded-lg sm:px-10">
+            <div className="flex justify-center py-8">
                 <LoginButton
                     isLoading={isLoading}
                     icon={BsTwitter}
