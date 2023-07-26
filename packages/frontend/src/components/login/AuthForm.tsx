@@ -32,7 +32,7 @@ const AuthForm: React.FC = () => {
         setIsLoading(false);
         window.location.href = data.url;
     }
-    
+
     const signUp = async (hashUserId: string) => {
         if (!window.ethereum) {
             toast.error('請下載MetaMask錢包');
@@ -42,42 +42,43 @@ const AuthForm: React.FC = () => {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             setIsLoading(true);
             const account = accounts[0];
-            
+
             const signature = await window.ethereum.request({
                 method: 'personal_sign',
                 params: [
                     ethers.utils.hexlify(
                         ethers.utils.toUtf8Bytes(hashUserId)
-                        ),
-                        account,
-                    ],
-                });
-                
-                localStorage.setItem('signature', signature);
-                await userContext.load();
-                
-                await toast.promise(
-                    userContext.signup(),
-                    {
+                    ),
+                    account,
+                ],
+            });
+
+            localStorage.setItem('signature', signature);
+            await userContext.load();
+
+            await toast.promise(
+                userContext.signup(),
+                {
                     loading: '登錄中...',
                     success: <b>錢包驗證成功!</b>,
                     error: <b>錢包驗證失敗!</b>,
                 }
-                );
-                setIsLoading(false);
-            } catch (error) {
-                console.error(error);
-                toast.error('錢包驗證失敗');
-                setIsLoading(false);
-            }
-        };
+            );
+            setIsLoading(false);
+        } catch (error) {
+            console.error(error);
+            toast.error('錢包驗證失敗');
+            setIsLoading(false);
+        }
+    };
 
-        useEffect(() => {
-            const hashUserId = code;
-            if (hashUserId && !isVerified) {
-                signUp(hashUserId);
-            }
-            setIsVerified(true);
+    useEffect(() => {
+        const hashUserId = code;
+        if (hashUserId && !isVerified) {
+            localStorage.setItem('hashUserId', hashUserId)
+            signUp(hashUserId);
+        }
+        setIsVerified(true);
     }, []);
 
     return (
