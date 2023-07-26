@@ -1,23 +1,24 @@
 import React, { useContext, useEffect } from 'react'
-import Navbar from '../layout/Navbar'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { User, UserContext } from '../contexts/User'
+import Navbar from '../layouts/Navbar'
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
+import { UserContext } from '../contexts/User'
 import { observer } from 'mobx-react-lite'
-import { LoadingContext } from '../contexts/Loading'
-import Loading from '../layout/Loading'
 
 const Home = observer(() => {
   const userContext = useContext(UserContext)
-  const { isLoading, setIsLoading } = useContext(LoadingContext)
+  const [searchParams] = useSearchParams()
+  const code = searchParams.get('code')
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!userContext.hasSignedUp) {
+    if (!userContext.hasSignedUp && code) {
+      navigate(`/login?code=${code}`)
+    } else if (!userContext.hasSignedUp && !code) {
       navigate('/login')
     } else {
       navigate('/')
     }
-  }, [userContext.hasSignedUp, navigate])
+  }, [userContext.hasSignedUp, navigate, code])
 
   return (
     <div data-theme="dark" className='flex h-full flex-col justify-center'>

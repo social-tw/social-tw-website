@@ -5,7 +5,7 @@ import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { DataProof } from '@unirep-app/circuits'
 import { SERVER } from '../config'
-import prover from './prover'
+import prover from './Prover'
 import { ethers } from 'ethers'
 
 class User {
