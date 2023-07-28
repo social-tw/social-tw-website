@@ -1,11 +1,9 @@
-import React, { useContext } from 'react'
-import { BsTwitter } from 'react-icons/bs'
-import { VscAccount } from 'react-icons/vsc'
-
-import Button from '../components/shared/Button'
+import React, {useContext} from 'react'
+import {BsTwitter} from 'react-icons/bs'
 import TwitterLoginButton from '../components/shared/TwitterLoginButton'
-import { UserContext } from '../contexts/User'
-import { observer } from 'mobx-react-lite'
+import {UserContext} from '../contexts/User'
+import {observer} from 'mobx-react-lite'
+import UserDropdown from "../components/user/UserDropdown";
 
 const Navbar: React.FC = observer(() => {
     const userContext = useContext(UserContext)
@@ -20,11 +18,11 @@ const Navbar: React.FC = observer(() => {
                 <a className="text-xl font-bold">Unirep Social TW</a>
             </div>
             {userContext.hasSignedUp ? (
-                <VscAccount size={32} />
+                <UserDropdown/>
             ) : (
                 <div className="gap-4 sm:flex">
                     <div>
-                        <TwitterLoginButton icon={BsTwitter} />
+                        <TwitterLoginButton icon={BsTwitter}/>
                     </div>
                 </div>
             )}
