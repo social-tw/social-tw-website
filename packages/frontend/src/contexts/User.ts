@@ -1,12 +1,12 @@
-import {createContext} from 'react'
-import {makeAutoObservable} from 'mobx'
-import {stringifyBigInts} from '@unirep/utils'
-import {Identity} from '@semaphore-protocol/identity'
-import {UserState} from '@unirep/core'
-import {DataProof} from '@unirep-app/circuits'
-import {SERVER} from '../config'
-import prover from './prover'
-import {ethers} from 'ethers'
+import { createContext } from 'react'
+import { makeAutoObservable } from 'mobx'
+import { stringifyBigInts } from '@unirep/utils'
+import { Identity } from '@semaphore-protocol/identity'
+import { UserState } from '@unirep/core'
+import { DataProof } from '@unirep-app/circuits'
+import { SERVER } from '../config'
+import prover from './Prover'
+import { ethers } from 'ethers'
 
 class User {
     currentEpoch: number = 0

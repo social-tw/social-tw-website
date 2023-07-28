@@ -8,7 +8,6 @@ import './styles/main.css'
 import Home from './pages/Home'
 import { User, UserContext } from './contexts/User'
 import { observer } from 'mobx-react-lite'
-import { LoadingProvider } from './contexts/Loading'
 import ToasterContext from './contexts/ToasterContext'
 
 const user = new User
@@ -28,16 +27,14 @@ const App = observer(() => {
 
     return (
         <UserContext.Provider value={user}>
-            <LoadingProvider>
-                <ToasterContext />
-                <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<Home />}>
-                            <Route path="/login" element={<Login />} />
-                        </Route>
-                    </Routes>
-                </BrowserRouter>
-            </LoadingProvider>
+            <ToasterContext />
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Home />}>
+                        <Route path="/login" element={<Login />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
         </UserContext.Provider>
     )
 })
