@@ -12,11 +12,6 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
         try {
             const { publicSignals, proof, hashUserId } = req.body
             
-            // todo change to use sc or circuit
-            const user = await db.findOne('User', {
-                where: { userId: hashUserId }
-            })
-            
             const signupProof = new SignupProof(
                 publicSignals,
                 proof,
@@ -33,7 +28,6 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 return
             }
 
-            // userSignUp to unirepApp contract
             const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
             const calldata = appContract.interface.encodeFunctionData(
                 'userSignUp',
@@ -57,12 +51,6 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             }
             console.log(parsedLogs)
 
-            // to make sure user already login 
-            if (user == null)
-                res.status(500).json({ error: "Please login first" })
-            // to avoid double apply
-            if (user.status != 0)
-                res.status(500).json({ error: "Already registered" })
 
             res.status(200).json({ status: "success" })
         } catch (error) {

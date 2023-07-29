@@ -1,26 +1,45 @@
-import React from 'react'
+// App.tsx
+
+import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from "./pages/Navbar";
-import Landing from './pages/Landing'
-import Start from './pages/Start'
-import Dashboard from './pages/Dashboard'
-import './index.css'
+import Login from './pages/Login'
+import './styles/main.css'
+import Home from './pages/Home'
+import { User, UserContext } from './contexts/User'
+import { observer } from 'mobx-react-lite'
+import ToasterContext from './contexts/ToasterContext'
 
-export default function App() {
-    console.log(process.env)
+const user = new User
+
+const App = observer(() => {
+
+    useEffect(() => {
+        const initUser = async () => {
+            try {
+                await user.load()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        initUser()
+    }, [user])
+
     return (
-        <BrowserRouter>
-            <Navbar />
-            <div style={{ marginTop: '4rem' }}>
+        <UserContext.Provider value={user}>
+            <ToasterContext />
+            <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="/" element={<Home />}>
+                        <Route path="/login" element={<Login />} />
+                    </Route>
                 </Routes>
-            </div>
-        </BrowserRouter>
+            </BrowserRouter>
+        </UserContext.Provider>
     )
-}
+})
+
+export default App
 
 const rootElement = document.getElementById('root')
 if (rootElement) {

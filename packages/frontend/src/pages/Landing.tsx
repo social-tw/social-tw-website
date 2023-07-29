@@ -1,10 +1,10 @@
 import {observer} from "mobx-react-lite";
 import React from "react";
-import User from "../contexts/User";
+import { User, UserContext } from "../contexts/User";
 import Text from "../components/shared/Text";
 import PostList from "../components/Postlist";
 export default observer(() => {
-    const userContext = React.useContext(User)
+    const userContext = React.useContext(UserContext)
 
     const posts = [
         {

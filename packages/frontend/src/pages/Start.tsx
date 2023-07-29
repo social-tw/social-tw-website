@@ -5,10 +5,10 @@ import './start.css'
 import Tooltip from '../components/Tooltip'
 import Button from '../components/Button'
 
-import User from '../contexts/User'
+import { User, UserContext } from '../contexts/User'
 
 export default observer(() => {
-    const userContext = React.useContext(User)
+    const userContext = React.useContext(UserContext)
 
     // if (!userContext.userState) {
     //     return (

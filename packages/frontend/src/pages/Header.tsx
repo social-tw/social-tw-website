@@ -6,6 +6,7 @@ export default () => {
     return (
         <>
             <div className="header">
+                <h1 className="text-3xl font-bold underline">Hello world!</h1>
                 <img src={require('../../public/logo.svg')} alt="UniRep logo" />
                 <div className="links">
                     <a href="https://developer.unirep.io/" target="blank">
@@ -22,7 +23,6 @@ export default () => {
                     </a>
                 </div>
             </div>
-
             <Outlet />
         </>
     )

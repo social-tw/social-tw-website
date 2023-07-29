@@ -5,7 +5,7 @@ import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { DataProof } from '@unirep-app/circuits'
 import { SERVER } from '../config'
-import prover from './prover'
+import prover from './Prover'
 import { ethers } from 'ethers'
 
 class User {
@@ -16,19 +16,29 @@ class User {
     provableData: bigint[] = []
     userState?: UserState
     provider: any
+    signature: string = '' // TODO not sure how to setup inital data
+    hashUserId: string = '' // TODO not sure how to setup inital data
 
     constructor() {
         makeAutoObservable(this)
-        this.load()
     }
 
+    // TODO: if user has login with twitter but doesn't sign up with signature
+
     async load() {
-        const id: string = localStorage.getItem('id') ?? ''
-        const identity = new Identity(id)
-        if (!id) {
-            localStorage.setItem('id', identity.toString())
+
+        console.log("load .....")
+        this.signature = localStorage.getItem('signature') ?? ''
+        this.hashUserId = localStorage.getItem('hashUserId') ?? ''
+        
+        if (this.hashUserId?.length == 0 && this.signature?.length == 0) {
+            console.error("HashUserId is wrong")
+            return
         }
 
+        // TODO: change hashUserId to signature
+        // const identity = new Identity(signature)
+        const identity = new Identity(this.signature)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
             `${SERVER}/api/config`
         ).then((r) => r.json())
@@ -37,7 +47,7 @@ class User {
             ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
-
+ 
         const userState = new UserState(
             {
                 provider,
@@ -50,7 +60,9 @@ class User {
         )
         await userState.sync.start()
         this.userState = userState
+        console.log(this.userState)
         await userState.waitForSync()
+        // todo check here to modify
         this.hasSignedUp = await userState.hasSignedUp()
         await this.loadData()
         this.latestTransitionedEpoch =
@@ -80,9 +92,12 @@ class User {
     }
 
     async signup() {
+        console.log(this.userState)
         if (!this.userState) throw new Error('user state not initialized')
 
         const signupProof = await this.userState.genUserSignUpProof()
+        console.log(signupProof)
+
         const data = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
             headers: {
@@ -91,8 +106,13 @@ class User {
             body: JSON.stringify({
                 publicSignals: signupProof.publicSignals,
                 proof: signupProof.proof,
+                hashUserId: this.hashUserId,
             }),
         }).then((r) => r.json())
+
+        console.log(data)
+
+        // TODO: handle error
         await this.provider.waitForTransaction(data.hash)
         await this.userState.waitForSync()
         this.hasSignedUp = await this.userState.hasSignedUp()
@@ -193,4 +213,8 @@ class User {
     }
 }
 
-export default createContext(new User())
+const defaultValue = new User()
+
+const UserContext = createContext<User>(defaultValue)
+
+export { User, UserContext };
