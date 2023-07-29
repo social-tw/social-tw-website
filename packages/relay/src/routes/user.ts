@@ -2,6 +2,7 @@ import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
+import UserRegisterState from '../singletons/UserRegisterState'
 import TwitterClient from '../singletons/TwitterClient'
 import { CLIENT_URL } from '../config'
 
@@ -38,7 +39,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         where: { userId: hashUserId }
                     })
                     if (!user) {
-                        db.create('User', { userId: hashUserId, status: 0 })
+                        db.create('User', { userId: hashUserId, status: UserRegisterState.NOT_REGISTER })
                     }
 
                     res.redirect(`${CLIENT_URL}?code=${hashUserId}`)

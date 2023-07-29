@@ -3,11 +3,26 @@ import { ethers } from 'ethers'
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
-import { APP_ADDRESS } from '../config'
+import { provider, PRIVATE_KEY, APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+
+    // get identity from backend
+    app.get('/api/get_identity', async (req, res) => {
+        const { hashUserId } = req.body
+
+        const wallet = new ethers.Wallet(PRIVATE_KEY, provider)
+        const identity = await wallet.signMessage(hashUserId)
+
+        res.json({'identity': identity})
+    })
+
+    // app.post('/api/signup_without_wallet', async (req, res) => {
+    //     
+    // })
+
     app.post('/api/signup', async (req, res) => {
         try {
             const { publicSignals, proof, hashUserId } = req.body
