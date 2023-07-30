@@ -2,12 +2,10 @@ import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
-import UserRegisterState from '../singletons/UserRegisterState'
 import TwitterClient from '../singletons/TwitterClient'
 import { APP_ADDRESS, CLIENT_URL } from '../config'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
 import TransactionManager from '../singletons/TransactionManager'
-import { BigNumber, ethers } from 'ethers'
 
 const STATE = "state"
 const code_challenge = crypto.randomUUID()
@@ -50,12 +48,13 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         if (resultStatus) {
                             statusCode = resultStatus
                         }
-                    } else if (parseInt(statusCode) <= UserRegisterStatus.REGISTERER) {
-                        res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(hashUserId)}`)
-                    } else if (parseInt(statusCode) <= UserRegisterStatus.REGISTERER_SERVER) {
-                        // generate semaphore identity
+                    } else if (parseInt(statusCode) == UserRegisterStatus.REGISTERER) {
+                        res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}`)
+                    } else if (parseInt(statusCode) == UserRegisterStatus.REGISTERER_SERVER) {
+                        const wallet = TransactionManager.wallet!!
+                        const signMsg = await wallet.signMessage(hashUserId)
+                        res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}&signMsg=${signMsg}`)
                     }
-
                 })
                 .catch(err => () => {
                     console.error(err)
