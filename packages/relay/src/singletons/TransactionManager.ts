@@ -109,7 +109,8 @@ export class TransactionManager {
         return latest.nonce
     }
 
-    async wait(hash: string) {
+    async executeTransaction(to: string, data: string | any = {}) {
+        const hash = await this.queueTransaction(to, data)
         return this.wallet?.provider.waitForTransaction(hash)
     }
 

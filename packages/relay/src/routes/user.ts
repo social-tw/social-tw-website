@@ -45,6 +45,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         )
                         // TODO check the result
                         await TransactionManager.executeTransaction(APP_ADDRESS, calldata);
+                        statusCode = UserRegisterStatus.INIT;
                     }
 
                     res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}`)
