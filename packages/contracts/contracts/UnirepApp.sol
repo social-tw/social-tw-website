@@ -53,7 +53,7 @@ contract UnirepApp {
     // for query current user status
     function queryUserStatus(uint256 hashUserId) view external returns (uint16) {
         // TODO this checking is required?
-        if (uint256(uint160(msg.sender)) != attesterId) {
+        if (uint160(msg.sender) != attesterId) {
             revert AttesterIdNotMatch(uint160(msg.sender));
         }
 
@@ -62,7 +62,7 @@ contract UnirepApp {
 
     // for init the user status after login
     function initUserStatus(uint256 hashUserId) external {
-        if (uint256(uint160(msg.sender)) != attesterId) {
+        if (uint160(msg.sender) != attesterId) {
             revert AttesterIdNotMatch(uint160(msg.sender));
         }
 

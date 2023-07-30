@@ -7,6 +7,7 @@ import TwitterClient from '../singletons/TwitterClient'
 import { APP_ADDRESS, CLIENT_URL } from '../config'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
 import TransactionManager from '../singletons/TransactionManager'
+import { BigNumber, ethers } from 'ethers'
 
 const STATE = "state"
 const code_challenge = crypto.randomUUID()
@@ -32,7 +33,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
-                    const hashUserId = hash.update(userId).digest('hex')
+                    const hashUserId = `"0x"${hash.update(userId).digest("hex")}`
                     const appContract = TransactionManager.appContract!!
 
                     // query from contract
@@ -40,7 +41,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
                     // if status is NOT_REGISTER or INIT then init user status
                     if (parseInt(statusCode) <= UserRegisterStatus.INIT) {
-                        const calldata = await appContract.interface.encodeFunctionData(
+                        const calldata = appContract.interface.encodeFunctionData(
                             'initUserStatus', [hashUserId]
                         )
                         const parsedLogs = await TransactionManager.executeTransaction(appContract, APP_ADDRESS, calldata);
@@ -51,7 +52,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         }
                     }
 
-                    res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}`)
+                    res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(hashUserId)}`)
                 })
                 .catch(err => () => {
                     console.error(err)
