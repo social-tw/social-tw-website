@@ -50,9 +50,12 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         if (resultStatus) {
                             statusCode = resultStatus
                         }
+                    } else if (parseInt(statusCode) <= UserRegisterStatus.REGISTERER) {
+                        res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(hashUserId)}`)
+                    } else if (parseInt(statusCode) <= UserRegisterStatus.REGISTERER_SERVER) {
+                        // generate semaphore identity
                     }
 
-                    res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(hashUserId)}`)
                 })
                 .catch(err => () => {
                     console.error(err)

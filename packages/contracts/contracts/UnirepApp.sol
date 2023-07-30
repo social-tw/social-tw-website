@@ -17,23 +17,25 @@ contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
 
-    uint16 public constant NOT_REGISTER = 0;
-    uint16 public constant INIT = 1;
-    uint16 public constant REGISTERED = 2;
-    uint16 public constant REGISTERED_SERVER = 3;
+    enum RegisterStatus {
+        NOT_REGISTER,
+        INIT,
+        REGISTERED,
+        REGISTERED_SERVER
+    }
     
     uint256 initTimeRange = 300000; // default is 5 min
     uint160 attesterId;
 
     // store all users
-    mapping(uint256 => uint16) userRegistry;
+    mapping(uint256 => RegisterStatus) userRegistry;
     mapping(uint256 => uint256) userInitExpiryMap;
     
     event UserSignUpSuccess(uint256 hashUserId);
     event UserInitSuccess(uint256 hashUserId);
 
     // error 
-    error UserAlreadySignedUp(uint256 hashUserId, uint16 status);
+    error UserAlreadySignedUp(uint256 hashUserId, RegisterStatus status);
     error AttesterIdNotMatch(uint160 attesterId);
     error UserInitStatusInvalid(uint256 hashUserId);
     error UserInitExpiry(uint256 hashUserId);
@@ -51,7 +53,7 @@ contract UnirepApp {
     }
 
     // for query current user status
-    function queryUserStatus(uint256 hashUserId) view external returns (uint16) {
+    function queryUserStatus(uint256 hashUserId) view external returns (RegisterStatus) {
         // TODO this checking is required?
         if (uint160(msg.sender) != attesterId) {
             revert AttesterIdNotMatch(uint160(msg.sender));
@@ -66,12 +68,12 @@ contract UnirepApp {
             revert AttesterIdNotMatch(uint160(msg.sender));
         }
 
-        if (userRegistry[hashUserId] > INIT) {
+        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
             revert UserInitStatusInvalid(hashUserId);
         }
         
         userInitExpiryMap[hashUserId] = block.timestamp + initTimeRange;
-        userRegistry[hashUserId] = INIT;
+        userRegistry[hashUserId] = RegisterStatus.INIT;
         emit UserInitSuccess(hashUserId);
     }
 
@@ -79,13 +81,14 @@ contract UnirepApp {
     function userSignUp(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
-        uint256 hashUserId
+        uint256 hashUserId,
+        bool fromServer
     ) public {
-        if (userRegistry[hashUserId] > INIT) {
+        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
             revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
         }
 
-        if (userRegistry[hashUserId] != INIT) {
+        if (userRegistry[hashUserId] != RegisterStatus.INIT) {
             revert UserInitStatusInvalid(hashUserId);
         }
 
@@ -95,7 +98,11 @@ contract UnirepApp {
             revert UserInitExpiry(hashUserId);
         }
 
-        userRegistry[hashUserId] = REGISTERED;
+        if (fromServer) {
+            userRegistry[hashUserId] = RegisterStatus.REGISTERED_SERVER;
+        } else {
+            userRegistry[hashUserId] = RegisterStatus.REGISTERED;
+        }
         unirep.userSignUp(publicSignals, proof);
         emit UserSignUpSuccess(hashUserId);
     }

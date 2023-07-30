@@ -8,11 +8,12 @@ const Home = observer(() => {
   const userContext = useContext(UserContext)
   const [searchParams] = useSearchParams()
   const code = searchParams.get('code')
+  const status = searchParams.get('status')
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!userContext.hasSignedUp && code) {
-      navigate(`/login?code=${code}`)
+      navigate(`/login?code=${code}&status=${status}`)
     } else if (!userContext.hasSignedUp && !code) {
       navigate('/login')
     } else {
