@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { UserContext } from '../../contexts/User';
 import { ethers } from 'ethers';
+import { SERVER } from '../../config';
 
 declare global {
     interface Window {
@@ -24,7 +25,7 @@ const AuthForm: React.FC = () => {
 
     const handleTwitterLogin = async () => {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8000/api/login', {
+        const response = await fetch(`${SERVER}/api/login`, {
             method: 'GET',
         });
 
