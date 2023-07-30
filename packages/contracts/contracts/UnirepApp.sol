@@ -30,6 +30,7 @@ contract UnirepApp {
     mapping(uint256 => uint256) userInitExpiryMap;
     
     event UserSignUpSuccess(uint256 hashUserId);
+    event UserInitSuccess(uint256 hashUserId);
 
     // error 
     error UserAlreadySignedUp(uint256 hashUserId, uint16 status);
@@ -60,7 +61,7 @@ contract UnirepApp {
     }
 
     // for init the user status after login
-    function initUserStatus(uint256 hashUserId) external returns (uint16) {
+    function initUserStatus(uint256 hashUserId) external {
         if (uint256(uint160(msg.sender)) != attesterId) {
             revert AttesterIdNotMatch(uint160(msg.sender));
         }
@@ -71,7 +72,7 @@ contract UnirepApp {
         
         userInitExpiryMap[hashUserId] = block.timestamp + initTimeRange;
         userRegistry[hashUserId] = INIT;
-        return userRegistry[hashUserId];
+        emit UserInitSuccess(hashUserId);
     }
 
     // sign up users in this app

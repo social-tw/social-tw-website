@@ -17,7 +17,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             state: STATE,
             code_challenge,
         })
-        res.status(200).json({url: url})
+        res.status(200).json({ url: url })
     })
 
     app.get('/api/user', async (req, res) => {
@@ -37,15 +37,18 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
                     // query from contract
                     var statusCode = await appContract.queryUserStatus(hashUserId)
-                    
+
                     // if status is NOT_REGISTER or INIT then init user status
                     if (parseInt(statusCode) <= UserRegisterStatus.INIT) {
                         const calldata = await appContract.interface.encodeFunctionData(
                             'initUserStatus', [hashUserId]
                         )
-                        // TODO check the result
-                        await TransactionManager.executeTransaction(APP_ADDRESS, calldata);
-                        statusCode = UserRegisterStatus.INIT;
+                        const parsedLogs = await TransactionManager.executeTransaction(appContract, APP_ADDRESS, calldata);
+                        console.log(parsedLogs)
+                        const resultStatus = parseInt(parsedLogs[0]?.args[0])
+                        if (resultStatus) {
+                            statusCode = resultStatus
+                        }
                     }
 
                     res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}`)
