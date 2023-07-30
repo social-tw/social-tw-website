@@ -16,12 +16,26 @@ interface IVerifier {
 contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
+
+    uint16 public constant NOT_REGISTER = 0;
+    uint16 public constant INIT = 1;
+    uint16 public constant REGISTERED = 2;
+    uint16 public constant REGISTERED_SERVER = 3;
     
+    uint256 initTimeRange = 300000; // default is 5 min
+    uint160 attesterId;
+
     // store all users
-    mapping(uint256 => bool) userRegistry;
+    mapping(uint256 => uint16) userRegistry;
+    mapping(uint256 => uint256) userInitExpiryMap;
     
     event UserSignUpSuccess(uint256 hashUserId);
-    event UserAlreadySignedUp(uint256 hashUserId);
+
+    // error 
+    error UserAlreadySignedUp(uint256 hashUserId, uint16 status);
+    error AttesterIdNotMatch(uint160 attesterId);
+    error UserInitStatusInvalid(uint256 hashUserId);
+    error UserInitExpiry(uint256 hashUserId);
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -31,7 +45,33 @@ contract UnirepApp {
         dataVerifier = _dataVerifier;
 
         // sign up as an attester
+        attesterId = uint160(msg.sender);
         unirep.attesterSignUp(_epochLength);
+    }
+
+    // for query current user status
+    function queryUserStatus(uint256 hashUserId) view external returns (uint16) {
+        // TODO this checking is required?
+        if (uint256(uint160(msg.sender)) != attesterId) {
+            revert AttesterIdNotMatch(uint160(msg.sender));
+        }
+
+        return userRegistry[hashUserId];
+    }
+
+    // for init the user status after login
+    function initUserStatus(uint256 hashUserId) external returns (uint16) {
+        if (uint256(uint160(msg.sender)) != attesterId) {
+            revert AttesterIdNotMatch(uint160(msg.sender));
+        }
+
+        if (userRegistry[hashUserId] > INIT) {
+            revert UserInitStatusInvalid(hashUserId);
+        }
+        
+        userInitExpiryMap[hashUserId] = block.timestamp + initTimeRange;
+        userRegistry[hashUserId] = INIT;
+        return userRegistry[hashUserId];
     }
 
     // sign up users in this app
@@ -40,14 +80,23 @@ contract UnirepApp {
         uint256[8] memory proof,
         uint256 hashUserId
     ) public {
-        if (userRegistry[hashUserId]) {
-            emit UserAlreadySignedUp(hashUserId);
+        if (userRegistry[hashUserId] > INIT) {
+            revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
         }
-        else {
-            userRegistry[hashUserId] = true;
-            unirep.userSignUp(publicSignals, proof);
-            emit UserSignUpSuccess(hashUserId);
+
+        if (userRegistry[hashUserId] != INIT) {
+            revert UserInitStatusInvalid(hashUserId);
         }
+
+        // revert when init is expiry 
+        if (userInitExpiryMap[hashUserId] > 0 
+            && userInitExpiryMap[hashUserId] < block.timestamp) {
+            revert UserInitExpiry(hashUserId);
+        }
+
+        userRegistry[hashUserId] = REGISTERED;
+        unirep.userSignUp(publicSignals, proof);
+        emit UserSignUpSuccess(hashUserId);
     }
 
     function submitManyAttestations(

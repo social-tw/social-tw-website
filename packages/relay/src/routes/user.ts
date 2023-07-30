@@ -4,7 +4,9 @@ import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
 import UserRegisterState from '../singletons/UserRegisterState'
 import TwitterClient from '../singletons/TwitterClient'
-import { CLIENT_URL } from '../config'
+import { APP_ADDRESS, CLIENT_URL } from '../config'
+import { UserRegisterStatus } from '../enums/userRegisterStatus'
+import TransactionManager from '../singletons/TransactionManager'
 
 const STATE = "state"
 const code_challenge = crypto.randomUUID()
@@ -28,21 +30,24 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 .then(_ => TwitterClient.client.users.findMyUser())
                 .then(async userInfo => {
 
-                    // todo check hash function require?
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
                     const hashUserId = hash.update(userId).digest('hex')
+                    const appContract = TransactionManager.appContract!!
 
-                    // todo change to use sc below
-                    // check user already signup, if not yet, then record it with status
-                    const user = await db.findOne('User', {
-                        where: { userId: hashUserId }
-                    })
-                    if (!user) {
-                        db.create('User', { userId: hashUserId, status: UserRegisterState.NOT_REGISTER })
+                    // query from contract
+                    var statusCode = await appContract.queryUserStatus(hashUserId)
+                    
+                    // if status is NOT_REGISTER or INIT then init user status
+                    if (parseInt(statusCode) <= UserRegisterStatus.INIT) {
+                        const calldata = await appContract.interface.encodeFunctionData(
+                            'initUserStatus', [hashUserId]
+                        )
+                        // TODO check the result
+                        await TransactionManager.executeTransaction(APP_ADDRESS, calldata);
                     }
 
-                    res.redirect(`${CLIENT_URL}?code=${hashUserId}`)
+                    res.redirect(`${CLIENT_URL}?code=${hashUserId}&status=${parseInt(statusCode)}`)
                 })
                 .catch(err => () => {
                     console.error(err)

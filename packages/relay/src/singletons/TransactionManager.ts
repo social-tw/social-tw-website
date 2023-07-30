@@ -1,13 +1,18 @@
-import { ethers } from 'ethers'
+import { Contract, ethers } from 'ethers'
 import { DB } from 'anondb/node'
+import { APP_ADDRESS } from '../config'
+import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+
 
 export class TransactionManager {
+    appContract?: Contract
     wallet?: ethers.Wallet
     _db?: DB
 
     configure(key: string, provider: any, db: DB) {
         this.wallet = new ethers.Wallet(key, provider)
         this._db = db
+        this.appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi, provider)
     }
 
     async start() {
