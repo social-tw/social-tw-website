@@ -4,7 +4,6 @@ import { APP_ADDRESS } from '../config'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 import { LogDescription } from 'ethers/lib/utils'
 
-
 export class TransactionManager {
     appContract?: Contract
     wallet?: ethers.Wallet
@@ -13,7 +12,11 @@ export class TransactionManager {
     configure(key: string, provider: any, db: DB) {
         this.wallet = new ethers.Wallet(key, provider)
         this._db = db
-        this.appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi, provider)
+        this.appContract = new ethers.Contract(
+            APP_ADDRESS,
+            UNIREP_APP.abi,
+            provider
+        )
     }
 
     async start() {
@@ -110,19 +113,27 @@ export class TransactionManager {
         return latest.nonce
     }
 
-    async executeTransaction(contract: Contract, to: string, data: string | any = {}): Promise<(ethers.utils.LogDescription | null)[]> {
+    async executeTransaction(
+        contract: Contract,
+        to: string,
+        data: string | any = {}
+    ): Promise<(ethers.utils.LogDescription | null)[]> {
         const hash = await this.queueTransaction(to, data)
         const receipt = await this.wallet?.provider.waitForTransaction(hash)
 
-        let parsedLogs: (ethers.utils.LogDescription | null)[] = [];
+        let parsedLogs: (ethers.utils.LogDescription | null)[] = []
         if (receipt && receipt.logs) {
-            parsedLogs = receipt.logs.map((log: ethers.providers.Log) => {
-                try {
-                    return contract.interface.parseLog(log);
-                } catch (e) {
-                    return null; // It's not an event from our contract, ignore.
-                }
-            }).filter((log: ethers.utils.LogDescription | null) => log !== null);
+            parsedLogs = receipt.logs
+                .map((log: ethers.providers.Log) => {
+                    try {
+                        return contract.interface.parseLog(log)
+                    } catch (e) {
+                        return null // It's not an event from our contract, ignore.
+                    }
+                })
+                .filter(
+                    (log: ethers.utils.LogDescription | null) => log !== null
+                )
         }
         return parsedLogs ?? null
     }
