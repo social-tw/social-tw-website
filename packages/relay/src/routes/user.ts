@@ -32,7 +32,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                 .then(async (userInfo) => {
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
-                    const hashUserId = `"0x"${hash
+                    const hashUserId = `0x${hash
                         .update(userId)
                         .digest('hex')}`
                     const appContract = TransactionManager.appContract!!
@@ -59,6 +59,11 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                         const resultStatus = parseInt(parsedLogs[0]?.args[0])
                         if (resultStatus) {
                             statusCode = resultStatus
+                            res.redirect(
+                                `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                    statusCode
+                                )}`
+                            )
                         }
                     } else if (
                         parseInt(statusCode) == UserRegisterStatus.REGISTERER

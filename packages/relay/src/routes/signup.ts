@@ -12,6 +12,7 @@ async function signup(
     publicSignals: BigNumberish[],
     proof: SnarkProof,
     hashUserId: String,
+    fromServer: boolean,
     synchronizer: Synchronizer
 ) {
     const signupProof = new SignupProof(
@@ -32,6 +33,7 @@ async function signup(
         signupProof.publicSignals,
         signupProof.proof,
         hashUserId,
+        fromServer,
     ])
 
     const parsedLogs = await TransactionManager.executeTransaction(
@@ -44,32 +46,32 @@ async function signup(
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.get('/api/identity', async (req, res) => {
-        const { hashUserId } = req.body
-
+        const { hashUserId } = req.query
+        
         try {
-            var statusCode =
-                await TransactionManager.appContract!!.queryUserStatus(
-                    hashUserId
-                )
+            var statusCode = await TransactionManager.appContract!!.queryUserStatus(`0x${hashUserId!!}`)
+            console.log(statusCode)
             if (parseInt(statusCode) != UserRegisterStatus.INIT) {
-                res.status(400).json({ error: 'Invalid status' })
+                throw new Error('Invalid status')
             }
 
             const wallet = TransactionManager.wallet!!
-            const signMsg = await wallet.signMessage(hashUserId)
-            res.status(200).json({ signMsg: signMsg })
+            const signMsg = await wallet.signMessage(hashUserId!!.toString())
+            res.status(200).json({signMsg: signMsg})
         } catch (error) {
+            console.error(error)
             res.status(500).json({ error })
         }
     })
 
     app.post('/api/signup', async (req, res) => {
         try {
-            const { publicSignals, proof, hashUserId } = req.body
-            await signup(publicSignals, proof, hashUserId, synchronizer)
+            const { publicSignals, proof, hashUserId, fromServer } = req.body
+            await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
 
             res.status(200).json({ status: 'success' })
         } catch (error) {
+            console.error(error)
             res.status(500).json({ error })
         }
     })
