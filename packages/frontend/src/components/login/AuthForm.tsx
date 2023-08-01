@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { UserContext } from '../../contexts/User';
 import { ethers } from 'ethers';
+import { motion } from 'framer-motion';
 
 declare global {
     interface Window {
@@ -33,7 +34,7 @@ const AuthForm: React.FC = () => {
         window.location.href = data.url;
     }
 
-    const signUp = async (hashUserId: string) => {
+    const signUpWithWallet = async (hashUserId: string) => {
         if (!window.ethereum) {
             toast.error('請下載MetaMask錢包');
             return;
@@ -76,22 +77,47 @@ const AuthForm: React.FC = () => {
         const hashUserId = code;
         if (hashUserId && !isVerified) {
             localStorage.setItem('hashUserId', hashUserId)
-            signUp(hashUserId);
+            signUpWithWallet(hashUserId);
         }
         setIsVerified(true);
     }, []);
 
+    const authVarients = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                delay: 2,
+                duration: 1,
+                ease: "easeInOut",
+            },
+        },
+    }
+
     return (
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <div className="flex justify-center py-8">
-                <LoginButton
-                    isLoading={isLoading}
-                    icon={BsTwitter}
-                    onClick={handleTwitterLogin}
-                    text='Login'
-                />
-            </div>
-        </div>
+        <motion.div 
+            className="md:pb-0 pb-8 md:w-auto min-w-[300px] w-full flex flex-col justify-center items-center gap-6"
+            variants={authVarients}
+            initial="hidden"
+            animate="visible" 
+        >
+            <LoginButton
+                isLoading={isLoading}
+                icon={BsTwitter}
+                onClick={handleTwitterLogin}
+                title='立即登入'
+                subTitle='歡迎回來提供你的獨到見解！'
+                color='#2F9CAF'
+            />
+            <LoginButton
+                isLoading={isLoading}
+                icon={BsTwitter}
+                onClick={handleTwitterLogin}
+                title='立即註冊'
+                subTitle='加入我們的匿名討論行列！'
+                color='#DB7622'
+            />
+        </motion.div>
     )
 }
 

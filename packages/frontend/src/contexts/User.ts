@@ -24,7 +24,7 @@ class User {
     }
 
     // TODO: if user has login with twitter but doesn't sign up with signature
-
+    // Two states: user had logged in twitter and hasn't
     async load() {
 
         console.log("load .....")
