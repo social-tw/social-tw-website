@@ -19,9 +19,10 @@ declare global {
 const AuthForm: React.FC = () => {
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
-    const [isVerified, setIsVerified] = useState(false);
+    const [isTwitterVerified, setIsTwitterVerified] = useState(false);
     const code = searchParams.get('code');
     const userContext = useContext(UserContext);
+    const [signupMethod, setSignupMethod] = useState<string | null>(null);
 
     const handleTwitterLogin = async () => {
         setIsLoading(true);
@@ -32,9 +33,24 @@ const AuthForm: React.FC = () => {
         const data = await response.json();
         setIsLoading(false);
         window.location.href = data.url;
+        setIsTwitterVerified(true);
     }
 
-    const signUp = async (hashUserId: string) => {
+    const handleSignupMethodChoice = async (method: string) => {
+        setSignupMethod(method);
+        const hashUserId = localStorage.getItem('hashUserId');
+        if (!hashUserId) {
+            console.error("hashUserId not found in local storage");
+            return;
+        }
+        if (method === 'signUpWithWallet') {
+            signUpWithWallet(hashUserId);
+        } else if (method === 'signUpWithServer') {
+            signUpWithServer(hashUserId);
+        }
+    }
+
+    const signUpWithWallet = async (hashUserId: string) => {
         if (!window.ethereum) {
             toast.error('請下載MetaMask錢包');
             return;
@@ -73,24 +89,37 @@ const AuthForm: React.FC = () => {
         }
     };
 
+    const signUpWithServer = async (hashUserId: string) => {
+        // TODO: implement this
+        console.log(`Signing up with server using hashUserId: ${hashUserId}`);
+    }
+
     useEffect(() => {
         const hashUserId = code;
-        if (hashUserId && !isVerified) {
+        if (hashUserId) {
             localStorage.setItem('hashUserId', hashUserId)
-            signUp(hashUserId);
         }
-        setIsVerified(true);
     }, []);
 
     return (
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="flex justify-center py-8">
-                <LoginButton
-                    isLoading={isLoading}
-                    icon={BsTwitter}
-                    onClick={handleTwitterLogin}
-                    text='Login'
-                />
+                {/* 
+                TODO change code to other verifiable data, if you use code as a indicator then a hacker can input whatever code to localhost and bypass
+                */}
+                {code ? (
+                    <>
+                        <button onClick={() => handleSignupMethodChoice('signUpWithWallet')}>Signup with Wallet</button>
+                        <button onClick={() => handleSignupMethodChoice('signUpWithServer')}>Signup with Server</button>                
+                    </>
+                ) : (
+                    <LoginButton
+                        isLoading={isLoading}
+                        icon={BsTwitter}
+                        onClick={handleTwitterLogin}
+                        text='Login'
+                    />
+                )}
             </div>
         </div>
     )
