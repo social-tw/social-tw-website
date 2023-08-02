@@ -8,7 +8,14 @@ export class TransactionManager {
     appContract?: Contract
     wallet?: ethers.Wallet
     _db?: DB
-
+    
+    /**
+     * Configure the transaction manager with key, provider, and database.
+     * 
+     * @param key - The key for the wallet.
+     * @param provider - The provider for the ethers wallet.
+     * @param db - The database instance.
+     */
     configure(key: string, provider: any, db: DB) {
         this.wallet = new ethers.Wallet(key, provider)
         this._db = db
@@ -19,6 +26,9 @@ export class TransactionManager {
         )
     }
 
+    /**
+     * Start the transaction manager.
+     */
     async start() {
         if (!this.wallet || !this._db) throw new Error('Not initialized')
         const latestNonce = await this.wallet.getTransactionCount()
@@ -34,7 +44,10 @@ export class TransactionManager {
         })
         this.startDaemon()
     }
-
+    
+    /**
+     * Start the daemon to continuously check for transactions.
+     */
     async startDaemon() {
         if (!this._db) throw new Error('No db connected')
         for (;;) {
@@ -62,6 +75,12 @@ export class TransactionManager {
         }
     }
 
+    /**
+     * Try broadcasting a signed transaction.
+     * 
+     * @param signedData - The signed transaction data.
+     * @returns True if the transaction was sent, false otherwise.
+     */
     async tryBroadcastTransaction(signedData: string) {
         if (!this.wallet) throw new Error('Not initialized')
         const hash = ethers.utils.keccak256(signedData)
@@ -91,6 +110,12 @@ export class TransactionManager {
         }
     }
 
+    /**
+     * Get the nonce for a given address.
+     * 
+     * @param address - The address to get the nonce for.
+     * @returns The nonce for the given address.
+     */
     async getNonce(address: string) {
         const latest = await this._db?.findOne('AccountNonce', {
             where: {
@@ -113,6 +138,14 @@ export class TransactionManager {
         return latest.nonce
     }
 
+     /**
+     * Execute a transaction and return parsed logs.
+     * 
+     * @param contract - The contract instance.
+     * @param to - The address to send the transaction to.
+     * @param data - The transaction data.
+     * @returns An array of parsed logs.
+     */
     async executeTransaction(
         contract: Contract,
         to: string,
@@ -138,6 +171,13 @@ export class TransactionManager {
         return parsedLogs ?? null
     }
 
+    /**
+     * Queue a transaction for execution.
+     * 
+     * @param to - The address to send the transaction to.
+     * @param data - The transaction data.
+     * @returns The keccak256 hash of the signed transaction.
+     */
     async queueTransaction(to: string, data: string | any = {}) {
         const args = {} as any
         if (typeof data === 'string') {
@@ -150,11 +190,22 @@ export class TransactionManager {
         if (!args.gasLimit) {
             // don't estimate, use this for unpredictable gas limit tx's
             // transactions may revert with this
-            const gasLimit = await this.wallet.provider.estimateGas({
-                to,
-                from: this.wallet.address,
-                ...args,
-            })
+            let gasLimit;
+            try {
+                gasLimit = await this.wallet.provider.estimateGas({
+                    to,
+                    from: this.wallet.address,
+                    ...args,
+                })
+            } catch (error){
+                const err = error as any;
+                if (err.message && err.message.includes('UserAlreadySignedUp')) {
+                    console.error("The user has already signed up.");
+                } else {
+                    console.error(err);
+                }
+            }
+            
             Object.assign(args, {
                 gasLimit: gasLimit.add(50000),
             })

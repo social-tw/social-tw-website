@@ -41,6 +41,7 @@ async function signup(
         APP_ADDRESS,
         calldata
     )
+    
     console.log(parsedLogs)
 }
 
@@ -59,7 +60,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             const signMsg = await wallet.signMessage(hashUserId!!.toString())
             res.status(200).json({signMsg: signMsg})
         } catch (error) {
-            console.error(error)
+            console.error('/api/identity\n', error)
             res.status(500).json({ error })
         }
     })
@@ -71,8 +72,11 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
             res.status(200).json({ status: 'success' })
         } catch (error) {
-            console.error(error)
-            res.status(500).json({ error })
+            if (error instanceof Error && error.message.includes('UserAlreadySignedUp')) {
+                res.status(400).json({ error: 'User already signed up!' });
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
+            }
         }
     })
 }

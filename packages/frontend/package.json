@@ -21,6 +21,7 @@
         "daisyui": "^3.1.7",
         "ethers": "^5.7.2",
         "file-loader": "^6.2.0",
+        "js-sha3": "^0.8.0",
         "mobx-react-lite": "^3.4.0",
         "react-hot-toast": "^2.4.1",
         "react-icons": "^4.10.1",
