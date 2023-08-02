@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { UserContext } from '../../contexts/User';
 import { ethers } from 'ethers';
 import { motion } from 'framer-motion';
+import { SERVER } from '../../config';
 
 declare global {
     interface Window {
@@ -19,19 +20,35 @@ declare global {
 const AuthForm: React.FC = () => {
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
-    const [isVerified, setIsVerified] = useState(false);
+    const [isTwitterVerified, setIsTwitterVerified] = useState(false);
     const code = searchParams.get('code');
     const userContext = useContext(UserContext);
+    const [signupMethod, setSignupMethod] = useState<string | null>(null);
 
     const handleTwitterLogin = async () => {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8000/api/login', {
+        const response = await fetch(`${SERVER}/api/login`, {
             method: 'GET',
         });
 
         const data = await response.json();
         setIsLoading(false);
         window.location.href = data.url;
+        setIsTwitterVerified(true);
+    }
+
+    const handleSignupMethodChoice = async (method: string) => {
+        setSignupMethod(method);
+        const hashUserId = localStorage.getItem('hashUserId');
+        if (!hashUserId) {
+            console.error("hashUserId not found in local storage");
+            return;
+        }
+        if (method === 'signUpWithWallet') {
+            signUpWithWallet(hashUserId);
+        } else if (method === 'signUpWithServer') {
+            signUpWithServer(hashUserId);
+        }
     }
 
     const signUpWithWallet = async (hashUserId: string) => {
@@ -73,13 +90,17 @@ const AuthForm: React.FC = () => {
         }
     };
 
+    const signUpWithServer = async (hashUserId: string) => {
+        // TODO: implement this
+        console.log(`Signing up with server using hashUserId: ${hashUserId}`);
+    }
+
     useEffect(() => {
         const hashUserId = code;
-        if (hashUserId && !isVerified) {
+        if (hashUserId) {
             localStorage.setItem('hashUserId', hashUserId)
             signUpWithWallet(hashUserId);
         }
-        setIsVerified(true);
     }, []);
 
     const authVarients = {

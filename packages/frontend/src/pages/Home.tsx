@@ -8,6 +8,7 @@ const Home = observer(() => {
     const userContext = useContext(UserContext);
     const [searchParams] = useSearchParams();
     const code = searchParams.get('code');
+    const status = searchParams.get('status');
     const navigate = useNavigate();
 
     const gradients = [
@@ -19,17 +20,17 @@ const Home = observer(() => {
 
     const gradientVariants = {
         animate: {
-          background: gradients,
-          transition: {
-            duration: 10,
-            ease: 'linear',
-          },
+            background: gradients,
+            transition: {
+                duration: 10,
+                ease: 'linear',
+            },
         },
-      };
+    };
 
     useEffect(() => {
         if (!userContext.hasSignedUp && code) {
-            navigate(`/login?code=${code}`)
+            navigate(`/login?code=${code}&status=${status}`)
         } else if (!userContext.hasSignedUp && !code) {
             navigate('/login')
         } else {
@@ -38,7 +39,7 @@ const Home = observer(() => {
     }, [userContext.hasSignedUp, navigate, code])
 
     return (
-        <motion.div 
+        <motion.div
             className='flex h-full flex-col justify-center'
             variants={gradientVariants}
             initial='animate'

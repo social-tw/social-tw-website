@@ -3,9 +3,11 @@ import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
 import TwitterClient from '../singletons/TwitterClient'
-import { CLIENT_URL } from '../config'
+import { APP_ADDRESS, CLIENT_URL } from '../config'
+import { UserRegisterStatus } from '../enums/userRegisterStatus'
+import TransactionManager from '../singletons/TransactionManager'
 
-const STATE = "state"
+const STATE = 'state'
 const code_challenge = crypto.randomUUID()
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
@@ -14,40 +16,80 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             state: STATE,
             code_challenge,
         })
-        res.status(200).json({url: url})
+        res.status(200).json({ url: url })
     })
 
     app.get('/api/user', async (req, res) => {
         try {
-            const { state, code } = req.query;
+            const { state, code } = req.query
 
-            if (state != STATE) res.status(500).json({ "error": "wrong callback value" })
+            if (state != STATE)
+                res.status(500).json({ error: 'wrong callback value' })
 
-            TwitterClient.authClient.requestAccessToken(code as string)
-                .then(_ => TwitterClient.client.users.findMyUser())
-                .then(async userInfo => {
-
-                    // todo check hash function require?
+            TwitterClient.authClient
+                .requestAccessToken(code as string)
+                .then((_) => TwitterClient.client.users.findMyUser())
+                .then(async (userInfo) => {
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
-                    const hashUserId = hash.update(userId).digest('hex')
+                    const hashUserId = `0x${hash
+                        .update(userId)
+                        .digest('hex')}`
+                    const appContract = TransactionManager.appContract!!
 
-                    // todo change to use sc below
-                    // check user already signup, if not yet, then record it with status
-                    const user = await db.findOne('User', {
-                        where: { userId: hashUserId }
-                    })
-                    if (!user) {
-                        db.create('User', { userId: hashUserId, status: 0 })
+                    // query from contract
+                    var statusCode = await appContract.queryUserStatus(
+                        hashUserId
+                    )
+
+                    // if status is NOT_REGISTER or INIT then init user status
+                    if (parseInt(statusCode) <= UserRegisterStatus.INIT) {
+                        const calldata =
+                            appContract.interface.encodeFunctionData(
+                                'initUserStatus',
+                                [hashUserId]
+                            )
+                        const parsedLogs =
+                            await TransactionManager.executeTransaction(
+                                appContract,
+                                APP_ADDRESS,
+                                calldata
+                            )
+                        console.log(parsedLogs)
+                        const resultStatus = parseInt(parsedLogs[0]?.args[0])
+                        if (resultStatus) {
+                            statusCode = resultStatus
+                            res.redirect(
+                                `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                    statusCode
+                                )}`
+                            )
+                        }
+                    } else if (
+                        parseInt(statusCode) == UserRegisterStatus.REGISTERER
+                    ) {
+                        res.redirect(
+                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                statusCode
+                            )}`
+                        )
+                    } else if (
+                        parseInt(statusCode) ==
+                        UserRegisterStatus.REGISTERER_SERVER
+                    ) {
+                        const wallet = TransactionManager.wallet!!
+                        const signMsg = await wallet.signMessage(hashUserId)
+                        res.redirect(
+                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                statusCode
+                            )}&signMsg=${signMsg}`
+                        )
                     }
-
-                    res.redirect(`${CLIENT_URL}?code=${hashUserId}`)
                 })
-                .catch(err => () => {
+                .catch((err) => () => {
                     console.error(err)
                     res.redirect(`${CLIENT_URL}?error="apiError"`)
                 })
-
         } catch (error) {
             console.error(error)
             res.redirect(`${CLIENT_URL}?error="generalError"`)

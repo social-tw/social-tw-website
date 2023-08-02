@@ -25,9 +25,9 @@ const _schema = [
         primaryKey: 'userId',
         rows: [
             ['userId', 'String'],
-            ['status', 'Int'] // 0: init, 1: registered 
-        ]
-    }
+            ['status', 'Int'], // 0: init, 1: registered
+        ],
+    },
 ]
 
 export default _schema

@@ -1,71 +1,77 @@
 import { SignupProof } from '@unirep/circuits'
-import { ethers } from 'ethers'
+import { BigNumberish } from 'ethers'
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { Synchronizer } from '@unirep/core'
 import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import { SnarkProof } from '@unirep/utils'
+import { UserRegisterStatus } from '../enums/userRegisterStatus'
+
+async function signup(
+    publicSignals: BigNumberish[],
+    proof: SnarkProof,
+    hashUserId: String,
+    fromServer: boolean,
+    synchronizer: Synchronizer
+) {
+    const signupProof = new SignupProof(
+        publicSignals,
+        proof,
+        synchronizer.prover
+    )
+    const valid = await signupProof.verify()
+    if (!valid) {
+        throw new Error('Invalid proof')
+    }
+    const currentEpoch = synchronizer.calcCurrentEpoch()
+    if (currentEpoch !== Number(signupProof.epoch)) {
+        throw new Error('Wrong epoch')
+    }
+    const appContract = TransactionManager.appContract!!
+    const calldata = appContract.interface.encodeFunctionData('userSignUp', [
+        signupProof.publicSignals,
+        signupProof.proof,
+        hashUserId,
+        fromServer,
+    ])
+
+    const parsedLogs = await TransactionManager.executeTransaction(
+        appContract,
+        APP_ADDRESS,
+        calldata
+    )
+    console.log(parsedLogs)
+}
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+    app.get('/api/identity', async (req, res) => {
+        const { hashUserId } = req.query
+        
+        try {
+            var statusCode = await TransactionManager.appContract!!.queryUserStatus(`0x${hashUserId!!}`)
+            console.log(statusCode)
+            if (parseInt(statusCode) != UserRegisterStatus.INIT) {
+                throw new Error('Invalid status')
+            }
+
+            const wallet = TransactionManager.wallet!!
+            const signMsg = await wallet.signMessage(hashUserId!!.toString())
+            res.status(200).json({signMsg: signMsg})
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ error })
+        }
+    })
+
     app.post('/api/signup', async (req, res) => {
         try {
-            const { publicSignals, proof, hashUserId } = req.body
+            const { publicSignals, proof, hashUserId, fromServer } = req.body
+            await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
 
-            // todo change to use sc or circuit
-            const user = await db.findOne('User', {
-                where: { userId: hashUserId }
-            })
-            // to make sure user already login 
-            if (user == null) {
-                res.status(500).json({ error: "Please login first" })
-                return
-            }
-            // to avoid double apply
-            if (user.status != 0) {
-                res.status(500).json({ error: "Already registered" })
-                return
-            }
-
-            const signupProof = new SignupProof(
-                publicSignals,
-                proof,
-                synchronizer.prover
-            )
-            const valid = await signupProof.verify()
-            if (!valid) {
-                res.status(400).json({ error: 'Invalid proof' })
-                return
-            }
-            const currentEpoch = synchronizer.calcCurrentEpoch()
-            if (currentEpoch !== Number(signupProof.epoch)) {
-                res.status(400).json({ error: 'Wrong epoch' })
-                return
-            }
-
-            console.log("before signup")
-            // make a transaction lil bish
-            const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
-            // const contract =
-            const calldata = appContract.interface.encodeFunctionData(
-                'userSignUp',
-                [signupProof.publicSignals, signupProof.proof]
-            )
-            const hash = await TransactionManager.queueTransaction(
-                APP_ADDRESS,
-                calldata
-            )
-
-            console.log("after signup")
-            await db.update('User', {
-                where: { userId: hashUserId }, 
-                update: { status: 1 }, // update to middle status 
-            })
-
-            // TODO need to update User status once txn has finished
-
-            res.json({ hash })
+            res.status(200).json({ status: 'success' })
         } catch (error) {
+            console.error(error)
             res.status(500).json({ error })
         }
     })

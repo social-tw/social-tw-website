@@ -107,6 +107,7 @@ class User {
                 publicSignals: signupProof.publicSignals,
                 proof: signupProof.proof,
                 hashUserId: this.hashUserId,
+                fromServer: true, // TODO: need a new property to identify user signs up from server or not
             }),
         }).then((r) => r.json())
 
