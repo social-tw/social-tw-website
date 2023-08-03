@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import AuthForm from '../components/login/AuthForm';
 import { motion } from 'framer-motion';
-import DemoPostList from '../components/shared/DemoPostList';
+import DemoPostList from '../components/login/DemoPostList';
 
 // TODO: Change font family
 const Login: React.FC = () => {

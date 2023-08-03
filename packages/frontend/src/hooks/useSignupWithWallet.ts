@@ -42,10 +42,10 @@ const useSignupWithWallet = (
 
             await userContext.signup();
 
+            console.log('has signed up');
         }   catch (error) {
             console.error(error);
         }   finally {
-            console.log('has signed up')
             setIsLoading(false);
         }
     }, [hashUserId, setIsLoading, useContext])

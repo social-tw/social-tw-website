@@ -11,7 +11,6 @@ const useAutoNavigation = (
 ) => {
     useEffect(() => {
         if (!isLoading) {
-            console.log(userContext.hasSignup, 'nav')
             if (!userContext.hasSignedUp && hashUserId) {
                 navigate(`/login?code=${hashUserId}&status=${status}`)
             } else if (!userContext.hasSignedUp && !hashUserId && !status) {

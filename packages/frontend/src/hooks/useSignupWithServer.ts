@@ -40,10 +40,10 @@ const useSignupWithServer = (
             await userContext.load();
 
             await userContext.signup();
+            console.log('has signed up');
         } catch (error: any) {
             console.error(error);
         } finally {
-            console.log('has signed up')
             setIsLoading(false);
         }
     }, [setIsLoading, SERVER, userContext, hashUserId]);

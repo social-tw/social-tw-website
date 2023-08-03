@@ -9,7 +9,6 @@ const useInitUser = (
         const initUser = async () => {
             try {
                 await userContext.load()
-                console.log(userContext.hasSignup, 'init')
             } catch (error) {
                 console.log(error)
             } finally {
