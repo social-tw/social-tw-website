@@ -95,8 +95,15 @@ const AuthForm: React.FC = () => {
         console.log(`Signing up with server using hashUserId: ${hashUserId}`);
         try{        
             setIsLoading(true);
-            const signature = keccak256(hashUserId);
-            localStorage.setItem('signature', signature);
+            const signature = await toast.promise(
+                userContext.serverSignMessage(hashUserId),
+                {
+                    loading: '伺服器簽名中...',
+                    success: <b>簽名成功!</b>,
+                    error: <b>簽名失敗!</b>,
+                }
+            )
+            localStorage.setItem('signature', signature.signMsg);
             await userContext.load();
 
             await toast.promise(

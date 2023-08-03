@@ -46,16 +46,12 @@ async function signup(
 }
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
-    app.get('/api/identity', async (req, res) => {
-        const { hashUserId } = req.query
+    app.post('/api/identity', async (req, res) => {
+        const { hashUserId } = req.body
         
         try {
-            var statusCode = await TransactionManager.appContract!!.queryUserStatus(`0x${hashUserId!!}`)
-            console.log(statusCode)
-            if (parseInt(statusCode) != UserRegisterStatus.INIT) {
-                throw new Error('Invalid status')
-            }
-
+            var statusCode = await TransactionManager.appContract!!.queryUserStatus(hashUserId!!)
+            // console.log(statusCode)
             const wallet = TransactionManager.wallet!!
             const signMsg = await wallet.signMessage(hashUserId!!.toString())
             res.status(200).json({signMsg: signMsg})

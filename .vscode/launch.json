@@ -14,7 +14,7 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "Attach to TS-Node",
+            "name": "Attach to backend process TS-Node",
             "processId": "${command:PickProcess}",
             "skipFiles": [
                 "<node_internals>/**"

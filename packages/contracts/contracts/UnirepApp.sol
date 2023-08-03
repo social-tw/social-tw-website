@@ -17,6 +17,7 @@ contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
 
+    // TODO write document for this enum
     enum RegisterStatus {
         NOT_REGISTER,
         INIT,
