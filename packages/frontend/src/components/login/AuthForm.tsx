@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { UserContext } from '../../contexts/User';
 import { ethers } from 'ethers';
 import { SERVER } from '../../config';
+import { keccak256 } from 'js-sha3';
 
 declare global {
     interface Window {
@@ -33,6 +34,7 @@ const AuthForm: React.FC = () => {
         const data = await response.json();
         setIsLoading(false);
         window.location.href = data.url;
+        console.log(data.url);
         setIsTwitterVerified(true);
     }
 
@@ -90,8 +92,38 @@ const AuthForm: React.FC = () => {
     };
 
     const signUpWithServer = async (hashUserId: string) => {
-        // TODO: implement this
         console.log(`Signing up with server using hashUserId: ${hashUserId}`);
+        try{        
+            setIsLoading(true);
+            const signature = await toast.promise(
+                userContext.serverSignMessage(hashUserId),
+                {
+                    loading: '伺服器簽名中...',
+                    success: <b>簽名成功!</b>,
+                    error: <b>簽名失敗!</b>,
+                }
+            )
+            localStorage.setItem('signature', signature.signMsg);
+            await userContext.load();
+
+            await toast.promise(
+                userContext.signup(),
+                {
+                    loading: '登錄中...',
+                    success: <b>驗證成功!</b>,
+                    error: <b>驗證失敗!</b>,
+                }
+            );
+            setIsLoading(false);
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('UserAlreadySignedUp')) {
+                toast.error('用戶已經註冊過了');
+            } else {
+                toast.error('驗證失敗');
+
+            }
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => {
