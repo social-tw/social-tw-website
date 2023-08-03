@@ -49,6 +49,7 @@ class User {
 
         this.signature = localStorage.getItem('signature') ?? ''
         
+
         if (this.hashUserId?.length == 0 && this.signature?.length == 0) {
             console.error("HashUserId and signature are wrong")
             return
@@ -57,7 +58,7 @@ class User {
         // TODO: change hashUserId to signature
         // const identity = new Identity(signature)
         const identity = new Identity(this.signature)
-        const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
+        const {UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL} = await fetch(
             `${SERVER}/api/config`
         ).then((r) => r.json())
 
@@ -65,7 +66,7 @@ class User {
             ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
- 
+
         const userState = new UserState(
             {
                 provider,
@@ -233,7 +234,7 @@ class User {
             attester_id: attesterId,
             value: values,
         })
-        const { publicSignals, proof } = await prover.genProofAndPublicSignals(
+        const {publicSignals, proof} = await prover.genProofAndPublicSignals(
             'dataProof',
             circuitInputs
         )
@@ -245,10 +246,19 @@ class User {
             valid,
         })
     }
+
+    logout() {
+        this.hasSignedUp = false;  // set hasSignedUp to false when logout
+        this.userState = undefined; // Clear user state
+        this.signature = '';
+        this.hashUserId = '';
+        localStorage.removeItem('signature'); // Clear local storage
+        localStorage.removeItem('hashUserId'); // Clear local storage
+    }
 }
 
 const defaultValue = new User()
 
 const UserContext = createContext<User>(defaultValue)
 
-export { User, UserContext };
+export {User, UserContext};
