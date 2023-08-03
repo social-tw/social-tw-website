@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
 const useSignupWithServer = (
-    hashUserId: string | null, 
-    SERVER: string, 
-    userContext: any, 
+    hashUserId: string | null,
+    SERVER: string,
+    userContext: any,
     setIsLoading: any
 ) => {
-    const signupWithServer = useCallback(async() => {
+    const signupWithServer = useCallback(async () => {
 
         try {
             setIsLoading(true);
@@ -15,27 +15,31 @@ const useSignupWithServer = (
             };
             const response = await fetch(`${SERVER}/api/identity`, {
                 method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
                 body: JSON.stringify({
                     hashUserId,
                 })
             });
-        
+
             const data = await response.json();
-            console.log(data)
-        
+            if (!data.ok) {
+                throw new Error('False Identity')
+            }
+
             const signMessage = data.signMsg;
-            console.log(signMessage)
-    
+
             localStorage.setItem('signature', signMessage);
 
             await userContext.setFromServer();
-    
+
             await userContext.load();
 
             await userContext.signup();
-        }   catch (error: any) {
+        } catch (error: any) {
             console.error(error);
-        }   finally {
+        } finally {
             console.log('has signed up')
             setIsLoading(false);
         }

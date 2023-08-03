@@ -129,6 +129,7 @@ class User {
         const signupProof = await this.userState.genUserSignUpProof()
         console.log(signupProof)
 
+        // TODO: handle error
         const data = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
             headers: {
