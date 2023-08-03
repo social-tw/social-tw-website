@@ -38,7 +38,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
                     const appContract = TransactionManager.appContract!!
 
                     // query from contract
-                    var statusCode = await appContract.queryUserStatus(
+                    let statusCode = await appContract.queryUserStatus(
                         hashUserId
                     )
 

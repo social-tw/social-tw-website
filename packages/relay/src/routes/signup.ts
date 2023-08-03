@@ -36,6 +36,12 @@ async function signup(
         fromServer,
     ])
 
+    // TODO: fix transction twice bug
+    const hash = await TransactionManager.queueTransaction(
+        APP_ADDRESS,
+        calldata
+    )
+
     const parsedLogs = await TransactionManager.executeTransaction(
         appContract,
         APP_ADDRESS,
@@ -43,15 +49,21 @@ async function signup(
     )
     
     console.log(parsedLogs)
+
+    return hash
 }
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/identity', async (req, res) => {
         const { hashUserId } = req.body
-        
+        console.log(hashUserId)
         try {
-            var statusCode = await TransactionManager.appContract!!.queryUserStatus(hashUserId!!)
-            // console.log(statusCode)
+            const statusCode = await TransactionManager.appContract!!.queryUserStatus(hashUserId!!)
+            console.log(statusCode)
+            if (parseInt(statusCode) != UserRegisterStatus.INIT) {
+                throw new Error('Invalid status')
+            }
+
             const wallet = TransactionManager.wallet!!
             const signMsg = await wallet.signMessage(hashUserId!!.toString())
             res.status(200).json({signMsg: signMsg})
@@ -64,9 +76,9 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/signup', async (req, res) => {
         try {
             const { publicSignals, proof, hashUserId, fromServer } = req.body
-            await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
+            const hash = await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
 
-            res.status(200).json({ status: 'success' })
+            res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
             if (error instanceof Error && error.message.includes('UserAlreadySignedUp')) {
                 res.status(400).json({ error: 'User already signed up!' });
@@ -76,3 +88,5 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
         }
     })
 }
+
+

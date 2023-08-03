@@ -4,40 +4,45 @@ import { IconType } from 'react-icons'
 import { User, UserContext } from '../../contexts/User'
 
 interface LoginButtonProps {
-    icon: IconType
+    icon?: IconType
     isLoading: boolean
     onClick: () => void
-    text: string
+    title: string
+    subTitle: string
+    color: string
 }
 
+// TODO: signup with wallet and without wallet
 const LoginButton: React.FC<LoginButtonProps> = ({
     icon: Icon,
     onClick,
     isLoading,
-    text
+    title,
+    subTitle,
+    color
 }) => {
     return (
         <button
             type='button'
             onClick={onClick}
             disabled={isLoading}
-            className='
-        inline-flex
-        w-full
+            className={`
+        flex
+        flex-col
+        w-4/5
         justify-center
         items-center
-        gap-4
-        rounded-md
-        bg-blue-400
-        px-4
-        py-2
+        rounded-xl
+        bg-[${color}]
+        py-4
         text-white
         hover:bg-gray-500
         focus:outline-offset-0
-      '
+        bg-opacity-70
+        `}
         >
-            <Icon size={20}/>
-            <span className='mt-[1px]'>{text}</span>
+            <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
+            <span className='text-xs tracking-wider'>{subTitle}</span>
         </button>
     )
 }
