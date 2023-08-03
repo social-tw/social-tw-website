@@ -8,31 +8,50 @@ import { SERVER } from '../config'
 import prover from './Prover'
 import { ethers } from 'ethers'
 
+// TODO: Turn it into functional context instead of class!!!!
 class User {
     currentEpoch: number = 0
     latestTransitionedEpoch: number = 0
+    isTwitterVerified: boolean = false
+    fromServer: boolean = false
     hasSignedUp: boolean = false
     data: bigint[] = []
     provableData: bigint[] = []
     userState?: UserState
     provider: any
-    signature: string = '' // TODO not sure how to setup inital data
-    hashUserId: string = '' // TODO not sure how to setup inital data
+    signature: string = '' // TODO: not sure how to setup inital data
+    hashUserId: string = '' // TODO: not sure how to setup inital data
 
     constructor() {
         makeAutoObservable(this)
     }
 
-    // TODO: if user has login with twitter but doesn't sign up with signature
+    /**
+     * This function should be called before user signs up for 
+     * it will load the user's signature and hashUserId from local storage.
+     * @returns 
+     */    // Two states: user had logged in twitter and hasn't
+    setFromServer() {
+        this.fromServer = true
+    }
 
     async load() {
-
         console.log("load .....")
-        this.signature = localStorage.getItem('signature') ?? ''
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
 
+        // TODO: if this is necessary?
+        if (this.hashUserId) {
+            this.isTwitterVerified = true
+            console.log(this.hashUserId)
+        } else {
+            console.error('Invalid hashUserId for twitter')
+        }
+
+        this.signature = localStorage.getItem('signature') ?? ''
+        
+
         if (this.hashUserId?.length == 0 && this.signature?.length == 0) {
-            console.error("HashUserId is wrong")
+            console.error("HashUserId and signature are wrong")
             return
         }
 
@@ -62,11 +81,10 @@ class User {
         this.userState = userState
         console.log(this.userState)
         await userState.waitForSync()
-        // todo check here to modify
+        // TODO: check here to modify
         this.hasSignedUp = await userState.hasSignedUp()
         await this.loadData()
-        this.latestTransitionedEpoch =
-            await this.userState.latestTransitionedEpoch()
+        this.latestTransitionedEpoch = await this.userState.latestTransitionedEpoch()
     }
 
     get fieldCount() {
@@ -91,6 +109,20 @@ class User {
         this.provableData = await this.userState.getProvableData()
     }
 
+    async serverSignMessage(hashUserId: string) {
+        const data = await fetch(`${SERVER}/api/identity`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                hashUserId,
+            })
+        }).then((r) => r.json())
+        console.log(data)
+        return data
+    }
+
     async signup() {
         console.log(this.userState)
         if (!this.userState) throw new Error('user state not initialized')
@@ -98,6 +130,7 @@ class User {
         const signupProof = await this.userState.genUserSignUpProof()
         console.log(signupProof)
 
+        // TODO: handle error
         const data = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
             headers: {
@@ -107,6 +140,7 @@ class User {
                 publicSignals: signupProof.publicSignals,
                 proof: signupProof.proof,
                 hashUserId: this.hashUserId,
+                fromServer: this.fromServer,
             }),
         }).then((r) => r.json())
 
@@ -117,6 +151,7 @@ class User {
         await this.userState.waitForSync()
         this.hasSignedUp = await this.userState.hasSignedUp()
         this.latestTransitionedEpoch = this.userState.sync.calcCurrentEpoch()
+        console.log(this.hasSignedUp)
     }
 
     async requestData(
