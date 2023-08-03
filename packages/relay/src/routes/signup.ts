@@ -36,12 +36,19 @@ async function signup(
         fromServer,
     ])
 
+    const hash = await TransactionManager.queueTransaction(
+        APP_ADDRESS,
+        calldata
+    )
+
     const parsedLogs = await TransactionManager.executeTransaction(
         appContract,
         APP_ADDRESS,
         calldata
     )
     console.log(parsedLogs)
+
+    return hash
 }
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
@@ -49,7 +56,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
         const { hashUserId } = req.query
         
         try {
-            var statusCode = await TransactionManager.appContract!!.queryUserStatus(`0x${hashUserId!!}`)
+            const statusCode = await TransactionManager.appContract!!.queryUserStatus(hashUserId!!)
             console.log(statusCode)
             if (parseInt(statusCode) != UserRegisterStatus.INIT) {
                 throw new Error('Invalid status')
@@ -57,6 +64,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
             const wallet = TransactionManager.wallet!!
             const signMsg = await wallet.signMessage(hashUserId!!.toString())
+            console.log(signMsg)
             res.status(200).json({signMsg: signMsg})
         } catch (error) {
             console.error(error)
@@ -67,9 +75,9 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
     app.post('/api/signup', async (req, res) => {
         try {
             const { publicSignals, proof, hashUserId, fromServer } = req.body
-            await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
+            const hash = await signup(publicSignals, proof, hashUserId, fromServer, synchronizer)
 
-            res.status(200).json({ status: 'success' })
+            res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
             console.error(error)
             res.status(500).json({ error })

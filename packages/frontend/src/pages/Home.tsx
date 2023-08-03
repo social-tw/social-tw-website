@@ -1,15 +1,18 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
 import { UserContext } from '../contexts/User'
 import { observer } from 'mobx-react-lite'
+import useAutoNavigation from '../hooks/useAutoNavigation'
+import useInitUser from '../hooks/useInitUser'
 
 const Home = observer(() => {
-    const userContext = useContext(UserContext);
     const [searchParams] = useSearchParams();
-    const code = searchParams.get('code');
+    const hashUserId = searchParams.get('code');
     const status = searchParams.get('status');
     const navigate = useNavigate();
+    const userContext = useContext(UserContext);
+    const [isLoading, setIsLoading] = useState(true);
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -7.09%, #8A5F35 11.12%, #000000 43.32%, #305F67 85.4%, #52ACBC 102.38%)',
@@ -28,15 +31,8 @@ const Home = observer(() => {
         },
     };
 
-    useEffect(() => {
-        if (!userContext.hasSignedUp && code) {
-            navigate(`/login?code=${code}&status=${status}`)
-        } else if (!userContext.hasSignedUp && !code) {
-            navigate('/login')
-        } else {
-            navigate('/')
-        }
-    }, [userContext.hasSignedUp, navigate, code])
+    useInitUser(userContext, hashUserId, setIsLoading);
+    useAutoNavigation(hashUserId, status, navigate, userContext, isLoading);
 
     return (
         <motion.div
@@ -50,4 +46,4 @@ const Home = observer(() => {
     )
 })
 
-export default Home
+export default Home;
