@@ -23,10 +23,13 @@ const useSignupWithServer = (
                 })
             });
 
-            const data = await response.json();
-            if (!data.ok) {
+            if (!response.ok) {
                 throw new Error('False Identity')
-            }
+            };
+
+            const data = await response.json();
+            console.log(data);
+            
 
             const signMessage = data.signMsg;
 
