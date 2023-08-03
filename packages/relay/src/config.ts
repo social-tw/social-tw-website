@@ -1,7 +1,5 @@
 import { ethers } from 'ethers'
-
 import _config from '../../../config'
-
 import { config } from 'dotenv'
 config()
 

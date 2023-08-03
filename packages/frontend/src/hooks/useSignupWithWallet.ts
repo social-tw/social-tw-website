@@ -45,7 +45,7 @@ const useSignupWithWallet = (
         }   catch (error) {
             console.error(error);
         }   finally {
-            console.log('has signed up')
+            console.log('has signed up') // TODO is it acceptiable?
             setIsLoading(false);
         }
     }, [hashUserId, setIsLoading, useContext])
