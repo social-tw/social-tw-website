@@ -13,8 +13,11 @@ const useSignupWithServer = (
             if (!hashUserId) {
                 throw new Error('Invalid user')
             };
-            const response = await fetch(`${SERVER}/api/identity?hashUserId=${hashUserId}`, {
-                method: 'GET',
+            const response = await fetch(`${SERVER}/api/identity`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    hashUserId,
+                })
             });
         
             const data = await response.json();

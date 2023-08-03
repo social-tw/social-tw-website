@@ -26,8 +26,11 @@ class User {
         makeAutoObservable(this)
     }
 
-    // TODO: if user has login with twitter but doesn't sign up with signature
-    // Two states: user had logged in twitter and hasn't
+    /**
+     * This function should be called before user signs up for 
+     * it will load the user's signature and hashUserId from local storage.
+     * @returns 
+     */    // Two states: user had logged in twitter and hasn't
     setFromServer() {
         this.fromServer = true
     }
@@ -103,6 +106,20 @@ class User {
 
         this.data = await this.userState.getData()
         this.provableData = await this.userState.getProvableData()
+    }
+
+    async serverSignMessage(hashUserId: string) {
+        const data = await fetch(`${SERVER}/api/identity`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                hashUserId,
+            })
+        }).then((r) => r.json())
+        console.log(data)
+        return data
     }
 
     async signup() {

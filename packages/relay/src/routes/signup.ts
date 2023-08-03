@@ -47,14 +47,15 @@ async function signup(
         APP_ADDRESS,
         calldata
     )
+    
     console.log(parsedLogs)
 
     return hash
 }
 
 export default (app: Express, db: DB, synchronizer: Synchronizer) => {
-    app.get('/api/identity', async (req, res) => {
-        const { hashUserId } = req.query
+    app.post('/api/identity', async (req, res) => {
+        const { hashUserId } = req.body
         
         try {
             const statusCode = await TransactionManager.appContract!!.queryUserStatus(hashUserId!!)
@@ -68,7 +69,7 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
             console.log(signMsg)
             res.status(200).json({signMsg: signMsg})
         } catch (error) {
-            console.error(error)
+            console.error('/api/identity\n', error)
             res.status(500).json({ error })
         }
     })
@@ -80,8 +81,11 @@ export default (app: Express, db: DB, synchronizer: Synchronizer) => {
 
             res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
-            console.error(error)
-            res.status(500).json({ error })
+            if (error instanceof Error && error.message.includes('UserAlreadySignedUp')) {
+                res.status(400).json({ error: 'User already signed up!' });
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
+            }
         }
     })
 }
