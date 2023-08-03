@@ -14,6 +14,9 @@ const Home = observer(() => {
     const userContext = useContext(UserContext);
     const [isLoading, setIsLoading] = useState(true);
 
+    //TODO: Using status to check if user has signed up or not
+    // It always call twitter auth api no matter signup or login
+
     const gradients = [
         'linear-gradient(100deg, #FF892A -7.09%, #8A5F35 11.12%, #000000 43.32%, #305F67 85.4%, #52ACBC 102.38%)',
         'linear-gradient(150deg, #FF892A -8.34%, #8A5F35 10.16%, #000000 42.86%, #305F67 85.6%, #52ACBC 102.84%)',

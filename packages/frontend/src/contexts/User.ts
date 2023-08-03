@@ -36,6 +36,7 @@ class User {
         console.log("load .....")
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
 
+        // TODO: if this is necessary?
         if (this.hashUserId) {
             this.isTwitterVerified = true
             console.log(this.hashUserId)

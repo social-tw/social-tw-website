@@ -36,6 +36,7 @@ async function signup(
         fromServer,
     ])
 
+    // TODO: fix transction twice bug
     const hash = await TransactionManager.queueTransaction(
         APP_ADDRESS,
         calldata
