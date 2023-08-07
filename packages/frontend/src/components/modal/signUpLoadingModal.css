@@ -1,0 +1,75 @@
+.progress {
+  overflow: hidden;
+}
+
+.progress::after {
+  content: '';
+  display: block;
+  width: 98%;
+  height: 100%;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #52ACBC, #FF892A);
+  animation: load 15s linear;
+}
+
+@keyframes load {
+  0% {
+    width: 0;
+  }
+  10% {
+    width: 5%;
+  }
+  20% {
+    width: 15%;
+  }
+  30% {
+    width: 25%;
+  }
+  40% {
+    width: 30%;
+  }
+  50% {
+    width: 44%;
+  }
+  60% {
+    width: 50%;
+  }
+  70% {
+    width: 72%;
+  }
+  80% {
+    width: 84%;
+  }
+  90% {
+    width: 92%;
+  }
+  100% {
+    width: 98%;
+  }
+}
+
+.success {
+  overflow: hidden;
+}
+
+.success::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #52ACBC, #FF892A);
+}
+
+.fail {
+  overflow: hidden;
+}
+
+.fail::after {
+  content: '';
+  display: block;
+  width: 72%;
+  height: 100%;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.25), #8F8F8F 46.88%);
+}

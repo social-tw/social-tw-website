@@ -9,20 +9,27 @@ import useSignUpWithWallet from '../../hooks/useSignupWithWallet';
 import useSignupWithServer from '../../hooks/useSignupWithServer';
 import { observer } from 'mobx-react-lite';
 import { useSearchParams } from 'react-router-dom';
+import { useLoading } from '../../contexts/LoadingContext';
 
-
+interface AuthFormProps {
+    isLoading: boolean
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  }
 
 // TODO: Twitter auto login: when user has login twitter but haven't signed up
-// TODO: redirect bug: when user have to loggin with twitter it redirect to twitter
 // TODO: twitter login form is ugly
-const AuthForm: React.FC = observer(() => {
+const AuthForm: React.FC<AuthFormProps> = observer(( {
+    isLoading,
+    setIsLoading
+}
+) => {
     const userContext = useContext(UserContext);
     const [searchParams] = useSearchParams();
     const hashUserId = searchParams.get('code');
-    const [isLoading, setIsLoading] = useState(false);
-    const twitterVerify = useTwitterVerify(setIsLoading, SERVER);
-    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setIsLoading);
-    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setIsLoading);
+    const { setStatus } = useLoading();
+    const twitterVerify = useTwitterVerify(SERVER);
+    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setStatus, setIsLoading);
+    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setStatus, setIsLoading);
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -38,7 +45,7 @@ const AuthForm: React.FC = observer(() => {
 
     return (
         <motion.div
-            className="md:pb-0 pb-8 md:w-auto min-w-[300px] w-full flex flex-col justify-center items-center gap-6"
+            className="md:pb-28 pb-8 min-w-[300px] w-full flex flex-col justify-center items-center gap-6 "
             variants={authVarients}
             initial="hidden"
             animate="visible"

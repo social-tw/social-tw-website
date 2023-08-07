@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
-import { UserContext } from '../contexts/User'
-import { observer } from 'mobx-react-lite'
-import useAutoNavigation from '../hooks/useAutoNavigation'
-import useInitUser from '../hooks/useInitUser'
+import React, { useContext, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { UserContext } from '../contexts/User';
+import { observer } from 'mobx-react-lite';
+import useAutoNavigation from '../hooks/useAutoNavigation';
+import useInitUser from '../hooks/useInitUser';
 
 const Home = observer(() => {
     const [searchParams] = useSearchParams();

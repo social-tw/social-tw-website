@@ -1,14 +1,12 @@
-import React, { useContext, useMemo } from 'react'
-import { useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
-import { User, UserContext } from '../../contexts/User'
+import React from 'react'
+import { IconType } from 'react-icons';
 
 interface LoginButtonProps {
     icon?: IconType
     isLoading: boolean
-    onClick: () => void
+    onClick?: () => void
     title: string
-    subTitle: string
+    subTitle?: string
     color: string
 }
 
@@ -30,6 +28,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         flex
         flex-col
         w-4/5
+        max-w-[650px]
         justify-center
         items-center
         rounded-xl
@@ -39,6 +38,8 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         hover:bg-gray-500
         focus:outline-offset-0
         bg-opacity-70
+        drop-shadow-md
+        drop-shadow-black
         `}
         >
             <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>

@@ -9,13 +9,15 @@ declare global {
 
 const useSignupWithWallet = (
     hashUserId: string | null, 
-    userContext: any, 
+    userContext: any,
+    setStatus: any, 
     setIsLoading: any
 ) => {
     const signUpWithWallet = useCallback(async () => {
 
         try {
             setIsLoading(true);
+            setStatus('loading');
             if (!hashUserId) {
                 throw new Error('Invalid user')
             };
@@ -43,12 +45,14 @@ const useSignupWithWallet = (
             await userContext.signup();
 
             console.log('has signed up');
+            setStatus('success');
         }   catch (error) {
+            setStatus('fail');
             console.error(error);
         }   finally {
             setIsLoading(false);
         }
-    }, [hashUserId, setIsLoading, useContext])
+    }, [hashUserId, setIsLoading, useContext, setStatus])
 
     return signUpWithWallet
 };

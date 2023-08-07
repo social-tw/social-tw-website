@@ -18,7 +18,21 @@ const DemoPost: React.FC<DemoPostProps> = ({
     comments,
     index
 }) => {
-    const opacity = index ===  1 ? 0.9 : 0.1 
+    const getOpacity = (index: number): number => {
+        switch (index) {
+            case 1:
+                return 0.9;
+            case 2:
+                return 0.3;
+            case 4:
+                return 0.2;
+            default:
+                return 0.1;
+        }
+    };
+
+    const opacity = getOpacity(index);
+
     const postVarient = {
         visible: { opacity: 1 },
         hidden: {
@@ -29,10 +43,11 @@ const DemoPost: React.FC<DemoPostProps> = ({
                 ease: "easeInOut",
             },
         }
-    }
+    };
+    
     return (
         <motion.div 
-            className='flex flex-col justify-between px-5 py-4 bg-[#FFFFFFE5] w-11/12 h-[164px] rounded-xl'
+            className='max-w-[600px] flex flex-col justify-between px-5 py-4 bg-[#FFFFFFE5] w-11/12 h-[164px] rounded-xl'
             variants={postVarient}
             initial="visible"
             animate="hidden"

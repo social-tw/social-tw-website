@@ -4,12 +4,14 @@ const useSignupWithServer = (
     hashUserId: string | null,
     SERVER: string,
     userContext: any,
+    setStatus: any,
     setIsLoading: any
 ) => {
     const signupWithServer = useCallback(async () => {
 
         try {
             setIsLoading(true);
+            setStatus('loading');
             if (!hashUserId) {
                 throw new Error('Invalid user')
             };
@@ -40,13 +42,15 @@ const useSignupWithServer = (
             await userContext.load();
 
             await userContext.signup();
+            setStatus('success');
             console.log('has signed up');
         } catch (error: any) {
+            setStatus('fail');
             console.error(error);
         } finally {
             setIsLoading(false);
         }
-    }, [setIsLoading, SERVER, userContext, hashUserId]);
+    }, [setIsLoading, SERVER, userContext, hashUserId, setStatus]);
 
     return signupWithServer;
 };
