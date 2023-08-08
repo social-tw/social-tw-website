@@ -1,14 +1,12 @@
 import React from 'react';
 import Modal from './Modal';
 import { IconType } from 'react-icons';
-import { motion } from 'framer-motion';
 import './signUpLoadingModal.css';
-import Button from '../shared/Button';
-import LoginButton from '../login/LoginButton';
+import { LoadingStatus } from '../../contexts/LoadingContext';
 
 interface LoadingModalProps {
     icon: IconType
-    status: 'loading' | 'success' | 'fail'
+    status: LoadingStatus
     isOpen?: boolean
     onClose?: () => void
 }
@@ -22,12 +20,26 @@ const SignUpLoadingModal: React.FC<LoadingModalProps> = ({
     let content;
 
     switch (status) {
+        case 'start':
+            content = (
+                <>
+                    <Icon size={80} className='text-white' />
+                    <div className='w-8/12 h-[12px] rounded-2xl bg-[#222222] shadow-inner shadow-[#00000040] shadow-[#FFFFFF4D]' />
+                    <div className='h-[108px]'>
+                        <p className='text-white text-2xl font-semibold tracking-wider'>正在等待驗證...</p>
+                    </div>
+                </>
+            );
+            break;
+        
         case 'loading':
             content = (
                 <>
                     <Icon size={80} className='text-white' />
                     <div className='w-8/12 h-[12px] rounded-2xl bg-[#222222] shadow-inner shadow-[#00000040] shadow-[#FFFFFF4D] progress' />
-                    <p className='text-white text-2xl font-semibold tracking-wider'>正在進行鍊上部屬...</p>
+                    <div className='h-[108px]'>
+                        <p className='text-white text-2xl font-semibold tracking-wider'>正在進行鍊上部屬...</p>
+                    </div>
                 </>
             );
             break;
@@ -37,7 +49,7 @@ const SignUpLoadingModal: React.FC<LoadingModalProps> = ({
                 <>
                     <Icon size={80} className='text-white' />
                     <div className='w-8/12 h-[12px] rounded-2xl success shadow-inner shadow-[#00000040] shadow-[#FFFFFF4D]' />
-                    <div className='flex flex-col justify-center items-center gap-4'>
+                    <div className='flex flex-col justify-center items-center gap-4 h-[108px]'>
                         <p className='text-white text-2xl font-semibold tracking-wider'>登入成功!</p>
                         <p className='text-white text-medium font-semibold tracking-wider'>正在前往 Unirep Social TW!</p>
                     </div>
@@ -66,7 +78,7 @@ const SignUpLoadingModal: React.FC<LoadingModalProps> = ({
 
     return (
         <Modal isOpen={isOpen}>
-            <div className='flex flex-col justify-center items-center gap-10 w-full'>
+            <div className='flex flex-col justify-center items-center gap-10 w-full max-w-[350px]'>
                 {content}
             </div>
         </Modal>

@@ -11,13 +11,14 @@ const useSignupWithWallet = (
     hashUserId: string | null, 
     userContext: any,
     setStatus: any, 
-    setIsLoading: any
+    setIsLoading: any,
+    navigate: any
 ) => {
     const signUpWithWallet = useCallback(async () => {
 
         try {
             setIsLoading(true);
-            setStatus('loading');
+            setStatus('start');
             if (!hashUserId) {
                 throw new Error('Invalid user')
             };
@@ -39,13 +40,14 @@ const useSignupWithWallet = (
             });
 
             localStorage.setItem('signature', signature);
-
+            setStatus('loading');
             await userContext.load();
-
             await userContext.signup();
-
             console.log('has signed up');
             setStatus('success');
+            setTimeout(() => {
+                navigate('/')
+            }, 2000);
         }   catch (error) {
             setStatus('fail');
             console.error(error);

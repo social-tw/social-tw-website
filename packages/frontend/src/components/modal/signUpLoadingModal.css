@@ -9,7 +9,7 @@
   height: 100%;
   border-radius: 1rem;
   background: linear-gradient(90deg, #52ACBC, #FF892A);
-  animation: load 15s linear;
+  animation: load 65s linear;
 }
 
 @keyframes load {

@@ -16,7 +16,7 @@ const useAutoNavigation = (
             } else if (!userContext.hasSignedUp && !hashUserId && !status) {
                 navigate('/login')
             } else {
-                navigate('/')
+                return
             }
         }
     }, [userContext.hasSignedUp, navigate, hashUserId, status, isLoading]);

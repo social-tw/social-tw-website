@@ -1,13 +1,13 @@
 import React, { createContext, useState, useContext } from 'react';
 
-type LoadingStatus = 'loading' | 'success' | 'fail';
+export type LoadingStatus = 'loading' | 'success' | 'fail' | 'start';
 type LoadingContextType = {
   status: LoadingStatus;
   setStatus: React.Dispatch<React.SetStateAction<LoadingStatus>>;
 };
 
 const defaultContextValue: LoadingContextType = {
-  status: 'loading',
+  status: 'start',
   setStatus: () => {}
 };
 

@@ -8,13 +8,13 @@ import useTwitterVerify from '../../hooks/useTwitterVerify';
 import useSignUpWithWallet from '../../hooks/useSignupWithWallet';
 import useSignupWithServer from '../../hooks/useSignupWithServer';
 import { observer } from 'mobx-react-lite';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLoading } from '../../contexts/LoadingContext';
 
 interface AuthFormProps {
     isLoading: boolean
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  }
+}
 
 // TODO: Twitter auto login: when user has login twitter but haven't signed up
 // TODO: twitter login form is ugly
@@ -27,9 +27,10 @@ const AuthForm: React.FC<AuthFormProps> = observer(( {
     const [searchParams] = useSearchParams();
     const hashUserId = searchParams.get('code');
     const { setStatus } = useLoading();
+    const navigate = useNavigate();
     const twitterVerify = useTwitterVerify(SERVER);
-    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setStatus, setIsLoading);
-    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setStatus, setIsLoading);
+    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setStatus, setIsLoading, navigate);
+    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setStatus, setIsLoading, navigate);
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -85,7 +86,6 @@ const AuthForm: React.FC<AuthFormProps> = observer(( {
                 </>
             )
             }
-
         </motion.div>
     )
 })

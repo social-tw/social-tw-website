@@ -5,13 +5,14 @@ const useSignupWithServer = (
     SERVER: string,
     userContext: any,
     setStatus: any,
-    setIsLoading: any
+    setIsLoading: any,
+    navigate: any
 ) => {
     const signupWithServer = useCallback(async () => {
 
         try {
             setIsLoading(true);
-            setStatus('loading');
+            setStatus('start');
             if (!hashUserId) {
                 throw new Error('Invalid user')
             };
@@ -30,20 +31,17 @@ const useSignupWithServer = (
             };
 
             const data = await response.json();
-            console.log(data);
-            
-
             const signMessage = data.signMsg;
-
             localStorage.setItem('signature', signMessage);
-
+            setStatus('loading');
             await userContext.setFromServer();
-
             await userContext.load();
-
             await userContext.signup();
             setStatus('success');
             console.log('has signed up');
+            setTimeout(() => {
+                navigate('/')
+            }, 2000);
         } catch (error: any) {
             setStatus('fail');
             console.error(error);

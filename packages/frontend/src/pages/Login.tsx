@@ -12,9 +12,8 @@ const Login: React.FC = () => {
     const { status } = useLoading();
 
     const logoVariants = {
-        start: { scale: 1.4, opacity: 0 },
+        start: { opacity: 0 },
         end: {
-            scale: 1,
             opacity: 1,
             transition: {
                 duration: 0.5,
@@ -57,7 +56,7 @@ const Login: React.FC = () => {
                     <motion.img
                         src={require('../../public/unirep_logo_white.png')}
                         alt='UniRep Logo'
-                        className='w-120px'
+                        className='w-[120px] mb-2'
                         variants={logoVariants}
                         initial='start'
                         animate='end'
