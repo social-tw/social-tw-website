@@ -5,6 +5,7 @@ import { UserContext } from '../contexts/User';
 import { observer } from 'mobx-react-lite';
 import useAutoNavigation from '../hooks/useAutoNavigation';
 import useInitUser from '../hooks/useInitUser';
+import Forwording from '../components/shared/Forwording';
 
 const Home = observer(() => {
     const [searchParams] = useSearchParams();
@@ -45,6 +46,7 @@ const Home = observer(() => {
             animate='animate'
         >
             <Outlet />
+            <Forwording />
         </motion.div>
     )
 })

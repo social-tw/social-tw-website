@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import AuthForm from '../components/login/AuthForm';
 import { motion } from 'framer-motion';
 import DemoPostList from '../components/login/DemoPostList';
-import Modal from '../components/modal/Modal';
 import { SiHiveBlockchain } from 'react-icons/si';
 import SignUpLoadingModal from '../components/modal/SignUpLoadingModal';
 import { useLoading } from '../contexts/LoadingContext';
@@ -58,7 +57,7 @@ const Login: React.FC = () => {
                     <motion.img
                         src={require('../../public/unirep_logo_white.png')}
                         alt='UniRep Logo'
-                        className='max-w-[160px]'
+                        className='w-120px'
                         variants={logoVariants}
                         initial='start'
                         animate='end'
@@ -80,9 +79,6 @@ const Login: React.FC = () => {
                         嗨 🙌🏻 歡迎來到 Unirep Social TW <br />提供你 100% 匿名身份、安全發言的社群！
                     </motion.h2>
                 </div>
-                {/* <button
-                    onClick={() => setIsLoading(true)}
-                >test</button> */}
                 <AuthForm 
                     isLoading={isLoading}
                     setIsLoading={() => setIsLoading(true)}
