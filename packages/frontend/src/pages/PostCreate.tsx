@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { stringifyBigInts } from '@unirep/utils'
 import RichTextEditor from '../components/RichTextEditor'
 import { SERVER } from '../config'
-import User from '../contexts/User'
+import { UserContext } from '../contexts/User'
 
 export default function PostCreate() {
-    const userContext = useContext(User)
+    const userContext = useContext(UserContext)
 
     const [content, setContent] = useState('')
     const [epkNonce, setEpkNonce] = useState('0')
@@ -49,7 +49,7 @@ export default function PostCreate() {
             await userContext.userState.waitForSync()
             await userContext.loadData()
             toast('貼文成功送出')
-            navigate('/posts')
+            navigate('/')
         } catch (err: unknown) {
             console.log(err)
             toast((err as Error).message)

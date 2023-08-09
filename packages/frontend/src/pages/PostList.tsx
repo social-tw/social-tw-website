@@ -72,7 +72,7 @@ export default function PostList() {
             <section className="py-6 text-center">
                 <Link
                     className="text-2xl font-medium text-white hover:underline underline-offset-4"
-                    to="/posts/create"
+                    to="/write"
                 >
                     ✏️ 撰寫貼文
                 </Link>

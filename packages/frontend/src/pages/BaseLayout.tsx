@@ -1,18 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { observer } from 'mobx-react-lite'
+import { useContext, useState } from 'react'
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
 import { UserContext } from '../contexts/User'
-import { observer } from 'mobx-react-lite'
 import useAutoNavigation from '../hooks/useAutoNavigation'
 import useInitUser from '../hooks/useInitUser'
 
-const Home = observer(() => {
-    const [searchParams] = useSearchParams();
-    const hashUserId = searchParams.get('code');
-    const status = searchParams.get('status');
-    const navigate = useNavigate();
-    const userContext = useContext(UserContext);
-    const [isLoading, setIsLoading] = useState(true);
+const BaseLayout = observer(() => {
+    const [searchParams] = useSearchParams()
+    const hashUserId = searchParams.get('code')
+    const status = searchParams.get('status')
+    const navigate = useNavigate()
+    const userContext = useContext(UserContext)
+    const [isLoading, setIsLoading] = useState(true)
 
     //TODO: Using status to check if user has signed up or not
     // It always call twitter auth api no matter signup or login
@@ -22,7 +22,7 @@ const Home = observer(() => {
         'linear-gradient(150deg, #FF892A -8.34%, #8A5F35 10.16%, #000000 42.86%, #305F67 85.6%, #52ACBC 102.84%)',
         'linear-gradient(200deg, #FF892A -7.48%, #8A5F35 9.26%, #000000 38.87%, #305F67 77.56%, #52ACBC 93.17%)',
         'linear-gradient(250deg, #FF892A -9.12%, #8A5F35 15.09%, #000000 47.84%, #305F67 90.9%, #52ACBC 110.95%)',
-    ];
+    ]
 
     const gradientVariants = {
         animate: {
@@ -32,21 +32,21 @@ const Home = observer(() => {
                 ease: 'linear',
             },
         },
-    };
+    }
 
-    useInitUser(userContext, hashUserId, setIsLoading);
-    useAutoNavigation(hashUserId, status, navigate, userContext, isLoading);
+    useInitUser(userContext, hashUserId, setIsLoading)
+    useAutoNavigation(hashUserId, status, navigate, userContext, isLoading)
 
     return (
         <motion.div
-            className='flex h-full flex-col justify-center'
+            className="h-full overflow-y-scroll"
             variants={gradientVariants}
-            initial='animate'
-            animate='animate'
+            initial="animate"
+            animate="animate"
         >
             <Outlet />
         </motion.div>
     )
 })
 
-export default Home;
+export default BaseLayout
