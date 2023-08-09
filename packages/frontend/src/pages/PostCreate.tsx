@@ -45,7 +45,7 @@ export default function PostCreate() {
                     })
                 ),
             }).then((r) => r.json())
-            await userContext.provider.waitForTransaction(data.hash)
+            await userContext.provider.waitForTransaction(data.transaction)
             await userContext.userState.waitForSync()
             await userContext.loadData()
             toast('貼文成功送出')

@@ -1,10 +1,7 @@
-import { ethers } from 'ethers'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 import Post from '../components/Post'
 import { SERVER } from '../config'
-import User from '../contexts/User'
 
 interface Post {
     id: string
@@ -50,40 +47,12 @@ const examplePosts = [
 ]
 
 export default function PostList() {
-    const userContext = useContext(User)
-
     const [posts, setPosts] = useState<Post[]>([])
 
     useEffect(() => {
         async function loadPosts() {
-            const configRes = await fetch(`${SERVER}/api/config`)
-            const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } =
-                await configRes.json()
-
-            const provider = ETH_PROVIDER_URL.startsWith('http')
-                ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
-                : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
-            const appContract = new ethers.Contract(
-                APP_ADDRESS,
-                UNIREP_APP.abi,
-                provider
-            )
-
-            const postFilter = appContract.filters.Post()
-            const postEvents = await appContract.queryFilter(postFilter)
-
-            const blocks = await Promise.all(
-                postEvents.map((event) => event.getBlock())
-            )
-            const posts = postEvents.map((event, i) => ({
-                id: event.args?.postId.toString(),
-                epochKey: event.args?.epochKey.toString(),
-                content: event.args?.content,
-                publishedAt: new Date(blocks[i].timestamp * 1000),
-                commentCount: 0,
-                upCount: 0,
-                downCount: 0,
-            }))
+            const response = await fetch(`${SERVER}/api/post`)
+            const posts = await response.json()
 
             setPosts([...posts, ...examplePosts])
         }

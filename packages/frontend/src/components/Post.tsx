@@ -40,7 +40,7 @@ export default function ({
                     />
                 </div>
             </section>
-            <div className="flex items-start gap-4 px-8 py-8 bg-white rounded-3xl">
+            <div className="flex items-start flex-1 gap-4 px-8 py-8 bg-white rounded-3xl">
                 <section className="flex flex-col items-center">
                     <button className="btn btn-circle btn-ghost">
                         <ArrowUp strokeWidth={3} />
