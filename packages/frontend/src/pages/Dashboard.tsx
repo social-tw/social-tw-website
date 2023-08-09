@@ -1,10 +1,9 @@
-import React from 'react'
-import { observer } from 'mobx-react-lite'
 import './dashboard.css'
+import { observer } from 'mobx-react-lite'
+import React from 'react'
 import Button from '../components/Button'
 import Tooltip from '../components/Tooltip'
-
-import { User, UserContext } from '../contexts/User'
+import { UserContext } from '../contexts/User'
 
 type ReqInfo = {
     nonce: number
@@ -58,7 +57,7 @@ export default observer(() => {
     }
 
     return (
-        <div>
+        <div className="dashboard">
             <h1>Dashboard</h1>
             <div className="container">
                 <div className="info-container">
@@ -241,7 +240,7 @@ export default observer(() => {
                         </Button>
                     </div>
 
-                    <div className="action-container transition">
+                    <div className="transition action-container">
                         <div className="icon">
                             <h2>User State Transition</h2>
                             <Tooltip

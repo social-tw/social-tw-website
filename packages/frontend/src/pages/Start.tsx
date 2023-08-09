@@ -1,11 +1,10 @@
+import './start.css'
+import { observer } from 'mobx-react-lite'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { observer } from 'mobx-react-lite'
-import './start.css'
-import Tooltip from '../components/Tooltip'
 import Button from '../components/Button'
-
-import { User, UserContext } from '../contexts/User'
+import Tooltip from '../components/Tooltip'
+import { UserContext } from '../contexts/User'
 
 export default observer(() => {
     const userContext = React.useContext(UserContext)
@@ -19,7 +18,7 @@ export default observer(() => {
     // }
 
     return (
-        <>
+        <div className="start-page">
             <div className="bg">
                 <img
                     src={require('../../public/hummingbird.svg')}
@@ -89,6 +88,6 @@ export default observer(() => {
                     app.
                 </p>
             </div>
-        </>
+        </div>
     )
 })

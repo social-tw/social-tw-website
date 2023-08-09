@@ -1,6 +1,5 @@
-import React from 'react'
-import { Outlet, Link } from 'react-router-dom'
 import './header.css'
+import { Outlet } from 'react-router-dom'
 
 export default () => {
     return (

@@ -9,12 +9,12 @@ module.exports = {
     },
     extend: {
       colors: {
-        'btn-signup' : "#74C5F8",
-        'btn-login' : "#DC832B",
-        'link' : "#5F8297",
+        'btn-signup': "#74C5F8",
+        'btn-login': "#DC832B",
+        'link': "#5F8297",
       },
     },
   },
-  plugins: [require("daisyui")],
+  plugins: [require('@tailwindcss/typography'), require("daisyui")],
 }
 
