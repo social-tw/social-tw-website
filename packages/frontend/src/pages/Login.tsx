@@ -42,7 +42,7 @@ const Login: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col justify-center ">
+        <div className="flex flex-col justify-center h-full">
             <div className="z-50 flex flex-col justify-between h-full md:justify-center md:flex-row">
                 <div className="md:mt-0 mt-[100px] flex items-center flex-col justify-center">
                     <motion.img
