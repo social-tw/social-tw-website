@@ -18,7 +18,6 @@ const Login: React.FC = () => {
             transition: {
                 duration: 0.5,
                 ease: 'easeInOut',
-                ease: 'easeInOut',
             },
         },
     }
@@ -30,7 +29,6 @@ const Login: React.FC = () => {
             transition: {
                 delay: 0.5,
                 duration: 0.5,
-                ease: 'easeInOut',
                 ease: 'easeInOut',
             },
         },
@@ -44,14 +42,13 @@ const Login: React.FC = () => {
                 delay: 1,
                 duration: 1,
                 ease: 'easeInOut',
-                ease: 'easeInOut',
             },
         },
     }
 
     // TODO: display success interface to user
     return (
-        <>
+        <div className='flex flex-col h-full'>
             <div className='z-40 h-full flex flex-col justify-between'>
                 <div
                     className='pt-24 flex items-center flex-col justify-center'
@@ -99,13 +96,12 @@ const Login: React.FC = () => {
                 isLoading 
                 && (
                 <SignUpLoadingModal
-                    isOpen={isLoading}
                     status={status}
                     onClose={() => setIsLoading(false)}
                     icon={SiHiveBlockchain}
                 />)
             }      
-        </>
+        </div>
     )
 }
 

@@ -39,12 +39,13 @@ const BaseLayout = observer(() => {
 
     return (
         <motion.div
-            className="h-full overflow-y-scroll"
+            className='h-full overflow-y-scroll'
             variants={gradientVariants}
-            initial="animate"
-            animate="animate"
+            initial='animate'
+            animate='animate'
         >
             <Outlet />
+            {/* <Forwording /> */}
         </motion.div>
     )
 })
