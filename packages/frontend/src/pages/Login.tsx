@@ -18,9 +18,10 @@ const Login: React.FC = () => {
             transition: {
                 duration: 0.5,
                 ease: 'easeInOut',
+                ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const textVariants = {
         hidden: { opacity: 0 },
@@ -30,9 +31,10 @@ const Login: React.FC = () => {
                 delay: 0.5,
                 duration: 0.5,
                 ease: 'easeInOut',
+                ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const postListVariants = {
         start: { y: 700 },
@@ -42,8 +44,9 @@ const Login: React.FC = () => {
                 delay: 1,
                 duration: 1,
                 ease: 'easeInOut',
+                ease: 'easeInOut',
             },
-        }
+        },
     }
 
     // TODO: display success interface to user
@@ -62,7 +65,7 @@ const Login: React.FC = () => {
                         animate='end'
                     />
                     <motion.h1
-                        className='text-2xl text-neutral-200 font-semibold'
+                        className="text-2xl font-semibold text-neutral-200"
                         variants={textVariants}
                         initial='hidden'
                         animate='visible'
@@ -70,12 +73,13 @@ const Login: React.FC = () => {
                         Unirep Social TW
                     </motion.h1>
                     <motion.h2
-                        className='mb-6 mt-9 text-sm font-light text-white text-center tracking-wider'
+                        className="mb-6 text-sm font-light tracking-wider text-center text-white mt-9"
                         variants={textVariants}
                         initial='hidden'
                         animate='visible'
                     >
-                        嗨 🙌🏻 歡迎來到 Unirep Social TW <br />提供你 100% 匿名身份、安全發言的社群！
+                        嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
+                        提供你 100% 匿名身份、安全發言的社群！
                     </motion.h2>
                 </div>
                 <AuthForm 
