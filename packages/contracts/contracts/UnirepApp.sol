@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import { Unirep } from "@unirep/contracts/Unirep.sol";
+import {Unirep} from '@unirep/contracts/Unirep.sol';
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -12,10 +12,48 @@ interface IVerifier {
     ) external view returns (bool);
 }
 
-
 contract UnirepApp {
+    struct postVote {
+        uint256 upVote;
+        uint256 downVote;
+    }
+
     Unirep public unirep;
     IVerifier internal dataVerifier;
+    mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
+    mapping(uint256 => uint256) public epochKeyPostIndex;
+    mapping(bytes32 => bool) public proofNullifier;
+
+    event Post(
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed epoch,
+        string content
+    );
+
+    // TODO write document for this enum
+    enum RegisterStatus {
+        NOT_REGISTER,
+        INIT,
+        REGISTERED,
+        REGISTERED_SERVER
+    }
+    
+    uint256 initTimeRange = 300000; // default is 5 min
+    uint160 attesterId;
+
+    // store all users
+    mapping(uint256 => RegisterStatus) userRegistry;
+    mapping(uint256 => uint256) userInitExpiryMap;
+    
+    event UserSignUpSuccess(uint256 hashUserId);
+    event UserInitSuccess(uint256 hashUserId);
+
+    // error 
+    error UserAlreadySignedUp(uint256 hashUserId, RegisterStatus status);
+    error AttesterIdNotMatch(uint160 attesterId);
+    error UserInitStatusInvalid(uint256 hashUserId);
+    error UserInitExpiry(uint256 hashUserId);
 
     constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -25,15 +63,82 @@ contract UnirepApp {
         dataVerifier = _dataVerifier;
 
         // sign up as an attester
+        attesterId = uint160(msg.sender);
         unirep.attesterSignUp(_epochLength);
+    }
+
+    // for query current user status
+    function queryUserStatus(uint256 hashUserId) view external returns (RegisterStatus) {
+        // TODO this checking is required?
+        if (uint160(msg.sender) != attesterId) {
+            revert AttesterIdNotMatch(uint160(msg.sender));
+        }
+
+        return userRegistry[hashUserId];
+    }
+
+    // for init the user status after login
+    function initUserStatus(uint256 hashUserId) external {
+        if (uint160(msg.sender) != attesterId) {
+            revert AttesterIdNotMatch(uint160(msg.sender));
+        }
+
+        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
+            revert UserInitStatusInvalid(hashUserId);
+        }
+        
+        userInitExpiryMap[hashUserId] = block.timestamp + initTimeRange;
+        userRegistry[hashUserId] = RegisterStatus.INIT;
+        emit UserInitSuccess(hashUserId);
     }
 
     // sign up users in this app
     function userSignUp(
         uint256[] memory publicSignals,
-        uint256[8] memory proof
+        uint256[8] memory proof,
+        uint256 hashUserId,
+        bool fromServer
     ) public {
+        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
+            revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
+        }
+
+        if (userRegistry[hashUserId] != RegisterStatus.INIT) {
+            revert UserInitStatusInvalid(hashUserId);
+        }
+
+        // revert when init is expiry 
+        if (userInitExpiryMap[hashUserId] > 0 
+            && userInitExpiryMap[hashUserId] < block.timestamp) {
+            revert UserInitExpiry(hashUserId);
+        }
+
+        if (fromServer) {
+            userRegistry[hashUserId] = RegisterStatus.REGISTERED_SERVER;
+        } else {
+            userRegistry[hashUserId] = RegisterStatus.REGISTERED;
+        }
         unirep.userSignUp(publicSignals, proof);
+        emit UserSignUpSuccess(hashUserId);
+    }
+
+    function post(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        string memory content
+    ) public {
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        require(!proofNullifier[nullifier], 'The proof has been used before');
+        proofNullifier[nullifier] = true;
+
+        unirep.verifyEpochKeyProof(publicSignals, proof);
+        Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(
+            publicSignals
+        );
+        uint256 postId = epochKeyPostIndex[signals.epochKey];
+        epochKeyPostIndex[signals.epochKey] = postId + 1;
+
+        emit Post(signals.epochKey, postId, signals.epoch, content);
     }
 
     function submitManyAttestations(
@@ -54,21 +159,13 @@ contract UnirepApp {
         uint256 fieldIndex,
         uint256 val
     ) public {
-        unirep.attest(
-            epochKey,
-            targetEpoch,
-            fieldIndex,
-            val
-        );
+        unirep.attest(epochKey, targetEpoch, fieldIndex, val);
     }
 
     function verifyDataProof(
         uint256[5] calldata publicSignals,
         uint256[8] calldata proof
-    ) public view returns(bool) {
-        return dataVerifier.verifyProof(
-            publicSignals,
-            proof
-        );
+    ) public view returns (bool) {
+        return dataVerifier.verifyProof(publicSignals, proof);
     }
 }

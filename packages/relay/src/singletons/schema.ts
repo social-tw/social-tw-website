@@ -1,6 +1,6 @@
-import { schema } from '@unirep/core'
 import { TableData } from 'anondb/node'
 import { nanoid } from 'nanoid'
+import { schema } from '@unirep/core'
 
 const _schema = [
     {
@@ -18,6 +18,53 @@ const _schema = [
         rows: [
             ['address', 'String'],
             ['nonce', 'Int'],
+        ],
+    },
+    {
+        name: 'User',
+        primaryKey: 'userId',
+        rows: [
+            ['userId', 'String'],
+            ['status', 'Int'], // 0: init, 1: registered
+        ],
+    },
+    {
+        name: 'Post',
+        rows: [
+            {
+                name: 'publishedAt',
+                type: 'Int',
+                default: () => +new Date(),
+            },
+            ['postId', 'String', { optional: true }],
+            ['transactionHash', 'String', { optional: true }],
+            ['content', 'String', { optional: true }],
+            ['cid', 'String', { optional: true }],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            {
+                name: 'upCount',
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'downCount',
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'voteSum',
+                type: 'Int',
+                default: () => 0,
+            },
+            // status 0: haven't found the post on-chain
+            // status 1: found the post on-chain
+            ['status', 'Int'],
+            {
+                name: 'commentCount',
+                type: 'Int',
+                default: () => 0,
+            },
         ],
     },
 ]
