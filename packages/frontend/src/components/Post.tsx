@@ -1,21 +1,31 @@
 import Avatar from 'boring-avatars'
 import dayjs from 'dayjs'
-import { ArrowDown, ArrowUp } from 'iconoir-react'
+import LinesEllipsis from 'react-lines-ellipsis'
+import { Link } from 'react-router-dom'
+import Comment from '../assets/comment.png'
+import Downvote from '../assets/downvote.png'
+import Upvote from '../assets/upvote.png'
 
 export default function ({
+    id = '',
     epochKey,
     content = '',
+    imageUrl,
     publishedAt = new Date(),
     commentCount = 0,
     upCount = 0,
     downCount = 0,
+    compact = false,
 }: {
+    id: string
     epochKey: string
     content: string
+    imageUrl?: string
     publishedAt: Date
     commentCount: number
     upCount: number
     downCount: number
+    compact?: boolean
 }) {
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
@@ -23,49 +33,80 @@ export default function ({
         : publishedTime.fromNow()
 
     return (
-        <article className="flex items-start gap-6">
-            <section className="w-24 h-24">
-                <div className="border-2 border-white rounded-full avatar">
-                    <Avatar
-                        size={80}
-                        name={epochKey}
-                        variant="beam"
-                        colors={[
-                            '#92A1C6',
-                            '#146A7C',
-                            '#F0AB3D',
-                            '#C271B4',
-                            '#C20D90',
-                        ]}
-                    />
-                </div>
-            </section>
-            <div className="flex items-start flex-1 gap-4 px-8 py-8 bg-white rounded-3xl">
-                <section className="flex flex-col items-center">
-                    <button className="btn btn-circle btn-ghost">
-                        <ArrowUp strokeWidth={3} />
-                    </button>
-                    <span className="inline-flex items-center justify-center w-12 h-12 text-lg font-medium">
-                        {upCount - downCount}
-                    </span>
-                    <button className="btn btn-circle btn-ghost">
-                        <ArrowDown strokeWidth={3} />
-                    </button>
+        <article className="flex bg-white/90 rounded-xl shadow-base">
+            <div className="p-4 space-y-3">
+                <header className="flex items-center gap-4">
+                    <div className="border-2 border-white rounded-full">
+                        <Avatar
+                            size={20}
+                            name={epochKey}
+                            variant="beam"
+                            colors={[
+                                '#92A1C6',
+                                '#146A7C',
+                                '#F0AB3D',
+                                '#C271B4',
+                                '#C20D90',
+                            ]}
+                        />
+                    </div>
+                    <div className="text-xs font-medium tracking-wide text-black/80">
+                        {publishedLabel}
+                    </div>
+                </header>
+                <section className="text-sm font-medium tracking-wider text-black/90">
+                    {compact ? (
+                        <Link to={`/posts/${id}`}>
+                            <LinesEllipsis
+                                text={content}
+                                maxLine="4"
+                                ellipsis="..."
+                                component="p"
+                            />
+                        </Link>
+                    ) : (
+                        <p>{content}</p>
+                    )}
                 </section>
-                <section>
-                    <p className="text-2xl font-medium text-black break-all whitespace-pre-wrap">
-                        {content}
-                    </p>
-                    <div className="flex justify-between mt-8">
-                        <span className="text-2xl text-blue-300">
-                            {publishedLabel}
-                        </span>
-                        <span className="text-2xl text-blue-300">
-                            {commentCount} 則留言
+                {!compact && imageUrl && (
+                    <section className="hidden rounded-xl shadow-base">
+                        <img className="w-full" src={imageUrl} alt="image" />
+                    </section>
+                )}
+                <footer className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                        <img className="w-5 h-5" src={Upvote} alt="upvote" />
+                        <span className="text-xs font-medium tracking-wide text-black/80">
+                            {upCount}
                         </span>
                     </div>
-                </section>
+                    <div className="flex items-center gap-1">
+                        <img
+                            className="w-5 h-5"
+                            src={Downvote}
+                            alt="downvote"
+                        />
+                        <span className="text-xs font-medium tracking-wide text-black/80">
+                            {downCount}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <img className="w-5 h-5" src={Comment} alt="comment" />
+                        <span className="text-xs font-medium tracking-wide text-black/80">
+                            {commentCount}
+                        </span>
+                    </div>
+                </footer>
             </div>
+            {compact && imageUrl && (
+                <div className="max-w-[150px] rounded-xl shadow-base hidden">
+                    <img
+                        className="object-cover w-full h-full"
+                        src={imageUrl}
+                        alt="image"
+                    />
+                </div>
+            )}
         </article>
     )
 }
