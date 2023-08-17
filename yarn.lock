@@ -1566,7 +1566,7 @@
     elliptic "6.5.4"
     hash.js "1.1.7"
 
-"@ethersproject/solidity@5.7.0", "@ethersproject/solidity@^5.7.0":
+"@ethersproject/solidity@5.7.0":
   version "5.7.0"
   resolved "https://registry.npmjs.org/@ethersproject/solidity/-/solidity-5.7.0.tgz"
   integrity sha512-HmabMd2Dt/raavyaGukF4XxizWKhKQ24DoLtdNbBmNKUOPqwjsKQSdV9GQtj9CBEea9DlzETlVER1gYeXXBGaA==
@@ -3531,49 +3531,48 @@
   resolved "https://registry.yarnpkg.com/@uidotdev/usehooks/-/usehooks-2.1.0.tgz#1f8d42ba4af7fc82bea45af118d691645f945353"
   integrity sha512-D7SJiNQC1BOHgtE2dy2KvOtnRNaLWTFFHvcBLg7lZ8Jz7YcimxdUY3spqpvf/mVkGCuUHee8i/79p5vVkBgsYQ==
 
-"@unirep/circuits@2.0.0-beta-3":
-  version "2.0.0-beta-3"
-  resolved "https://registry.npmjs.org/@unirep/circuits/-/circuits-2.0.0-beta-3.tgz"
-  integrity sha512-LSCiNWt/g13fUjNeYEFnDpniVLCzLglEfNvMCnLaIaPqvTNLRysCzY+dRE53G8eX7nGRj7Y8K6NsBXbl+T6Hfg==
+"@unirep/circuits@2.0.0-beta-4":
+  version "2.0.0-beta-4"
+  resolved "https://registry.yarnpkg.com/@unirep/circuits/-/circuits-2.0.0-beta-4.tgz#7ae6d680969744a0b323b93d4f45487966e4fefb"
+  integrity sha512-wQAaW0H2XNIgdFI74gZ+hiAPd4Yy6ITRSCwp9xLGZz2k72BP5mM2y2OsXSGi4qx+PTHwrFkuFUijAfc3WfwkZg==
   dependencies:
-    "@ethersproject/solidity" "^5.7.0"
-    "@unirep/utils" "2.0.0-beta-3"
+    "@unirep/utils" "2.0.0-beta-4"
     snarkjs "^0.5.0"
 
-"@unirep/contracts@2.0.0-beta-3":
-  version "2.0.0-beta-3"
-  resolved "https://registry.npmjs.org/@unirep/contracts/-/contracts-2.0.0-beta-3.tgz"
-  integrity sha512-zKvivmTfgPp5QT72XWDI9RSBhxz9XIuFYaFLmvAHZi1Hm/j2Lq/AjYopZBFCI7KAKUD+Rb+/HXBuhVgOnZijog==
+"@unirep/contracts@2.0.0-beta-4":
+  version "2.0.0-beta-4"
+  resolved "https://registry.yarnpkg.com/@unirep/contracts/-/contracts-2.0.0-beta-4.tgz#21a2f508b7041bd90601a56879865c7595ec899b"
+  integrity sha512-Gt2T7L0XOs2grgn9OR/HyRwY+k8ir1hLYXjvnVxdutNJVI5FkiJqXEQlv26W1oKmT6s462DKTp5M4JvrPQhYFQ==
   dependencies:
-    "@unirep/circuits" "2.0.0-beta-3"
-    "@unirep/utils" "2.0.0-beta-3"
+    "@unirep/circuits" "2.0.0-beta-4"
+    "@unirep/utils" "2.0.0-beta-4"
     "@zk-kit/incremental-merkle-tree.sol" "^1.4.0"
     ethers "^5.6.8"
     global-factory "^0.0.0"
-    poseidon-solidity "^0.0.3"
+    poseidon-solidity "^0.0.5"
     solc "^0.8.16"
 
-"@unirep/core@2.0.0-beta-3":
-  version "2.0.0-beta-3"
-  resolved "https://registry.npmjs.org/@unirep/core/-/core-2.0.0-beta-3.tgz"
-  integrity sha512-xnlzpZEk6vAATfHXls2LIYqHalN+echNNYcEUCSxS3DO3lw70i9AgkAl7PUPMKmdgm8geY1cJbmWrdS0WKEe+w==
+"@unirep/core@2.0.0-beta-4":
+  version "2.0.0-beta-4"
+  resolved "https://registry.yarnpkg.com/@unirep/core/-/core-2.0.0-beta-4.tgz#8b655861b4911c0ae9888c2a1f5b5c4d9a38164e"
+  integrity sha512-gWwusC6dLH990aH8uFb4KkE4owAeMgj7iQXQx/W++GhZRxvQPh7ucOa7qJgW0vwdSJC/LYaRtSkm5puNAwdZ0g==
   dependencies:
     "@semaphore-protocol/identity" "^3.5.0"
-    "@unirep/circuits" "2.0.0-beta-3"
-    "@unirep/contracts" "2.0.0-beta-3"
-    "@unirep/utils" "2.0.0-beta-3"
+    "@unirep/circuits" "2.0.0-beta-4"
+    "@unirep/contracts" "2.0.0-beta-4"
+    "@unirep/utils" "2.0.0-beta-4"
     anondb "^0.0.16"
     async-lock "^1.4.0"
     ethers "^5.6.8"
     nanoid "3"
 
-"@unirep/utils@2.0.0-beta-3":
-  version "2.0.0-beta-3"
-  resolved "https://registry.npmjs.org/@unirep/utils/-/utils-2.0.0-beta-3.tgz"
-  integrity sha512-xf/SAURPcvvsFIEBuGTw7w6AEVeuzIKxEzt+Cphkx09raOESTGxNxHxg8DUtfJ7yZ507Qy3AcSikpOTzLnY7zw==
+"@unirep/utils@2.0.0-beta-4":
+  version "2.0.0-beta-4"
+  resolved "https://registry.yarnpkg.com/@unirep/utils/-/utils-2.0.0-beta-4.tgz#cb627c4f208331f919884f0f4e063b70506cf4a0"
+  integrity sha512-ldv5ObkYWbcuGqokzJjHJtrx/5/2H3r6opEwa6T41e8ualbn+bvylLXFr6L0L5oJlZFXPdFiAktxN3iy7eNoxQ==
   dependencies:
-    "@zk-kit/incremental-merkle-tree" "^0.4.3"
-    poseidon-lite "^0.0.2"
+    "@zk-kit/incremental-merkle-tree" "^1.1.0"
+    poseidon-lite "^0.2.0"
     randomf "^0.0.3"
 
 "@webassemblyjs/ast@1.11.6", "@webassemblyjs/ast@^1.11.5":
@@ -3744,10 +3743,10 @@
   dependencies:
     poseidon-solidity "0.0.4"
 
-"@zk-kit/incremental-merkle-tree@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.npmjs.org/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-0.4.3.tgz"
-  integrity sha512-2qHfrJXtPx8/UmF0wFAUr4VqCLr3J/P859fk/e3fwKLUnf3baeIUAO6inY4wrh0NGy4bzpKUWYjDph0yTbPz6A==
+"@zk-kit/incremental-merkle-tree@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-1.1.0.tgz#6b0ccce56f9e05ccf73f7ea4fa746d5ef7d24b1d"
+  integrity sha512-WnNR/GQse3lX8zOHMU8zwhgX8u3qPoul8w4GjJ0WDHq+VGJimo7EGheRZ/ILeBQabnlzAerdv3vBqYBehBeoKA==
 
 "@zkochan/js-yaml@0.0.6":
   version "0.0.6"
@@ -9775,10 +9774,10 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-poseidon-lite@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/poseidon-lite/-/poseidon-lite-0.0.2.tgz"
-  integrity sha512-bGdDPTOQkJbBjbtSEWc3gY+YhqlGTxGlZ8041F8TGGg5QyGGp1Cfs4b8AEnFFjHbkPg6WdWXUgEjU1GKOKWAPw==
+poseidon-lite@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/poseidon-lite/-/poseidon-lite-0.2.0.tgz#dbc242ebd9c10c32d507a533fa497231d168fd72"
+  integrity sha512-vivDZnGmz8W4G/GzVA72PXkfYStjilu83rjjUfpL4PueKcC8nfX6hCPh2XhoC5FBgC6y0TA3YuUeUo5YCcNoig==
 
 poseidon-solidity@0.0.4:
   version "0.0.4"
@@ -9789,6 +9788,11 @@ poseidon-solidity@^0.0.3:
   version "0.0.3"
   resolved "https://registry.npmjs.org/poseidon-solidity/-/poseidon-solidity-0.0.3.tgz"
   integrity sha512-8eCb5Wz/fhgRK1yC1KZBafZmZC3STvLe7DQMpL9471gKtcgkjsCLN7HoTjDPI9UKxsFzUmXZxaEOrWfvOxXP/w==
+
+poseidon-solidity@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/poseidon-solidity/-/poseidon-solidity-0.0.5.tgz#3f93e01cfe25f6d2f2fac49734fbb00961b84655"
+  integrity sha512-NzrvSwHzvZgT4hvg2GyGqeR+UOU/eLSEt4wAoXEua+VaR7NTKKwx1X9bPlh1VMBEVEno+IWvkRBbidFGzTeAqQ==
 
 postcss-import@^15.1.0:
   version "15.1.0"
