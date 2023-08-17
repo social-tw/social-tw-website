@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 import {Unirep} from '@unirep/contracts/Unirep.sol';
 import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
+import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";

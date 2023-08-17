@@ -2,7 +2,7 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployUnirep, deployVerifierHelper } from '@unirep/contracts/deploy'
-import { CircuitConfig, Circuit, EpochKeyProof } from '@unirep/circuits'
+import { CircuitConfig, Circuit } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
 import { schema, UserState } from '@unirep/core'
 import { SQLiteConnector } from 'anondb/node'

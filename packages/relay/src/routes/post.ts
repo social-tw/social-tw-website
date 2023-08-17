@@ -6,10 +6,8 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
-import { dynamicImport } from 'tsimportlib'
+import {dynamicImport} from 'tsimportlib';
 import { UnirepSocialSynchronizer } from '../synchornizer'
-import type { Helia } from '@helia/interface'
-
 
 export const LOAD_POST_COUNT = 10
 
@@ -60,13 +58,7 @@ async function fetchPosts(req, res, db: DB) {
     }
 }
 
-async function createPost(
-    req,
-    res,
-    db: DB,
-    synchronizer: UnirepSocialSynchronizer,
-    helia: Helia
-) {
+async function createPost(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
     try {
         const { content, publicSignals, proof } = req.body
         
