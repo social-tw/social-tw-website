@@ -6,6 +6,7 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
+<<<<<<< HEAD
 import { dynamicImport } from 'tsimportlib'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import type { Helia } from '@helia/interface'
@@ -19,6 +20,14 @@ export default (
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia,
 ) => {
+=======
+import {dynamicImport} from 'tsimportlib';
+import { UnirepSocialSynchronizer } from '../synchornizer'
+
+export const LOAD_POST_COUNT = 10
+
+export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
+>>>>>>> 3e1daea (feat: bump to v2.0.0-beta-4 version)
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
