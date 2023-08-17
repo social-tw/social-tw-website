@@ -23,9 +23,9 @@ const DemoPost: React.FC<DemoPostProps> = ({
             case 1:
                 return 0.9;
             case 2:
-                return 0.3;
-            case 4:
                 return 0.2;
+            case 4:
+                return 0.15;
             default:
                 return 0.1;
         }

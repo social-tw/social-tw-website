@@ -2,9 +2,10 @@ import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IoClose } from 'react-icons/io5';
 import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
 
 interface ModalProps {
-    isOpen?: boolean;
+    isOpen: boolean;
     onClose?: () => void;
     children: React.ReactNode;
 }
@@ -37,26 +38,29 @@ const Modal: React.FC<ModalProps> = ({
         },
     }
 
+    if (!isOpen) return null
+
     return (
-        <motion.div
-            className='
-            fixed 
-            inset-0 
-            z-50
-            bg-black
-            bg-opacity-90
-            '
-            variants={modalVariants}
-            initial='hidden'
-            animate='visible'
-        >
+        <>
             <motion.div
                 className='
-                flex
-                h-full 
-
-                items-center
-                justify-center
+                fixed 
+                inset-0 
+                z-50
+                bg-black
+                bg-opacity-90
+                h-full
+                '      
+                variants={modalVariants}
+                initial='hidden'
+                animate='visible'
+            />
+            <motion.div
+                className='
+                fixed 
+                inset-0
+                z-[60]
+                bg-opacity-80
                 '
                 variants={chidrenVarients}
                 initial='hidden'
@@ -64,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({
             >
                 {children}
             </motion.div>
-        </motion.div>
+        </>
     )
 }
 

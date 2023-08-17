@@ -10,6 +10,8 @@ import useSignupWithServer from '../../hooks/useSignupWithServer';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLoading } from '../../contexts/LoadingContext';
+import NoteModal from '../modal/NoteModal';
+import { GrFormClose } from 'react-icons/gr';
 
 interface AuthFormProps {
     isLoading: boolean
@@ -31,6 +33,7 @@ const AuthForm: React.FC<AuthFormProps> = observer(( {
     const twitterVerify = useTwitterVerify(SERVER);
     const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setStatus, setIsLoading, navigate);
     const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setStatus, setIsLoading, navigate);
+    const [noteStatus, setNoteStatus] = useState('close');
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -45,48 +48,59 @@ const AuthForm: React.FC<AuthFormProps> = observer(( {
     }
 
     return (
-        <motion.div
-            className="md:pb-28 pb-8 min-w-[300px] w-full flex flex-col justify-center items-center gap-6 "
-            variants={authVarients}
-            initial="hidden"
-            animate="visible"
-        >
-            {hashUserId ? 
-            (
-                <>
-                    <LoginButton
-                        isLoading={isLoading}
-                        icon={BsTwitter}
-                        onClick={signupWithWallet}
-                        title='錢包註冊'
-                        subTitle='使用MetaMask錢包進行登入！'
-                        color='#2F9CAF'
-                    />
-                    <LoginButton
-                        isLoading={isLoading}
-                        icon={BsTwitter}
-                        onClick={signupWithServer}
-                        title='直接註冊'
-                        subTitle='使用SERVER進行登入！'
-                        color='#DB7622'
-                    />
-                </>
-            )
-            :
-            (
-                <>
-                    <LoginButton
-                        isLoading={isLoading}
-                        icon={BsTwitter}
-                        onClick={twitterVerify}
-                        title='立即註冊'
-                        subTitle='加入我們的匿名討論行列！'
-                        color='#2F9CAF'
-                    />
-                </>
-            )
-            }
-        </motion.div>
+        <>
+            <motion.div
+                className="md:pb-28 pb-8 min-w-[300px] w-full flex flex-col justify-center items-center gap-6 "
+                variants={authVarients}
+                initial="hidden"
+                animate="visible"
+            >
+                {hashUserId ? 
+                (
+                    <>
+                        <LoginButton
+                            isLoading={isLoading}
+                            icon={BsTwitter}
+                            onClick={signupWithWallet}
+                            title='錢包註冊'
+                            subTitle='使用 MetaMask 錢包進行登入'
+                            color='#2F9CAF'
+                            text='MetaMask 錢包'
+                            setNoteStatus={() => setNoteStatus('metamask')}
+                        />
+                        <LoginButton
+                            isLoading={isLoading}
+                            icon={BsTwitter}
+                            onClick={signupWithServer}
+                            title='直接註冊'
+                            subTitle='沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
+                            color='#DB7622'
+                            text='Server 註冊'
+                            setNoteStatus={() => setNoteStatus('server')}
+                        />
+                    </>
+                )
+                :
+                (
+                    <>
+                        <LoginButton
+                            isLoading={isLoading}
+                            icon={BsTwitter}
+                            onClick={twitterVerify}
+                            title='立即註冊'
+                            subTitle='加入我們的匿名討論行列!'
+                            color='#2F9CAF'
+                        />
+                    </>
+                )
+                }
+            </motion.div>
+            <NoteModal 
+                icon={GrFormClose}
+                noteStatus={noteStatus}
+                onClose={() => setNoteStatus('close')}
+            />
+        </>
     )
 })
 

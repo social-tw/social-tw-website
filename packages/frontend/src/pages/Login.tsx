@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import AuthForm from '../components/login/AuthForm';
 import { motion } from 'framer-motion';
 import DemoPostList from '../components/login/DemoPostList';
-import { SiHiveBlockchain } from 'react-icons/si';
-import SignUpLoadingModal from '../components/modal/SignUpLoadingModal';
 import { useLoading } from '../contexts/LoadingContext';
 
 // TODO: Change font family
@@ -92,15 +90,6 @@ const Login: React.FC = () => {
             >
                 <DemoPostList />
             </motion.div>
-            {
-                isLoading 
-                && (
-                <SignUpLoadingModal
-                    status={status}
-                    onClose={() => setIsLoading(false)}
-                    icon={SiHiveBlockchain}
-                />)
-            }      
         </div>
     )
 }
