@@ -12,7 +12,7 @@ import { ethers } from 'ethers'
 class User {
     currentEpoch: number = 0
     latestTransitionedEpoch: number = 0
-    isTwitterVerified: boolean = false
+    isSignupLoading: boolean = false
     fromServer: boolean = false
     hasSignedUp: boolean = false
     data: bigint[] = []
@@ -30,26 +30,18 @@ class User {
      * This function should be called before user signs up for 
      * it will load the user's signature and hashUserId from local storage.
      * @returns 
-     */    // Two states: user had logged in twitter and hasn't
+     */    
     setFromServer() {
         this.fromServer = true
     }
 
+    setisSignupLoading(status: boolean) {
+        this.isSignupLoading = status
+    }
+
     async load() {
-        console.log("load .....")
         this.hashUserId = localStorage.getItem('hashUserId') ?? ''
-
-        // TODO: if this is necessary?
-        if (this.hashUserId) {
-            this.isTwitterVerified = true
-            console.log(this.hashUserId)
-        } else {
-            console.error('Invalid hashUserId for twitter')
-        }
-
-        this.signature = localStorage.getItem('signature') ?? ''
-        
-
+        this.signature = localStorage.getItem('signature') ?? '' 
         if (this.hashUserId?.length == 0 && this.signature?.length == 0) {
             console.error("HashUserId and signature are wrong")
             return
@@ -124,11 +116,8 @@ class User {
     }
 
     async signup() {
-        console.log(this.userState)
         if (!this.userState) throw new Error('user state not initialized')
-
         const signupProof = await this.userState.genUserSignUpProof()
-        console.log(signupProof)
 
         // TODO: handle error
         const data = await fetch(`${SERVER}/api/signup`, {
@@ -143,8 +132,6 @@ class User {
                 fromServer: this.fromServer,
             }),
         }).then((r) => r.json())
-
-        console.log(data)
 
         // TODO: handle error
         await this.provider.waitForTransaction(data.hash)

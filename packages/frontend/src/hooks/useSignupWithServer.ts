@@ -1,21 +1,19 @@
-import { useCallback } from "react";
+import { useCallback } from "react"
+import { User } from "../contexts/User"
 
 const useSignupWithServer = (
     hashUserId: string | null,
     SERVER: string,
-    userContext: any,
-    setStatus: any,
-    setIsLoading: any,
-    navigate: any
+    userContext: User,
+    navigate: (path: string) => void
 ) => {
     const signupWithServer = useCallback(async () => {
-
         try {
-            setIsLoading(true);
-            setStatus('start');
+            userContext.setisSignupLoading(true)
+            navigate('/')
             if (!hashUserId) {
                 throw new Error('Invalid user')
-            };
+            }
             const response = await fetch(`${SERVER}/api/identity`, {
                 method: 'POST',
                 headers: {
@@ -24,33 +22,27 @@ const useSignupWithServer = (
                 body: JSON.stringify({
                     hashUserId,
                 })
-            });
+            })
 
             if (!response.ok) {
                 throw new Error('False Identity')
-            };
+            }
 
-            const data = await response.json();
-            const signMessage = data.signMsg;
-            localStorage.setItem('signature', signMessage);
-            setStatus('loading');
-            await userContext.setFromServer();
-            await userContext.load();
-            await userContext.signup();
-            setStatus('success');
-            console.log('has signed up');
-            setTimeout(() => {
-                navigate('/')
-            }, 2000);
+            const data = await response.json()
+            const signMessage = data.signMsg
+            localStorage.setItem('signature', signMessage)
+            userContext.setFromServer()
+            await userContext.load()
+            await userContext.signup()
+            console.log('has signed up')
         } catch (error: any) {
-            setStatus('fail');
-            console.error(error);
+            console.error(error)
         } finally {
-            setIsLoading(false);
+            userContext.setisSignupLoading(false)
         }
-    }, [setIsLoading, SERVER, userContext, hashUserId, setStatus]);
+    }, [SERVER, userContext, hashUserId])
 
-    return signupWithServer;
-};
+    return signupWithServer
+}
 
-export default useSignupWithServer;
+export default useSignupWithServer

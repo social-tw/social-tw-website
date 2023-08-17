@@ -53,6 +53,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
                 bg-opacity-70
                 drop-shadow-md
                 drop-shadow-black
+                cursor-pointer
                 `}
             >
                 <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>

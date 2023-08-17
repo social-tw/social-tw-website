@@ -12,9 +12,7 @@ const BaseLayout = observer(() => {
     const status = searchParams.get('status')
     const navigate = useNavigate()
     const userContext = useContext(UserContext)
-    const [isLoading, setIsLoading] = useState(true)
-
-    //TODO: Using status to check if user has signed up or not
+    const [isLoading, setIsLoading] = useState<boolean>(true)
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -43,8 +41,7 @@ const BaseLayout = observer(() => {
             initial='animate'
             animate='animate'
         >
-            <Outlet />
-            {/* <Forwording /> */}
+            {!isLoading && <Outlet />}
         </motion.div>
     )
 })

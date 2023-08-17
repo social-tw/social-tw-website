@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import { User } from "../contexts/User"; 
 
 const useInitUser = (
-    userContext: any, 
+    userContext: User, 
     hashUserId: string | null, 
-    setIsLoading: any
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
     useEffect(() => {
         const initUser = async () => {

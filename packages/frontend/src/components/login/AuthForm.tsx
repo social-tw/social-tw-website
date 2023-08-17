@@ -1,39 +1,30 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { BsTwitter } from 'react-icons/bs';
-import LoginButton from './LoginButton';
-import { UserContext } from '../../contexts/User';
-import { motion } from 'framer-motion';
-import { SERVER } from '../../config';
-import useTwitterVerify from '../../hooks/useTwitterVerify';
-import useSignUpWithWallet from '../../hooks/useSignupWithWallet';
-import useSignupWithServer from '../../hooks/useSignupWithServer';
-import { observer } from 'mobx-react-lite';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useLoading } from '../../contexts/LoadingContext';
-import NoteModal from '../modal/NoteModal';
-import { GrFormClose } from 'react-icons/gr';
-
-interface AuthFormProps {
-    isLoading: boolean
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-}
+import React, { useContext, useEffect, useState } from 'react'
+import { BsTwitter } from 'react-icons/bs'
+import LoginButton from './LoginButton'
+import { UserContext } from '../../contexts/User'
+import { motion } from 'framer-motion'
+import { SERVER } from '../../config'
+import useTwitterVerify from '../../hooks/useTwitterVerify'
+import useSignUpWithWallet from '../../hooks/useSignupWithWallet'
+import useSignupWithServer from '../../hooks/useSignupWithServer'
+import { observer } from 'mobx-react-lite'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import NoteModal from '../modal/NoteModal'
+import { GrFormClose } from 'react-icons/gr'
 
 // TODO: Twitter auto login: when user has login twitter but haven't signed up
 // TODO: twitter login form is ugly
-const AuthForm: React.FC<AuthFormProps> = observer(( {
-    isLoading,
-    setIsLoading
-}
+const AuthForm: React.FC = observer(( 
 ) => {
-    const userContext = useContext(UserContext);
-    const [searchParams] = useSearchParams();
-    const hashUserId = searchParams.get('code');
-    const { setStatus } = useLoading();
-    const navigate = useNavigate();
-    const twitterVerify = useTwitterVerify(SERVER);
-    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, setStatus, setIsLoading, navigate);
-    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, setStatus, setIsLoading, navigate);
-    const [noteStatus, setNoteStatus] = useState('close');
+    const userContext = useContext(UserContext)
+    const [searchParams] = useSearchParams()
+    const hashUserId = searchParams.get('code')
+    const navigate = useNavigate()
+    const twitterVerify = useTwitterVerify(SERVER)
+    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, navigate)
+    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, navigate)
+    const [noteStatus, setNoteStatus] = useState('close')
+    const isLoading = userContext.isSignupLoading
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -104,5 +95,5 @@ const AuthForm: React.FC<AuthFormProps> = observer(( {
     )
 })
 
-export default AuthForm; 
+export default AuthForm 
 

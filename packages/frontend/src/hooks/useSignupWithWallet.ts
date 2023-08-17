@@ -1,5 +1,6 @@
-import { useCallback, useContext } from "react";
-import { ethers } from 'ethers';
+import { useCallback, useContext } from "react"
+import { ethers } from 'ethers'
+import { User } from "../contexts/User"
 
 declare global {
     interface Window {
@@ -9,25 +10,22 @@ declare global {
 
 const useSignupWithWallet = (
     hashUserId: string | null, 
-    userContext: any,
-    setStatus: any, 
-    setIsLoading: any,
-    navigate: any
+    userContext: User,
+    navigate: (path: string) => void
 ) => {
     const signUpWithWallet = useCallback(async () => {
-
         try {
-            setIsLoading(true);
-            setStatus('start');
+            userContext.setisSignupLoading(true)
+            navigate('/')
             if (!hashUserId) {
                 throw new Error('Invalid user')
-            };
+            }
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
-            };
+            }
             console.log('waiting sign up...')
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const account = accounts[0];
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+            const account = accounts[0]
 
             const signature = await window.ethereum.request({
                 method: 'personal_sign',
@@ -37,26 +35,20 @@ const useSignupWithWallet = (
                     ),
                     account,
                 ],
-            });
+            })
 
-            localStorage.setItem('signature', signature);
-            setStatus('loading');
-            await userContext.load();
-            await userContext.signup();
-            console.log('has signed up');
-            setStatus('success');
-            setTimeout(() => {
-                navigate('/')
-            }, 2000);
+            localStorage.setItem('signature', signature)
+            await userContext.load()
+            await userContext.signup()
+            console.log('has signed up')
         }   catch (error) {
-            setStatus('fail');
-            console.error(error);
+            console.error(error)
         }   finally {
-            setIsLoading(false);
+            userContext.setisSignupLoading(true)
         }
-    }, [hashUserId, setIsLoading, useContext, setStatus])
+    }, [hashUserId, navigate, useContext])
 
     return signUpWithWallet
-};
+}
 
 export default useSignupWithWallet

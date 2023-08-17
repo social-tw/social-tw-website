@@ -2,12 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import AuthForm from '../components/login/AuthForm';
 import { motion } from 'framer-motion';
 import DemoPostList from '../components/login/DemoPostList';
-import { useLoading } from '../contexts/LoadingContext';
 
 // TODO: Change font family
 const Login: React.FC = () => {
-    const [isLoading, setIsLoading] = useState(false); 
-    const { status } = useLoading();
 
     const logoVariants = {
         start: { opacity: 0 },
@@ -77,10 +74,7 @@ const Login: React.FC = () => {
                         提供你 100% 匿名身份、安全發言的社群！
                     </motion.h2>
                 </div>
-                <AuthForm 
-                    isLoading={isLoading}
-                    setIsLoading={() => setIsLoading(true)}
-                />
+                <AuthForm />
             </div>
             <motion.div 
                 className='fixed inset-0 z-30 overflow-y-none mt-[220px]'
