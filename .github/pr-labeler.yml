@@ -1,0 +1,21 @@
+relay:
+  - packages/relay/*
+  - packages/relay/**/*
+contracts:
+  - packages/contracts/*
+  - packages/contracts/**/*
+automation:
+  - .github/*
+  - .github/**/*
+frontend:
+  - packages/frontend/*
+  - packages/frontend/**/*
+circuit:
+  - packages/circuit/*
+  - packages/circuit/**/*
+documentation:
+  - 'docs/*'
+  - 'docs/**/*'
+  - '*.md'
+  - '**/*.md'
+  - '**/**/*.md'
