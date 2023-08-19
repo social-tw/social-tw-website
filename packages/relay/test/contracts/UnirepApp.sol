@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 import {Unirep} from '@unirep/contracts/Unirep.sol';
+import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -20,6 +21,7 @@ contract UnirepApp {
 
     Unirep public unirep;
     IVerifier internal dataVerifier;
+    EpochKeyVerifierHelper internal epkHelper;
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
@@ -55,9 +57,12 @@ contract UnirepApp {
     error UserInitStatusInvalid(uint256 hashUserId);
     error UserInitExpiry(uint256 hashUserId);
 
-    constructor(Unirep _unirep, IVerifier _dataVerifier, uint48 _epochLength) {
+    constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
         unirep = _unirep;
+
+        // set epoch key verifier helper address
+        epkHelper = _epkHelper;
 
         // set verifier address
         dataVerifier = _dataVerifier;
@@ -94,8 +99,8 @@ contract UnirepApp {
 
     // sign up users in this app
     function userSignUp(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
         uint256 hashUserId,
         bool fromServer
     ) public {
@@ -131,10 +136,9 @@ contract UnirepApp {
         require(!proofNullifier[nullifier], 'The proof has been used before');
         proofNullifier[nullifier] = true;
 
-        unirep.verifyEpochKeyProof(publicSignals, proof);
-        Unirep.EpochKeySignals memory signals = unirep.decodeEpochKeySignals(
-            publicSignals
-        );
+        epkHelper.verifyAndCheck(publicSignals, proof);
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
+            .decodeEpochKeySignals(publicSignals);
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
