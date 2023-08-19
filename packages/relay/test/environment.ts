@@ -78,4 +78,8 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         const { default: route } = await import(path.join(routeDir, routeFile))
         route(app, synchronizer._db, synchronizer)
     }
+    return {
+        prover,
+        provider,
+    }
 }
