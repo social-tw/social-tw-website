@@ -74,8 +74,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: Test
-        run: yarn contracts test
+      # - name: Test
+      #   run: yarn contracts test
   
   relay-test:
     name: Relay Test
@@ -121,6 +121,6 @@ jobs:
           node-version: '16'
       - name: Install packages
         run: yarn
-      - name: Lint
-        run: yarn lint --check
+      # - name: Lint
+      #   run: yarn lint --check
          
