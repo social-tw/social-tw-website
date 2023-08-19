@@ -23,6 +23,33 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
+      - name: Install packages
+        run: yarn
+      - name: Build
+        run: yarn build
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: social-tw-website
+      #     path: ./
+    
+  circuits-test:
+    name: Circuits Test
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: social-tw-website
+      # - name: Test artifact download
+      #   run: ls -R
+      - name: Check out repository code
+        uses: actions/checkout@v3  
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Install circom
         run: |
           curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
@@ -33,31 +60,6 @@ jobs:
           cd circom
           cargo build --release
           cargo install --path circom
-      - name: Install packages
-        run: yarn
-      - name: Build
-        run: yarn build
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: social-tw-website
-          path: ./
-    
-  circuits-test:
-    name: Circuits Test
-    runs-on: ubuntu-22.04
-    needs: build
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: social-tw-website
-      - name: Test artifact download
-        run: ls -R
-      - name: Install node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
       - name: Test
         run: yarn circuits test
     
@@ -66,10 +68,12 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: social-tw-website
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: social-tw-website
+      - name: Check out repository code
+        uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
@@ -82,10 +86,12 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: social-tw-website
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: social-tw-website
+      - name: Check out repository code
+        uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
@@ -98,10 +104,12 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: social-tw-website
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: social-tw-website
+      - name: Check out repository code
+        uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
