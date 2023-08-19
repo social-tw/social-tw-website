@@ -4,7 +4,11 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { SQLiteConnector } from 'anondb/node.js'
-import { deployUnirep } from '@unirep/contracts/deploy/index.js'
+import { Circuit } from '@unirep/circuits'
+import {
+    deployUnirep,
+    deployVerifierHelper,
+} from '@unirep/contracts/deploy/index.js'
 
 // libraries
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
@@ -20,11 +24,18 @@ __dirname = path.join(__dirname, '..', 'src')
 export const deployContracts = async () => {
     const [signer] = await ethers.getSigners()
     const unirep = await deployUnirep(signer)
+
+    const helper = await deployVerifierHelper(signer, Circuit.epochKey)
     const verifierF = await ethers.getContractFactory('DataProofVerifier')
     const verifier = await verifierF.deploy()
     await verifier.deployed()
     const App = await ethers.getContractFactory('UnirepApp')
-    const app = await App.deploy(unirep.address, verifier.address, epochLength)
+    const app = await App.deploy(
+        unirep.address,
+        helper.address,
+        verifier.address,
+        epochLength
+    )
 
     await app.deployed()
 
@@ -56,7 +67,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     console.log('Synchronizer started')
 
     console.log('Starting transaction manager...')
-    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer._db)
+    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
     console.log('Transaction manager started')
 
@@ -76,9 +87,10 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     const routes = await fs.promises.readdir(routeDir)
     for (const routeFile of routes) {
         const { default: route } = await import(path.join(routeDir, routeFile))
-        route(app, synchronizer._db, synchronizer)
+        route(app, synchronizer.db, synchronizer)
     }
     return {
+        db,
         prover,
         provider,
     }
