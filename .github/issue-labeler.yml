@@ -1,0 +1,56 @@
+automation:
+  - 'automation'
+  - '.github'
+  - 'cicd'
+  
+bug:
+  - 'bug'
+
+circuit:
+  - 'circuit'
+
+contracts:
+  - 'contracts'
+
+design:
+  - 'design'
+
+documentation:
+  - 'documentation'
+
+duplicate:
+  - 'duplicate'
+
+enhancement:
+  - 'enhancement'
+
+feature:
+  - 'feature'
+
+frontend:
+  - 'frontend'
+
+good first issue:
+  - 'good first issue'
+
+help wanted:
+  - 'help wanted'
+
+invalid:
+  - 'invalid'
+
+question:
+  - 'question'
+
+refactor:
+  - 'refactor'
+
+relayer:
+  - 'relayer'
+  - 'relay'
+
+test:
+  - 'test'
+
+wontfix:
+  - 'wontfix'
