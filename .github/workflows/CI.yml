@@ -23,6 +23,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
+      - name: Install circom
+        run: |
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"
+          ls -R
+          cd /tmp
+          git clone https://github.com/iden3/circom.git
+          cd circom
+          cargo build --release
+          cargo install --path circom
       - name: Install packages
         run: yarn
       - name: Build
