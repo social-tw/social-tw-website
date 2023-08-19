@@ -8,6 +8,10 @@ on:
       - main
       - release/integrate_0713
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build
@@ -75,7 +79,7 @@ jobs:
       - name: Test
         run: yarn contracts test
   
-        # relay-test:
+  # relay-test:
   #   name: Relay Test
   #   runs-on: ubuntu-22.04
   #   needs: build
