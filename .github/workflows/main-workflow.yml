@@ -1,0 +1,84 @@
+name: main-workflow
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+
+on:
+  push:
+    branches:
+      - main
+      - release/integrate_0713
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+      - release/integrate_0713
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: social-tw-website
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3  
+      - name: Install node.js
+        uses: actions/setup-node@3
+        with:
+          node-version: '16'
+      - name: Check node version
+        run: node -v | grep v16
+      - name: Install circom
+        run: |
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"
+          ls -R
+          cd /tmp
+          git clone https://github.com/iden3/circom.git
+          cd circom
+          cargo build --release
+          cargo install --path circom
+      - name: Install packages
+        run: yarn
+      - name: Build
+        run: yarn build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: social-tw-website
+          path: ./
+    
+  # circuits-test:
+  #   name: Circuits Test
+  #   runs-on: ubuntu-22.04
+  #   needs: build
+    
+  # contracts-test:
+  #   name: Contracts Test
+  #   runs-on: ubuntu-22.04
+  #   needs: build
+    
+  # relay-test:
+  #   name: Relay Test
+  #   runs-on: ubuntu-22.04
+  #   needs: build
+    
+  # frontend-test:
+  #   name: Frontend Test
+  #   runs-on: ubuntu-22.04
+  #   needs: build
+    
+  lint:
+    name: Lint
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: social-tw-website
+          # path: ./
+      - name: Test artifact download
+        run: ls -R
+         
