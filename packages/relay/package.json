@@ -10,7 +10,7 @@
         "build": "yarn keys",
         "start": "ts-node ./src/index.ts",
         "debug": "node --inspect -r ts-node/register ./src/index.ts",
-        "keys": "sh scripts/loadKeys.sh"
+        "keys": "sh scripts/loadKeys.sh",
     },
     "dependencies": {
         "@types/crypto-js": "^4.1.1",
