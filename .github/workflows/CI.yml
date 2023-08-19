@@ -47,27 +47,15 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      # - name: Check out repository code
-      #   uses: actions/checkout@v3  
-      # - name: Install node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '16'
-      # - name: Install circom
-      #   run: |
-      #     curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
-      #     source "$HOME/.cargo/env"
-      #     ls -R
-      #     cd /tmp
-      #     git clone https://github.com/iden3/circom.git
-      #     cd circom
-      #     cargo build --release
-      #     cargo install --path circom
-      # - name: Install packages
-      #   run: yarn
       - uses: actions/download-artifact@v3
         with:
           name: unirep-social
+      - name: Test download artifact
+        run: ls -R
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Test
         run: yarn circuits test
     
@@ -76,17 +64,13 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      # - name: Check out repository code
-      #   uses: actions/checkout@v3  
-      # - name: Install node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '16'
-      # - name: Install packages
-      #   run: yarn
       - uses: actions/download-artifact@v3
         with:
           name: unirep-social
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Test
         run: yarn contracts test
   
@@ -95,17 +79,13 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      # - name: Check out repository code
-      #   uses: actions/checkout@v3  
-      # - name: Install node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '16'
-      # - name: Install packages
-      #   run: yarn
       - uses: actions/download-artifact@v3
         with:
           name: unirep-social
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Test
         run: yarn relay test
     
@@ -114,17 +94,13 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      # - name: Check out repository code
-      #   uses: actions/checkout@v3  
-      # - name: Install node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '16'
-      # - name: Install packages
-      #   run: yarn
       - uses: actions/download-artifact@v3
         with:
           name: unirep-social
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Test
         run: yarn frontend test
     
