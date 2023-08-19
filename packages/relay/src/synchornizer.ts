@@ -17,6 +17,7 @@ let tempUnirepSocialContract: ethers.Contract
 
 export class UnirepSocialSynchronizer extends Synchronizer {
     unirepSocialContract: ethers.Contract
+    prover: Prover
 
     constructor(
         config: {
@@ -30,6 +31,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     ) {
         tempUnirepSocialContract = unirepSocialContract
         super(config)
+        this.prover = config.prover
         this.unirepSocialContract = unirepSocialContract
     }
 
@@ -45,7 +47,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const findPost = await this._db.findOne('Post', {
+        const findPost = await this.db.findOne('Post', {
             where: {
                 transactionHash,
             },

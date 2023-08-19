@@ -1,13 +1,17 @@
 import { ethers } from 'ethers'
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import { Synchronizer } from '@unirep/core'
 import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 
-export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+export default (
+    app: Express,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
     app.post('/api/request', async (req, res) => {
         try {
             const { reqData, publicSignals, proof } = req.body

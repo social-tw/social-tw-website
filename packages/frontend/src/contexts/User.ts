@@ -67,16 +67,13 @@ class User {
             : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
         this.provider = provider
 
-        const userState = new UserState(
-            {
-                provider,
-                prover,
-                unirepAddress: UNIREP_ADDRESS,
-                attesterId: BigInt(APP_ADDRESS),
-                _id: identity,
-            },
-            identity
-        )
+        const userState = new UserState({
+            provider,
+            prover,
+            unirepAddress: UNIREP_ADDRESS,
+            attesterId: BigInt(APP_ADDRESS),
+            id: identity,
+        })
         await userState.sync.start()
         this.userState = userState
         console.log(this.userState)
@@ -137,7 +134,9 @@ class User {
                 'content-type': 'application/json',
             },
             body: JSON.stringify({
-                publicSignals: signupProof.publicSignals,
+                publicSignals: signupProof.publicSignals.map((n) =>
+                    n.toString()
+                ),
                 proof: signupProof.proof,
                 hashUserId: this.hashUserId,
                 fromServer: this.fromServer,
@@ -180,7 +179,9 @@ class User {
             body: JSON.stringify(
                 stringifyBigInts({
                     reqData,
-                    publicSignals: epochKeyProof.publicSignals,
+                    publicSignals: epochKeyProof.publicSignals.map((n) =>
+                    n.toString()
+                ),
                     proof: epochKeyProof.proof,
                 })
             ),
@@ -201,7 +202,9 @@ class User {
                 'content-type': 'application/json',
             },
             body: JSON.stringify({
-                publicSignals: signupProof.publicSignals,
+                publicSignals: signupProof.publicSignals.map((n) =>
+                n.toString()
+            ),
                 proof: signupProof.proof,
             }),
         }).then((r) => r.json())
