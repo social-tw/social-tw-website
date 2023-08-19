@@ -13,11 +13,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  install-circom:
-    name: Install Circom
+  circuits-test:
+    name: Circuits Test
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3  
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - name: Install circom
         run: |
           curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
@@ -28,27 +34,6 @@ jobs:
           cd circom
           cargo build --release
           cargo install --path circom
-      - name: Save circom binary to workspace
-        run: |
-          cp $HOME/.cargo/bin/circom $GITHUB_WORKSPACE/circom
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
-  circuits-test:
-    name: Circuits Test
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-    needs: install-circom
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3  
-      - name: Install node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Use circom binary to workspace
-        run: |
-          cp $GITHUB_WORKSPACE/circom $HOME/.cargo/bin/circom
       - name: Install packages
         run: yarn
       - name: Build
@@ -60,7 +45,6 @@ jobs:
     name: Contracts Test
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs: install-circom
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3  
@@ -68,9 +52,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: Use circom binary to workspace
+      - name: Install circom
         run: |
-          cp $GITHUB_WORKSPACE/circom $HOME/.cargo/bin/circom
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"
+          ls -R
+          cd /tmp
+          git clone https://github.com/iden3/circom.git
+          cd circom
+          cargo build --release
+          cargo install --path circom
       - name: Install packages
         run: yarn
       - name: Build
@@ -82,7 +73,6 @@ jobs:
     name: Relay Test
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs: install-circom
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3  
@@ -90,9 +80,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: Use circom binary to workspace
+      - name: Install circom
         run: |
-          cp $GITHUB_WORKSPACE/circom $HOME/.cargo/bin/circom
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"
+          ls -R
+          cd /tmp
+          git clone https://github.com/iden3/circom.git
+          cd circom
+          cargo build --release
+          cargo install --path circom
       - name: Install packages
         run: yarn
       - name: Build
@@ -104,7 +101,6 @@ jobs:
     name: Frontend Test
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs: install-circom
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3  
@@ -112,9 +108,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: Use circom binary to workspace
+      - name: Install circom
         run: |
-          cp $GITHUB_WORKSPACE/circom $HOME/.cargo/bin/circom
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"
+          ls -R
+          cd /tmp
+          git clone https://github.com/iden3/circom.git
+          cd circom
+          cargo build --release
+          cargo install --path circom
       - name: Install packages
         run: yarn
       - name: Build
