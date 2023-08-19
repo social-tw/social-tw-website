@@ -70,8 +70,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: social-tw-website
-      - name: Test artifact download
-        run: ls -R
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
@@ -79,15 +77,37 @@ jobs:
       - name: Test
         run: yarn contracts test
   
-  # relay-test:
-  #   name: Relay Test
-  #   runs-on: ubuntu-22.04
-  #   needs: build
+  relay-test:
+    name: Relay Test
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: social-tw-website
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      # - name: Test
+      #   run: yarn relay test
     
-  # frontend-test:
-  #   name: Frontend Test
-  #   runs-on: ubuntu-22.04
-  #   needs: build
+  frontend-test:
+    name: Frontend Test
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: social-tw-website
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      # - name: Test
+      #   run: yarn frontend test
     
   lint:
     name: Lint
