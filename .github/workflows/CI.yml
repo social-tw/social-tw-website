@@ -37,23 +37,11 @@ jobs:
         run: yarn
       - name: Build
         run: yarn build
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: social-tw-website
-      #     path: ./
     
   circuits-test:
     name: Circuits Test
     runs-on: ubuntu-22.04
-    needs: build
     steps:
-      # - name: Download artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: social-tw-website
-      # - name: Test artifact download
-      #   run: ls -R
       - name: Check out repository code
         uses: actions/checkout@v3  
       - name: Install node.js
@@ -70,62 +58,55 @@ jobs:
           cd circom
           cargo build --release
           cargo install --path circom
+      - name: Install packages
+        run: yarn
       - name: Test
         run: yarn circuits test
     
   contracts-test:
     name: Contracts Test
     runs-on: ubuntu-22.04
-    needs: build
     steps:
-      # - name: Download artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: social-tw-website
       - name: Check out repository code
         uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      # - name: Test
-      #   run: yarn contracts test
+      - name: Install packages
+        run: yarn
+      - name: Test
+        run: yarn contracts test
   
   relay-test:
     name: Relay Test
     runs-on: ubuntu-22.04
-    needs: build
     steps:
-      # - name: Download artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: social-tw-website
       - name: Check out repository code
         uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      # - name: Test
-      #   run: yarn relay test
+      - name: Install packages
+        run: yarn
+      - name: Test
+        run: yarn relay test
     
   frontend-test:
     name: Frontend Test
     runs-on: ubuntu-22.04
-    needs: build
     steps:
-      # - name: Download artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: social-tw-website
       - name: Check out repository code
         uses: actions/checkout@v3  
       - name: Install node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      # - name: Test
-      #   run: yarn frontend test
+      - name: Install packages
+        run: yarn
+      - name: Test
+        run: yarn frontend test
     
   lint:
     name: Lint
@@ -139,6 +120,6 @@ jobs:
           node-version: '16'
       - name: Install packages
         run: yarn
-      # - name: Lint
-      #   run: yarn lint --check
+      - name: Lint
+        run: yarn lint --check
          
