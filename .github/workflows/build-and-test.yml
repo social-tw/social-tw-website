@@ -1,0 +1,45 @@
+name: Build and Test
+
+on:
+    workflow_call:
+        inputs:
+            target:
+                description: the testing target
+                required: true
+                type: string
+        secrets:
+            CR_PAT:
+                required: true
+
+jobs:
+    build-and-test:
+        name: Build and Test
+        runs-on: ubuntu-22.04
+        container:
+            image: ghcr.io/jason-ntu/ubuntu-22.04:circom
+            credentials:
+                username: jason-ntu
+                password: ${{ secrets.CR_PAT }}
+        timeout-minutes: 15
+        steps:
+            - name: Modify system variable PATH
+              run: echo "/root/.cargo/bin" >> $GITHUB_PATH
+            - name: Check out repository code
+              uses: actions/checkout@v3
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: '16'
+            - name: Install yarn
+              run: npm install --global yarn
+            - name: Install packages
+              run: yarn
+            - name: Build
+              run: yarn build
+            - name: Downcase target
+              id: downcase
+              uses: ASzc/change-string-case-action@v5
+              with:
+                string: ${{ inputs.target }}
+            - name: Test
+              run: yarn ${{ steps.downcase.outputs.lowercase }} test
