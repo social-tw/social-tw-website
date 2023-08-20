@@ -17,7 +17,9 @@
     "start": "node scripts/start.mjs",
     "linkUnirep": "sh ./scripts/linkUnirep.sh",
     "copyUnirep": "sh ./scripts/copyUnirep.sh",
-    "lint": "prettier ."
+    "lint": "prettier .",
+    "lint:fix": "yarn lint --write",
+    "lint:check": "yarn lint --check"
   },
   "devDependencies": {
     "lerna": "^6.0.1",
