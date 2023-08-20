@@ -8,10 +8,10 @@ export class TransactionManager {
     appContract?: Contract
     wallet?: ethers.Wallet
     _db?: DB
-    
+
     /**
      * Configure the transaction manager with key, provider, and database.
-     * 
+     *
      * @param key - The key for the wallet.
      * @param provider - The provider for the ethers wallet.
      * @param db - The database instance.
@@ -44,7 +44,7 @@ export class TransactionManager {
         })
         this.startDaemon()
     }
-    
+
     /**
      * Start the daemon to continuously check for transactions.
      */
@@ -77,7 +77,7 @@ export class TransactionManager {
 
     /**
      * Try broadcasting a signed transaction.
-     * 
+     *
      * @param signedData - The signed transaction data.
      * @returns True if the transaction was sent, false otherwise.
      */
@@ -112,7 +112,7 @@ export class TransactionManager {
 
     /**
      * Get the nonce for a given address.
-     * 
+     *
      * @param address - The address to get the nonce for.
      * @returns The nonce for the given address.
      */
@@ -138,9 +138,9 @@ export class TransactionManager {
         return latest.nonce
     }
 
-     /**
+    /**
      * Execute a transaction and return parsed logs.
-     * 
+     *
      * @param contract - The contract instance.
      * @param to - The address to send the transaction to.
      * @param data - The transaction data.
@@ -173,7 +173,7 @@ export class TransactionManager {
 
     /**
      * Queue a transaction for execution.
-     * 
+     *
      * @param to - The address to send the transaction to.
      * @param data - The transaction data.
      * @returns The keccak256 hash of the signed transaction.
@@ -190,22 +190,25 @@ export class TransactionManager {
         if (!args.gasLimit) {
             // don't estimate, use this for unpredictable gas limit tx's
             // transactions may revert with this
-            let gasLimit;
+            let gasLimit
             try {
                 gasLimit = await this.wallet.provider.estimateGas({
                     to,
                     from: this.wallet.address,
                     ...args,
                 })
-            } catch (error){
-                const err = error as any;
-                if (err.message && err.message.includes('UserAlreadySignedUp')) {
-                    console.error("The user has already signed up.");
+            } catch (error) {
+                const err = error as any
+                if (
+                    err.message &&
+                    err.message.includes('UserAlreadySignedUp')
+                ) {
+                    console.error('The user has already signed up.')
                 } else {
-                    console.error(err);
+                    console.error(err)
                 }
             }
-            
+
             Object.assign(args, {
                 gasLimit: gasLimit.add(50000),
             })

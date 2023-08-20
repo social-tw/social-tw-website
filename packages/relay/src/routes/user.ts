@@ -10,7 +10,11 @@ import { UnirepSocialSynchronizer } from '../synchornizer'
 const STATE = 'state'
 const code_challenge = crypto.randomUUID()
 
-export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
+export default (
+    app: Express,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
     app.get('/api/login', async (_, res) => {
         const url = await TwitterClient.authClient.generateAuthURL({
             state: STATE,
@@ -32,9 +36,7 @@ export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) =>
                 .then(async (userInfo) => {
                     const userId = userInfo.data?.id!!
                     const hash = crypto.createHash('sha3-224')
-                    const hashUserId = `0x${hash
-                        .update(userId)
-                        .digest('hex')}`
+                    const hashUserId = `0x${hash.update(userId).digest('hex')}`
                     const appContract = TransactionManager.appContract!!
 
                     // query from contract
@@ -55,7 +57,6 @@ export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) =>
                                 APP_ADDRESS,
                                 calldata
                             )
-                        console.log(parsedLogs)
                         const resultStatus = parseInt(parsedLogs[0]?.args[0])
                         if (resultStatus) {
                             statusCode = resultStatus
