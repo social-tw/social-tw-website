@@ -34,10 +34,12 @@ export default (
     ])
 
     // TODO: fix transction twice bug
+    /*
     const hash = await TransactionManager.queueTransaction(
         APP_ADDRESS,
         calldata
     )
+    */
 
     const parsedLogs = await TransactionManager.executeTransaction(
         appContract,
@@ -47,7 +49,7 @@ export default (
 
     console.log(parsedLogs)
 
-    return hash
+    return '' //hash
 }
 
 export default (
