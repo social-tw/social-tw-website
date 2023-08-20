@@ -93,5 +93,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         db,
         prover,
         provider,
+        TransactionManager,
     }
 }
