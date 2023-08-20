@@ -1,3 +1,4 @@
+import * as crypto from 'crypto'
 import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
@@ -10,15 +11,26 @@ import { deployContracts, startServer } from './environment'
 
 let userState: UserState
 
+function generateCharHash(data: string): string {
+    const hash = crypto.createHash('sha256').update(data).digest('hex')
+    return hash.substring(0, 56) // Truncate to 56 characters
+}
+
 describe('POST /post', () => {
     beforeEach(async () => {
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        const { db, prover, provider } = await startServer(unirep, app)
+        const { db, prover, provider, TransactionManager } = await startServer(
+            unirep,
+            app
+        )
         // register
-        // TODO: userState Init could be modularized to a helper function
-        const identity = new Identity('')
+        // FIXME: userState Init could be modularized to a helper function
+        const wallet = ethers.Wallet.createRandom()
+        const hashUserId = '0x' + generateCharHash('Test User Hash Id')
+        const signature = await wallet.signMessage(hashUserId)
+        const identity = new Identity(signature)
         userState = new UserState({
             db,
             provider,
@@ -33,6 +45,13 @@ describe('POST /post', () => {
 
         const signupProof = await userState.genUserSignUpProof()
 
+        // initUserStatus
+        const calldata = app.interface.encodeFunctionData('initUserStatus', [
+            hashUserId,
+        ])
+        await TransactionManager.executeTransaction(app, app.address, calldata)
+        await userState.waitForSync()
+
         const data = (await fetch(`${HTTP_SERVER}/api/signup`, {
             method: 'POST',
             headers: {
@@ -43,27 +62,24 @@ describe('POST /post', () => {
                     n.toString()
                 ),
                 proof: signupProof.proof,
-                hashUserId:
-                    '0x4ee4fc00d2af5a41fe62fb8520a327e5d9f36001494f6fc4518c4a82',
-                fromServer: true,
+                hashUserId: hashUserId,
+                fromServer: false,
             }),
         }).then((r) => r.json())) as { status: number; hash: string }
 
-        await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
-        const latestTransitionedEpoch = userState.sync.calcCurrentEpoch()
-        console.log(hasSignedUp)
+        expect(hasSignedUp).equal(true)
     })
 
     it('should create a post', async () => {
-        // TODO: Look for fuzzer to test content
+        // FIXME: Look for fuzzer to test content
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
-        /*
+
         const res = await fetch(`${HTTP_SERVER}/api/post`, {
             method: 'POST',
             headers: {
@@ -77,7 +93,6 @@ describe('POST /post', () => {
                 })
             ),
         }).then((r) => r.json())
-        console.log(res)*/
         //expect(res.status).equal(200)
         //expect(res.body).('postId')
         // TODO: verify post
