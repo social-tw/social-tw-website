@@ -57,7 +57,6 @@ export default (
                                 APP_ADDRESS,
                                 calldata
                             )
-                        console.log(parsedLogs)
                         const resultStatus = parseInt(parsedLogs[0]?.args[0])
                         if (resultStatus) {
                             statusCode = resultStatus
