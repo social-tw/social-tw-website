@@ -23,7 +23,7 @@ export class UserService {
      * @param code from twitter api callback
      * @param state from twitter api callback
      */
-    async login(code: string, state: string): Promise<User> {
+    async loginOrInitUser(code: string, state: string): Promise<User> {
         if (state != STATE)
             throw Error("wrong callback value")
 
@@ -31,6 +31,11 @@ export class UserService {
             .then((_) => TwitterClient.client.users.findMyUser())
 
         const userId = userInfo.data?.id!!
+        return this.loginOrInitUserForTest(userId)
+    }
+
+    // TODO remove this method, once successfully mock the TwitterClient result
+    async loginOrInitUserForTest(userId: string): Promise<User> {
         const hash = crypto.createHash('sha3-224')
         const hashUserId = `0x${hash.update(userId).digest('hex')}`
         const appContract = TransactionManager.appContract!!
