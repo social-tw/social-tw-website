@@ -10,6 +10,18 @@ import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
 const { SUM_FIELD_COUNT } = CircuitConfig.default
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
+import crypto from 'crypto'
+
+function createRandomUserIdentity(): [string, Identity] {
+    const hash = crypto.createHash('sha3-224')
+    const hashUserId = `0x${hash
+        .update(new Identity().toString())
+        .digest('hex')}` as string
+    const id = new Identity(hashUserId) as Identity
+    console.log('Random hashed user id: ', hashUserId)
+
+    return [hashUserId, id]
+}
 
 async function genUserState(id, app) {
     // generate a user state
@@ -32,13 +44,14 @@ async function genUserState(id, app) {
 describe('Unirep App', function () {
     let unirep
     let app
+    let hashUserId: string
+    let id: Identity
 
     // epoch length
     const epochLength = 300
-    // generate random user id
-    const id = new Identity()
-
-    it('deployment', async function () {
+    // generate random hash user id
+    before(async () => {
+        ;[hashUserId, id] = createRandomUserIdentity()
         const [deployer] = await ethers.getSigners()
         unirep = await deployUnirep(deployer)
         const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
@@ -55,13 +68,85 @@ describe('Unirep App', function () {
         await app.deployed()
     })
 
-    it('user sign up', async () => {
-        const userState = await genUserState(id, app)
+    describe('user signup', () => {
+        it('init user status', async () => {
+            expect(await app.initUserStatus(hashUserId))
+                .to.emit(app, 'UserInitSuccess')
+                .withArgs(hashUserId)
+        })
 
-        // generate
-        const { publicSignals, proof } = await userState.genUserSignUpProof()
-        await app.userSignUp(publicSignals, proof).then((t) => t.wait())
-        userState.stop()
+        it('user sign up after init', async () => {
+            const userState = await genUserState(id, app)
+
+            // get user status, should be RegisterStatus.INIT
+            expect(await app.queryUserStatus(hashUserId)).to.equal(1)
+
+            const { publicSignals, proof } =
+                await userState.genUserSignUpProof()
+            expect(
+                await app.userSignUp(publicSignals, proof, hashUserId, false)
+            )
+                .to.emit(app, 'UserSignUpSuccess')
+                .withArgs(hashUserId)
+
+            // get user status, should be RegisterStatus.REGISTERED_SERVER
+            expect(await app.queryUserStatus(hashUserId)).to.equal(2)
+
+            userState.stop()
+        })
+
+        it('revert when user sign up multiple times', async () => {
+            const userState = await genUserState(id, app)
+
+            const { publicSignals, proof } =
+                await userState.genUserSignUpProof()
+            expect(
+                app.userSignUp(publicSignals, proof, hashUserId, false)
+            ).to.be.revertedWithCustomError(app, 'UserAlreadySignedUp')
+
+            userState.stop()
+        })
+
+        it('revert when user sign up without init', async () => {
+            const [hashUserId, id] = createRandomUserIdentity()
+
+            const userState = await genUserState(id, app)
+
+            // get user status, should be RegisterStatus.NOT_REGISTER
+            expect(await app.queryUserStatus(hashUserId)).to.equal(0)
+
+            const { publicSignals, proof } =
+                await userState.genUserSignUpProof()
+            expect(
+                app.userSignUp(publicSignals, proof, hashUserId, true)
+            ).to.be.revertedWithCustomError(app, 'UserInitStatusInvalid')
+
+            userState.stop()
+        })
+
+        it('revert when reuse user signup proof', async () => {
+            const [hashUserId, id] = createRandomUserIdentity()
+            const userState = await genUserState(id, app)
+
+            expect(await app.initUserStatus(hashUserId))
+                .to.emit(app, 'UserInitSuccess')
+                .withArgs(hashUserId)
+
+            const { publicSignals, proof } =
+                await userState.genUserSignUpProof()
+            const invalidProof = proof
+                .slice(0, proof.length - 1)
+                .concat([BigInt(0)])
+
+            // get user status, should be RegisterStatus.INIT
+            expect(await app.queryUserStatus(hashUserId)).to.equal(1)
+
+            expect(
+                app.userSignUp(publicSignals, invalidProof, hashUserId, true)
+            ).to.be.reverted
+
+            userState.stop()
+        })
     })
 
     describe('user post', () => {
@@ -71,7 +156,7 @@ describe('Unirep App', function () {
             const content = 'testing'
             expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 0, content)
+                .withArgs(publicSignals[0], 0, 0, content)
         })
 
         it('revert post with reused proof', async () => {
@@ -80,7 +165,7 @@ describe('Unirep App', function () {
             const content = 'testing'
             expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 1, content)
+                .withArgs(publicSignals[0], 1, 0, content)
 
             expect(app.post(publicSignals, proof, content)).to.be.revertedWith(
                 'The proof has been used before'
@@ -88,72 +173,74 @@ describe('Unirep App', function () {
         })
     })
 
-    it('submit attestations', async () => {
-        const userState = await genUserState(id, app)
+    describe('user state', () => {
+        it('submit attestations', async () => {
+            const userState = await genUserState(id, app)
 
-        const nonce = 0
-        const { publicSignals, proof, epochKey, epoch } =
-            await userState.genEpochKeyProof({ nonce })
-        const [deployer] = await ethers.getSigners()
-        const epkVerifier = await deployVerifierHelper(
-            deployer,
-            Circuit.epochKey
-        )
-        await epkVerifier.verifyAndCheck(publicSignals, proof)
+            const nonce = 0
+            const { publicSignals, proof, epochKey, epoch } =
+                await userState.genEpochKeyProof({ nonce })
+            const [deployer] = await ethers.getSigners()
+            const epkVerifier = await deployVerifierHelper(
+                deployer,
+                Circuit.epochKey
+            )
+            await epkVerifier.verifyAndCheck(publicSignals, proof)
 
-        const field = 0
-        const val = 10
-        await app
-            .submitAttestation(epochKey, epoch, field, val)
-            .then((t) => t.wait())
-        userState.stop()
-    })
-
-    it('user state transition', async () => {
-        await ethers.provider.send('evm_increaseTime', [epochLength])
-        await ethers.provider.send('evm_mine', [])
-
-        const newEpoch = await unirep.attesterCurrentEpoch(app.address)
-        const userState = await genUserState(id, app)
-        const { publicSignals, proof } =
-            await userState.genUserStateTransitionProof({
-                toEpoch: newEpoch,
-            })
-        await unirep
-            .userStateTransition(publicSignals, proof)
-            .then((t) => t.wait())
-        userState.stop()
-    })
-
-    it('data proof', async () => {
-        const userState = await genUserState(id, app)
-        const epoch = await userState.sync.loadCurrentEpoch()
-        const stateTree = await userState.sync.genStateTree(epoch)
-        const index = await userState.latestStateTreeLeafIndex(epoch)
-        const stateTreeProof = stateTree.createProof(index)
-        const attesterId = app.address
-        const data = await userState.getProvableData()
-        const value = Array(SUM_FIELD_COUNT).fill(0)
-        const circuitInputs = stringifyBigInts({
-            identity_secret: id.secret,
-            state_tree_indexes: stateTreeProof.pathIndices,
-            state_tree_elements: stateTreeProof.siblings,
-            data: data,
-            epoch: epoch,
-            attester_id: attesterId,
-            value: value,
+            const field = 0
+            const val = 10
+            await app
+                .submitAttestation(epochKey, epoch, field, val)
+                .then((t) => t.wait())
+            userState.stop()
         })
-        const p = await prover.genProofAndPublicSignals(
-            'dataProof',
-            circuitInputs
-        )
-        const { publicSignals, proof } = new DataProof(
-            p.publicSignals,
-            p.proof,
-            prover
-        )
-        const isValid = await app.verifyDataProof(publicSignals, proof)
-        expect(isValid).to.be.true
-        userState.stop()
+
+        it('user state transition', async () => {
+            await ethers.provider.send('evm_increaseTime', [epochLength])
+            await ethers.provider.send('evm_mine', [])
+
+            const newEpoch = await unirep.attesterCurrentEpoch(app.address)
+            const userState = await genUserState(id, app)
+            const { publicSignals, proof } =
+                await userState.genUserStateTransitionProof({
+                    toEpoch: newEpoch,
+                })
+            await unirep
+                .userStateTransition(publicSignals, proof)
+                .then((t) => t.wait())
+            userState.stop()
+        })
+
+        it('data proof', async () => {
+            const userState = await genUserState(id, app)
+            const epoch = await userState.sync.loadCurrentEpoch()
+            const stateTree = await userState.sync.genStateTree(epoch)
+            const index = await userState.latestStateTreeLeafIndex(epoch)
+            const stateTreeProof = stateTree.createProof(index)
+            const attesterId = app.address
+            const data = await userState.getProvableData()
+            const value = Array(SUM_FIELD_COUNT).fill(0)
+            const circuitInputs = stringifyBigInts({
+                identity_secret: id.secret,
+                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_elements: stateTreeProof.siblings,
+                data: data,
+                epoch: epoch,
+                attester_id: attesterId,
+                value: value,
+            })
+            const p = await prover.genProofAndPublicSignals(
+                'dataProof',
+                circuitInputs
+            )
+            const { publicSignals, proof } = new DataProof(
+                p.publicSignals,
+                p.proof,
+                prover
+            )
+            const isValid = await app.verifyDataProof(publicSignals, proof)
+            expect(isValid).to.be.true
+            userState.stop()
+        })
     })
 })
