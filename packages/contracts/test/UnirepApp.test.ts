@@ -70,7 +70,7 @@ describe('Unirep App', function () {
         // sign up after init
         const userState = await genUserState(id, app)
         const { publicSignals, proof } = await userState.genUserSignUpProof()
-        await app.userSignUp(publicSignals, proof).then((t) => t.wait())
+        await app.userSignUp(publicSignals, proof, hashUserId, false).then((t) => t.wait())
         userState.stop()
     })
 
