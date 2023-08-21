@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { BsTwitter } from 'react-icons/bs'
 import LoginButton from './LoginButton'
-import { UserContext } from '../../contexts/User'
 import { motion } from 'framer-motion'
 import { SERVER } from '../../config'
 import useTwitterVerify from '../../hooks/useTwitterVerify'
@@ -11,20 +10,20 @@ import { observer } from 'mobx-react-lite'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import NoteModal from '../modal/NoteModal'
 import { GrFormClose } from 'react-icons/gr'
+import { useUser } from '../../contexts/User'
 
 // TODO: Twitter auto login: when user has login twitter but haven't signed up
 // TODO: twitter login form is ugly
-const AuthForm: React.FC = observer(( 
+const AuthForm: React.FC = ( 
 ) => {
-    const userContext = useContext(UserContext)
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
     const navigate = useNavigate()
-    const twitterVerify = useTwitterVerify(SERVER)
-    const signupWithWallet = useSignUpWithWallet(hashUserId, userContext, navigate)
-    const signupWithServer = useSignupWithServer(hashUserId, SERVER, userContext, navigate)
+    const { setIsSignupLoading, isSignupLoading, handleServerSignMessage, handleWalletSignMessage, load, signup } = useUser()
     const [noteStatus, setNoteStatus] = useState('close')
-    const isLoading = userContext.isSignupLoading
+    const twitterVerify = useTwitterVerify(SERVER)
+    const signupWithWallet = useSignUpWithWallet(navigate, setIsSignupLoading, handleWalletSignMessage, load, signup)
+    const signupWithServer = useSignupWithServer(navigate, setIsSignupLoading, handleServerSignMessage, load, signup)
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -50,7 +49,7 @@ const AuthForm: React.FC = observer((
                 (
                     <>
                         <LoginButton
-                            isLoading={isLoading}
+                            isLoading={isSignupLoading}
                             icon={BsTwitter}
                             onClick={signupWithWallet}
                             title='錢包註冊'
@@ -60,7 +59,7 @@ const AuthForm: React.FC = observer((
                             setNoteStatus={() => setNoteStatus('metamask')}
                         />
                         <LoginButton
-                            isLoading={isLoading}
+                            isLoading={isSignupLoading}
                             icon={BsTwitter}
                             onClick={signupWithServer}
                             title='直接註冊'
@@ -75,7 +74,7 @@ const AuthForm: React.FC = observer((
                 (
                     <>
                         <LoginButton
-                            isLoading={isLoading}
+                            isLoading={isSignupLoading}
                             icon={BsTwitter}
                             onClick={twitterVerify}
                             title='立即註冊'
@@ -93,7 +92,7 @@ const AuthForm: React.FC = observer((
             />
         </>
     )
-})
+}
 
 export default AuthForm 
 

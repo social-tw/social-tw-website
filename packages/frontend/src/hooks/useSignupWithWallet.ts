@@ -1,7 +1,3 @@
-import { useCallback, useContext } from "react"
-import { ethers } from 'ethers'
-import { User } from "../contexts/User"
-
 declare global {
     interface Window {
         ethereum: any
@@ -9,44 +5,29 @@ declare global {
 }
 
 const useSignupWithWallet = (
-    hashUserId: string | null, 
-    userContext: User,
-    navigate: (path: string) => void
+    navigate: (path: string) => void,
+    setIsSignupLoading: (loading: boolean) => void,
+    handleWalletSignMessage: () => Promise<void>,
+    load: () => Promise<void>,
+    signup: () => Promise<void>,
 ) => {
-    const signUpWithWallet = useCallback(async () => {
+    const signUpWithWallet = async () => {
         try {
-            userContext.setisSignupLoading(true)
-            navigate('/')
-            if (!hashUserId) {
-                throw new Error('Invalid user')
-            }
+            setIsSignupLoading(true)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-            console.log('waiting sign up...')
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-            const account = accounts[0]
-
-            const signature = await window.ethereum.request({
-                method: 'personal_sign',
-                params: [
-                    ethers.utils.hexlify(
-                        ethers.utils.toUtf8Bytes(hashUserId)
-                    ),
-                    account,
-                ],
-            })
-
-            localStorage.setItem('signature', signature)
-            await userContext.load()
-            await userContext.signup()
+            navigate('/')
+            handleWalletSignMessage()
+            await load()
+            await signup()
             console.log('has signed up')
         }   catch (error) {
             console.error(error)
         }   finally {
-            userContext.setisSignupLoading(true)
+            setIsSignupLoading(false)
         }
-    }, [hashUserId, navigate, useContext])
+    }
 
     return signUpWithWallet
 }

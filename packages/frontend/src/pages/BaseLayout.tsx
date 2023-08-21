@@ -2,17 +2,17 @@ import { motion } from 'framer-motion'
 import { observer } from 'mobx-react-lite'
 import { useContext, useState } from 'react'
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
-import { UserContext } from '../contexts/User'
 import useAutoNavigation from '../hooks/useAutoNavigation'
 import useInitUser from '../hooks/useInitUser'
+import { useUser } from '../contexts/User'
 
-const BaseLayout = observer(() => {
+const BaseLayout = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
     const status = searchParams.get('status')
-    const navigate = useNavigate()
-    const userContext = useContext(UserContext)
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const navigate = useNavigate()
+    const { load, hasSignedUp, isSignupLoading } = useUser()
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -31,8 +31,8 @@ const BaseLayout = observer(() => {
         },
     }
 
-    useInitUser(userContext, hashUserId, setIsLoading)
-    useAutoNavigation(hashUserId, status, navigate, userContext, isLoading)
+    useInitUser(load, hashUserId, setIsLoading)
+    useAutoNavigation(hashUserId, status, navigate, hasSignedUp,isSignupLoading, isLoading)
 
     return (
         <motion.div
@@ -44,6 +44,6 @@ const BaseLayout = observer(() => {
             {!isLoading && <Outlet />}
         </motion.div>
     )
-})
+}
 
 export default BaseLayout

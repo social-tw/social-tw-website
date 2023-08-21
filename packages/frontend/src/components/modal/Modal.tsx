@@ -1,13 +1,13 @@
-import React, { Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { IoClose } from 'react-icons/io5';
-import { motion } from 'framer-motion';
-import { clsx } from 'clsx';
+import React, { Fragment } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { IoClose } from 'react-icons/io5'
+import { motion } from 'framer-motion'
+import { clsx } from 'clsx'
 
 interface ModalProps {
-    isOpen: boolean;
-    onClose?: () => void;
-    children: React.ReactNode;
+    isOpen: boolean
+    onClose?: () => void
+    children: React.ReactNode
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -24,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const chidrenVarients = {
         hidden: { opacity: 0 },
@@ -72,4 +72,4 @@ const Modal: React.FC<ModalProps> = ({
     )
 }
 
-export default Modal;
+export default Modal

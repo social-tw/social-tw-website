@@ -3,18 +3,14 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { LoadingProvider } from './contexts/LoadingContext'
-import ToasterContext from './contexts/ToasterContext'
-import { User, UserContext } from './contexts/User'
 import BaseLayout from './pages/BaseLayout'
 import ErrorPage from './pages/ErrorPage'
 import Login from './pages/Login'
 import PostCreate from './pages/PostCreate'
 import PostList from './pages/PostList'
+import { UserProvider } from './contexts/User'
 
 dayjs.extend(relativeTime)
-
-const user = new User()
 
 const router = createBrowserRouter([
     {
@@ -39,12 +35,9 @@ const router = createBrowserRouter([
 
 const App = () => {
     return (
-        <UserContext.Provider value={user}>
-            <ToasterContext />
-            <LoadingProvider>
-                <RouterProvider router={router} />
-            </LoadingProvider>
-        </UserContext.Provider>
+        <UserProvider>
+            <RouterProvider router={router} />
+        </UserProvider>
     )
 }
 

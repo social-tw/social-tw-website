@@ -1,25 +1,25 @@
-import { useContext, useEffect } from "react";
-import { User } from "../contexts/User";
+import { useEffect } from "react";
 
 // TODO: redirect to home page
 const useAutoNavigation = (
     hashUserId: string | null, 
     status: string | null, 
     navigate: (path: string) => void, 
-    userContext: User,
+    hasSignedUp: boolean,
+    isSignupLoading: boolean,
     isLoading: boolean
 ) => {
     useEffect(() => {
         if (!isLoading) {
-            if (!userContext.hasSignedUp && hashUserId) {
+            if (!hasSignedUp && hashUserId) {
                 navigate(`/login?code=${hashUserId}&status=${status}`)
-            } else if (!userContext.hasSignedUp && !hashUserId && !status && !userContext.isSignupLoading) {
+            } else if (!hasSignedUp && !hashUserId && !status && !isSignupLoading) {
                 navigate('/login')
             } else {
                 return
             }
         }
-    }, [userContext.hasSignedUp, navigate, hashUserId, status, isLoading]);
+    }, [hasSignedUp, hashUserId, status, isSignupLoading, isLoading]);
 };
 
 export default useAutoNavigation;

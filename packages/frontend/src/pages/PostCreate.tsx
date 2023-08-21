@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { stringifyBigInts } from '@unirep/utils'
 import RichTextEditor from '../components/RichTextEditor'
 import { SERVER } from '../config'
-import { UserContext } from '../contexts/User'
+import { useUser } from '../contexts/User'
 
 export default function PostCreate() {
-    const userContext = useContext(UserContext)
+    const { userState, provider, loadData, stateTransition} = useUser()
 
     const [content, setContent] = useState('')
     const [epkNonce, setEpkNonce] = useState('0')
@@ -19,19 +19,20 @@ export default function PostCreate() {
         try {
             setIsPending(true)
 
-            if (!userContext.userState)
+            if (!userState)
                 throw new Error('user state not initialized')
 
             if (
-                userContext.userState.sync.calcCurrentEpoch() !==
-                (await userContext.userState.latestTransitionedEpoch())
+                userState.sync.calcCurrentEpoch() !==
+                (await userState.latestTransitionedEpoch())
             ) {
                 throw new Error('Needs transition')
             }
 
-            const epochKeyProof = await userContext.userState.genEpochKeyProof({
+            const epochKeyProof = await userState.genEpochKeyProof({
                 nonce: Number(epkNonce),
             })
+            console.log(epochKeyProof)
             const data = await fetch(`${SERVER}/api/post`, {
                 method: 'POST',
                 headers: {
@@ -45,9 +46,9 @@ export default function PostCreate() {
                     })
                 ),
             }).then((r) => r.json())
-            await userContext.provider.waitForTransaction(data.transaction)
-            await userContext.userState.waitForSync()
-            await userContext.loadData()
+            await provider.waitForTransaction(data.transaction)
+            await userState.waitForSync()
+            await loadData(userState)
             toast('貼文成功送出')
             navigate('/')
         } catch (err: unknown) {
@@ -58,10 +59,10 @@ export default function PostCreate() {
         }
     }
 
-    const stateTransition = async () => {
+    const handleStateTransition = async () => {
         try {
             setIsPending(true)
-            await userContext.stateTransition()
+            await stateTransition()
         } catch {
             toast('transition failed')
         } finally {
@@ -104,7 +105,7 @@ export default function PostCreate() {
                 <button
                     className="btn btn-primary"
                     disabled={isPending}
-                    onClick={stateTransition}
+                    onClick={handleStateTransition}
                 >
                     Transition
                 </button>

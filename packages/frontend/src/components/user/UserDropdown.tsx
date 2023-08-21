@@ -1,13 +1,13 @@
-import React, {useContext} from 'react';
-import {VscAccount} from 'react-icons/vsc';
-import {UserContext} from "../../contexts/User";
+import React from 'react';
+import { VscAccount } from 'react-icons/vsc';
+import { useUser} from "../../contexts/User";
 
 const UserDropdown: React.FC = () => {
-    const userContext = useContext(UserContext);
+    const { logout } = useUser()
 
     const handleLogout = (event: React.MouseEvent) => {
         event.preventDefault();
-        userContext.logout();
+        logout();
     };
 
     return (

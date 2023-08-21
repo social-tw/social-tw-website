@@ -3,7 +3,6 @@ import AuthForm from '../components/login/AuthForm';
 import { motion } from 'framer-motion';
 import DemoPostList from '../components/login/DemoPostList';
 
-// TODO: Change font family
 const Login: React.FC = () => {
 
     const logoVariants = {
@@ -41,7 +40,6 @@ const Login: React.FC = () => {
         },
     }
 
-    // TODO: display success interface to user
     return (
         <div className='flex flex-col h-full'>
             <div className='z-40 h-full flex flex-col justify-between'>
