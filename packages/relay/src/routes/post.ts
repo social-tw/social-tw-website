@@ -8,13 +8,16 @@ import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import { dynamicImport } from 'tsimportlib'
 import { UnirepSocialSynchronizer } from '../synchornizer'
+import type { Helia } from '@helia/interface'
+
 
 export const LOAD_POST_COUNT = 10
 
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
+    helia: Helia,
 ) => {
     app.get(
         '/api/post',
@@ -26,7 +29,7 @@ export default (
     app.post(
         '/api/post',
         errorHandler(async (req, res, next) => {
-            await createPost(req, res, db, synchronizer)
+            await createPost(req, res, db, synchronizer, helia)
         })
     )
 }
@@ -61,11 +64,12 @@ async function createPost(
     req,
     res,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
+    helia: Helia
 ) {
     try {
         const { content, publicSignals, proof } = req.body
-
+        
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
@@ -94,18 +98,14 @@ async function createPost(
                 content,
             ])
 
-            // dynamic import ipfs client
-            const { create } = (await dynamicImport(
-                'kubo-rpc-client',
-                module
-            )) as typeof import('kubo-rpc-client')
-            // Create ipfs client to connect to kubo ipfs node
-            const client = await create()
+            // store content into helia ipfs node with json plain
+            const { json } =  await eval("import('@helia/json')")
+            const heliaJson = json(helia)
             const IPFSContent = {
                 content: content,
             }
-            const file = await client.add(JSON.stringify(IPFSContent))
-            cid = file.cid.toString()
+            let file = await heliaJson.add(JSON.stringify(IPFSContent))
+            cid = file.toString()
         }
 
         const hash = await TransactionManager.queueTransaction(
