@@ -7,6 +7,7 @@ import TwitterClient from '../singletons/TwitterClient'
 import crypto from 'crypto'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
 import { Contract } from 'ethers'
+import User from '../data/User'
 
 const STATE = 'state'
 
@@ -22,7 +23,7 @@ export class UserService {
      * @param code from twitter api callback
      * @param state from twitter api callback
      */
-    async getRedirectUrl(code: string, state: string): Promise<string> {
+    async login(code: string, state: string): Promise<User> {
         if (state != STATE)
             throw Error("wrong callback value")
 
@@ -46,14 +47,14 @@ export class UserService {
         } else if (
             statusCode == UserRegisterStatus.REGISTERER
         ) {
-            return `${CLIENT_URL}?code=${hashUserId}&status=${statusCode}`
+            return { hashUserId, status: statusCode, signMsg: undefined }
         } else if (
             statusCode ==
             UserRegisterStatus.REGISTERER_SERVER
         ) {
             const wallet = TransactionManager.wallet!!
             const signMsg = await wallet.signMessage(hashUserId)
-            return `${CLIENT_URL}?code=${hashUserId}&status=${statusCode}&signMsg=${signMsg}`
+            return { hashUserId, status: statusCode, signMsg: signMsg }
         } else {
             console.log(`Get unknow status from ${hashUserId}`)
             throw Error("Unknown status")
@@ -105,7 +106,7 @@ export class UserService {
         return '' //hash
     }
 
-    private async initUser(hashUserId: string, appContract: Contract): Promise<string> {
+    private async initUser(hashUserId: string, appContract: Contract): Promise<User> {
         const calldata =
             appContract.interface.encodeFunctionData(
                 'initUserStatus',
@@ -117,9 +118,9 @@ export class UserService {
                 APP_ADDRESS,
                 calldata
             )
-        const resultStatus = parseInt(parsedLogs[0]?.args[0])
-        if (resultStatus) {
-            return `${CLIENT_URL}?code=${hashUserId}&status=${resultStatus}`
+        const status = parseInt(parsedLogs[0]?.args[0])
+        if (status) {
+            return { hashUserId, status, signMsg: undefined }
         } else {
             console.log(`There is no result status in ${hashUserId}`)
             throw Error("Create User Failed")
