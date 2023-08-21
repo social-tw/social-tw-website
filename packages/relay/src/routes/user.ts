@@ -26,7 +26,7 @@ export default (
         const { state, code } = req.query
 
         try {
-            const user = await userService.login(state as string, code as string)
+            const user = await userService.loginOrInitUser(state as string, code as string)
             var redirectUrl = `${CLIENT_URL}?code=${user.hashUserId}&status=${user.status}`
             if (user) redirectUrl += `&signMsg=${user.signMsg}`
 

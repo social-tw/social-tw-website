@@ -1,4 +1,3 @@
-import * as crypto from 'crypto'
 import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
@@ -8,28 +7,24 @@ import { stringifyBigInts } from '@unirep/utils'
 
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer } from './environment'
+import { userService } from '../src/services/UserService'
 
 let userState: UserState
-
-function generateCharHash(data: string): string {
-    const hash = crypto.createHash('sha256').update(data).digest('hex')
-    return hash.substring(0, 56) // Truncate to 56 characters
-}
 
 describe('POST /post', () => {
     beforeEach(async () => {
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        const { db, prover, provider, TransactionManager } = await startServer(
+        const { db, prover, provider, TransactionManager, synchronizer } = await startServer(
             unirep,
             app
         )
-        // register
-        // FIXME: userState Init could be modularized to a helper function
+
+        // initUserStatus
+        var initUser = await userService.loginOrInitUserForTest('123')
         const wallet = ethers.Wallet.createRandom()
-        const hashUserId = '0x' + generateCharHash('Test User Hash Id')
-        const signature = await wallet.signMessage(hashUserId)
+        const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
         userState = new UserState({
             db,
@@ -40,32 +35,13 @@ describe('POST /post', () => {
             id: identity,
         })
 
-        await userState.sync.start()
-        await userState.waitForSync()
-
         const signupProof = await userState.genUserSignUpProof()
+        var publicSignals = signupProof.publicSignals.map((n) => n.toString())
 
-        // initUserStatus
-        const calldata = app.interface.encodeFunctionData('initUserStatus', [
-            hashUserId,
-        ])
-        await TransactionManager.executeTransaction(app, app.address, calldata)
-        await userState.waitForSync()
-
-        const data = (await fetch(`${HTTP_SERVER}/api/signup`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                publicSignals: signupProof.publicSignals.map((n) =>
-                    n.toString()
-                ),
-                proof: signupProof.proof,
-                hashUserId: hashUserId,
-                fromServer: false,
-            }),
-        }).then((r) => r.json())) as { status: number; hash: string }
+        // sign up
+        await userService.signup(
+            publicSignals, signupProof._snarkProof, initUser.hashUserId, false, synchronizer
+        )
 
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
