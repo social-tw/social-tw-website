@@ -22,6 +22,8 @@ contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
     EpochKeyVerifierHelper internal epkHelper;
+    
+    // TODO write the document for the features
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
@@ -127,6 +129,7 @@ contract UnirepApp {
         emit UserSignUpSuccess(hashUserId);
     }
 
+    // post a content in this app
     function post(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
