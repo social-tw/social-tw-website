@@ -20,6 +20,8 @@ import {
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
+
+
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
     process.exit(1)
@@ -41,6 +43,10 @@ async function main() {
 
     await synchronizer.start()
 
+    const { createHelia } =  await eval("import('helia')")
+    const helia = await createHelia()
+
+
     TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
 
@@ -60,6 +66,6 @@ async function main() {
     const routes = await fs.promises.readdir(routeDir)
     for (const routeFile of routes) {
         const { default: route } = await import(path.join(routeDir, routeFile))
-        route(app, db, synchronizer)
+        route(app, db, synchronizer, helia)
     }
 }

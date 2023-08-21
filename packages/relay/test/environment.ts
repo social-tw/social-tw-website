@@ -19,6 +19,9 @@ import TransactionManager from '../src/singletons/TransactionManager'
 import { epochLength } from './configs'
 import { PRIVATE_KEY } from '../src/config'
 
+import { dynamicImport } from 'tsimportlib'
+// import { createHelia } from 'helia'
+
 __dirname = path.join(__dirname, '..', 'src')
 
 export const deployContracts = async () => {
@@ -66,6 +69,11 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     await synchronizer.start()
     console.log('Synchronizer started')
 
+    console.log('Starting Helia ipfs node...')
+    const { createHelia } =  await eval("import('helia')")
+    const helia = await createHelia()
+    console.log('Helia ipfs node started')
+
     console.log('Starting transaction manager...')
     TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
@@ -87,7 +95,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     const routes = await fs.promises.readdir(routeDir)
     for (const routeFile of routes) {
         const { default: route } = await import(path.join(routeDir, routeFile))
-        route(app, synchronizer.db, synchronizer)
+        route(app, synchronizer.db, synchronizer, helia)
     }
     return {
         db,
