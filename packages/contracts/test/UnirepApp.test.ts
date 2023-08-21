@@ -8,8 +8,10 @@ import { schema, UserState } from '@unirep/core'
 import { SQLiteConnector } from 'anondb/node'
 import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
-const { SUM_FIELD_COUNT } = CircuitConfig.default
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
+import crypto from 'crypto'
+
+const { SUM_FIELD_COUNT } = CircuitConfig.default
 
 async function genUserState(id, app) {
     // generate a user state
@@ -35,8 +37,14 @@ describe('Unirep App', function () {
 
     // epoch length
     const epochLength = 300
-    // generate random user id
-    const id = new Identity()
+    // generate random hash user id
+    const hash = crypto.createHash('sha3-224')
+    const hashUserId = `0x${hash
+        .update(new Identity().toString())
+        .digest('hex')
+    }`
+    const id = new Identity(hashUserId)
+    console.log(id);
 
     it('deployment', async function () {
         const [deployer] = await ethers.getSigners()
@@ -55,10 +63,12 @@ describe('Unirep App', function () {
         await app.deployed()
     })
 
-    it('user sign up', async () => {
+    it ('init user status & sign up', async () => {
+        // init user status
+        await app.initUserStatus(hashUserId)
+        
+        // sign up after init
         const userState = await genUserState(id, app)
-
-        // generate
         const { publicSignals, proof } = await userState.genUserSignUpProof()
         await app.userSignUp(publicSignals, proof).then((t) => t.wait())
         userState.stop()
