@@ -28,11 +28,12 @@ export default (
         try {
             const user = await userService.loginOrInitUser(state as string, code as string)
             var redirectUrl = `${CLIENT_URL}?code=${user.hashUserId}&status=${user.status}`
-            if (user) redirectUrl += `&signMsg=${user.signMsg}`
+            if (user.signMsg) redirectUrl += `&signMsg=${user.signMsg}`
 
             res.redirect(redirectUrl)
         } catch (error) {
-            return `${CLIENT_URL}?error="apiError"`
+            console.log(error)
+            res.redirect(`${CLIENT_URL}?error="apiError"`)
         }
     })
 }

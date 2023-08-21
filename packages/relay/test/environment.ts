@@ -102,5 +102,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         prover,
         provider,
         TransactionManager,
+        synchronizer
     }
 }

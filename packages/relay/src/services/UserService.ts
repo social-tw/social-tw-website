@@ -23,7 +23,7 @@ export class UserService {
      * @param code from twitter api callback
      * @param state from twitter api callback
      */
-    async loginOrInitUser(code: string, state: string): Promise<User> {
+    async loginOrInitUser(state: string, code: string): Promise<User> {
         if (state != STATE)
             throw Error("wrong callback value")
 
@@ -125,7 +125,7 @@ export class UserService {
             )
         const status = parseInt(parsedLogs[0]?.args[0])
         if (status) {
-            return { hashUserId, status, signMsg: undefined }
+            return { hashUserId, status: UserRegisterStatus.INIT, signMsg: undefined }
         } else {
             console.log(`There is no result status in ${hashUserId}`)
             throw Error("Create User Failed")

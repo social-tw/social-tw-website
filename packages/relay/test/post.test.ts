@@ -35,6 +35,9 @@ describe('POST /post', () => {
             id: identity,
         })
 
+        await userState.sync.start()
+        await userState.waitForSync()
+
         const signupProof = await userState.genUserSignUpProof()
         var publicSignals = signupProof.publicSignals.map((n) => n.toString())
 
