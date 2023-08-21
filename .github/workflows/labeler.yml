@@ -23,7 +23,7 @@ jobs:
   pr-triage:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/labeler@v4
+    - uses: github/issue-labeler@v3.2
       with:
         configuration-path: .github/pr-labeler.yml
         enable-versioned-regex: 0
