@@ -20,8 +20,6 @@ import {
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
-
-
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
     process.exit(1)

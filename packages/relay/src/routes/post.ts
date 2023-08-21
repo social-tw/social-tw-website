@@ -65,7 +65,7 @@ async function createPost(
 ) {
     try {
         const { content, publicSignals, proof } = req.body
-        
+
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
