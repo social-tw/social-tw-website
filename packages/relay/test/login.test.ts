@@ -32,22 +32,26 @@ describe('LOGIN /login', () => {
         expect(response.status).equal(200)
     }) */
 
-    /* it('/api/user should catch redirection', async () => {
+    it('/api/user should catch redirection', async () => {
         // https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token
         const mockState = 'state'
         const mockCode = 'VGNibzFWSWREZm01bjN1N3dicWlNUG1oa2xRRVNNdmVHelJGY2hPWGxNd2dxOjE2MjIxNjA4MjU4MjU6MToxOmFjOjE'
-        nock('http://api.twitter.com')
-            .post('/2/oauth2/token')
+        const scope = nock('http://api.twitter.com')
+            .persist()    
+            .intercept('/', 'PATCH')
             .reply(200, { access_token: 'test_token' })
+        scope.on('request', (req, interceptor) => {
+            console.log('interceptor matched request', interceptor.uri)
+        });
         const response = (await fetch(`${HTTP_SERVER}/api/user?state=${mockState}&code=${mockCode}`, {
             method: 'GET',
         }))
         expect(response.status).equal(200)        
-    }) */
-
-    it('/api/signup should generate proof and signup', async () => {
-        
     })
+
+    /* it('/api/signup should generate proof and signup', async () => {
+        
+    }) */
 
     // TODO
     //it('should post failed with wrong proof', async () => {})
