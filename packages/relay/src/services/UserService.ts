@@ -14,11 +14,11 @@ const STATE = 'state'
 export class UserService {
 
     /**
-     * Return redirect url with hashUserId and loginStatus
+     * Return User with hashUserId and loginStatus
      * - loginStatus = INIT: User has been initialize, then process sign up
      * - loginStatus = REGISTERED: User has been signUp with own wallet
      * - loginStatus = REGISTERED_SERVER: User has been signUp with server wallet
-     *                 In this case, signature is carried in redirectUrl  
+     *                 In this case, signMsg will be included
      * 
      * @param code from twitter api callback
      * @param state from twitter api callback
