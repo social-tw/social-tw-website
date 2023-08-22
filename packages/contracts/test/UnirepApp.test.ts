@@ -2,7 +2,7 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployUnirep, deployVerifierHelper } from '@unirep/contracts/deploy'
-import { CircuitConfig, Circuit } from '@unirep/circuits'
+import { CircuitConfig, Circuit, EpochKeyProof } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
 import { schema, UserState } from '@unirep/core'
 import { SQLiteConnector } from 'anondb/node'
@@ -44,7 +44,6 @@ describe('Unirep App', function () {
         .digest('hex')
     }`
     const id = new Identity(hashUserId)
-    console.log(id);
 
     it('deployment', async function () {
         const [deployer] = await ethers.getSigners()
@@ -69,101 +68,118 @@ describe('Unirep App', function () {
         
         // sign up after init
         const userState = await genUserState(id, app)
-        const { publicSignals, proof } = await userState.genUserSignUpProof()
+        const { publicSignals, proof } = await userState.genUserSignUpProof({epoch: 0})
         await app.userSignUp(publicSignals, proof, hashUserId, false).then((t) => t.wait())
         userState.stop()
     })
 
     describe('user post', () => {
-        it('post with valid proof', async () => {
+        // to store the same proof        
+        let inputPublicSig: any
+        let inputProof: any
+        
+        it ('should fail to post with invalid proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
-            const content = 'testing'
-            expect(app.post(publicSignals, proof, content))
-                .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 0, content)
+            
+            inputPublicSig = publicSignals
+            inputProof = proof
+
+            // generate a fake proof
+            const concoctProof = [...proof]
+            const len = concoctProof[0].toString().length
+            concoctProof[0] = BigInt(proof[0].toString().slice(0, len - 1) + BigInt(2))
+            const content = 'invalid proof'
+            
+            expect(app.post(inputPublicSig, concoctProof, content)).to.be.reverted // revert in epkHelper.verifyAndCheck()
         })
 
-        it('revert post with reused proof', async () => {
-            const userState = await genUserState(id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyProof()
+        it('should post with valid proof', async () => {
             const content = 'testing'
-            expect(app.post(publicSignals, proof, content))
+                
+            expect(app.post(inputPublicSig, inputProof, content))
                 .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 1, content)
+                .withArgs(inputPublicSig[0], 0, 0, content)
+        })
 
-            expect(app.post(publicSignals, proof, content)).to.be.revertedWith(
+        it('should fail to post with reused proof', async () => {
+            
+            const content = 'reused proof'
+            expect(app.post(inputPublicSig, inputProof, content)).to.be.revertedWith(
                 'The proof has been used before'
             )
         })
     })
 
-    it('submit attestations', async () => {
-        const userState = await genUserState(id, app)
-
-        const nonce = 0
-        const { publicSignals, proof, epochKey, epoch } =
-            await userState.genEpochKeyProof({ nonce })
-        const [deployer] = await ethers.getSigners()
-        const epkVerifier = await deployVerifierHelper(
-            deployer,
-            Circuit.epochKey
-        )
-        await epkVerifier.verifyAndCheck(publicSignals, proof)
-
-        const field = 0
-        const val = 10
-        await app
-            .submitAttestation(epochKey, epoch, field, val)
-            .then((t) => t.wait())
-        userState.stop()
-    })
-
-    it('user state transition', async () => {
-        await ethers.provider.send('evm_increaseTime', [epochLength])
-        await ethers.provider.send('evm_mine', [])
-
-        const newEpoch = await unirep.attesterCurrentEpoch(app.address)
-        const userState = await genUserState(id, app)
-        const { publicSignals, proof } =
-            await userState.genUserStateTransitionProof({
-                toEpoch: newEpoch,
-            })
-        await unirep
-            .userStateTransition(publicSignals, proof)
-            .then((t) => t.wait())
-        userState.stop()
-    })
-
-    it('data proof', async () => {
-        const userState = await genUserState(id, app)
-        const epoch = await userState.sync.loadCurrentEpoch()
-        const stateTree = await userState.sync.genStateTree(epoch)
-        const index = await userState.latestStateTreeLeafIndex(epoch)
-        const stateTreeProof = stateTree.createProof(index)
-        const attesterId = app.address
-        const data = await userState.getProvableData()
-        const value = Array(SUM_FIELD_COUNT).fill(0)
-        const circuitInputs = stringifyBigInts({
-            identity_secret: id.secret,
-            state_tree_indexes: stateTreeProof.pathIndices,
-            state_tree_elements: stateTreeProof.siblings,
-            data: data,
-            epoch: epoch,
-            attester_id: attesterId,
-            value: value,
+    describe('attesters', async () => {
+        it('submit attestations', async () => {
+            const userState = await genUserState(id, app)
+    
+            const nonce = 0
+            const { publicSignals, proof, epochKey, epoch } =
+                await userState.genEpochKeyProof({ nonce })
+            const [deployer] = await ethers.getSigners()
+            const epkVerifier = await deployVerifierHelper(
+                deployer,
+                Circuit.epochKey
+            )
+            await epkVerifier.verifyAndCheck(publicSignals, proof)
+    
+            const field = 0
+            const val = 10
+            await app
+                .submitAttestation(epochKey, epoch, field, val)
+                .then((t) => t.wait())
+            userState.stop()
         })
-        const p = await prover.genProofAndPublicSignals(
-            'dataProof',
-            circuitInputs
-        )
-        const { publicSignals, proof } = new DataProof(
-            p.publicSignals,
-            p.proof,
-            prover
-        )
-        const isValid = await app.verifyDataProof(publicSignals, proof)
-        expect(isValid).to.be.true
-        userState.stop()
+    
+        it('user state transition', async () => {
+            await ethers.provider.send('evm_increaseTime', [epochLength])
+            await ethers.provider.send('evm_mine', [])
+    
+            const newEpoch = await unirep.attesterCurrentEpoch(app.address)
+            const userState = await genUserState(id, app)
+            const { publicSignals, proof } =
+                await userState.genUserStateTransitionProof({
+                    toEpoch: newEpoch,
+                })
+            await unirep
+                .userStateTransition(publicSignals, proof)
+                .then((t) => t.wait())
+            userState.stop()
+        })
+    
+        it('data proof', async () => {
+            const userState = await genUserState(id, app)
+            const epoch = await userState.sync.loadCurrentEpoch()
+            const stateTree = await userState.sync.genStateTree(epoch)
+            const index = await userState.latestStateTreeLeafIndex(epoch)
+            const stateTreeProof = stateTree.createProof(index)
+            const attesterId = app.address
+            const data = await userState.getProvableData()
+            const value = Array(SUM_FIELD_COUNT).fill(0)
+            const circuitInputs = stringifyBigInts({
+                identity_secret: id.secret,
+                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_elements: stateTreeProof.siblings,
+                data: data,
+                epoch: epoch,
+                attester_id: attesterId,
+                value: value,
+            })
+            const p = await prover.genProofAndPublicSignals(
+                'dataProof',
+                circuitInputs
+            )
+            const { publicSignals, proof } = new DataProof(
+                p.publicSignals,
+                p.proof,
+                prover
+            )
+            const isValid = await app.verifyDataProof(publicSignals, proof)
+            expect(isValid).to.be.true
+            userState.stop()
+        })
     })
+    
 })
