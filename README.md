@@ -8,6 +8,8 @@ This is a demo app of a [unirep](https://github.com/Unirep/Unirep) attester. In 
 
 ```shell
 npx create-unirep-app
+yarn install
+npm install -g circom
 ```
 
 Then `cd` into the directory that was created.
