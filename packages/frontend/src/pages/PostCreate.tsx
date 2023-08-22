@@ -19,6 +19,8 @@ export default function PostCreate() {
         try {
             setIsPending(true)
 
+            console.log(userState)
+
             if (!userState)
                 throw new Error('user state not initialized')
 
