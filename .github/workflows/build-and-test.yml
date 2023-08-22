@@ -16,9 +16,9 @@ jobs:
         name: Build and Test
         runs-on: ubuntu-22.04
         container:
-            image: ghcr.io/jason-ntu/ubuntu-22.04:circom
+            image: ghcr.io/social-tw/ubuntu-22.04:circom
             credentials:
-                username: jason-ntu
+                username: social-tw
                 password: ${{ secrets.CR_PAT }}
         timeout-minutes: 15
         steps:
@@ -29,7 +29,7 @@ jobs:
             - name: Install node.js
               uses: actions/setup-node@v3
               with:
-                node-version: '16'
+                node-version: '18'
             - name: Install yarn
               run: npm install --global yarn
             - name: Install packages
