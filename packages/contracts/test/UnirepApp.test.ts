@@ -34,16 +34,21 @@ async function genUserState(id, app) {
 describe('Unirep App', function () {
     let unirep
     let app
+    let hashUserId
+    let id
 
     // epoch length
     const epochLength = 300
-    // generate random hash user id
-    const hash = crypto.createHash('sha3-224')
-    const hashUserId = `0x${hash
-        .update(new Identity().toString())
-        .digest('hex')
-    }`
-    const id = new Identity(hashUserId)
+    
+    before(async () => {
+        // generate random hash user id
+        const hash = crypto.createHash('sha3-224')
+        hashUserId = `0x${hash
+            .update(new Identity().toString())
+            .digest('hex')
+        }`
+        id = new Identity(hashUserId)
+    })
 
     it('deployment', async function () {
         const [deployer] = await ethers.getSigners()
