@@ -1,13 +1,13 @@
 import React from 'react';
 import Loading from '../layouts/Loading';
 import {render, screen} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
+import {expect} from "@jest/globals";
 
 test("Background should render", () => {
     render(
         <Loading/>
     );
-    const element = screen.findAllByText('background');
-    expect(element).toBeInTheDocument();
+    // @ts-ignore
+    expect(screen.getByText('我們正在努力為你加載，請稍等...')).toBeInTheDocument();
 });
