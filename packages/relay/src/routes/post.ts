@@ -113,9 +113,9 @@ async function createPost(
         )
 
         const post = await db.create('Post', {
-            content,
-            cid,
-            epochKey: epochKeyProof.epochKey,
+            content: content,
+            cid: cid,
+            epochKey: epochKeyProof.epochKey.toString(),
             epoch: epoch,
             transactionHash: hash,
             status: 0,
