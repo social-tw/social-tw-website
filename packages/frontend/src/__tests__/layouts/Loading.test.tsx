@@ -1,5 +1,5 @@
 import React from 'react';
-import Loading from '../layouts/Loading';
+import Loading from '../../layouts/Loading';
 import {render, screen} from '@testing-library/react'
 import '@testing-library/jest-dom'
 import {expect} from "@jest/globals";
