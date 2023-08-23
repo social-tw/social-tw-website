@@ -30,6 +30,7 @@ const theme = {
 export default function RichTextEditor({
     namespace = 'RichTextEditor',
     classes,
+    ariaLabel = '',
     placeholder = '你想說些什麼呢......？',
     value,
     onValueChange,
@@ -41,6 +42,7 @@ export default function RichTextEditor({
         content?: string
         placeholder?: string
     }
+    ariaLabel?: string
     placeholder?: string
     value?: string
     onValueChange?: (md: string) => void
@@ -79,7 +81,10 @@ export default function RichTextEditor({
                     <RichTextPlugin
                         contentEditable={
                             <div className={classes?.content}>
-                                <ContentEditable className="focus-visible:outline-none" />
+                                <ContentEditable
+                                    ariaLabel={ariaLabel}
+                                    className="focus-visible:outline-none"
+                                />
                             </div>
                         }
                         placeholder={
