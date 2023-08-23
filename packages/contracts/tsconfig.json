@@ -4,8 +4,14 @@
         "outDir": "./build",
         "lib": ["ES2021.String"],
         "module": "CommonJS",
-        "moduleResolution": "node",
+        "moduleResolution": "node"
     },
-    "include": ["./src", "./deploy", "./typechain", "./type/*.d.ts", "./test/*.ts"],
+    "include": [
+        "./src",
+        "./deploy",
+        "./typechain",
+        "./type/*.d.ts",
+        "./test/*.ts"
+    ],
     "files": ["./hardhat.config.ts"]
 }

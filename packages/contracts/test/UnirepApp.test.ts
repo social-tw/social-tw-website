@@ -39,7 +39,7 @@ describe('Unirep App', function () {
 
     // epoch length
     const epochLength = 300
-    
+
     before(async () => {
         // generate random hash user id
         const hash = crypto.createHash('sha3-224')
@@ -67,59 +67,63 @@ describe('Unirep App', function () {
         await app.deployed()
     })
 
-    it ('init user status & sign up', async () => {
+    it('init user status & sign up', async () => {
         // init user status
         await app.initUserStatus(hashUserId)
-        
+
         // sign up after init
         const userState = await genUserState(id, app)
-        const { publicSignals, proof } = await userState.genUserSignUpProof({epoch: 0})
-        await app.userSignUp(publicSignals, proof, hashUserId, false).then((t) => t.wait())
+        const { publicSignals, proof } = await userState.genUserSignUpProof()
+        await app
+            .userSignUp(publicSignals, proof, hashUserId, false)
+            .then((t) => t.wait())
         userState.stop()
     })
 
     describe('user post', () => {
-        // to store the same proof        
+        // to store the same proof
         let inputPublicSig: any
         let inputProof: any
-        
-        it ('should fail to post with invalid proof', async () => {
+
+        it('should fail to post with invalid proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
-            
+
             inputPublicSig = publicSignals
             inputProof = proof
 
             // generate a fake proof
             const concoctProof = [...proof]
             const len = concoctProof[0].toString().length
-            concoctProof[0] = BigInt(proof[0].toString().slice(0, len - 1) + BigInt(2))
+            concoctProof[0] = BigInt(
+                proof[0].toString().slice(0, len - 1) + BigInt(2)
+            )
             const content = 'invalid proof'
-            
-            expect(app.post(inputPublicSig, concoctProof, content)).to.be.reverted // revert in epkHelper.verifyAndCheck()
+
+            expect(app.post(inputPublicSig, concoctProof, content)).to.be
+                .reverted // revert in epkHelper.verifyAndCheck()
         })
 
         it('should post with valid proof', async () => {
             const content = 'testing'
-                
+
             expect(app.post(inputPublicSig, inputProof, content))
                 .to.emit(app, 'Post')
                 .withArgs(inputPublicSig[0], 0, 0, content)
         })
 
         it('should fail to post with reused proof', async () => {
-            
             const content = 'reused proof'
-            expect(app.post(inputPublicSig, inputProof, content)).to.be.revertedWith(
-                'The proof has been used before'
-            )
+            expect(
+                app.post(inputPublicSig, inputProof, content)
+            ).to.be.revertedWith('The proof has been used before')
         })
     })
 
     describe('attesters', async () => {
         it('submit attestations', async () => {
             const userState = await genUserState(id, app)
-    
+
             const nonce = 0
             const { publicSignals, proof, epochKey, epoch } =
                 await userState.genEpochKeyProof({ nonce })
@@ -129,7 +133,7 @@ describe('Unirep App', function () {
                 Circuit.epochKey
             )
             await epkVerifier.verifyAndCheck(publicSignals, proof)
-    
+
             const field = 0
             const val = 10
             await app
@@ -137,11 +141,11 @@ describe('Unirep App', function () {
                 .then((t) => t.wait())
             userState.stop()
         })
-    
+
         it('user state transition', async () => {
             await ethers.provider.send('evm_increaseTime', [epochLength])
             await ethers.provider.send('evm_mine', [])
-    
+
             const newEpoch = await unirep.attesterCurrentEpoch(app.address)
             const userState = await genUserState(id, app)
             const { publicSignals, proof } =
@@ -153,7 +157,7 @@ describe('Unirep App', function () {
                 .then((t) => t.wait())
             userState.stop()
         })
-    
+
         it('data proof', async () => {
             const userState = await genUserState(id, app)
             const epoch = await userState.sync.loadCurrentEpoch()
@@ -186,5 +190,4 @@ describe('Unirep App', function () {
             userState.stop()
         })
     })
-    
 })
