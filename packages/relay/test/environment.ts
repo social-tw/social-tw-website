@@ -70,7 +70,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     console.log('Synchronizer started')
 
     console.log('Starting Helia ipfs node...')
-    const { createHelia } =  await eval("import('helia')")
+    const { createHelia } = await eval("import('helia')")
     const helia = await createHelia()
     console.log('Helia ipfs node started')
 
@@ -102,6 +102,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         prover,
         provider,
         TransactionManager,
-        synchronizer
+        synchronizer,
     }
 }

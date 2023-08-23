@@ -15,12 +15,8 @@ export const LOAD_POST_COUNT = 10
 export default (
     app: Express,
     db: DB,
-<<<<<<< HEAD
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia
-=======
-    synchronizer: UnirepSocialSynchronizer
->>>>>>> 3c40e27 (chore: fix lint)
 ) => {
     app.get(
         '/api/post',
@@ -67,12 +63,8 @@ async function createPost(
     req,
     res,
     db: DB,
-<<<<<<< HEAD
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia
-=======
-    synchronizer: UnirepSocialSynchronizer
->>>>>>> 3c40e27 (chore: fix lint)
 ) {
     try {
         const { content, publicSignals, proof } = req.body
@@ -105,7 +97,6 @@ async function createPost(
                 content,
             ])
 
-<<<<<<< HEAD
             // store content into helia ipfs node with json plain
             const { json } = await eval("import('@helia/json')")
             const heliaJson = json(helia)
@@ -114,20 +105,6 @@ async function createPost(
             }
             let file = await heliaJson.add(JSON.stringify(IPFSContent))
             cid = file.toString()
-=======
-            // dynamic import ipfs client
-            const { create } = (await dynamicImport(
-                'kubo-rpc-client',
-                module
-            )) as typeof import('kubo-rpc-client')
-            // Create ipfs client to connect to kubo ipfs node
-            const client = await create()
-            const IPFSContent = {
-                content: content,
-            }
-            const file = await client.add(JSON.stringify(IPFSContent))
-            cid = file.cid.toString()
->>>>>>> 3c40e27 (chore: fix lint)
         }
 
         const hash = await TransactionManager.queueTransaction(

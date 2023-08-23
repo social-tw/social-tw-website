@@ -3,10 +3,5 @@
     "compilerOptions": {
         "outDir": "./build"
     },
-<<<<<<< HEAD
-    "include": ["./src", ".env", "./test"],
-    "files": ["./hardhat.config.ts"]
-=======
     "include": ["./src", ".env"]
->>>>>>> 3c40e27 (chore: fix lint)
 }

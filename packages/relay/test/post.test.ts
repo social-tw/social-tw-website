@@ -16,10 +16,8 @@ describe('POST /post', () => {
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        const { db, prover, provider, TransactionManager, synchronizer } = await startServer(
-            unirep,
-            app
-        )
+        const { db, prover, provider, TransactionManager, synchronizer } =
+            await startServer(unirep, app)
 
         // initUserStatus
         var initUser = await userService.loginOrInitUserForTest('123')
@@ -43,7 +41,11 @@ describe('POST /post', () => {
 
         // sign up
         await userService.signup(
-            publicSignals, signupProof._snarkProof, initUser.hashUserId, false, synchronizer
+            publicSignals,
+            signupProof._snarkProof,
+            initUser.hashUserId,
+            false,
+            synchronizer
         )
 
         await userState.waitForSync()
