@@ -3,15 +3,15 @@ import { ethers } from 'ethers'
 import { Express } from 'express'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 import { EpochKeyProof } from '@unirep/circuits'
-import { Synchronizer } from '@unirep/core'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import {dynamicImport} from 'tsimportlib';
+import { UnirepSocialSynchronizer } from '../synchornizer'
 
 export const LOAD_POST_COUNT = 10
 
-export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
@@ -53,7 +53,7 @@ async function fetchPosts(req, res, db: DB) {
     }
 }
 
-async function createPost(req, res, db: DB, synchronizer: Synchronizer) {
+async function createPost(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
     try {
         const { content, publicSignals, proof } = req.body
 

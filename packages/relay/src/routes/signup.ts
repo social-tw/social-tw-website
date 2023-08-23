@@ -1,19 +1,18 @@
 import { SignupProof } from '@unirep/circuits'
-import { BigNumberish } from 'ethers'
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import { Synchronizer } from '@unirep/core'
 import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
 import { SnarkProof } from '@unirep/utils'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 
 async function signup(
-    publicSignals: BigNumberish[],
+    publicSignals: string[],
     proof: SnarkProof,
     hashUserId: String,
     fromServer: boolean,
-    synchronizer: Synchronizer
+    synchronizer: UnirepSocialSynchronizer
 ) {
     const signupProof = new SignupProof(
         publicSignals,
@@ -53,7 +52,7 @@ async function signup(
     return hash
 }
 
-export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
     app.post('/api/identity', async (req, res) => {
         const { hashUserId } = req.body
         console.log(hashUserId)

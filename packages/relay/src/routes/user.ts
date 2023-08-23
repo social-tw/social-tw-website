@@ -1,16 +1,16 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import { Synchronizer } from '@unirep/core'
 import crypto from 'crypto'
 import TwitterClient from '../singletons/TwitterClient'
 import { APP_ADDRESS, CLIENT_URL } from '../config'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
 import TransactionManager from '../singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 
 const STATE = 'state'
 const code_challenge = crypto.randomUUID()
 
-export default (app: Express, db: DB, synchronizer: Synchronizer) => {
+export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
     app.get('/api/login', async (_, res) => {
         const url = await TwitterClient.authClient.generateAuthURL({
             state: STATE,

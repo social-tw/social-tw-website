@@ -96,9 +96,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 prover,
                 unirepAddress: UNIREP_ADDRESS,
                 attesterId: BigInt(APP_ADDRESS),
-                _id: identity,
+                id: identity,
             },
-            identity
         )
 
         await userStateInstance.sync.start()
@@ -208,7 +207,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestEpoch)
     }, [userState, provider, hashUserId, fromServer, SERVER])
 
-    const stateTransition =  async () => {
+    const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
 
         await userState.waitForSync()
