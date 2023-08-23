@@ -17,7 +17,6 @@ export default (
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia
-    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get(
         '/api/post',
@@ -66,7 +65,6 @@ async function createPost(
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia
-    synchronizer: UnirepSocialSynchronizer
 ) {
     try {
         const { content, publicSignals, proof } = req.body
