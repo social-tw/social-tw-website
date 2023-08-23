@@ -36,12 +36,10 @@ async function signup(
     ])
 
     // TODO: fix transction twice bug
-    /*
     const hash = await TransactionManager.queueTransaction(
         APP_ADDRESS,
         calldata
     )
-    */
 
     const parsedLogs = await TransactionManager.executeTransaction(
         appContract,
@@ -61,6 +59,7 @@ export default (
 ) => {
     app.post('/api/identity', async (req, res) => {
         const { hashUserId } = req.body
+        console.log(hashUserId)
         try {
             const statusCode =
                 await TransactionManager.appContract!!.queryUserStatus(
