@@ -4011,14 +4011,9 @@
   dependencies:
     "@types/node" "*"
 
-"@uidotdev/usehooks@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/@uidotdev/usehooks/-/usehooks-2.1.0.tgz"
-  integrity sha512-D7SJiNQC1BOHgtE2dy2KvOtnRNaLWTFFHvcBLg7lZ8Jz7YcimxdUY3spqpvf/mVkGCuUHee8i/79p5vVkBgsYQ==
-
 "@unirep/circuits@2.0.0-beta-4":
   version "2.0.0-beta-4"
-  resolved "https://registry.npmjs.org/@unirep/circuits/-/circuits-2.0.0-beta-4.tgz"
+  resolved "https://registry.yarnpkg.com/@unirep/circuits/-/circuits-2.0.0-beta-4.tgz#7ae6d680969744a0b323b93d4f45487966e4fefb"
   integrity sha512-wQAaW0H2XNIgdFI74gZ+hiAPd4Yy6ITRSCwp9xLGZz2k72BP5mM2y2OsXSGi4qx+PTHwrFkuFUijAfc3WfwkZg==
   dependencies:
     "@unirep/utils" "2.0.0-beta-4"
@@ -4026,7 +4021,7 @@
 
 "@unirep/contracts@2.0.0-beta-4":
   version "2.0.0-beta-4"
-  resolved "https://registry.npmjs.org/@unirep/contracts/-/contracts-2.0.0-beta-4.tgz"
+  resolved "https://registry.yarnpkg.com/@unirep/contracts/-/contracts-2.0.0-beta-4.tgz#21a2f508b7041bd90601a56879865c7595ec899b"
   integrity sha512-Gt2T7L0XOs2grgn9OR/HyRwY+k8ir1hLYXjvnVxdutNJVI5FkiJqXEQlv26W1oKmT6s462DKTp5M4JvrPQhYFQ==
   dependencies:
     "@unirep/circuits" "2.0.0-beta-4"
@@ -4039,7 +4034,7 @@
 
 "@unirep/core@2.0.0-beta-4":
   version "2.0.0-beta-4"
-  resolved "https://registry.npmjs.org/@unirep/core/-/core-2.0.0-beta-4.tgz"
+  resolved "https://registry.yarnpkg.com/@unirep/core/-/core-2.0.0-beta-4.tgz#8b655861b4911c0ae9888c2a1f5b5c4d9a38164e"
   integrity sha512-gWwusC6dLH990aH8uFb4KkE4owAeMgj7iQXQx/W++GhZRxvQPh7ucOa7qJgW0vwdSJC/LYaRtSkm5puNAwdZ0g==
   dependencies:
     "@semaphore-protocol/identity" "^3.5.0"
@@ -4053,7 +4048,7 @@
 
 "@unirep/utils@2.0.0-beta-4":
   version "2.0.0-beta-4"
-  resolved "https://registry.npmjs.org/@unirep/utils/-/utils-2.0.0-beta-4.tgz"
+  resolved "https://registry.yarnpkg.com/@unirep/utils/-/utils-2.0.0-beta-4.tgz#cb627c4f208331f919884f0f4e063b70506cf4a0"
   integrity sha512-ldv5ObkYWbcuGqokzJjHJtrx/5/2H3r6opEwa6T41e8ualbn+bvylLXFr6L0L5oJlZFXPdFiAktxN3iy7eNoxQ==
   dependencies:
     "@zk-kit/incremental-merkle-tree" "^1.1.0"
@@ -4235,7 +4230,7 @@
 
 "@zk-kit/incremental-merkle-tree@^1.1.0":
   version "1.1.0"
-  resolved "https://registry.npmjs.org/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-1.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-1.1.0.tgz#6b0ccce56f9e05ccf73f7ea4fa746d5ef7d24b1d"
   integrity sha512-WnNR/GQse3lX8zOHMU8zwhgX8u3qPoul8w4GjJ0WDHq+VGJimo7EGheRZ/ILeBQabnlzAerdv3vBqYBehBeoKA==
 
 "@zkochan/js-yaml@0.0.6":
@@ -10930,7 +10925,7 @@ platform@^1.3.3:
 
 poseidon-lite@^0.2.0:
   version "0.2.0"
-  resolved "https://registry.npmjs.org/poseidon-lite/-/poseidon-lite-0.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/poseidon-lite/-/poseidon-lite-0.2.0.tgz#dbc242ebd9c10c32d507a533fa497231d168fd72"
   integrity sha512-vivDZnGmz8W4G/GzVA72PXkfYStjilu83rjjUfpL4PueKcC8nfX6hCPh2XhoC5FBgC6y0TA3YuUeUo5YCcNoig==
 
 poseidon-solidity@0.0.4:
@@ -10945,7 +10940,7 @@ poseidon-solidity@^0.0.3:
 
 poseidon-solidity@^0.0.5:
   version "0.0.5"
-  resolved "https://registry.npmjs.org/poseidon-solidity/-/poseidon-solidity-0.0.5.tgz"
+  resolved "https://registry.yarnpkg.com/poseidon-solidity/-/poseidon-solidity-0.0.5.tgz#3f93e01cfe25f6d2f2fac49734fbb00961b84655"
   integrity sha512-NzrvSwHzvZgT4hvg2GyGqeR+UOU/eLSEt4wAoXEua+VaR7NTKKwx1X9bPlh1VMBEVEno+IWvkRBbidFGzTeAqQ==
 
 postcss-import@^15.1.0:
