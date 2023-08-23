@@ -43,10 +43,7 @@ describe('Unirep App', function () {
     before(async () => {
         // generate random hash user id
         const hash = crypto.createHash('sha3-224')
-        hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')
-        }`
+        hashUserId = `0x${hash.update(new Identity().toString()).digest('hex')}`
         id = new Identity(hashUserId)
     })
 
