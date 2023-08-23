@@ -6,11 +6,9 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
-<<<<<<< HEAD
 import { dynamicImport } from 'tsimportlib'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import type { Helia } from '@helia/interface'
-
 
 export const LOAD_POST_COUNT = 10
 
@@ -18,16 +16,8 @@ export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
+    helia: Helia
 ) => {
-=======
-import {dynamicImport} from 'tsimportlib';
-import { UnirepSocialSynchronizer } from '../synchornizer'
-
-export const LOAD_POST_COUNT = 10
-
-export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
->>>>>>> 3e1daea (feat: bump to v2.0.0-beta-4 version)
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
@@ -78,7 +68,7 @@ async function createPost(
 ) {
     try {
         const { content, publicSignals, proof } = req.body
-        
+
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
@@ -108,7 +98,7 @@ async function createPost(
             ])
 
             // store content into helia ipfs node with json plain
-            const { json } =  await eval("import('@helia/json')")
+            const { json } = await eval("import('@helia/json')")
             const heliaJson = json(helia)
             const IPFSContent = {
                 content: content,
