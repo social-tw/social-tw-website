@@ -33,6 +33,8 @@ attach to process
 ![Set breakpoint](./images/SetBreakpoint.png)
 and set breakpoint.
 
+You may also use auto attach mode, which will automatically attach to the process when you start the relay server or run testing suite. If auto 
+
 # Testing
 In the root directory, run:
 ```shell
@@ -41,4 +43,13 @@ yarn run test
 or run tests for a specific package:
 ```shell
 yarn run test --scope @unirep-app/relay
+```
+To run specific test file:
+```shell
+yarn test test/login.test.ts
+```
+
+We use nock to mock the HTTP requests. If you want to run the tests with real HTTP requests. You can turn on nock debug mode by setting `DEBUG=nock.*` in front of your shell command and run the tests.
+```shell
+DEBUG=nock.* yarn test test/login.test.ts
 ```
