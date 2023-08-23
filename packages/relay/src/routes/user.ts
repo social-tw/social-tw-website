@@ -60,7 +60,7 @@ export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) =>
                         if (resultStatus) {
                             statusCode = resultStatus
                             res.redirect(
-                                `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                `${CLIENT_URL}/login?code=${hashUserId}&status=${parseInt(
                                     statusCode
                                 )}`
                             )
@@ -69,7 +69,7 @@ export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) =>
                         parseInt(statusCode) == UserRegisterStatus.REGISTERER
                     ) {
                         res.redirect(
-                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                            `${CLIENT_URL}/login?code=${hashUserId}&status=${parseInt(
                                 statusCode
                             )}`
                         )
@@ -80,7 +80,7 @@ export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) =>
                         const wallet = TransactionManager.wallet!!
                         const signMsg = await wallet.signMessage(hashUserId)
                         res.redirect(
-                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                            `${CLIENT_URL}/login?code=${hashUserId}&status=${parseInt(
                                 statusCode
                             )}&signMsg=${signMsg}`
                         )
