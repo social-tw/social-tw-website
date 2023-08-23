@@ -30,7 +30,7 @@ export default (
                 state as string,
                 code as string
             )
-            var redirectUrl = `${CLIENT_URL}?code=${user.hashUserId}&status=${user.status}`
+            var redirectUrl = `${CLIENT_URL}/login?code=${user.hashUserId}&status=${user.status}`
             if (user.signMsg) redirectUrl += `&signMsg=${user.signMsg}`
 
             res.redirect(redirectUrl)
