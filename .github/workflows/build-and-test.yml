@@ -18,7 +18,7 @@ jobs:
         container:
             image: ghcr.io/social-tw/ubuntu-22.04:circom
             credentials:
-                username: social-tw
+                username: ryanycw
                 password: ${{ secrets.CR_PAT }}
         timeout-minutes: 15
         steps:
