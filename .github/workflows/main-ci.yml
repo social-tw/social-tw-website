@@ -39,6 +39,4 @@ jobs:
             - name: Install packages
               run: yarn
             - name: Lint
-              run: |
-                  yarn lint:fix
-                  yarn lint:check
+              run: yarn lint:check
