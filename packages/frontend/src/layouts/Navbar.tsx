@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import { VscAccount } from 'react-icons/vsc';
-import { UserContext } from '../contexts/User';
-import { observer } from 'mobx-react-lite';
+import React, { useContext } from 'react'
+import { VscAccount } from 'react-icons/vsc'
+import { UserContext } from '../contexts/User'
+import { observer } from 'mobx-react-lite'
 
 const Navbar: React.FC = observer(() => {
-    const userContext = useContext(UserContext);
+    const userContext = useContext(UserContext)
 
     return (
         <div className="navbar justify-center pr-6">
@@ -15,9 +15,9 @@ const Navbar: React.FC = observer(() => {
                 />
                 <a className="text-xl font-bold">Unirep Social TW</a>
             </div>
-            { userContext.hasSignedUp && <VscAccount size={32} /> }
+            {userContext.hasSignedUp && <VscAccount size={32} />}
         </div>
-    );
+    )
 })
 
-export default Navbar;
+export default Navbar

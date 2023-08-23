@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback } from 'react'
 
 const useSignupWithServer = (
     hashUserId: string | null,
@@ -7,12 +7,11 @@ const useSignupWithServer = (
     setIsLoading: any
 ) => {
     const signupWithServer = useCallback(async () => {
-
         try {
-            setIsLoading(true);
+            setIsLoading(true)
             if (!hashUserId) {
                 throw new Error('Invalid user')
-            };
+            }
             const response = await fetch(`${SERVER}/api/identity`, {
                 method: 'POST',
                 headers: {
@@ -20,35 +19,34 @@ const useSignupWithServer = (
                 },
                 body: JSON.stringify({
                     hashUserId,
-                })
-            });
+                }),
+            })
 
             if (!response.ok) {
                 throw new Error('False Identity')
-            };
+            }
 
-            const data = await response.json();
-            console.log(data);
-            
+            const data = await response.json()
+            console.log(data)
 
-            const signMessage = data.signMsg;
+            const signMessage = data.signMsg
 
-            localStorage.setItem('signature', signMessage);
+            localStorage.setItem('signature', signMessage)
 
-            await userContext.setFromServer();
+            await userContext.setFromServer()
 
-            await userContext.load();
+            await userContext.load()
 
-            await userContext.signup();
+            await userContext.signup()
         } catch (error: any) {
-            console.error(error);
+            console.error(error)
         } finally {
             console.log('has signed up')
-            setIsLoading(false);
+            setIsLoading(false)
         }
-    }, [setIsLoading, SERVER, userContext, hashUserId]);
+    }, [setIsLoading, SERVER, userContext, hashUserId])
 
-    return signupWithServer;
-};
+    return signupWithServer
+}
 
-export default useSignupWithServer;
+export default useSignupWithServer

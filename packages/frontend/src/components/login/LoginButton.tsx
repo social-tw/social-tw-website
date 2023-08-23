@@ -19,11 +19,11 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     isLoading,
     title,
     subTitle,
-    color
+    color,
 }) => {
     return (
         <button
-            type='button'
+            type="button"
             onClick={onClick}
             disabled={isLoading}
             className={`
@@ -41,8 +41,10 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         bg-opacity-70
         `}
         >
-            <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
-            <span className='text-xs tracking-wider'>{subTitle}</span>
+            <span className="text-white font-semibold text-2xl tracking-wider">
+                {title}
+            </span>
+            <span className="text-xs tracking-wider">{subTitle}</span>
         </button>
     )
 }

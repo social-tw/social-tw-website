@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
 const useInitUser = (
-    userContext: any, 
-    hashUserId: string | null, 
+    userContext: any,
+    hashUserId: string | null,
     setIsLoading: any
 ) => {
     useEffect(() => {
@@ -15,12 +15,12 @@ const useInitUser = (
             } finally {
                 setIsLoading(false)
             }
-        };
+        }
         if (hashUserId) {
             localStorage.setItem('hashUserId', hashUserId)
-        };
-        initUser();
-    }, [userContext, hashUserId]);
-};
+        }
+        initUser()
+    }, [userContext, hashUserId])
+}
 
-export default useInitUser;
+export default useInitUser
