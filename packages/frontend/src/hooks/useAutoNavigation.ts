@@ -1,11 +1,11 @@
-import { useContext, useEffect } from "react";
-import { UserContext } from "../contexts/User";
+import { useContext, useEffect } from 'react'
+import { UserContext } from '../contexts/User'
 
 // TODO: redirect to home page
 const useAutoNavigation = (
-    hashUserId: string | null, 
-    status: string | null, 
-    navigate: any, 
+    hashUserId: string | null,
+    status: string | null,
+    navigate: any,
     userContext: any,
     isLoading: boolean
 ) => {
@@ -20,7 +20,7 @@ const useAutoNavigation = (
                 navigate('/')
             }
         }
-    }, [userContext.hasSignedUp, navigate, hashUserId, status, isLoading]);
-};
+    }, [userContext.hasSignedUp, navigate, hashUserId, status, isLoading])
+}
 
-export default useAutoNavigation;
+export default useAutoNavigation

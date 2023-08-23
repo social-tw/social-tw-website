@@ -8,7 +8,7 @@
     "repository": "git+https://github.com/Unirep/create-unirep-app.git",
     "scripts": {
         "build": "yarn keys",
-        "start": "ts-node ./src/index.ts", 
+        "start": "ts-node ./src/index.ts",
         "debug": "node --inspect -r ts-node/register ./src/index.ts",
         "keys": "sh scripts/loadKeys.sh"
     },

@@ -16,15 +16,16 @@
             "request": "attach",
             "name": "Attach to backend process TS-Node",
             "processId": "${command:PickProcess}",
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-        },
+            "skipFiles": ["<node_internals>/**"]
+        }
     ],
     "compounds": [
         {
             "name": "Debug Frontend & Backend",
-            "configurations": ["Launch Edge against localhost", "Attach to TS-Node"]
+            "configurations": [
+                "Launch Edge against localhost",
+                "Attach to TS-Node"
+            ]
         }
     ]
 }
