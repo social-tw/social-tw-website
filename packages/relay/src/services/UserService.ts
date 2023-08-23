@@ -30,11 +30,6 @@ export class UserService {
             .then((_) => TwitterClient.client.users.findMyUser())
 
         const userId = userInfo.data?.id!!
-        return this.loginOrInitUserForTest(userId)
-    }
-
-    // TODO remove this method, once successfully mock the TwitterClient result
-    async loginOrInitUserForTest(userId: string): Promise<User> {
         const hash = crypto.createHash('sha3-224')
         const hashUserId = `0x${hash.update(userId).digest('hex')}`
         const appContract = TransactionManager.appContract!!
