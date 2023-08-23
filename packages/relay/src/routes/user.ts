@@ -33,7 +33,75 @@ export default (
             var redirectUrl = `${CLIENT_URL}?code=${user.hashUserId}&status=${user.status}`
             if (user.signMsg) redirectUrl += `&signMsg=${user.signMsg}`
 
+<<<<<<< HEAD
             res.redirect(redirectUrl)
+=======
+            if (state != STATE)
+                res.status(500).json({ error: 'wrong callback value' })
+
+            TwitterClient.authClient
+                .requestAccessToken(code as string)
+                .then((_) => TwitterClient.client.users.findMyUser())
+                .then(async (userInfo) => {
+                    const userId = userInfo.data?.id!!
+                    const hash = crypto.createHash('sha3-224')
+                    const hashUserId = `0x${hash.update(userId).digest('hex')}`
+                    const appContract = TransactionManager.appContract!!
+
+                    // query from contract
+                    let statusCode = await appContract.queryUserStatus(
+                        hashUserId
+                    )
+
+                    // if status is NOT_REGISTER or INIT then init user status
+                    if (parseInt(statusCode) <= UserRegisterStatus.INIT) {
+                        const calldata =
+                            appContract.interface.encodeFunctionData(
+                                'initUserStatus',
+                                [hashUserId]
+                            )
+                        const parsedLogs =
+                            await TransactionManager.executeTransaction(
+                                appContract,
+                                APP_ADDRESS,
+                                calldata
+                            )
+                        console.log(parsedLogs)
+                        const resultStatus = parseInt(parsedLogs[0]?.args[0])
+                        if (resultStatus) {
+                            statusCode = resultStatus
+                            res.redirect(
+                                `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                    statusCode
+                                )}`
+                            )
+                        }
+                    } else if (
+                        parseInt(statusCode) == UserRegisterStatus.REGISTERER
+                    ) {
+                        res.redirect(
+                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                statusCode
+                            )}`
+                        )
+                    } else if (
+                        parseInt(statusCode) ==
+                        UserRegisterStatus.REGISTERER_SERVER
+                    ) {
+                        const wallet = TransactionManager.wallet!!
+                        const signMsg = await wallet.signMessage(hashUserId)
+                        res.redirect(
+                            `${CLIENT_URL}?code=${hashUserId}&status=${parseInt(
+                                statusCode
+                            )}&signMsg=${signMsg}`
+                        )
+                    }
+                })
+                .catch((err) => () => {
+                    console.error(err)
+                    res.redirect(`${CLIENT_URL}?error="apiError"`)
+                })
+>>>>>>> 3c40e27 (chore: fix lint)
         } catch (error) {
             console.log(error)
             res.redirect(`${CLIENT_URL}?error="apiError"`)

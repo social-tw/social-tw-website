@@ -1,17 +1,17 @@
-import { useCallback } from "react";
+import { useCallback } from 'react'
 
 const useTwitterVerify = (setIsLoading: any, SERVER: string) => {
     const handleTwitterVerify = useCallback(async () => {
-        setIsLoading(true);
+        setIsLoading(true)
         const response = await fetch(`${SERVER}/api/login`, {
             method: 'GET',
-        });
+        })
 
-        const data = await response.json();
-        window.location.href = data.url;
-    }, [setIsLoading, SERVER]);
+        const data = await response.json()
+        window.location.href = data.url
+    }, [setIsLoading, SERVER])
 
-    return handleTwitterVerify;
-};
+    return handleTwitterVerify
+}
 
-export default useTwitterVerify;
+export default useTwitterVerify

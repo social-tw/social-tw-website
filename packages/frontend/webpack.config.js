@@ -85,22 +85,24 @@ module.exports = (env) => ({
             {
                 test: /\.svg$/i,
                 issuer: /\.[jt]sx?$/,
-                use: [{
-                    loader: '@svgr/webpack',
-                    options: {
-                        svgoConfig: {
-                            plugins: [
-                                'removeDimensions',
-                                {
-                                    name: 'convertColors',
-                                    params: {
-                                        currentColor: true,
+                use: [
+                    {
+                        loader: '@svgr/webpack',
+                        options: {
+                            svgoConfig: {
+                                plugins: [
+                                    'removeDimensions',
+                                    {
+                                        name: 'convertColors',
+                                        params: {
+                                            currentColor: true,
+                                        },
                                     },
-                                }
-                            ],
+                                ],
+                            },
                         },
                     },
-                }],
+                ],
             },
         ],
     },
@@ -125,8 +127,8 @@ module.exports = (env) => ({
             },
             ...(env.CYPRESS
                 ? {
-                    ['process.env.CYPRESS']: 'true',
-                }
+                      ['process.env.CYPRESS']: 'true',
+                  }
                 : {}),
         }),
         new webpack.ProvidePlugin({
