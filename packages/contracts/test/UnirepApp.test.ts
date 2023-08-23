@@ -31,23 +31,31 @@ async function genUserState(id, app) {
     return userState
 }
 
+function createRandomUserIdentity(): [string, Identity] {
+    const hash = crypto.createHash('sha3-224')
+    const hashUserId = `0x${hash
+        .update(new Identity().toString())
+        .digest('hex')}` as string
+    const id = new Identity(hashUserId) as Identity
+    console.log('Random hashed user id: ', hashUserId)
+
+    return [hashUserId, id]
+}
+
 describe('Unirep App', function () {
     let unirep
     let app
-    let hashUserId
-    let id
+    let hashUserId: string
+    let id: Identity
 
     // epoch length
     const epochLength = 300
 
     before(async () => {
         // generate random hash user id
-        const hash = crypto.createHash('sha3-224')
-        hashUserId = `0x${hash.update(new Identity().toString()).digest('hex')}`
-        id = new Identity(hashUserId)
-    })
+        [hashUserId, id] = createRandomUserIdentity()
 
-    it('deployment', async function () {
+        // deployment
         const [deployer] = await ethers.getSigners()
         unirep = await deployUnirep(deployer)
         const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
@@ -62,9 +70,8 @@ describe('Unirep App', function () {
             epochLength
         )
         await app.deployed()
-    })
 
-    it('init user status & sign up', async () => {
+        // init user status & sign up
         // init user status
         await app.initUserStatus(hashUserId)
 
