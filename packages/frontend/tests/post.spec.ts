@@ -76,8 +76,11 @@ test.describe('Create post', () => {
         const post = 'Hello World'
         const postEditor = page.getByLabel('post editor')
         const submitButton = page.getByTitle('submit a post')
+        const errorMessage = page.getByLabel('post error message')
 
         await postEditor.fill(post)
         await submitButton.click()
+
+        await expect(errorMessage).toBeVisible()
     })
 })
