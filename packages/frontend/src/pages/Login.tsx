@@ -3,13 +3,14 @@ import AuthForm from '../components/login/AuthForm'
 import { motion } from 'framer-motion'
 import DemoPostList from '../components/login/DemoPostList'
 import { clsx } from 'clsx'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoChevronBack } from 'react-icons/io5'
 import StepInfo from '../components/login/StepInfo'
 
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
+    const navigate = useNavigate()
     const [method, setMethod] = useState('')
 
     const basicVarients = {
@@ -46,6 +47,21 @@ const Login: React.FC = () => {
             },
         },
     }
+
+    const handleBack = () => {
+        setMethod('')
+        if (hashUserId) {
+            navigate('/login')
+        } else {
+            return
+        }
+    }
+
+    useEffect(() => {
+        if (hashUserId) {
+            setMethod('signup')
+        }
+    }, [])
 
     return (
         <div className='flex flex-col h-full items-center'>
@@ -86,7 +102,7 @@ const Login: React.FC = () => {
                     {method === 'signup' &&
                         <motion.div
                             className='flex justify-center'
-                            variants={textVariants}
+                            variants={basicVarients}
                             initial='hidden'
                             animate='visible'
                         >
@@ -100,10 +116,12 @@ const Login: React.FC = () => {
                 </div>
                 {method === 'signup' &&
                 <>
-                    <div className='absolute top-7 bg-[#E8ECF4] p-3 sm:px-4 sm:py-2 rounded-lg cursor-pointer flex justify-center items-center'>
+                    <div 
+                        className='absolute top-7 bg-[#E8ECF4] p-3 sm:px-4 sm:py-2 rounded-lg cursor-pointer flex justify-center items-center'
+                        onClick={handleBack}    
+                    >
                         <IoChevronBack 
-                            size={16} 
-                            onClick={() => setMethod('')}    
+                            size={16}                       
                         />
                         <span className='sm:block hidden mx-2 text-sm font-bold'>回到註冊頁</span>
                     </div>

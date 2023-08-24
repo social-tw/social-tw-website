@@ -26,11 +26,11 @@ const AuthForm: React.FC<AuthFormProps> = ({
 }
 ) => {
     const navigate = useNavigate()
-    const { setIsSignupLoading, isSignupLoading, handleServerSignMessage, handleWalletSignMessage, load, signup } = useUser()
+    const { setIsSignupLoading, isSignupLoading, handleServerSignMessage, handleWalletSignMessage, signup } = useUser()
     const [noteStatus, setNoteStatus] = useState('close')
     const twitterVerify = useTwitterVerify(SERVER)
-    const signupWithWallet = useSignUpWithWallet(navigate, setIsSignupLoading, handleWalletSignMessage, load, signup)
-    const signupWithServer = useSignupWithServer(navigate, setIsSignupLoading, handleServerSignMessage, load, signup)
+    const signupWithWallet = useSignUpWithWallet(navigate, setIsSignupLoading, handleWalletSignMessage, signup)
+    const signupWithServer = useSignupWithServer(navigate, setIsSignupLoading, handleServerSignMessage, signup)
 
     const authVarients = {
         hidden: { opacity: 0 },

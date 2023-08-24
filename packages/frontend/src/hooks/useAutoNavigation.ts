@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-// TODO: redirect to home page
+// TODO: No need now
 const useAutoNavigation = (
     hashUserId: string | null, 
     status: string | null, 
