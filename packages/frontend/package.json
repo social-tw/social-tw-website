@@ -58,6 +58,7 @@
         "@types/react-dom": "^18.0.11",
         "@types/react-lines-ellipsis": "^0.15.1",
         "@types/react-router-dom": "^5.3.3",
+        "@types/testing-library__jest-dom": "^6.0.0",
         "anondb": "^0.0.16",
         "assert": "^2.0.0",
         "autoprefixer": "^10.4.14",
