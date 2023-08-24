@@ -1,3 +1,6 @@
+import { ethers } from 'ethers'
+import { useCallback, useContext } from 'react'
+
 declare global {
     interface Window {
         ethereum: any
@@ -5,25 +8,43 @@ declare global {
 }
 
 const useSignupWithWallet = (
-    navigate: (path: string) => void,
-    setIsSignupLoading: (loading: boolean) => void,
-    handleWalletSignMessage: () => Promise<void>,
-    signup: () => Promise<void>,
+    hashUserId: string | null,
+    userContext: any,
+    setIsLoading: any
 ) => {
-    const signUpWithWallet = async () => {
+    const signUpWithWallet = useCallback(async () => {
         try {
-            setIsSignupLoading(true)
+            setIsLoading(true)
+            if (!hashUserId) {
+                throw new Error('Invalid user')
+            }
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-            navigate('/')
-            handleWalletSignMessage()
-            await signup()
-            console.log('has signed up')
-        }   catch (error) {
+            console.log('waiting sign up...')
+            const accounts = await window.ethereum.request({
+                method: 'eth_requestAccounts',
+            })
+            const account = accounts[0]
+
+            const signature = await window.ethereum.request({
+                method: 'personal_sign',
+                params: [
+                    ethers.utils.hexlify(ethers.utils.toUtf8Bytes(hashUserId)),
+                    account,
+                ],
+            })
+
+            localStorage.setItem('signature', signature)
+
+            await userContext.signup()
+
+            await userContext.load()
+        } catch (error) {
             console.error(error)
-        }   finally {
-            setIsSignupLoading(false)
+        } finally {
+            console.log('has signed up') // TODO is it acceptiable?
+            setIsLoading(false)
         }
     }
 
