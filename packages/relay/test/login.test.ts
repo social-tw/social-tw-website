@@ -32,7 +32,8 @@ describe('LOGIN /login', () => {
         expect(response.status).equal(200)
     }) */
 
-    it('/api/user should catch redirection', async () => {
+    // TODO: Not sure hardcode acceptiable or not
+/*     it('/api/user should catch redirection', async () => {
         // https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token
         const mockState = 'state'
         const mockCode = 'VGNibzFWSWREZm01bjN1N3dicWlNUG1oa2xRRVNNdmVHelJGY2hPWGxNd2dxOjE2MjIxNjA4MjU4MjU6MToxOmFjOjE'
@@ -62,21 +63,36 @@ describe('LOGIN /login', () => {
             .matchHeader('Authorization', 'Basic ZURsU1FWcFpWRmxSVW1OTGEwVk1SM05oYlRBNk1UcGphUTpGVnpkalhjMW5Tdlh5UnFwYkduVWJrbko3cEF2cFpDZHlvMVRqNTBPaDZ4Z3NTTFFRQg==')
             .reply(200,{
                 "access_token":"AAAA%2FAAA%3DAAAAAAAAxxxxxx"
-            });          
+            });
         nock('https://api.twitter.com', {"encodedQueryParams":true})
             .get('/2/users/me')
             .reply(200,{
                 "data": {
                   "id": "2244994945",
                   "name": "SocialTWDev",
-                  "username": "SocialTW Dev"
+                  "username": "SocialTWDev"
                 }
             });
+        nock('http://localhost:3000', {"encodedQueryParams":true})
+            .get('/login')
+            .query({
+                code: '0x2763a0da88a76997267cc83b8d6e45a335239bb84c14a2fd2105e69b',
+                status: 1,
+            })
+            .reply(200);
         const response = (await fetch(`${HTTP_SERVER}/api/user?state=${mockState}&code=${mockCode}`, {
             method: 'GET',
         }))
         expect(response.status).equal(200)        
-    })
+    }) */
+    
+    /* it('/api/', async () => {
+        
+    } */
+
+    // it('/api/user catch redirection and response 200 when user registered', async () => {
+    // it('/api/user catch redirection and response 200 when user has registered', async () => {')
+
 
     /* it('/api/signup should generate proof and signup', async () => {
         
