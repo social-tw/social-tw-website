@@ -9,10 +9,8 @@ import { useUser } from '../contexts/User'
 const BaseLayout = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
-    const status = searchParams.get('status')
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const navigate = useNavigate()
-    const { load, hasSignedUp, isSignupLoading } = useUser()
+    const { load } = useUser()
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -32,7 +30,6 @@ const BaseLayout = () => {
     }
 
     useInitUser(load, hashUserId, setIsLoading)
-    useAutoNavigation(hashUserId, status, navigate, hasSignedUp,isSignupLoading, isLoading)
 
     return (
         <motion.div

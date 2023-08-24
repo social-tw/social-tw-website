@@ -41,7 +41,7 @@ async function main() {
 
     await synchronizer.start()
 
-    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer._db)
+    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
 
     const app = express()
@@ -60,6 +60,6 @@ async function main() {
     const routes = await fs.promises.readdir(routeDir)
     for (const routeFile of routes) {
         const { default: route } = await import(path.join(routeDir, routeFile))
-        route(app, synchronizer._db, synchronizer)
+        route(app, db, synchronizer)
     }
 }

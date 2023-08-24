@@ -1,5 +1,6 @@
+import { clsx } from 'clsx';
 import React from 'react'
-import { IconType } from 'react-icons';
+import { IconType, icons } from 'react-icons';
 
 interface LoginButtonProps {
     icon?: IconType
@@ -37,27 +38,43 @@ const LoginButton: React.FC<LoginButtonProps> = ({
                 type='button'
                 onClick={onClick}
                 disabled={isLoading}
-                className={`
+                className={clsx(`
                 flex
-                flex-col
                 justify-center
                 items-center
-                w-4/5
+                w-full
                 max-w-[650px]
                 py-4
                 bg-[${color}]
                 rounded-xl
                 text-white
                 hover:bg-gray-500
+                transition
+                hover:ease-in
+                duration-300
                 focus:outline-offset-0
                 bg-opacity-70
                 drop-shadow-md
                 drop-shadow-black
                 cursor-pointer
-                `}
+                `,
+                Icon ? 'gap-3' : 'flex-col' 
+                )}
             >
-                <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
-                <span className='text-xs tracking-wider'>{subTitle}</span>
+                {Icon ? 
+                (
+                    <>
+                        <Icon size={28}/>
+                        <span className='text-white font-semibold text-xl tracking-wider'>{title}</span>
+                    </>
+                ) 
+                : 
+                (
+                    <>
+                        <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
+                        <span className='text-xs tracking-wider'>{subTitle}</span>
+                    </>
+                )}
             </button>
             {text &&
                 <p

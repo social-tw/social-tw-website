@@ -23,7 +23,7 @@ module.exports = (env) => ({
         publicPath: '/',
     },
     resolve: {
-        extensions: ['*', '.js', '.jsx', '.json', '.scss', '.ts', '.tsx'],
+        extensions: ['.*', '.js', '.jsx', '.json', '.scss', '.ts', '.tsx'],
         fallback: {
             path: require.resolve('path-browserify'),
             crypto: require.resolve('crypto-browserify'),
@@ -62,7 +62,7 @@ module.exports = (env) => ({
                 },
             },
             {
-                test: /\.(png|jpg|gif|svg|ico)$/i,
+                test: /\.(png|jpg|gif|ico)$/i,
                 use: [
                     {
                         loader: 'file-loader',
@@ -81,6 +81,26 @@ module.exports = (env) => ({
                     'css-loader',
                     'postcss-loader',
                 ],
+            },
+            {
+                test: /\.svg$/i,
+                issuer: /\.[jt]sx?$/,
+                use: [{
+                    loader: '@svgr/webpack',
+                    options: {
+                        svgoConfig: {
+                            plugins: [
+                                'removeDimensions',
+                                {
+                                    name: 'convertColors',
+                                    params: {
+                                        currentColor: true,
+                                    },
+                                }
+                            ],
+                        },
+                    },
+                }],
             },
         ],
     },
@@ -105,8 +125,8 @@ module.exports = (env) => ({
             },
             ...(env.CYPRESS
                 ? {
-                      ['process.env.CYPRESS']: 'true',
-                  }
+                    ['process.env.CYPRESS']: 'true',
+                }
                 : {}),
         }),
         new webpack.ProvidePlugin({

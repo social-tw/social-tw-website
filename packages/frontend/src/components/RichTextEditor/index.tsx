@@ -1,9 +1,11 @@
+import clsx from 'clsx'
 import { EditorState } from 'lexical'
 import {
     $convertFromMarkdownString,
     $convertToMarkdownString,
 } from '@lexical/markdown'
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
+import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
@@ -12,7 +14,7 @@ import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPl
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import nodes from './nodes'
-import ToolbarPlugin from './plugins/ToolbarPlugin'
+import ClearAllPlugin from './plugins/ClearAllPlugin'
 
 const theme = {
     text: {
@@ -27,11 +29,19 @@ const theme = {
 
 export default function RichTextEditor({
     namespace = 'RichTextEditor',
+    classes,
+    placeholder = '你想說些什麼呢......？',
     value,
     onValueChange,
     onError,
 }: {
     namespace?: string
+    classes?: {
+        root?: string
+        content?: string
+        placeholder?: string
+    }
+    placeholder?: string
     value?: string
     onValueChange?: (md: string) => void
     onError?: (error: Error) => void
@@ -62,19 +72,24 @@ export default function RichTextEditor({
     }
 
     return (
-        <div className="bg-base-100 rounded-lg" data-theme="light">
+        <div className={classes?.root}>
             <LexicalComposer initialConfig={initialConfig}>
-                <ToolbarPlugin />
+                {/* <ToolbarPlugin /> */}
                 <div className="relative">
                     <RichTextPlugin
                         contentEditable={
-                            <div className="min-h-[10rem] overflow-auto p-4">
+                            <div className={classes?.content}>
                                 <ContentEditable className="focus-visible:outline-none" />
                             </div>
                         }
                         placeholder={
-                            <div className="absolute left-4 top-4 -z-10 text-gray-300">
-                                說說你的想法吧～
+                            <div
+                                className={clsx(
+                                    'absolute top-0 -z-10',
+                                    classes?.placeholder
+                                )}
+                            >
+                                {placeholder}
                             </div>
                         }
                         ErrorBoundary={LexicalErrorBoundary}
@@ -83,6 +98,8 @@ export default function RichTextEditor({
                     <OnChangePlugin onChange={_onChange} />
                     <AutoFocusPlugin />
                     <HistoryPlugin />
+                    <ClearEditorPlugin />
+                    <ClearAllPlugin value={value} />
                 </div>
             </LexicalComposer>
         </div>

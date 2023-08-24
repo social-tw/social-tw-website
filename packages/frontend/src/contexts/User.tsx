@@ -96,9 +96,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 prover,
                 unirepAddress: UNIREP_ADDRESS,
                 attesterId: BigInt(APP_ADDRESS),
-                _id: identity,
+                id: identity,
             },
-            identity
         )
 
         await userStateInstance.sync.start()
@@ -108,9 +107,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         // TODO: check here to modify
         const hasSignedUpStatus = await userStateInstance.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
-
         await loadData(userStateInstance)
-
+        // TODO: check here to modify
         const latestEpoch = await userStateInstance.latestTransitionedEpoch()
         setLatestTransitionedEpoch(latestEpoch)
     }
@@ -179,6 +177,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const signup = useCallback(async () => {
         if (!userState) throw new Error('user state not initialized')
         const signupProof = await userState.genUserSignUpProof()
+        const publicSignals = signupProof.publicSignals.map(item => item.toString())
+        const proof = signupProof.proof.map(item => item.toString())
 
         const response = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
@@ -186,8 +186,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 'content-type': 'application/json',
             },
             body: JSON.stringify({
-                publicSignals: signupProof.publicSignals,
-                proof: signupProof.proof,
+                publicSignals: publicSignals,
+                proof: proof,
                 hashUserId: hashUserId,
                 fromServer: fromServer,
             }),
@@ -208,7 +208,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestEpoch)
     }, [userState, provider, hashUserId, fromServer, SERVER])
 
-    const stateTransition =  async () => {
+    const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
 
         await userState.waitForSync()
@@ -227,7 +227,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         await userState.waitForSync()
         await loadData(userState)
         const latestTransitionEpoch = await userState.latestTransitionedEpoch()
-        setLatestTransitionedEpoch(latestTransitionEpoch)            
+        setLatestTransitionedEpoch(latestTransitionEpoch)
     }
 
 

@@ -1,7 +1,13 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import clsx from 'clsx'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import Dialog from '../components/Dialog'
 import Post from '../components/Post'
+import PostForm, { PostValues } from '../components/PostForm'
 import { SERVER } from '../config'
+import usePosts from '../hooks/usePosts'
 
 interface Post {
     id: string
@@ -47,6 +53,8 @@ const examplePosts = [
 ]
 
 export default function PostList() {
+    const errorDialog = useRef<HTMLDialogElement>(null)
+
     const [posts, setPosts] = useState<Post[]>([])
 
     useEffect(() => {
@@ -59,40 +67,67 @@ export default function PostList() {
         loadPosts()
     }, [])
 
+    const navigate = useNavigate()
+
+    const { create } = usePosts()
+
+    const onSubmit = async (values: PostValues) => {
+        try {
+            await create(values.content)
+            toast('貼文成功送出')
+        } catch (err) {
+            errorDialog?.current?.showModal()
+        }
+    }
+
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+
     return (
-        <main>
-            <section className="px-16 py-24">
-                <div className="text-4xl font-semibold leading-relaxed text-white">
-                    嗨 🙌🏻 歡迎來到 Unirep Social TW
-                </div>
-                <div className="text-4xl font-semibold leading-relaxed text-white">
-                    提供你 100% 匿名身份、安全發言的社群！
-                </div>
-            </section>
-            <section className="py-6 text-center">
-                <Link
-                    className="text-2xl font-medium text-white hover:underline underline-offset-4"
-                    to="/write"
-                >
-                    ✏️ 撰寫貼文
-                </Link>
-            </section>
-            <section className="max-w-5xl p-6 mx-auto">
-                <ul className="space-y-6">
+        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
+            {!isSmallDevice && (
+                <section className="py-6">
+                    <PostForm
+                        onCancel={() => navigate('/')}
+                        onSubmit={onSubmit}
+                    />
+                </section>
+            )}
+            <section className="py-6">
+                <ul className={clsx(isSmallDevice ? 'space-y-3' : 'space-y-6')}>
                     {posts.map((post) => (
                         <li key={post.id}>
                             <Post
+                                id={post.id}
                                 epochKey={post.epochKey}
                                 content={post.content}
                                 publishedAt={post.publishedAt}
                                 commentCount={post.commentCount}
                                 upCount={post.upCount}
                                 downCount={post.downCount}
+                                compact
                             />
                         </li>
                     ))}
                 </ul>
             </section>
-        </main>
+            <Dialog ref={errorDialog}>
+                <section className="p-6 md:px-12">
+                    <p className="text-base font-medium text-black/90">
+                        親愛的用戶：
+                        <br />
+                        <br />
+                        很抱歉通知您，我們注意到您的貼文發布時似乎遇到了網路連線不穩定的情況，導致發文失敗。我們深感抱歉給您帶來的不便。請您再次嘗試發佈文章{' '}
+                        <br />
+                        <br />
+                        感謝您的理解與合作。
+                    </p>
+                </section>
+                <section className="flex justify-center p-6 md:p-12 md:pt-0">
+                    <button className="max-w-[285px] w-full h-14 rounded-lg bg-primary/90 text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]">
+                        重新發佈
+                    </button>
+                </section>
+            </Dialog>
+        </div>
     )
 }
