@@ -12,7 +12,8 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack",
-    "test": "yarn playwright test"
+    "test:e2e": "yarn playwright test",
+    "test": "yarn start && yarn test:e2e"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.2.0",

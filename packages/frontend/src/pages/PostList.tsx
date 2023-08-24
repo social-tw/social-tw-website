@@ -76,6 +76,7 @@ export default function PostList() {
             await create(values.content)
             toast('貼文成功送出')
         } catch (err) {
+            console.log(err)
             errorDialog?.current?.showModal()
         }
     }
@@ -110,7 +111,7 @@ export default function PostList() {
                     ))}
                 </ul>
             </section>
-            <Dialog ref={errorDialog}>
+            <Dialog ref={errorDialog} ariaLabel="post error message">
                 <section className="p-6 md:px-12">
                     <p className="text-base font-medium text-black/90">
                         親愛的用戶：
