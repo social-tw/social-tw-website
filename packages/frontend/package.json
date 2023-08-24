@@ -36,6 +36,7 @@
         "react-hot-toast": "^2.4.1",
         "react-icons": "^4.10.1",
         "react-lines-ellipsis": "^0.15.3",
+        "react-scripts": "^5.0.1",
         "react-twitter-login": "^1.5.0"
     },
     "devDependencies": {
@@ -46,6 +47,7 @@
         "@semaphore-protocol/identity": "^3.6.0",
         "@svgr/webpack": "^8.0.1",
         "@tailwindcss/typography": "^0.5.9",
+        "@testing-library/dom": "^9.3.1",
         "@testing-library/jest-dom": "^6.0.1",
         "@testing-library/react": "^14.0.0",
         "@types/react": "^18.0.32",
