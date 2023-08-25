@@ -72,7 +72,7 @@ describe('POST /post', () => {
             nonce: 0,
         })
 
-        const res = await fetch(`${HTTP_SERVER}/api/post`, {
+        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -91,7 +91,7 @@ describe('POST /post', () => {
 
         expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
-        const posts = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+        const posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
@@ -110,7 +110,7 @@ describe('POST /post', () => {
 
         epochKeyProof.publicSignals[0] = BigInt(0)
 
-        const res = await fetch(`${HTTP_SERVER}/api/post`, {
+        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
