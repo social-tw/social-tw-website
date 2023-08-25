@@ -89,6 +89,7 @@ describe('POST /post', () => {
             return r.json()
         })
 
+        expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
         const posts = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
             expect(r.status).equal(200)
@@ -97,8 +98,35 @@ describe('POST /post', () => {
 
         expect(posts[0].transactionHash).equal(res.transaction)
         expect(posts[0].content).equal(testContent)
+        expect(posts[0].status).equal(1)
     })
 
-    // TODO
-    it('should post failed with wrong proof', async () => {})
+    it('should post failed with wrong proof', async () => {
+        const testContent = 'test content'
+
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 0,
+        })
+
+        epochKeyProof.publicSignals[0] = BigInt(0)
+
+        const res = await fetch(`${HTTP_SERVER}/api/post`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(res.error).equal('Invalid proof')
+    })
 })
