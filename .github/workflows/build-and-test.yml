@@ -1,47 +1,61 @@
 name: Build and Test
 
 on:
-    workflow_call:
-        inputs:
-            target:
-                description: the testing target
-                required: true
-                type: string
-        secrets:
-            CR_PAT:
-                required: true
+  workflow_call:
+    inputs:
+      target:
+        description: the testing target
+        required: true
+        type: string
+    secrets:
+      CR_PAT:
+        required: true
+
+  workflow_dispatch:
 
 jobs:
-    build-and-test:
-        name: Build and Test
-        runs-on: ubuntu-22.04
-        container:
-            image: ghcr.io/social-tw/ubuntu-circom:22.04
-            credentials:
-                username: jason-ntu
-                password: ${{ secrets.CR_PAT }}
-        timeout-minutes: 15
-        steps:
-            - name: Modify system variable PATH
-              run: echo "/root/.cargo/bin" >> $GITHUB_PATH
-            - name: Check out repository code
-              uses: actions/checkout@v3
-            - name: Install node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: '18'
-            - name: Install yarn
-              run: npm install --global yarn
-            - name: Install packages
-              run: yarn
-            - name: Install jest
-              run: npm i --save-dev @types/jest
-            - name: Build
-              run: yarn build
-            - name: Downcase target
-              id: downcase
-              uses: ASzc/change-string-case-action@v5
-              with:
-                  string: ${{ inputs.target }}
-            - name: Test
-              run: yarn ${{ steps.downcase.outputs.lowercase }} test
+  fix-hardhat-lockfile:
+    name: Fix Hardhat Lockfile
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Remove node_modules and package-lock.json
+        run: rm -rf node_modules package-lock.json
+      - name: Install Hardhat
+        run: npm install -g hardhat
+
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/social-tw/ubuntu-circom:22.04
+      credentials:
+        username: jason-ntu
+        password: ${{ secrets.CR_PAT }}
+    timeout-minutes: 15
+    steps:
+      - name: Modify system variable PATH
+        run: echo "/root/.cargo/bin" >> $GITHUB_PATH
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install yarn
+        run: npm install --global yarn
+      - name: Install packages
+        run: yarn
+      - name: Install jest
+        run: npm i --save-dev @types/jest
+      - name: Build
+        run: yarn build
+      - name: Downcase target
+        id: downcase
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ inputs.target }}
+      - name: Check Hardhat version
+        run: hardhat version
+        if: steps.downcase.outputs.lowercase != '2.17.1'
+      - name: Test
+        run: yarn ${{ steps.downcase.outputs.lowercase }} test
