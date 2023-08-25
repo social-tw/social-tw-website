@@ -1,4 +1,3 @@
-//import url from 'url'
 import { ethers } from 'hardhat'
 import path from 'path'
 import fs from 'fs'
@@ -18,9 +17,6 @@ import TransactionManager from '../src/singletons/TransactionManager'
 
 import { epochLength } from './configs'
 import { PRIVATE_KEY } from '../src/config'
-
-import { dynamicImport } from 'tsimportlib'
-// import { createHelia } from 'helia'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -81,7 +77,9 @@ export const startServer = async (unirep: any, unirepApp: any) => {
 
     const app = express()
     const port = process.env.PORT ?? 8000
-    app.listen(port, () => console.log(`Listening on port ${port}`))
+    const server = app.listen(port, () =>
+        console.log(`Listening on port ${port}`)
+    )
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
@@ -97,11 +95,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         const { default: route } = await import(path.join(routeDir, routeFile))
         route(app, synchronizer.db, synchronizer, helia)
     }
-    return {
-        db,
-        prover,
-        provider,
-        TransactionManager,
-        synchronizer,
-    }
+
+    return { db, prover, provider, TransactionManager, synchronizer, server }
 }

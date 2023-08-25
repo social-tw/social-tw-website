@@ -89,21 +89,13 @@ export class UserService {
             ]
         )
 
-        // TODO: fix transction twice bug
-        /*
-        const hash = await TransactionManager.queueTransaction(
-            APP_ADDRESS,
-            calldata
-        )
-        */
-
         const parsedLogs = await TransactionManager.executeTransaction(
             appContract,
             APP_ADDRESS,
             calldata
         )
 
-        return '' //hash
+        return ''
     }
 
     private async initUser(
