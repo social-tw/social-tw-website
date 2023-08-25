@@ -1,23 +1,30 @@
 import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
+
 import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer } from './environment'
+
+import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 
+let snapshot: any
+let express: Server
 let userState: UserState
 
 describe('POST /post', () => {
     beforeEach(async () => {
+        snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        const { db, prover, provider, TransactionManager, synchronizer } =
+        const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
+        express = server
 
         // initUserStatus
         var initUser = await userService.loginOrInitUserForTest('123')
@@ -38,7 +45,6 @@ describe('POST /post', () => {
 
         const signupProof = await userState.genUserSignUpProof()
         var publicSignals = signupProof.publicSignals.map((n) => n.toString())
-
         // sign up
         await userService.signup(
             publicSignals,
@@ -51,6 +57,11 @@ describe('POST /post', () => {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
+    })
+
+    afterEach(async () => {
+        ethers.provider.send('evm_revert', [snapshot])
+        express.close()
     })
 
     it('should create a post', async () => {
@@ -73,14 +84,21 @@ describe('POST /post', () => {
                     proof: epochKeyProof.proof,
                 })
             ),
-        }).then((r) => r.json())
-        //expect(res.status).equal(200)
-        //expect(res.body).('postId')
-        // TODO: verify post
-        // [ ] verify transaction
-        // [ ] fetch post
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        await ethers.provider.waitForTransaction(res.transaction)
+        const posts = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        expect(posts[0].transactionHash).equal(res.transaction)
+        expect(posts[0].content).equal(testContent)
     })
 
     // TODO
-    //it('should post failed with wrong proof', async () => {})
+    it('should post failed with wrong proof', async () => {})
 })
