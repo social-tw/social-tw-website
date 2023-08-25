@@ -1,50 +1,22 @@
-import { useCallback } from 'react'
-
 const useSignupWithServer = (
-    hashUserId: string | null,
-    SERVER: string,
-    userContext: any,
-    setIsLoading: any
+    navigate: (path: string) => void,
+    setIsSignupLoading: (loading: boolean) => void,
+    getServerSignMessage: () => Promise<void>,
+    signup: () => Promise<void>,
 ) => {
-    const signupWithServer = useCallback(async () => {
+    const signupWithServer = async () => {
         try {
-            setIsLoading(true)
-            if (!hashUserId) {
-                throw new Error('Invalid user')
-            }
-            const response = await fetch(`${SERVER}/api/identity`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    hashUserId,
-                }),
-            })
-
-            if (!response.ok) {
-                throw new Error('False Identity')
-            }
-
-            const data = await response.json()
-            console.log(data)
-
-            const signMessage = data.signMsg
-
-            localStorage.setItem('signature', signMessage)
-
-            await userContext.setFromServer()
-
-            await userContext.load()
-
-            await userContext.signup()
+            setIsSignupLoading(true)
+            navigate('/')
+            await getServerSignMessage()
+            await signup()
+            console.log('has signed up')
         } catch (error: any) {
             console.error(error)
         } finally {
-            console.log('has signed up')
-            setIsLoading(false)
+            setIsSignupLoading(false)
         }
-    }, [setIsLoading, SERVER, userContext, hashUserId])
+    }
 
     return signupWithServer
 }

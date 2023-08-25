@@ -1,26 +1,25 @@
-import { useContext } from 'react'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
-import { UserContext } from '../contexts/User'
+import { useUser } from '../contexts/User'
 
 export default function usePosts() {
-    const userContext = useContext(UserContext)
+    const { userState, stateTransition, provider, loadData } = useUser()
 
     const randomNonce = () => Math.round(Math.random())
 
     const create = async (content: string) => {
-        if (!userContext.userState)
+        if (!userState)
             throw new Error('user state not initialized')
 
         if (
-            userContext.userState.sync.calcCurrentEpoch() !==
-            (await userContext.userState.latestTransitionedEpoch())
+            userState.sync.calcCurrentEpoch() !==
+            (await userState.latestTransitionedEpoch())
         ) {
-            await userContext.stateTransition()
+            await stateTransition()
         }
 
         const nonce = randomNonce()
-        const epochKeyProof = await userContext.userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
         })
         const data = await fetch(`${SERVER}/api/post`, {
@@ -36,9 +35,9 @@ export default function usePosts() {
                 })
             ),
         }).then((r) => r.json())
-        await userContext.provider.waitForTransaction(data.transaction)
-        await userContext.userState.waitForSync()
-        await userContext.loadData()
+        await provider.waitForTransaction(data.transaction)
+        await userState.waitForSync()
+        await loadData(userState)
     }
 
     return { create }
