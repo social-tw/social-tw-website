@@ -23,14 +23,29 @@ const AuthForm: React.FC<AuthFormProps> = ({
     method,
     onSignup,
     onLogin,
-}
-) => {
+}) => {
     const navigate = useNavigate()
-    const { setIsSignupLoading, isSignupLoading, handleServerSignMessage, handleWalletSignMessage, signup } = useUser()
+    const {
+        setIsSignupLoading,
+        isSignupLoading,
+        handleServerSignMessage,
+        handleWalletSignMessage,
+        signup,
+    } = useUser()
     const [noteStatus, setNoteStatus] = useState('close')
     const twitterVerify = useTwitterVerify(SERVER)
-    const signupWithWallet = useSignUpWithWallet(navigate, setIsSignupLoading, handleWalletSignMessage, signup)
-    const signupWithServer = useSignupWithServer(navigate, setIsSignupLoading, handleServerSignMessage, signup)
+    const signupWithWallet = useSignUpWithWallet(
+        navigate,
+        setIsSignupLoading,
+        handleWalletSignMessage,
+        signup
+    )
+    const signupWithServer = useSignupWithServer(
+        navigate,
+        setIsSignupLoading,
+        handleServerSignMessage,
+        signup
+    )
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -39,62 +54,61 @@ const AuthForm: React.FC<AuthFormProps> = ({
             transition: {
                 delay: 1,
                 duration: 1,
-                ease: "easeInOut",
+                ease: 'easeInOut',
             },
         },
     }
 
-    const sendSignupStepContent =
+    const sendSignupStepContent = (
         <>
             <LoginButton
                 isLoading={isSignupLoading}
                 onClick={signupWithWallet}
-                title='錢包註冊'
-                subTitle='使用 MetaMask 錢包進行登入'
-                color='#2F9CAF'
-                text='MetaMask 錢包'
+                title="錢包註冊"
+                subTitle="使用 MetaMask 錢包進行登入"
+                color="#2F9CAF"
+                text="MetaMask 錢包"
                 setNoteStatus={() => setNoteStatus('metamask')}
             />
             <LoginButton
                 isLoading={isSignupLoading}
                 onClick={signupWithServer}
-                title='直接註冊'
-                subTitle='沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
-                color='#DB7622'
-                text='Server 註冊'
+                title="直接註冊"
+                subTitle="沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊"
+                color="#DB7622"
+                text="Server 註冊"
                 setNoteStatus={() => setNoteStatus('server')}
             />
         </>
+    )
 
-    const firtSignupStepContent = method === '' ?
-        (
+    const firtSignupStepContent =
+        method === '' ? (
             <>
                 <LoginButton
                     isLoading={isSignupLoading}
-                    onClick={() => { }}
-                    title='立即登入'
-                    subTitle='歡迎提供你的獨到見解！'
-                    color='#2F9CAF'
+                    onClick={() => {}}
+                    title="立即登入"
+                    subTitle="歡迎提供你的獨到見解！"
+                    color="#2F9CAF"
                 />
                 <LoginButton
                     isLoading={isSignupLoading}
                     onClick={onSignup}
-                    title='立即註冊'
-                    subTitle='只要兩步驟，即可安全匿名分享你的想法！'
-                    color='#FF892A'
+                    title="立即註冊"
+                    subTitle="只要兩步驟，即可安全匿名分享你的想法！"
+                    color="#FF892A"
                 />
             </>
-        )
-        :
-        (
+        ) : (
             <>
-                <LoginButton 
+                <LoginButton
                     isLoading={isSignupLoading}
                     icon={BsTwitter}
                     onClick={twitterVerify}
-                    title='使用 Twitter 帳號登入'
-                    subTitle='歡迎提供你的獨到見解！'
-                    color='#2F9CAF'
+                    title="使用 Twitter 帳號登入"
+                    subTitle="歡迎提供你的獨到見解！"
+                    color="#2F9CAF"
                 />
             </>
         )
@@ -119,4 +133,3 @@ const AuthForm: React.FC<AuthFormProps> = ({
 }
 
 export default AuthForm
-

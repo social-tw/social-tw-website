@@ -1,6 +1,6 @@
-import { clsx } from 'clsx';
+import { clsx } from 'clsx'
 import React from 'react'
-import { IconType, icons } from 'react-icons';
+import { IconType, icons } from 'react-icons'
 
 interface LoginButtonProps {
     icon?: IconType
@@ -22,11 +22,11 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     title,
     subTitle,
     color,
-    setNoteStatus
+    setNoteStatus,
 }) => {
     return (
         <button
-            type='button'
+            type="button"
             onClick={onClick}
             disabled={isLoading}
             className={`
@@ -44,8 +44,10 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         bg-opacity-70
         `}
         >
-            <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
-            <span className='text-xs tracking-wider'>{subTitle}</span>
+            <span className="text-white font-semibold text-2xl tracking-wider">
+                {title}
+            </span>
+            <span className="text-xs tracking-wider">{subTitle}</span>
         </button>
     )
 }

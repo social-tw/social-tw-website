@@ -1,4 +1,12 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback, useMemo } from 'react'
+import React, {
+    createContext,
+    useState,
+    useEffect,
+    useContext,
+    ReactNode,
+    useCallback,
+    useMemo,
+} from 'react'
 import { stringifyBigInts } from '@unirep/utils'
 import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
@@ -24,7 +32,7 @@ export interface UserContextType {
     setProvableData: (provableData: bigint[]) => void
     userState?: UserState
     setUserState: (userState?: UserState) => void
-    provider: any // TODO: Replace with the appropriate type 
+    provider: any // TODO: Replace with the appropriate type
     setProvider: (provider: any) => void
     signature: string
     setSignature: (signature: string) => void
@@ -39,7 +47,10 @@ export interface UserContextType {
     handleWalletSignMessage: () => Promise<void>
     signup: () => Promise<void>
     stateTransition: () => Promise<void>
-    requestData: (reqData: { [key: number]: string | number }, epkNonce: number) => Promise<void>
+    requestData: (
+        reqData: { [key: number]: string | number },
+        epkNonce: number
+    ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
 }
@@ -56,14 +67,15 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
-    const [latestTransitionedEpoch, setLatestTransitionedEpoch] = useState<number>(0)
+    const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
+        useState<number>(0)
     const [isSignupLoading, setIsSignupLoading] = useState<boolean>(false)
     const [fromServer, setFromServer] = useState<boolean>(false)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
     const [userState, setUserState] = useState<UserState | undefined>()
-    const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type 
+    const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
 
@@ -90,15 +102,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         setProvider(providerInstance)
 
-        const userStateInstance = new UserState(
-            {
-                provider: providerInstance,
-                prover,
-                unirepAddress: UNIREP_ADDRESS,
-                attesterId: BigInt(APP_ADDRESS),
-                id: identity,
-            },
-        )
+        const userStateInstance = new UserState({
+            provider: providerInstance,
+            prover,
+            unirepAddress: UNIREP_ADDRESS,
+            attesterId: BigInt(APP_ADDRESS),
+            id: identity,
+        })
 
         await userStateInstance.sync.start()
         setUserState(userStateInstance)
@@ -113,15 +123,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestEpoch)
     }
 
-    const loadData = useCallback(async (userState: UserState) => {
-        if (!userState) throw new Error('user state not initialized')
+    const loadData = useCallback(
+        async (userState: UserState) => {
+            if (!userState) throw new Error('user state not initialized')
 
-        const fetchedData = await userState.getData()
-        const fetchedProvableData = await userState.getProvableData()
+            const fetchedData = await userState.getData()
+            const fetchedProvableData = await userState.getProvableData()
 
-        setData(fetchedData)
-        setProvableData(fetchedProvableData)
-    }, [userState])
+            setData(fetchedData)
+            setProvableData(fetchedProvableData)
+        },
+        [userState]
+    )
 
     const fieldCount = useMemo(() => {
         return userState?.sync.settings.fieldCount
@@ -131,12 +144,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         return userState?.sync.settings.sumFieldCount
     }, [userState])
 
-    const epochKey = useCallback((nonce: number) => {
-        if (!userState) return '0x'
-        const epoch = userState.sync.calcCurrentEpoch()
-        const key = userState.getEpochKeys(epoch, nonce)
-        return `0x${key.toString(16)}`
-    }, [userState])
+    const epochKey = useCallback(
+        (nonce: number) => {
+            if (!userState) return '0x'
+            const epoch = userState.sync.calcCurrentEpoch()
+            const key = userState.getEpochKeys(epoch, nonce)
+            return `0x${key.toString(16)}`
+        },
+        [userState]
+    )
 
     const handleServerSignMessage = async () => {
         const response = await fetch(`${SERVER}/api/identity`, {
@@ -146,7 +162,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             },
             body: JSON.stringify({
                 hashUserId,
-            })
+            }),
         })
         if (!response.ok) {
             throw new Error('False Identity')
@@ -158,15 +174,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     const handleWalletSignMessage = async () => {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+        const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts',
+        })
         const account = accounts[0]
 
         const signature = await window.ethereum.request({
             method: 'personal_sign',
             params: [
-                ethers.utils.hexlify(
-                    ethers.utils.toUtf8Bytes(hashUserId)
-                ),
+                ethers.utils.hexlify(ethers.utils.toUtf8Bytes(hashUserId)),
                 account,
             ],
         })
@@ -177,8 +193,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const signup = useCallback(async () => {
         if (!userState) throw new Error('user state not initialized')
         const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map(item => item.toString())
-        const proof = signupProof.proof.map(item => item.toString())
+        const publicSignals = signupProof.publicSignals.map((item) =>
+            item.toString()
+        )
+        const proof = signupProof.proof.map((item) => item.toString())
 
         const response = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
@@ -230,77 +248,83 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestTransitionEpoch)
     }
 
+    const requestData = useCallback(
+        async (
+            reqData: { [key: number]: string | number },
+            epkNonce: number
+        ) => {
+            if (!userState) throw new Error('user state not initialized')
 
-    const requestData = useCallback(async (
-        reqData: { [key: number]: string | number },
-        epkNonce: number
-    ) => {
-        if (!userState) throw new Error('user state not initialized')
+            const filteredReqData = Object.entries(reqData)
+                .filter(([_, value]) => value !== '')
+                .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
-        const filteredReqData = Object.entries(reqData)
-            .filter(([_, value]) => value !== '')
-            .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+            if (Object.keys(filteredReqData).length === 0) {
+                throw new Error('No data in the attestation')
+            }
 
-        if (Object.keys(filteredReqData).length === 0) {
-            throw new Error('No data in the attestation')
-        }
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce: epkNonce,
+            })
+            const response = await fetch(`${SERVER}/api/request`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(
+                    stringifyBigInts({
+                        reqData: filteredReqData,
+                        publicSignals: epochKeyProof.publicSignals,
+                        proof: epochKeyProof.proof,
+                    })
+                ),
+            })
+            const data = await response.json()
+            await provider.waitForTransaction(data.hash)
+            await userState.waitForSync()
+            await loadData(userState)
+        },
+        [userState, provider, loadData]
+    )
 
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: epkNonce,
-        })
-        const response = await fetch(`${SERVER}/api/request`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    reqData: filteredReqData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        })
-        const data = await response.json()
-        await provider.waitForTransaction(data.hash)
-        await userState.waitForSync()
-        await loadData(userState)
-    }, [userState, provider, loadData])
-
-    const proveData = useCallback(async (data: { [key: number]: string | number }) => {
-        if (!userState) throw new Error('user state not initialized')
-        const epoch = await userState.sync.loadCurrentEpoch()
-        const stateTree = await userState.sync.genStateTree(epoch)
-        const index = await userState.latestStateTreeLeafIndex(epoch)
-        const stateTreeProof = stateTree.createProof(index)
-        const provableData = await userState.getProvableData()
-        const sumFieldCount = userState.sync.settings.sumFieldCount
-        const values = Array(sumFieldCount).fill(0)
-        for (let [key, value] of Object.entries(data)) {
-            values[Number(key)] = value
-        }
-        const attesterId = userState.sync.attesterId
-        const circuitInputs = stringifyBigInts({
-            identity_secret: userState.id.secret,
-            state_tree_indexes: stateTreeProof.pathIndices,
-            state_tree_elements: stateTreeProof.siblings,
-            data: provableData,
-            epoch: epoch,
-            attester_id: attesterId,
-            value: values,
-        })
-        const { publicSignals, proof } = await prover.genProofAndPublicSignals(
-            'dataProof',
-            circuitInputs
-        )
-        const dataProof = new DataProof(publicSignals, proof, prover)
-        const valid = await dataProof.verify()
-        return stringifyBigInts({
-            publicSignals: dataProof.publicSignals,
-            proof: dataProof.proof,
-            valid,
-        })
-    }, [userState])
+    const proveData = useCallback(
+        async (data: { [key: number]: string | number }) => {
+            if (!userState) throw new Error('user state not initialized')
+            const epoch = await userState.sync.loadCurrentEpoch()
+            const stateTree = await userState.sync.genStateTree(epoch)
+            const index = await userState.latestStateTreeLeafIndex(epoch)
+            const stateTreeProof = stateTree.createProof(index)
+            const provableData = await userState.getProvableData()
+            const sumFieldCount = userState.sync.settings.sumFieldCount
+            const values = Array(sumFieldCount).fill(0)
+            for (let [key, value] of Object.entries(data)) {
+                values[Number(key)] = value
+            }
+            const attesterId = userState.sync.attesterId
+            const circuitInputs = stringifyBigInts({
+                identity_secret: userState.id.secret,
+                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_elements: stateTreeProof.siblings,
+                data: provableData,
+                epoch: epoch,
+                attester_id: attesterId,
+                value: values,
+            })
+            const { publicSignals, proof } =
+                await prover.genProofAndPublicSignals(
+                    'dataProof',
+                    circuitInputs
+                )
+            const dataProof = new DataProof(publicSignals, proof, prover)
+            const valid = await dataProof.verify()
+            return stringifyBigInts({
+                publicSignals: dataProof.publicSignals,
+                proof: dataProof.proof,
+                valid,
+            })
+        },
+        [userState]
+    )
 
     const logout = () => {
         setHasSignedUp(false)
@@ -310,7 +334,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('signature')
         localStorage.removeItem('hashUserId')
     }
-
 
     const value: UserContextType = {
         currentEpoch,
@@ -346,7 +369,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         stateTransition,
         requestData,
         proveData,
-        logout
+        logout,
     }
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>

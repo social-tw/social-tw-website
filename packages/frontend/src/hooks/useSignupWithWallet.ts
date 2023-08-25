@@ -8,7 +8,7 @@ const useSignupWithWallet = (
     navigate: (path: string) => void,
     setIsSignupLoading: (loading: boolean) => void,
     handleWalletSignMessage: () => Promise<void>,
-    signup: () => Promise<void>,
+    signup: () => Promise<void>
 ) => {
     const signUpWithWallet = async () => {
         try {
@@ -20,9 +20,9 @@ const useSignupWithWallet = (
             handleWalletSignMessage()
             await signup()
             console.log('has signed up')
-        }   catch (error) {
+        } catch (error) {
             console.error(error)
-        }   finally {
+        } finally {
             setIsSignupLoading(false)
         }
     }
