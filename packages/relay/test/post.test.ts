@@ -11,10 +11,13 @@ import { deployContracts, startServer } from './environment'
 
 import { Server } from 'http'
 import { userService } from '../src/services/UserService'
+import { UnirepSocialSynchronizer } from '../src/synchornizer'
+import user from '../src/routes/user'
 
 let snapshot: any
 let express: Server
 let userState: UserState
+let sync: UnirepSocialSynchronizer
 
 describe('POST /post', () => {
     beforeEach(async () => {
@@ -25,6 +28,7 @@ describe('POST /post', () => {
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
         express = server
+        sync = synchronizer
 
         // initUserStatus
         var initUser = await userService.loginOrInitUserForTest('123')
@@ -91,7 +95,10 @@ describe('POST /post', () => {
 
         expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
-        const posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+        await userState.sync.waitForSync()
+        await sync.waitForSync()
+
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
@@ -99,6 +106,17 @@ describe('POST /post', () => {
         expect(posts[0].transactionHash).equal(res.transaction)
         expect(posts[0].content).equal(testContent)
         expect(posts[0].status).equal(1)
+
+        const mockEpk = epochKeyProof.epochKey + BigInt(1)
+
+        posts = await fetch(
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`
+        ).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        expect(posts.length).equal(0)
     })
 
     it('should post failed with wrong proof', async () => {
