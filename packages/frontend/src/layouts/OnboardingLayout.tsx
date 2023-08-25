@@ -9,7 +9,6 @@ import { useUser } from '../contexts/User'
 const BaseLayout = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
-    const [isLoading, setIsLoading] = useState<boolean>(true)
     const { load } = useUser()
 
     const gradients = [
@@ -29,7 +28,7 @@ const BaseLayout = () => {
         },
     }
 
-    useInitUser(load, hashUserId, setIsLoading)
+    useInitUser(load, hashUserId)
 
     return (
         <motion.div
@@ -38,7 +37,7 @@ const BaseLayout = () => {
             initial='animate'
             animate='animate'
         >
-            {!isLoading && <Outlet />}
+            <Outlet />
         </motion.div>
     )
 }

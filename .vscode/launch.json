@@ -17,15 +17,13 @@
             "request": "attach",
             "name": "Attach to backend process TS-Node",
             "processId": "${command:PickProcess}",
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-        },
+            "skipFiles": ["<node_internals>/**"]
+        }
     ],
     "compounds": [
         {
             "name": "Debug Frontend & Backend",
-            "configurations": ["Attach to backend process TS-Node", "Launch Chrome"]
+            "configurations": ["Launch Chrome", "Attach to backend process TS-Node"]
         }
     ]
 }

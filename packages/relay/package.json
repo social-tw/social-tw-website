@@ -8,7 +8,7 @@
     "repository": "git+https://github.com/Unirep/create-unirep-app.git",
     "scripts": {
         "build": "yarn keys",
-        "start": "ts-node ./src/index.ts", 
+        "start": "ts-node ./src/index.ts",
         "debug": "node --inspect -r ts-node/register ./src/index.ts",
         "keys": "sh scripts/loadKeys.sh"
     },
@@ -20,12 +20,13 @@
         "dotenv": "^16.0.3",
         "ethers": "^5.7.2",
         "express": "^4.18.2",
-        "twitter-api-sdk": "^1.2.1",
         "kubo-rpc-client": "^3.0.1",
-        "tsimportlib": "^0.0.5"
+        "tsimportlib": "^0.0.5",
+        "twitter-api-sdk": "^1.2.1"
     },
     "main": "index.js",
     "devDependencies": {
+        "hardhat": "^2.17.1",
         "ts-node": "^10.9.1",
         "typescript": "^5.0.3"
     }

@@ -3,7 +3,6 @@ import { useEffect } from 'react'
 const useInitUser = (
     load: () => Promise<void>, 
     hashUserId: string | null, 
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
     useEffect(() => {
         const initUser = async () => {
@@ -11,9 +10,7 @@ const useInitUser = (
                 await load()
             } catch (error) {
                 console.log(error)
-            } finally {
-                setIsLoading(false)
-            }
+            } 
         }
 
         if (hashUserId) {

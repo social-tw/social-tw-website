@@ -6,12 +6,16 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
-import {dynamicImport} from 'tsimportlib';
+import { dynamicImport } from 'tsimportlib'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 export const LOAD_POST_COUNT = 10
 
-export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
+export default (
+    app: Express,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
@@ -53,7 +57,12 @@ async function fetchPosts(req, res, db: DB) {
     }
 }
 
-async function createPost(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
+async function createPost(
+    req,
+    res,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer
+) {
     try {
         const { content, publicSignals, proof } = req.body
 
@@ -86,16 +95,17 @@ async function createPost(req, res, db: DB, synchronizer: UnirepSocialSynchroniz
             ])
 
             // dynamic import ipfs client
-            const { create} = await dynamicImport('kubo-rpc-client', module) as typeof import('kubo-rpc-client');
+            const { create } = (await dynamicImport(
+                'kubo-rpc-client',
+                module
+            )) as typeof import('kubo-rpc-client')
             // Create ipfs client to connect to kubo ipfs node
-            const client = await create();
+            const client = await create()
             const IPFSContent = {
-                content: content
+                content: content,
             }
             const file = await client.add(JSON.stringify(IPFSContent))
             cid = file.cid.toString()
-
-
         }
 
         const hash = await TransactionManager.queueTransaction(

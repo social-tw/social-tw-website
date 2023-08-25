@@ -4,7 +4,11 @@ import { UserStateTransitionProof } from '@unirep/circuits'
 import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
-export default (app: Express, db: DB, synchronizer: UnirepSocialSynchronizer) => {
+export default (
+    app: Express,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
     app.post('/api/transition', async (req, res) => {
         try {
             const { publicSignals, proof } = req.body
