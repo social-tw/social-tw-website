@@ -13,8 +13,9 @@
         "start": "webpack-dev-server",
         "build": "webpack",
         "test:e2e": "yarn playwright test",
-        "test": "yarn start && yarn test:e2e",
-        "test:dom": "react-scripts test --watchAll --coverage"
+        "test": "CI=true yarn test:dom && yarn test:e2e",
+        "test:dom": "react-scripts test",
+        "test:domwatch": "react-scripts test --watchAll --coverage"
     },
     "dependencies": {
         "@cloudflare/kv-asset-handler": "^0.2.0",
