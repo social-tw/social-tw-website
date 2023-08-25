@@ -1,29 +1,32 @@
-import React, { useContext, useMemo } from 'react'
-import { useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
-import { User, UserContext } from '../../contexts/User'
+import { clsx } from 'clsx';
+import React from 'react'
+import { IconType, icons } from 'react-icons';
 
 interface LoginButtonProps {
     icon?: IconType
+    text?: string
     isLoading: boolean
-    onClick: () => void
+    onClick?: () => void
     title: string
-    subTitle: string
+    subTitle?: string
     color: string
+    setNoteStatus?: () => void
 }
 
 // TODO: signup with wallet and without wallet
 const LoginButton: React.FC<LoginButtonProps> = ({
     icon: Icon,
+    text,
     onClick,
     isLoading,
     title,
     subTitle,
     color,
+    setNoteStatus
 }) => {
     return (
         <button
-            type="button"
+            type='button'
             onClick={onClick}
             disabled={isLoading}
             className={`
@@ -41,10 +44,8 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         bg-opacity-70
         `}
         >
-            <span className="text-white font-semibold text-2xl tracking-wider">
-                {title}
-            </span>
-            <span className="text-xs tracking-wider">{subTitle}</span>
+            <span className='text-white font-semibold text-2xl tracking-wider'>{title}</span>
+            <span className='text-xs tracking-wider'>{subTitle}</span>
         </button>
     )
 }
