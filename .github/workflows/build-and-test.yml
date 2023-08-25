@@ -38,8 +38,8 @@ jobs:
               run: |
                   rm -rf node_modules package-lock.json
                   yarn
-            - name: Install Hardhat globally
-              run: npm install --global hardhat
+            - name: Install Hardhat locally
+              run: yarn add --dev hardhat
             - name: Build
               run: yarn build
             - name: Downcase target
