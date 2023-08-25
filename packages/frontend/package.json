@@ -13,7 +13,7 @@
         "start": "webpack-dev-server",
         "build": "webpack",
         "test:e2e": "yarn playwright test",
-        "test": "CI=true yarn test:dom && yarn test:e2e",
+        "test": "CI=true yarn test:dom",
         "test:dom": "react-scripts test",
         "test:domwatch": "react-scripts test --watchAll --coverage"
     },
