@@ -39,7 +39,7 @@ jobs:
                   rm -rf node_modules package-lock.json
                   yarn
             - name: Install Hardhat locally
-              run: yarn add --dev hardhat
+              run: yarn add --dev hardhat  --ignore-workspace-root-check
             - name: Build
               run: yarn build
             - name: Downcase target
