@@ -8,8 +8,7 @@ export default function usePosts() {
     const randomNonce = () => Math.round(Math.random())
 
     const create = async (content: string) => {
-        if (!userState)
-            throw new Error('user state not initialized')
+        if (!userState) throw new Error('user state not initialized')
 
         if (
             userState.sync.calcCurrentEpoch() !==

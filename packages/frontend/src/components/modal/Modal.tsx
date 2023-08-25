@@ -10,11 +10,7 @@ interface ModalProps {
     children: React.ReactNode
 }
 
-const Modal: React.FC<ModalProps> = ({
-    isOpen,
-    onClose,
-    children
-}) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     const modalVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -43,28 +39,28 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className='
+                className="
                 fixed 
                 inset-0 
                 z-50
                 bg-black
                 bg-opacity-90
                 h-full
-                '      
+                "
                 variants={modalVariants}
-                initial='hidden'
-                animate='visible'
+                initial="hidden"
+                animate="visible"
             />
             <motion.div
-                className='
+                className="
                 fixed 
                 inset-0
                 z-[60]
                 bg-opacity-80
-                '
+                "
                 variants={chidrenVarients}
-                initial='hidden'
-                animate='visible'
+                initial="hidden"
+                animate="visible"
             >
                 {children}
             </motion.div>

@@ -2,7 +2,7 @@ const useSignupWithServer = (
     navigate: (path: string) => void,
     setIsSignupLoading: (loading: boolean) => void,
     getServerSignMessage: () => Promise<void>,
-    signup: () => Promise<void>,
+    signup: () => Promise<void>
 ) => {
     const signupWithServer = async () => {
         try {
