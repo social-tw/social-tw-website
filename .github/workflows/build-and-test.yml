@@ -47,8 +47,5 @@ jobs:
               uses: ASzc/change-string-case-action@v5
               with:
                   string: ${{ inputs.target }}
-            - name: Check Hardhat version
-              run: hardhat version
-              if: steps.downcase.outputs.lowercase != '2.17.1'
             - name: Test
               run: yarn ${{ steps.downcase.outputs.lowercase }} test
