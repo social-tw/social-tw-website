@@ -34,6 +34,8 @@ jobs:
               run: npm install --global yarn
             - name: Install packages
               run: yarn
+            - name: Install jest
+              run: npm i --save-dev @types/jest
             - name: Build
               run: yarn build
             - name: Downcase target
