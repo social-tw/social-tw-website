@@ -22,7 +22,6 @@
         "lint:check": "yarn lint --check"
     },
     "devDependencies": {
-        "hardhat": "^2.17.1",
         "lerna": "^6.0.1",
         "node-fetch": "^3.3.0"
     },
