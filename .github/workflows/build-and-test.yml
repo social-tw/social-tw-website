@@ -11,18 +11,7 @@ on:
       CR_PAT:
         required: true
 
-  workflow_dispatch:
-
 jobs:
-  fix-hardhat-lockfile:
-    name: Fix Hardhat Lockfile
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Remove node_modules and package-lock.json
-        run: rm -rf node_modules package-lock.json
-      - name: Install Hardhat
-        run: npm install -g hardhat
-
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-22.04
@@ -43,10 +32,12 @@ jobs:
           node-version: '18'
       - name: Install yarn
         run: npm install --global yarn
-      - name: Install packages
-        run: yarn
       - name: Install jest
         run: npm i --save-dev @types/jest
+      - name: Clean and Install packages
+        run: |
+          rm -rf node_modules package-lock.json
+          yarn
       - name: Build
         run: yarn build
       - name: Downcase target
