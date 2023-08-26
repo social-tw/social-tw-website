@@ -31,7 +31,7 @@ describe('POST /post', () => {
         sync = synchronizer
 
         // initUserStatus
-        var initUser = await userService.loginOrInitUserForTest('123')
+        var initUser = await userService.getLoginOrInitUser('123')
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)

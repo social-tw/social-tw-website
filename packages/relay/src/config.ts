@@ -32,5 +32,6 @@ export const TWITTER_ACCESS_TOKEN_URL =
 export const TWITTER_USER_URL =
     process.env.TWITTER_USER_URL ?? 'https://api.twitter.com/2/users/me'
 
-export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID
-export const TWITTER_CLIENT_KEY = process.env.TWITTER_CLIENT_KEY
+const isInTest = typeof global.it === 'function';
+export const TWITTER_CLIENT_ID = isInTest ? "test-client-id" : process.env.TWITTER_CLIENT_ID
+export const TWITTER_CLIENT_KEY = isInTest ? "test-client-key" : process.env.TWITTER_CLIENT_KEY

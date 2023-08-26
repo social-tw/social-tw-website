@@ -1,94 +1,106 @@
 import * as crypto from 'crypto'
-import fetch from 'node-fetch'
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { Identity } from '@semaphore-protocol/identity'
-import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
 import nock from 'nock'
-import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer } from './environment'
+import { userService } from '../src/services/UserService'
+import { CALLBACK_URL, TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
+import { UserRegisterStatus } from '../src/enums/userRegisterStatus'
 
-let userState: UserState
-//nock.recorder.rec();
+const TWITTER_API = "https://api.twitter.com"
+
 describe('LOGIN /login', () => {
-    let unirep, app;
-    let db, prover, provider, TransactionManager;
-    beforeEach(async () => {
+
+    const mockState = 'state'
+    const mockCode = 'testCode'
+    const mockUserId = '123456'
+    const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
+
+    before(async () => {
         // deploy contracts
-        ({ unirep, app } = await deployContracts());
+        const { unirep, app } = await deployContracts()
         // start server
-        ({ db, prover, provider, TransactionManager } = await startServer(
-            unirep,
-            app
-        ));
+        await startServer(unirep,app)
     })
 
-
-    /* it('/api/login should response 200', async () => {
-        const response = (await fetch(`${HTTP_SERVER}/api/login`, {
-            method: 'GET',
-        }))
-        expect(response.status).equal(200)
-    }) */
-
-    // TODO: Not sure hardcode acceptiable or not
-/*     it('/api/user should catch redirection', async () => {
-        // https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token
-        const mockState = 'state'
-        const mockCode = 'VGNibzFWSWREZm01bjN1N3dicWlNUG1oa2xRRVNNdmVHelJGY2hPWGxNd2dxOjE2MjIxNjA4MjU4MjU6MToxOmFjOjE'
-        nock('https://api.twitter.com', {"encodedQueryParams":true})
+    beforeEach(async () => {
+        // mock twitter api behavior
+        const accessToken = "test_access_token"
+        nock(TWITTER_API, { "encodedQueryParams": true })
             .post('/2/oauth2/token')
             .query({
-                "code":"VGNibzFWSWREZm01bjN1N3dicWlNUG1oa2xRRVNNdmVHelJGY2hPWGxNd2dxOjE2MjIxNjA4MjU4MjU6MToxOmFjOjE",
-                "grant_type":"authorization_code",
-                "client_id":"eDlSQVpZVFlRUmNLa0VMR3NhbTA6MTpjaQ",
-                "redirect_uri":"http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fuser"
+                "code": mockCode,
+                "grant_type": "authorization_code",
+                "client_id": TWITTER_CLIENT_ID,
+                "redirect_uri": CALLBACK_URL
             })
             .matchHeader('Content-type', 'application/x-www-form-urlencoded')
-            .matchHeader('Authorization', 'Basic ZURsU1FWcFpWRmxSVW1OTGEwVk1SM05oYlRBNk1UcGphUTpGVnpkalhjMW5Tdlh5UnFwYkduVWJrbko3cEF2cFpDZHlvMVRqNTBPaDZ4Z3NTTFFRQg==')
+            .matchHeader('Authorization', `Basic ${token}`)
             .reply(200, {
-                "token_type":"bearer",
+                "token_type": "bearer",
                 "refresh_token": 'mock-refresh-token',
-                "access_token":"AAAA%2FAAA%3DAAAAAAAAxxxxxx"
+                "access_token": accessToken
             });
-        nock('https://api.twitter.com')
+        nock(TWITTER_API)
             .post('/2/oauth2/token')
             .query({
-              client_id: 'eDlSQVpZVFlRUmNLa0VMR3NhbTA6MTpjaQ',
-              grant_type: 'refresh_token',
-              refresh_token: 'mock-refresh-token'
+                client_id: TWITTER_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: 'mock-refresh-token'
             })
             .matchHeader('Content-type', 'application/x-www-form-urlencoded')
-            .matchHeader('Authorization', 'Basic ZURsU1FWcFpWRmxSVW1OTGEwVk1SM05oYlRBNk1UcGphUTpGVnpkalhjMW5Tdlh5UnFwYkduVWJrbko3cEF2cFpDZHlvMVRqNTBPaDZ4Z3NTTFFRQg==')
-            .reply(200,{
-                "access_token":"AAAA%2FAAA%3DAAAAAAAAxxxxxx"
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(200, {
+                "access_token": accessToken
             });
-        nock('https://api.twitter.com', {"encodedQueryParams":true})
+        nock(TWITTER_API, { "encodedQueryParams": true })
             .get('/2/users/me')
-            .reply(200,{
+            .matchHeader('Authorization', `Bearer ${accessToken}`)
+            .reply(200, {
                 "data": {
-                  "id": "2244994945",
-                  "name": "SocialTWDev",
-                  "username": "SocialTWDev"
+                    "id": mockUserId,
+                    "name": "SocialTWDev",
+                    "username": "SocialTWDev"
                 }
             });
-        nock('http://localhost:3000', {"encodedQueryParams":true})
-            .get('/login')
-            .query({
-                code: '0x2763a0da88a76997267cc83b8d6e45a335239bb84c14a2fd2105e69b',
-                status: 1,
-            })
-            .reply(200);
-        const response = (await fetch(`${HTTP_SERVER}/api/user?state=${mockState}&code=${mockCode}`, {
-            method: 'GET',
-        }))
-        expect(response.status).equal(200)        
-    }) */
-    
-    /* it('/api/', async () => {
+    })
+
+    it('init user with wrong code',async () => {
+       const wrongCode = "wrong-code"
+       nock(TWITTER_API, { "encodedQueryParams": true })
+        .post('/2/oauth2/token')
+        .query({
+            "code": wrongCode,
+            "grant_type": "authorization_code",
+            "client_id": TWITTER_CLIENT_ID,
+            "redirect_uri": CALLBACK_URL
+        })
+        .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+        .matchHeader('Authorization', `Basic ${token}`)
+        .reply(400, {
+            "error": "invalid_request",
+            "error_description": "Value passed for the authorization code was invalid."
+        });
+
+        expect(await userService.loginOrInitUser(mockState, wrongCode))
+            .to.be.rejectedWith(Error, 'Error in login')
+    })
+
+    it('init user', async () => {
+
+        // since redirect is hard to test so change to use service
+        const user = await userService.loginOrInitUser(mockState, mockCode)
+
+        const hash = crypto.createHash('sha3-224')
+        const expectedUserId = `0x${hash.update(mockUserId).digest('hex')}`
+
+        expect(user.hashUserId).equal(expectedUserId)
+        expect(user.status).equal(UserRegisterStatus.INIT)
+        expect(user.signMsg).equal(undefined)
+    })
+
+    it('sign up user',async () => {
         
-    } */
+    })
 
     // it('/api/user catch redirection and response 200 when user registered', async () => {
     // it('/api/user catch redirection and response 200 when user has registered', async () => {')
@@ -100,4 +112,8 @@ describe('LOGIN /login', () => {
 
     // TODO
     //it('should post failed with wrong proof', async () => {})
+
+    after(async () => {
+        // stop the server for next testing
+    }) 
 })

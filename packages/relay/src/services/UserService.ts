@@ -25,11 +25,20 @@ export class UserService {
     async loginOrInitUser(state: string, code: string): Promise<User> {
         if (state != STATE) throw Error('wrong callback value')
 
-        var userInfo = await TwitterClient.authClient
-            .requestAccessToken(code as string)
-            .then((_) => TwitterClient.client.users.findMyUser())
-
+        try {
+            var userInfo = await TwitterClient.authClient.requestAccessToken(code as string)
+                .then((_) => TwitterClient.client.users.findMyUser())
+        } catch (error) {
+            console.log('error in getting user id', error)
+            throw Error('Error in login')
+        }
+        
         const userId = userInfo.data?.id!!
+        return await this.getLoginOrInitUser(userId)
+    }
+
+    async getLoginOrInitUser(userId: string) {
+        
         const hash = crypto.createHash('sha3-224')
         const hashUserId = `0x${hash.update(userId).digest('hex')}`
         const appContract = TransactionManager.appContract!!
