@@ -1,5 +1,7 @@
 import * as crypto from 'crypto'
-import { expect } from 'chai'
+import * as chai from "chai";
+import { expect } from "chai";
+import * as chaiAsPromise from 'chai-as-promised'
 import nock from 'nock'
 import { deployContracts, startServer } from './environment'
 import { userService } from '../src/services/UserService'
@@ -16,10 +18,12 @@ describe('LOGIN /login', () => {
     const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
     before(async () => {
+        // open promise testing 
+        chai.use(chaiAsPromise.default)
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        await startServer(unirep,app)
+        await startServer(unirep, app)
     })
 
     beforeEach(async () => {
@@ -64,25 +68,25 @@ describe('LOGIN /login', () => {
             });
     })
 
-    it('init user with wrong code',async () => {
-       const wrongCode = "wrong-code"
-       nock(TWITTER_API, { "encodedQueryParams": true })
-        .post('/2/oauth2/token')
-        .query({
-            "code": wrongCode,
-            "grant_type": "authorization_code",
-            "client_id": TWITTER_CLIENT_ID,
-            "redirect_uri": CALLBACK_URL
-        })
-        .matchHeader('Content-type', 'application/x-www-form-urlencoded')
-        .matchHeader('Authorization', `Basic ${token}`)
-        .reply(400, {
-            "error": "invalid_request",
-            "error_description": "Value passed for the authorization code was invalid."
-        });
+    it('init user with wrong code', async () => {
+        const wrongCode = "wrong-code"
+        nock(TWITTER_API, { "encodedQueryParams": true })
+            .post('/2/oauth2/token')
+            .query({
+                "code": wrongCode,
+                "grant_type": "authorization_code",
+                "client_id": TWITTER_CLIENT_ID,
+                "redirect_uri": CALLBACK_URL
+            })
+            .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(400, {
+                "error": "invalid_request",
+                "error_description": "Value passed for the authorization code was invalid."
+            });
 
-        expect(await userService.loginOrInitUser(mockState, wrongCode))
-            .to.be.rejectedWith(Error, 'Error in login')
+        await expect(userService.loginOrInitUser(mockState, wrongCode))
+            .to.be.rejectedWith(`Error in login`)
     })
 
     it('init user', async () => {
@@ -98,8 +102,8 @@ describe('LOGIN /login', () => {
         expect(user.signMsg).equal(undefined)
     })
 
-    it('sign up user',async () => {
-        
+    it('sign up user', async () => {
+
     })
 
     // it('/api/user catch redirection and response 200 when user registered', async () => {
@@ -115,5 +119,5 @@ describe('LOGIN /login', () => {
 
     after(async () => {
         // stop the server for next testing
-    }) 
+    })
 })
