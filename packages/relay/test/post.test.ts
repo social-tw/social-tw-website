@@ -95,7 +95,6 @@ describe('POST /post', () => {
 
         expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
-        await userState.sync.waitForSync()
         await sync.waitForSync()
 
         var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
