@@ -44,7 +44,13 @@ describe('LOGIN /login', () => {
     beforeEach(async () => {
         ;({ db, prover, provider, TransactionManager, synchronizer, server } =
             await startServer(unirep, app))
-        // mock twitter api behavior
+    })
+
+    afterEach(async () => {
+        server.close()
+    })
+
+    it('/api/login should return url', async () => {
         const accessToken = 'test_access_token'
         nock(TWITTER_API, { encodedQueryParams: true })
             .post('/2/oauth2/token')
@@ -101,13 +107,6 @@ describe('LOGIN /login', () => {
                     username: 'SocialTWDev',
                 },
             })
-    })
-
-    afterEach(async () => {
-        server.close()
-    })
-
-    it('/api/login should return url', async () => {
         await chai
             .request(`${HTTP_SERVER}`)
             .get('/api/login')
@@ -121,6 +120,63 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/user should not init user with wrong code and return error', async () => {
+        const accessToken = 'test_access_token'
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .post('/2/oauth2/token')
+            .query(true) // Match any query parameters
+            .matchHeader('content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('authorization', `Basic ${token}`)
+            .reply((uri, requestBody, cb) => {
+                // Parse the query parameters from the URI
+                const url = new URL(uri, TWITTER_API)
+                const code = url.searchParams.get('code')
+
+                // Conditionally reply based on the 'code' query parameter
+                if (code === wrongCode) {
+                    cb(null, [
+                        400,
+                        {
+                            error: 'invalid_request',
+                            error_description:
+                                'Value passed for the authorization code was invalid.',
+                        },
+                    ])
+                } else if (code === mockCode) {
+                    cb(null, [
+                        200,
+                        {
+                            token_type: 'bearer',
+                            refresh_token: 'mock-refresh-token',
+                            access_token: accessToken,
+                        },
+                    ])
+                } else {
+                    cb(null, [404, { error: 'code not found' }])
+                }
+            })
+        nock(TWITTER_API)
+            .post('/2/oauth2/token')
+            .query({
+                client_id: TWITTER_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: 'mock-refresh-token',
+            })
+            .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(200, {
+                access_token: accessToken,
+            })
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .get('/2/users/me')
+            .matchHeader('Authorization', `Bearer ${accessToken}`)
+            .reply(200, {
+                data: {
+                    id: mockUserId,
+                    name: 'SocialTWDev',
+                    username: 'SocialTWDev',
+                },
+            })
+
         // Suppress console.error and restore original console.error
         const originalConsoleError = console.error
         console.log = console.error = console.warn = () => {}
@@ -131,6 +187,62 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/user should init user', async () => {
+        const accessToken = 'test_access_token'
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .post('/2/oauth2/token')
+            .query(true) // Match any query parameters
+            .matchHeader('content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('authorization', `Basic ${token}`)
+            .reply((uri, requestBody, cb) => {
+                // Parse the query parameters from the URI
+                const url = new URL(uri, TWITTER_API)
+                const code = url.searchParams.get('code')
+
+                // Conditionally reply based on the 'code' query parameter
+                if (code === wrongCode) {
+                    cb(null, [
+                        400,
+                        {
+                            error: 'invalid_request',
+                            error_description:
+                                'Value passed for the authorization code was invalid.',
+                        },
+                    ])
+                } else if (code === mockCode) {
+                    cb(null, [
+                        200,
+                        {
+                            token_type: 'bearer',
+                            refresh_token: 'mock-refresh-token',
+                            access_token: accessToken,
+                        },
+                    ])
+                } else {
+                    cb(null, [404, { error: 'code not found' }])
+                }
+            })
+        nock(TWITTER_API)
+            .post('/2/oauth2/token')
+            .query({
+                client_id: TWITTER_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: 'mock-refresh-token',
+            })
+            .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(200, {
+                access_token: accessToken,
+            })
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .get('/2/users/me')
+            .matchHeader('Authorization', `Bearer ${accessToken}`)
+            .reply(200, {
+                data: {
+                    id: mockUserId,
+                    name: 'SocialTWDev',
+                    username: 'SocialTWDev',
+                },
+            })
         nock(`${CLIENT_URL}`)
             .get('/login')
             .query({
