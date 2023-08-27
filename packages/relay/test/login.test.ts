@@ -429,7 +429,47 @@ describe('LOGIN /login', () => {
             })
     })
 
-    // it('/api/signup handle duplicate signup', async () => {})
+    it('/api/signup handle duplicate signup', async () => {
+        // Reuse mockUserId from previous test and trigger duplicate signup
+        
+        // TODO: encapsulate below to a function within original code
+        const initUser = await userService.getLoginOrInitUser(mockUserId)
+        const wallet = ethers.Wallet.createRandom()
+        const signature = await wallet.signMessage(initUser.hashUserId)
+        const identity = new Identity(signature)
+        userState = new UserState({
+            db,
+            provider,
+            prover,
+            unirepAddress: unirep.address,
+            attesterId: BigInt(app.address),
+            id: identity,
+        })
+        await userState.sync.start()
+        await userState.waitForSync()
+        const signupProof = await userState.genUserSignUpProof()
+        var publicSignals = signupProof.publicSignals.map((n) => n.toString())
+
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
+                hashUserId: initUser.hashUserId,
+                fromServer: false,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                console.log(err)
+                expect(err).to.be.null
+            })
+    })
+    
     /*
     
     
