@@ -36,7 +36,7 @@ export default (
             res.redirect(redirectUrl)
         } catch (error) {
             console.log(error)
-            res.redirect(`${CLIENT_URL}?error="apiError"`)
+            res.redirect(`${CLIENT_URL}/?error=apiError`)
         }
     })
 }
