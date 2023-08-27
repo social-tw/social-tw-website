@@ -13,8 +13,9 @@ import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { Server } from 'http'
+import { stringifyBigInts } from '@unirep/utils'
 
-
+import fetch from 'node-fetch';
 chai.use(chaiHttp);
 
 describe('LOGIN /login', () => {
@@ -92,6 +93,10 @@ describe('LOGIN /login', () => {
             });
     })
 
+    afterEach(async () => {
+        server.close();
+    })
+
     it('/api/login should return url', async () => {
         await chai.request(`${HTTP_SERVER}`)
             .get('/api/login')
@@ -138,9 +143,9 @@ describe('LOGIN /login', () => {
     })
 
     
-    /* it('/api/signup, user should sign up with wallet', async () => {
+    it('/api/signup, user should sign up with wallet', async () => {
         // TODO: encapsulate below to a function within original code
-        var initUser = await userService.getLoginOrInitUser('123')
+        var initUser = await userService.getLoginOrInitUser('123456')
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
@@ -152,29 +157,31 @@ describe('LOGIN /login', () => {
             attesterId: BigInt(app.address),
             id: identity,
         })
-
         await userState.sync.start()
         await userState.waitForSync()
-
         const signupProof = await userState.genUserSignUpProof()
         var publicSignals = signupProof.publicSignals.map((n) => n.toString())
-
-        chai.request(`${HTTP_SERVER}`)
-        .get('/api/signup')
-        .set('content-type', 'application/json')
-        .query({
-            publicSignals: publicSignals,
-            proof: signupProof,
-            hashUserId: mockUserId,
-            fromServer: false,
-        })
-        .end((err, res) => {
-            console.log(res, err)
-            expect(res).to.have.status(200)
-        })
+        
+        await chai.request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
+                hashUserId: initUser.hashUserId,
+                fromServer: false,
+            })
+            .then(res => {
+                expect(res).to.have.status(200);
+            })
+            .catch(err => {
+                // Handle or assert error here
+                console.log(err)
+                expect(err).to.be.null;
+            })
     }) 
     it('/api/signup, user should sign up with server', async () => {
-    })  */
+    }) 
    
 
     /* it('/api/signup, user should not sign up with wrong proof and return error', async () => {
@@ -231,10 +238,5 @@ describe('LOGIN /login', () => {
 
 
 
-    // TODO
-    //it('should post failed with wrong proof', async () => {})
 
-    afterEach(async () => {
-        server.close();
-    })
 })
