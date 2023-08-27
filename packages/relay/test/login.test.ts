@@ -12,6 +12,7 @@ import { HTTP_SERVER, CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
+import { Server } from 'http'
 
 
 chai.use(chaiHttp);
@@ -25,14 +26,14 @@ describe('LOGIN /login', () => {
     const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
     let userState: UserState
     let app, unirep;
-    let db, prover, provider, TransactionManager, synchronizer;
+    let db, prover, provider, TransactionManager, synchronizer, server: Server;
     before(async () => {
         // open promise testing 
         chai.use(chaiAsPromise.default);
         // deploy contracts
         ({ unirep, app } = await deployContracts());
         // start server
-        ({db, prover, provider, TransactionManager, synchronizer} = await startServer(
+        ({db, prover, provider, TransactionManager, synchronizer, server} = await startServer(
             unirep, 
             app
         ));
@@ -164,6 +165,7 @@ describe('LOGIN /login', () => {
             fromServer: false,
         })
         .end((err, res) => {
+            console.log(res, err)
             expect(res).to.have.status(200)
         })
     })
@@ -180,6 +182,6 @@ describe('LOGIN /login', () => {
     //it('should post failed with wrong proof', async () => {})
 
     after(async () => {
-        // stop the server for next testing
+        server.close()
     })
 })
