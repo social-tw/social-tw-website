@@ -40,8 +40,6 @@ export default (
                 fromServer,
                 synchronizer
             )
-            console.log('test success')
-
             res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
             if (
