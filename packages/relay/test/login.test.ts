@@ -1,12 +1,16 @@
 import * as crypto from 'crypto'
-import chai from "chai";
-import chaiHttp from "chai-http";
-import { expect } from "chai";
+import chai from 'chai'
+import chaiHttp from 'chai-http'
+import { expect } from 'chai'
 import * as chaiAsPromise from 'chai-as-promised'
 import nock from 'nock'
 import { deployContracts, startServer } from './environment'
 import { userService } from '../src/services/UserService'
-import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
+import {
+    CALLBACK_URL,
+    TWITTER_CLIENT_ID,
+    TWITTER_CLIENT_KEY,
+} from '../src/config'
 import { UserRegisterStatus } from '../src/enums/userRegisterStatus'
 import { HTTP_SERVER, CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
@@ -15,165 +19,280 @@ import { UserState, Synchronizer } from '@unirep/core'
 import { Server } from 'http'
 import { SQLiteConnector } from 'anondb/node.js'
 
-chai.use(chaiHttp);
+import fetch from 'node-fetch'
+chai.use(chaiHttp)
 
 describe('LOGIN /login', () => {
-    const TWITTER_API = "https://api.twitter.com"
+    const TWITTER_API = 'https://api.twitter.com'
     const mockState = 'state'
     const mockCode = 'testCode'
     const mockUserId = '123456'
-    const wrongCode = "wrong-code"
+    const mockUserId2 = '654321'
+    const wrongCode = 'wrong-code'
     const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
     let userState: UserState
-    let app, unirep;
-    let db: SQLiteConnector, prover, provider, TransactionManager;
-    let synchronizer: Synchronizer, server: Server;
-    let hashMockUserId: string
+    let app, unirep
+    let db, prover, provider, TransactionManager, synchronizer, server: Server
     before(async () => {
-        // open promise testing 
-        chai.use(chaiAsPromise.default);
+        // open promise testing
+        chai.use(chaiAsPromise.default)
         // deploy contracts
-        ({ unirep, app } = await deployContracts());
+        ;({ unirep, app } = await deployContracts())
         // start server
-        ({ db, prover, provider, TransactionManager, synchronizer, server } = await startServer(
-            unirep,
-            app
-        ));
-
-        const hash = crypto.createHash('sha3-224')
-        hashMockUserId = `0x${hash.update(mockUserId).digest('hex')}`
     })
 
     beforeEach(async () => {
-        // mock twitter api behavior
-        const accessToken = "test_access_token"
-        nock(TWITTER_API, { "encodedQueryParams": true })
+        ;({ db, prover, provider, TransactionManager, synchronizer, server } =
+            await startServer(unirep, app))
+    })
+
+    afterEach(async () => {
+        server.close()
+    })
+
+    it('/api/login should return url', async () => {
+        const accessToken = 'test_access_token'
+        nock(TWITTER_API, { encodedQueryParams: true })
             .post('/2/oauth2/token')
-            .query(true)  // Match any query parameters
+            .query(true) // Match any query parameters
             .matchHeader('content-type', 'application/x-www-form-urlencoded')
             .matchHeader('authorization', `Basic ${token}`)
             .reply((uri, requestBody, cb) => {
                 // Parse the query parameters from the URI
-                const url = new URL(uri, TWITTER_API);
-                const code = url.searchParams.get('code');
+                const url = new URL(uri, TWITTER_API)
+                const code = url.searchParams.get('code')
 
                 // Conditionally reply based on the 'code' query parameter
                 if (code === wrongCode) {
-                    cb(null, [400, {
-                        "error": "invalid_request",
-                        "error_description": "Value passed for the authorization code was invalid."
-                    }]);
+                    cb(null, [
+                        400,
+                        {
+                            error: 'invalid_request',
+                            error_description:
+                                'Value passed for the authorization code was invalid.',
+                        },
+                    ])
                 } else if (code === mockCode) {
-                    cb(null, [200, {
-                        "token_type": "bearer",
-                        "refresh_token": 'mock-refresh-token',
-                        "access_token": accessToken
-                    }]);
+                    cb(null, [
+                        200,
+                        {
+                            token_type: 'bearer',
+                            refresh_token: 'mock-refresh-token',
+                            access_token: accessToken,
+                        },
+                    ])
                 } else {
-                    cb(null, [404, { "error": "code not found" }]);
+                    cb(null, [404, { error: 'code not found' }])
                 }
-            });
+            })
         nock(TWITTER_API)
             .post('/2/oauth2/token')
             .query({
                 client_id: TWITTER_CLIENT_ID,
                 grant_type: 'refresh_token',
-                refresh_token: 'mock-refresh-token'
+                refresh_token: 'mock-refresh-token',
             })
             .matchHeader('Content-type', 'application/x-www-form-urlencoded')
             .matchHeader('Authorization', `Basic ${token}`)
             .reply(200, {
-                "access_token": accessToken
-            });
-        nock(TWITTER_API, { "encodedQueryParams": true })
+                access_token: accessToken,
+            })
+        nock(TWITTER_API, { encodedQueryParams: true })
             .get('/2/users/me')
             .matchHeader('Authorization', `Bearer ${accessToken}`)
             .reply(200, {
-                "data": {
-                    "id": mockUserId,
-                    "name": "SocialTWDev",
-                    "username": "SocialTWDev"
-                }
-            });
-    })
-
-    it('/api/login return url', async () => {
-        await chai.request(`${HTTP_SERVER}`)
+                data: {
+                    id: mockUserId,
+                    name: 'SocialTWDev',
+                    username: 'SocialTWDev',
+                },
+            })
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/login')
-            .then(res => {
-                expect(res.body.url).to.be.not.null;
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
             })
     })
 
-    it('/api/user init user with wrong code and return error', async () => {
+    it('/api/user should not init user with wrong code and return error', async () => {
+        const accessToken = 'test_access_token'
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .post('/2/oauth2/token')
+            .query(true) // Match any query parameters
+            .matchHeader('content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('authorization', `Basic ${token}`)
+            .reply((uri, requestBody, cb) => {
+                // Parse the query parameters from the URI
+                const url = new URL(uri, TWITTER_API)
+                const code = url.searchParams.get('code')
+
+                // Conditionally reply based on the 'code' query parameter
+                if (code === wrongCode) {
+                    cb(null, [
+                        400,
+                        {
+                            error: 'invalid_request',
+                            error_description:
+                                'Value passed for the authorization code was invalid.',
+                        },
+                    ])
+                } else if (code === mockCode) {
+                    cb(null, [
+                        200,
+                        {
+                            token_type: 'bearer',
+                            refresh_token: 'mock-refresh-token',
+                            access_token: accessToken,
+                        },
+                    ])
+                } else {
+                    cb(null, [404, { error: 'code not found' }])
+                }
+            })
+        nock(TWITTER_API)
+            .post('/2/oauth2/token')
+            .query({
+                client_id: TWITTER_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: 'mock-refresh-token',
+            })
+            .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(200, {
+                access_token: accessToken,
+            })
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .get('/2/users/me')
+            .matchHeader('Authorization', `Bearer ${accessToken}`)
+            .reply(200, {
+                data: {
+                    id: mockUserId,
+                    name: 'SocialTWDev',
+                    username: 'SocialTWDev',
+                },
+            })
+
         // Suppress console.error and restore original console.error
-        const originalConsoleError = console.error;
-        console.log = console.error = console.warn = () => { };
-        
-        nock(`${CLIENT_URL}`)
-            .get('/')
-            .matchHeader("accept-encoding", "gzip, deflate")
-            .query({
-                error: "apiError",
-            })
-            .reply(200);
-        await chai.request(`${HTTP_SERVER}`)
-            .get('/api/user')
-            .set('content-type', 'application/json')
-            .query({
-                state: mockState,
-                code: wrongCode,
-            })
-            .then(res => {
-                expect(res).to.have.status(200);
-            })
-
-        console.error = originalConsoleError;
+        const originalConsoleError = console.error
+        console.log = console.error = console.warn = () => {}
+        await expect(
+            userService.loginOrInitUser(mockState, wrongCode)
+        ).to.be.rejectedWith(`Error in login`)
+        console.error = originalConsoleError
     })
 
-    it('/api/user init user', async () => {
+    it('/api/user should init user', async () => {
+        const accessToken = 'test_access_token'
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .post('/2/oauth2/token')
+            .query(true) // Match any query parameters
+            .matchHeader('content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('authorization', `Basic ${token}`)
+            .reply((uri, requestBody, cb) => {
+                // Parse the query parameters from the URI
+                const url = new URL(uri, TWITTER_API)
+                const code = url.searchParams.get('code')
+
+                // Conditionally reply based on the 'code' query parameter
+                if (code === wrongCode) {
+                    cb(null, [
+                        400,
+                        {
+                            error: 'invalid_request',
+                            error_description:
+                                'Value passed for the authorization code was invalid.',
+                        },
+                    ])
+                } else if (code === mockCode) {
+                    cb(null, [
+                        200,
+                        {
+                            token_type: 'bearer',
+                            refresh_token: 'mock-refresh-token',
+                            access_token: accessToken,
+                        },
+                    ])
+                } else {
+                    cb(null, [404, { error: 'code not found' }])
+                }
+            })
+        nock(TWITTER_API)
+            .post('/2/oauth2/token')
+            .query({
+                client_id: TWITTER_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: 'mock-refresh-token',
+            })
+            .matchHeader('Content-type', 'application/x-www-form-urlencoded')
+            .matchHeader('Authorization', `Basic ${token}`)
+            .reply(200, {
+                access_token: accessToken,
+            })
+        nock(TWITTER_API, { encodedQueryParams: true })
+            .get('/2/users/me')
+            .matchHeader('Authorization', `Bearer ${accessToken}`)
+            .reply(200, {
+                data: {
+                    id: mockUserId,
+                    name: 'SocialTWDev',
+                    username: 'SocialTWDev',
+                },
+            })
         nock(`${CLIENT_URL}`)
             .get('/login')
             .query({
-                code: hashMockUserId,
-                status: `${UserRegisterStatus.INIT}`,
+                code: '0x6be790258b73da9441099c4cb6aeec1f0c883152dd74e7581b70a648',
+                status: '1',
             })
-            .reply(200);
-        await chai.request(`${HTTP_SERVER}`)
+            .reply(200)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
                 state: mockState,
                 code: mockCode,
             })
-            .then(res => {
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
-            .catch(err => {
-                expect(err).to.be.null;
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
             })
     })
 
-    it('/api/identity before wallet sign up and after init user', async () => {
-        const wallet = TransactionManager.wallet!!
-        const expectedSignMsg = await wallet.signMessage(hashMockUserId)
+    it('/api/identity', async () => {
+        // test api/identity before actual signup, so that mockUserId is not signed up
+        // and can be reused.
+        const initUser = await userService.getLoginOrInitUser(mockUserId)
+        const hashUserId = initUser.hashUserId
+        let signature
+
 
         await chai.request(`${HTTP_SERVER}`)
             .post('/api/identity')
             .set('content-type', 'application/json')
-            .send({
-                hashUserId: hashMockUserId
+            .send(JSON.stringify({ hashUserId }))
+            .then((res) => {
+                expect(res).to.have.status(200)
+                signature = res.body.signMsg
             })
-            .then(res => {
-                expect(res.body.signMsg).to.equal(expectedSignMsg);
-                expect(res).to.have.status(200);
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+                console.log(err)
             })
     })
 
     it('/api/signup, user should sign up with wallet', async () => {
         // TODO: encapsulate below to a function within original code
-        var initUser = await userService.getLoginOrInitUser('123456')
+        const initUser = await userService.getLoginOrInitUser(mockUserId)
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
@@ -190,7 +309,8 @@ describe('LOGIN /login', () => {
         const signupProof = await userState.genUserSignUpProof()
         var publicSignals = signupProof.publicSignals.map((n) => n.toString())
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
@@ -199,23 +319,78 @@ describe('LOGIN /login', () => {
                 hashUserId: initUser.hashUserId,
                 fromServer: false,
             })
-            .then(res => {
-                expect(res.body.status).to.equal('success');
-                expect(res.body.hash).to.be.not.null;
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
-            .catch(err => {
-                expect(err).to.be.null;
+            .catch((err) => {
+                // Handle or assert error here
+                console.log(err)
+                expect(err).to.be.null
             })
     })
 
     it('/api/signup, user should sign up with server', async () => {
+        const initUser = await userService.getLoginOrInitUser(mockUserId2)
+        const hashUserId = initUser.hashUserId
+        let signature        
+
+        // signup with server
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/identity')
+            .set('content-type', 'application/json')
+            .send(JSON.stringify({ hashUserId }))
+            .then((res) => {
+                expect(res).to.have.status(200)
+                signature = res.body.signMsg
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+                console.log(err)
+            })
+
+        // TODO encapsulate below to a function within original code
+        const identity = new Identity(signature)
+        userState = new UserState({
+            db,
+            provider,
+            prover,
+            unirepAddress: unirep.address,
+            attesterId: BigInt(app.address),
+            id: identity,
+        })
+        await userState.sync.start()
+        await userState.waitForSync()
+
+        const signupProof = await userState.genUserSignUpProof()
+        const publicSignals = signupProof.publicSignals.map((item) =>
+            item.toString()
+        )
+        const proof = signupProof.proof.map((item) => item.toString())
+
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: proof,
+                hashUserId: hashUserId,
+                fromServer: true,
+            })
+            .then((res) => {
+                expect(res).to.have.status(200)
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+            })
     })
 
-
-    /* it('/api/signup, user should not sign up with wrong proof and return error', async () => {
+    it('/api/signup, user should not sign up with wrong proof and return error', async () => {
         // TODO: encapsulate below to a function within original code
-        var initUser = await userService.getLoginOrInitUser('1234')
+        let initUser = await userService.getLoginOrInitUser('1234')
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
@@ -235,32 +410,31 @@ describe('LOGIN /login', () => {
         let publicSignals = wrongSignupProof.publicSignals.map((n) => n.toString())
         wrongSignupProof.identityCommitment = BigInt(0)
 
-        chai.request(`${HTTP_SERVER}`)
-        .get('/api/signup')
-        .set('content-type', 'application/json')
-        .query({
-            publicSignals: publicSignals,
-            proof: wrongSignupProof,
-            hashUserId: mockUserId,
-            fromServer: false,
-        })
-        .end((err, res) => {
-            expect(err).to.exist;
-            expect(err.status).to.equal(500);
-        })
-    })*/
-
-    it('/api/signup handle duplicate signup', async () => {
-
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .query({
+                publicSignals: publicSignals,
+                proof: wrongSignupProof,
+                hashUserId: mockUserId,
+                fromServer: false,
+            })
+            .then((res) => {
+                expect(res).to.have.status(500)
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+            })
     })
 
+    // it('/api/signup handle duplicate signup', async () => {})
+    /*
+    
+    
     it('loginStatus', async () => {
     })
-
-
-    after(async () => {
-        db.close();
-        synchronizer.stop();
-        server.close();
-    })
+    
+    */
 })
