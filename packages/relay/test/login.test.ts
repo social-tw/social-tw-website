@@ -103,7 +103,7 @@ describe('LOGIN /login', () => {
             })
     })
 
-    after(async () => {
+    afterEach(async () => {
         server.close()
     })
 
