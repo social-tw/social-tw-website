@@ -40,14 +40,15 @@ export default (
                 fromServer,
                 synchronizer
             )
+            console.log('test success')
 
             res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
             if (
                 error instanceof Error &&
-                error.message.includes('UserAlreadySignedUp')
+                error.message.includes('The user has already signed up.')
             ) {
-                res.status(400).json({ error: 'User already signed up!' })
+                res.status(400).json({ error: 'The user has already signed up.' })
             } else {
                 res.status(500).json({ error: 'Internal server error' })
             }
