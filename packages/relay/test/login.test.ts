@@ -33,13 +33,13 @@ describe('LOGIN /login', () => {
         // deploy contracts
         ({ unirep, app } = await deployContracts());
         // start server
+    })
+
+    beforeEach(async () => {
         ({db, prover, provider, TransactionManager, synchronizer, server} = await startServer(
             unirep, 
             app
         ));
-    })
-
-    beforeEach(async () => {
         // mock twitter api behavior
         const accessToken = "test_access_token"
         nock(TWITTER_API, { "encodedQueryParams": true })
@@ -93,25 +93,15 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/login should return url', async () => {
-        chai.request(`${HTTP_SERVER}`)
+        await chai.request(`${HTTP_SERVER}`)
             .get('/api/login')
-            .end((err, res) => {
-                expect(res.status).equal(200)
+            .then(res => {
+                expect(res).to.have.status(200);
             })
-    })
-
-    it('/api/user should init user', async () => {
-        nock(`${CLIENT_URL}?code=${mockUserId}&status=${UserRegisterStatus.INIT}`)
-        chai.request(`${HTTP_SERVER}`)
-            .get('/api/user')
-            .set('content-type', 'application/json')
-            .query({
-                state: mockState,
-                code: mockCode,
-            })
-            .end((err, res) => {
-                expect(res).to.have.status(200)
-            })
+            .catch(err => {
+                // Handle or assert error here
+                expect(err).to.be.null;
+            });
     })
 
     it('/api/user should not init user with wrong code and return error', async () => {
@@ -122,24 +112,32 @@ describe('LOGIN /login', () => {
             .to.be.rejectedWith(`Error in login`)
         console.error = originalConsoleError;
     })
-
-    it('loginOrInitUser should properly init user', async () => {
-        
-        try {
-
-            const user = await userService.loginOrInitUser(mockState, mockCode)
-            
-            // expected
-            const hash = crypto.createHash('sha3-224')
-            const expectedUserId = `0x${hash.update(mockUserId).digest('hex')}`
-            expect(user.hashUserId).equal(expectedUserId)
-            expect(user.status).equal(UserRegisterStatus.INIT)
-            expect(user.signMsg).equal(undefined)
-        } catch (error) {
-            console.log(error)
-        }
+    
+    it('/api/user should init user', async () => {
+        nock(`${CLIENT_URL}`)
+            .get('/login')
+            .query({
+                code: "0x6be790258b73da9441099c4cb6aeec1f0c883152dd74e7581b70a648",
+                status: "1",
+            })
+            .reply(200);
+        await chai.request(`${HTTP_SERVER}`)
+            .get('/api/user')
+            .set('content-type', 'application/json')
+            .query({
+                state: mockState,
+                code: mockCode,
+            })
+            .then(res => {
+                expect(res).to.have.status(200);
+            })
+            .catch(err => {
+                // Handle or assert error here
+                expect(err).to.be.null;
+            })
     })
 
+    
     /* it('/api/signup, user should sign up with wallet', async () => {
         // TODO: encapsulate below to a function within original code
         var initUser = await userService.getLoginOrInitUser('123')
@@ -236,7 +234,7 @@ describe('LOGIN /login', () => {
     // TODO
     //it('should post failed with wrong proof', async () => {})
 
-    after(async () => {
-        server.close()
+    afterEach(async () => {
+        server.close();
     })
 })

@@ -19,8 +19,8 @@ export class UserService {
      * - loginStatus = REGISTERED_SERVER: User has been signUp with server wallet
      *                 In this case, signMsg will be included
      *
+     * @param state from twitter api callback 
      * @param code from twitter api callback
-     * @param state from twitter api callback
      */
     async loginOrInitUser(state: string, code: string): Promise<User> {
         if (state != STATE) throw Error('wrong callback value')
