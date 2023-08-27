@@ -27,6 +27,7 @@ describe('LOGIN /login', () => {
     const mockState = 'state'
     const mockCode = 'testCode'
     const mockUserId = '123456'
+    const mockUserId2 = '654321'
     const wrongCode = 'wrong-code'
     const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
     let userState: UserState
@@ -102,7 +103,7 @@ describe('LOGIN /login', () => {
             })
     })
 
-    afterEach(async () => {
+    after(async () => {
         server.close()
     })
 
@@ -154,9 +155,32 @@ describe('LOGIN /login', () => {
             })
     })
 
+    it('/api/identity', async () => {
+        // test api/identity before actual signup, so that mockUserId is not signed up
+        // and can be reused.
+        const initUser = await userService.getLoginOrInitUser(mockUserId)
+        const hashUserId = initUser.hashUserId
+        let signature
+
+
+        await chai.request(`${HTTP_SERVER}`)
+            .post('/api/identity')
+            .set('content-type', 'application/json')
+            .send(JSON.stringify({ hashUserId }))
+            .then((res) => {
+                expect(res).to.have.status(200)
+                signature = res.body.signMsg
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+                console.log(err)
+            })
+    })
+
     it('/api/signup, user should sign up with wallet', async () => {
         // TODO: encapsulate below to a function within original code
-        var initUser = await userService.getLoginOrInitUser('123456')
+        const initUser = await userService.getLoginOrInitUser(mockUserId)
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
@@ -192,14 +216,11 @@ describe('LOGIN /login', () => {
                 expect(err).to.be.null
             })
     })
-    it('/api/signup, user should sign up with server', async () => {
-        let userId = '654321'
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash.update(userId).digest('hex')}`
-        let signature
 
-        // init user
-        await userService.getLoginOrInitUser(userId)
+    it('/api/signup, user should sign up with server', async () => {
+        const initUser = await userService.getLoginOrInitUser(mockUserId2)
+        const hashUserId = initUser.hashUserId
+        let signature        
 
         // signup with server
         await chai
@@ -217,6 +238,7 @@ describe('LOGIN /login', () => {
                 console.log(err)
             })
 
+        // TODO encapsulate below to a function within original code
         const identity = new Identity(signature)
         userState = new UserState({
             db,
@@ -254,9 +276,9 @@ describe('LOGIN /login', () => {
             })
     })
 
-    /* it('/api/signup, user should not sign up with wrong proof and return error', async () => {
+    it('/api/signup, user should not sign up with wrong proof and return error', async () => {
         // TODO: encapsulate below to a function within original code
-        var initUser = await userService.getLoginOrInitUser('1234')
+        let initUser = await userService.getLoginOrInitUser('1234')
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)
@@ -276,29 +298,28 @@ describe('LOGIN /login', () => {
         let publicSignals = wrongSignupProof.publicSignals.map((n) => n.toString())
         wrongSignupProof.identityCommitment = BigInt(0)
 
-        chai.request(`${HTTP_SERVER}`)
-        .get('/api/signup')
-        .set('content-type', 'application/json')
-        .query({
-            publicSignals: publicSignals,
-            proof: wrongSignupProof,
-            hashUserId: mockUserId,
-            fromServer: false,
-        })
-        .end((err, res) => {
-            expect(err).to.exist;
-            expect(err.status).to.equal(500);
-        })
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .query({
+                publicSignals: publicSignals,
+                proof: wrongSignupProof,
+                hashUserId: mockUserId,
+                fromServer: false,
+            })
+            .then((res) => {
+                expect(res).to.have.status(500)
+            })
+            .catch((err) => {
+                // Handle or assert error here
+                expect(err).to.be.null
+            })
     })
- */
+
     // it('/api/signup handle duplicate signup', async () => {})
     /*
     
-    it('/api/identity', async () => {
-    })
-
-    it('/api/identity', async () => {
-    })
     
     it('loginStatus', async () => {
     })
