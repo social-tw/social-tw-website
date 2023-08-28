@@ -46,7 +46,9 @@ export default (
                 error instanceof Error &&
                 error.message.includes('The user has already signed up.')
             ) {
-                res.status(400).json({ error: 'The user has already signed up.' })
+                res.status(400).json({
+                    error: 'The user has already signed up.',
+                })
             } else {
                 res.status(500).json({ error: 'Internal server error' })
             }

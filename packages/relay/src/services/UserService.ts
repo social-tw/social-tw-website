@@ -19,26 +19,26 @@ export class UserService {
      * - loginStatus = REGISTERED_SERVER: User has been signUp with server wallet
      *                 In this case, signMsg will be included
      *
-     * @param state from twitter api callback 
+     * @param state from twitter api callback
      * @param code from twitter api callback
      */
     async loginOrInitUser(state: string, code: string): Promise<User> {
         if (state != STATE) throw Error('wrong callback value')
 
         try {
-            var userInfo = await TwitterClient.authClient.requestAccessToken(code as string)
+            var userInfo = await TwitterClient.authClient
+                .requestAccessToken(code as string)
                 .then((_) => TwitterClient.client.users.findMyUser())
         } catch (error) {
             console.log('error in getting user id', error)
             throw Error('Error in login')
         }
-        
+
         const userId = userInfo.data?.id!!
         return await this.getLoginOrInitUser(userId)
     }
 
     async getLoginOrInitUser(userId: string) {
-        
         const hash = crypto.createHash('sha3-224')
         const hashUserId = `0x${hash.update(userId).digest('hex')}`
         const appContract = TransactionManager.appContract!!
