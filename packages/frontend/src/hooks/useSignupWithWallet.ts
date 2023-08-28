@@ -1,3 +1,5 @@
+import { SignupStatus } from "../contexts/User"
+
 declare global {
     interface Window {
         ethereum: any
@@ -6,25 +8,27 @@ declare global {
 
 const useSignupWithWallet = (
     navigate: (path: string) => void,
-    setIsSignupLoading: (loading: boolean) => void,
+    setSignupStatus: (param: SignupStatus) => void,
     handleWalletSignMessage: () => Promise<void>,
-    signup: () => Promise<void>
+    signup: () => Promise<void>,
+    setIsLogin: (param: boolean) => void
 ) => {
     const signUpWithWallet = async () => {
         try {
-            setIsSignupLoading(true)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
+            await handleWalletSignMessage()
+            setSignupStatus('pending')
             navigate('/')
-            handleWalletSignMessage()
             await signup()
             console.log('has signed up')
+            setSignupStatus('success')
+            setIsLogin(true)
         } catch (error) {
+            setSignupStatus('error')
             console.error(error)
-        } finally {
-            setIsSignupLoading(false)
-        }
+        } 
     }
 
     return signUpWithWallet

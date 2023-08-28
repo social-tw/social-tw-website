@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Link, NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useMatch, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
@@ -9,9 +9,15 @@ import Logo from '../assets/logo.png'
 import PersonCircleIcon from '../assets/person-circle.svg'
 import SearchIcon from '../assets/search.svg'
 import StarIcon from '../assets/star.svg'
+import { useUser } from '../contexts/User'
+import useInitUser from '../hooks/useInitUser'
+import SignupErrorModal from '../components/modal/SignupErrorModal'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
+    const [searchParams] = useSearchParams()
+    const hashUserId = searchParams.get('code')
+    const { load } = useUser()
 
     const navigate = useNavigate()
 
@@ -22,6 +28,8 @@ export default function AppLayout() {
             navigate('/')
         }
     }
+
+    useInitUser(load, hashUserId)
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
@@ -84,6 +92,7 @@ export default function AppLayout() {
     } else {
         return (
             <div className="flex divide-x divide-neutral-600">
+                <SignupErrorModal />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">

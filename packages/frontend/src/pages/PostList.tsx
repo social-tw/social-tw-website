@@ -8,6 +8,8 @@ import Post from '../components/Post'
 import PostForm, { PostValues } from '../components/PostForm'
 import { SERVER } from '../config'
 import usePosts from '../hooks/usePosts'
+import SignupLoadingModal from '../components/modal/SignupLoadingModal'
+import { useUser } from '../contexts/User'
 
 interface Post {
     id: string
@@ -54,7 +56,7 @@ const examplePosts = [
 
 export default function PostList() {
     const errorDialog = useRef<HTMLDialogElement>(null)
-
+    const { isLogin, signupStatus } = useUser()
     const [posts, setPosts] = useState<Post[]>([])
 
     useEffect(() => {
@@ -85,7 +87,11 @@ export default function PostList() {
     return (
         <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
             {!isSmallDevice && (
-                <section className="py-6">
+                <section className="py-6 relative">
+                    <SignupLoadingModal 
+                        status={signupStatus}
+                        isLogin={isLogin}
+                    />
                     <PostForm
                         onCancel={() => navigate('/')}
                         onSubmit={onSubmit}

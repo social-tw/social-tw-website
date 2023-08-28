@@ -26,25 +26,28 @@ const AuthForm: React.FC<AuthFormProps> = ({
 }) => {
     const navigate = useNavigate()
     const {
-        setIsSignupLoading,
-        isSignupLoading,
+        setSignupStatus,
+        signupStatus,
         handleServerSignMessage,
         handleWalletSignMessage,
         signup,
+        setIsLogin
     } = useUser()
     const [noteStatus, setNoteStatus] = useState('close')
     const twitterVerify = useTwitterVerify(SERVER)
     const signupWithWallet = useSignUpWithWallet(
         navigate,
-        setIsSignupLoading,
+        setSignupStatus,
         handleWalletSignMessage,
-        signup
+        signup,
+        setIsLogin
     )
     const signupWithServer = useSignupWithServer(
         navigate,
-        setIsSignupLoading,
+        setSignupStatus,
         handleServerSignMessage,
-        signup
+        signup,
+        setIsLogin
     )
 
     const authVarients = {
@@ -62,7 +65,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     const sendSignupStepContent = (
         <>
             <LoginButton
-                isLoading={isSignupLoading}
+                isLoading={signupStatus === 'pending'}
                 onClick={signupWithWallet}
                 title="錢包註冊"
                 subTitle="使用 MetaMask 錢包進行登入"
@@ -71,7 +74,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 setNoteStatus={() => setNoteStatus('metamask')}
             />
             <LoginButton
-                isLoading={isSignupLoading}
+                isLoading={signupStatus === 'pending'}
                 onClick={signupWithServer}
                 title="直接註冊"
                 subTitle="沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊"
@@ -86,14 +89,14 @@ const AuthForm: React.FC<AuthFormProps> = ({
         method === '' ? (
             <>
                 <LoginButton
-                    isLoading={isSignupLoading}
+                    isLoading={signupStatus === 'pending'}
                     onClick={() => {}}
                     title="立即登入"
                     subTitle="歡迎提供你的獨到見解！"
                     color="#2F9CAF"
                 />
                 <LoginButton
-                    isLoading={isSignupLoading}
+                    isLoading={signupStatus === 'pending'}
                     onClick={onSignup}
                     title="立即註冊"
                     subTitle="只要兩步驟，即可安全匿名分享你的想法！"
@@ -103,7 +106,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         ) : (
             <>
                 <LoginButton
-                    isLoading={isSignupLoading}
+                    isLoading={signupStatus === 'pending'}
                     icon={BsTwitter}
                     onClick={twitterVerify}
                     title="使用 Twitter 帳號登入"

@@ -15,13 +15,15 @@ import { SERVER } from '../config'
 import prover from './Prover'
 import { ethers } from 'ethers'
 
+export type SignupStatus = 'default' | 'pending' |'success' | 'error'
+
 export interface UserContextType {
     currentEpoch: number
     setCurrentEpoch: (epoch: number) => void
     latestTransitionedEpoch: number
     setLatestTransitionedEpoch: (epoch: number) => void
-    isSignupLoading: boolean
-    setIsSignupLoading: (loading: boolean) => void
+    isLogin: boolean 
+    setIsLogin: (param: boolean) => void
     fromServer: boolean
     setFromServer: (fromServer: boolean) => void
     hasSignedUp: boolean
@@ -38,6 +40,8 @@ export interface UserContextType {
     setSignature: (signature: string) => void
     hashUserId: string
     setHashUserId: (hashUserId: string) => void
+    signupStatus: SignupStatus
+    setSignupStatus: (signupStatus: SignupStatus) => void
     loadData: (userState: UserState) => Promise<void>
     fieldCount: () => number | undefined
     sumFieldCount: () => number | undefined
@@ -69,7 +73,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
-    const [isSignupLoading, setIsSignupLoading] = useState<boolean>(false)
+    const [isLogin, setIsLogin] = useState<boolean>(false)
     const [fromServer, setFromServer] = useState<boolean>(false)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
@@ -78,6 +82,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
+    const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
         // TODO: It seems we don't need to store it in local storage
@@ -110,18 +115,32 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             id: identity,
         })
 
-        await userStateInstance.sync.start()
         setUserState(userStateInstance)
-        await userStateInstance.waitForSync()
-
-        // TODO: check here to modify
-        const hasSignedUpStatus = await userStateInstance.hasSignedUp()
-        setHasSignedUp(hasSignedUpStatus)
+        await login(userStateInstance)
         await loadData(userStateInstance)
-        // TODO: check here to modify
         const latestEpoch = await userStateInstance.latestTransitionedEpoch()
         setLatestTransitionedEpoch(latestEpoch)
     }
+
+    const login = useCallback(
+        async (userState: UserState) => {
+            if (!userState) throw new Error('user state not initialized')
+
+            try {
+                await userState.sync.start()
+                await userState.waitForSync()
+                const hasSignedUpStatus = await userState.hasSignedUp()
+                if (!hasSignedUpStatus) throw new Error('Cannot login a account without signing up')
+                setHasSignedUp(hasSignedUpStatus)
+                setIsLogin(true)
+            } catch (error) {
+                console.error(error)
+                setIsLogin(false)
+                console.error('Login error')
+            }
+        },
+        [userState]
+    )
 
     const loadData = useCallback(
         async (userState: UserState) => {
@@ -340,8 +359,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setCurrentEpoch,
         latestTransitionedEpoch,
         setLatestTransitionedEpoch,
-        isSignupLoading,
-        setIsSignupLoading,
+        isLogin,
+        setIsLogin,
         fromServer,
         setFromServer,
         hasSignedUp,
@@ -358,6 +377,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setSignature,
         hashUserId,
         setHashUserId,
+        signupStatus,
+        setSignupStatus,
         loadData,
         fieldCount,
         sumFieldCount,
