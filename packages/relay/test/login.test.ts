@@ -6,10 +6,7 @@ import * as chaiAsPromise from 'chai-as-promised'
 import nock from 'nock'
 import { deployContracts, startServer } from './environment'
 import { userService } from '../src/services/UserService'
-import {
-    TWITTER_CLIENT_ID,
-    TWITTER_CLIENT_KEY,
-} from '../src/config'
+import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
 import { UserRegisterStatus } from '../src/enums/userRegisterStatus'
 import { HTTP_SERVER, CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
@@ -32,29 +29,26 @@ describe('LOGIN /login', () => {
     let snapshot: any
     let userState: UserState
     let app, unirep
-    let db, prover, provider, TransactionManager, synchronizer;
-    let server: Server;
+    let db, prover, provider, TransactionManager, synchronizer
+    let server: Server
     let hashMockUserId: string
     let hashMockUserId2: string
 
     before(async () => {
-
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // open promise testing
-        chai.use(chaiAsPromise.default);
+        chai.use(chaiAsPromise.default)
         // deploy contracts
-        ({ unirep, app } = await deployContracts());
+        ;({ unirep, app } = await deployContracts())
         // start server
-        ({ db, prover, provider, TransactionManager, synchronizer, server } = await startServer(
-            unirep,
-            app
-        ));
+        ;({ db, prover, provider, TransactionManager, synchronizer, server } =
+            await startServer(unirep, app))
 
         const hash = crypto.createHash('sha3-224')
-        hashMockUserId = `0x${hash.update(mockUserId).digest('hex')}`;
+        hashMockUserId = `0x${hash.update(mockUserId).digest('hex')}`
         const hash2 = crypto.createHash('sha3-224')
-        hashMockUserId2 = `0x${hash2.update(mockUserId2).digest('hex')}`;
+        hashMockUserId2 = `0x${hash2.update(mockUserId2).digest('hex')}`
     })
 
     after(async () => {
@@ -63,59 +57,61 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/login, return url', async () => {
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/login')
-            .then(res => {
-                expect(res.body.url).to.be.not.null;
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res.body.url).to.be.not.null
+                expect(res).to.have.status(200)
             })
     })
 
     it('/api/user, init user with wrong code and return error', async () => {
         // Suppress console.error and restore original console.error
-        const originalConsoleError = console.error;
-        console.log = console.error = console.warn = () => { };
+        const originalConsoleError = console.error
+        console.log = console.error = console.warn = () => {}
 
         // mock with wrong code response
-        nock(TWITTER_API, { "encodedQueryParams": true })
+        nock(TWITTER_API, { encodedQueryParams: true })
             .post('/2/oauth2/token')
             .query({
                 code: wrongCode,
-                grant_type: "authorization_code",
+                grant_type: 'authorization_code',
                 client_id: TWITTER_CLIENT_ID,
-                redirect_uri: /^.*$/
+                redirect_uri: /^.*$/,
             })
             .matchHeader('content-type', 'application/x-www-form-urlencoded')
             .matchHeader('authorization', `Basic ${token}`)
             .reply(400, {
-                "error": "invalid_request",
-                "error_description": "Value passed for the authorization code was invalid."
-            });
+                error: 'invalid_request',
+                error_description:
+                    'Value passed for the authorization code was invalid.',
+            })
 
         nock(`${CLIENT_URL}`)
             .get('/')
             .query({
-                error: "apiError",
+                error: 'apiError',
             })
-            .reply(200);
+            .reply(200)
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
                 state: mockState,
                 code: wrongCode,
             })
-            .then(res => {
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
 
-        console.error = originalConsoleError;
+        console.error = originalConsoleError
     })
 
     it('/api/user, init user', async () => {
-
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, "access-token")
+        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
 
         nock(`${CLIENT_URL}`)
             .get('/login')
@@ -123,17 +119,18 @@ describe('LOGIN /login', () => {
                 code: hashMockUserId,
                 status: `${UserRegisterStatus.INIT}`,
             })
-            .reply(200);
+            .reply(200)
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
                 state: mockState,
                 code: mockCode,
             })
-            .then(res => {
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
     })
 
@@ -141,15 +138,16 @@ describe('LOGIN /login', () => {
         const wallet = TransactionManager.wallet!!
         const expectedSignMsg = await wallet.signMessage(hashMockUserId)
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .post('/api/identity')
             .set('content-type', 'application/json')
             .send({
-                hashUserId: hashMockUserId
+                hashUserId: hashMockUserId,
             })
-            .then(res => {
-                expect(res.body.signMsg).to.equal(expectedSignMsg);
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res.body.signMsg).to.equal(expectedSignMsg)
+                expect(res).to.have.status(200)
             })
     })
 
@@ -182,8 +180,8 @@ describe('LOGIN /login', () => {
                 fromServer: false,
             })
             .then((res) => {
-                expect(res.body.status).to.equal('success');
-                expect(res.body.hash).to.be.not.null;
+                expect(res.body.status).to.equal('success')
+                expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
     })
@@ -224,8 +222,8 @@ describe('LOGIN /login', () => {
                 fromServer: true,
             })
             .then((res) => {
-                expect(res.body.status).to.equal('success');
-                expect(res.body.hash).to.be.not.null;
+                expect(res.body.status).to.equal('success')
+                expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
     })
@@ -249,7 +247,9 @@ describe('LOGIN /login', () => {
         await userState.waitForSync()
 
         let wrongSignupProof = await userState.genUserSignUpProof()
-        let publicSignals = wrongSignupProof.publicSignals.map((n) => n.toString())
+        let publicSignals = wrongSignupProof.publicSignals.map((n) =>
+            n.toString()
+        )
         wrongSignupProof.identityCommitment = BigInt(0)
 
         await chai
@@ -301,29 +301,30 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/login, registered user with own wallet', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, "access-token")
+        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         nock(`${CLIENT_URL}`)
             .get('/login')
             .query({
                 code: hashMockUserId,
                 status: `${UserRegisterStatus.REGISTERER}`,
             })
-            .reply(200);
+            .reply(200)
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
                 state: mockState,
                 code: mockCode,
             })
-            .then(res => {
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
     })
 
     it('/api/login, registered user with server wallet', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId2, mockCode2, "access-token2")
+        prepareUserLoginTwitterApiMock(mockUserId2, mockCode2, 'access-token2')
         const wallet = TransactionManager.wallet
         const signMsg = await wallet.signMessage(hashMockUserId2)
         nock(`${CLIENT_URL}`)
@@ -331,63 +332,67 @@ describe('LOGIN /login', () => {
             .query({
                 code: hashMockUserId2,
                 status: `${UserRegisterStatus.REGISTERER_SERVER}`,
-                signMsg: signMsg
+                signMsg: signMsg,
             })
-            .reply(200);
+            .reply(200)
 
-        await chai.request(`${HTTP_SERVER}`)
+        await chai
+            .request(`${HTTP_SERVER}`)
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
                 state: mockState,
                 code: mockCode2,
             })
-            .then(res => {
-                expect(res).to.have.status(200);
+            .then((res) => {
+                expect(res).to.have.status(200)
             })
     })
-
 })
 
-function prepareUserLoginTwitterApiMock(userId: string, code: string, accessToken: string) {
-    nock(TWITTER_API, { "encodedQueryParams": true })
+function prepareUserLoginTwitterApiMock(
+    userId: string,
+    code: string,
+    accessToken: string
+) {
+    nock(TWITTER_API, { encodedQueryParams: true })
         .post('/2/oauth2/token')
         .query({
             code: code,
-            grant_type: "authorization_code",
+            grant_type: 'authorization_code',
             code_verifier: /^.*$/,
             client_id: TWITTER_CLIENT_ID,
-            redirect_uri: /^.*$/
+            redirect_uri: /^.*$/,
         })
         .matchHeader('content-type', 'application/x-www-form-urlencoded')
         .matchHeader('authorization', `Basic ${token}`)
         .reply(200, {
-            "token_type": "bearer",
-            "refresh_token": 'mock-refresh-token',
-            "access_token": accessToken
-        });
+            token_type: 'bearer',
+            refresh_token: 'mock-refresh-token',
+            access_token: accessToken,
+        })
 
     nock(TWITTER_API)
         .post('/2/oauth2/token')
         .query({
             client_id: TWITTER_CLIENT_ID,
             grant_type: 'refresh_token',
-            refresh_token: 'mock-refresh-token'
+            refresh_token: 'mock-refresh-token',
         })
         .matchHeader('Content-type', 'application/x-www-form-urlencoded')
         .matchHeader('Authorization', `Basic ${token}`)
         .reply(200, {
-            "access_token": accessToken
-        });
+            access_token: accessToken,
+        })
 
-    nock(TWITTER_API, { "encodedQueryParams": true })
+    nock(TWITTER_API, { encodedQueryParams: true })
         .get('/2/users/me')
         .matchHeader('Authorization', `Bearer ${accessToken}`)
         .reply(200, {
-            "data": {
-                "id": userId,
-                "name": "SocialTWDev",
-                "username": "SocialTWDev"
-            }
-        });
+            data: {
+                id: userId,
+                name: 'SocialTWDev',
+                username: 'SocialTWDev',
+            },
+        })
 }
