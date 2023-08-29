@@ -50,7 +50,9 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-4">
-                <ErrorModal />
+                <ErrorModal 
+                    isOpen={signupStatus === 'error'}
+                />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -132,7 +134,9 @@ export default function AppLayout() {
     } else {
         return (
             <div className="flex divide-x divide-neutral-600">
-                <ErrorModal />
+                <ErrorModal 
+                    isOpen={signupStatus === 'error'}
+                />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
