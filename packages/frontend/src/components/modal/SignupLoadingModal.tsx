@@ -5,15 +5,16 @@ import { SignupStatus } from '../../contexts/User'
 
 interface SignUpLoadingModal {
     status: SignupStatus
-    isLogin: boolean
+    isOpen: boolean
+    opacity: number
     onClose?: () => void
 }
 
 const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     status,
-    isLogin,
+    isOpen,
+    opacity,
 }) => {
-    const [isShow, setIsShow] = useState(true)
     let content
     switch (status) {
         case 'pending':
@@ -43,16 +44,10 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             break
     }
 
-    useEffect(() => {
-        if (isLogin) {
-            setTimeout(() => {
-                setIsShow(false)
-            }, 1500)
-        }
-    }, [isLogin])
+    if (status === 'error') return null
     
     return (
-        <Modal isOpen={isShow} postion='absolute'>
+        <Modal isOpen={isOpen} postion='absolute' opacity={opacity}>
             <div className='flex flex-col justify-center items-center gap-1 w-full h-full'>
                 {content}
             </div>

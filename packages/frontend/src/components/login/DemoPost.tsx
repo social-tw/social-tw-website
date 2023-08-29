@@ -47,7 +47,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
 
     return (
         <motion.div
-            className="max-w-[600px] flex flex-col justify-between px-5 py-4 bg-[#FFFFFFE5] w-11/12 h-[164px] rounded-xl"
+            className="max-w-[600px] flex flex-col justify-between px-5 py-4 bg-[#FFFFFFE5] w-11/12 h-[164px] rounded-xl text-black"
             variants={postVarient}
             initial="visible"
             animate="hidden"
@@ -57,7 +57,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
                     <p className="mr-5 border-2 rounded-full border-white text-center">
                         🎃
                     </p>
-                    <span className="text-[10px] text-black font-medium">
+                    <span className="text-[10px] font-medium">
                         就在剛剛
                     </span>
                 </div>
@@ -81,7 +81,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
                     <div className="text-white bg-[#2F9CAF] rounded-full p-[5px]">
                         <BiCommentDetail className="text-sm" />
                     </div>
-                    <p className="text-[10px] font-medium">{comments}</p>
+                    <p className="text-[10px] font-medium text-black">{comments}</p>
                 </div>
             </div>
         </motion.div>

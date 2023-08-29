@@ -4,6 +4,7 @@ import { GrFormClose } from 'react-icons/gr'
 import { useUser } from '../../contexts/User'
 import LoginButton from '../login/LoginButton'
 import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 const SignupErrorModal = () => {
     const { signupStatus, setSignupStatus } = useUser()
@@ -12,9 +13,12 @@ const SignupErrorModal = () => {
         setSignupStatus('default')
         navigate('/login')
     }
+
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+    
     return (
-        <Modal isOpen={signupStatus === 'error'} postion='fixed'>
-            <div className='flex items-center justify-center w-full h-full'>
+        <Modal isOpen={signupStatus === 'error'} postion='fixed' opacity={100}>
+            <div className='flex items-center justify-center w-full h-full px-4'>
                 <div className='p-12 flex flex-col justify-center items-center bg-white relative text-black text-[15px] tracking-wider gap-12 rounded-lg'>
                     <GrFormClose
                         className='absolute top-3 right-3 cursor-pointer'
@@ -30,7 +34,7 @@ const SignupErrorModal = () => {
                         </p>
                     </div>
                     <button 
-                        className='py-4 px-20 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg'
+                        className='w-full py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg'
                         onClick={handleClick}
                     >
                         返回註冊頁重新嘗試

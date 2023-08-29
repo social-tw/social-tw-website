@@ -58,6 +58,17 @@ export default function PostList() {
     const errorDialog = useRef<HTMLDialogElement>(null)
     const { isLogin, signupStatus } = useUser()
     const [posts, setPosts] = useState<Post[]>([])
+    const [isShow, setIsShow] = useState(false)
+
+    useEffect(() => {
+        if (isLogin) {
+            setTimeout(() => {
+                setIsShow(false)
+            }, 1500)
+        } else {
+            setIsShow(true)         
+        }
+    }, [isLogin])
 
     useEffect(() => {
         async function loadPosts() {
@@ -88,10 +99,13 @@ export default function PostList() {
         <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
             {!isSmallDevice && (
                 <section className="py-6 relative">
-                    <SignupLoadingModal 
-                        status={signupStatus}
-                        isLogin={isLogin}
-                    />
+                    {(isShow && signupStatus !== 'error') && (
+                        <SignupLoadingModal 
+                            status={signupStatus}
+                            isOpen={true}
+                            opacity={100}
+                        />
+                    )}
                     <PostForm
                         onCancel={() => navigate('/')}
                         onSubmit={onSubmit}

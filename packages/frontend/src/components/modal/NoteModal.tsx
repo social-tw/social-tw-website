@@ -65,9 +65,10 @@ const NoteModal: React.FC<NoteModallProps> = ({
         <Modal 
             isOpen={noteStatus !== 'close'}
             postion='fixed'
+            opacity={90}
         >
             <div className="flex flex-col justify-center items-center h-full p-4">
-                <div className="relative p-12 flex flex-col gap-4 bg-white max-w-[600px] overflow-auto leading-7 tex-[15px] tracking-wider rounded-lg">
+                <div className="relative p-12 flex flex-col gap-4 bg-white max-w-[600px] overflow-auto leading-7 tex-[15px] tracking-wider text-black">
                     <Icon
                         className="absolute right-12 cursor-pointer"
                         size={24}

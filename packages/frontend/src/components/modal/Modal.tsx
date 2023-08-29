@@ -6,12 +6,14 @@ import { clsx } from 'clsx'
 
 interface ModalProps {
     isOpen: boolean
+    opacity: number
     children: React.ReactNode
     postion: 'absolute' | 'fixed'
 }
 
 const Modal: React.FC<ModalProps> = ({ 
     isOpen, 
+    opacity,
     children,
     postion
 }) => {
@@ -47,8 +49,7 @@ const Modal: React.FC<ModalProps> = ({
                 ${postion} 
                 inset-0 
                 z-50
-                bg-black
-                bg-opacity-90
+                bg-black/${opacity}
                 h-full
                 `}
                 variants={modalVariants}
@@ -60,8 +61,7 @@ const Modal: React.FC<ModalProps> = ({
                 ${postion} 
                 inset-0 
                 z-50
-                bg-black
-                bg-opacity-90
+                bg-black/${opacity}
                 h-full
                 `}
                 variants={chidrenVarients}

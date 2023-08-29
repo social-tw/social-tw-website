@@ -42,6 +42,9 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         hover:bg-gray-500
         focus:outline-offset-0
         bg-opacity-70
+        transition 
+        duration-300 
+        ease-in-out
         `}
         >
             <span className="text-white font-semibold text-2xl tracking-wider">

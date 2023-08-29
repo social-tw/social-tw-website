@@ -11,13 +11,17 @@ import SearchIcon from '../assets/search.svg'
 import StarIcon from '../assets/star.svg'
 import { useUser } from '../contexts/User'
 import useInitUser from '../hooks/useInitUser'
-import SignupErrorModal from '../components/modal/SignupErrorModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
+import { useEffect, useState } from 'react'
 
 export default function AppLayout() {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const matchPath = useMatch('/')
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
-    const { load } = useUser()
+    const { load, isLogin, signupStatus } = useUser()
+    const [isShow, setIsShow] = useState(true)
 
     const navigate = useNavigate()
 
@@ -31,11 +35,22 @@ export default function AppLayout() {
 
     useInitUser(load, hashUserId)
 
+    useEffect(() => {
+        if (isLogin) {
+            setTimeout(() => {
+                setIsShow(false)
+            }, 1500)
+        } else {
+            setIsShow(true)         
+        }
+    }, [isLogin])
+
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     if (isSmallDevice) {
         return (
             <div className="pt-4">
+                <ErrorModal />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -53,46 +68,71 @@ export default function AppLayout() {
                 <main className="max-w-5xl px-4 mx-auto">
                     <Outlet />
                 </main>
-                <nav className="fixed bottom-0 w-screen h-20 px-4 flex items-stretch rounded-t-3xl bg-gradient-to-r from-secondary to-primary/80 shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset]">
-                    <NavLink
-                        className="flex items-center justify-center flex-1"
-                        to="/"
-                    >
-                        <HomeIcon className="text-white w-14 h-14" />
-                    </NavLink>
-                    <NavLink
-                        className="flex items-center justify-center flex-1"
-                        to="#"
-                    >
-                        <StarIcon className="text-white w-14 h-14" />
-                    </NavLink>
-                    <div className="relative flex justify-center flex-1">
-                        <NavLink
-                            className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
-                            to="/write"
-                        >
-                            <AddIcon className="w-8 h-8 text-secondary" />
-                        </NavLink>
-                    </div>
-                    <NavLink
-                        className="flex items-center justify-center flex-1"
-                        to="#"
-                    >
-                        <BellIcon className="text-white w-14 h-14" />
-                    </NavLink>
-                    <NavLink
-                        className="flex items-center justify-center flex-1"
-                        to="#"
-                    >
-                        <PersonCircleIcon className="text-white w-14 h-14" />
-                    </NavLink>
+                <nav className={clsx(
+                    `
+                    fixed 
+                    bottom-0 
+                    w-screen 
+                    h-20 px-4 
+                    flex 
+                    items-stretch 
+                    rounded-t-3xl 
+                    `,
+                    (signupStatus !== 'default' && isShow) ? 
+                    'bg-opacity-0 mb-5' : 
+                    'bg-gradient-to-r from-secondary to-primary/80 shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset] '
+                )}>
+
+                    {(signupStatus !== 'default' && isShow) ? (
+                        <SignUpLoadingModal
+                            status={signupStatus}
+                            isOpen={true}
+                            opacity={0}
+                        />
+                    ) : (
+                        <>
+                            <NavLink
+                                className="flex items-center justify-center flex-1"
+                                to={isLogin ? '#' : '/login'}
+                            >
+                                <HomeIcon className="text-white w-14 h-14" />
+                            </NavLink>
+                            <NavLink
+                                className="flex items-center justify-center flex-1"
+                                to={isLogin ? '#' : '/login'}
+                            >
+                                <StarIcon className="text-white w-14 h-14" />
+                            </NavLink>
+                            <div className="relative flex justify-center flex-1">
+                                <NavLink
+                                    className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
+                                    to={isLogin ? '/write' : '/login'}
+                                >
+                                    <AddIcon className="w-8 h-8 text-secondary" />
+                                </NavLink>
+                            </div>
+                            <NavLink
+                                className="flex items-center justify-center flex-1"
+                                to={isLogin ? '#' : '/login'}
+                            >
+                                <BellIcon className="text-white w-14 h-14" />
+                            </NavLink>
+                            <NavLink
+                                className="flex items-center justify-center flex-1"
+                                to={isLogin ? '#' : '/login'}
+                            >
+                                <PersonCircleIcon className="text-white w-14 h-14" />
+                            </NavLink>
+                        </>
+                    )}
+
                 </nav>
             </div>
         )
     } else {
         return (
             <div className="flex divide-x divide-neutral-600">
-                <SignupErrorModal />
+                <ErrorModal />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">

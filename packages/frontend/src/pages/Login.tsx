@@ -118,7 +118,7 @@ const Login: React.FC = () => {
                 {method === 'signup' && (
                     <>
                         <div
-                            className="absolute top-7 bg-[#E8ECF4] p-3 sm:px-4 sm:py-2 rounded-lg cursor-pointer flex justify-center items-center"
+                            className="absolute top-7 bg-[#E8ECF4] p-3 sm:px-4 sm:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
                             onClick={handleBack}
                         >
                             <IoChevronBack size={16} />
