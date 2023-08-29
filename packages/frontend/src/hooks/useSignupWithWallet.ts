@@ -1,4 +1,4 @@
-import { SignupStatus } from "../contexts/User"
+import { SignupStatus } from '../contexts/User'
 
 declare global {
     interface Window {
@@ -28,7 +28,7 @@ const useSignupWithWallet = (
         } catch (error) {
             setSignupStatus('error')
             console.error(error)
-        } 
+        }
     }
 
     return signUpWithWallet

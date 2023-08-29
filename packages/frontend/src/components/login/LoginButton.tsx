@@ -23,13 +23,13 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     color,
     setNoteStatus,
 }) => {
-    
     return (
         <button
             type="button"
             onClick={onClick}
             disabled={isLoading}
-            className={clsx(`
+            className={clsx(
+                `
         flex
         w-full
         max-w-[700px]
@@ -46,9 +46,10 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         duration-300 
         ease-in-out
         `,
-        Icon ? "flex-row gap-4" : "flex-col")}
+                Icon ? 'flex-row gap-4' : 'flex-col'
+            )}
         >
-            {Icon && <Icon size={32}/>}
+            {Icon && <Icon size={32} />}
             <span className="text-white font-semibold text-2xl tracking-wider">
                 {title}
             </span>

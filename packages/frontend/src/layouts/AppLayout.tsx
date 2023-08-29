@@ -1,5 +1,12 @@
 import clsx from 'clsx'
-import { Link, NavLink, Outlet, useMatch, useNavigate, useSearchParams } from 'react-router-dom'
+import {
+    Link,
+    NavLink,
+    Outlet,
+    useMatch,
+    useNavigate,
+    useSearchParams,
+} from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
@@ -41,7 +48,7 @@ export default function AppLayout() {
                 setIsShow(false)
             }, 1500)
         } else {
-            setIsShow(true)         
+            setIsShow(true)
         }
     }, [isLogin])
 
@@ -50,9 +57,7 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-4">
-                <ErrorModal 
-                    isOpen={signupStatus === 'error'}
-                />
+                <ErrorModal isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -70,8 +75,9 @@ export default function AppLayout() {
                 <main className="max-w-5xl px-4 mx-auto">
                     <Outlet />
                 </main>
-                <nav className={clsx(
-                    `
+                <nav
+                    className={clsx(
+                        `
                     fixed 
                     bottom-0 
                     w-screen 
@@ -80,12 +86,12 @@ export default function AppLayout() {
                     items-stretch 
                     rounded-t-3xl 
                     `,
-                    (signupStatus !== 'default' && isShow) ? 
-                    'bg-opacity-0 mb-5' : 
-                    'bg-gradient-to-r from-secondary to-primary/80 shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset] '
-                )}>
-
-                    {(signupStatus !== 'default' && isShow) ? (
+                        signupStatus !== 'default' && isShow
+                            ? 'bg-opacity-0 mb-5'
+                            : 'bg-gradient-to-r from-secondary to-primary/80 shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset] '
+                    )}
+                >
+                    {signupStatus !== 'default' && isShow ? (
                         <SignUpLoadingModal
                             status={signupStatus}
                             isOpen={true}
@@ -127,16 +133,13 @@ export default function AppLayout() {
                             </NavLink>
                         </>
                     )}
-
                 </nav>
             </div>
         )
     } else {
         return (
             <div className="flex divide-x divide-neutral-600">
-                <ErrorModal 
-                    isOpen={signupStatus === 'error'}
-                />
+                <ErrorModal isOpen={signupStatus === 'error'} />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">

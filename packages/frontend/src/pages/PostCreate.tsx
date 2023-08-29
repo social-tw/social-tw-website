@@ -27,11 +27,7 @@ export default function PostCreate() {
     }
 
     if (!isLogin) {
-        return (
-            <ErrorModal 
-                isOpen={true}
-            />
-        )
+        return <ErrorModal isOpen={true} />
     } else {
         return (
             <div className="p-4">
@@ -57,5 +53,4 @@ export default function PostCreate() {
             </div>
         )
     }
-
 }

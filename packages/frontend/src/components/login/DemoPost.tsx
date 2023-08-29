@@ -57,9 +57,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
                     <p className="mr-5 border-2 rounded-full border-white text-center">
                         🎃
                     </p>
-                    <span className="text-[10px] font-medium">
-                        就在剛剛
-                    </span>
+                    <span className="text-[10px] font-medium">就在剛剛</span>
                 </div>
                 <IoIosMore className="text-[#8F8F8F]" />
             </div>
@@ -81,7 +79,9 @@ const DemoPost: React.FC<DemoPostProps> = ({
                     <div className="text-white bg-[#2F9CAF] rounded-full p-[5px]">
                         <BiCommentDetail className="text-sm" />
                     </div>
-                    <p className="text-[10px] font-medium text-black">{comments}</p>
+                    <p className="text-[10px] font-medium text-black">
+                        {comments}
+                    </p>
                 </div>
             </div>
         </motion.div>

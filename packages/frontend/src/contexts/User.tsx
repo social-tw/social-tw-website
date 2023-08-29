@@ -15,14 +15,14 @@ import { SERVER } from '../config'
 import prover from './Prover'
 import { ethers } from 'ethers'
 
-export type SignupStatus = 'default' | 'pending' |'success' | 'error'
+export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
 export interface UserContextType {
     currentEpoch: number
     setCurrentEpoch: (epoch: number) => void
     latestTransitionedEpoch: number
     setLatestTransitionedEpoch: (epoch: number) => void
-    isLogin: boolean 
+    isLogin: boolean
     setIsLogin: (param: boolean) => void
     fromServer: boolean
     setFromServer: (fromServer: boolean) => void
@@ -130,7 +130,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 await userState.sync.start()
                 await userState.waitForSync()
                 const hasSignedUpStatus = await userState.hasSignedUp()
-                if (!hasSignedUpStatus) throw new Error('Cannot login a account without signing up')
+                if (!hasSignedUpStatus)
+                    throw new Error('Cannot login a account without signing up')
                 setHasSignedUp(hasSignedUpStatus)
                 setIsLogin(true)
             } catch (error) {

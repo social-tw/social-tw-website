@@ -1,4 +1,4 @@
-import { SignupStatus } from "../contexts/User"
+import { SignupStatus } from '../contexts/User'
 
 const useSignupWithServer = (
     navigate: (path: string) => void,
@@ -19,7 +19,7 @@ const useSignupWithServer = (
         } catch (error: any) {
             setSignupStatus('error')
             console.error(error)
-        } 
+        }
     }
 
     return signupWithServer

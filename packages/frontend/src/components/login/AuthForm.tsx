@@ -32,7 +32,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         handleServerSignMessage,
         handleWalletSignMessage,
         signup,
-        setIsLogin
+        setIsLogin,
     } = useUser()
     const [noteStatus, setNoteStatus] = useState('close')
     const twitterVerify = useTwitterVerify(SERVER)

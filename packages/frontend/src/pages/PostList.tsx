@@ -66,7 +66,7 @@ export default function PostList() {
                 setIsShow(false)
             }, 1500)
         } else {
-            setIsShow(true)         
+            setIsShow(true)
         }
     }, [isLogin])
 
@@ -99,8 +99,8 @@ export default function PostList() {
         <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
             {!isSmallDevice && (
                 <section className="py-6 relative">
-                    {(isShow && signupStatus !== 'error') && (
-                        <SignupLoadingModal 
+                    {isShow && signupStatus !== 'error' && (
+                        <SignupLoadingModal
                             status={signupStatus}
                             isOpen={true}
                             opacity={100}

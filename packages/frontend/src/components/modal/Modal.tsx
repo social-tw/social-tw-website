@@ -11,11 +11,11 @@ interface ModalProps {
     postion: 'absolute' | 'fixed'
 }
 
-const Modal: React.FC<ModalProps> = ({ 
-    isOpen, 
+const Modal: React.FC<ModalProps> = ({
+    isOpen,
     opacity,
     children,
-    postion
+    postion,
 }) => {
     const modalVariants = {
         hidden: { opacity: 0 },
