@@ -143,7 +143,7 @@ const Login: React.FC = () => {
             </div>
             {method === '' && (
                 <motion.div
-                    className="fixed inset-0 z-30 overflow-y-none mt-[220px]"
+                    className="fixed inset-0 z-30 overflow-hidden mt-[220px]"
                     variants={postListVariants}
                     initial="start"
                     animate="end"

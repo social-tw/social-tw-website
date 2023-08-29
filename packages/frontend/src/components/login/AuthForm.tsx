@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import NoteModal from '../modal/NoteModal'
 import { GrFormClose } from 'react-icons/gr'
 import { useUser } from '../../contexts/User'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 interface AuthFormProps {
     hashUserId: string | null
@@ -70,7 +71,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 title="錢包註冊"
                 subTitle="使用 MetaMask 錢包進行登入"
                 color="#2F9CAF"
-                text="MetaMask 錢包"
                 setNoteStatus={() => setNoteStatus('metamask')}
             />
             <LoginButton
@@ -79,7 +79,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 title="直接註冊"
                 subTitle="沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊"
                 color="#DB7622"
-                text="Server 註冊"
                 setNoteStatus={() => setNoteStatus('server')}
             />
         </>
@@ -110,7 +109,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     icon={BsTwitter}
                     onClick={twitterVerify}
                     title="使用 Twitter 帳號登入"
-                    subTitle="歡迎提供你的獨到見解！"
                     color="#2F9CAF"
                 />
             </>
@@ -119,7 +117,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     return (
         <>
             <motion.div
-                className="md:pb-28 pb-8 min-w-[300px] w-full flex flex-col justify-center items-center gap-6 "
+                className="md:pb-28 pb-8 min-w-[300px] w-full flex flex-col justify-center items-center gap-6"
                 variants={authVarients}
                 initial="hidden"
                 animate="visible"

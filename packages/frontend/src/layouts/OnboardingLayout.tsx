@@ -32,7 +32,7 @@ const BaseLayout = () => {
 
     return (
         <motion.div
-            className="h-full overflow-y-scroll"
+            className="h-full overflow-hidden"
             variants={gradientVariants}
             initial="animate"
             animate="animate"
