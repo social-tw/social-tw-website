@@ -6,6 +6,7 @@ import { clsx } from 'clsx'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoChevronBack } from 'react-icons/io5'
 import StepInfo from '../components/login/StepInfo'
+import LogoWhite from '../assets/logo-white.png'
 
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
@@ -79,7 +80,7 @@ const Login: React.FC = () => {
                 >
                     <div className="pt-24 flex items-center flex-col justify-center">
                         <motion.img
-                            src={require('../../public/unirep_logo_white.png')}
+                            src={LogoWhite}
                             alt="UniRep Logo"
                             className="w-[120px] mb-2"
                             variants={basicVarients}

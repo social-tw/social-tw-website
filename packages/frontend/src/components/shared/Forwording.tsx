@@ -1,5 +1,9 @@
-import React from 'react'
 import { motion } from 'framer-motion'
+import LogoWhite from '../../assets/logo-white.png'
+import Logo from '../../assets/logo.png'
+import Downvote from '../../assets/downvote.png'
+import Upvote from '../../assets/upvote.png'
+import Comment from '../../assets/comment.png'
 
 const Forwording = () => {
     const upvoteVariants = {
@@ -70,35 +74,35 @@ const Forwording = () => {
             <div className="flex flex-col justiy-center items-center">
                 <div className="relative mb-2 w-[120px] h-[120px]">
                     <motion.img
-                        src={require('../../../public/unirep_logo_colored.png')}
+                        src={Logo}
                         className="absolute inset-0"
                         variants={logoColoredVariants}
                         initial="hidden"
                         animate="visible"
                     />
                     <motion.img
-                        src={require('../../../public/unirep_logo_white.png')}
+                        src={LogoWhite}
                         className="absolute inset-0"
                         variants={logoWhiteVariants}
                         initial="hidden"
                         animate="visible"
                     />
                     <motion.img
-                        src={require('../../../public/comment.png')}
+                        src={Comment}
                         className="absolute inset-0"
                         variants={commentVariants}
                         initial="hidden"
                         animate="visible"
                     />
                     <motion.img
-                        src={require('../../../public/upvote.png')}
+                        src={Upvote}
                         className="absolute inset-0"
                         variants={upvoteVariants}
                         initial="hidden"
                         animate="visible"
                     />
                     <motion.img
-                        src={require('../../../public/downvote.png')}
+                        src={Downvote}
                         className="absolute inset-0"
                         variants={downvoteVariants}
                         initial="hidden"
