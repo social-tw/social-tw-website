@@ -34,13 +34,21 @@ in new terminal window, from root:
 yarn contracts deploy
 ```
 
-### 2.4 Start a relayer (backend)
+### 2.4 Set up Twitter API Key
+
+```shell
+cp packages/relay/.env_example packages/relay/.env
+```
+
+Then fill in your Twitter API Key in `packages/relay/.env`
+
+### 2.5 Start a relayer (backend)
 
 ```shell
 yarn relay start
 ```
 
-### 2.5 Start a frontend
+### 2.6 Start a frontend
 
 in new terminal window, from root:
 

@@ -1,2 +1,7 @@
+artifacts/
+cache/
 build/
 keys
+.env
+
+*Verifier.sol

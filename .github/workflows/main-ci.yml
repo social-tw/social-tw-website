@@ -1,0 +1,42 @@
+name: Build, Test and Lint
+run-name: ${{ github.actor }} acitvates the actions 🚀
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize]
+        branches:
+            - main
+            - release/integrate_0713
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    tests:
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [Circuits, Contracts, Relay, Frontend]
+        name: ${{ matrix.target }}
+        uses: ./.github/workflows/build-and-test.yml
+        with:
+            target: ${{ matrix.target }}
+        secrets:
+            CR_PAT: ${{ secrets.CR_PAT }}
+
+    lint:
+        name: Lint
+        runs-on: ubuntu-22.04
+        timeout-minutes: 10
+        steps:
+            - name: Check out repository code
+              uses: actions/checkout@v3
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+            - name: Install packages
+              run: yarn
+            - name: Lint
+              run: yarn lint:check

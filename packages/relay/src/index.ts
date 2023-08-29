@@ -1,8 +1,12 @@
+// imported libraries
 import path from 'path'
 import fs from 'fs'
 import express from 'express'
-import { Synchronizer } from '@unirep/core'
+import { ethers } from 'ethers'
 import { SQLiteConnector } from 'anondb/node.js'
+
+// libraries
+import { UnirepSocialSynchronizer } from './synchornizer'
 import prover from './singletons/prover'
 import schema from './singletons/schema'
 
@@ -12,6 +16,7 @@ import {
     UNIREP_ADDRESS,
     DB_PATH,
     APP_ADDRESS,
+    APP_ABI,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -23,17 +28,20 @@ main().catch((err) => {
 async function main() {
     const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
-    const synchronizer = new Synchronizer({
-        db,
-        provider,
-        unirepAddress: UNIREP_ADDRESS,
-        attesterId: BigInt(APP_ADDRESS),
-        prover,
-    })
+    const synchronizer = new UnirepSocialSynchronizer(
+        {
+            db: db,
+            attesterId: BigInt(APP_ADDRESS),
+            prover: prover,
+            provider: provider,
+            unirepAddress: UNIREP_ADDRESS,
+        },
+        new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
+    )
 
     await synchronizer.start()
 
-    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer._db)
+    TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
 
     const app = express()
@@ -52,6 +60,6 @@ async function main() {
     const routes = await fs.promises.readdir(routeDir)
     for (const routeFile of routes) {
         const { default: route } = await import(path.join(routeDir, routeFile))
-        route(app, synchronizer._db, synchronizer)
+        route(app, db, synchronizer)
     }
 }

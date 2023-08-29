@@ -1,7 +1,11 @@
 import { ethers } from 'hardhat'
 import * as fs from 'fs'
 import * as path from 'path'
-import { deployUnirep } from '@unirep/contracts/deploy/index.js'
+import { Circuit } from '@unirep/circuits'
+import {
+    deployUnirep,
+    deployVerifierHelper,
+} from '@unirep/contracts/deploy/index.js'
 import * as hardhat from 'hardhat'
 
 const epochLength = 300
@@ -15,11 +19,17 @@ export async function deployApp() {
     const [signer] = await ethers.getSigners()
     const unirep = await deployUnirep(signer)
 
+    const helper = await deployVerifierHelper(signer, Circuit.epochKey)
     const verifierF = await ethers.getContractFactory('DataProofVerifier')
     const verifier = await verifierF.deploy()
     await verifier.deployed()
     const App = await ethers.getContractFactory('UnirepApp')
-    const app = await App.deploy(unirep.address, verifier.address, epochLength)
+    const app = await App.deploy(
+        unirep.address,
+        helper.address,
+        verifier.address,
+        epochLength
+    )
 
     await app.deployed()
 
