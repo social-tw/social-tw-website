@@ -56,7 +56,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         visible: {
             opacity: 1,
             transition: {
-                delay: 1,
+                delay: 0,
                 duration: 1,
                 ease: 'easeInOut',
             },

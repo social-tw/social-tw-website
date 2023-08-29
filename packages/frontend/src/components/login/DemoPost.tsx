@@ -38,7 +38,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
         hidden: {
             opacity: opacity,
             transition: {
-                delay: 1,
+                delay: 0,
                 duration: 1,
                 ease: 'easeInOut',
             },

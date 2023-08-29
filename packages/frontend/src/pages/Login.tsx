@@ -42,7 +42,7 @@ const Login: React.FC = () => {
         end: {
             y: 0,
             transition: {
-                delay: 1,
+                delay: 0,
                 duration: 1,
                 ease: 'easeInOut',
             },
