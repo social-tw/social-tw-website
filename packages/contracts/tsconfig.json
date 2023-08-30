@@ -10,7 +10,6 @@
         "./src",
         "./deploy",
         "./typechain",
-        "./type/*.d.ts",
         "./test/*.ts"
     ],
     "files": ["./hardhat.config.ts"]
