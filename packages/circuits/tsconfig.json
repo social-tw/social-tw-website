@@ -3,7 +3,8 @@
     "compilerOptions": {
         "outDir": "./dist",
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "types": ["jest", "node"]
     },
     "exclude": ["node_modules/**"],
     "include": ["./src", "./config", "./provers"]
