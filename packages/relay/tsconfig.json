@@ -1,7 +1,9 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "sourceMap": true,
         "outDir": "./build"
     },
-    "include": ["./src", ".env"]
+    "include": ["./src", ".env", "./test"],
+    "files": ["./hardhat.config.ts"]
 }

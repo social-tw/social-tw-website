@@ -28,7 +28,7 @@ export default function PostForm({
             },
         })
 
-    const { isSubmitting, isSubmitSuccessful } = formState
+    const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
     const _onCancel = () => {
         reset({ content: '' })
@@ -51,6 +51,7 @@ export default function PostForm({
             <section className="flex items-center justify-end gap-1">
                 <button
                     className="btn btn-sm btn-ghost"
+                    title="cancel a post"
                     type="button"
                     onClick={_onCancel}
                 >
@@ -58,6 +59,7 @@ export default function PostForm({
                 </button>
                 <button
                     className="btn btn-sm btn-ghost text-secondary"
+                    title="save a draft"
                     type="button"
                     onClick={_onSaveDraft}
                 >
@@ -65,6 +67,7 @@ export default function PostForm({
                 </button>
                 <button
                     className="btn btn-sm btn-ghost text-secondary"
+                    title="view a draft"
                     type="button"
                     onClick={onFetchDraft}
                 >
@@ -72,8 +75,9 @@ export default function PostForm({
                 </button>
                 <button
                     className="btn btn-sm btn-secondary"
+                    title="submit a post"
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={!isValid || isSubmitting}
                 >
                     {isSubmitting ? '發佈中...' : '發佈文章'}
                 </button>
@@ -85,6 +89,7 @@ export default function PostForm({
                     rules={{ required: true }}
                     render={({ field }) => (
                         <RichTextEditor
+                            ariaLabel="post editor"
                             onValueChange={field.onChange}
                             value={field.value}
                             namespace={field.name}

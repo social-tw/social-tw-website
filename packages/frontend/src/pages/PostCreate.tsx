@@ -32,7 +32,7 @@ export default function PostCreate() {
         return (
             <div className="p-4">
                 <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
-                <Dialog ref={errorDialog}>
+                <Dialog ref={errorDialog} ariaLabel="post error message">
                     <section className="p-6 md:px-12">
                         <p className="text-base font-medium text-black/90">
                             親愛的用戶：

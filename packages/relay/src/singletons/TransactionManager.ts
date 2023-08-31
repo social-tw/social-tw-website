@@ -203,7 +203,7 @@ export class TransactionManager {
                     err.message &&
                     err.message.includes('UserAlreadySignedUp')
                 ) {
-                    console.error('The user has already signed up.')
+                    throw new Error('The user has already signed up.')
                 } else {
                     console.error(err)
                 }

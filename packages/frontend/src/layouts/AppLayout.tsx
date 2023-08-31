@@ -56,7 +56,7 @@ export default function AppLayout() {
 
     if (isSmallDevice) {
         return (
-            <div className="pt-4">
+            <div className="pt-8">
                 <ErrorModal isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
@@ -114,6 +114,7 @@ export default function AppLayout() {
                             <div className="relative flex justify-center flex-1">
                                 <NavLink
                                     className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
+                                    title="create a post"
                                     to={isLogin ? '/write' : '/login'}
                                 >
                                     <AddIcon className="w-8 h-8 text-secondary" />
@@ -152,7 +153,7 @@ export default function AppLayout() {
                     </div>
                 </section>
                 <section className="flex-1 px-10 pt-20 divide-y divide-neutral-600">
-                    <div className="flex gap-5 py-6">
+                    <div className="flex gap-5 pb-6">
                         <h2 className="text-2xl font-bold text-secondary">
                             Home
                         </h2>
