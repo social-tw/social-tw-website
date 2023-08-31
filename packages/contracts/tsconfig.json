@@ -2,8 +2,10 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "outDir": "./build",
-        "lib": ["ES2021.String"]
+        "lib": ["ES2021.String"],
+        "module": "CommonJS",
+        "moduleResolution": "node"
     },
-    "include": ["./src", "./deploy", "./typechain"],
+    "include": ["./src", "./deploy", "./typechain", "./test/*.ts"],
     "files": ["./hardhat.config.ts"]
 }
