@@ -3,6 +3,7 @@ import Modal from './Modal'
 import './signupLoadingModal.css'
 import { SignupStatus } from '../../contexts/User'
 import { motion } from 'framer-motion'
+import clsx from 'clsx'
 
 interface SignUpLoadingModal {
     status: SignupStatus
@@ -102,7 +103,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
 
     return (
         <Modal isOpen={isOpen} postion="absolute" background={false}>
-            <div className="flex flex-col justify-center items-center gap-2 w-full h-full md:pt-12">
+            <div className={clsx(`flex flex-col justify-center items-center gap-2 w-full h-full`, status !== 'default' && 'md:pt-12') }>
                 {content}
             </div>
         </Modal>
