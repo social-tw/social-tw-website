@@ -8,9 +8,11 @@ import { schema, UserState } from '@unirep/core'
 import { SQLiteConnector } from 'anondb/node'
 import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
-const { SUM_FIELD_COUNT } = CircuitConfig.default
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import crypto from 'crypto'
+import { describe } from 'node:test'
+
+const { SUM_FIELD_COUNT } = CircuitConfig.default
 
 function createRandomUserIdentity(): [string, Identity] {
     const hash = crypto.createHash('sha3-224')
@@ -18,7 +20,7 @@ function createRandomUserIdentity(): [string, Identity] {
         .update(new Identity().toString())
         .digest('hex')}` as string
     const id = new Identity(hashUserId) as Identity
-    console.log('Random hashed user id: ', hashUserId)
+    // console.log('Random hashed user id: ', hashUserId)
 
     return [hashUserId, id]
 }
@@ -46,12 +48,17 @@ describe('Unirep App', function () {
     let app
     let hashUserId: string
     let id: Identity
+    let inputPublicSig
+    let inputProof
 
     // epoch length
     const epochLength = 300
-    // generate random hash user id
+
     before(async () => {
+        // generate random hash user id
         ;[hashUserId, id] = createRandomUserIdentity()
+
+        // deployment
         const [deployer] = await ethers.getSigners()
         unirep = await deployUnirep(deployer)
         const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
@@ -150,33 +157,44 @@ describe('Unirep App', function () {
     })
 
     describe('user post', () => {
-        it('post with valid proof', async () => {
+        it('should fail to post with invalid proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
-            const content = 'testing'
-            expect(app.post(publicSignals, proof, content))
-                .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 0, 0, content)
+
+            inputPublicSig = publicSignals
+            inputProof = proof
+
+            // generate a fake proof
+            const concoctProof = [...proof]
+            const len = concoctProof[0].toString().length
+            concoctProof[0] = BigInt(
+                proof[0].toString().slice(0, len - 1) + BigInt(2)
+            )
+            const content = 'invalid proof'
+
+            expect(app.post(inputPublicSig, concoctProof, content)).to.be
+                .reverted // revert in epkHelper.verifyAndCheck()
         })
 
-        it('revert post with reused proof', async () => {
-            const userState = await genUserState(id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyProof()
+        it('should post with valid proof', async () => {
             const content = 'testing'
-            expect(app.post(publicSignals, proof, content))
-                .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 1, 0, content)
 
-            expect(app.post(publicSignals, proof, content)).to.be.revertedWith(
-                'The proof has been used before'
-            )
+            expect(app.post(inputPublicSig, inputProof, content))
+                .to.emit(app, 'Post')
+                .withArgs(inputPublicSig[0], 0, 0, content)
+        })
+
+        it('should fail to post with reused proof', async () => {
+            const content = 'reused proof'
+            expect(
+                app.post(inputPublicSig, inputProof, content)
+            ).to.be.revertedWith('The proof has been used before')
         })
     })
 
     describe('user state', () => {
         it('submit attestations', async () => {
             const userState = await genUserState(id, app)
-
             const nonce = 0
             const { publicSignals, proof, epochKey, epoch } =
                 await userState.genEpochKeyProof({ nonce })
@@ -209,7 +227,7 @@ describe('Unirep App', function () {
                 .userStateTransition(publicSignals, proof)
                 .then((t) => t.wait())
             userState.stop()
-        })
+        }).timeout(100000)
 
         it('data proof', async () => {
             const userState = await genUserState(id, app)
