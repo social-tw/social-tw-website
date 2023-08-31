@@ -20,7 +20,7 @@ function createRandomUserIdentity(): [string, Identity] {
         .update(new Identity().toString())
         .digest('hex')}` as string
     const id = new Identity(hashUserId) as Identity
-    // console.log('Random hashed user id: ', hashUserId) 
+    // console.log('Random hashed user id: ', hashUserId)
 
     return [hashUserId, id]
 }
@@ -53,10 +53,10 @@ describe('Unirep App', function () {
 
     // epoch length
     const epochLength = 300
-    
+
     before(async () => {
         // generate random hash user id
-        [hashUserId, id] = createRandomUserIdentity()
+        ;[hashUserId, id] = createRandomUserIdentity()
 
         // deployment
         const [deployer] = await ethers.getSigners()
@@ -76,7 +76,6 @@ describe('Unirep App', function () {
     })
 
     describe('user signup', () => {
-
         it('init user status', async () => {
             expect(await app.initUserStatus(hashUserId))
                 .to.emit(app, 'UserInitSuccess')
@@ -158,7 +157,6 @@ describe('Unirep App', function () {
     })
 
     describe('user post', () => {
-        
         it('should fail to post with invalid proof', async () => {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
@@ -192,11 +190,9 @@ describe('Unirep App', function () {
                 app.post(inputPublicSig, inputProof, content)
             ).to.be.revertedWith('The proof has been used before')
         })
-
     })
 
     describe('user state', () => {
-
         it('submit attestations', async () => {
             const userState = await genUserState(id, app)
             const nonce = 0

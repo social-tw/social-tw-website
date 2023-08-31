@@ -6,11 +6,6 @@
         "module": "CommonJS",
         "moduleResolution": "node"
     },
-    "include": [
-        "./src",
-        "./deploy",
-        "./typechain",
-        "./test/*.ts"
-    ],
+    "include": ["./src", "./deploy", "./typechain", "./test/*.ts"],
     "files": ["./hardhat.config.ts"]
 }
