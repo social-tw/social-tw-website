@@ -5,9 +5,9 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "msedge",
+            "name": "Launch Chrome",
             "request": "launch",
-            "name": "Launch Edge against localhost",
+            "type": "chrome",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}/packages/frontend/src/index.tsx"
         },
@@ -23,8 +23,8 @@
         {
             "name": "Debug Frontend & Backend",
             "configurations": [
-                "Launch Edge against localhost",
-                "Attach to TS-Node"
+                "Launch Chrome",
+                "Attach to backend process TS-Node"
             ]
         }
     ]

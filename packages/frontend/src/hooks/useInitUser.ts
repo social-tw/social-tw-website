@@ -1,26 +1,21 @@
 import { useEffect } from 'react'
 
-const useInitUser = (
-    userContext: any,
-    hashUserId: string | null,
-    setIsLoading: any
-) => {
+const useInitUser = (load: () => Promise<void>, hashUserId: string | null) => {
     useEffect(() => {
         const initUser = async () => {
             try {
-                await userContext.load()
-                console.log(userContext.hasSignup, 'init')
+                await load()
             } catch (error) {
                 console.log(error)
-            } finally {
-                setIsLoading(false)
             }
         }
+
         if (hashUserId) {
             localStorage.setItem('hashUserId', hashUserId)
         }
+
         initUser()
-    }, [userContext, hashUserId])
+    }, [hashUserId])
 }
 
 export default useInitUser

@@ -1,27 +1,35 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useContext } from 'react'
 
-interface LoadingContextType {
-    isLoading: boolean
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+export type LoadingStatus = 'loading' | 'success' | 'fail' | 'start'
+type LoadingContextType = {
+    status: LoadingStatus
+    setStatus: React.Dispatch<React.SetStateAction<LoadingStatus>>
 }
 
-interface LoadingProps {
+const defaultContextValue: LoadingContextType = {
+    status: 'start',
+    setStatus: () => {},
+}
+
+export const LoadingContext =
+    createContext<LoadingContextType>(defaultContextValue)
+
+type LoadingProviderProps = {
     children: React.ReactNode
 }
 
-const LoadingContext = createContext<LoadingContextType>({
-    isLoading: false,
-    setIsLoading: () => {},
-})
-
-const LoadingProvider = ({ children }: LoadingProps) => {
-    const [isLoading, setIsLoading] = useState(false)
+export const LoadingProvider: React.FC<LoadingProviderProps> = ({
+    children,
+}) => {
+    const [status, setStatus] = useState<LoadingStatus>('loading')
 
     return (
-        <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+        <LoadingContext.Provider value={{ status, setStatus }}>
             {children}
         </LoadingContext.Provider>
     )
 }
 
-export { LoadingProvider, LoadingContext }
+export const useLoading = () => {
+    return useContext(LoadingContext)
+}

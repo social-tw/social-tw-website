@@ -36,8 +36,8 @@ const DemoPostList = () => {
       flex
       flex-col 
       items-center
+      justify-center
       gap-6
-      
     "
         >
             {data.map((item, i) => (
