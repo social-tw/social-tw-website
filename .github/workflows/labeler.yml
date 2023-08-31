@@ -1,0 +1,31 @@
+name: "Issue and PR Labeler"
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  issue-triage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: github/issue-labeler@v3.2 #May not be the latest version
+      with:
+        configuration-path: .github/issue-labeler.yml
+        enable-versioned-regex: 0
+        include-title: 1
+        repo-token: ${{ github.token }}
+  pr-triage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/labeler@v4
+      with:
+        configuration-path: .github/pr-labeler.yml
+        enable-versioned-regex: 0
+        include-title: 1
+        repo-token: ${{ github.token }}
