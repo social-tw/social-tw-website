@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import RichTextEditor from './RichTextEditor'
+import { useUser } from '../contexts/User'
+import { clsx } from 'clsx'
 
 export interface PostValues {
     content: string
@@ -11,11 +13,13 @@ export default function PostForm({
     onSaveDraft = () => {},
     onFetchDraft = () => {},
     onSubmit = () => {},
+    isShow = true
 }: {
     onCancel?: () => void
     onSaveDraft?: (values: PostValues) => void
     onFetchDraft?: () => void
     onSubmit?: (values: PostValues) => void
+    isShow?: boolean
 }) {
     const { handleSubmit, control, reset, getValues, formState } =
         useForm<PostValues>({
@@ -43,7 +47,7 @@ export default function PostForm({
     }, [isSubmitSuccessful, reset])
 
     return (
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className={clsx("space-y-6", !isShow && "opacity-20")} onSubmit={handleSubmit(onSubmit)}>
             <section className="flex items-center justify-end gap-1">
                 <button
                     className="btn btn-sm btn-ghost"

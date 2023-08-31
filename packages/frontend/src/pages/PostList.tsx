@@ -103,12 +103,13 @@ export default function PostList() {
                         <SignupLoadingModal
                             status={signupStatus}
                             isOpen={true}
-                            opacity={100}
+                            opacity={0}
                         />
                     )}
                     <PostForm
                         onCancel={() => navigate('/')}
                         onSubmit={onSubmit}
+                        isShow={!isShow}
                     />
                 </section>
             )}

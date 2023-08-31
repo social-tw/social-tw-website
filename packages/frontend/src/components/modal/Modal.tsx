@@ -6,14 +6,14 @@ import { clsx } from 'clsx'
 
 interface ModalProps {
     isOpen: boolean
-    opacity: number
+    background: boolean
     children: React.ReactNode
     postion: 'absolute' | 'fixed'
 }
 
 const Modal: React.FC<ModalProps> = ({
     isOpen,
-    opacity,
+    background,
     children,
     postion,
 }) => {
@@ -45,13 +45,12 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className={`
+                className={clsx(`
                 ${postion} 
                 inset-0 
                 z-50
-                bg-black/${opacity}
                 h-full
-                `}
+                `, background && 'bg-black')}
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -61,7 +60,6 @@ const Modal: React.FC<ModalProps> = ({
                 ${postion} 
                 inset-0 
                 z-50
-                bg-black/${opacity}
                 h-full
                 `}
                 variants={chidrenVarients}

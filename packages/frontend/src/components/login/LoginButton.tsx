@@ -10,7 +10,6 @@ interface LoginButtonProps {
     title: string
     subTitle?: string
     color: string
-    setNoteStatus?: () => void
 }
 
 // TODO: signup with wallet and without wallet
@@ -21,7 +20,6 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     title,
     subTitle,
     color,
-    setNoteStatus,
 }) => {
     return (
         <button
@@ -30,22 +28,22 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             disabled={isLoading}
             className={clsx(
                 `
-        flex
-        w-full
-        max-w-[700px]
-        justify-center
-        items-center
-        rounded-xl
-        bg-[${color}]
-        py-4
-        text-white
-        hover:bg-gray-500
-        focus:outline-offset-0
-        bg-opacity-70
-        transition 
-        duration-300 
-        ease-in-out
-        `,
+            flex
+            w-full
+            max-w-[700px]
+            justify-center
+            items-center
+            rounded-xl
+            bg-[${color}]
+            py-4
+            text-white
+            hover:bg-gray-500
+            focus:outline-offset-0
+            bg-opacity-70
+            transition 
+            duration-300 
+            ease-in-out
+            `,
                 Icon ? 'flex-row gap-4' : 'flex-col'
             )}
         >

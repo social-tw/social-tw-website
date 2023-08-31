@@ -75,7 +75,7 @@ const Login: React.FC = () => {
                 <div
                     className={clsx(
                         `flex flex-col gap-12`,
-                        method === 'signup' && 'sm:flex hidden'
+                        method === 'signup' && 'md:flex hidden'
                     )}
                 >
                     <div className="pt-24 flex items-center flex-col justify-center">
@@ -119,15 +119,15 @@ const Login: React.FC = () => {
                 {method === 'signup' && (
                     <>
                         <div
-                            className="absolute top-7 bg-[#E8ECF4] p-3 sm:px-4 sm:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
+                            className="absolute top-7 bg-[#E8ECF4] p-3 md:px-4 md:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
                             onClick={handleBack}
                         >
                             <IoChevronBack size={16} />
-                            <span className="sm:block hidden mx-2 text-sm font-bold">
+                            <span className="md:block hidden mx-2 text-sm font-bold">
                                 回到註冊頁
                             </span>
                         </div>
-                        <div className="sm:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-40">
+                        <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-40">
                             <p>歡迎回到</p>
                             <p>Unirep Social TW！</p>
                             {hashUserId && <p>再一步即可完成登入</p>}
