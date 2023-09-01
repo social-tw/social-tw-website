@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Dialog from '../components/Dialog'
 import Post from '../components/Post'
@@ -52,6 +52,36 @@ const examplePosts = [
         upCount: 0,
         downCount: 0,
     },
+    {
+        id: '4',
+        epochKey: 'epochKey-4',
+        publishedAt: new Date(),
+        content:
+            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
+        commentCount: 0,
+        upCount: 0,
+        downCount: 0,
+    },
+    {
+        id: '5',
+        epochKey: 'epochKey-5',
+        publishedAt: new Date(),
+        content:
+            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
+        commentCount: 0,
+        upCount: 0,
+        downCount: 0,
+    },
+    {
+        id: '6',
+        epochKey: 'epochKey-6',
+        publishedAt: new Date(),
+        content:
+            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
+        commentCount: 0,
+        upCount: 0,
+        downCount: 0,
+    },
 ]
 
 export default function PostList() {
@@ -59,6 +89,7 @@ export default function PostList() {
     const { isLogin, signupStatus } = useUser()
     const [posts, setPosts] = useState<Post[]>([])
     const [isShow, setIsShow] = useState(false)
+    const location = useLocation()
 
     useEffect(() => {
         if (isLogin) {
@@ -97,8 +128,8 @@ export default function PostList() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
-            {!isSmallDevice && (
+        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600', location.pathname === '/login' && 'max-w-[600px] w-11/12')}>
+            {(!isSmallDevice && location.pathname !== '/login') && (
                 <section className="py-6 relative">
                     {isShow && signupStatus !== 'error' && (
                         <SignupLoadingModal
@@ -117,7 +148,7 @@ export default function PostList() {
             <section className="py-6">
                 <ul className={clsx(isSmallDevice ? 'space-y-3' : 'space-y-6')}>
                     {posts.map((post) => (
-                        <li key={post.id}>
+                        <li key={post.id} className='transition-opacity duration-500'>
                             <Post
                                 id={post.id}
                                 epochKey={post.epochKey}

@@ -84,7 +84,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
-    const [signupStatus, setSignupStatus] = useState<SignupStatus>('error')
+    const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
         // TODO: It seems we don't need to store it in local storage
