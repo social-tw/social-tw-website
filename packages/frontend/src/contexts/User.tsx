@@ -215,10 +215,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             throw new Error('Signup Failed')
         }
 
-        const data = await response.json()
-
         // TODO: handle error
-        await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
         const hasSignedUpStatus = await userState.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
