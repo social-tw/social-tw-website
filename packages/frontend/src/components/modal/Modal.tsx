@@ -6,7 +6,7 @@ import { clsx } from 'clsx'
 
 interface ModalProps {
     isOpen: boolean
-    background: boolean
+    background?: string
     children: React.ReactNode
     postion: 'absolute' | 'fixed'
 }
@@ -50,7 +50,7 @@ const Modal: React.FC<ModalProps> = ({
                 inset-0 
                 z-50
                 h-full
-                `, background && 'bg-black')}
+                `, background && `${background}`)}
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"

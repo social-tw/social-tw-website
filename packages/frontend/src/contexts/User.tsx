@@ -69,6 +69,8 @@ interface UserProviderProps {
     children: ReactNode
 }
 
+
+// TODO: Move the methods to a separate file
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
@@ -82,7 +84,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
-    const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
+    const [signupStatus, setSignupStatus] = useState<SignupStatus>('error')
 
     const load = async () => {
         // TODO: It seems we don't need to store it in local storage
@@ -235,10 +237,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             throw new Error('Signup Failed')
         }
 
-        const data = await response.json()
-
         // TODO: handle error
-        await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
         const hasSignedUpStatus = await userState.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)

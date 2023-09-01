@@ -102,7 +102,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     if (status === 'error') return null
 
     return (
-        <Modal isOpen={isOpen} postion="absolute" background={false}>
+        <Modal isOpen={isOpen} postion="absolute">
             <div className={clsx(`flex flex-col justify-center items-center gap-2 w-full h-full`, status !== 'default' && 'md:pt-12') }>
                 {content}
             </div>

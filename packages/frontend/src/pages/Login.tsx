@@ -7,6 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoChevronBack } from 'react-icons/io5'
 import StepInfo from '../components/login/StepInfo'
 import LogoWhite from '../assets/logo-white.png'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
@@ -64,6 +65,8 @@ const Login: React.FC = () => {
         }
     }, [])
 
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+
     return (
         <div className="flex flex-col h-full items-center">
             <div
@@ -72,38 +75,46 @@ const Login: React.FC = () => {
                     method === 'signup' ? 'gap-12' : 'justify-between'
                 )}
             >
+
                 <div
                     className={clsx(
                         `flex flex-col gap-12`,
-                        method === 'signup' && 'md:flex hidden'
+                        // method === 'signup' && 'md:flex hidden'
                     )}
                 >
-                    <div className="pt-24 flex items-center flex-col justify-center">
-                        <motion.img
-                            src={LogoWhite}
-                            alt="UniRep Logo"
-                            className="w-[120px] mb-2"
-                            variants={basicVarients}
-                            initial="hidden"
-                            animate="visible"
-                        />
-                        <motion.h1
-                            className="text-2xl font-semibold text-neutral-200"
-                            variants={textVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            Unirep Social TW
-                        </motion.h1>
-                        <motion.h2
-                            className="text-sm font-light tracking-wider text-center text-white mt-9"
-                            variants={textVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
-                            提供你 100% 匿名身份、安全發言的社群！
-                        </motion.h2>
+                    {!isSmallDevice && (
+                        <div className="pt-24 flex items-center flex-col justify-center">
+                            <motion.img
+                                src={LogoWhite}
+                                alt="UniRep Logo"
+                                className="w-[120px] mb-2"
+                                variants={basicVarients}
+                                initial="hidden"
+                                animate="visible"
+                            />
+                            <motion.h1
+                                className="text-2xl font-semibold text-neutral-200"
+                                variants={textVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                Unirep Social TW
+                            </motion.h1>
+                            <motion.h2
+                                className="text-sm font-light tracking-wider text-center text-white mt-9"
+                                variants={textVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
+                                提供你 100% 匿名身份、安全發言的社群！
+                            </motion.h2>
+                        </div>
+                    )}
+                    <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
+                        <p>歡迎回到</p>
+                        <p>Unirep Social TW！</p>
+                        <p>只要兩步驟即可完成註冊</p>
                     </div>
                     {method === 'signup' && (
                         <motion.div
@@ -116,6 +127,7 @@ const Login: React.FC = () => {
                         </motion.div>
                     )}
                 </div>
+
                 {method === 'signup' && (
                     <>
                         <div
@@ -126,11 +138,6 @@ const Login: React.FC = () => {
                             <span className="md:block hidden mx-2 text-sm font-bold">
                                 回到註冊頁
                             </span>
-                        </div>
-                        <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-40">
-                            <p>歡迎回到</p>
-                            <p>Unirep Social TW！</p>
-                            {hashUserId && <p>再一步即可完成登入</p>}
                         </div>
                     </>
                 )}

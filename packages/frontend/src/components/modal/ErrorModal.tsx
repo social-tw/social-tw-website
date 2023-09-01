@@ -19,11 +19,11 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
     }
 
     return (
-        <Modal isOpen={isOpen} postion="fixed" background={true}>
-            <div className="flex items-center justify-center w-full h-full px-4">
-                <div className="p-12 flex flex-col justify-center items-center bg-white relative text-black text-[15px] tracking-wider gap-12 rounded-lg">
+        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/70'}>
+            <div className="flex items-center justify-center w-full h-full p-4">
+                <div className="p-12 flex flex-col justify-center items-center bg-white/90 relative text-black text-[15px] tracking-wider gap-12 rounded-lg">
                     <GrFormClose
-                        className="absolute top-3 right-3 cursor-pointer"
+                        className="absolute top-4 right-4 cursor-pointer"
                         size={24}
                         onClick={handleClick}
                     />

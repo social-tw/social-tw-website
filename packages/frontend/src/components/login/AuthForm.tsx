@@ -78,16 +78,14 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     subTitle="使用 MetaMask 錢包進行登入"
                     color="#2F9CAF"
                 />
-                {!isSmallDevice && (
-                    <p
-                        className='text-sm text-[#868D8F] cursor-pointer hover:underline'
-                        onClick={() => setNoteStatus('metamask')}
-                    >
-                        什麼是
-                        <span className='text-[#52ACBC]'> MetaMask 錢包 </span>
-                        ?
-                    </p>
-                )}
+                <p
+                    className='text-sm text-[#868D8F] cursor-pointer hover:underline'
+                    onClick={() => setNoteStatus('metamask')}
+                >
+                    什麼是
+                    <span className='text-[#52ACBC]'> MetaMask 錢包 </span>
+                    ?
+                </p>
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-2'>
                 <LoginButton
@@ -97,16 +95,15 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     subTitle="沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊"
                     color="#DB7622"
                 />
-                {!isSmallDevice && (
-                    <p
-                        className='text-sm text-[#868D8F] cursor-pointer hover:underline'
-                        onClick={() => setNoteStatus('server')}
-                    >
-                        什麼是
-                        <span className='text-[#52ACBC]'> Server 註冊 </span>
-                        ?
-                    </p>
-                )}
+                <p
+                    className='text-sm text-[#868D8F] cursor-pointer hover:underline'
+                    onClick={() => setNoteStatus('server')}
+                >
+                    什麼是
+                    <span className='text-[#52ACBC]'> Server 註冊 </span>
+                    ?
+                </p>
+
             </div>
         </div>
     )
