@@ -78,7 +78,7 @@ const Login: React.FC = () => {
         visible: {
             opacity: 1,
             transition: {
-                delay: 0.5,
+                delay: 0,
                 duration: 0.5,
                 ease: 'easeInOut',
             },
@@ -129,7 +129,7 @@ const Login: React.FC = () => {
                     )}
                 >
                     {
-                        method === '' && (
+                        (method === '' || !isSmallDevice) && (
                             <div className="pt-24 flex items-center flex-col justify-center">
                                 <motion.img
                                     src={LogoWhite}

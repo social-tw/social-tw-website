@@ -4,6 +4,7 @@ import './signupLoadingModal.css'
 import { SignupStatus } from '../../contexts/User'
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 interface SignUpLoadingModal {
     status: SignupStatus
@@ -101,13 +102,18 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
 
     if (status === 'error') return null
 
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+
     return (
-        <Modal isOpen={isOpen} postion="absolute">
-            <div className={clsx(`flex flex-col justify-center items-center gap-2 w-full h-full`, status !== 'default' && 'md:pt-12') }>
+        <Modal isOpen={isOpen} postion="absolute" background='bg-gradient-to-t from-black/100 to-white/0'>
+            <div className={clsx(`flex flex-col justify-center items-center gap-2 w-full h-full`, status !== 'default' && 'md:pt-12', isSmallDevice && 'mt-16') }>
                 {content}
             </div>
         </Modal>
     )
 }
+
+// background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
+
 
 export default SignUpLoadingModal

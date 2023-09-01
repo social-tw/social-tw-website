@@ -30,7 +30,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
                 `
             flex
             w-full
-            max-w-[700px]
+            max-w-[44rem]
             justify-center
             items-center
             rounded-xl

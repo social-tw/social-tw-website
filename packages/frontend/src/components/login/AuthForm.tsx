@@ -141,7 +141,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     return (
         <>
             <motion.div
-                className="md:pb-28 pb-8 min-w-[300px] w-11/12 flex flex-col justify-center items-center gap-6 z-40"
+                className="md:pb-28 pb-8 min-w-[19rem] w-11/12 flex flex-col justify-center items-center gap-6 z-40"
                 variants={authVarients}
                 initial="hidden"
                 animate="visible"
