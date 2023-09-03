@@ -12,9 +12,12 @@ import { GrFormClose } from 'react-icons/gr'
 import { useUser } from '../../contexts/User'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { clsx } from 'clsx'
+import useLoginWithServer from '../../hooks/useLoginWithServer'
+import useLoginWithWallet from '../../hooks/useLoginWithWallet'
 
 interface AuthFormProps {
     hashUserId: string | null
+    signMsg: string | null
     method: string
     onSignup: () => void
     onLogin: () => void
@@ -25,6 +28,7 @@ type NoteStatus = 'close' | 'metamask' | 'server'
 const AuthForm: React.FC<AuthFormProps> = ({
     hashUserId,
     method,
+    signMsg,
     onSignup,
     onLogin,
 }) => {
@@ -54,6 +58,18 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setIsLogin,
     )
 
+    const loginWithServer = useLoginWithServer(
+        navigate,
+        hashUserId,
+        signMsg,
+    )
+
+    const loginWithWallet = useLoginWithWallet(
+        navigate,
+        hashUserId,
+        handleWalletSignMessage,
+    )
+
     const authVarients = {
         hidden: { opacity: 0 },
         visible: {
@@ -73,7 +89,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             <div className='w-full flex flex-col justify-center items-center gap-2'>
                 <LoginButton
                     isLoading={signupStatus === 'pending'}
-                    onClick={signupWithWallet}
+                    onClick={method === 'login' ? loginWithWallet : signupWithWallet}
                     title={ method === 'login' ? '錢包登入' : '錢包註冊'}
                     subTitle={method === 'login' ? '使用 MetaMask 錢包進行登入' : '使用 MetaMask 錢包進行註冊'}
                     color='#2F9CAF'
@@ -91,7 +107,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             <div className='w-full flex flex-col justify-center items-center gap-2'>
                 <LoginButton
                     isLoading={signupStatus === 'pending'}
-                    onClick={signupWithServer}
+                    onClick={method === 'login' ? loginWithServer : signupWithServer}
                     title={ method === 'login' ? '直接登入' : '直接註冊'}
                     subTitle={  method === 'login' ? '使用 Server 登入' :'沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'}
                     color='#DB7622'
@@ -134,7 +150,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     isLoading={signupStatus === 'pending'}
                     icon={BsTwitter}
                     onClick={twitterVerify}
-                    title='使用 Twitter 帳號登入'
+                    title={method === 'login' ? '使用 Twitter 帳號登入' : '使用 Twitter 帳號註冊'}
                     color='#2F9CAF'
                 />
             </>
