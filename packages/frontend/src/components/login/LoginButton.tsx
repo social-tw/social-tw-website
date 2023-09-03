@@ -37,7 +37,6 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             bg-[${color}]
             py-4
             text-white
-            hover:bg-gray-500
             focus:outline-offset-0
             bg-opacity-70
             transition 

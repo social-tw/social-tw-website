@@ -10,11 +10,14 @@ import LogoWhite from '../assets/logo-white.png'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import PostList from './PostList'
 
+type Method = '' | 'signup' | 'login'
+
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
+    const status = searchParams.get('status')
     const navigate = useNavigate()
-    const [method, setMethod] = useState('')
+    const [method, setMethod] = useState<Method>('')
     const postListRef = useRef<HTMLDivElement>(null)
 
     const handleScroll = () => {
@@ -106,9 +109,14 @@ const Login: React.FC = () => {
         }
     }
 
+    // status: 1 no, 2 yes
     useEffect(() => {
-        if (hashUserId) {
+        if (hashUserId && status === '1') {
             setMethod('signup')
+        } else if (hashUserId) {
+            setMethod('login')
+        }  else {
+            setMethod('')
         }
     }, [])
 
@@ -123,10 +131,7 @@ const Login: React.FC = () => {
                 )}
             >
                 <div
-                    className={clsx(
-                        `flex flex-col gap-12`,
-                        // method === 'signup' && 'md:flex hidden'
-                    )}
+                    className='flex flex-col gap-12'
                 >
                     {
                         (method === '' || !isSmallDevice) && (
@@ -160,11 +165,12 @@ const Login: React.FC = () => {
                         )
                     }
                     {
-                        method === 'signup' && (
+                        method !== '' && (
                             <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
                                 <p>歡迎回到</p>
                                 <p>Unirep Social TW！</p>
-                                <p>只要兩步驟即可完成註冊</p>
+                                { method === 'login' && <p>再一步即可完成登入</p>}
+                                { method === 'signup' && <p>只要兩步驟即可完成註冊</p>}
                             </div>
                         )
                     }
@@ -182,7 +188,7 @@ const Login: React.FC = () => {
                 </div>
 
                 {
-                    method === 'signup' && (
+                    method !== '' && (
                         <div
                             className="absolute top-7 bg-[#E8ECF4] p-3 md:px-4 md:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
                             onClick={handleBack}

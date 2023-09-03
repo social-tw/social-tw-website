@@ -24,8 +24,6 @@ export interface UserContextType {
     setLatestTransitionedEpoch: (epoch: number) => void
     isLogin: boolean
     setIsLogin: (param: boolean) => void
-    fromServer: boolean
-    setFromServer: (fromServer: boolean) => void
     hasSignedUp: boolean
     setHasSignedUp: (hasSignedUp: boolean) => void
     data: bigint[]
@@ -49,7 +47,7 @@ export interface UserContextType {
     load: () => Promise<void>
     handleServerSignMessage: () => Promise<void>
     handleWalletSignMessage: () => Promise<void>
-    signup: () => Promise<void>
+    signup: (fromServer: boolean) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
         reqData: { [key: number]: string | number },
@@ -76,7 +74,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
     const [isLogin, setIsLogin] = useState<boolean>(false)
-    const [fromServer, setFromServer] = useState<boolean>(false)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
@@ -191,7 +188,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
         const data = await response.json()
         const signMessage = data.signMsg
-        setFromServer(true)
         localStorage.setItem('signature', signMessage)
     }
 
@@ -208,17 +204,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 account,
             ],
         })
-        setFromServer(false)
         localStorage.setItem('signature', signature)
     }
 
-    const signup = useCallback(async () => {
+    const signup = useCallback(async (fromServer: boolean) => {
         if (!userState) throw new Error('user state not initialized')
         const signupProof = await userState.genUserSignUpProof()
         const publicSignals = signupProof.publicSignals.map((item) =>
             item.toString()
         )
         const proof = signupProof.proof.map((item) => item.toString())
+
+        console.log(fromServer)
 
         const response = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
@@ -243,7 +240,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setHasSignedUp(hasSignedUpStatus)
         const latestEpoch = userState.sync.calcCurrentEpoch()
         setLatestTransitionedEpoch(latestEpoch)
-    }, [userState, provider, hashUserId, fromServer, SERVER])
+    }, [userState, provider, hashUserId, SERVER])
 
     const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
@@ -361,8 +358,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch,
         isLogin,
         setIsLogin,
-        fromServer,
-        setFromServer,
         hasSignedUp,
         setHasSignedUp,
         data,
