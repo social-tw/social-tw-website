@@ -131,7 +131,7 @@ export default function PostList() {
         <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600', location.pathname === '/login' && 'max-w-[600px] w-11/12')}>
             {(!isSmallDevice && location.pathname !== '/login') && (
                 <section className="py-6 relative">
-                    {isShow && signupStatus !== 'error' && (
+                    {(signupStatus !== 'default' && isShow) && (
                         <SignupLoadingModal
                             status={signupStatus}
                             isOpen={true}
@@ -141,7 +141,7 @@ export default function PostList() {
                     <PostForm
                         onCancel={() => navigate('/')}
                         onSubmit={onSubmit}
-                        isShow={!isShow}
+                        isShow={signupStatus === 'default' ? true : !isShow}
                     />
                 </section>
             )}

@@ -9,7 +9,7 @@ import { useUser } from '../contexts/User'
 const BaseLayout = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
-    const { load } = useUser()
+    const { load, setIsLogin } = useUser()
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',

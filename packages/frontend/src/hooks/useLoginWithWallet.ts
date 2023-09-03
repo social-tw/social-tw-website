@@ -16,15 +16,11 @@ const useLoginWithWallet = (
             if (!hashUserId) {
                 throw new Error('No hash user id')
             }
-
+            localStorage.setItem('hashUserId', hashUserId)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-
             await handleWalletSignMessage()
-
-            localStorage.setItem('hashUserId', hashUserId)
-            
             navigate('/')
         } catch (error) {
             console.error(error)

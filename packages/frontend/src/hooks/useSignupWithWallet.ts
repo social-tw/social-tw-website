@@ -24,6 +24,7 @@ const useSignupWithWallet = (
             await signup(false)
             console.log('has signed up')
             setSignupStatus('success')
+            localStorage.setItem('loginStatus', 'success')
             setIsLogin(true)
         } catch (error) {
             setSignupStatus('error')

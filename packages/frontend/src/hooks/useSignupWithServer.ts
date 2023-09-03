@@ -15,6 +15,7 @@ const useSignupWithServer = (
             await signup(true)
             console.log('has signed up')
             setSignupStatus('success')
+            localStorage.setItem('loginStatus', 'success')
             setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')

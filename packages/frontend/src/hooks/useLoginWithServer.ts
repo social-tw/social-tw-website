@@ -8,15 +8,11 @@ const useLoginWithServer = (
             if (!hashUserId) {
                 throw new Error('No hash user id')
             } 
-
+            localStorage.setItem('hashUserId', hashUserId)
             if (!signMsg) {
                 throw new Error('No signature')
             } 
-
-            localStorage.setItem('hashUserId', hashUserId)
-
             localStorage.setItem('signature', signMsg)
-
             navigate('/')
         } catch (error) {
             console.error(error)

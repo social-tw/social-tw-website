@@ -69,6 +69,7 @@ interface UserProviderProps {
 
 
 // TODO: Move the methods to a separate file
+// TODO: Remove unessery states
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
@@ -84,7 +85,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
-        // TODO: It seems we don't need to store it in local storage
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
         const storedSignature = localStorage.getItem('signature') ?? ''
 
@@ -106,6 +106,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         setProvider(providerInstance)
 
+        // What is the userState for?
+        // How to make sure the userState is synchronized when refreshing
         const userStateInstance = new UserState({
             provider: providerInstance,
             prover,
@@ -115,31 +117,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         })
 
         setUserState(userStateInstance)
-        await login(userStateInstance)
+        await checkSignupStatus(userStateInstance)
         await loadData(userStateInstance)
         const latestEpoch = await userStateInstance.latestTransitionedEpoch()
         setLatestTransitionedEpoch(latestEpoch)
     }
 
-    const login = useCallback(
+    const checkSignupStatus = useCallback(
         async (userState: UserState) => {
             if (!userState) throw new Error('user state not initialized')
-
-            try {
-                await userState.sync.start()
-                await userState.waitForSync()
-                const hasSignedUpStatus = await userState.hasSignedUp()
-                if (!hasSignedUpStatus)
-                    throw new Error('Cannot login a account without signing up')
-                setHasSignedUp(hasSignedUpStatus)
-                setIsLogin(true)
-            } catch (error) {
-                console.error(error)
-                setIsLogin(false)
-                console.error('Login error')
-            }
-        },
-        [userState]
+            await userState.sync.start()
+            await userState.waitForSync()
+            const hasSignedUpStatus = await userState.hasSignedUp()
+            if (!hasSignedUpStatus)
+                throw new Error('Cannot login a account without signing up')
+            setHasSignedUp(hasSignedUpStatus)
+        }, [userState]
     )
 
     const loadData = useCallback(
@@ -210,12 +203,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const signup = useCallback(async (fromServer: boolean) => {
         if (!userState) throw new Error('user state not initialized')
         const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((item) =>
-            item.toString()
-        )
+        const publicSignals = signupProof.publicSignals.map((item) => item.toString())
         const proof = signupProof.proof.map((item) => item.toString())
-
-        console.log(fromServer)
 
         const response = await fetch(`${SERVER}/api/signup`, {
             method: 'POST',
@@ -234,7 +223,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             throw new Error('Signup Failed')
         }
 
-        // TODO: handle error
         await userState.waitForSync()
         const hasSignedUpStatus = await userState.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
@@ -349,6 +337,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setHashUserId('')
         localStorage.removeItem('signature')
         localStorage.removeItem('hashUserId')
+        localStorage.removeItem('loginStatus')
     }
 
     const value: UserContextType = {
