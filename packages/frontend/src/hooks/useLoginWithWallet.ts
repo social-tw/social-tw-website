@@ -21,6 +21,7 @@ const useLoginWithWallet = (
                 throw new Error('請安裝MetaMask錢包')
             }
             await handleWalletSignMessage()
+            localStorage.setItem('loginStatus', 'success')
             navigate('/')
         } catch (error) {
             console.error(error)

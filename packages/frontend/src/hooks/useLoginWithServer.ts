@@ -13,6 +13,7 @@ const useLoginWithServer = (
                 throw new Error('No signature')
             } 
             localStorage.setItem('signature', signMsg)
+            localStorage.setItem('loginStatus', 'success')
             navigate('/')
         } catch (error) {
             console.error(error)
