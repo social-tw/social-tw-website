@@ -1,4 +1,5 @@
 import { SignupStatus } from '../contexts/User'
+import { UserState } from '@unirep/core'
 
 const useSignupWithServer = (
     navigate: (path: string) => void,
@@ -6,10 +7,12 @@ const useSignupWithServer = (
     handleServerSignMessage: () => Promise<void>,
     signup: (fromServer: boolean) => Promise<void>,
     setIsLogin: (param: boolean) => void,
+    createUserState: () => Promise<UserState | undefined>,
 ) => {
     const signupWithServer = async () => {
         try {
             await handleServerSignMessage()
+            await createUserState()
             setSignupStatus('pending')
             navigate('/')
             await signup(true)

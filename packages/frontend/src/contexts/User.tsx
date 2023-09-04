@@ -55,6 +55,7 @@ export interface UserContextType {
     ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
+    createUserState: () => Promise<UserState | undefined>
 }
 
 interface UserProviderProps {
@@ -85,15 +86,28 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
+        const userStateInstance = await createUserState()
+        if (!userStateInstance) throw new Error('No user state instance')
+        await checkSignupStatus(userStateInstance)
+        await loadData(userStateInstance)
+        const latestEpoch = await userStateInstance.latestTransitionedEpoch()
+        setLatestTransitionedEpoch(latestEpoch)
+    }
+
+    const createUserState = async() => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
+        
+        if (storedHashUserId.length === 0) return
+        
+        setHashUserId(storedHashUserId)
+
         const storedSignature = localStorage.getItem('signature') ?? ''
 
-        if (storedHashUserId.length === 0 && storedSignature.length === 0) {
-            return
-        }
+        if (storedSignature.length === 0) return
 
-        setHashUserId(storedHashUserId)
         setSignature(storedSignature)
+
+        console.log(storedSignature)
 
         const identity = new Identity(storedSignature)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
@@ -106,8 +120,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         setProvider(providerInstance)
 
-        // What is the userState for?
-        // How to make sure the userState is synchronized when refreshing
         const userStateInstance = new UserState({
             provider: providerInstance,
             prover,
@@ -117,10 +129,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         })
 
         setUserState(userStateInstance)
-        await checkSignupStatus(userStateInstance)
-        await loadData(userStateInstance)
-        const latestEpoch = await userStateInstance.latestTransitionedEpoch()
-        setLatestTransitionedEpoch(latestEpoch)
+        return userStateInstance
     }
 
     const checkSignupStatus = useCallback(
@@ -129,8 +138,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             await userState.sync.start()
             await userState.waitForSync()
             const hasSignedUpStatus = await userState.hasSignedUp()
-            if (!hasSignedUpStatus)
-                throw new Error('Has not signed up')
             setHasSignedUp(hasSignedUpStatus)
         }, [userState]
     )
@@ -375,6 +382,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         requestData,
         proveData,
         logout,
+        createUserState
     }
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>

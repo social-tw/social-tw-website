@@ -1,4 +1,4 @@
-import { SignupStatus } from '../contexts/User'
+import { UserState } from '@unirep/core'
 
 declare global {
     interface Window {
@@ -10,6 +10,7 @@ const useLoginWithWallet = (
     navigate: (path: string) => void,
     hashUserId: string | null,
     handleWalletSignMessage: () => Promise<void>,
+    createUserState: () => Promise<UserState | undefined>,
 ) => {
     const loginWithWallet = async () => {
         try {
@@ -21,6 +22,7 @@ const useLoginWithWallet = (
                 throw new Error('請安裝MetaMask錢包')
             }
             await handleWalletSignMessage()
+            await createUserState()
             localStorage.setItem('loginStatus', 'success')
             navigate('/')
         } catch (error) {

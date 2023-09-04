@@ -40,7 +40,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
         handleWalletSignMessage,
         signup,
         setIsLogin,
-        load
+        load,
+        createUserState
     } = useUser()
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
     const twitterVerify = useTwitterVerify(SERVER)
@@ -49,7 +50,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setSignupStatus,
         handleWalletSignMessage,
         signup,
-        setIsLogin
+        setIsLogin,
+        createUserState
     )
     const signupWithServer = useSignupWithServer(
         navigate,
@@ -57,20 +59,21 @@ const AuthForm: React.FC<AuthFormProps> = ({
         handleServerSignMessage,
         signup,
         setIsLogin,
+        createUserState
     )
 
     const loginWithServer = useLoginWithServer(
         navigate,
         hashUserId,
         signMsg,
-        load,
-        signup
+        createUserState
     )
 
     const loginWithWallet = useLoginWithWallet(
         navigate,
         hashUserId,
         handleWalletSignMessage,
+        createUserState
     )
 
     const authVarients = {

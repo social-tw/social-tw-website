@@ -1,9 +1,10 @@
+import { UserState } from '@unirep/core'
+
 const useLoginWithServer = (
     navigate: (path: string) => void,
     hashUserId: string | null,
     signMsg: string | null,
-    load: () => Promise<void>,
-    signup: (fromServer: boolean) => Promise<void>
+    createUserState: () => Promise<UserState | undefined>,
 ) => {
     const loginWithServer = async() => {
         try {
@@ -15,7 +16,7 @@ const useLoginWithServer = (
                 throw new Error('No signature')
             } 
             localStorage.setItem('signature', signMsg)
-            await load()
+            await createUserState()
             localStorage.setItem('loginStatus', 'success')
             navigate('/')
             console.log('has logged in')
