@@ -1,30 +1,20 @@
 import { useEffect } from 'react'
+import { SignupStatus } from '../contexts/User'
 
-// TODO: No need now
 const useAutoNavigation = (
-    hashUserId: string | null,
-    status: string | null,
+    signupStatus: SignupStatus,
+    setIsLogin: (param: boolean) => void,
     navigate: (path: string) => void,
-    hasSignedUp: boolean,
-    isSignupLoading: boolean,
-    isLoading: boolean
 ) => {
     useEffect(() => {
-        if (!isLoading) {
-            if (!hasSignedUp && hashUserId) {
-                navigate(`/login?code=${hashUserId}&status=${status}`)
-            } else if (
-                !hasSignedUp &&
-                !hashUserId &&
-                !status &&
-                !isSignupLoading
-            ) {
-                navigate('/login')
-            } else {
-                return
-            }
+        if (signupStatus === 'pending' || signupStatus === 'success') return
+        const loginStatus = localStorage.getItem('loginStatus') ?? ''
+        if (loginStatus === 'success') {
+            setIsLogin(true)
+        } else {
+            navigate('/login')
         }
-    }, [hasSignedUp, hashUserId, status, isSignupLoading, isLoading])
+    }, [])
 }
 
 export default useAutoNavigation

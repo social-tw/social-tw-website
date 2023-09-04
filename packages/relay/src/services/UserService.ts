@@ -61,7 +61,7 @@ export class UserService {
             throw Error('Unknown status')
         }
     }
-
+ 
     async signup(
         publicSignals: string[],
         proof: SnarkProof,

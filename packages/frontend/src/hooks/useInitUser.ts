@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 
-const useInitUser = (load: () => Promise<void>, hashUserId: string | null) => {
+const useInitUser = (
+    load: () => Promise<void>, 
+    hashUserId: string | null,
+) => {
     useEffect(() => {
         const initUser = async () => {
             try {

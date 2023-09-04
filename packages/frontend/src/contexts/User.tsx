@@ -24,8 +24,6 @@ export interface UserContextType {
     setLatestTransitionedEpoch: (epoch: number) => void
     isLogin: boolean
     setIsLogin: (param: boolean) => void
-    fromServer: boolean
-    setFromServer: (fromServer: boolean) => void
     hasSignedUp: boolean
     setHasSignedUp: (hasSignedUp: boolean) => void
     data: bigint[]
@@ -49,7 +47,7 @@ export interface UserContextType {
     load: () => Promise<void>
     handleServerSignMessage: () => Promise<void>
     handleWalletSignMessage: () => Promise<void>
-    signup: () => Promise<void>
+    signup: (fromServer: boolean) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
         reqData: { [key: number]: string | number },
@@ -71,12 +69,12 @@ interface UserProviderProps {
 
 
 // TODO: Move the methods to a separate file
+// TODO: Remove unessery states
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
     const [isLogin, setIsLogin] = useState<boolean>(false)
-    const [fromServer, setFromServer] = useState<boolean>(false)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
@@ -87,7 +85,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
-        // TODO: It seems we don't need to store it in local storage
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
         const storedSignature = localStorage.getItem('signature') ?? ''
 
@@ -109,6 +106,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         setProvider(providerInstance)
 
+        // What is the userState for?
+        // How to make sure the userState is synchronized when refreshing
         const userStateInstance = new UserState({
             provider: providerInstance,
             prover,
@@ -118,31 +117,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         })
 
         setUserState(userStateInstance)
-        await login(userStateInstance)
+        await checkSignupStatus(userStateInstance)
         await loadData(userStateInstance)
         const latestEpoch = await userStateInstance.latestTransitionedEpoch()
         setLatestTransitionedEpoch(latestEpoch)
     }
 
-    const login = useCallback(
+    const checkSignupStatus = useCallback(
         async (userState: UserState) => {
             if (!userState) throw new Error('user state not initialized')
-
-            try {
-                await userState.sync.start()
-                await userState.waitForSync()
-                const hasSignedUpStatus = await userState.hasSignedUp()
-                if (!hasSignedUpStatus)
-                    throw new Error('Cannot login a account without signing up')
-                setHasSignedUp(hasSignedUpStatus)
-                setIsLogin(true)
-            } catch (error) {
-                console.error(error)
-                setIsLogin(false)
-                console.error('Login error')
-            }
-        },
-        [userState]
+            await userState.sync.start()
+            await userState.waitForSync()
+            const hasSignedUpStatus = await userState.hasSignedUp()
+            if (!hasSignedUpStatus)
+                throw new Error('Has not signed up')
+            setHasSignedUp(hasSignedUpStatus)
+        }, [userState]
     )
 
     const loadData = useCallback(
@@ -191,7 +181,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
         const data = await response.json()
         const signMessage = data.signMsg
-        setFromServer(true)
         localStorage.setItem('signature', signMessage)
     }
 
@@ -208,16 +197,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 account,
             ],
         })
-        setFromServer(false)
         localStorage.setItem('signature', signature)
     }
 
-    const signup = useCallback(async () => {
+    const signup = useCallback(async (fromServer: boolean) => {
         if (!userState) throw new Error('user state not initialized')
         const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((item) =>
-            item.toString()
-        )
+        const publicSignals = signupProof.publicSignals.map((item) => item.toString())
         const proof = signupProof.proof.map((item) => item.toString())
 
         const response = await fetch(`${SERVER}/api/signup`, {
@@ -237,13 +223,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             throw new Error('Signup Failed')
         }
 
-        // TODO: handle error
         await userState.waitForSync()
         const hasSignedUpStatus = await userState.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
         const latestEpoch = userState.sync.calcCurrentEpoch()
         setLatestTransitionedEpoch(latestEpoch)
-    }, [userState, provider, hashUserId, fromServer, SERVER])
+    }, [userState, provider, hashUserId, SERVER])
 
     const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
@@ -352,6 +337,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setHashUserId('')
         localStorage.removeItem('signature')
         localStorage.removeItem('hashUserId')
+        localStorage.removeItem('loginStatus')
     }
 
     const value: UserContextType = {
@@ -361,8 +347,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch,
         isLogin,
         setIsLogin,
-        fromServer,
-        setFromServer,
         hasSignedUp,
         setHasSignedUp,
         data,

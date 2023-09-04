@@ -22,15 +22,16 @@ import ErrorModal from '../components/modal/ErrorModal'
 import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import useAutoNavigation from '../hooks/useAutoNavigation'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
-    const { load, isLogin, signupStatus } = useUser()
+    const { load, isLogin, signupStatus, setIsLogin } = useUser()
     const [isShow, setIsShow] = useState(true)
-
     const navigate = useNavigate()
+
 
     const navVariants = {
         start: { y: 100 },
@@ -53,6 +54,7 @@ export default function AppLayout() {
     }
 
     useInitUser(load, hashUserId)
+    useAutoNavigation(signupStatus, setIsLogin, navigate)
 
     useEffect(() => {
         if (isLogin) {
@@ -87,7 +89,7 @@ export default function AppLayout() {
                 <main className="max-w-5xl px-4 mx-auto">
                     <Outlet />
                 </main>
-                { signupStatus !== 'default' && isShow ? (
+                { (signupStatus !== 'default' && isShow) ? (
                     <div className='fixed bottom-0 h-60 px-4 w-screen'>
                         <SignUpLoadingModal
                             status={signupStatus}

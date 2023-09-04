@@ -3,18 +3,19 @@ import { SignupStatus } from '../contexts/User'
 const useSignupWithServer = (
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
-    getServerSignMessage: () => Promise<void>,
-    signup: () => Promise<void>,
-    setIsLogin: (param: boolean) => void
+    handleServerSignMessage: () => Promise<void>,
+    signup: (fromServer: boolean) => Promise<void>,
+    setIsLogin: (param: boolean) => void,
 ) => {
     const signupWithServer = async () => {
         try {
-            await getServerSignMessage()
+            await handleServerSignMessage()
             setSignupStatus('pending')
             navigate('/')
-            await signup()
+            await signup(true)
             console.log('has signed up')
             setSignupStatus('success')
+            localStorage.setItem('loginStatus', 'success')
             setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')
