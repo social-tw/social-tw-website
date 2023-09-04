@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { SignupStatus } from '../contexts/User'
 
-// TODO: No need now
 const useAutoNavigation = (
     signupStatus: SignupStatus,
     setIsLogin: (param: boolean) => void,

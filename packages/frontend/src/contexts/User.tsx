@@ -130,7 +130,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             await userState.waitForSync()
             const hasSignedUpStatus = await userState.hasSignedUp()
             if (!hasSignedUpStatus)
-                throw new Error('Cannot login a account without signing up')
+                throw new Error('Has not signed up')
             setHasSignedUp(hasSignedUpStatus)
         }, [userState]
     )

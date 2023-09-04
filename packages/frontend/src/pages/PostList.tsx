@@ -118,7 +118,7 @@ export default function PostList() {
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
-            toast('貼文成功送出')
+            console.log('貼文成功送出')
         } catch (err) {
             console.log(err)
             errorDialog?.current?.showModal()
