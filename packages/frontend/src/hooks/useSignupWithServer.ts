@@ -6,15 +6,19 @@ const useSignupWithServer = (
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
     handleServerSignMessage: (hashUserId: string) => Promise<void>,
-    signup: (fromServer: boolean, userStateInstance: UserState, hashUserId:string) => Promise<void>,
+    signup: (
+        fromServer: boolean,
+        userStateInstance: UserState,
+        hashUserId: string
+    ) => Promise<void>,
     setIsLogin: (param: boolean) => void,
-    createUserState: () => Promise<UserState | undefined>,
+    createUserState: () => Promise<UserState | undefined>
 ) => {
     const signupWithServer = async () => {
         try {
             if (!hashUserId) {
                 throw new Error('No hash user id')
-            } 
+            }
             localStorage.setItem('hashUserId', hashUserId)
             await handleServerSignMessage(hashUserId)
             const userStateInstance = await createUserState()

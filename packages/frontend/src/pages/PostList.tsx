@@ -128,10 +128,15 @@ export default function PostList() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600', location.pathname === '/login' && 'max-w-[600px] w-11/12')}>
-            {(!isSmallDevice && location.pathname !== '/login') && (
+        <div
+            className={clsx(
+                !isSmallDevice && 'divide-y divide-neutral-600',
+                location.pathname === '/login' && 'max-w-[600px] w-11/12'
+            )}
+        >
+            {!isSmallDevice && location.pathname !== '/login' && (
                 <section className="py-6 relative">
-                    {(signupStatus !== 'default' && isShow) && (
+                    {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
                             status={signupStatus}
                             isOpen={true}
@@ -148,7 +153,10 @@ export default function PostList() {
             <section className="py-6">
                 <ul className={clsx(isSmallDevice ? 'space-y-3' : 'space-y-6')}>
                     {posts.map((post) => (
-                        <li key={post.id} className='transition-opacity duration-500'>
+                        <li
+                            key={post.id}
+                            className="transition-opacity duration-500"
+                        >
                             <Post
                                 id={post.id}
                                 epochKey={post.epochKey}

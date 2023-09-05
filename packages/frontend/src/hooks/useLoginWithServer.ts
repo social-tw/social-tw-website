@@ -4,17 +4,17 @@ const useLoginWithServer = (
     navigate: (path: string) => void,
     hashUserId: string | null,
     signMsg: string | null,
-    createUserState: () => Promise<UserState | undefined>,
+    createUserState: () => Promise<UserState | undefined>
 ) => {
-    const loginWithServer = async() => {
+    const loginWithServer = async () => {
         try {
             if (!hashUserId) {
                 throw new Error('No hash user id')
-            } 
+            }
             localStorage.setItem('hashUserId', hashUserId)
             if (!signMsg) {
                 throw new Error('No signature')
-            } 
+            }
             localStorage.setItem('signature', signMsg)
             await createUserState()
             localStorage.setItem('loginStatus', 'success')

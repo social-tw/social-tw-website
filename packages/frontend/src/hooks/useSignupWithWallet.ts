@@ -12,15 +12,19 @@ const useSignupWithWallet = (
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
-    signup: (fromServer: boolean, userStateInstance: UserState, hashUserId:string) => Promise<void>,
+    signup: (
+        fromServer: boolean,
+        userStateInstance: UserState,
+        hashUserId: string
+    ) => Promise<void>,
     setIsLogin: (param: boolean) => void,
-    createUserState: () => Promise<UserState | undefined>,
+    createUserState: () => Promise<UserState | undefined>
 ) => {
     const signUpWithWallet = async () => {
         try {
             if (!hashUserId) {
                 throw new Error('No hash user id')
-            } 
+            }
             localStorage.setItem('hashUserId', hashUserId)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')

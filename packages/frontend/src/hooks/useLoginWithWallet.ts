@@ -10,7 +10,7 @@ const useLoginWithWallet = (
     navigate: (path: string) => void,
     hashUserId: string | null,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
-    createUserState: () => Promise<UserState | undefined>,
+    createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithWallet = async () => {
         try {

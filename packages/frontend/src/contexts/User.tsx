@@ -47,7 +47,11 @@ export interface UserContextType {
     load: () => Promise<void>
     handleServerSignMessage: (hashUserId: string) => Promise<void>
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
-    signup: (fromServer: boolean, userStateInstance: UserState, hashUserId:string) => Promise<void>
+    signup: (
+        fromServer: boolean,
+        userStateInstance: UserState,
+        hashUserId: string
+    ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
         reqData: { [key: number]: string | number },
@@ -67,7 +71,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 interface UserProviderProps {
     children: ReactNode
 }
-
 
 // TODO: Move the methods to a separate file
 // TODO: Remove unessery states
@@ -94,11 +97,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestEpoch)
     }
 
-    const createUserState = async() => {
+    const createUserState = async () => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
-        
+
         if (storedHashUserId.length === 0) return
-        
+
         setHashUserId(storedHashUserId)
 
         const storedSignature = localStorage.getItem('signature') ?? ''
@@ -138,7 +141,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (!userState) throw new Error('user state not initialized')
             const hasSignedUpStatus = await userState.hasSignedUp()
             setHasSignedUp(hasSignedUpStatus)
-        }, [userState]
+        },
+        [userState]
     )
 
     const loadData = useCallback(
@@ -206,35 +210,45 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.setItem('signature', signature)
     }
 
-    const signup = useCallback(async (fromServer: boolean, userStateInstance: UserState, hashUserId:string) => {
-        if (!userStateInstance) throw new Error('user state not initialized')
-        const signupProof = await userStateInstance.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((item) => item.toString())
-        const proof = signupProof.proof.map((item) => item.toString())
+    const signup = useCallback(
+        async (
+            fromServer: boolean,
+            userStateInstance: UserState,
+            hashUserId: string
+        ) => {
+            if (!userStateInstance)
+                throw new Error('user state not initialized')
+            const signupProof = await userStateInstance.genUserSignUpProof()
+            const publicSignals = signupProof.publicSignals.map((item) =>
+                item.toString()
+            )
+            const proof = signupProof.proof.map((item) => item.toString())
 
-        const response = await fetch(`${SERVER}/api/signup`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                publicSignals: publicSignals,
-                proof: proof,
-                hashUserId: hashUserId,
-                fromServer: fromServer,
-            }),
-        })
+            const response = await fetch(`${SERVER}/api/signup`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    publicSignals: publicSignals,
+                    proof: proof,
+                    hashUserId: hashUserId,
+                    fromServer: fromServer,
+                }),
+            })
 
-        if (!response.ok) {
-            throw new Error('Signup Failed')
-        }
+            if (!response.ok) {
+                throw new Error('Signup Failed')
+            }
 
-        await userStateInstance.waitForSync()
-        const hasSignedUpStatus = await userStateInstance.hasSignedUp()
-        setHasSignedUp(hasSignedUpStatus)
-        const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
-        setLatestTransitionedEpoch(latestEpoch)
-    }, [SERVER])
+            await userStateInstance.waitForSync()
+            const hasSignedUpStatus = await userStateInstance.hasSignedUp()
+            setHasSignedUp(hasSignedUpStatus)
+            const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
+            setLatestTransitionedEpoch(latestEpoch)
+        },
+        [SERVER]
+    )
 
     const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
@@ -381,7 +395,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         requestData,
         proveData,
         logout,
-        createUserState
+        createUserState,
     }
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>

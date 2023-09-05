@@ -13,7 +13,7 @@ export default function PostForm({
     onSaveDraft = () => {},
     onFetchDraft = () => {},
     onSubmit = () => {},
-    isShow = true
+    isShow = true,
 }: {
     onCancel?: () => void
     onSaveDraft?: (values: PostValues) => void
@@ -47,7 +47,10 @@ export default function PostForm({
     }, [isSubmitSuccessful, reset])
 
     return (
-        <form className={clsx("space-y-6", !isShow && "opacity-20")} onSubmit={handleSubmit(onSubmit)}>
+        <form
+            className={clsx('space-y-6', !isShow && 'opacity-20')}
+            onSubmit={handleSubmit(onSubmit)}
+        >
             <section className="flex items-center justify-end gap-1">
                 <button
                     className="btn btn-sm btn-ghost"

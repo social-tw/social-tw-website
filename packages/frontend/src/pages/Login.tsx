@@ -24,31 +24,30 @@ const Login: React.FC = () => {
     const handleScroll = () => {
         const container = postListRef.current
         if (!container) return
-      
+
         // Find the ul element that contains the li elements
         const ulElement = container.querySelector('ul')
         if (!ulElement) return
-      
+
         const children = Array.from(ulElement.children) as HTMLElement[]
         const containerHeight = container.clientHeight
         const scrollPosition = container.scrollTop
-      
+
         children.forEach((child) => {
-          const childTop = child.offsetTop - scrollPosition + 50
-          const childBottom = childTop + child.clientHeight - 50
-      
-          const middle = (containerHeight - child.clientHeight + 200) / 2
-      
-          if (childTop <= middle && childBottom >= middle) {
-            child.style.opacity = '1'
-          } else if (childBottom < middle) {
-            child.style.opacity = '0.1'
-          } else {
-            child.style.opacity = '0.3'
-          }
+            const childTop = child.offsetTop - scrollPosition + 50
+            const childBottom = childTop + child.clientHeight - 50
+
+            const middle = (containerHeight - child.clientHeight + 200) / 2
+
+            if (childTop <= middle && childBottom >= middle) {
+                child.style.opacity = '1'
+            } else if (childBottom < middle) {
+                child.style.opacity = '0.1'
+            } else {
+                child.style.opacity = '0.3'
+            }
         })
-      }
-      
+    }
 
     useEffect(() => {
         const container = postListRef.current
@@ -56,7 +55,7 @@ const Login: React.FC = () => {
             container.addEventListener('scroll', handleScroll)
             setTimeout(() => {
                 handleScroll()
-              }, 300)
+            }, 300)
         }
 
         return () => {
@@ -116,7 +115,7 @@ const Login: React.FC = () => {
             setMethod('signup')
         } else if (hashUserId) {
             setMethod('login')
-        }  else {
+        } else {
             setMethod('')
         }
     }, [])
@@ -131,50 +130,46 @@ const Login: React.FC = () => {
                     method !== '' ? 'mb-12' : 'h-full'
                 )}
             >
-                <div
-                    className='flex flex-col gap-12'
-                >
-                    {
-                        (method === '' || !isSmallDevice) && (
-                            <div className="pt-24 flex items-center flex-col justify-center">
-                                <motion.img
-                                    src={LogoWhite}
-                                    alt="UniRep Logo"
-                                    className="w-[7.5rem] mb-2"
-                                    variants={basicVarients}
-                                    initial="hidden"
-                                    animate="visible"
-                                />
-                                <motion.h1
-                                    className="text-2xl font-semibold text-neutral-200"
-                                    variants={textVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                >
-                                    Unirep Social TW
-                                </motion.h1>
-                                <motion.h2
-                                    className="text-sm font-light tracking-wider text-center text-white mt-9"
-                                    variants={textVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                >
-                                    嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
-                                    提供你 100% 匿名身份、安全發言的社群！
-                                </motion.h2>
-                            </div>
-                        )
-                    }
-                    {
-                        method !== '' && (
-                            <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
-                                <p>歡迎回到</p>
-                                <p>Unirep Social TW！</p>
-                                { method === 'login' && <p>再一步即可完成登入</p>}
-                                { method === 'signup' && <p>只要兩步驟即可完成註冊</p>}
-                            </div>
-                        )
-                    }
+                <div className="flex flex-col gap-12">
+                    {(method === '' || !isSmallDevice) && (
+                        <div className="pt-24 flex items-center flex-col justify-center">
+                            <motion.img
+                                src={LogoWhite}
+                                alt="UniRep Logo"
+                                className="w-[7.5rem] mb-2"
+                                variants={basicVarients}
+                                initial="hidden"
+                                animate="visible"
+                            />
+                            <motion.h1
+                                className="text-2xl font-semibold text-neutral-200"
+                                variants={textVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                Unirep Social TW
+                            </motion.h1>
+                            <motion.h2
+                                className="text-sm font-light tracking-wider text-center text-white mt-9"
+                                variants={textVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
+                                提供你 100% 匿名身份、安全發言的社群！
+                            </motion.h2>
+                        </div>
+                    )}
+                    {method !== '' && (
+                        <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
+                            <p>歡迎回到</p>
+                            <p>Unirep Social TW！</p>
+                            {method === 'login' && <p>再一步即可完成登入</p>}
+                            {method === 'signup' && (
+                                <p>只要兩步驟即可完成註冊</p>
+                            )}
+                        </div>
+                    )}
 
                     {method === 'signup' && (
                         <motion.div
@@ -188,19 +183,17 @@ const Login: React.FC = () => {
                     )}
                 </div>
 
-                {
-                    method !== '' && (
-                        <div
-                            className="absolute top-7 bg-[#E8ECF4] p-3 md:px-4 md:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
-                            onClick={handleBack}
-                        >
-                            <IoChevronBack size={16} />
-                            <span className="md:block hidden mx-2 text-sm font-bold">
-                                回到註冊頁
-                            </span>
-                        </div>
-                    )
-                }
+                {method !== '' && (
+                    <div
+                        className="absolute top-7 bg-[#E8ECF4] p-3 md:px-4 md:py-2 rounded-lg cursor-pointer flex justify-center items-center text-black"
+                        onClick={handleBack}
+                    >
+                        <IoChevronBack size={16} />
+                        <span className="md:block hidden mx-2 text-sm font-bold">
+                            回到註冊頁
+                        </span>
+                    </div>
+                )}
             </div>
             <AuthForm
                 hashUserId={hashUserId}

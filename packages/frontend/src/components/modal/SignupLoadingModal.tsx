@@ -17,9 +17,10 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     status,
     isOpen,
 }) => {
-    const [pendingText, setPendingText] = useState('努力註冊中，先來看看文章吧！')
+    const [pendingText, setPendingText] =
+        useState('努力註冊中，先來看看文章吧！')
 
-    const textsAndTimes: { text: string ; time: number }[] = [
+    const textsAndTimes: { text: string; time: number }[] = [
         { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
         { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
     ]
@@ -27,16 +28,16 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     useEffect(() => {
         if (status === 'pending') {
             const timers: NodeJS.Timeout[] = []
-    
+
             // Loop through the textsAndTimes array and set up timeouts
             textsAndTimes.forEach(({ text, time }) => {
                 const timer = setTimeout(() => {
                     setPendingText(text)
                 }, time)
-    
+
                 timers.push(timer)
             })
-    
+
             return () => {
                 timers.forEach((timer) => clearTimeout(timer))
             }
@@ -105,8 +106,18 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <Modal isOpen={isOpen} postion="absolute" background='bg-gradient-to-t from-black/100 to-white/0'>
-            <div className={clsx(`flex flex-col justify-center items-center gap-2 w-full h-full`, status !== 'default' && 'md:pt-12', isSmallDevice && 'mt-16') }>
+        <Modal
+            isOpen={isOpen}
+            postion="absolute"
+            background="bg-gradient-to-t from-black/100 to-white/0"
+        >
+            <div
+                className={clsx(
+                    `flex flex-col justify-center items-center gap-2 w-full h-full`,
+                    status !== 'default' && 'md:pt-12',
+                    isSmallDevice && 'mt-16'
+                )}
+            >
                 {content}
             </div>
         </Modal>
@@ -114,6 +125,5 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
 }
 
 // background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
-
 
 export default SignUpLoadingModal

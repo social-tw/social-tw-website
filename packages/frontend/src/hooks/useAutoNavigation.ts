@@ -4,7 +4,7 @@ import { SignupStatus } from '../contexts/User'
 const useAutoNavigation = (
     signupStatus: SignupStatus,
     setIsLogin: (param: boolean) => void,
-    navigate: (path: string) => void,
+    navigate: (path: string) => void
 ) => {
     useEffect(() => {
         if (signupStatus === 'pending' || signupStatus === 'success') return

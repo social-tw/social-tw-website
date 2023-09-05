@@ -45,12 +45,15 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className={clsx(`
+                className={clsx(
+                    `
                 ${postion} 
                 inset-0 
                 z-50
                 h-full
-                `, background && `${background}`)}
+                `,
+                    background && `${background}`
+                )}
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
