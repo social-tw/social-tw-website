@@ -1,25 +1,23 @@
 import { useEffect } from 'react'
+import { SignupStatus } from '../contexts/User'
 
 const useInitUser = (
     load: () => Promise<void>, 
-    hashUserId: string | null,
+    signupStatus: SignupStatus
 ) => {
     useEffect(() => {
         const initUser = async () => {
             try {
-                console.log('initUser')
+                if (signupStatus === 'pending') throw new Error('signup is loading')
+                console.log('init user')
                 await load()
             } catch (error) {
                 console.log(error)
             }
         }
 
-        if (hashUserId) {
-            localStorage.setItem('hashUserId', hashUserId)
-        }
-
         initUser()
-    }, [hashUserId])
+    }, [signupStatus])
 }
 
 export default useInitUser

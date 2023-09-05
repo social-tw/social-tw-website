@@ -1,15 +1,7 @@
 import { motion } from 'framer-motion'
-import { observer } from 'mobx-react-lite'
-import { useContext, useState } from 'react'
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
-import useAutoNavigation from '../hooks/useAutoNavigation'
-import useInitUser from '../hooks/useInitUser'
-import { useUser } from '../contexts/User'
+import { Outlet } from 'react-router-dom'
 
 const BaseLayout = () => {
-    const [searchParams] = useSearchParams()
-    const hashUserId = searchParams.get('code')
-    const { load, setIsLogin } = useUser()
 
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -27,8 +19,6 @@ const BaseLayout = () => {
             },
         },
     }
-
-    useInitUser(load, hashUserId)
 
     return (
         <motion.div

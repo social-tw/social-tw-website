@@ -8,23 +8,29 @@ declare global {
 }
 
 const useSignupWithWallet = (
+    hashUserId: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
-    handleWalletSignMessage: () => Promise<void>,
-    signup: (fromServer: boolean) => Promise<void>,
+    handleWalletSignMessage: (hashUserId: string) => Promise<void>,
+    signup: (fromServer: boolean, userStateInstance: UserState, hashUserId:string) => Promise<void>,
     setIsLogin: (param: boolean) => void,
     createUserState: () => Promise<UserState | undefined>,
 ) => {
     const signUpWithWallet = async () => {
         try {
+            if (!hashUserId) {
+                throw new Error('No hash user id')
+            } 
+            localStorage.setItem('hashUserId', hashUserId)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-            await handleWalletSignMessage()
-            await createUserState()
+            await handleWalletSignMessage(hashUserId)
+            const userStateInstance = await createUserState()
+            if (!userStateInstance) throw new Error('No user state instance')
             setSignupStatus('pending')
             navigate('/')
-            await signup(false)
+            await signup(false, userStateInstance, hashUserId)
             console.log('has signed up')
             setSignupStatus('success')
             localStorage.setItem('loginStatus', 'success')

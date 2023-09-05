@@ -26,8 +26,6 @@ import useAutoNavigation from '../hooks/useAutoNavigation'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
-    const [searchParams] = useSearchParams()
-    const hashUserId = searchParams.get('code')
     const { load, isLogin, signupStatus, setIsLogin } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
@@ -53,7 +51,7 @@ export default function AppLayout() {
         }
     }
 
-    useInitUser(load, hashUserId)
+    useInitUser(load, signupStatus)
     useAutoNavigation(signupStatus, setIsLogin, navigate)
 
     useEffect(() => {

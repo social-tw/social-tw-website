@@ -9,7 +9,7 @@ declare global {
 const useLoginWithWallet = (
     navigate: (path: string) => void,
     hashUserId: string | null,
-    handleWalletSignMessage: () => Promise<void>,
+    handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     createUserState: () => Promise<UserState | undefined>,
 ) => {
     const loginWithWallet = async () => {
@@ -21,7 +21,7 @@ const useLoginWithWallet = (
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-            await handleWalletSignMessage()
+            await handleWalletSignMessage(hashUserId)
             await createUserState()
             localStorage.setItem('loginStatus', 'success')
             navigate('/')
