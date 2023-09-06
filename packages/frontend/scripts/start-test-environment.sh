@@ -21,11 +21,11 @@ docker run -d --name $GANACHE_NAME -p 8545:8545 trufflesuite/ganache-cli:v6.12.2
   --account="$TEST_ACCOUNT_1_KEY,10000000000000000000000000000" \
   --gasLimit 10000000
 
-yarn deploy
-
 while ! nc -z localhost 3000; do
   sleep 0.1
 done
 while ! nc -z localhost 8545; do
   sleep 0.1
 done
+
+node ./scripts/deploy-contracts.mjs

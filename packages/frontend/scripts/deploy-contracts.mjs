@@ -4,7 +4,7 @@ import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/
 import DATA_PROOF_VIRIFIER from '@unirep-app/contracts/artifacts/contracts/DataProofVerifier.sol/DataProofVerifier.json' assert { type: "json" }
 import { ContractFactory, ethers } from 'ethers'
 
-const GANACHE_URL = 'http://127.0.0.1:8545'
+const GANACHE_URL = 'http://localhost:8545'
 const FUNDED_PRIVATE_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000001'
 
