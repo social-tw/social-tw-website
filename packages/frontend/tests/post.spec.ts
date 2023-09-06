@@ -23,6 +23,13 @@ test.describe('Create post', () => {
         }
     })
 
+    test.skip('should not submit a post if content is empty', async ({
+        page,
+    }) => {
+        const submitButton = page.getByTitle('submit a post')
+        await expect(submitButton).toBeDisabled()
+    })
+
     test('should let user input post contents', async ({ page }) => {
         const post = 'Hello World'
         const postEditor = page.getByLabel('post editor')
@@ -63,7 +70,7 @@ test.describe('Create post', () => {
         page,
     }) => {
         await page.route('*/**/api/post', async (route) => {
-            await route.fulfill({ status: 500 })
+            await route.abort()
         })
 
         const post = 'Hello World'

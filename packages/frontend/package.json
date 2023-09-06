@@ -12,7 +12,8 @@
     "scripts": {
         "start": "webpack-dev-server",
         "build": "webpack",
-        "test:e2e": "yarn playwright test",
+        "test:playwright": "yarn playwright test",
+        "test:e2e": "sh ./scripts/start-test-environment.sh && yarn test:playwright",
         "test": "CI=true yarn test:dom",
         "test:dom": "react-scripts test",
         "test:domwatch": "react-scripts test --watchAll --coverage"

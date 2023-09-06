@@ -1,19 +1,18 @@
+import { ethers } from 'ethers'
 import React, {
     createContext,
-    useState,
-    useEffect,
-    useContext,
     ReactNode,
     useCallback,
+    useContext,
     useMemo,
+    useState,
 } from 'react'
-import { stringifyBigInts } from '@unirep/utils'
 import { Identity } from '@semaphore-protocol/identity'
-import { UserState } from '@unirep/core'
 import { DataProof } from '@unirep-app/circuits'
+import { UserState } from '@unirep/core'
+import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import prover from './Prover'
-import { ethers } from 'ethers'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -260,10 +259,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             headers: {
                 'content-type': 'application/json',
             },
-            body: JSON.stringify({
-                publicSignals: signupProof.publicSignals,
-                proof: signupProof.proof,
-            }),
+            body: JSON.stringify(
+                stringifyBigInts({
+                    publicSignals: signupProof.publicSignals,
+                    proof: signupProof.proof,
+                })
+            ),
         }).then((r) => r.json())
         await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
