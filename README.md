@@ -9,10 +9,15 @@ This is a demo app of a [unirep](https://github.com/Unirep/Unirep) attester. In 
 ```shell
 npx create-unirep-app
 yarn install
-npm install -g circom
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+git clone https://github.com/iden3/circom.git
+cd circom
+cargo build --release
+cargo install --path circom
+cd ..
 ```
 
-Then `cd` into the directory that was created.
+Then `cd` into the directory that was created (other than circom).
 
 ## 2 Start with each daemon
 
