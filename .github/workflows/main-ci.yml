@@ -2,6 +2,9 @@ name: Build, Test and Lint
 run-name: ${{ github.actor }} acitvates the actions 🚀
 
 on:
+    push:
+        branches:
+            - main
     pull_request:
         types: [opened, reopened, synchronize]
         branches:
