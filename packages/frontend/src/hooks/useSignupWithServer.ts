@@ -25,7 +25,7 @@ const useSignupWithServer = (
             if (!userStateInstance) throw new Error('No user state instance')
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId)
+            await signup(true, userStateInstance, hashUserId)
             console.log('has signed up')
             setSignupStatus('success')
             localStorage.setItem('loginStatus', 'success')
