@@ -212,7 +212,7 @@ const Login: React.FC = () => {
             />
             {method === '' && (
                 <motion.div
-                    className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[59rem]"
+                    className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[59rem] md:pl-4"
                     variants={postListVariants}
                     initial="start"
                     animate="end"
