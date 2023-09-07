@@ -173,7 +173,7 @@ const Login: React.FC = () => {
                     )}
 
                     {(status === '2' || status === '3') && (
-                        <p className='text-white font-semibold text-2xl tracking-wider text-center hidden md:block'>
+                        <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
                             再一步即可完成登入
                         </p>
                     )}
