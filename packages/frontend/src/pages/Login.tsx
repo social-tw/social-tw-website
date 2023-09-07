@@ -18,6 +18,7 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
+    // TODO: format this state. it seems unnecessary
     const [method, setMethod] = useState<Method>('')
     const postListRef = useRef<HTMLDivElement>(null)
 
@@ -171,6 +172,12 @@ const Login: React.FC = () => {
                         </div>
                     )}
 
+                    {(status === '2' || status === '3') && (
+                        <p className='text-white font-semibold text-2xl tracking-wider text-center hidden md:block'>
+                            再一步即可完成登入
+                        </p>
+                    )}
+
                     {method === 'signup' && (
                         <motion.div
                             className="flex justify-center"
@@ -197,8 +204,9 @@ const Login: React.FC = () => {
             </div>
             <AuthForm
                 hashUserId={hashUserId}
-                method={method}
                 signMsg={signMsg}
+                status={status}
+                method={method}
                 onSignup={() => setMethod('signup')}
                 onLogin={() => setMethod('login')}
             />
