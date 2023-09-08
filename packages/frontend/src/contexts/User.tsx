@@ -49,7 +49,8 @@ export interface UserContextType {
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
-        hashUserId: string
+        hashUserId: string,
+        accessToken: string
     ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
@@ -216,7 +217,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         async (
             fromServer: boolean,
             userStateInstance: UserState,
-            hashUserId: string
+            hashUserId: string,
+            accessToken: string
         ) => {
             if (!userStateInstance)
                 throw new Error('user state not initialized')
@@ -235,7 +237,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                     publicSignals: publicSignals,
                     proof: proof,
                     hashUserId: hashUserId,
-                    token: token,
+                    token: accessToken,
                     fromServer: fromServer,
                 }),
             })

@@ -16,6 +16,7 @@ import useLoginWithServer from '../../hooks/useLoginWithServer'
 import useLoginWithWallet from '../../hooks/useLoginWithWallet'
 
 interface AuthFormProps {
+    accessToken: string | null
     hashUserId: string | null
     signMsg: string | null
     method: string
@@ -26,6 +27,7 @@ interface AuthFormProps {
 type NoteStatus = 'close' | 'metamask' | 'server'
 
 const AuthForm: React.FC<AuthFormProps> = ({
+    accessToken,
     hashUserId,
     method,
     signMsg,
@@ -45,6 +47,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
     const twitterVerify = useTwitterVerify(SERVER)
     const signupWithWallet = useSignUpWithWallet(
+        accessToken,
         hashUserId,
         navigate,
         setSignupStatus,
@@ -54,6 +57,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         createUserState
     )
     const signupWithServer = useSignupWithServer(
+        accessToken,
         hashUserId,
         navigate,
         setSignupStatus,

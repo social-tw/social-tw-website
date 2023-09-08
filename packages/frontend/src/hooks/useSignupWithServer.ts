@@ -2,6 +2,7 @@ import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
 
 const useSignupWithServer = (
+    accessToken: string | null,
     hashUserId: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
@@ -9,7 +10,8 @@ const useSignupWithServer = (
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
-        hashUserId: string
+        hashUserId: string,
+        accessToken: string
     ) => Promise<void>,
     setIsLogin: (param: boolean) => void,
     createUserState: () => Promise<UserState | undefined>
@@ -25,7 +27,7 @@ const useSignupWithServer = (
             if (!userStateInstance) throw new Error('No user state instance')
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId)
+            await signup(false, userStateInstance, hashUserId, accessToken!)
             console.log('has signed up')
             setSignupStatus('success')
             localStorage.setItem('loginStatus', 'success')

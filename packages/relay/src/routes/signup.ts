@@ -13,14 +13,6 @@ export default (
     app.post('/api/identity', async (req, res) => {
         const { hashUserId } = req.body
         try {
-            const statusCode =
-                await TransactionManager.appContract!!.queryUserStatus(
-                    hashUserId!!
-                )
-            if (parseInt(statusCode) != UserRegisterStatus.NOT_REGISTER) {
-                throw new Error('Invalid status')
-            }
-
             const wallet = TransactionManager.wallet!!
             const signMsg = await wallet.signMessage(hashUserId!!.toString())
             res.status(200).json({ signMsg: signMsg })
@@ -33,7 +25,7 @@ export default (
     app.post('/api/signup', async (req, res) => {
         try {
             const { publicSignals, proof, hashUserId, token, fromServer } = req.body
-            await userService.verifyHashUserIdFromToken(hashUserId, token)
+            await userService.verifyHashUserId(db, hashUserId, token)
             const hash = await userService.signup(
                 publicSignals,
                 proof,
