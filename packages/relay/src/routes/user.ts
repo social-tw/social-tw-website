@@ -26,12 +26,13 @@ export default (
         const { state, code } = req.query
 
         try {
-            const user = await userService.loginOrInitUser(
+            const user = await userService.login(
                 state as string,
                 code as string
             )
             var redirectUrl = `${CLIENT_URL}/login?code=${user.hashUserId}&status=${user.status}`
             if (user.signMsg) redirectUrl += `&signMsg=${user.signMsg}`
+            if (user.token) redirectUrl += `&token=${user.token}`
 
             res.redirect(redirectUrl)
         } catch (error) {

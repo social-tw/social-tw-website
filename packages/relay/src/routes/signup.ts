@@ -17,7 +17,7 @@ export default (
                 await TransactionManager.appContract!!.queryUserStatus(
                     hashUserId!!
                 )
-            if (parseInt(statusCode) != UserRegisterStatus.INIT) {
+            if (parseInt(statusCode) != UserRegisterStatus.NOT_REGISTER) {
                 throw new Error('Invalid status')
             }
 
@@ -32,7 +32,8 @@ export default (
 
     app.post('/api/signup', async (req, res) => {
         try {
-            const { publicSignals, proof, hashUserId, fromServer } = req.body
+            const { publicSignals, proof, hashUserId, token, fromServer } = req.body
+            await userService.verifyHashUserIdFromToken(hashUserId, token)
             const hash = await userService.signup(
                 publicSignals,
                 proof,
