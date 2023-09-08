@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import AuthForm from '../components/login/AuthForm'
 import { motion } from 'framer-motion'
-import DemoPostList from '../components/login/DemoPostList'
 import { clsx } from 'clsx'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoChevronBack } from 'react-icons/io5'
@@ -18,15 +17,12 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
-    // TODO: format this state. it seems unnecessary
     const [method, setMethod] = useState<Method>('')
     const postListRef = useRef<HTMLDivElement>(null)
 
     const handleScroll = () => {
         const container = postListRef.current
         if (!container) return
-
-        // Find the ul element that contains the li elements
         const ulElement = container.querySelector('ul')
         if (!ulElement) return
 
@@ -64,7 +60,7 @@ const Login: React.FC = () => {
                 container.removeEventListener('scroll', handleScroll)
             }
         }
-    }, [])
+    }, [method])
 
     const basicVarients = {
         hidden: { opacity: 0 },
@@ -104,13 +100,12 @@ const Login: React.FC = () => {
     const handleBack = () => {
         setMethod('')
         if (hashUserId) {
-            navigate('/login')
+            navigate('/login', { replace: true, state: {} })
         } else {
             return
         }
     }
 
-    // status: 1 no, 2 yes
     useEffect(() => {
         if (hashUserId && status === '1') {
             setMethod('signup')
