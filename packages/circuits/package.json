@@ -13,6 +13,7 @@
     },
     "scripts": {
         "build": "tsc && yarn copyCircom",
+        "buildOverwrite": "find ./zksnarkBuild -type f -not -name '*.ptau' -delete && yarn buildsnark",
         "buildsnark": "ts-node ./scripts/buildSnarks.ts && tsc && yarn copyCircom",
         "test": "mocha -r ts-node/register test/*.test.ts --exit",
         "copyCircom": "sh scripts/copyCircom.sh"
