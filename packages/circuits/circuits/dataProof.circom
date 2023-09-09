@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.1.0;
 
 include "../../../node_modules/@unirep/circuits/circuits/hasher.circom";
 include "../../../node_modules/@unirep/circuits/circuits/incrementalMerkleTree.circom";
