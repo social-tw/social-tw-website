@@ -4,20 +4,19 @@ This is a demo app of a [unirep](https://github.com/Unirep/Unirep) attester. In 
 
 > See: [Users and Attesters](https://developer.unirep.io/docs/protocol/users-and-attesters)
 
+## 0. Requirements
+
+- Intall [rust](https://www.rust-lang.org/tools/install) and [circom 2](https://docs.circom.io/getting-started/installation/)
+- Node.js >=16.14
+
 ## 1. Installation
 
 ```shell
 npx create-unirep-app
 yarn install
-curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
-git clone https://github.com/iden3/circom.git
-cd circom
-cargo build --release
-cargo install --path circom
-cd ..
 ```
 
-Then `cd` into the directory that was created (other than circom).
+Then `cd` into the directory that was created.
 
 ## 2 Start with each daemon
 
