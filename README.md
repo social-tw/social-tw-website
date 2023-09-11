@@ -7,7 +7,7 @@ This is a demo app of a [unirep](https://github.com/Unirep/Unirep) attester. In 
 ## 0. Requirements
 
 -   Intall [rust](https://www.rust-lang.org/tools/install) and [circom 2](https://docs.circom.io/getting-started/installation/)
--   Node.js >=16.14
+-   Node.js >= 18
 
 ## 1. Installation
 
