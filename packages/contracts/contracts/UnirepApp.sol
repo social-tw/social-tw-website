@@ -28,6 +28,8 @@ contract UnirepApp {
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
 
+    mapping(uint256 => bool) userRegistry;
+
     event Post(
         uint256 indexed epochKey,
         uint256 indexed postId,
@@ -38,6 +40,8 @@ contract UnirepApp {
     uint160 attesterId;
 
     event UserSignUp(uint256 indexed hashUserId, bool indexed fromServer);
+
+    error UserHasRegistered(uint256 hashUserId);
 
     constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -61,6 +65,12 @@ contract UnirepApp {
         uint256 hashUserId,
         bool fromServer
     ) public {
+        if (userRegistry[hashUserId]) {
+            revert UserHasRegistered(hashUserId);
+        }
+
+        userRegistry[hashUserId] = true;
+
         unirep.userSignUp(publicSignals, proof);
         emit UserSignUp(hashUserId, fromServer);
     }
