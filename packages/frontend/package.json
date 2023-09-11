@@ -2,12 +2,12 @@
     "name": "@unirep-app/frontend",
     "version": "1.0.0",
     "description": "> TODO: description",
-    "author": "Unirep team <team@unirep.io>",
-    "homepage": "https://github.com/Unirep/create-unirep-app#readme",
+    "author": "Unirep social TW",
+    "homepage": "https://github.com/social-tw/social-tw-website",
     "license": "ISC",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Unirep/create-unirep-app.git"
+        "url": "https://github.com/social-tw/social-tw-website.git"
     },
     "scripts": {
         "start": "webpack-dev-server",
