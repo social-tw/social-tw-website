@@ -1,7 +1,5 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import TransactionManager from '../singletons/TransactionManager'
-import { UserRegisterStatus } from '../enums/userRegisterStatus'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { userService } from '../services/UserService'
 
@@ -10,18 +8,6 @@ export default (
     db: DB,
     synchronizer: UnirepSocialSynchronizer
 ) => {
-    app.post('/api/identity', async (req, res) => {
-        const { hashUserId } = req.body
-        try {
-            const wallet = TransactionManager.wallet!!
-            const signMsg = await wallet.signMessage(hashUserId!!.toString())
-            res.status(200).json({ signMsg: signMsg })
-        } catch (error) {
-            console.error('/api/identity\n', error)
-            res.status(500).json({ error })
-        }
-    })
-
     app.post('/api/signup', async (req, res) => {
         try {
             const { publicSignals, proof, hashUserId, token, fromServer } = req.body

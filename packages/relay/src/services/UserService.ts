@@ -47,12 +47,16 @@ export class UserService {
         return `0x${hash.update(userId).digest('hex')}`
     }
 
+    // no matter signup / login, relayer sign the message first
+    // pass the signature to frontend, let user decide to choose
+    // from server or from wallet
     async getLoginUser(db: DB, userId: string, accessToken: string | undefined) {
         const hashUserId = this.encodeUserId(userId)
+        const wallet = TransactionManager.wallet!!
         const user: User = {
             hashUserId: hashUserId,
             token: accessToken,
-            signMsg: undefined,
+            signMsg: await wallet.signMessage(hashUserId),
             status: UserRegisterStatus.INIT
         }
         
@@ -64,13 +68,7 @@ export class UserService {
 
         // login from server needs to set signMsg
         if (signUpUser != null) {
-            if (signUpUser.status == UserRegisterStatus.REGISTERER_SERVER) {
-                const wallet = TransactionManager.wallet!!
-                user.signMsg = await wallet.signMessage(hashUserId)
                 user.status = signUpUser.status
-            } else {
-                user.status = signUpUser.status
-            }
         }
 
         return user
