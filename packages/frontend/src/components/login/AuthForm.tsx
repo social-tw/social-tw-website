@@ -20,8 +20,10 @@ interface AuthFormProps {
     signMsg: string | null
     status: string | null
     method: string
+    isShow: boolean
     onSignup: () => void
     onLogin: () => void
+    handleClick: () => void
 }
 
 type NoteStatus = 'close' | 'metamask' | 'server'
@@ -31,9 +33,11 @@ const AuthForm: React.FC<AuthFormProps> = ({
     signMsg,
     status,
     method,
+    isShow,
     onSignup,
     onLogin,
-}) => {
+    handleClick
+}) => { 
     const navigate = useNavigate()
     const {
         setSignupStatus,
@@ -45,7 +49,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
         createUserState,
     } = useUser()
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
-    const twitterVerify = useTwitterVerify(SERVER)
+    const twitterVerify = useTwitterVerify(SERVER, method)
+
     const signupWithWallet = useSignUpWithWallet(
         hashUserId,
         navigate,
@@ -55,6 +60,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setIsLogin,
         createUserState
     )
+
     const signupWithServer = useSignupWithServer(
         hashUserId,
         navigate,
@@ -100,7 +106,17 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 isSmallDevice && 'flex-col'
             )}
         >
-            {status !== '3' && (
+            {isShow && (
+                <div className="w-full flex flex-col justify-center items-center gap-2">
+                    <LoginButton
+                        isLoading={signupStatus === 'pending'}
+                        onClick={handleClick}
+                        title='前往註冊頁進行註冊'
+                        color="#DB7622"
+                    />
+                </div>
+            )}
+            {(status !== '3' && !isShow) && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
@@ -132,7 +148,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     </p>
                 </div>
             )}
-            {status !== '2' && (
+            {(status !== '2' && !isShow) && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
