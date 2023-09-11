@@ -8,6 +8,7 @@ import StepInfo from '../components/login/StepInfo'
 import LogoWhite from '../assets/logo-white.png'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import PostList from './PostList'
+import ScrollingModal from '../components/modal/ui/ScrollingModal'
 
 type Method = '' | 'signup' | 'login'
 
@@ -17,50 +18,7 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
-    const [method, setMethod] = useState<Method>('')
-    const postListRef = useRef<HTMLDivElement>(null)
-
-    const handleScroll = () => {
-        const container = postListRef.current
-        if (!container) return
-        const ulElement = container.querySelector('ul')
-        if (!ulElement) return
-
-        const children = Array.from(ulElement.children) as HTMLElement[]
-        const containerHeight = container.clientHeight
-        const scrollPosition = container.scrollTop
-
-        children.forEach((child) => {
-            const childTop = child.offsetTop - scrollPosition + 50
-            const childBottom = childTop + child.clientHeight - 50
-
-            const middle = (containerHeight - child.clientHeight + 200) / 2
-
-            if (childTop <= middle && childBottom >= middle) {
-                child.style.opacity = '1'
-            } else if (childBottom < middle) {
-                child.style.opacity = '0.1'
-            } else {
-                child.style.opacity = '0.3'
-            }
-        })
-    }
-
-    useEffect(() => {
-        const container = postListRef.current
-        if (container) {
-            container.addEventListener('scroll', handleScroll)
-            setTimeout(() => {
-                handleScroll()
-            }, 300)
-        }
-
-        return () => {
-            if (container) {
-                container.removeEventListener('scroll', handleScroll)
-            }
-        }
-    }, [method])
+    const [method, setMethod] = useState<Method>(status === '1' ? 'signup' : (status === '2' || status === '3') ? 'login' : '')
 
     const basicVarients = {
         hidden: { opacity: 0 },
@@ -105,16 +63,6 @@ const Login: React.FC = () => {
             return
         }
     }
-
-    useEffect(() => {
-        if (hashUserId && status === '1') {
-            setMethod('signup')
-        } else if (hashUserId) {
-            setMethod('login')
-        } else {
-            setMethod('')
-        }
-    }, [])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
@@ -206,15 +154,12 @@ const Login: React.FC = () => {
                 onLogin={() => setMethod('login')}
             />
             {method === '' && (
-                <motion.div
-                    className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[59rem] md:pl-4"
+                <ScrollingModal
+                    method={method}
                     variants={postListVariants}
-                    initial="start"
-                    animate="end"
-                    ref={postListRef}
                 >
                     <PostList />
-                </motion.div>
+                </ScrollingModal>
             )}
         </div>
     )
