@@ -3,10 +3,10 @@
     "version": "1.0.0",
     "description": "Smart contracts of the Unirep Application",
     "keywords": [],
-    "author": "Unirep Team <team@unirep.io>",
+    "author": "Unirep social TW",
     "license": "ISC",
     "main": "build/src/index.js",
-    "repository": "git+https://github.com/Unirep/create-unirep-app.git",
+    "repository": "https://github.com/social-tw/social-tw-website.git",
     "scripts": {
         "build": "yarn buildVerifier && hardhat compile && yarn abi && yarn genConfig",
         "buildVerifier": "ts-node ./scripts/genVerifier.ts ",
@@ -17,9 +17,9 @@
         "test": "hardhat test --network hardhat"
     },
     "bugs": {
-        "url": "https://github.com/Unirep/create-unirep-app/issue"
+        "url": "https://github.com/social-tw/social-tw-website/issues"
     },
-    "homepage": "https://github.com/Unirep/create-unirep-app#readme",
+    "homepage": "https://github.com/social-tw/social-tw-website",
     "devDependencies": {
         "@nomicfoundation/hardhat-chai-matchers": "1.0.6",
         "@nomiclabs/hardhat-ethers": "^2.2.0",
