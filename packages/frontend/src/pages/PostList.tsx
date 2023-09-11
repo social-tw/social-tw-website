@@ -1,15 +1,14 @@
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Dialog from '../components/Dialog'
+import SignupLoadingModal from '../components/modal/SignupLoadingModal'
 import Post from '../components/Post'
 import PostForm, { PostValues } from '../components/PostForm'
 import { SERVER } from '../config'
-import usePosts from '../hooks/usePosts'
-import SignupLoadingModal from '../components/modal/SignupLoadingModal'
 import { useUser } from '../contexts/User'
+import usePosts from '../hooks/usePosts'
 
 interface Post {
     id: string
@@ -101,15 +100,16 @@ export default function PostList() {
         }
     }, [isLogin])
 
-    useEffect(() => {
-        async function loadPosts() {
-            const response = await fetch(`${SERVER}/api/post`)
-            const posts = await response.json()
+    const loadPosts = useCallback(async () => {
+        const response = await fetch(`${SERVER}/api/post`)
+        const posts = await response.json()
 
-            setPosts([...posts, ...examplePosts])
-        }
-        loadPosts()
+        setPosts([...posts, ...examplePosts])
     }, [])
+
+    useEffect(() => {
+        loadPosts()
+    }, [loadPosts])
 
     const navigate = useNavigate()
 
@@ -118,6 +118,7 @@ export default function PostList() {
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
+            await loadPosts()
             console.log('貼文成功送出')
         } catch (err) {
             console.log(err)
@@ -135,7 +136,7 @@ export default function PostList() {
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (
-                <section className="py-6 relative">
+                <section className="relative py-6">
                     {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
                             status={signupStatus}

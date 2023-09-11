@@ -1,12 +1,7 @@
 import clsx from 'clsx'
-import {
-    Link,
-    NavLink,
-    Outlet,
-    useMatch,
-    useNavigate,
-    useSearchParams,
-} from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
@@ -16,13 +11,11 @@ import Logo from '../assets/logo.png'
 import PersonCircleIcon from '../assets/person-circle.svg'
 import SearchIcon from '../assets/search.svg'
 import StarIcon from '../assets/star.svg'
-import { useUser } from '../contexts/User'
-import useInitUser from '../hooks/useInitUser'
 import ErrorModal from '../components/modal/ErrorModal'
 import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useUser } from '../contexts/User'
 import useAutoNavigation from '../hooks/useAutoNavigation'
+import useInitUser from '../hooks/useInitUser'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -87,7 +80,7 @@ export default function AppLayout() {
                     <Outlet />
                 </main>
                 {signupStatus !== 'default' && isShow ? (
-                    <div className="fixed bottom-0 h-60 px-4 w-screen">
+                    <div className="fixed bottom-0 w-screen px-4 h-60">
                         <SignUpLoadingModal
                             status={signupStatus}
                             isOpen={true}

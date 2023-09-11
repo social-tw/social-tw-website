@@ -1,8 +1,7 @@
+import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import RichTextEditor from './RichTextEditor'
-import { useUser } from '../contexts/User'
-import { clsx } from 'clsx'
 
 export interface PostValues {
     content: string
@@ -10,14 +9,10 @@ export interface PostValues {
 
 export default function PostForm({
     onCancel = () => {},
-    onSaveDraft = () => {},
-    onFetchDraft = () => {},
     onSubmit = () => {},
     isShow = true,
 }: {
     onCancel?: () => void
-    onSaveDraft?: (values: PostValues) => void
-    onFetchDraft?: () => void
     onSubmit?: (values: PostValues) => void
     isShow?: boolean
 }) {
@@ -33,11 +28,6 @@ export default function PostForm({
     const _onCancel = () => {
         reset({ content: '' })
         onCancel()
-    }
-
-    const _onSaveDraft = () => {
-        const values = getValues()
-        onSaveDraft(values)
     }
 
     useEffect(() => {
@@ -59,22 +49,6 @@ export default function PostForm({
                     onClick={_onCancel}
                 >
                     取消編輯
-                </button>
-                <button
-                    className="btn btn-sm btn-ghost text-secondary"
-                    title="save a draft"
-                    type="button"
-                    onClick={_onSaveDraft}
-                >
-                    儲存草稿
-                </button>
-                <button
-                    className="btn btn-sm btn-ghost text-secondary"
-                    title="view a draft"
-                    type="button"
-                    onClick={onFetchDraft}
-                >
-                    查看草稿
                 </button>
                 <button
                     className="btn btn-sm btn-secondary"
