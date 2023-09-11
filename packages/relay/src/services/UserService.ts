@@ -99,6 +99,7 @@ export class UserService {
             calldata
         )
 
+        //FIXME: This should return hash
         return ''
     }
 
