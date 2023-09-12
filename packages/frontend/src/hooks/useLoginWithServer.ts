@@ -18,8 +18,8 @@ const useLoginWithServer = (
             localStorage.setItem('signature', signMsg)
             await createUserState()
             localStorage.setItem('loginStatus', 'success')
+            localStorage.removeItem('showLogin')
             navigate('/')
-            console.log('has logged in')
         } catch (error) {
             console.error(error)
         }

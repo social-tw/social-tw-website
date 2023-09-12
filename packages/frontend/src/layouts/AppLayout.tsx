@@ -19,7 +19,7 @@ import useInitUser from '../hooks/useInitUser'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
-    const { load, isLogin, signupStatus, setIsLogin } = useUser()
+    const { load, isLogin, signupStatus, setIsLogin, logout } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
 
@@ -43,7 +43,7 @@ export default function AppLayout() {
         }
     }
 
-    useInitUser(load, signupStatus)
+    useInitUser(signupStatus, load, logout)
     useAutoNavigation(signupStatus, setIsLogin, navigate)
 
     useEffect(() => {
@@ -141,67 +141,6 @@ export default function AppLayout() {
                         </NavLink>
                     </motion.nav>
                 )}
-                {/* <nav
-                    className={clsx(
-                        `
-                    fixed 
-                    bottom-0 
-                    w-screen 
-                    h-20 
-                    px-4 
-                    flex 
-                    items-stretch 
-                    rounded-t-3xl 
-                    `,
-                        signupStatus !== 'default' && isShow
-                            ? 'bg-opacity-0 mb-5'
-                            : 'bg-gradient-to-r from-secondary to-primary/80 shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset]'
-                    )}
-                >
-                    {signupStatus !== 'default' && isShow ? (
-                        <SignUpLoadingModal
-                            status={signupStatus}
-                            isOpen={true}
-                            opacity={0}
-                        />
-                    ) : (
-                        <>
-                            <NavLink
-                                className="flex items-center justify-center flex-1"
-                                to={isLogin ? '#' : '/login'}
-                            >
-                                <HomeIcon className="text-white w-14 h-14" />
-                            </NavLink>
-                            <NavLink
-                                className="flex items-center justify-center flex-1"
-                                to={isLogin ? '#' : '/login'}
-                            >
-                                <StarIcon className="text-white w-14 h-14" />
-                            </NavLink>
-                            <div className="relative flex justify-center flex-1">
-                                <NavLink
-                                    className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
-                                    title="create a post"
-                                    to={isLogin ? '/write' : '/login'}
-                                >
-                                    <AddIcon className="w-8 h-8 text-secondary" />
-                                </NavLink>
-                            </div>
-                            <NavLink
-                                className="flex items-center justify-center flex-1"
-                                to={isLogin ? '#' : '/login'}
-                            >
-                                <BellIcon className="text-white w-14 h-14" />
-                            </NavLink>
-                            <NavLink
-                                className="flex items-center justify-center flex-1"
-                                to={isLogin ? '#' : '/login'}
-                            >
-                                <PersonCircleIcon className="text-white w-14 h-14" />
-                            </NavLink>
-                        </>
-                    )}
-                </nav> */}
             </div>
         )
     } else {

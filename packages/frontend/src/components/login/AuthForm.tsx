@@ -19,9 +19,12 @@ interface AuthFormProps {
     accessToken: string | null
     hashUserId: string | null
     signMsg: string | null
+    status: string | null
     method: string
+    isShow: boolean
     onSignup: () => void
     onLogin: () => void
+    handleClick: () => void
 }
 
 type NoteStatus = 'close' | 'metamask' | 'server'
@@ -29,23 +32,26 @@ type NoteStatus = 'close' | 'metamask' | 'server'
 const AuthForm: React.FC<AuthFormProps> = ({
     accessToken,
     hashUserId,
-    method,
     signMsg,
+    status,
+    method,
+    isShow,
     onSignup,
     onLogin,
-}) => {
+    handleClick
+}) => { 
     const navigate = useNavigate()
     const {
         setSignupStatus,
         signupStatus,
-        handleServerSignMessage,
         handleWalletSignMessage,
         signup,
         setIsLogin,
         createUserState,
     } = useUser()
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
-    const twitterVerify = useTwitterVerify(SERVER)
+    const twitterVerify = useTwitterVerify(SERVER, method)
+
     const signupWithWallet = useSignUpWithWallet(
         accessToken,
         hashUserId,
@@ -56,12 +62,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setIsLogin,
         createUserState
     )
+
     const signupWithServer = useSignupWithServer(
         accessToken,
         hashUserId,
+        signMsg,
         navigate,
         setSignupStatus,
-        handleServerSignMessage,
         signup,
         setIsLogin,
         createUserState
@@ -87,7 +94,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             opacity: 1,
             transition: {
                 delay: 0,
-                duration: 1,
+                duration: 0.75,
                 ease: 'easeInOut',
             },
         },
@@ -102,21 +109,39 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 isSmallDevice && 'flex-col'
             )}
         >
-            <div className="w-full flex flex-col justify-center items-center gap-2">
-                <LoginButton
-                    isLoading={signupStatus === 'pending'}
-                    onClick={
-                        method === 'login' ? loginWithWallet : signupWithWallet
-                    }
-                    title={method === 'login' ? '錢包登入' : '錢包註冊'}
-                    subTitle={
-                        method === 'login'
-                            ? '使用 MetaMask 錢包進行登入'
-                            : '使用 MetaMask 錢包進行註冊'
-                    }
-                    color="#2F9CAF"
-                />
-                {method === 'signup' && (
+            {isShow && (
+                <div className="w-full flex flex-col justify-center items-center gap-2">
+                    <LoginButton
+                        isLoading={signupStatus === 'pending'}
+                        onClick={handleClick}
+                        title='前往註冊頁進行註冊'
+                        color="#DB7622"
+                    />
+                </div>
+            )}
+            {(status !== '3' && !isShow) && (
+                <div className="w-full flex flex-col justify-center items-center gap-2">
+                    {method === 'login' && (
+                        <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
+                            您當時註冊時選擇為「錢包註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
+                            Twitter 帳號註冊
+                        </p>
+                    )}
+                    <LoginButton
+                        isLoading={signupStatus === 'pending'}
+                        onClick={
+                            method === 'login'
+                                ? loginWithWallet
+                                : signupWithWallet
+                        }
+                        title={method === 'login' ? '錢包登入' : '錢包註冊'}
+                        subTitle={
+                            method === 'login'
+                                ? '使用 MetaMask 錢包進行登入'
+                                : '使用 MetaMask 錢包進行註冊'
+                        }
+                        color="#2F9CAF"
+                    />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
                         onClick={() => setNoteStatus('metamask')}
@@ -124,23 +149,31 @@ const AuthForm: React.FC<AuthFormProps> = ({
                         什麼是
                         <span className="text-[#52ACBC]"> MetaMask 錢包 </span>?
                     </p>
-                )}
-            </div>
-            <div className="w-full flex flex-col justify-center items-center gap-2">
-                <LoginButton
-                    isLoading={signupStatus === 'pending'}
-                    onClick={
-                        method === 'login' ? loginWithServer : signupWithServer
-                    }
-                    title={method === 'login' ? '直接登入' : '直接註冊'}
-                    subTitle={
-                        method === 'login'
-                            ? '使用 Server 登入'
-                            : '沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
-                    }
-                    color="#DB7622"
-                />
-                {method === 'signup' && (
+                </div>
+            )}
+            {(status !== '2' && !isShow) && (
+                <div className="w-full flex flex-col justify-center items-center gap-2">
+                    {method === 'login' && (
+                        <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
+                            您當時註冊時選擇為「直接註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
+                            Twitter 帳號註冊
+                        </p>
+                    )}
+                    <LoginButton
+                        isLoading={signupStatus === 'pending'}
+                        onClick={
+                            method === 'login'
+                                ? loginWithServer
+                                : signupWithServer
+                        }
+                        title={method === 'login' ? '直接登入' : '直接註冊'}
+                        subTitle={
+                            method === 'login'
+                                ? '使用 Server 登入'
+                                : '沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
+                        }
+                        color="#DB7622"
+                    />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
                         onClick={() => setNoteStatus('server')}
@@ -148,8 +181,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
                         什麼是
                         <span className="text-[#52ACBC]"> Server 註冊 </span>?
                     </p>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     )
 
