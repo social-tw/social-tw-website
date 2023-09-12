@@ -44,7 +44,6 @@ export interface UserContextType {
     sumFieldCount: () => number | undefined
     epochKey: (nonce: number) => string
     load: () => Promise<void>
-    handleServerSignMessage: (hashUserId: string) => Promise<void>
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
     signup: (
         fromServer: boolean,
@@ -100,17 +99,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     const createUserState = async () => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
-        const storedToken = localStorage.getItem('token') ?? ''
-
         if (storedHashUserId.length === 0) return
-
         setHashUserId(storedHashUserId)
+        
+        const storedToken = localStorage.getItem('token') ?? ''
+        if (storedToken.length === 0) return
         setToken(storedToken)
 
         const storedSignature = localStorage.getItem('signature') ?? ''
-
         if (storedSignature.length === 0) return
-
         setSignature(storedSignature)
 
         const identity = new Identity(storedSignature)
@@ -178,24 +175,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         },
         [userState]
     )
-
-    const handleServerSignMessage = async (hashUserId: string) => {
-        const response = await fetch(`${SERVER}/api/identity`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                hashUserId,
-            }),
-        })
-        if (!response.ok) {
-            throw new Error('False Identity')
-        }
-        const data = await response.json()
-        const signMessage = data.signMsg
-        localStorage.setItem('signature', signMessage)
-    }
 
     const handleWalletSignMessage = async (hashUserId: string) => {
         const accounts = await window.ethereum.request({
@@ -395,7 +374,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         sumFieldCount,
         epochKey,
         load,
-        handleServerSignMessage,
         handleWalletSignMessage,
         signup,
         stateTransition,

@@ -68,7 +68,7 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         const showParam = localStorage.getItem('showLogin')
-        if (showParam === 'isShow') {
+        if (showParam === 'isShow' && method !== 'login') {
             setIsShow(true)
         } else {
             setIsShow(false)

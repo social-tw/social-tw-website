@@ -23,6 +23,7 @@ const useLoginWithWallet = (
             }
             await handleWalletSignMessage(hashUserId)
             await createUserState()
+            localStorage.removeItem('showLogin')
             localStorage.setItem('loginStatus', 'success')
             navigate('/')
         } catch (error) {

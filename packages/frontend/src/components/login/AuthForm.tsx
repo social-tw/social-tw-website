@@ -44,7 +44,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
     const {
         setSignupStatus,
         signupStatus,
-        handleServerSignMessage,
         handleWalletSignMessage,
         signup,
         setIsLogin,
@@ -67,9 +66,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
     const signupWithServer = useSignupWithServer(
         accessToken,
         hashUserId,
+        signMsg,
         navigate,
         setSignupStatus,
-        handleServerSignMessage,
         signup,
         setIsLogin,
         createUserState
@@ -103,6 +102,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
+    // server: status = 2
     const secondStepContent = (
         <div
             className={clsx(

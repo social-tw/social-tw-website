@@ -28,15 +28,19 @@ const useSignupWithWallet = (
                 throw new Error('No hash user id')
             }
             localStorage.setItem('hashUserId', hashUserId)
+            if(!accessToken) {
+                throw new Error('No access token')
+            }
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
+            localStorage.setItem('token', accessToken)
             await handleWalletSignMessage(hashUserId)
             const userStateInstance = await createUserState()
             if (!userStateInstance) throw new Error('No user state instance')
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId, accessToken!)
+            await signup(false, userStateInstance, hashUserId, accessToken)
             console.log('has signed up')
             setSignupStatus('success')
             localStorage.setItem('loginStatus', 'success')

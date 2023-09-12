@@ -5,7 +5,6 @@ const useTwitterVerify = (
     method: string
 ) => {
     const handleTwitterVerify = useCallback(async () => {
-        console.log(method)
         if (method === 'login') {
             localStorage.setItem('showLogin', 'isShow')
         }
