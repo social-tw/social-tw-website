@@ -49,7 +49,8 @@ export interface UserContextType {
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
-        hashUserId: string
+        hashUserId: string,
+        accessToken: string
     ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
@@ -85,6 +86,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
+    const [token, setToken] = useState<string>('')
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
@@ -98,10 +100,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     const createUserState = async () => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
+        const storedToken = localStorage.getItem('token') ?? ''
 
         if (storedHashUserId.length === 0) return
 
         setHashUserId(storedHashUserId)
+        setToken(storedToken)
 
         const storedSignature = localStorage.getItem('signature') ?? ''
 
@@ -213,7 +217,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         async (
             fromServer: boolean,
             userStateInstance: UserState,
-            hashUserId: string
+            hashUserId: string,
+            accessToken: string
         ) => {
             if (!userStateInstance)
                 throw new Error('user state not initialized')
@@ -232,6 +237,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                     publicSignals: publicSignals,
                     proof: proof,
                     hashUserId: hashUserId,
+                    token: accessToken,
                     fromServer: fromServer,
                 }),
             })

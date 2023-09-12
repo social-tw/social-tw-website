@@ -106,25 +106,26 @@ contract UnirepApp {
         uint256 hashUserId,
         bool fromServer
     ) public {
-        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
-            revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
-        }
+        // if (userRegistry[hashUserId] > RegisterStatus.INIT) {
+        //     revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
+        // }
 
-        if (userRegistry[hashUserId] != RegisterStatus.INIT) {
-            revert UserInitStatusInvalid(hashUserId);
-        }
+        // if (userRegistry[hashUserId] != RegisterStatus.INIT) {
+        //     revert UserInitStatusInvalid(hashUserId);
+        // }
 
-        // revert when init is expiry 
-        if (userInitExpiryMap[hashUserId] > 0 
-            && userInitExpiryMap[hashUserId] < block.timestamp) {
-            revert UserInitExpiry(hashUserId);
-        }
+        // // revert when init is expiry 
+        // if (userInitExpiryMap[hashUserId] > 0 
+        //     && userInitExpiryMap[hashUserId] < block.timestamp) {
+        //     revert UserInitExpiry(hashUserId);
+        // }
 
-        if (fromServer) {
-            userRegistry[hashUserId] = RegisterStatus.REGISTERED_SERVER;
-        } else {
-            userRegistry[hashUserId] = RegisterStatus.REGISTERED;
-        }
+        // if (fromServer) {
+        //     userRegistry[hashUserId] = RegisterStatus.REGISTERED_SERVER;
+        // } else {
+        //     userRegistry[hashUserId] = RegisterStatus.REGISTERED;
+        // }
+        fromServer;
         unirep.userSignUp(publicSignals, proof);
         emit UserSignUpSuccess(hashUserId);
     }

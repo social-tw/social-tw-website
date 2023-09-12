@@ -187,7 +187,7 @@ describe('LOGIN /login', () => {
     })
 
     it('/api/signup, user sign up with server', async () => {
-        const res = await userService.getLoginOrInitUser(mockUserId2)
+        const res = await userService.getLoginUser(mockUserId2, undefined)
         expect(res.hashUserId).to.equal(hashMockUserId2)
         const wallet = TransactionManager.wallet
         const signMsg = await wallet.signMessage(hashMockUserId2)
@@ -230,7 +230,7 @@ describe('LOGIN /login', () => {
 
     it('/api/signup, user not sign up with wrong proof and return error', async () => {
         // TODO: encapsulate below to a function within original code
-        let initUser = await userService.getLoginOrInitUser('1234')
+        let initUser = await userService.getLoginUser('1234', undefined)
         const wallet = ethers.Wallet.createRandom()
         const signature = await wallet.signMessage(initUser.hashUserId)
         const identity = new Identity(signature)

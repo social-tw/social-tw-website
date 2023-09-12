@@ -15,7 +15,7 @@ export default (
     synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get('/api/login', async (_, res) => {
-        const url = await TwitterClient.authClient.generateAuthURL({
+        const url = TwitterClient.authClient.generateAuthURL({
             state: STATE,
             code_challenge,
         })
@@ -26,12 +26,12 @@ export default (
         const { state, code } = req.query
 
         try {
-            const user = await userService.loginOrInitUser(
+            const user = await userService.login(
                 state as string,
-                code as string
+                code as string,
+                db
             )
-            var redirectUrl = `${CLIENT_URL}/login?code=${user.hashUserId}&status=${user.status}`
-            if (user.signMsg) redirectUrl += `&signMsg=${user.signMsg}`
+            var redirectUrl = `${CLIENT_URL}/login?code=${user.hashUserId}&status=${user.status}&token=${user.token}&signMsg=${user.signMsg}`
 
             res.redirect(redirectUrl)
         } catch (error) {

@@ -15,6 +15,7 @@ type Method = '' | 'signup' | 'login'
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
+    const accessToken = searchParams.get('token')
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
@@ -173,6 +174,7 @@ const Login: React.FC = () => {
                 )}
             </div>
             <AuthForm
+                accessToken={accessToken}
                 hashUserId={hashUserId}
                 signMsg={signMsg}
                 status={status}
