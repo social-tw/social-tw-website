@@ -2,7 +2,6 @@ import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 
@@ -12,7 +11,6 @@ import { deployContracts, startServer } from './environment'
 import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import user from '../src/routes/user'
 import { UserStateFactory } from './utils/UserStateFactory'
 
 let snapshot: any

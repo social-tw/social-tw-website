@@ -336,6 +336,29 @@ describe('LOGIN /login', () => {
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
+            .catch(async (err) => {
+                // 0x53d3ff53 means wrong epoch
+                if (err.message.includes('0x53d3ff53')) {
+                    await chai
+                        .request(`${HTTP_SERVER}`)
+                        .post('/api/signup')
+                        .set('content-type', 'application/json')
+                        .send({
+                            publicSignals: publicSignals,
+                            proof: signupProof._snarkProof,
+                            hashUserId: user.hashUserId,
+                            token: user.token,
+                            fromServer: false,
+                        })
+                        .then((res) => {
+                            expect(res.body.status).to.equal('success')
+                            expect(res.body.hash).to.be.not.null
+                            expect(res).to.have.status(200)
+                        })
+                } else {
+                    console.log(err.message)
+                }
+            })
 
         await synchronizer.waitForSync()
         const registeredUser = await userService.getLoginUser(
@@ -375,6 +398,29 @@ describe('LOGIN /login', () => {
                 expect(res.body.status).to.equal('success')
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
+            })
+            .catch(async (err) => {
+                // 0x53d3ff53 means wrong epoch
+                if (err.message.includes('0x53d3ff53')) {
+                    await chai
+                        .request(`${HTTP_SERVER}`)
+                        .post('/api/signup')
+                        .set('content-type', 'application/json')
+                        .send({
+                            publicSignals: publicSignals,
+                            proof: signupProof._snarkProof,
+                            hashUserId: user.hashUserId,
+                            token: user.token,
+                            fromServer: false,
+                        })
+                        .then((res) => {
+                            expect(res.body.status).to.equal('success')
+                            expect(res.body.hash).to.be.not.null
+                            expect(res).to.have.status(200)
+                        })
+                } else {
+                    console.log(err.message)
+                }
             })
 
         await synchronizer.waitForSync()

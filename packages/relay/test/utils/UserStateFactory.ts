@@ -26,9 +26,9 @@ export class UserStateFactory {
         this.attesterId = attesterId.address
     }
 
-    async createUserState(user: User, wallet?: any | undefined) {
+    async createUserState(user: User, wallet?: ethers.Wallet) {
         let signature = user.signMsg
-        if (wallet != undefined) {
+        if (wallet) {
             signature = await wallet.signMessage(user.hashUserId)
         }
         const identity = new Identity(signature)
