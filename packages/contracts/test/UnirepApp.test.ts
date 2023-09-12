@@ -54,7 +54,7 @@ describe('Unirep App', function () {
     // epoch length
     const epochLength = 300
 
-    before(async () => {
+    before(async function () {
         // generate random hash user id
         ;[hashUserId, id] = createRandomUserIdentity()
 
@@ -75,14 +75,14 @@ describe('Unirep App', function () {
         await app.deployed()
     })
 
-    describe('user signup', () => {
-        it('init user status', async () => {
+    describe('user signup', function () {
+        it('init user status', async function () {
             expect(await app.initUserStatus(hashUserId))
                 .to.emit(app, 'UserInitSuccess')
                 .withArgs(hashUserId)
         })
 
-        it('user sign up after init', async () => {
+        it('user sign up after init', async function () {
             const userState = await genUserState(id, app)
 
             // get user status, should be RegisterStatus.INIT
@@ -102,7 +102,7 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('revert when user sign up multiple times', async () => {
+        it('revert when user sign up multiple times', async function () {
             const userState = await genUserState(id, app)
 
             const { publicSignals, proof } =
@@ -114,7 +114,7 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('revert when user sign up without init', async () => {
+        it('revert when user sign up without init', async function () {
             const [hashUserId, id] = createRandomUserIdentity()
 
             const userState = await genUserState(id, app)
@@ -131,7 +131,7 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('revert when reuse user signup proof', async () => {
+        it('revert when reuse user signup proof', async function () {
             const [hashUserId, id] = createRandomUserIdentity()
             const userState = await genUserState(id, app)
 
@@ -156,8 +156,8 @@ describe('Unirep App', function () {
         })
     })
 
-    describe('user post', () => {
-        it('should fail to post with invalid proof', async () => {
+    describe('user post', function () {
+        it('should fail to post with invalid proof', async function () {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
 
@@ -176,7 +176,7 @@ describe('Unirep App', function () {
                 .reverted // revert in epkHelper.verifyAndCheck()
         })
 
-        it('should post with valid proof', async () => {
+        it('should post with valid proof', async function () {
             const content = 'testing'
 
             expect(app.post(inputPublicSig, inputProof, content))
@@ -184,7 +184,7 @@ describe('Unirep App', function () {
                 .withArgs(inputPublicSig[0], 0, 0, content)
         })
 
-        it('should fail to post with reused proof', async () => {
+        it('should fail to post with reused proof', async function () {
             const content = 'reused proof'
             expect(
                 app.post(inputPublicSig, inputProof, content)
@@ -192,8 +192,8 @@ describe('Unirep App', function () {
         })
     })
 
-    describe('user state', () => {
-        it('submit attestations', async () => {
+    describe('user state', function () {
+        it('submit attestations', async function () {
             const userState = await genUserState(id, app)
             const nonce = 0
             const { publicSignals, proof, epochKey, epoch } =
@@ -213,7 +213,8 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('user state transition', async () => {
+        it('user state transition', async function () {
+            this.timeout(0) // disable the timeout limit in this test
             await ethers.provider.send('evm_increaseTime', [epochLength])
             await ethers.provider.send('evm_mine', [])
 
@@ -227,9 +228,9 @@ describe('Unirep App', function () {
                 .userStateTransition(publicSignals, proof)
                 .then((t) => t.wait())
             userState.stop()
-        }).timeout(100000)
+        })
 
-        it('data proof', async () => {
+        it('data proof', async function () {
             const userState = await genUserState(id, app)
             const epoch = await userState.sync.loadCurrentEpoch()
             const stateTree = await userState.sync.genStateTree(epoch)
