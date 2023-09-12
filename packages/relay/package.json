@@ -7,8 +7,7 @@
     "license": "ISC",
     "repository": "git+https://github.com/Unirep/create-unirep-app.git",
     "scripts": {
-        "build": "yarn copyContracts && tsc && yarn keys",
-        "copyContracts": "sh scripts/copyContracts.sh",
+        "build": "tsc && yarn keys",
         "start": "ts-node ./src/index.ts",
         "debug": "node --inspect -r ts-node/register ./src/index.ts",
         "keys": "sh scripts/loadKeys.sh",
