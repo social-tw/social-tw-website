@@ -13,6 +13,7 @@ import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import user from '../src/routes/user'
+import { UserStateFactory } from './utils/UserStateFactory'
 
 let snapshot: any
 let express: Server
@@ -29,20 +30,12 @@ describe('POST /post', () => {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
+        const userStateFactory = new UserStateFactory(db, provider, prover, unirep, app)
 
         // initUserStatus
-        var initUser = await userService.getLoginUser('123', undefined)
+        var initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
-        const signature = await wallet.signMessage(initUser.hashUserId)
-        const identity = new Identity(signature)
-        userState = new UserState({
-            db,
-            provider,
-            prover,
-            unirepAddress: unirep.address,
-            attesterId: BigInt(app.address),
-            id: identity,
-        })
+        userState = await userStateFactory.createUserState(initUser, wallet)
 
         await userState.sync.start()
         await userState.waitForSync()
