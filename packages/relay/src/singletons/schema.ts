@@ -73,7 +73,7 @@ const _schema = [
         primaryKey: 'hashUserId',
         rows: [
             ['hashUserId', 'String'],
-            ['status', 'Int']
+            ['status', 'Int'],
         ],
     },
 ]

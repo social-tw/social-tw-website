@@ -14,7 +14,7 @@ const STATE = 'state'
 
 export class UserService {
     /**
-     * Return User with hashUserId and loginStatus 
+     * Return User with hashUserId and loginStatus
      * - loginStatus = NOT_REGISTERD : User hasn't been registered
      * - loginStatus = REGISTERED: User has been signUp with own wallet
      * - loginStatus = REGISTERED_SERVER: User has been signUp with server wallet
@@ -27,11 +27,16 @@ export class UserService {
         if (state != STATE) throw Error('wrong callback value')
 
         try {
-            const response = await TwitterClient.authClient
-                .requestAccessToken(code as string)
+            const response = await TwitterClient.authClient.requestAccessToken(
+                code as string
+            )
             const userInfo = await TwitterClient.client.users.findMyUser()
             const userId = userInfo.data?.id!!
-            return await this.getLoginUser(db, userId, response.token.access_token)
+            return await this.getLoginUser(
+                db,
+                userId,
+                response.token.access_token
+            )
         } catch (error) {
             console.log('error in getting user id', error)
             throw Error('Error in login')
@@ -39,7 +44,7 @@ export class UserService {
     }
 
     /**
-     * 
+     *
      * @param userId twitter user id
      * @returns hashed user id
      */
@@ -51,24 +56,28 @@ export class UserService {
     // no matter signup / login, relayer sign the message first
     // pass the signature to frontend, let user decide to choose
     // from server or from wallet
-    async getLoginUser(db: DB, userId: string, accessToken: string | undefined) {
+    async getLoginUser(
+        db: DB,
+        userId: string,
+        accessToken: string | undefined
+    ) {
         const hashUserId = this.encodeUserId(userId)
         const wallet = TransactionManager.wallet!!
         const user: User = {
             hashUserId: hashUserId,
             token: accessToken,
             signMsg: await wallet.signMessage(hashUserId),
-            status: UserRegisterStatus.INIT
+            status: UserRegisterStatus.INIT,
         }
-        
+
         const signUpUser = await db.findOne('SignUp', {
             where: {
-                hashUserId: hashUserId
-            }
+                hashUserId: hashUserId,
+            },
         })
 
         if (signUpUser != null) {
-                user.status = signUpUser.status
+            user.status = signUpUser.status
         }
 
         return user
@@ -81,7 +90,6 @@ export class UserService {
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
-
         const signupProof = new SignupProof(
             publicSignals,
             proof,
@@ -116,10 +124,10 @@ export class UserService {
     }
 
     async verifyHashUserId(db: DB, hashUserId: string, accessToken: string) {
-        const user = await db.findOne("SignUp", {
+        const user = await db.findOne('SignUp', {
             where: {
-                hashUserId: hashUserId
-            }
+                hashUserId: hashUserId,
+            },
         })
 
         if (user != null) {
@@ -129,13 +137,15 @@ export class UserService {
         const response: any = await fetch(TWITTER_USER_URL, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
-            }
+                Authorization: `Bearer ${accessToken}`,
+            },
         }).then((r) => r.json())
 
         if (this.encodeUserId(response?.data?.id) != hashUserId) {
-            console.error(`AccessToken is invalid or user ${hashUserId} is not matched`)
-            throw Error("AccessToken is invalid or wrong userId")
+            console.error(
+                `AccessToken is invalid or user ${hashUserId} is not matched`
+            )
+            throw Error('AccessToken is invalid or wrong userId')
         }
     }
 }

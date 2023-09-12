@@ -26,7 +26,7 @@ const useSignupWithServer = (
                 throw new Error('No sign message')
             }
             localStorage.setItem('signature', signMsg)
-            if(!accessToken) {
+            if (!accessToken) {
                 throw new Error('No access token')
             }
             localStorage.setItem('token', accessToken)

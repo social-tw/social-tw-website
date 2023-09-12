@@ -19,7 +19,13 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
-    const [method, setMethod] = useState<Method>(status === '1' ? 'signup' : (status === '2' || status === '3') ? 'login' : '')
+    const [method, setMethod] = useState<Method>(
+        status === '1'
+            ? 'signup'
+            : status === '2' || status === '3'
+            ? 'login'
+            : ''
+    )
     const [isShow, setIsShow] = useState<boolean>(false)
 
     const basicVarients = {
@@ -93,7 +99,12 @@ const Login: React.FC = () => {
             >
                 <div className="flex flex-col gap-12">
                     {(method === '' || !isSmallDevice) && (
-                        <div className={clsx("flex items-center flex-col justify-center", isShow ? 'pt-60' : 'pt-24')}>
+                        <div
+                            className={clsx(
+                                'flex items-center flex-col justify-center',
+                                isShow ? 'pt-60' : 'pt-24'
+                            )}
+                        >
                             <motion.img
                                 src={LogoWhite}
                                 alt="UniRep Logo"
@@ -136,8 +147,10 @@ const Login: React.FC = () => {
                         <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
                             {isShow ? <p>您尚未註冊</p> : <p>歡迎回到</p>}
                             <p>Unirep Social TW！</p>
-                            {(method === 'login' && hashUserId && !isShow) && <p>再一步即可完成登入</p>}
-                            {(method === 'signup' && !isShow) && (
+                            {method === 'login' && hashUserId && !isShow && (
+                                <p>再一步即可完成登入</p>
+                            )}
+                            {method === 'signup' && !isShow && (
                                 <p>只要兩步驟即可完成註冊</p>
                             )}
                         </div>
@@ -149,7 +162,7 @@ const Login: React.FC = () => {
                         </p>
                     )}
 
-                    {(method === 'signup' && !isShow) && (
+                    {method === 'signup' && !isShow && (
                         <motion.div
                             className="flex justify-center"
                             variants={basicVarients}
@@ -185,10 +198,7 @@ const Login: React.FC = () => {
                 handleClick={handleClick}
             />
             {method === '' && (
-                <ScrollingModal
-                    method={method}
-                    variants={postListVariants}
-                >
+                <ScrollingModal method={method} variants={postListVariants}>
                     <PostList />
                 </ScrollingModal>
             )}

@@ -81,12 +81,17 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     // once user signup, save the hash user id into db
     async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
         const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
-        const fromServer = ethers.utils.defaultAbiCoder.decode(['bool'], event.topics[2])[0]
-        const status = fromServer ? UserRegisterStatus.REGISTERER_SERVER : UserRegisterStatus.REGISTERER
+        const fromServer = ethers.utils.defaultAbiCoder.decode(
+            ['bool'],
+            event.topics[2]
+        )[0]
+        const status = fromServer
+            ? UserRegisterStatus.REGISTERER_SERVER
+            : UserRegisterStatus.REGISTERER
 
         db.create('SignUp', {
             hashUserId: hashUserId,
-            status: status
+            status: status,
         })
     }
 }

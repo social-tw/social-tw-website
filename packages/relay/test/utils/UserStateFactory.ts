@@ -1,6 +1,6 @@
-import { DB } from "anondb";
-import User from "../../src/data/User";
-import { UserState } from "@unirep/core";
+import { DB } from 'anondb'
+import User from '../../src/data/User'
+import { UserState } from '@unirep/core'
 import { Identity } from '@semaphore-protocol/identity'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
@@ -11,8 +11,14 @@ export class UserStateFactory {
     prover: Prover
     unirepAddress: string
     attesterId: string
-    
-    constructor(db: DB, provider: ethers.providers.JsonRpcProvider, prover: Prover, unirepAddress: ethers.Contract, attesterId: ethers.Contract) {
+
+    constructor(
+        db: DB,
+        provider: ethers.providers.JsonRpcProvider,
+        prover: Prover,
+        unirepAddress: ethers.Contract,
+        attesterId: ethers.Contract
+    ) {
         this.db = db
         this.provider = provider
         this.prover = prover

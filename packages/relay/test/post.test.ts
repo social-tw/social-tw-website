@@ -30,7 +30,13 @@ describe('POST /post', () => {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
-        const userStateFactory = new UserStateFactory(db, provider, prover, unirep, app)
+        const userStateFactory = new UserStateFactory(
+            db,
+            provider,
+            prover,
+            unirep,
+            app
+        )
 
         // initUserStatus
         var initUser = await userService.getLoginUser(db, '123', undefined)

@@ -49,7 +49,13 @@ describe('LOGIN /login', () => {
         ;({ db, prover, provider, TransactionManager, synchronizer, server } =
             await startServer(unirep, app))
 
-        userStateFactory = new UserStateFactory(db, provider, prover, unirep, app)
+        userStateFactory = new UserStateFactory(
+            db,
+            provider,
+            prover,
+            unirep,
+            app
+        )
     })
 
     afterEach(async () => {
@@ -113,7 +119,11 @@ describe('LOGIN /login', () => {
 
     it('/api/user, init user', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, "access-token")
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
 
         nock(`${CLIENT_URL}`)
             .get('/login')
@@ -121,7 +131,7 @@ describe('LOGIN /login', () => {
                 code: user.hashUserId,
                 status: user.status,
                 token: user.token,
-                signMsg: user.signMsg
+                signMsg: user.signMsg,
             })
             .reply(200)
 
@@ -140,8 +150,15 @@ describe('LOGIN /login', () => {
 
     it('/api/signup, user sign up with wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, "access-token")
-        const userState = await userStateFactory.createUserState(user, TransactionManager.wallet)
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
+        const userState = await userStateFactory.createUserState(
+            user,
+            TransactionManager.wallet
+        )
         await userState.sync.start()
         await userState.waitForSync()
 
@@ -168,7 +185,11 @@ describe('LOGIN /login', () => {
 
     it('/api/signup, user sign up with server', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, "access-token")
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
         const userState = await userStateFactory.createUserState(user)
         await userState.sync.start()
         await userState.waitForSync()
@@ -199,13 +220,19 @@ describe('LOGIN /login', () => {
 
     it('/api/signup, user not sign up with wrong proof and return error', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, 'access-token')
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
         const userState = await userStateFactory.createUserState(user)
         await userState.sync.start()
         await userState.waitForSync()
 
         let wrongSignupProof = await userState.genUserSignUpProof()
-        const publicSignals = wrongSignupProof.publicSignals.map((n) =>n.toString())
+        const publicSignals = wrongSignupProof.publicSignals.map((n) =>
+            n.toString()
+        )
         wrongSignupProof.identityCommitment = BigInt(0)
 
         await chai
@@ -226,7 +253,11 @@ describe('LOGIN /login', () => {
 
     it('/api/signup, handle duplicate signup', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, 'access-token')
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
         const userState = await userStateFactory.createUserState(user)
         await userState.sync.start()
         await userState.waitForSync()
@@ -274,8 +305,15 @@ describe('LOGIN /login', () => {
 
     it('/api/login, registered user with own wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, "access-token")
-        const userState = await userStateFactory.createUserState(user, TransactionManager.wallet)
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
+        const userState = await userStateFactory.createUserState(
+            user,
+            TransactionManager.wallet
+        )
         await userState.sync.start()
         await userState.waitForSync()
 
@@ -300,13 +338,21 @@ describe('LOGIN /login', () => {
             })
 
         await synchronizer.waitForSync()
-        const registeredUser = await userService.getLoginUser(db, mockUserId, "access-token")
+        const registeredUser = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
         expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER)
     })
 
     it('/api/login, registered user with server wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(db, mockUserId, "access-token")
+        const user = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
         const userState = await userStateFactory.createUserState(user)
         await userState.sync.start()
         await userState.waitForSync()
@@ -332,8 +378,14 @@ describe('LOGIN /login', () => {
             })
 
         await synchronizer.waitForSync()
-        const registeredUser = await userService.getLoginUser(db, mockUserId, "access-token")
-        expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER_SERVER)
+        const registeredUser = await userService.getLoginUser(
+            db,
+            mockUserId,
+            'access-token'
+        )
+        expect(registeredUser.status).to.equal(
+            UserRegisterStatus.REGISTERER_SERVER
+        )
     })
 })
 

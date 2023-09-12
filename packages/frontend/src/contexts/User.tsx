@@ -103,7 +103,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
         if (storedHashUserId.length === 0) return
         setHashUserId(storedHashUserId)
-        
+
         const storedToken = localStorage.getItem('token') ?? ''
         if (storedToken.length === 0) return
         setToken(storedToken)

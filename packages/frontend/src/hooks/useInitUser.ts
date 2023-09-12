@@ -4,7 +4,7 @@ import { SignupStatus } from '../contexts/User'
 const useInitUser = (
     signupStatus: SignupStatus,
     load: () => Promise<void>,
-    logout: () => void 
+    logout: () => void
 ) => {
     useEffect(() => {
         const initUser = async () => {

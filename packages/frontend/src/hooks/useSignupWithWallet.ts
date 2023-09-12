@@ -28,7 +28,7 @@ const useSignupWithWallet = (
                 throw new Error('No hash user id')
             }
             localStorage.setItem('hashUserId', hashUserId)
-            if(!accessToken) {
+            if (!accessToken) {
                 throw new Error('No access token')
             }
             if (!window.ethereum) {

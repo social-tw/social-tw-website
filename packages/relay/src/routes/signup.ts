@@ -10,7 +10,8 @@ export default (
 ) => {
     app.post('/api/signup', async (req, res) => {
         try {
-            const { publicSignals, proof, hashUserId, token, fromServer } = req.body
+            const { publicSignals, proof, hashUserId, token, fromServer } =
+                req.body
             await userService.verifyHashUserId(db, hashUserId, token)
             const hash = await userService.signup(
                 publicSignals,

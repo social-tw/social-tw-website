@@ -38,8 +38,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
     isShow,
     onSignup,
     onLogin,
-    handleClick
-}) => { 
+    handleClick,
+}) => {
     const navigate = useNavigate()
     const {
         setSignupStatus,
@@ -114,12 +114,12 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     <LoginButton
                         isLoading={signupStatus === 'pending'}
                         onClick={handleClick}
-                        title='前往註冊頁進行註冊'
+                        title="前往註冊頁進行註冊"
                         color="#DB7622"
                     />
                 </div>
             )}
-            {(status !== '3' && !isShow) && (
+            {status !== '3' && !isShow && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
@@ -151,7 +151,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     </p>
                 </div>
             )}
-            {(status !== '2' && !isShow) && (
+            {status !== '2' && !isShow && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">

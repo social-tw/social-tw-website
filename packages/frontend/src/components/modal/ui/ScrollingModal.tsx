@@ -3,14 +3,14 @@ import { motion } from 'framer-motion'
 
 interface ScrollingModalProps {
     children: React.ReactNode
-    method: string,
+    method: string
     variants: any
 }
 
 const ScrollingModal: React.FC<ScrollingModalProps> = ({
     children,
     method,
-    variants
+    variants,
 }) => {
     const postListRef = useRef<HTMLDivElement>(null)
     const handleScroll = () => {

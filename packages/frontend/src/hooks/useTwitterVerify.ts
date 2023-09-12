@@ -1,9 +1,6 @@
 import { useCallback } from 'react'
 
-const useTwitterVerify = (
-    SERVER: string,
-    method: string
-) => {
+const useTwitterVerify = (SERVER: string, method: string) => {
     const handleTwitterVerify = useCallback(async () => {
         if (method === 'login') {
             localStorage.setItem('showLogin', 'isShow')
