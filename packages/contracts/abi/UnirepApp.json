@@ -28,50 +28,12 @@
     {
         "inputs": [
             {
-                "internalType": "uint160",
-                "name": "attesterId",
-                "type": "uint160"
-            }
-        ],
-        "name": "AttesterIdNotMatch",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "hashUserId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "enum UnirepApp.RegisterStatus",
-                "name": "status",
-                "type": "uint8"
-            }
-        ],
-        "name": "UserAlreadySignedUp",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256",
                 "name": "hashUserId",
                 "type": "uint256"
             }
         ],
-        "name": "UserInitExpiry",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "hashUserId",
-                "type": "uint256"
-            }
-        ],
-        "name": "UserInitStatusInvalid",
+        "name": "UserHasRegistered",
         "type": "error"
     },
     {
@@ -109,26 +71,19 @@
         "anonymous": false,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": true,
                 "internalType": "uint256",
                 "name": "hashUserId",
                 "type": "uint256"
-            }
-        ],
-        "name": "UserInitSuccess",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
+            },
             {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "hashUserId",
-                "type": "uint256"
+                "indexed": true,
+                "internalType": "bool",
+                "name": "fromServer",
+                "type": "bool"
             }
         ],
-        "name": "UserSignUpSuccess",
+        "name": "UserSignUp",
         "type": "event"
     },
     {
@@ -158,19 +113,6 @@
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "hashUserId",
-                "type": "uint256"
-            }
-        ],
-        "name": "initUserStatus",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256[]",
                 "name": "publicSignals",
                 "type": "uint256[]"
@@ -193,25 +135,6 @@
         ],
         "name": "proofNullifier",
         "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "hashUserId",
-                "type": "uint256"
-            }
-        ],
-        "name": "queryUserStatus",
-        "outputs": [
-            {
-                "internalType": "enum UnirepApp.RegisterStatus",
-                "name": "",
-                "type": "uint8"
-            }
-        ],
         "stateMutability": "view",
         "type": "function"
     },

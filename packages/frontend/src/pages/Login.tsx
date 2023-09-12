@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import AuthForm from '../components/login/AuthForm'
 import { motion } from 'framer-motion'
-import DemoPostList from '../components/login/DemoPostList'
 import { clsx } from 'clsx'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoChevronBack } from 'react-icons/io5'
@@ -9,61 +8,25 @@ import StepInfo from '../components/login/StepInfo'
 import LogoWhite from '../assets/logo-white.png'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import PostList from './PostList'
+import ScrollingModal from '../components/modal/ui/ScrollingModal'
 
 type Method = '' | 'signup' | 'login'
 
 const Login: React.FC = () => {
     const [searchParams] = useSearchParams()
     const hashUserId = searchParams.get('code')
+    const accessToken = searchParams.get('token')
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
-    const [method, setMethod] = useState<Method>('')
-    const postListRef = useRef<HTMLDivElement>(null)
-
-    const handleScroll = () => {
-        const container = postListRef.current
-        if (!container) return
-
-        // Find the ul element that contains the li elements
-        const ulElement = container.querySelector('ul')
-        if (!ulElement) return
-
-        const children = Array.from(ulElement.children) as HTMLElement[]
-        const containerHeight = container.clientHeight
-        const scrollPosition = container.scrollTop
-
-        children.forEach((child) => {
-            const childTop = child.offsetTop - scrollPosition + 50
-            const childBottom = childTop + child.clientHeight - 50
-
-            const middle = (containerHeight - child.clientHeight + 200) / 2
-
-            if (childTop <= middle && childBottom >= middle) {
-                child.style.opacity = '1'
-            } else if (childBottom < middle) {
-                child.style.opacity = '0.1'
-            } else {
-                child.style.opacity = '0.3'
-            }
-        })
-    }
-
-    useEffect(() => {
-        const container = postListRef.current
-        if (container) {
-            container.addEventListener('scroll', handleScroll)
-            setTimeout(() => {
-                handleScroll()
-            }, 300)
-        }
-
-        return () => {
-            if (container) {
-                container.removeEventListener('scroll', handleScroll)
-            }
-        }
-    }, [])
+    const [method, setMethod] = useState<Method>(
+        status === '1'
+            ? 'signup'
+            : status === '2' || status === '3'
+            ? 'login'
+            : ''
+    )
+    const [isShow, setIsShow] = useState<boolean>(false)
 
     const basicVarients = {
         hidden: { opacity: 0 },
@@ -103,22 +66,26 @@ const Login: React.FC = () => {
     const handleBack = () => {
         setMethod('')
         if (hashUserId) {
-            navigate('/login')
+            navigate('/login', { replace: true, state: {} })
         } else {
             return
         }
     }
 
-    // status: 1 no, 2 yes
     useEffect(() => {
-        if (hashUserId && status === '1') {
-            setMethod('signup')
-        } else if (hashUserId) {
-            setMethod('login')
+        const showParam = localStorage.getItem('showLogin')
+        if (showParam === 'isShow' && method !== 'login') {
+            setIsShow(true)
         } else {
-            setMethod('')
+            setIsShow(false)
         }
     }, [])
+
+    const handleClick = () => {
+        localStorage.removeItem('showLogin')
+        setIsShow(false)
+        handleBack()
+    }
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
@@ -132,7 +99,12 @@ const Login: React.FC = () => {
             >
                 <div className="flex flex-col gap-12">
                     {(method === '' || !isSmallDevice) && (
-                        <div className="pt-24 flex items-center flex-col justify-center">
+                        <div
+                            className={clsx(
+                                'flex items-center flex-col justify-center',
+                                isShow ? 'pt-60' : 'pt-24'
+                            )}
+                        >
                             <motion.img
                                 src={LogoWhite}
                                 alt="UniRep Logo"
@@ -149,29 +121,48 @@ const Login: React.FC = () => {
                             >
                                 Unirep Social TW
                             </motion.h1>
-                            <motion.h2
-                                className="text-sm font-light tracking-wider text-center text-white mt-9"
-                                variants={textVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
-                                提供你 100% 匿名身份、安全發言的社群！
-                            </motion.h2>
+                            {isShow ? (
+                                <motion.h2
+                                    className="text-sm font-light tracking-wider text-center text-white mt-9"
+                                    variants={textVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                >
+                                    您尚未註冊 Unirep Social TW
+                                </motion.h2>
+                            ) : (
+                                <motion.h2
+                                    className="text-sm font-light tracking-wider text-center text-white mt-9"
+                                    variants={textVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                >
+                                    嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
+                                    提供你 100% 匿名身份、安全發言的社群！
+                                </motion.h2>
+                            )}
                         </div>
                     )}
                     {method !== '' && (
                         <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
-                            <p>歡迎回到</p>
+                            {isShow ? <p>您尚未註冊</p> : <p>歡迎回到</p>}
                             <p>Unirep Social TW！</p>
-                            {method === 'login' && <p>再一步即可完成登入</p>}
-                            {method === 'signup' && (
+                            {method === 'login' && hashUserId && !isShow && (
+                                <p>再一步即可完成登入</p>
+                            )}
+                            {method === 'signup' && !isShow && (
                                 <p>只要兩步驟即可完成註冊</p>
                             )}
                         </div>
                     )}
 
-                    {method === 'signup' && (
+                    {(status === '2' || status === '3') && (
+                        <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                            再一步即可完成登入
+                        </p>
+                    )}
+
+                    {method === 'signup' && !isShow && (
                         <motion.div
                             className="flex justify-center"
                             variants={basicVarients}
@@ -196,22 +187,20 @@ const Login: React.FC = () => {
                 )}
             </div>
             <AuthForm
+                accessToken={accessToken}
                 hashUserId={hashUserId}
-                method={method}
                 signMsg={signMsg}
+                status={status}
+                method={method}
+                isShow={isShow}
                 onSignup={() => setMethod('signup')}
                 onLogin={() => setMethod('login')}
+                handleClick={handleClick}
             />
             {method === '' && (
-                <motion.div
-                    className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[59rem]"
-                    variants={postListVariants}
-                    initial="start"
-                    animate="end"
-                    ref={postListRef}
-                >
+                <ScrollingModal method={method} variants={postListVariants}>
                     <PostList />
-                </motion.div>
+                </ScrollingModal>
             )}
         </div>
     )

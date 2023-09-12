@@ -2,6 +2,7 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
+import { UserRegisterStatus } from './enums/userRegisterStatus'
 
 export enum ActionType {
     Post = 'Post',
@@ -40,7 +41,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ...super.contracts,
             [tempUnirepSocialContract.address]: {
                 contract: tempUnirepSocialContract,
-                eventNames: ['Post'],
+                eventNames: ['Post', 'UserSignUp'],
             },
         }
     }
@@ -74,6 +75,23 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 status: 1,
                 postId,
             },
+        })
+    }
+
+    // once user signup, save the hash user id into db
+    async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
+        const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
+        const fromServer = ethers.utils.defaultAbiCoder.decode(
+            ['bool'],
+            event.topics[2]
+        )[0]
+        const status = fromServer
+            ? UserRegisterStatus.REGISTERER_SERVER
+            : UserRegisterStatus.REGISTERER
+
+        db.create('SignUp', {
+            hashUserId: hashUserId,
+            status: status,
         })
     }
 }
