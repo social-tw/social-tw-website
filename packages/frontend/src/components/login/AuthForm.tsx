@@ -94,7 +94,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             opacity: 1,
             transition: {
                 delay: 0,
-                duration: 1,
+                duration: 0.75,
                 ease: 'easeInOut',
             },
         },
@@ -102,7 +102,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
-    // server: status = 2
     const secondStepContent = (
         <div
             className={clsx(

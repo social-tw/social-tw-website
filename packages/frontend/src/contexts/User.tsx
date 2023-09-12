@@ -37,6 +37,8 @@ export interface UserContextType {
     setSignature: (signature: string) => void
     hashUserId: string
     setHashUserId: (hashUserId: string) => void
+    token: string
+    setToken: (token: string) => void
     signupStatus: SignupStatus
     setSignupStatus: (signupStatus: SignupStatus) => void
     loadData: (userState: UserState) => Promise<void>
@@ -341,8 +343,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setUserState(undefined)
         setSignature('')
         setHashUserId('')
-        localStorage.removeItem('signature')
+        setToken('')
         localStorage.removeItem('hashUserId')
+        localStorage.removeItem('token')
+        localStorage.removeItem('signature')
         localStorage.removeItem('loginStatus')
     }
 
@@ -367,6 +371,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setSignature,
         hashUserId,
         setHashUserId,
+        token,
+        setToken,
         signupStatus,
         setSignupStatus,
         loadData,

@@ -1,16 +1,20 @@
 import { useEffect } from 'react'
 import { SignupStatus } from '../contexts/User'
 
-const useInitUser = (load: () => Promise<void>, signupStatus: SignupStatus) => {
+const useInitUser = (
+    signupStatus: SignupStatus,
+    load: () => Promise<void>,
+    logout: () => void 
+) => {
     useEffect(() => {
         const initUser = async () => {
             try {
-                if (signupStatus === 'pending')
-                    throw new Error('signup is loading')
-                console.log('init user')
+                if (signupStatus === 'pending') {
+                    return
+                }
                 await load()
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                logout()
             }
         }
 
