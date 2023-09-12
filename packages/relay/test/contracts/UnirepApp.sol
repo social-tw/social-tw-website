@@ -28,6 +28,8 @@ contract UnirepApp {
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
 
+    mapping(uint256 => bool) userRegistry;
+
     event Post(
         uint256 indexed epochKey,
         uint256 indexed postId,
@@ -35,29 +37,11 @@ contract UnirepApp {
         string content
     );
 
-    // TODO write document for this enum
-    enum RegisterStatus {
-        NOT_REGISTER,
-        INIT,
-        REGISTERED,
-        REGISTERED_SERVER
-    }
-    
-    uint256 initTimeRange = 300000; // default is 5 min
     uint160 attesterId;
 
-    // store all users
-    mapping(uint256 => RegisterStatus) userRegistry;
-    mapping(uint256 => uint256) userInitExpiryMap;
-    
-    event UserSignUpSuccess(uint256 hashUserId);
-    event UserInitSuccess(uint256 hashUserId);
+    event UserSignUp(uint256 indexed hashUserId, bool indexed fromServer);
 
-    // error 
-    error UserAlreadySignedUp(uint256 hashUserId, RegisterStatus status);
-    error AttesterIdNotMatch(uint160 attesterId);
-    error UserInitStatusInvalid(uint256 hashUserId);
-    error UserInitExpiry(uint256 hashUserId);
+    error UserHasRegistered(uint256 hashUserId);
 
     constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -74,31 +58,6 @@ contract UnirepApp {
         unirep.attesterSignUp(_epochLength);
     }
 
-    // for query current user status
-    function queryUserStatus(uint256 hashUserId) view external returns (RegisterStatus) {
-        // TODO this checking is required?
-        if (uint160(msg.sender) != attesterId) {
-            revert AttesterIdNotMatch(uint160(msg.sender));
-        }
-
-        return userRegistry[hashUserId];
-    }
-
-    // for init the user status after login
-    function initUserStatus(uint256 hashUserId) external {
-        if (uint160(msg.sender) != attesterId) {
-            revert AttesterIdNotMatch(uint160(msg.sender));
-        }
-
-        if (userRegistry[hashUserId] > RegisterStatus.INIT) {
-            revert UserInitStatusInvalid(hashUserId);
-        }
-        
-        userInitExpiryMap[hashUserId] = block.timestamp + initTimeRange;
-        userRegistry[hashUserId] = RegisterStatus.INIT;
-        emit UserInitSuccess(hashUserId);
-    }
-
     // sign up users in this app
     function userSignUp(
         uint256[] calldata publicSignals,
@@ -106,28 +65,14 @@ contract UnirepApp {
         uint256 hashUserId,
         bool fromServer
     ) public {
-        // if (userRegistry[hashUserId] > RegisterStatus.INIT) {
-        //     revert UserAlreadySignedUp(hashUserId, userRegistry[hashUserId]);
-        // }
+        if (userRegistry[hashUserId]) {
+            revert UserHasRegistered(hashUserId);
+        }
 
-        // if (userRegistry[hashUserId] != RegisterStatus.INIT) {
-        //     revert UserInitStatusInvalid(hashUserId);
-        // }
+        userRegistry[hashUserId] = true;
 
-        // // revert when init is expiry 
-        // if (userInitExpiryMap[hashUserId] > 0 
-        //     && userInitExpiryMap[hashUserId] < block.timestamp) {
-        //     revert UserInitExpiry(hashUserId);
-        // }
-
-        // if (fromServer) {
-        //     userRegistry[hashUserId] = RegisterStatus.REGISTERED_SERVER;
-        // } else {
-        //     userRegistry[hashUserId] = RegisterStatus.REGISTERED;
-        // }
-        fromServer;
         unirep.userSignUp(publicSignals, proof);
-        emit UserSignUpSuccess(hashUserId);
+        emit UserSignUp(hashUserId, fromServer);
     }
 
     // post a content in this app

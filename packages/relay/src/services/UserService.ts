@@ -8,6 +8,7 @@ import crypto from 'crypto'
 import User from '../data/User'
 import { DB } from 'anondb/node'
 import { UserRegisterStatus } from '../enums/userRegisterStatus'
+import fetch from 'node-fetch'
 
 const STATE = 'state'
 
@@ -66,7 +67,6 @@ export class UserService {
             }
         })
 
-        // login from server needs to set signMsg
         if (signUpUser != null) {
                 user.status = signUpUser.status
         }
@@ -126,7 +126,7 @@ export class UserService {
             throw Error(`The user has already signed up.`)
         }
 
-        const response = await fetch(TWITTER_USER_URL, {
+        const response: any = await fetch(TWITTER_USER_URL, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
