@@ -6,7 +6,7 @@ import {
 } from '@unirep/contracts/deploy/index.js'
 
 import globalFactory from 'global-factory'
-import UnirepApp from '../artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import { UnirepApp__factory as UnirepAppFactory } from '../typechain-types'
 import DataProofVerifier from '../artifacts/contracts/DataProofVerifier.sol/DataProofVerifier.json'
 
 const epochLength = 300
@@ -25,19 +25,16 @@ export async function deployApp(deployer: ethers.Signer) {
     const verifier = await DataProofVerifierF.deploy()
     await verifier.deployed()
 
-    const App = new ethers.ContractFactory(
-        UnirepApp.abi,
-        UnirepApp.bytecode,
-        deployer
-    )
-    const app = await App.deploy(
+    const AppF = new UnirepAppFactory(deployer)
+
+    const app = await AppF.deploy(
         unirep.address,
         helper.address,
         verifier.address,
         epochLength
     )
 
-    await app.deployed()
+    await app.deployTransaction.wait()
 
     console.log(
         `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
