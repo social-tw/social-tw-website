@@ -1,4 +1,6 @@
-# create-unirep-app
+<p align="center">
+    <h1 align="center">unirep social taiwan</h1>
+</p>
 
 This is a demo app of a [unirep](https://github.com/Unirep/Unirep) attester. In this demo app, users can request data from the example attester. After transition, user can prove how much data he has.
 
