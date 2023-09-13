@@ -25,16 +25,15 @@ Welcome to the unirep social taiwan project. Leveraging the power of Unirep, our
 
 Join us in our journey towards a more anonymous and secure online community space!
 
-
+# Quickstart
 ## 1. Installation
 
 ```shell
-npx create-unirep-app
+git clone git@github.com:social-tw/social-tw-website.git
+cd social-tw-website
 yarn install
 npm install -g circom
 ```
-
-Then `cd` into the directory that was created.
 
 ## 2 Start with each daemon
 
