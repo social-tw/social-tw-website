@@ -40,7 +40,6 @@ describe('LOGIN /login', () => {
 
     beforeEach(async () => {
         snapshot = await ethers.provider.send('evm_snapshot', [])
-
         // open promise testing
         chai.use(chaiAsPromise.default)
         // deploy contracts
@@ -159,11 +158,10 @@ describe('LOGIN /login', () => {
             user,
             TransactionManager.wallet
         )
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        await userStateFactory.initUserState(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
+        )
 
         await chai
             .request(`${HTTP_SERVER}`)
@@ -191,14 +189,10 @@ describe('LOGIN /login', () => {
             'access-token'
         )
         const userState = await userStateFactory.createUserState(user)
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((item) =>
-            item.toString()
+        await userStateFactory.initUserState(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
         )
-        const proof = signupProof.proof.map((item) => item.toString())
 
         await chai
             .request(`${HTTP_SERVER}`)
@@ -206,7 +200,7 @@ describe('LOGIN /login', () => {
             .set('content-type', 'application/json')
             .send({
                 publicSignals: publicSignals,
-                proof: proof,
+                proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -226,14 +220,11 @@ describe('LOGIN /login', () => {
             'access-token'
         )
         const userState = await userStateFactory.createUserState(user)
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        let wrongSignupProof = await userState.genUserSignUpProof()
-        const publicSignals = wrongSignupProof.publicSignals.map((n) =>
-            n.toString()
+        await userStateFactory.initUserState(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
         )
-        wrongSignupProof.identityCommitment = BigInt(0)
+        signupProof.identityCommitment = BigInt(0)
 
         await chai
             .request(`${HTTP_SERVER}`)
@@ -241,7 +232,7 @@ describe('LOGIN /login', () => {
             .set('content-type', 'application/json')
             .query({
                 publicSignals: publicSignals,
-                proof: wrongSignupProof,
+                proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -259,19 +250,16 @@ describe('LOGIN /login', () => {
             'access-token'
         )
         const userState = await userStateFactory.createUserState(user)
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        let signupProof = await userState.genUserSignUpProof()
-        let publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        await userStateFactory.initUserState(userState)
+        let proof = await userStateFactory.genProof(userState)
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
+                publicSignals: proof.publicSignals,
+                proof: proof.signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -284,16 +272,15 @@ describe('LOGIN /login', () => {
 
         // signup again with the same hash user id
         await userState.waitForSync()
-        signupProof = await userState.genUserSignUpProof()
-        publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        proof = await userStateFactory.genProof(userState)
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
+                publicSignals: proof.publicSignals,
+                proof: proof.signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -314,19 +301,16 @@ describe('LOGIN /login', () => {
             user,
             TransactionManager.wallet
         )
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        await userStateFactory.initUserState(userState)
+        let proof = await userStateFactory.genProof(userState)
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
+                publicSignals: proof.publicSignals,
+                proof: proof.signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: false,
@@ -336,16 +320,19 @@ describe('LOGIN /login', () => {
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
-            .catch(async (err) => {
+            .catch(async (err: Error) => {
                 // 0x53d3ff53 means wrong epoch
                 if (err.message.includes('0x53d3ff53')) {
+                    // update epoch
+                    await userState.waitForSync()
+                    proof = await userStateFactory.genProof(userState)
                     await chai
                         .request(`${HTTP_SERVER}`)
                         .post('/api/signup')
                         .set('content-type', 'application/json')
                         .send({
-                            publicSignals: publicSignals,
-                            proof: signupProof._snarkProof,
+                            publicSignals: proof.publicSignals,
+                            proof: proof.signupProof._snarkProof,
                             hashUserId: user.hashUserId,
                             token: user.token,
                             fromServer: false,
@@ -377,19 +364,16 @@ describe('LOGIN /login', () => {
             'access-token'
         )
         const userState = await userStateFactory.createUserState(user)
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        const publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        await userStateFactory.initUserState(userState)
+        let proof = await userStateFactory.genProof(userState)
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
+                publicSignals: proof.publicSignals,
+                proof: proof.signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -399,16 +383,19 @@ describe('LOGIN /login', () => {
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
-            .catch(async (err) => {
+            .catch(async (err: Error) => {
                 // 0x53d3ff53 means wrong epoch
                 if (err.message.includes('0x53d3ff53')) {
+                    // update epoch
+                    await userState.waitForSync()
+                    proof = await userStateFactory.genProof(userState)
                     await chai
                         .request(`${HTTP_SERVER}`)
                         .post('/api/signup')
                         .set('content-type', 'application/json')
                         .send({
-                            publicSignals: publicSignals,
-                            proof: signupProof._snarkProof,
+                            publicSignals: proof.publicSignals,
+                            proof: proof.signupProof._snarkProof,
                             hashUserId: user.hashUserId,
                             token: user.token,
                             fromServer: false,
