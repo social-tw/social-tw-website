@@ -40,12 +40,10 @@ describe('POST /post', () => {
         var initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
         userState = await userStateFactory.createUserState(initUser, wallet)
-
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        var publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        await userStateFactory.initUserState(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
+        )
         // sign up
         await userService.signup(
             publicSignals,

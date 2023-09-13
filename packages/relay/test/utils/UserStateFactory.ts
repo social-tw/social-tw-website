@@ -41,4 +41,15 @@ export class UserStateFactory {
             id: identity,
         })
     }
+
+    async initUserState(userState: UserState) {
+        await userState.sync.start()
+        await userState.waitForSync()
+    }
+
+    async genProof(userState: UserState) {
+        const signupProof = await userState.genUserSignUpProof()
+        const publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        return { signupProof, publicSignals }
+    }
 }
