@@ -107,25 +107,35 @@ yarn frontend start
 It will be running at: http://localhost:3000/
 
 ## 3. Test with each daemon
+
 ### [circuits](packages%2Fcircuits)
+
 ```shell
 yarn circuits test
 ```
+
 [contracts](packages%2Fcontracts)
+
 ```shell
 yarn contracts test
 ```
+
 [frontend](packages%2Ffrontend)
+
 ```shell
 yarn frontend test
 ```
+
 [relay](packages%2Frelay)
+
 ```shell
 yarn relay test
 ```
+
 ## 4. Lint
 
 Ensure that your code follows the established style guidelines and is correctly formatted using Prettier:
+
 ### 4.1 Check Code Formatting
 
 View the suggested code formatting without making changes:
@@ -135,18 +145,24 @@ yarn lint
 ```
 
 ### 4.2 Apply Code Formatting
+
 Automatically format your code to match Prettier's style:
+
 ```shell
 yarn lint:fix
 ```
+
 4.3 Verify Code Formatting
 Ensure that your code is formatted correctly:
+
 ```shell
 yarn lint:check
 ```
 
 # Contributing
+
 ### Getting Started
+
 Before diving into the codebase:
 
 1. **Read the CONTRIBUTING.md**: Please ensure you've reviewed our [CONTRIBUTING.md](CONTRIBUTING.md). It contains crucial information on our coding standards, the pull request process, and more.
@@ -154,20 +170,23 @@ Before diving into the codebase:
 3. **Reporting New Issues**: If you don't find an existing issue that addresses your concern, feel free to open a new one. Provide as much detail as possible to help us understand the context and importance.
 
 ### Steps for Contributing
+
 1. **Fork the Repository**: If you're not a direct contributor, start by forking the main repository.
 2. **Create a New Branch**: Branches should be named descriptively. For example: add-login-feature or fix-image-upload-bug.
 3. **Implement Your Changes**: Make sure your changes adhere to our coding standards and don't introduce new issues.
 4. **Submit a Pull Request (PR)**: Once you're satisfied with your changes, push your branch to your fork and submit a pull request. Our team will review it, suggest changes if necessary, and merge it when it's ready.
 
 ### Branch naming conventions
+
 Please follow the following branch naming scheme when creating your branch:
 
-* `feature/foo-bar` for new features
-* `fix/foo-bar` for bug fixes
-* `test/foo-bar` when the change concerns only the test suite
-* `refactor/foo-bar` when refactoring code without any behavior change
+-   `feature/foo-bar` for new features
+-   `fix/foo-bar` for bug fixes
+-   `test/foo-bar` when the change concerns only the test suite
+-   `refactor/foo-bar` when refactoring code without any behavior change
 
 ## Community
+
 Join the conversation and help the community.
 
-* [Discord](https://discord.gg/RSwXuVNZ4H)
+-   [Discord](https://discord.gg/RSwXuVNZ4H)
