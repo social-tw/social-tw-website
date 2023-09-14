@@ -7,25 +7,34 @@
     <a href="https://github.com/social-tw/social-tw-website">
         <img src="https://img.shields.io/badge/project-unirep social taiwan-blue.svg?style=flat-square">
     </a>
+    <a href="https://github.com/social-tw/social-tw-website/actions">
+        <img alt="Github Action" src="https://github.com/social-tw/social-tw-website/actions/workflows/main-ci.yml/badge.svg?branch=main">
+    </a>
+     <a href="https://github.com/social-tw/social-tw-website/commits/main">
+        <img alt="Github Action" src="https://img.shields.io/github/commit-activity/m/social-tw/social-tw-website?style=flat-square">
+    </a>
     <a href="https://eslint.org/">
         <img alt="Linter eslint" src="https://img.shields.io/badge/linter-eslint-8080f2?style=flat-square&logo=eslint">
     </a>
     <a href="https://prettier.io/">
         <img alt="Code style prettier" src="https://img.shields.io/badge/code%20style-prettier-f8bc45?style=flat-square&logo=prettier">
     </a>
-    <a href="https://github.com/social-tw/social-tw-website/actions">
-        <img alt="Github Action" src="https://github.com/social-tw/social-tw-website/actions/workflows/main-ci.yml/badge.svg?branch=main">
-    </a>
     <a href="https://github.com/social-tw/social-tw-website/graphs/contributors">
         <img alt="Github contributors" src="https://img.shields.io/github/contributors/social-tw/social-tw-website">
     </a>
+    <a href="https://discord.gg/RSwXuVNZ4H">
+        <img alt="chat on Discord" src="https://img.shields.io/discord/1113118365490352220?logo=discord">
+    </a>
 </p>
 
-Welcome to the unirep social taiwan project. Leveraging the power of Unirep, our mission is to create a platform where community members can engage in discussions with 100% anonymity. We believe in fostering a space where individuals can express their thoughts and ideas securely, without the fear of their identities being revealed.
+Welcome to the unirep social taiwan project. Leveraging the power of Unirep, our mission is to create a platform where
+community members can engage in discussions with 100% anonymity. We believe in fostering a space where individuals can
+express their thoughts and ideas securely, without the fear of their identities being revealed.
 
 Join us in our journey towards a more anonymous and secure online community space!
 
 # Quickstart
+
 ## 1. Installation
 
 ```shell
@@ -80,3 +89,5 @@ yarn frontend start
 ```
 
 It will be running at: http://localhost:3000/
+
+# Contributing
