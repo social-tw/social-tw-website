@@ -10,10 +10,8 @@ import { UserRegisterStatus } from '../src/enums/userRegisterStatus'
 import { HTTP_SERVER, CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
 import { Server } from 'http'
-import { Contract, providers } from 'ethers'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { DB } from 'anondb'
-import { Prover } from '@unirep/circuits'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { TransactionManager } from '../src/singletons/TransactionManager'
 
@@ -28,14 +26,10 @@ const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
 describe('LOGIN /login', () => {
     let snapshot: any
-    let app: Contract
-    let unirep: Contract
-    let db: DB
-    let prover: Prover
-    let provider: providers.JsonRpcProvider
-    let TransactionManager: TransactionManager
-    let synchronizer: UnirepSocialSynchronizer
-    let server: Server
+    let anondb: DB
+    let tm: TransactionManager
+    let sync: UnirepSocialSynchronizer
+    let express: Server
     let userStateFactory: UserStateFactory
 
     beforeEach(async () => {
@@ -43,11 +37,15 @@ describe('LOGIN /login', () => {
         // open promise testing
         chai.use(chaiAsPromise.default)
         // deploy contracts
-        ;({ unirep, app } = await deployContracts())
+        const { unirep, app } = await deployContracts()
         // start server
-        ;({ db, prover, provider, TransactionManager, synchronizer, server } =
-            await startServer(unirep, app))
+        const { db, prover, provider, TransactionManager, synchronizer, server } =
+            await startServer(unirep, app)
 
+        anondb = db
+        tm = TransactionManager
+        sync = synchronizer
+        express = server
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -59,7 +57,7 @@ describe('LOGIN /login', () => {
 
     afterEach(async () => {
         await ethers.provider.send('evm_revert', [snapshot])
-        server.close()
+        express.close()
     })
 
     it('/api/login, return url', async () => {
@@ -119,7 +117,7 @@ describe('LOGIN /login', () => {
     it('/api/user, init user', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -150,13 +148,13 @@ describe('LOGIN /login', () => {
     it('/api/signup, user sign up with wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
         const userState = await userStateFactory.createUserState(
             user,
-            TransactionManager.wallet
+            tm.wallet
         )
         await userStateFactory.initUserState(userState)
         const { signupProof, publicSignals } = await userStateFactory.genProof(
@@ -184,7 +182,7 @@ describe('LOGIN /login', () => {
     it('/api/signup, user sign up with server', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -215,7 +213,7 @@ describe('LOGIN /login', () => {
     it('/api/signup, user not sign up with wrong proof and return error', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -245,7 +243,7 @@ describe('LOGIN /login', () => {
     it('/api/signup, handle duplicate signup', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -293,13 +291,13 @@ describe('LOGIN /login', () => {
     it('/api/login, registered user with own wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
         const userState = await userStateFactory.createUserState(
             user,
-            TransactionManager.wallet
+            tm.wallet
         )
         await userStateFactory.initUserState(userState)
         let proof = await userStateFactory.genProof(userState)
@@ -320,36 +318,10 @@ describe('LOGIN /login', () => {
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
-            .catch(async (err: Error) => {
-                // 0x53d3ff53 means wrong epoch
-                if (err.message.includes('0x53d3ff53')) {
-                    // update epoch
-                    await userState.waitForSync()
-                    proof = await userStateFactory.genProof(userState)
-                    await chai
-                        .request(`${HTTP_SERVER}`)
-                        .post('/api/signup')
-                        .set('content-type', 'application/json')
-                        .send({
-                            publicSignals: proof.publicSignals,
-                            proof: proof.signupProof._snarkProof,
-                            hashUserId: user.hashUserId,
-                            token: user.token,
-                            fromServer: false,
-                        })
-                        .then((res) => {
-                            expect(res.body.status).to.equal('success')
-                            expect(res.body.hash).to.be.not.null
-                            expect(res).to.have.status(200)
-                        })
-                } else {
-                    console.log(err.message)
-                }
-            })
 
-        await synchronizer.waitForSync()
+        await sync.waitForSync()
         const registeredUser = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -359,7 +331,7 @@ describe('LOGIN /login', () => {
     it('/api/login, registered user with server wallet', async () => {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
@@ -383,36 +355,10 @@ describe('LOGIN /login', () => {
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
             })
-            .catch(async (err: Error) => {
-                // 0x53d3ff53 means wrong epoch
-                if (err.message.includes('0x53d3ff53')) {
-                    // update epoch
-                    await userState.waitForSync()
-                    proof = await userStateFactory.genProof(userState)
-                    await chai
-                        .request(`${HTTP_SERVER}`)
-                        .post('/api/signup')
-                        .set('content-type', 'application/json')
-                        .send({
-                            publicSignals: proof.publicSignals,
-                            proof: proof.signupProof._snarkProof,
-                            hashUserId: user.hashUserId,
-                            token: user.token,
-                            fromServer: false,
-                        })
-                        .then((res) => {
-                            expect(res.body.status).to.equal('success')
-                            expect(res.body.hash).to.be.not.null
-                            expect(res).to.have.status(200)
-                        })
-                } else {
-                    console.log(err.message)
-                }
-            })
 
-        await synchronizer.waitForSync()
+        await sync.waitForSync()
         const registeredUser = await userService.getLoginUser(
-            db,
+            anondb,
             mockUserId,
             'access-token'
         )
