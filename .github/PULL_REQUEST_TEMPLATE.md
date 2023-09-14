@@ -1,3 +1,5 @@
+Please follow the guidelines in [Contribution.md](https://github.com/social-tw/social-tw-website/blob/main/CONTRIBUTING.md) first, then start to create your pull request here. 
+
 ## Summary
 
 Describe the changes made in your pull request here.
@@ -42,3 +44,4 @@ Break down the progress of the PR for everyone to see what else you intend to in
 -   [ ] All new and existing tests pass
 -   [ ] I have updated the documentation (if applicable)
 -   [ ] My changes do not introduce new security vulnerabilities
+-   [ ] Run `yarn lint:fix`
