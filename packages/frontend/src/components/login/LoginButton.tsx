@@ -5,13 +5,13 @@ import { IconType, icons } from 'react-icons'
 
 interface LoginButtonProps {
     icon?: IconType
-    iconSize?: number 
+    iconSize?: number
     isLoading: boolean
     onClick?: () => void
     title: string
     subTitle?: string
     color: string
-    start?: boolean 
+    start?: boolean
     text: string
 }
 
@@ -25,7 +25,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     color,
     start,
     text,
-    iconSize
+    iconSize,
 }) => {
     return (
         <button
@@ -53,8 +53,9 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             )}
         >
             {Icon && <Icon size={iconSize} />}
-            <span className={clsx(
-                `text-white 
+            <span
+                className={clsx(
+                    `text-white 
                 font-semibold 
                 text-${text} 
                 tracking-wider

@@ -1,7 +1,14 @@
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import {
+    Link,
+    NavLink,
+    Outlet,
+    useLocation,
+    useMatch,
+    useNavigate,
+} from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
@@ -174,7 +181,7 @@ export default function AppLayout() {
                         <h2 className="text-2xl font-bold text-secondary">
                             {header}
                         </h2>
-                        {(!matchPath && location.pathname !== '/profile') && (
+                        {!matchPath && location.pathname !== '/profile' && (
                             <button
                                 className="flex items-center justify-center border rounded-lg w-9 h-9 bg-white/90 shadown-base border-stone-200"
                                 onClick={goBack}

@@ -39,8 +39,14 @@ describe('LOGIN /login', () => {
         // deploy contracts
         const { unirep, app } = await deployContracts()
         // start server
-        const { db, prover, provider, TransactionManager, synchronizer, server } =
-            await startServer(unirep, app)
+        const {
+            db,
+            prover,
+            provider,
+            TransactionManager,
+            synchronizer,
+            server,
+        } = await startServer(unirep, app)
 
         anondb = db
         tm = TransactionManager

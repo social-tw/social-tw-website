@@ -13,10 +13,10 @@ const Profile = () => {
         logout()
     }
     return (
-        <div className='h-screen w-full flex justify-center md:pt-24 pt-8'>
-            <div className='w-full md:w-11/12 md:max-w-[400px] flex flex-col items-center gap-8'>
-                <div className='w-[100px] h-[100px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center'>
-                    <img src={Avatar} alt='Avatar'/>
+        <div className="h-screen w-full flex justify-center md:pt-24 pt-8">
+            <div className="w-full md:w-11/12 md:max-w-[400px] flex flex-col items-center gap-8">
+                <div className="w-[100px] h-[100px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center">
+                    <img src={Avatar} alt="Avatar" />
                 </div>
                 <LoginButton
                     isLoading={signupStatus === 'pending'}
@@ -25,7 +25,7 @@ const Profile = () => {
                     color="#2F9CAF"
                     icon={RiLogoutBoxRLine}
                     start={true}
-                    text='lg'
+                    text="lg"
                     iconSize={24}
                 />
             </div>

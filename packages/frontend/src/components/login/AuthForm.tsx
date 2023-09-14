@@ -116,7 +116,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                         onClick={handleClick}
                         title="前往註冊頁進行註冊"
                         color="#DB7622"
-                        text='2xl'
+                        text="2xl"
                     />
                 </div>
             )}
@@ -142,7 +142,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                                 : '使用 MetaMask 錢包進行註冊'
                         }
                         color="#2F9CAF"
-                        text='2xl'
+                        text="2xl"
                     />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
@@ -175,7 +175,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                                 : '沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
                         }
                         color="#DB7622"
-                        text='2xl'
+                        text="2xl"
                     />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
@@ -198,7 +198,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     title="立即登入"
                     subTitle="歡迎提供你的獨到見解！"
                     color="#2F9CAF"
-                    text='2xl'
+                    text="2xl"
                 />
                 <LoginButton
                     isLoading={signupStatus === 'pending'}
@@ -206,7 +206,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     title="立即註冊"
                     subTitle="只要兩步驟，即可安全匿名分享你的想法！"
                     color="#FF892A"
-                    text='2xl'
+                    text="2xl"
                 />
             </>
         ) : (
@@ -221,7 +221,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                             : '使用 Twitter 帳號註冊'
                     }
                     color="#2F9CAF"
-                    text='2xl'
+                    text="2xl"
                     iconSize={32}
                 />
             </>
