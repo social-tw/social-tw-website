@@ -14,6 +14,7 @@ import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import { UserProvider } from './contexts/User'
+import Profile from './pages/Profile'
 
 dayjs.extend(relativeTime)
 
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
                         path: 'posts/:postId',
                         element: <PostDetail />,
                     },
+                    {
+                        path: 'profile',
+                        element: <Profile />
+                    }
                 ],
             },
             {

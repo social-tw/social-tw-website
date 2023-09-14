@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
@@ -19,9 +19,20 @@ import useInitUser from '../hooks/useInitUser'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
+    const location = useLocation()
     const { load, isLogin, signupStatus, setIsLogin, logout } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
+
+    let header = ''
+
+    if (location.pathname === '/') {
+        header = 'Home'
+    } else if (location.pathname.startsWith('/posts')) {
+        header = 'Posts'
+    } else if (location.pathname === '/profile') {
+        header = 'Profile 個人檔案'
+    }
 
     const navVariants = {
         start: { y: 100 },
@@ -161,9 +172,9 @@ export default function AppLayout() {
                 <section className="flex-1 px-10 pt-20 divide-y divide-neutral-600">
                     <div className="flex gap-5 pb-6">
                         <h2 className="text-2xl font-bold text-secondary">
-                            Home
+                            {header}
                         </h2>
-                        {!matchPath && (
+                        {(!matchPath && location.pathname !== '/profile') && (
                             <button
                                 className="flex items-center justify-center border rounded-lg w-9 h-9 bg-white/90 shadown-base border-stone-200"
                                 onClick={goBack}
