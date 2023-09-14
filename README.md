@@ -41,13 +41,17 @@ Join us in our journey towards a more anonymous and secure online community spac
 
 # Quickstart
 
+## 0. Requirements
+
+-   Intall [rust](https://www.rust-lang.org/tools/install) and [circom 2](https://docs.circom.io/getting-started/installation/)
+-   Node.js >= 18
+
 ## 1. Installation
 
 ```shell
 git clone git@github.com:social-tw/social-tw-website.git
 cd social-tw-website
 yarn install
-npm install -g circom
 ```
 
 ## 2 Start with each daemon
