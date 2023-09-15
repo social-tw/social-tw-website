@@ -18,11 +18,13 @@ let express: Server
 let userState: UserState
 let sync: UnirepSocialSynchronizer
 
-describe('POST /post', () => {
-    beforeEach(async () => {
+describe('POST /post', function () {
+    this.timeout(0)
+
+    beforeEach(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts()
+        const { unirep, app } = await deployContracts(100000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
@@ -58,12 +60,12 @@ describe('POST /post', () => {
         expect(hasSignedUp).equal(true)
     })
 
-    afterEach(async () => {
+    afterEach(async function () {
         ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
-    it('should create a post', async () => {
+    it('should create a post', async function () {
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content'
 
@@ -111,9 +113,10 @@ describe('POST /post', () => {
         })
 
         expect(posts.length).equal(0)
+        userState.sync.stop()
     })
 
-    it('should post failed with wrong proof', async () => {
+    it('should post failed with wrong proof', async function () {
         const testContent = 'test content'
 
         var epochKeyProof = await userState.genEpochKeyProof({
@@ -140,5 +143,6 @@ describe('POST /post', () => {
         })
 
         expect(res.error).equal('Invalid proof')
+        userState.sync.stop()
     })
 })

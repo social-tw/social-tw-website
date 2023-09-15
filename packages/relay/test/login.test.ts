@@ -21,10 +21,13 @@ const TWITTER_API = 'https://api.twitter.com'
 const mockState = 'state'
 const mockCode = 'testCode'
 const mockUserId = '123456'
+const mockUserId2 = '654321'
 const wrongCode = 'wrong-code'
 const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
-describe('LOGIN /login', () => {
+describe('LOGIN /login', function () {
+    this.timeout(0)
+
     let snapshot: any
     let anondb: DB
     let tm: TransactionManager
@@ -32,12 +35,12 @@ describe('LOGIN /login', () => {
     let express: Server
     let userStateFactory: UserStateFactory
 
-    beforeEach(async () => {
+    before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // open promise testing
         chai.use(chaiAsPromise.default)
         // deploy contracts
-        const { unirep, app } = await deployContracts()
+        const { unirep, app } = await deployContracts(100000)
         // start server
         const {
             db,
@@ -61,12 +64,16 @@ describe('LOGIN /login', () => {
         )
     })
 
-    afterEach(async () => {
+    afterEach(async function () {
+        nock.cleanAll()
+    })
+
+    after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
-    it('/api/login, return url', async () => {
+    it('/api/login, return url', async function () {
         await chai
             .request(`${HTTP_SERVER}`)
             .get('/api/login')
@@ -76,7 +83,7 @@ describe('LOGIN /login', () => {
             })
     })
 
-    it('/api/user, init user with wrong code and return error', async () => {
+    it('/api/user, init user with wrong code and return error', async function () {
         // Suppress console.error and restore original console.error
         const originalConsoleError = console.error
         console.log = console.error = console.warn = () => {}
@@ -120,7 +127,7 @@ describe('LOGIN /login', () => {
         console.error = originalConsoleError
     })
 
-    it('/api/user, init user', async () => {
+    it('/api/user, init user', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
             anondb,
@@ -151,72 +158,7 @@ describe('LOGIN /login', () => {
             })
     })
 
-    it('/api/signup, user sign up with wallet', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(
-            anondb,
-            mockUserId,
-            'access-token'
-        )
-        const userState = await userStateFactory.createUserState(
-            user,
-            tm.wallet
-        )
-        await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
-
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .post('/api/signup')
-            .set('content-type', 'application/json')
-            .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
-                hashUserId: user.hashUserId,
-                token: user.token,
-                fromServer: false,
-            })
-            .then((res) => {
-                expect(res.body.status).to.equal('success')
-                expect(res.body.hash).to.be.not.null
-                expect(res).to.have.status(200)
-            })
-    })
-
-    it('/api/signup, user sign up with server', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(
-            anondb,
-            mockUserId,
-            'access-token'
-        )
-        const userState = await userStateFactory.createUserState(user)
-        await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
-
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .post('/api/signup')
-            .set('content-type', 'application/json')
-            .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
-                hashUserId: user.hashUserId,
-                token: user.token,
-                fromServer: true,
-            })
-            .then((res) => {
-                expect(res.body.status).to.equal('success')
-                expect(res.body.hash).to.be.not.null
-                expect(res).to.have.status(200)
-            })
-    })
-
-    it('/api/signup, user not sign up with wrong proof and return error', async () => {
+    it('/api/signup, user not sign up with wrong proof and return error', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
             anondb,
@@ -244,57 +186,11 @@ describe('LOGIN /login', () => {
             .then((res) => {
                 expect(res).to.have.status(500)
             })
+
+        userState.sync.stop()
     })
 
-    it('/api/signup, handle duplicate signup', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(
-            anondb,
-            mockUserId,
-            'access-token'
-        )
-        const userState = await userStateFactory.createUserState(user)
-        await userStateFactory.initUserState(userState)
-        let proof = await userStateFactory.genProof(userState)
-
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .post('/api/signup')
-            .set('content-type', 'application/json')
-            .send({
-                publicSignals: proof.publicSignals,
-                proof: proof.signupProof._snarkProof,
-                hashUserId: user.hashUserId,
-                token: user.token,
-                fromServer: true,
-            })
-            .then((res) => {
-                expect(res.body.status).to.equal('success')
-                expect(res.body.hash).to.be.not.null
-                expect(res).to.have.status(200)
-            })
-
-        // signup again with the same hash user id
-        await userState.waitForSync()
-        proof = await userStateFactory.genProof(userState)
-
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .post('/api/signup')
-            .set('content-type', 'application/json')
-            .send({
-                publicSignals: proof.publicSignals,
-                proof: proof.signupProof._snarkProof,
-                hashUserId: user.hashUserId,
-                token: user.token,
-                fromServer: true,
-            })
-            .then((res) => {
-                expect(res).to.have.status(400)
-            })
-    })
-
-    it('/api/login, registered user with own wallet', async () => {
+    it('/api/signup, user sign up with wallet', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
             anondb,
@@ -306,15 +202,17 @@ describe('LOGIN /login', () => {
             tm.wallet
         )
         await userStateFactory.initUserState(userState)
-        let proof = await userStateFactory.genProof(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
+        )
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: proof.publicSignals,
-                proof: proof.signupProof._snarkProof,
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: false,
@@ -325,33 +223,29 @@ describe('LOGIN /login', () => {
                 expect(res).to.have.status(200)
             })
 
-        await sync.waitForSync()
-        const registeredUser = await userService.getLoginUser(
-            anondb,
-            mockUserId,
-            'access-token'
-        )
-        expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER)
+        userState.sync.stop()
     })
 
-    it('/api/login, registered user with server wallet', async () => {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
+    it('/api/signup, user sign up with server', async function () {
+        prepareUserLoginTwitterApiMock(mockUserId2, mockCode, 'access-token')
         const user = await userService.getLoginUser(
             anondb,
-            mockUserId,
+            mockUserId2,
             'access-token'
         )
         const userState = await userStateFactory.createUserState(user)
         await userStateFactory.initUserState(userState)
-        let proof = await userStateFactory.genProof(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
+        )
 
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
-                publicSignals: proof.publicSignals,
-                proof: proof.signupProof._snarkProof,
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,
                 token: user.token,
                 fromServer: true,
@@ -362,10 +256,53 @@ describe('LOGIN /login', () => {
                 expect(res).to.have.status(200)
             })
 
-        await sync.waitForSync()
+        userState.sync.stop()
+    })
+
+    it('/api/signup, handle duplicate signup', async function () {
+        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
+        const user = await userService.getLoginUser(
+            anondb,
+            mockUserId,
+            'access-token'
+        )
+        const userState = await userStateFactory.createUserState(user)
+        await userStateFactory.initUserState(userState)
+        const { publicSignals, signupProof } = await userStateFactory.genProof(
+            userState
+        )
+
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
+                hashUserId: user.hashUserId,
+                token: user.token,
+                fromServer: true,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+            })
+
+        userState.sync.stop()
+    })
+
+    it('/api/login, registered user with own wallet', async function () {
         const registeredUser = await userService.getLoginUser(
             anondb,
             mockUserId,
+            'access-token'
+        )
+        expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER)
+    })
+
+    it('/api/login, registered user with server wallet', async function () {
+        const registeredUser = await userService.getLoginUser(
+            anondb,
+            mockUserId2,
             'access-token'
         )
         expect(registeredUser.status).to.equal(

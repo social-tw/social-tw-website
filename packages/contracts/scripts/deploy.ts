@@ -13,7 +13,7 @@ main().catch((err) => {
 
 export async function main() {
     const [signer] = await ethers.getSigners()
-    const { unirep, app } = await deployApp(signer)
+    const { unirep, app } = await deployApp(signer, epochLength)
 
     console.log(
         `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`

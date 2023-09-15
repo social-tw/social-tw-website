@@ -28,7 +28,7 @@ contract UnirepApp {
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(bytes32 => bool) public proofNullifier;
 
-    mapping(uint256 => bool) userRegistry;
+    mapping(uint256 => bool) public userRegistry;
 
     event Post(
         uint256 indexed epochKey,

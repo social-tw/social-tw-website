@@ -15,9 +15,9 @@ import { PRIVATE_KEY } from '../src/config'
 
 __dirname = path.join(__dirname, '..', 'src')
 
-export const deployContracts = async () => {
+export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
-    return await deployApp(signer)
+    return await deployApp(signer, epochLength)
 }
 
 export const startServer = async (unirep: any, unirepApp: any) => {

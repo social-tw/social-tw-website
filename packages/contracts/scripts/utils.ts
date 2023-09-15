@@ -9,9 +9,7 @@ import globalFactory from 'global-factory'
 import { UnirepApp__factory as UnirepAppFactory } from '../typechain-types'
 import DataProofVerifier from '../artifacts/contracts/DataProofVerifier.sol/DataProofVerifier.json'
 
-const epochLength = 300
-
-export async function deployApp(deployer: ethers.Signer) {
+export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const unirep = await deployUnirep(deployer)
 
     const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
