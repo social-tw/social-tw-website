@@ -1,6 +1,6 @@
 <p align="center">
     <img src="https://raw.githubusercontent.com/social-tw/social-tw-website/6cae1ef115864d3301a2d216a07f553058f31327/packages/frontend/src/assets/logo.svg"
-        height="130"><h1 align="center">unirep social taiwan</h1>
+        height="130"><h1 align="center">Unirep Social Taiwan</h1>
 </p>
 
 <p align="center">
@@ -180,10 +180,10 @@ Before diving into the codebase:
 
 Please follow the following branch naming scheme when creating your branch:
 
--   `feature/foo-bar` for new features
--   `fix/foo-bar` for bug fixes
--   `test/foo-bar` when the change concerns only the test suite
--   `refactor/foo-bar` when refactoring code without any behavior change
+-   `feature-foo-bar` for new features
+-   `fix-foo-bar` for bug fixes
+-   `test-foo-bar` when the change concerns only the test suite
+-   `refactor-foo-bar` when refactoring code without any behavior change
 
 ## Community
 
