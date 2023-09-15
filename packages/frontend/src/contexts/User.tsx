@@ -74,7 +74,7 @@ interface UserProviderProps {
 }
 
 // TODO: Move the methods to a separate file
-// TODO: Remove unessery states
+// TODO: Remove unnecessary states
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
