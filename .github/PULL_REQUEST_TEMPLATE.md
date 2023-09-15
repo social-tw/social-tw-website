@@ -1,4 +1,4 @@
-Please follow the guidelines in [Contribution.md](https://github.com/social-tw/social-tw-website/blob/main/CONTRIBUTING.md) first, then start to create your pull request here. 
+Please follow the guidelines in [Contribution.md](https://github.com/social-tw/social-tw-website/blob/main/CONTRIBUTING.md) first, then start to create your pull request here.
 
 ## Summary
 
