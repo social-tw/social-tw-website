@@ -1,8 +1,8 @@
 pragma circom 2.1.0;
 
-include "../../../node_modules/@unirep/circuits/circuits/hasher.circom";
-include "../../../node_modules/@unirep/circuits/circuits/incrementalMerkleTree.circom";
-include "../../../node_modules/@unirep/circuits/circuits/circomlib/circuits/comparators.circom";
+include "@unirep/circuits/circuits/hasher.circom";
+include "@unirep/circuits/circuits/incrementalMerkleTree.circom";
+include "@unirep/circuits/circuits/circomlib/circuits/comparators.circom";
 
 
 template DataProof(STATE_TREE_DEPTH, FIELD_COUNT, SUM_FIELD_COUNT) {
