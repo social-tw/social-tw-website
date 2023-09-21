@@ -5,11 +5,14 @@ import { IconType, icons } from 'react-icons'
 
 interface LoginButtonProps {
     icon?: IconType
+    iconSize?: number
     isLoading: boolean
     onClick?: () => void
     title: string
     subTitle?: string
     color: string
+    start?: boolean
+    text: string
 }
 
 // TODO: signup with wallet and without wallet
@@ -20,6 +23,9 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     title,
     subTitle,
     color,
+    start,
+    text,
+    iconSize,
 }) => {
     return (
         <button
@@ -30,12 +36,11 @@ const LoginButton: React.FC<LoginButtonProps> = ({
                 `
             flex
             w-full
-            max-w-[44rem]
-            justify-center
+            max-w-[44rem]           
             items-center
             rounded-xl
             bg-[${color}]
-            py-4
+            p-4
             text-white
             focus:outline-offset-0
             bg-opacity-70
@@ -43,11 +48,21 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             duration-300 
             ease-in-out
             `,
-                Icon ? 'flex-row gap-4' : 'flex-col'
+                Icon ? 'flex-row gap-2' : 'flex-col',
+                start ? 'justify-start' : 'justify-center'
             )}
         >
-            {Icon && <Icon size={32} />}
-            <span className="text-white font-semibold text-2xl tracking-wider">
+            {Icon && <Icon size={iconSize} />}
+            <span
+                className={clsx(
+                    `text-white 
+                font-semibold 
+                text-${text} 
+                tracking-wider
+                `,
+                    Icon && 'mt-1'
+                )}
+            >
                 {title}
             </span>
             <span className="text-xs tracking-wider">{subTitle}</span>

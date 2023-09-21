@@ -37,6 +37,8 @@ export interface UserContextType {
     setSignature: (signature: string) => void
     hashUserId: string
     setHashUserId: (hashUserId: string) => void
+    token: string
+    setToken: (token: string) => void
     signupStatus: SignupStatus
     setSignupStatus: (signupStatus: SignupStatus) => void
     loadData: (userState: UserState) => Promise<void>
@@ -44,12 +46,12 @@ export interface UserContextType {
     sumFieldCount: () => number | undefined
     epochKey: (nonce: number) => string
     load: () => Promise<void>
-    handleServerSignMessage: (hashUserId: string) => Promise<void>
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
-        hashUserId: string
+        hashUserId: string,
+        accessToken: string
     ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
@@ -72,7 +74,7 @@ interface UserProviderProps {
 }
 
 // TODO: Move the methods to a separate file
-// TODO: Remove unessery states
+// TODO: Remove unnecessary states
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
@@ -85,6 +87,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
+    const [token, setToken] = useState<string>('')
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
 
     const load = async () => {
@@ -98,15 +101,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     const createUserState = async () => {
         const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
-
         if (storedHashUserId.length === 0) return
-
         setHashUserId(storedHashUserId)
 
+        const storedToken = localStorage.getItem('token') ?? ''
+        if (storedToken.length === 0) return
+        setToken(storedToken)
+
         const storedSignature = localStorage.getItem('signature') ?? ''
-
         if (storedSignature.length === 0) return
-
         setSignature(storedSignature)
 
         const identity = new Identity(storedSignature)
@@ -175,24 +178,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         [userState]
     )
 
-    const handleServerSignMessage = async (hashUserId: string) => {
-        const response = await fetch(`${SERVER}/api/identity`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                hashUserId,
-            }),
-        })
-        if (!response.ok) {
-            throw new Error('False Identity')
-        }
-        const data = await response.json()
-        const signMessage = data.signMsg
-        localStorage.setItem('signature', signMessage)
-    }
-
     const handleWalletSignMessage = async (hashUserId: string) => {
         const accounts = await window.ethereum.request({
             method: 'eth_requestAccounts',
@@ -213,7 +198,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         async (
             fromServer: boolean,
             userStateInstance: UserState,
-            hashUserId: string
+            hashUserId: string,
+            accessToken: string
         ) => {
             if (!userStateInstance)
                 throw new Error('user state not initialized')
@@ -232,6 +218,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                     publicSignals: publicSignals,
                     proof: proof,
                     hashUserId: hashUserId,
+                    token: accessToken,
                     fromServer: fromServer,
                 }),
             })
@@ -356,8 +343,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setUserState(undefined)
         setSignature('')
         setHashUserId('')
-        localStorage.removeItem('signature')
+        setToken('')
         localStorage.removeItem('hashUserId')
+        localStorage.removeItem('token')
+        localStorage.removeItem('signature')
         localStorage.removeItem('loginStatus')
     }
 
@@ -382,6 +371,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setSignature,
         hashUserId,
         setHashUserId,
+        token,
+        setToken,
         signupStatus,
         setSignupStatus,
         loadData,
@@ -389,7 +380,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         sumFieldCount,
         epochKey,
         load,
-        handleServerSignMessage,
         handleWalletSignMessage,
         signup,
         stateTransition,

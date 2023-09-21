@@ -20,6 +20,7 @@ const _schema = [
             ['nonce', 'Int'],
         ],
     },
+    // TODO: check this schema is necessary or not?
     {
         name: 'User',
         primaryKey: 'userId',
@@ -65,6 +66,14 @@ const _schema = [
                 type: 'Int',
                 default: () => 0,
             },
+        ],
+    },
+    {
+        name: 'SignUp',
+        primaryKey: 'hashUserId',
+        rows: [
+            ['hashUserId', 'String'],
+            ['status', 'Int'],
         ],
     },
 ]

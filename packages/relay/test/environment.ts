@@ -3,11 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { SQLiteConnector } from 'anondb/node.js'
-import { Circuit } from '@unirep/circuits'
-import {
-    deployUnirep,
-    deployVerifierHelper,
-} from '@unirep/contracts/deploy/index.js'
+import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
@@ -15,34 +11,13 @@ import prover from '../src/singletons/prover'
 import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
 
-import { epochLength } from './configs'
 import { PRIVATE_KEY } from '../src/config'
 
 __dirname = path.join(__dirname, '..', 'src')
 
-export const deployContracts = async () => {
+export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
-    const unirep = await deployUnirep(signer)
-
-    const helper = await deployVerifierHelper(signer, Circuit.epochKey)
-    const verifierF = await ethers.getContractFactory('DataProofVerifier')
-    const verifier = await verifierF.deploy()
-    await verifier.deployed()
-    const App = await ethers.getContractFactory('UnirepApp')
-    const app = await App.deploy(
-        unirep.address,
-        helper.address,
-        verifier.address,
-        epochLength
-    )
-
-    await app.deployed()
-
-    console.log(
-        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
-    )
-
-    return { unirep, app }
+    return await deployApp(signer, epochLength)
 }
 
 export const startServer = async (unirep: any, unirepApp: any) => {

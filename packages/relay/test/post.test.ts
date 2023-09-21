@@ -2,7 +2,6 @@ import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 
@@ -12,43 +11,41 @@ import { deployContracts, startServer } from './environment'
 import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import user from '../src/routes/user'
+import { UserStateFactory } from './utils/UserStateFactory'
 
 let snapshot: any
 let express: Server
 let userState: UserState
 let sync: UnirepSocialSynchronizer
 
-describe('POST /post', () => {
-    beforeEach(async () => {
+describe('POST /post', function () {
+    this.timeout(0)
+
+    beforeEach(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts()
+        const { unirep, app } = await deployContracts(100000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
         express = server
         sync = synchronizer
-
-        // initUserStatus
-        var initUser = await userService.getLoginOrInitUser('123')
-        const wallet = ethers.Wallet.createRandom()
-        const signature = await wallet.signMessage(initUser.hashUserId)
-        const identity = new Identity(signature)
-        userState = new UserState({
+        const userStateFactory = new UserStateFactory(
             db,
             provider,
             prover,
-            unirepAddress: unirep.address,
-            attesterId: BigInt(app.address),
-            id: identity,
-        })
+            unirep,
+            app
+        )
 
-        await userState.sync.start()
-        await userState.waitForSync()
-
-        const signupProof = await userState.genUserSignUpProof()
-        var publicSignals = signupProof.publicSignals.map((n) => n.toString())
+        // initUserStatus
+        var initUser = await userService.getLoginUser(db, '123', undefined)
+        const wallet = ethers.Wallet.createRandom()
+        userState = await userStateFactory.createUserState(initUser, wallet)
+        await userStateFactory.initUserState(userState)
+        const { signupProof, publicSignals } = await userStateFactory.genProof(
+            userState
+        )
         // sign up
         await userService.signup(
             publicSignals,
@@ -63,12 +60,12 @@ describe('POST /post', () => {
         expect(hasSignedUp).equal(true)
     })
 
-    afterEach(async () => {
+    afterEach(async function () {
         ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
-    it('should create a post', async () => {
+    it('should create a post', async function () {
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content'
 
@@ -116,9 +113,10 @@ describe('POST /post', () => {
         })
 
         expect(posts.length).equal(0)
+        userState.sync.stop()
     })
 
-    it('should post failed with wrong proof', async () => {
+    it('should post failed with wrong proof', async function () {
         const testContent = 'test content'
 
         var epochKeyProof = await userState.genEpochKeyProof({
@@ -145,5 +143,6 @@ describe('POST /post', () => {
         })
 
         expect(res.error).equal('Invalid proof')
+        userState.sync.stop()
     })
 })

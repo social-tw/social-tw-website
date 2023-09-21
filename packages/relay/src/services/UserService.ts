@@ -2,19 +2,20 @@ import { SignupProof } from '@unirep/circuits'
 import { SnarkProof } from '@unirep/utils'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import TransactionManager from '../singletons/TransactionManager'
-import { APP_ADDRESS, CLIENT_URL } from '../config'
+import { APP_ADDRESS, TWITTER_USER_URL } from '../config'
 import TwitterClient from '../singletons/TwitterClient'
 import crypto from 'crypto'
-import { UserRegisterStatus } from '../enums/userRegisterStatus'
-import { Contract } from 'ethers'
 import User from '../data/User'
+import { DB } from 'anondb/node'
+import { UserRegisterStatus } from '../enums/userRegisterStatus'
+import fetch from 'node-fetch'
 
 const STATE = 'state'
 
 export class UserService {
     /**
      * Return User with hashUserId and loginStatus
-     * - loginStatus = INIT: User has been initialize, then process sign up
+     * - loginStatus = NOT_REGISTERD : User hasn't been registered
      * - loginStatus = REGISTERED: User has been signUp with own wallet
      * - loginStatus = REGISTERED_SERVER: User has been signUp with server wallet
      *                 In this case, signMsg will be included
@@ -22,50 +23,70 @@ export class UserService {
      * @param state from twitter api callback
      * @param code from twitter api callback
      */
-    async loginOrInitUser(state: string, code: string): Promise<User> {
+    async login(state: string, code: string, db: DB): Promise<User> {
         if (state != STATE) throw Error('wrong callback value')
 
         try {
-            var userInfo = await TwitterClient.authClient
-                .requestAccessToken(code as string)
-                .then((_) => TwitterClient.client.users.findMyUser())
+            const response = await TwitterClient.authClient.requestAccessToken(
+                code as string
+            )
+            const userInfo = await TwitterClient.client.users.findMyUser()
+            const userId = userInfo.data?.id!!
+            return await this.getLoginUser(
+                db,
+                userId,
+                response.token.access_token
+            )
         } catch (error) {
             console.log('error in getting user id', error)
             throw Error('Error in login')
         }
-
-        const userId = userInfo.data?.id!!
-        return await this.getLoginOrInitUser(userId)
     }
 
-    async getLoginOrInitUser(userId: string) {
+    /**
+     *
+     * @param userId twitter user id
+     * @returns hashed user id
+     */
+    encodeUserId(userId: string) {
         const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash.update(userId).digest('hex')}`
-        const appContract = TransactionManager.appContract!!
+        return `0x${hash.update(userId).digest('hex')}`
+    }
 
-        // query from contract
-        let statusCode = await appContract.queryUserStatus(hashUserId)
-
-        // if status is NOT_REGISTER or INIT then init user status
-        statusCode = parseInt(statusCode)
-        if (statusCode <= UserRegisterStatus.INIT) {
-            return await this.initUser(hashUserId, appContract)
-        } else if (statusCode == UserRegisterStatus.REGISTERER) {
-            return { hashUserId, status: statusCode, signMsg: undefined }
-        } else if (statusCode == UserRegisterStatus.REGISTERER_SERVER) {
-            const wallet = TransactionManager.wallet!!
-            const signMsg = await wallet.signMessage(hashUserId)
-            return { hashUserId, status: statusCode, signMsg: signMsg }
-        } else {
-            console.log(`Get unknow status from ${hashUserId}`)
-            throw Error('Unknown status')
+    // no matter signup / login, relayer sign the message first
+    // pass the signature to frontend, let user decide to choose
+    // from server or from wallet
+    async getLoginUser(
+        db: DB,
+        userId: string,
+        accessToken: string | undefined
+    ) {
+        const hashUserId = this.encodeUserId(userId)
+        const wallet = TransactionManager.wallet!!
+        const user: User = {
+            hashUserId: hashUserId,
+            token: accessToken,
+            signMsg: await wallet.signMessage(hashUserId),
+            status: UserRegisterStatus.INIT,
         }
+
+        const signUpUser = await db.findOne('SignUp', {
+            where: {
+                hashUserId: hashUserId,
+            },
+        })
+
+        if (signUpUser != null) {
+            user.status = signUpUser.status
+        }
+
+        return user
     }
 
     async signup(
         publicSignals: string[],
         proof: SnarkProof,
-        hashUserId: String,
+        hashUserId: string,
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
@@ -99,32 +120,33 @@ export class UserService {
             calldata
         )
 
+        //FIXME: This should return hash
         return ''
     }
 
-    private async initUser(
-        hashUserId: string,
-        appContract: Contract
-    ): Promise<User> {
-        const calldata = appContract.interface.encodeFunctionData(
-            'initUserStatus',
-            [hashUserId]
-        )
-        const parsedLogs = await TransactionManager.executeTransaction(
-            appContract,
-            APP_ADDRESS,
-            calldata
-        )
-        const status = parseInt(parsedLogs[0]?.args[0])
-        if (status) {
-            return {
-                hashUserId,
-                status: UserRegisterStatus.INIT,
-                signMsg: undefined,
-            }
-        } else {
-            console.log(`There is no result status in ${hashUserId}`)
-            throw Error('Create User Failed')
+    async verifyHashUserId(db: DB, hashUserId: string, accessToken: string) {
+        const user = await db.findOne('SignUp', {
+            where: {
+                hashUserId: hashUserId,
+            },
+        })
+
+        if (user != null) {
+            throw Error(`The user has already signed up.`)
+        }
+
+        const response: any = await fetch(TWITTER_USER_URL, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }).then((r) => r.json())
+
+        if (this.encodeUserId(response?.data?.id) != hashUserId) {
+            console.error(
+                `AccessToken is invalid or user ${hashUserId} is not matched`
+            )
+            throw Error('AccessToken is invalid or wrong userId')
         }
     }
 }

@@ -16,37 +16,44 @@ import useLoginWithServer from '../../hooks/useLoginWithServer'
 import useLoginWithWallet from '../../hooks/useLoginWithWallet'
 
 interface AuthFormProps {
+    accessToken: string | null
     hashUserId: string | null
     signMsg: string | null
     status: string | null
     method: string
+    isShow: boolean
     onSignup: () => void
     onLogin: () => void
+    handleClick: () => void
 }
 
 type NoteStatus = 'close' | 'metamask' | 'server'
 
 const AuthForm: React.FC<AuthFormProps> = ({
+    accessToken,
     hashUserId,
     signMsg,
     status,
     method,
+    isShow,
     onSignup,
     onLogin,
+    handleClick,
 }) => {
     const navigate = useNavigate()
     const {
         setSignupStatus,
         signupStatus,
-        handleServerSignMessage,
         handleWalletSignMessage,
         signup,
         setIsLogin,
         createUserState,
     } = useUser()
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
-    const twitterVerify = useTwitterVerify(SERVER)
+    const twitterVerify = useTwitterVerify(SERVER, method)
+
     const signupWithWallet = useSignUpWithWallet(
+        accessToken,
         hashUserId,
         navigate,
         setSignupStatus,
@@ -55,11 +62,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setIsLogin,
         createUserState
     )
+
     const signupWithServer = useSignupWithServer(
+        accessToken,
         hashUserId,
+        signMsg,
         navigate,
         setSignupStatus,
-        handleServerSignMessage,
         signup,
         setIsLogin,
         createUserState
@@ -85,7 +94,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             opacity: 1,
             transition: {
                 delay: 0,
-                duration: 1,
+                duration: 0.5,
                 ease: 'easeInOut',
             },
         },
@@ -100,7 +109,18 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 isSmallDevice && 'flex-col'
             )}
         >
-            {status !== '3' && (
+            {isShow && (
+                <div className="w-full flex flex-col justify-center items-center gap-2">
+                    <LoginButton
+                        isLoading={signupStatus === 'pending'}
+                        onClick={handleClick}
+                        title="前往註冊頁進行註冊"
+                        color="#DB7622"
+                        text="2xl"
+                    />
+                </div>
+            )}
+            {status !== '3' && !isShow && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
@@ -122,6 +142,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                                 : '使用 MetaMask 錢包進行註冊'
                         }
                         color="#2F9CAF"
+                        text="2xl"
                     />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
@@ -132,7 +153,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     </p>
                 </div>
             )}
-            {status !== '2' && (
+            {status !== '2' && !isShow && (
                 <div className="w-full flex flex-col justify-center items-center gap-2">
                     {method === 'login' && (
                         <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
@@ -154,6 +175,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                                 : '沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
                         }
                         color="#DB7622"
+                        text="2xl"
                     />
                     <p
                         className="text-sm text-[#868D8F] cursor-pointer hover:underline"
@@ -176,6 +198,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     title="立即登入"
                     subTitle="歡迎提供你的獨到見解！"
                     color="#2F9CAF"
+                    text="2xl"
                 />
                 <LoginButton
                     isLoading={signupStatus === 'pending'}
@@ -183,6 +206,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     title="立即註冊"
                     subTitle="只要兩步驟，即可安全匿名分享你的想法！"
                     color="#FF892A"
+                    text="2xl"
                 />
             </>
         ) : (
@@ -197,6 +221,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
                             : '使用 Twitter 帳號註冊'
                     }
                     color="#2F9CAF"
+                    text="2xl"
+                    iconSize={32}
                 />
             </>
         )

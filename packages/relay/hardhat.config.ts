@@ -13,12 +13,6 @@ export default {
     networks: {
         hardhat: {
             blockGasLimit: 12000000,
-            accounts: [
-                {
-                    privateKey: process.env.PRIVATE_KEY ?? _config.PRIVATE_KEY,
-                    balance: ethers.utils.parseEther('10000').toString(),
-                },
-            ],
         },
         local: {
             url: 'http://127.0.0.1:8545',
@@ -37,9 +31,6 @@ export default {
                 },
             },
         ],
-    },
-    paths: {
-        sources: './test/contracts',
     },
     mocha: {
         timeout: 100000000,

@@ -6,7 +6,6 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
-import { dynamicImport } from 'tsimportlib'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import type { Helia } from '@helia/interface'
 
