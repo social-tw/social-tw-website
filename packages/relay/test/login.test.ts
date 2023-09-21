@@ -12,7 +12,6 @@ import { ethers } from 'hardhat'
 import { Server } from 'http'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { DB } from 'anondb'
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { TransactionManager } from '../src/singletons/TransactionManager'
 
 chai.use(chaiHttp)
@@ -23,6 +22,7 @@ const mockCode = 'testCode'
 const mockUserId = '123456'
 const mockUserId2 = '654321'
 const wrongCode = 'wrong-code'
+const wrongCommitment = BigInt(0)
 const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
 describe('LOGIN /login', function () {
@@ -31,7 +31,6 @@ describe('LOGIN /login', function () {
     let snapshot: any
     let anondb: DB
     let tm: TransactionManager
-    let sync: UnirepSocialSynchronizer
     let express: Server
     let userStateFactory: UserStateFactory
 
@@ -42,18 +41,11 @@ describe('LOGIN /login', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const {
-            db,
-            prover,
-            provider,
-            TransactionManager,
-            synchronizer,
-            server,
-        } = await startServer(unirep, app)
+        const { db, prover, provider, TransactionManager, server } =
+            await startServer(unirep, app)
 
         anondb = db
         tm = TransactionManager
-        sync = synchronizer
         express = server
         userStateFactory = new UserStateFactory(
             db,
@@ -158,7 +150,7 @@ describe('LOGIN /login', function () {
             })
     })
 
-    it('/api/signup, user not sign up with wrong proof and return error', async function () {
+    it('/api/signup, user sign up with wrong proof and return error', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
             anondb,
@@ -170,7 +162,7 @@ describe('LOGIN /login', function () {
         const { signupProof, publicSignals } = await userStateFactory.genProof(
             userState
         )
-        signupProof.identityCommitment = BigInt(0)
+        signupProof.identityCommitment = wrongCommitment
 
         await chai
             .request(`${HTTP_SERVER}`)
@@ -223,6 +215,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(200)
             })
 
+        await userState.waitForSync()
         userState.sync.stop()
     })
 
@@ -256,6 +249,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(200)
             })
 
+        await userState.waitForSync()
         userState.sync.stop()
     })
 
