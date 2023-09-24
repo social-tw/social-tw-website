@@ -1,7 +1,7 @@
 //@ts-ignore
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { deployUnirep, deployVerifierHelper } from '@unirep/contracts/deploy'
+import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { CircuitConfig, Circuit } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
 import { schema, UserState } from '@unirep/core'
@@ -11,6 +11,7 @@ import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import crypto from 'crypto'
 import { describe } from 'node:test'
+import { deployApp } from '../scripts/utils'
 
 const { SUM_FIELD_COUNT } = CircuitConfig.default
 
@@ -44,8 +45,6 @@ async function genUserState(id, app) {
 }
 
 describe('Unirep App', function () {
-    this.timeout(0)
-
     let unirep
     let app
     let hashUserId: string
@@ -62,19 +61,9 @@ describe('Unirep App', function () {
 
         // deployment
         const [deployer] = await ethers.getSigners()
-        unirep = await deployUnirep(deployer)
-        const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
-        const verifierF = await ethers.getContractFactory('DataProofVerifier')
-        const verifier = await verifierF.deploy()
-        await verifier.deployed()
-        const App = await ethers.getContractFactory('UnirepApp')
-        app = await App.deploy(
-            unirep.address,
-            helper.address,
-            verifier.address,
-            epochLength
-        )
-        await app.deployed()
+        const contracts = await deployApp(deployer, epochLength)
+        unirep = contracts.unirep
+        app = contracts.app
     })
 
     describe('user signup', function () {

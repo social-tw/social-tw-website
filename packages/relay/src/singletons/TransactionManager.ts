@@ -2,7 +2,6 @@ import { Contract, ethers } from 'ethers'
 import { DB } from 'anondb/node'
 import { APP_ADDRESS } from '../config'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
-import { LogDescription } from 'ethers/lib/utils'
 
 export class TransactionManager {
     appContract?: Contract
@@ -214,12 +213,13 @@ export class TransactionManager {
             })
         }
         const nonce = await this.getNonce(this.wallet.address)
+        const gasPrice = await this.wallet.provider.getGasPrice()
+        const { chainId } = await this.wallet.provider.getNetwork()
         const signedData = await this.wallet.signTransaction({
             nonce,
             to,
-            // gasPrice: 2 * 10 ** 9, // 2 gwei
-            // gasPrice: 10000,
-            gasPrice: 299365979,
+            chainId,
+            gasPrice,
             ...args,
         })
         await this._db?.create('AccountTransaction', {

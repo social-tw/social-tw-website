@@ -6,7 +6,7 @@ import nock from 'nock'
 import { deployContracts, startServer } from './environment'
 import { userService } from '../src/services/UserService'
 import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
-import { UserRegisterStatus } from '../src/enums/userRegisterStatus'
+import { UserRegisterStatus } from '../src/types/UserRegisterStatus'
 import { HTTP_SERVER, CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
 import { Server } from 'http'
@@ -26,8 +26,6 @@ const wrongCommitment = BigInt(0)
 const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
 describe('LOGIN /login', function () {
-    this.timeout(0)
-
     let snapshot: any
     let anondb: DB
     let tm: TransactionManager
