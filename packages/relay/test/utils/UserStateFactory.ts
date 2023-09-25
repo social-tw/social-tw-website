@@ -1,5 +1,5 @@
 import { DB } from 'anondb'
-import { User } from '../../src/types/User'
+import { User } from '../../src/types'
 import { UserState } from '@unirep/core'
 import { Identity } from '@semaphore-protocol/identity'
 import { ethers } from 'ethers'

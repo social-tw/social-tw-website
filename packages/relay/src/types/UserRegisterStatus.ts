@@ -1,4 +1,4 @@
-export const enum UserRegisterStatus {
+export enum UserRegisterStatus {
     NOT_REGISTER,
     INIT,
     REGISTERER,
