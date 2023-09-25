@@ -85,9 +85,20 @@ contract UnirepApp {
         require(!proofNullifier[nullifier], 'The proof has been used before');
         proofNullifier[nullifier] = true;
 
-        epkHelper.verifyAndCheck(publicSignals, proof);
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
-            .decodeEpochKeySignals(publicSignals);
+        epkHelper.verifyAndCheckCaller(publicSignals, proof);
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+
+        // check state tree root        
+        require(
+            unirep.attesterStateTreeRootExists(
+                signals.attesterId, 
+                signals.epoch, 
+                signals.stateTreeRoot
+            )
+        );
+        // check current epoch
+        require(unirep.attesterCurrentEpoch(attesterId) == signals.epoch);
+        
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
