@@ -75,15 +75,17 @@ const AuthForm: React.FC<AuthFormProps> = ({
     )
 
     const loginWithServer = useLoginWithServer(
-        navigate,
+        accessToken,
         hashUserId,
         signMsg,
+        navigate,
         createUserState
     )
 
     const loginWithWallet = useLoginWithWallet(
-        navigate,
+        accessToken,
         hashUserId,
+        navigate,
         handleWalletSignMessage,
         createUserState
     )
