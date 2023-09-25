@@ -1,5 +1,6 @@
 import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
+import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 declare global {
     interface Window {
@@ -12,6 +13,7 @@ const useSignupWithWallet = (
     hashUserId: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
+    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     signup: (
         fromServer: boolean,
@@ -25,29 +27,36 @@ const useSignupWithWallet = (
     const signUpWithWallet = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('No hash user id')
+                throw new Error('MISSING_ELEMENT')
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!accessToken) {
-                throw new Error('No access token')
+                throw new Error('MISSING_ELEMENT')
             }
             localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
-                throw new Error('請安裝MetaMask錢包')
+                throw new Error('NO_WALLET')
             }
-            await handleWalletSignMessage(hashUserId)
+            try { 
+                await handleWalletSignMessage(hashUserId)
+            } catch (error: any) {
+                throw new Error('WALLET_ISSUE')
+            }
             const userStateInstance = await createUserState()
-            if (!userStateInstance) throw new Error('No user state instance')
+            if (!userStateInstance) throw new Error('MISSING_ELEMENT')
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId, accessToken)
-            console.log('has signed up')
+            try {
+                await signup(false, userStateInstance, hashUserId, accessToken)
+            } catch (error: any) {
+                throw new Error('SIGNUP_FAILED')
+            }
             setSignupStatus('success')
             localStorage.setItem('loginStatus', 'success')
             setIsLogin(true)
-        } catch (error) {
+        } catch (error: any) {
             setSignupStatus('error')
-            console.error(error)
+            setErrorCode(error.message)
         }
     }
 

@@ -2,9 +2,7 @@ import './styles/main.css'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
-import { Toaster } from 'react-hot-toast'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { LoadingProvider } from './contexts/LoadingContext'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
@@ -18,6 +16,7 @@ import Profile from './pages/Profile'
 
 dayjs.extend(relativeTime)
 
+// TODO: Protect routes 
 const router = createBrowserRouter([
     {
         element: <OnboardingLayout />,

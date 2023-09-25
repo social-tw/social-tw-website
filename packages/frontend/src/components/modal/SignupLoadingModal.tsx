@@ -29,7 +29,6 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
         if (status === 'pending') {
             const timers: NodeJS.Timeout[] = []
 
-            // Loop through the textsAndTimes array and set up timeouts
             textsAndTimes.forEach(({ text, time }) => {
                 const timer = setTimeout(() => {
                     setPendingText(text)
@@ -100,8 +99,6 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             )
             break
     }
-
-    if (status === 'error') return null
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 

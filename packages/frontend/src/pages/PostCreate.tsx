@@ -19,7 +19,6 @@ export default function PostCreate() {
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
-            toast('貼文成功送出')
             navigate('/')
         } catch (err) {
             errorDialog?.current?.showModal()

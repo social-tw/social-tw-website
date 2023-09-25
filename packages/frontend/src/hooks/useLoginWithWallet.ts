@@ -1,38 +1,38 @@
 import { UserState } from '@unirep/core'
-
-declare global {
-    interface Window {
-        ethereum: any
-    }
-}
+import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const useLoginWithWallet = (
     accessToken: string | null,
     hashUserId: string | null,
     navigate: (path: string) => void,
+    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithWallet = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('No hash user id')
+                throw new Error('MISSING_ELEMENT')
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!accessToken) {
-                throw new Error('No hash user id')
+                throw new Error('MISSING_ELEMENT')
             }
             localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
-                throw new Error('請安裝MetaMask錢包')
+                throw new Error('NO_WALLET')
             }
-            await handleWalletSignMessage(hashUserId)
+            try { 
+                await handleWalletSignMessage(hashUserId)
+            } catch (error: any) {
+                throw new Error('WALLET_ISSUE')
+            }
             await createUserState()
             localStorage.removeItem('showLogin')
             localStorage.setItem('loginStatus', 'success')
             navigate('/')
-        } catch (error) {
-            console.error(error)
+        } catch (error: any) {
+            setErrorCode(error.message)
         }
     }
 

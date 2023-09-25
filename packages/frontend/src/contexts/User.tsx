@@ -13,6 +13,7 @@ import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import prover from './Prover'
+import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -41,6 +42,8 @@ export interface UserContextType {
     setToken: (token: string) => void
     signupStatus: SignupStatus
     setSignupStatus: (signupStatus: SignupStatus) => void
+    errorCode: keyof typeof ERROR_MESSAGES | ''
+    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES | '') => void
     loadData: (userState: UserState) => Promise<void>
     fieldCount: () => number | undefined
     sumFieldCount: () => number | undefined
@@ -84,11 +87,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
     const [userState, setUserState] = useState<UserState | undefined>()
-    const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
+    const [provider, setProvider] = useState<any>() 
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
     const [token, setToken] = useState<string>('')
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
+    const [errorCode, setErrorCode] = useState<keyof typeof ERROR_MESSAGES | ''>('')
 
     const load = async () => {
         const userStateInstance = await createUserState()
@@ -375,6 +379,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setToken,
         signupStatus,
         setSignupStatus,
+        errorCode,
+        setErrorCode,
         loadData,
         fieldCount,
         sumFieldCount,

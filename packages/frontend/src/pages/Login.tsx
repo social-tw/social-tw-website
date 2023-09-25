@@ -9,6 +9,8 @@ import LogoWhite from '../assets/logo-white.png'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import PostList from './PostList'
 import ScrollingModal from '../components/modal/ui/ScrollingModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
 
 type Method = '' | 'signup' | 'login'
 
@@ -19,6 +21,7 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
+    const { errorCode } = useUser()
     const [method, setMethod] = useState<Method>(
         status === '1'
             ? 'signup'
@@ -91,6 +94,7 @@ const Login: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full items-center">
+            <ErrorModal isOpen={errorCode !== ''}/>
             <div
                 className={clsx(
                     `z-20 flex flex-col w-11/12`,
