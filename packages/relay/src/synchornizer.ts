@@ -2,11 +2,7 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { UserRegisterStatus } from './enums/userRegisterStatus'
-
-export enum ActionType {
-    Post = 'Post',
-}
+import { UserRegisterStatus } from './types'
 
 type EventHandlerArgs = {
     event: ethers.Event

@@ -19,8 +19,6 @@ let userState: UserState
 let sync: UnirepSocialSynchronizer
 
 describe('POST /post', function () {
-    this.timeout(0)
-
     beforeEach(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
