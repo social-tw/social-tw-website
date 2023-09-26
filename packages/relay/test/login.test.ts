@@ -282,6 +282,36 @@ describe('LOGIN /login', function () {
         userState.sync.stop()
     })
 
+    it('/api/signup, sign up with different attesterId',async function () {
+        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
+        const user = await userService.getLoginUser(
+            anondb,
+            mockUserId,
+            'access-token'
+        )
+        const anotherAppAddress = ethers.Wallet.createRandom().address
+        const userState = await userStateFactory.createUserState(user, undefined, anotherAppAddress)
+        const { publicSignals, signupProof } = await userStateFactory.genProof(
+            userState
+        )
+
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
+                hashUserId: user.hashUserId,
+                token: user.token,
+                fromServer: true,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+            })
+        userState.sync.stop()
+    })
+
     it('/api/login, registered user with own wallet', async function () {
         const registeredUser = await userService.getLoginUser(
             anondb,
