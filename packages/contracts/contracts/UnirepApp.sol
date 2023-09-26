@@ -94,10 +94,12 @@ contract UnirepApp {
                 signals.attesterId, 
                 signals.epoch, 
                 signals.stateTreeRoot
-            )
+            ), "This root does not exist."
         );
-        // check current epoch
-        require(unirep.attesterCurrentEpoch(attesterId) == signals.epoch);
+
+        // check the epoch is smaller then current epoch
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        require(signals.epoch <= epoch, "Invalid Epoch");
         
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
