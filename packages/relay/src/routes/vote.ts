@@ -46,12 +46,14 @@ async function Vote(
             return
         }
 
-        const findPost = await this.db.findOne('Post', {
+        //find post which is voted
+        const findPost = await db.findOne('Post', {
             where: {
                 _id: _id,
             },
         })
         
+        //check upCount or downCount
         let count = 0
         let voteMethod = "upCount"
         if(vote == 0){
@@ -64,6 +66,7 @@ async function Vote(
             return
         }
 
+        //update post info in database
         const post = await db.update('Post', {
             where: {
                 _id: findPost._id,
@@ -72,7 +75,6 @@ async function Vote(
                 [voteMethod]: count
             }
         })
-
         res.json({
             post,
         })
