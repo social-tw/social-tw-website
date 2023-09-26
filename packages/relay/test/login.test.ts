@@ -217,6 +217,43 @@ describe('LOGIN /login', function () {
         userState.sync.stop()
     })
 
+    it('/api/signup, sign up with different attesterId', async function () {
+        prepareUserLoginTwitterApiMock(mockUserId2, mockCode, 'access-token')
+        const user = await userService.getLoginUser(
+            anondb,
+            mockUserId2,
+            'access-token'
+        )
+
+        const userState = await userStateFactory.createUserState(user)
+        await userStateFactory.initUserState(userState)
+        const { publicSignals, signupProof } = await userStateFactory.genProof(
+            userState
+        )
+
+        const currentEpoch = getCurrentEpoch(publicSignals[2])!
+        const anotherAppAddress = ethers.Wallet.createRandom().address
+        const wrongControl =
+            BigInt(anotherAppAddress) + (BigInt(2) ^ BigInt(160)) * currentEpoch
+        publicSignals[2] = wrongControl.toString()
+
+        await chai
+            .request(`${HTTP_SERVER}`)
+            .post('/api/signup')
+            .set('content-type', 'application/json')
+            .send({
+                publicSignals: publicSignals,
+                proof: signupProof._snarkProof,
+                hashUserId: user.hashUserId,
+                token: user.token,
+                fromServer: true,
+            })
+            .then((res) => {
+                expect(res).to.have.status(500)
+            })
+        userState.sync.stop()
+    })
+
     it('/api/signup, user sign up with server', async function () {
         prepareUserLoginTwitterApiMock(mockUserId2, mockCode, 'access-token')
         const user = await userService.getLoginUser(
@@ -279,36 +316,6 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(400)
             })
 
-        userState.sync.stop()
-    })
-
-    it('/api/signup, sign up with different attesterId',async function () {
-        prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
-        const user = await userService.getLoginUser(
-            anondb,
-            mockUserId,
-            'access-token'
-        )
-        const anotherAppAddress = ethers.Wallet.createRandom().address
-        const userState = await userStateFactory.createUserState(user, undefined, anotherAppAddress)
-        const { publicSignals, signupProof } = await userStateFactory.genProof(
-            userState
-        )
-
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .post('/api/signup')
-            .set('content-type', 'application/json')
-            .send({
-                publicSignals: publicSignals,
-                proof: signupProof._snarkProof,
-                hashUserId: user.hashUserId,
-                token: user.token,
-                fromServer: true,
-            })
-            .then((res) => {
-                expect(res).to.have.status(400)
-            })
         userState.sync.stop()
     })
 
@@ -378,4 +385,11 @@ function prepareUserLoginTwitterApiMock(
                 username: 'SocialTWDev',
             },
         })
+}
+
+function getCurrentEpoch(control?: string) {
+    if (!control) return null
+    const binary = BigInt(control) >> BigInt(160)
+    const mask = (BigInt(1) << BigInt(48)) - BigInt(1)
+    return binary & mask
 }

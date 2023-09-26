@@ -56,11 +56,7 @@ export class UserService {
     // no matter signup / login, relayer sign the message first
     // pass the signature to frontend, let user decide to choose
     // from server or from wallet
-    async getLoginUser(
-        db: DB,
-        userId: string,
-        accessToken: string | undefined
-    ) {
+    async getLoginUser(db: DB, userId: string, accessToken?: string) {
         const hashUserId = this.encodeUserId(userId)
         const wallet = TransactionManager.wallet!!
         const user: User = {
@@ -90,7 +86,7 @@ export class UserService {
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        // verify attesterId is using the same as app
+        // verify attesterId, should be the same as app
         const clientAttesterId = this.getAttesterId(publicSignals[2])
         if (synchronizer.attesterId != clientAttesterId)
             throw new Error('Invalid attesterId')
@@ -155,10 +151,10 @@ export class UserService {
         }
     }
 
-    private getAttesterId(control: string | undefined) {
+    private getAttesterId(control?: string) {
         if (!control) return null
         const binary = BigInt(control)
-        const mask = ((BigInt(1) << BigInt(160)) - BigInt(1))
+        const mask = (BigInt(1) << BigInt(160)) - BigInt(1)
         return binary & mask
     }
 }
