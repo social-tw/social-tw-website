@@ -1,7 +1,7 @@
 import { DB } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import { errorHandler } from '../middleware'
@@ -83,7 +83,7 @@ async function createPost(
 
         // get current epoch and unirep contract
         const epoch = await synchronizer.loadCurrentEpoch()
-        const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
+        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
         let calldata: any
