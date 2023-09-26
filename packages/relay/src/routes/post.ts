@@ -3,13 +3,11 @@ import { ethers } from 'ethers'
 import { Express } from 'express'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
 import { EpochKeyProof } from '@unirep/circuits'
-import { APP_ADDRESS } from '../config'
+import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import type { Helia } from '@helia/interface'
-
-export const LOAD_POST_COUNT = 10
 
 export default (
     app: Express,
