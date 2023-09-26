@@ -90,6 +90,11 @@ export class UserService {
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
+        // verify attesterId is using the same as app
+        const clientAttesterId = this.getAttesterId(publicSignals[2])
+        if (synchronizer.attesterId != clientAttesterId)
+            throw new Error('Invalid attesterId')
+
         const signupProof = new SignupProof(
             publicSignals,
             proof,
@@ -148,6 +153,13 @@ export class UserService {
             )
             throw Error('AccessToken is invalid or wrong userId')
         }
+    }
+
+    private getAttesterId(control: string | undefined) {
+        if (!control) return null
+        const binary = BigInt(control)
+        const mask = ((BigInt(1) << BigInt(160)) - BigInt(1))
+        return binary & mask
     }
 }
 
