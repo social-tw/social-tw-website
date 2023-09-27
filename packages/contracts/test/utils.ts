@@ -1,8 +1,8 @@
-import { ethers } from "hardhat"
-import { Identity } from "@semaphore-protocol/identity"
-import {schema, UserState} from '@unirep/core'
+import { ethers } from 'hardhat'
+import { Identity } from '@semaphore-protocol/identity'
+import { schema, UserState } from '@unirep/core'
 import { SQLiteConnector } from 'anondb/node'
-import { defaultProver as prover } from "@unirep-app/circuits/provers/defaultProver"
+import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import crypto from 'crypto'
 
 export function createRandomUserIdentity(): [string, Identity] {
