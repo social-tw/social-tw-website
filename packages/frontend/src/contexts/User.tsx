@@ -34,7 +34,7 @@ export interface UserContextType {
     setProvableData: (provableData: bigint[]) => void
     userState?: UserState
     setUserState: (userState?: UserState) => void
-    provider: any 
+    provider: any
     setProvider: (provider: any) => void
     signature: string
     setSignature: (signature: string) => void
@@ -84,17 +84,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
-    const [isLogin, setIsLogin] = useLocalStorage("loginStatus", null)
+    const [isLogin, setIsLogin] = useLocalStorage('loginStatus', null)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
     const [userState, setUserState] = useState<UserState | undefined>()
-    const [provider, setProvider] = useState<any>() 
+    const [provider, setProvider] = useState<any>()
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
     const [token, setToken] = useState<string>('')
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
-    const [errorCode, setErrorCode] = useState<keyof typeof ERROR_MESSAGES | ''>('')
+    const [errorCode, setErrorCode] = useState<
+        keyof typeof ERROR_MESSAGES | ''
+    >('')
 
     const load = async () => {
         const userStateInstance = await createUserState()

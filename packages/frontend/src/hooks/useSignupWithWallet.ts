@@ -37,7 +37,7 @@ const useSignupWithWallet = (
             if (!window.ethereum) {
                 throw new Error('NO_WALLET')
             }
-            try { 
+            try {
                 await handleWalletSignMessage(hashUserId)
             } catch (error: any) {
                 throw new Error('WALLET_ISSUE')

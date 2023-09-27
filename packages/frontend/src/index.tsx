@@ -17,7 +17,7 @@ import { ProtectedRoute } from './contexts/ProtectedRoute'
 
 dayjs.extend(relativeTime)
 
-// TODO: Protect routes 
+// TODO: Protect routes
 const router = createBrowserRouter([
     {
         element: <OnboardingLayout />,
@@ -39,10 +39,11 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: '/',
-                        element: 
-                        <ProtectedRoute>
-                            <PostList />
-                        </ProtectedRoute>
+                        element: (
+                            <ProtectedRoute>
+                                <PostList />
+                            </ProtectedRoute>
+                        ),
                     },
                     {
                         path: 'posts/:postId',
@@ -50,19 +51,21 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'profile',
-                        element: 
-                        <ProtectedRoute>
-                            <Profile />
-                        </ProtectedRoute>
+                        element: (
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        ),
                     },
                 ],
             },
             {
                 path: 'write',
-                element: 
-                <ProtectedRoute>
-                    <PostCreate />
-                </ProtectedRoute>
+                element: (
+                    <ProtectedRoute>
+                        <PostCreate />
+                    </ProtectedRoute>
+                ),
             },
         ],
     },

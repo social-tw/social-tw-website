@@ -121,13 +121,13 @@ export default function AppLayout() {
                     >
                         <NavLink
                             className="flex items-center justify-center flex-1"
-                            to='/'
+                            to="/"
                         >
                             <HomeIcon className="text-white w-14 h-14" />
                         </NavLink>
                         <NavLink
                             className="flex items-center justify-center flex-1"
-                            to='/explore'
+                            to="/explore"
                         >
                             <StarIcon className="text-white w-14 h-14" />
                         </NavLink>
@@ -135,20 +135,20 @@ export default function AppLayout() {
                             <NavLink
                                 className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
                                 title="create a post"
-                                to='/write'
+                                to="/write"
                             >
                                 <AddIcon className="w-8 h-8 text-secondary" />
                             </NavLink>
                         </div>
                         <NavLink
                             className="flex items-center justify-center flex-1"
-                            to='/nofitication'
+                            to="/nofitication"
                         >
                             <BellIcon className="text-white w-14 h-14" />
                         </NavLink>
                         <NavLink
                             className="flex items-center justify-center flex-1"
-                            to='/profile'
+                            to="/profile"
                         >
                             <PersonCircleIcon className="text-white w-14 h-14" />
                         </NavLink>

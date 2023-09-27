@@ -45,7 +45,8 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className={clsx(`
+                className={clsx(
+                    `
                 ${postion} 
                 inset-0 
                 z-50

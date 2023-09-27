@@ -26,8 +26,8 @@ const Login: React.FC = () => {
         status === '1'
             ? 'signup'
             : status === '2' || status === '3'
-                ? 'login'
-                : ''
+            ? 'login'
+            : ''
     )
     const [isShow, setIsShow] = useState<boolean>(false)
 
@@ -186,7 +186,8 @@ const Login: React.FC = () => {
 
                     {status === '1' && !isShow && (
                         <p className="text-white tracking-wide text-[15px] text-center">
-                            選擇「錢包註冊」 / 「直接註冊」即代表未來登入的方式 ，無法再做更改
+                            選擇「錢包註冊」 / 「直接註冊」即代表未來登入的方式
+                            ，無法再做更改
                         </p>
                     )}
                 </div>
