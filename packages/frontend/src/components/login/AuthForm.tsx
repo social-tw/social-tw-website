@@ -130,9 +130,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 </div>
             )}
             {status !== '3' && !isShow && (
-                <div className="w-full flex flex-col justify-center items-center gap-2">
+                <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     {method === 'login' && (
-                        <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
+                        <p className="text-white tracking-wide text-[15px] mb-5 px-2">
                             您當時註冊時選擇為「錢包註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
                             Twitter 帳號註冊
                         </p>
@@ -163,9 +163,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 </div>
             )}
             {status !== '2' && !isShow && (
-                <div className="w-full flex flex-col justify-center items-center gap-2">
+                <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     {method === 'login' && (
-                        <p className="text-white tracking-wide text-[15px] mb-5 px-2 max-w-[44rem]">
+                        <p className="text-white tracking-wide text-[15px] mb-5 px-2">
                             您當時註冊時選擇為「直接註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
                             Twitter 帳號註冊
                         </p>
