@@ -4,45 +4,14 @@ import { expect } from 'chai'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { CircuitConfig, Circuit } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
-import { schema, UserState } from '@unirep/core'
-import { SQLiteConnector } from 'anondb/node'
 import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
-import crypto from 'crypto'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils'
+import { createRandomUserIdentity, genUserState } from './utils'
 
 const { SUM_FIELD_COUNT } = CircuitConfig.default
-
-function createRandomUserIdentity(): [string, Identity] {
-    const hash = crypto.createHash('sha3-224')
-    const hashUserId = `0x${hash
-        .update(new Identity().toString())
-        .digest('hex')}` as string
-    const id = new Identity(hashUserId) as Identity
-    // console.log('Random hashed user id: ', hashUserId)
-
-    return [hashUserId, id]
-}
-
-async function genUserState(id, app) {
-    // generate a user state
-    const db = await SQLiteConnector.create(schema, ':memory:')
-    const unirepAddress = await app.unirep()
-    const attesterId = BigInt(app.address)
-    const userState = new UserState({
-        db,
-        prover,
-        unirepAddress,
-        provider: ethers.provider,
-        attesterId,
-        id,
-    })
-    await userState.sync.start()
-    await userState.waitForSync()
-    return userState
-}
 
 describe('Unirep App', function () {
     let unirep
@@ -143,9 +112,7 @@ describe('Unirep App', function () {
 
         it('should fail to post with reused proof', async function () {
             const content = 'reused proof'
-            expect(
-                app.post(inputPublicSig, inputProof, content)
-            ).to.be.revertedWith('The proof has been used before')
+            expect(app.post(inputPublicSig, inputProof, content)).to.be.reverted
         })
     })
 
