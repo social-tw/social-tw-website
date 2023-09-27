@@ -87,15 +87,25 @@ export class UserService {
         synchronizer: UnirepSocialSynchronizer
     ) {
         // verify attesterId, should be the same as app
-        const clientAttesterId = this.getAttesterId(publicSignals[2])
-        if (synchronizer.attesterId != clientAttesterId)
-            throw new Error('Invalid attesterId')
-
         const signupProof = new SignupProof(
             publicSignals,
             proof,
             synchronizer.prover
         )
+        if (synchronizer.attesterId != signupProof.attesterId)
+            throw new Error('Invalid attesterId')
+
+        // double confirm the commitment exist or not
+        const commitment = signupProof.identityCommitment.toString()
+        const attesterId = signupProof.attesterId.toString()
+        const isUserExist = await synchronizer.db.findOne('UserSignUp', {
+            where: {
+                commitment,
+                attesterId,
+            },
+        })
+        if (isUserExist) throw new Error('The user has already signed up.')
+
         const valid = await signupProof.verify()
         if (!valid) {
             throw new Error('Invalid proof')
@@ -149,13 +159,6 @@ export class UserService {
             )
             throw Error('AccessToken is invalid or wrong userId')
         }
-    }
-
-    private getAttesterId(control?: string) {
-        if (!control) return null
-        const binary = BigInt(control)
-        const mask = (BigInt(1) << BigInt(160)) - BigInt(1)
-        return binary & mask
     }
 }
 
