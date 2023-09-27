@@ -14,6 +14,8 @@ import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import prover from './Prover'
 import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import useInitUser from '../hooks/useInitUser'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -22,8 +24,8 @@ export interface UserContextType {
     setCurrentEpoch: (epoch: number) => void
     latestTransitionedEpoch: number
     setLatestTransitionedEpoch: (epoch: number) => void
-    isLogin: boolean
-    setIsLogin: (param: boolean) => void
+    isLogin: any
+    setIsLogin: (param: string) => void
     hasSignedUp: boolean
     setHasSignedUp: (hasSignedUp: boolean) => void
     data: bigint[]
@@ -32,7 +34,7 @@ export interface UserContextType {
     setProvableData: (provableData: bigint[]) => void
     userState?: UserState
     setUserState: (userState?: UserState) => void
-    provider: any // TODO: Replace with the appropriate type
+    provider: any 
     setProvider: (provider: any) => void
     signature: string
     setSignature: (signature: string) => void
@@ -82,7 +84,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
-    const [isLogin, setIsLogin] = useState<boolean>(false)
+    const [isLogin, setIsLogin] = useLocalStorage("loginStatus", null)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
@@ -353,6 +355,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('signature')
         localStorage.removeItem('loginStatus')
     }
+
+    useInitUser(signupStatus, load, logout)
 
     const value: UserContextType = {
         currentEpoch,

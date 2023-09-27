@@ -7,6 +7,7 @@ const useLoginWithWallet = (
     navigate: (path: string) => void,
     setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
+    setIsLogin: (param: string) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithWallet = async () => {
@@ -29,7 +30,7 @@ const useLoginWithWallet = (
             }
             await createUserState()
             localStorage.removeItem('showLogin')
-            localStorage.setItem('loginStatus', 'success')
+            setIsLogin('success')
             navigate('/')
         } catch (error: any) {
             setErrorCode(error.message)

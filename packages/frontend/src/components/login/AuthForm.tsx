@@ -48,7 +48,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         signup,
         setIsLogin,
         createUserState,
-        setErrorCode
+        setErrorCode,
     } = useUser()
     const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
     const twitterVerify = useTwitterVerify(SERVER, method)
@@ -83,6 +83,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         signMsg,
         navigate,
         setErrorCode,
+        setIsLogin,
         createUserState
     )
 
@@ -92,6 +93,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         navigate,
         setErrorCode,
         handleWalletSignMessage,
+        setIsLogin,
         createUserState
     )
 

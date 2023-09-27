@@ -7,6 +7,7 @@ const useInitUser = (
     logout: () => void
 ) => {
     useEffect(() => {
+        console.log('User loaded')
         const initUser = async () => {
             try {
                 if (signupStatus === 'pending') {

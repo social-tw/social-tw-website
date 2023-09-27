@@ -13,6 +13,7 @@ import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import { UserProvider } from './contexts/User'
 import Profile from './pages/Profile'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 
 dayjs.extend(relativeTime)
 
@@ -38,7 +39,10 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: '/',
-                        element: <PostList />,
+                        element: 
+                        <ProtectedRoute>
+                            <PostList />
+                        </ProtectedRoute>
                     },
                     {
                         path: 'posts/:postId',
@@ -46,13 +50,19 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'profile',
-                        element: <Profile />,
+                        element: 
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
                     },
                 ],
             },
             {
                 path: 'write',
-                element: <PostCreate />,
+                element: 
+                <ProtectedRoute>
+                    <PostCreate />
+                </ProtectedRoute>
             },
         ],
     },

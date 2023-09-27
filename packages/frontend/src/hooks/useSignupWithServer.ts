@@ -15,7 +15,7 @@ const useSignupWithServer = (
         hashUserId: string,
         accessToken: string
     ) => Promise<void>,
-    setIsLogin: (param: boolean) => void,
+    setIsLogin: (param: string) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const signupWithServer = async () => {
@@ -42,8 +42,7 @@ const useSignupWithServer = (
                 throw new Error('SIGNUP_FAILED')
             }
             setSignupStatus('success')
-            localStorage.setItem('loginStatus', 'success')
-            setIsLogin(true)
+            setIsLogin('success')
         } catch (error: any) {
             setSignupStatus('error')
             setErrorCode(error.message)

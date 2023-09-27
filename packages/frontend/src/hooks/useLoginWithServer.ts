@@ -7,6 +7,7 @@ const useLoginWithServer = (
     signMsg: string | null,
     navigate: (path: string) => void,
     setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
+    setIsLogin: (param: any) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithServer = async () => {
@@ -24,7 +25,7 @@ const useLoginWithServer = (
             }
             localStorage.setItem('token', accessToken)
             await createUserState()
-            localStorage.setItem('loginStatus', 'success')
+            setIsLogin('success')
             localStorage.removeItem('showLogin')
             navigate('/')
         } catch (error: any) {

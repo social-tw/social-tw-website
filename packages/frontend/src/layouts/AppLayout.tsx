@@ -21,13 +21,11 @@ import StarIcon from '../assets/star.svg'
 import ErrorModal from '../components/modal/ErrorModal'
 import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
 import { useUser } from '../contexts/User'
-import useAutoNavigation from '../hooks/useAutoNavigation'
-import useInitUser from '../hooks/useInitUser'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
     const location = useLocation()
-    const { load, isLogin, signupStatus, setIsLogin, logout } = useUser()
+    const { isLogin, signupStatus } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
 
@@ -60,9 +58,6 @@ export default function AppLayout() {
             navigate('/')
         }
     }
-
-    useInitUser(signupStatus, load, logout)
-    useAutoNavigation(signupStatus, setIsLogin, navigate)
 
     useEffect(() => {
         if (isLogin) {
