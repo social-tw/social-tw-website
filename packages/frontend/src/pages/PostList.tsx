@@ -10,19 +10,11 @@ import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
 import usePosts from '../hooks/usePosts'
 
-interface Post {
-    id: string
-    epochKey: string
-    content: string
-    publishedAt: Date
-    commentCount: number
-    upCount: number
-    downCount: number
-}
+import type { PostInfo } from '../types'
 
 const examplePosts = [
     {
-        id: '1',
+        id: 'demo-1',
         epochKey: 'epochKey-1',
         publishedAt: new Date(),
         content:
@@ -32,7 +24,7 @@ const examplePosts = [
         downCount: 0,
     },
     {
-        id: '2',
+        id: 'demo-2',
         epochKey: 'epochKey-2',
         publishedAt: new Date(),
         content:
@@ -42,38 +34,8 @@ const examplePosts = [
         downCount: 0,
     },
     {
-        id: '3',
+        id: 'demo-3',
         epochKey: 'epochKey-3',
-        publishedAt: new Date(),
-        content:
-            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
-        commentCount: 0,
-        upCount: 0,
-        downCount: 0,
-    },
-    {
-        id: '4',
-        epochKey: 'epochKey-4',
-        publishedAt: new Date(),
-        content:
-            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
-        commentCount: 0,
-        upCount: 0,
-        downCount: 0,
-    },
-    {
-        id: '5',
-        epochKey: 'epochKey-5',
-        publishedAt: new Date(),
-        content:
-            '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
-        commentCount: 0,
-        upCount: 0,
-        downCount: 0,
-    },
-    {
-        id: '6',
-        epochKey: 'epochKey-6',
         publishedAt: new Date(),
         content:
             '剛剛和一群好友一起參加了一場令人驚喜的音樂會！我們聽到了一位非常出色的音樂家演奏，他的技巧和激情真是讓人難以置信。音樂會的現場氣氛也非常棒，大家都在跟著節奏搖擺，沉浸在美妙的音樂中。音樂總是有種神奇的力量，它能夠觸動人心，帶給我們情緒的共鳴。這次音樂會真的讓我重新燃起對音樂的熱愛，我想以後會更積極地參加各種音樂活動。如果你也喜歡音樂，不妨多花時間去欣賞和體驗。',
@@ -86,7 +48,7 @@ const examplePosts = [
 export default function PostList() {
     const errorDialog = useRef<HTMLDialogElement>(null)
     const { isLogin, signupStatus } = useUser()
-    const [posts, setPosts] = useState<Post[]>([])
+    const [posts, setPosts] = useState<PostInfo[]>([])
     const [isShow, setIsShow] = useState(false)
     const location = useLocation()
 
@@ -102,7 +64,16 @@ export default function PostList() {
 
     const loadPosts = useCallback(async () => {
         const response = await fetch(`${SERVER}/api/post`)
-        const posts = await response.json()
+        const postsJson = await response.json()
+        const posts = postsJson.map((post: any) => ({
+            id: post._id,
+            epochKey: post.epochKey,
+            content: post.content,
+            publishedAt: post.publishedAt,
+            commentCount: post.commentCount,
+            upCount: post.upCount,
+            downCount: post.downCount,
+        }))
 
         setPosts([...posts, ...examplePosts])
     }, [])

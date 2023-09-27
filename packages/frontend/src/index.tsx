@@ -2,9 +2,8 @@ import './styles/main.css'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
-import { Toaster } from 'react-hot-toast'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { LoadingProvider } from './contexts/LoadingContext'
+import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
@@ -13,7 +12,6 @@ import Login from './pages/Login'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
-import { UserProvider } from './contexts/User'
 import Profile from './pages/Profile'
 
 dayjs.extend(relativeTime)
@@ -42,7 +40,7 @@ const router = createBrowserRouter([
                         element: <PostList />,
                     },
                     {
-                        path: 'posts/:postId',
+                        path: 'posts/:id',
                         element: <PostDetail />,
                     },
                     {

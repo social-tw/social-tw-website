@@ -49,6 +49,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 transactionHash,
             },
         })
+        if (!findPost) return
 
         const epochKey = BigInt(event.topics[1]).toString(10)
         const postId = BigInt(event.topics[2]).toString()
