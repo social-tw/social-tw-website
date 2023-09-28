@@ -3,9 +3,10 @@ import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Dialog from '../components/Dialog'
 import ErrorModal from '../components/modal/ErrorModal'
-import PostForm, { PostValues } from '../components/PostForm'
+import PostForm, { PostValues } from '../components/post/PostForm'
 import { useUser } from '../contexts/User'
-import usePosts from '../hooks/usePosts'
+import useCreatePost from '../hooks/useCreatePost'
+import { CancelledTaskError } from '../utils/makeCancellableTask'
 
 export default function PostCreate() {
     const errorDialog = useRef<HTMLDialogElement>(null)
@@ -14,7 +15,8 @@ export default function PostCreate() {
 
     const navigate = useNavigate()
 
-    const { create } = usePosts()
+    const { create, cancel, reset, isCancellable, isCancelled } =
+        useCreatePost()
 
     const onSubmit = async (values: PostValues) => {
         try {
@@ -22,16 +24,26 @@ export default function PostCreate() {
             toast('貼文成功送出')
             navigate('/')
         } catch (err) {
-            errorDialog?.current?.showModal()
+            if (err instanceof CancelledTaskError) {
+                reset()
+            } else {
+                errorDialog?.current?.showModal()
+            }
         }
     }
 
-    if (!isLogin) {
+    if (false) {
         return <ErrorModal isOpen={true} />
     } else {
         return (
             <div className="p-4">
-                <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
+                <PostForm
+                    onCancel={() => navigate('/')}
+                    onSubmit={onSubmit}
+                    onSubmitCancel={cancel}
+                    isSubmitCancellable={isCancellable}
+                    isSubmitCancelled={isCancelled}
+                />
                 <Dialog ref={errorDialog} ariaLabel="post error message">
                     <section className="p-6 md:px-12">
                         <p className="text-base font-medium text-black/90">
