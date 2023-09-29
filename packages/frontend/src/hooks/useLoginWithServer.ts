@@ -1,27 +1,27 @@
 import { UserState } from '@unirep/core'
-import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const useLoginWithServer = (
     accessToken: string | null,
     hashUserId: string | null,
     signMsg: string | null,
     navigate: (path: string) => void,
-    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
+    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     setIsLogin: (param: any) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithServer = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!signMsg) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('signature', signMsg)
             if (!accessToken) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('token', accessToken)
             await createUserState()

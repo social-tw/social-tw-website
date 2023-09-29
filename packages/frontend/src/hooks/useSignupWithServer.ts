@@ -1,6 +1,6 @@
 import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
-import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const useSignupWithServer = (
     accessToken: string | null,
@@ -8,7 +8,7 @@ const useSignupWithServer = (
     signMsg: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
-    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES) => void,
+    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
@@ -21,25 +21,25 @@ const useSignupWithServer = (
     const signupWithServer = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!signMsg) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('signature', signMsg)
             if (!accessToken) {
-                throw new Error('MISSING_ELEMENT')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('token', accessToken)
             const userStateInstance = await createUserState()
-            if (!userStateInstance) throw new Error('MISSING_ELEMENT')
+            if (!userStateInstance) throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             setSignupStatus('pending')
             navigate('/')
             try {
                 await signup(true, userStateInstance, hashUserId, accessToken)
             } catch (error: any) {
-                throw new Error('SIGNUP_FAILED')
+                throw new Error(LOGIN_ERROR_MESSAGES.SIGNUP_FAILED.code)
             }
             setSignupStatus('success')
             setIsLogin('success')

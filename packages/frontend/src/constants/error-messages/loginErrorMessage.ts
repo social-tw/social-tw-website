@@ -1,4 +1,4 @@
-const ERROR_MESSAGES = {
+const LOGIN_ERROR_MESSAGES = {
     SIGNUP_FAILED: {
         code: 'SIGNUP_FAILED',
         message: '很抱歉通知您，您註冊失敗，請返回註冊頁再次嘗試註冊，謝謝您！',
@@ -29,4 +29,4 @@ const ERROR_MESSAGES = {
     },
 }
 
-export default ERROR_MESSAGES
+export default LOGIN_ERROR_MESSAGES
