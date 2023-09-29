@@ -1,9 +1,10 @@
 import { UserState } from '@unirep/core'
 
 const useLoginWithServer = (
-    navigate: (path: string) => void,
+    accessToken: string | null,
     hashUserId: string | null,
     signMsg: string | null,
+    navigate: (path: string) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const loginWithServer = async () => {
@@ -16,6 +17,10 @@ const useLoginWithServer = (
                 throw new Error('No signature')
             }
             localStorage.setItem('signature', signMsg)
+            if (!accessToken) {
+                throw new Error('No access token')
+            }
+            localStorage.setItem('token', accessToken)
             await createUserState()
             localStorage.setItem('loginStatus', 'success')
             localStorage.removeItem('showLogin')

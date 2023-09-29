@@ -31,10 +31,10 @@ const useSignupWithWallet = (
             if (!accessToken) {
                 throw new Error('No access token')
             }
+            localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
-            localStorage.setItem('token', accessToken)
             await handleWalletSignMessage(hashUserId)
             const userStateInstance = await createUserState()
             if (!userStateInstance) throw new Error('No user state instance')

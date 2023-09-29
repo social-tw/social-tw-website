@@ -7,8 +7,9 @@ declare global {
 }
 
 const useLoginWithWallet = (
-    navigate: (path: string) => void,
+    accessToken: string | null,
     hashUserId: string | null,
+    navigate: (path: string) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     createUserState: () => Promise<UserState | undefined>
 ) => {
@@ -18,6 +19,10 @@ const useLoginWithWallet = (
                 throw new Error('No hash user id')
             }
             localStorage.setItem('hashUserId', hashUserId)
+            if (!accessToken) {
+                throw new Error('No hash user id')
+            }
+            localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
                 throw new Error('請安裝MetaMask錢包')
             }
