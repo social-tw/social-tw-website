@@ -3,6 +3,7 @@ import {
     deployUnirep,
     deployVerifierHelper,
 } from '@unirep/contracts/deploy/index.js'
+import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json' assert { type: 'json' }
 import DATA_PROOF_VIRIFIER from '@unirep-app/contracts/artifacts/contracts/DataProofVerifier.sol/DataProofVerifier.json' assert { type: 'json' }
 import { ContractFactory, ethers } from 'ethers'
@@ -36,11 +37,7 @@ async function deployUnirepSocial(
     const verifierContract = await verifierFactory.deploy()
     await verifierContract.deployTransaction.wait()
 
-    const appFactory = new ContractFactory(
-        UNIREP_APP.abi,
-        UNIREP_APP.bytecode,
-        deployer
-    )
+    const appFactory = new ContractFactory(ABI, UNIREP_APP.bytecode, deployer)
     const appContract = await factory.deploy(
         unirepAddr,
         helperAddr,

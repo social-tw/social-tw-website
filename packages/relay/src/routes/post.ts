@@ -1,15 +1,14 @@
 import { DB } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { EpochKeyProof } from '@unirep/circuits'
-import { APP_ADDRESS } from '../config'
+import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
-import type { Helia } from '@helia/interface'
 
-export const LOAD_POST_COUNT = 10
+import type { Helia } from '@helia/interface'
 
 export default (
     app: Express,
@@ -28,6 +27,13 @@ export default (
         '/api/post',
         errorHandler(async (req, res, next) => {
             await createPost(req, res, db, synchronizer, helia)
+        })
+    )
+
+    app.get(
+        '/api/post/:id',
+        errorHandler(async (req, res, next) => {
+            await fetchSinglePost(req, res, db)
         })
     )
 }
@@ -83,7 +89,7 @@ async function createPost(
 
         // get current epoch and unirep contract
         const epoch = await synchronizer.loadCurrentEpoch()
-        const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
+        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
         let calldata: any
@@ -127,6 +133,28 @@ async function createPost(
         })
     } catch (error: any) {
         console.log(error)
+        res.status(500).json({ error })
+    }
+}
+
+async function fetchSinglePost(req, res, db: DB) {
+    try {
+        const id = req.params.id
+        if (!id) {
+            res.status(400).json({ error: 'id is undefined' })
+        }
+
+        const post = await db.findOne('Post', {
+            where: {
+                _id: id,
+            },
+        })
+        if (!post) {
+            res.status(404).json({ error: `post is not found: ${id}` })
+        }
+
+        res.json(post)
+    } catch (error: any) {
         res.status(500).json({ error })
     }
 }

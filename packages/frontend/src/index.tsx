@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
@@ -11,7 +12,6 @@ import Login from './pages/Login'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
-import { UserProvider } from './contexts/User'
 import Profile from './pages/Profile'
 import { ProtectedRoute } from './contexts/ProtectedRoute'
 
@@ -46,7 +46,7 @@ const router = createBrowserRouter([
                         ),
                     },
                     {
-                        path: 'posts/:postId',
+                        path: 'posts/:id',
                         element: <PostDetail />,
                     },
                     {

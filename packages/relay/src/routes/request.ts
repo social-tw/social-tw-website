@@ -4,7 +4,7 @@ import { DB } from 'anondb/node'
 import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 export default (
@@ -27,7 +27,7 @@ export default (
                 return
             }
             const epoch = await synchronizer.loadCurrentEpoch()
-            const appContract = new ethers.Contract(APP_ADDRESS, UNIREP_APP.abi)
+            const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
             const keys = Object.keys(reqData)
             let calldata: any

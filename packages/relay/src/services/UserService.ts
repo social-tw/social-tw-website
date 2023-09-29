@@ -56,11 +56,7 @@ export class UserService {
     // no matter signup / login, relayer sign the message first
     // pass the signature to frontend, let user decide to choose
     // from server or from wallet
-    async getLoginUser(
-        db: DB,
-        userId: string,
-        accessToken: string | undefined
-    ) {
+    async getLoginUser(db: DB, userId: string, accessToken?: string) {
         const hashUserId = this.encodeUserId(userId)
         const wallet = TransactionManager.wallet!!
         const user: User = {
@@ -90,11 +86,26 @@ export class UserService {
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
+        // verify attesterId, should be the same as app
         const signupProof = new SignupProof(
             publicSignals,
             proof,
             synchronizer.prover
         )
+        if (synchronizer.attesterId != signupProof.attesterId)
+            throw new Error('Invalid attesterId')
+
+        // double confirm the commitment exist or not
+        const commitment = signupProof.identityCommitment.toString()
+        const attesterId = signupProof.attesterId.toString()
+        const isUserExist = await synchronizer.db.findOne('UserSignUp', {
+            where: {
+                commitment,
+                attesterId,
+            },
+        })
+        if (isUserExist) throw new Error('The user has already signed up.')
+
         const valid = await signupProof.verify()
         if (!valid) {
             throw new Error('Invalid proof')
