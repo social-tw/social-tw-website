@@ -33,7 +33,8 @@ const useSignupWithServer = (
             }
             localStorage.setItem('token', accessToken)
             const userStateInstance = await createUserState()
-            if (!userStateInstance) throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
+            if (!userStateInstance)
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             setSignupStatus('pending')
             navigate('/')
             try {
