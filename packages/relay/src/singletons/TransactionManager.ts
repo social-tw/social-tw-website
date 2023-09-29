@@ -1,7 +1,7 @@
 import { Contract, ethers } from 'ethers'
 import { DB } from 'anondb/node'
 import { APP_ADDRESS } from '../config'
-import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
+import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 
 export class TransactionManager {
     appContract?: Contract
@@ -18,11 +18,7 @@ export class TransactionManager {
     configure(key: string, provider: any, db: DB) {
         this.wallet = new ethers.Wallet(key, provider)
         this._db = db
-        this.appContract = new ethers.Contract(
-            APP_ADDRESS,
-            UNIREP_APP.abi,
-            provider
-        )
+        this.appContract = new ethers.Contract(APP_ADDRESS, ABI, provider)
     }
 
     /**
