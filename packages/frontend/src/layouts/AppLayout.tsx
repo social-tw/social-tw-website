@@ -153,7 +153,7 @@ export default function AppLayout() {
                         </NavLink>
                         <NavLink
                             className="flex items-center justify-center flex-1"
-                            to={isLogin ? '#' : '/login'}
+                            to={isLogin ? '/profile' : '/login'}
                         >
                             <PersonCircleIcon className="text-white w-14 h-14" />
                         </NavLink>
