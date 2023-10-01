@@ -58,6 +58,10 @@ export default function useCreatePost() {
                     await loadData(userState)
                 },
             {
+                initialState: {
+                    isCancellable,
+                    isCancelled,
+                },
                 onCancellableChange(isCancellable) {
                     setIsCancellable(isCancellable)
                 },

@@ -92,7 +92,7 @@ export default function PostForm({
                 </section>
             </form>
             <Modal
-                isOpen={isPending || true}
+                isOpen={isPending}
                 postion="absolute"
                 background="bg-gradient-to-t from-black/100 to-white/0"
             >

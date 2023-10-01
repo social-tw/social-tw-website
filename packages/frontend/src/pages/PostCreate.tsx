@@ -32,7 +32,7 @@ export default function PostCreate() {
         }
     }
 
-    if (false) {
+    if (!isLogin) {
         return <ErrorModal isOpen={true} />
     } else {
         return (

@@ -1,18 +1,15 @@
 type PromiseFunction = (...args: any[]) => Promise<unknown>
 
-export type CancellableTaskFunction = (
-    runner: CancellableTaskRunner
-) => PromiseFunction | Promise<unknown>
-
-export interface CancellableTaskOption {
-    onCancellableChange?: (isCancellable: boolean) => void
-    onCancel?: () => void
-    onReset?: () => void
-}
-
 export interface CancellableState {
     isCancellable: boolean
     isCancelled: boolean
+}
+
+export interface CancellableTaskOption {
+    initialState?: CancellableState
+    onCancellableChange?: (isCancellable: boolean) => void
+    onCancel?: () => void
+    onReset?: () => void
 }
 
 export interface CancellableTaskRunner {
@@ -20,6 +17,10 @@ export interface CancellableTaskRunner {
     setCancellable: (isCancellable: boolean) => void
     run: <T>(promise: Promise<T>) => Promise<T>
 }
+
+export type CancellableTaskFunction = (
+    runner: CancellableTaskRunner
+) => PromiseFunction | Promise<unknown>
 
 export interface CancellableTaskReturn {
     task: PromiseFunction
@@ -46,11 +47,12 @@ export default function makeCancellableTask(
     fn: CancellableTaskFunction,
     options?: CancellableTaskOption
 ): CancellableTaskReturn {
-    const { onCancellableChange, onCancel, onReset } = options ?? {}
+    const { initialState, onCancellableChange, onCancel, onReset } =
+        options ?? {}
 
     const state: CancellableState = {
-        isCancellable: true,
-        isCancelled: false,
+        isCancellable: initialState?.isCancellable ?? true,
+        isCancelled: initialState?.isCancelled ?? false,
     }
 
     const runner: CancellableTaskRunner = {
