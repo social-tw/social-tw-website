@@ -52,13 +52,35 @@ async function Vote(
                 _id: _id,
             },
         })
+
+        //find vote record of users in specific post
+        const findVote = await db.findOne('Vote', {
+            where: {
+                postId: _id,
+                epochKey: epochKeyProof.epochKey.toString()
+            },
+        })    
         
+        //check whether if user voted
+        if(findVote) {
+            if(vote == 0 && findVote.downVote == true){
+                res.status(400).json({ error: 'user voted' })
+                return
+            }
+            else if(vote == 1 && findVote.upVote == true){
+                res.status(400).json({ error: 'user voted' })
+                return
+            }
+        }
+
         //check upCount or downCount
         let count = 0
-        let voteMethod = "upCount"
+        let voteCount = "upCount"
+        let voteMethod = "upVote"
         if(vote == 0){
             count = findPost.downCount + 1
-            voteMethod = "downCount"
+            voteCount = "downCount"
+            voteMethod = "downVote"
         }
         else if (vote == 1) count = findPost.upCount + 1
         else {
@@ -72,9 +94,26 @@ async function Vote(
                 _id: findPost._id,
             },
             update: {
-                [voteMethod]: count
+                [voteCount]: count
             }
         })
+
+        //update user vote record
+        await db.upsert('Vote', {
+            where: {
+                postId: _id,
+                epochKey: epochKeyProof.epochKey.toString()
+            },
+            create: {
+                postId: _id,
+                epochKey: epochKeyProof.epochKey.toString(),
+                [voteMethod]: true
+            },
+            update: {
+                [voteMethod]: true
+            },
+        })
+
         res.json({
             post,
         })

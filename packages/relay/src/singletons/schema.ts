@@ -76,6 +76,24 @@ const _schema = [
             ['status', 'Int'],
         ],
     },
+    {
+        name: 'Vote',
+        primaryKey: ['postId', 'epochKey'],
+        rows: [
+            ['postId', 'String'],
+            ['epochKey', 'String'],
+            {
+                name: 'upVote',
+                type: 'Bool',
+                default: () => false,
+            },
+            {
+                name: 'downVote',
+                type: 'Bool',
+                default: () => false,
+            },
+        ],
+    },
 ]
 
 export default _schema
