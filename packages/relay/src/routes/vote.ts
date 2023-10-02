@@ -1,4 +1,4 @@
-import { DB } from 'anondb/node'
+import { DB, SQLiteConnector } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
 import UNIREP_APP from '@unirep-app/contracts/artifacts/contracts/UnirepApp.sol/UnirepApp.json'
@@ -8,11 +8,10 @@ import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
-
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/vote',
@@ -22,12 +21,7 @@ export default (
     )
 }
 
-async function Vote(
-    req,
-    res,
-    db: DB,
-    synchronizer: UnirepSocialSynchronizer
-) {
+async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
     try {
         //vote for post with _id
         //vote is 1 for upvote, 0 for downvote
@@ -39,6 +33,11 @@ async function Vote(
             proof,
             synchronizer.prover
         )
+
+        if (epochKeyProof.attesterId != synchronizer.attesterId) {
+            res.status(400).json({ error: 'Wrong attesterId' })
+            return
+        }
 
         const valid = await epochKeyProof.verify()
         if (!valid) {
@@ -57,17 +56,17 @@ async function Vote(
         const findVote = await db.findOne('Vote', {
             where: {
                 postId: _id,
-                epochKey: epochKeyProof.epochKey.toString()
+                epochKey: epochKeyProof.epochKey.toString(),
+                epoch: epochKeyProof.epoch.toString(),
             },
-        })    
-        
+        })
+
         //check whether if user voted
-        if(findVote) {
-            if(vote == 0 && findVote.downVote == true){
-                res.status(400).json({ error: 'user voted' })
-                return
-            }
-            else if(vote == 1 && findVote.upVote == true){
+        if (findVote) {
+            if (
+                (vote == 0 && findVote.downVote) ||
+                (vote == 1 && findVote.upVote)
+            ) {
                 res.status(400).json({ error: 'user voted' })
                 return
             }
@@ -75,15 +74,15 @@ async function Vote(
 
         //check upCount or downCount
         let count = 0
-        let voteCount = "upCount"
-        let voteMethod = "upVote"
-        if(vote == 0){
+        let voteCount = 'upCount'
+        let voteMethod = 'upVote'
+        if (vote == 0) {
             count = findPost.downCount + 1
-            voteCount = "downCount"
-            voteMethod = "downVote"
-        }
-        else if (vote == 1) count = findPost.upCount + 1
-        else {
+            voteCount = 'downCount'
+            voteMethod = 'downVote'
+        } else if (vote == 1) {
+            count = findPost.upCount + 1
+        } else {
             res.status(400).json({ error: 'Invalid vote method' })
             return
         }
@@ -94,23 +93,23 @@ async function Vote(
                 _id: findPost._id,
             },
             update: {
-                [voteCount]: count
-            }
+                [voteCount]: count,
+            },
         })
 
         //update user vote record
         await db.upsert('Vote', {
             where: {
                 postId: _id,
-                epochKey: epochKeyProof.epochKey.toString()
+                epochKey: epochKeyProof.epochKey.toString(),
             },
             create: {
                 postId: _id,
                 epochKey: epochKeyProof.epochKey.toString(),
-                [voteMethod]: true
+                [voteMethod]: true,
             },
             update: {
-                [voteMethod]: true
+                [voteMethod]: true,
             },
         })
 
