@@ -1,12 +1,4 @@
-import { ethers } from 'ethers'
-import { config } from 'dotenv'
 import '@nomiclabs/hardhat-ethers'
-
-import _config from '../../config'
-
-config()
-// TODO: Hardhat can't use the contracts outside currenct project
-//      So we need to copy the contracts to the test folder
 
 export default {
     defaultNetwork: 'hardhat',
