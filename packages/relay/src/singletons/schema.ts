@@ -91,6 +91,7 @@ const _schema = [
         rows: [
             ['postId', 'String'],
             ['epochKey', 'String'],
+            ['epoch', 'Int'],
             {
                 name: 'upVote',
                 type: 'Bool',
