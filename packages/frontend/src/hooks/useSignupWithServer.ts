@@ -1,5 +1,6 @@
 import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const useSignupWithServer = (
     accessToken: string | null,
@@ -7,41 +8,45 @@ const useSignupWithServer = (
     signMsg: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
+    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     signup: (
         fromServer: boolean,
         userStateInstance: UserState,
         hashUserId: string,
         accessToken: string
     ) => Promise<void>,
-    setIsLogin: (param: boolean) => void,
+    setIsLogin: (param: string) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const signupWithServer = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('No hash user id')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!signMsg) {
-                throw new Error('No sign message')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('signature', signMsg)
             if (!accessToken) {
-                throw new Error('No access token')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('token', accessToken)
             const userStateInstance = await createUserState()
-            if (!userStateInstance) throw new Error('No user state instance')
+            if (!userStateInstance)
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             setSignupStatus('pending')
             navigate('/')
-            await signup(true, userStateInstance, hashUserId, accessToken)
-            console.log('has signed up')
+            try {
+                await signup(true, userStateInstance, hashUserId, accessToken)
+            } catch (error: any) {
+                throw new Error(LOGIN_ERROR_MESSAGES.SIGNUP_FAILED.code)
+            }
             setSignupStatus('success')
-            localStorage.setItem('loginStatus', 'success')
-            setIsLogin(true)
+            setIsLogin('success')
         } catch (error: any) {
             setSignupStatus('error')
-            console.error(error)
+            setErrorCode(error.message)
         }
     }
 

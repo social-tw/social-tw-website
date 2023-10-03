@@ -2,26 +2,27 @@ import React from 'react'
 import Modal from './Modal'
 import { GrFormClose } from 'react-icons/gr'
 import { useUser } from '../../contexts/User'
-import LoginButton from '../login/LoginButton'
 import { useNavigate } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
+import useErrorMessage from '../../hooks/useErrorMessage'
 
 interface ErrorModalProps {
     isOpen: boolean
 }
 
 const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
-    const { signupStatus, setSignupStatus } = useUser()
+    const { setSignupStatus, errorCode, setErrorCode } = useUser()
+    const { message } = useErrorMessage(errorCode)
     const navigate = useNavigate()
     const handleClick = () => {
         setSignupStatus('default')
         navigate('/login')
+        setErrorCode('')
     }
 
     return (
-        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/70'}>
+        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/75'}>
             <div className="flex items-center justify-center w-full h-full p-4">
-                <div className="p-12 flex flex-col justify-center items-center bg-white/90 relative text-black text-[15px] tracking-wider gap-12 rounded-lg">
+                <div className="p-12 flex flex-col justify-center items-center bg-white/80 relative text-black text-[15px] tracking-wider gap-12 rounded-lg">
                     <GrFormClose
                         className="absolute top-4 right-4 cursor-pointer"
                         size={24}
@@ -29,16 +30,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
                     />
                     <div className="flex flex-col justify-center gap-6">
                         <p>親愛的用戶：</p>
-
-                        {signupStatus === 'error' ? (
-                            <p>
-                                很抱歉通知您，您註冊失敗，請返回註冊頁再次嘗試註冊，謝謝您！
-                            </p>
-                        ) : (
-                            <p>
-                                很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！
-                            </p>
-                        )}
+                        <p>{message}</p>
                     </div>
                     <button
                         className="w-full py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg"

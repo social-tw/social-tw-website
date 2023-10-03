@@ -9,6 +9,8 @@ import LogoWhite from '../assets/logo-white.png'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import PostList from './PostList'
 import ScrollingModal from '../components/modal/ui/ScrollingModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
 
 type Method = '' | 'signup' | 'login'
 
@@ -19,6 +21,7 @@ const Login: React.FC = () => {
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
     const navigate = useNavigate()
+    const { errorCode } = useUser()
     const [method, setMethod] = useState<Method>(
         status === '1'
             ? 'signup'
@@ -91,10 +94,11 @@ const Login: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full items-center">
+            <ErrorModal isOpen={errorCode !== ''} />
             <div
                 className={clsx(
                     `z-20 flex flex-col w-11/12`,
-                    method !== '' ? 'mb-12' : 'h-full'
+                    method !== '' ? 'mb-6' : 'h-full'
                 )}
             >
                 <div className="flex flex-col gap-12">
@@ -143,6 +147,7 @@ const Login: React.FC = () => {
                             )}
                         </div>
                     )}
+
                     {method !== '' && (
                         <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
                             {isShow ? <p>您尚未註冊</p> : <p>歡迎回到</p>}
@@ -156,7 +161,13 @@ const Login: React.FC = () => {
                         </div>
                     )}
 
-                    {(status === '2' || status === '3') && (
+                    {status === '1' && !isShow && (
+                        <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                            再一步即可完成註冊
+                        </p>
+                    )}
+
+                    {(status === '2' || status === '3') && !isShow && (
                         <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
                             再一步即可完成登入
                         </p>
@@ -171,6 +182,13 @@ const Login: React.FC = () => {
                         >
                             {<StepInfo hashUserId={hashUserId} />}
                         </motion.div>
+                    )}
+
+                    {status === '1' && !isShow && (
+                        <p className="text-white tracking-wide text-[15px] text-center">
+                            選擇「錢包註冊」 / 「直接註冊」即代表未來登入的方式
+                            ，無法再做更改
+                        </p>
                     )}
                 </div>
 
