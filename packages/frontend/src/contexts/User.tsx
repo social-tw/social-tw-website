@@ -13,6 +13,9 @@ import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import prover from './Prover'
+import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import useInitUser from '../hooks/useInitUser'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -21,8 +24,8 @@ export interface UserContextType {
     setCurrentEpoch: (epoch: number) => void
     latestTransitionedEpoch: number
     setLatestTransitionedEpoch: (epoch: number) => void
-    isLogin: boolean
-    setIsLogin: (param: boolean) => void
+    isLogin: any
+    setIsLogin: (param: string) => void
     hasSignedUp: boolean
     setHasSignedUp: (hasSignedUp: boolean) => void
     data: bigint[]
@@ -31,7 +34,7 @@ export interface UserContextType {
     setProvableData: (provableData: bigint[]) => void
     userState?: UserState
     setUserState: (userState?: UserState) => void
-    provider: any // TODO: Replace with the appropriate type
+    provider: any
     setProvider: (provider: any) => void
     signature: string
     setSignature: (signature: string) => void
@@ -41,6 +44,8 @@ export interface UserContextType {
     setToken: (token: string) => void
     signupStatus: SignupStatus
     setSignupStatus: (signupStatus: SignupStatus) => void
+    errorCode: keyof typeof ERROR_MESSAGES | ''
+    setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES | '') => void
     loadData: (userState: UserState) => Promise<void>
     fieldCount: () => number | undefined
     sumFieldCount: () => number | undefined
@@ -79,16 +84,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
-    const [isLogin, setIsLogin] = useState<boolean>(false)
+    const [isLogin, setIsLogin] = useLocalStorage('loginStatus', null)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
     const [userState, setUserState] = useState<UserState | undefined>()
-    const [provider, setProvider] = useState<any>() // TODO: Replace with the appropriate type
+    const [provider, setProvider] = useState<any>()
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
     const [token, setToken] = useState<string>('')
     const [signupStatus, setSignupStatus] = useState<SignupStatus>('default')
+    const [errorCode, setErrorCode] = useState<
+        keyof typeof ERROR_MESSAGES | ''
+    >('')
 
     const load = async () => {
         const userStateInstance = await createUserState()
@@ -350,6 +358,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('loginStatus')
     }
 
+    useInitUser(signupStatus, load, logout)
+
     const value: UserContextType = {
         currentEpoch,
         setCurrentEpoch,
@@ -375,6 +385,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setToken,
         signupStatus,
         setSignupStatus,
+        errorCode,
+        setErrorCode,
         loadData,
         fieldCount,
         sumFieldCount,

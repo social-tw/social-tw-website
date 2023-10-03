@@ -13,9 +13,11 @@ import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import Profile from './pages/Profile'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 
 dayjs.extend(relativeTime)
 
+// TODO: Protect routes
 const router = createBrowserRouter([
     {
         element: <OnboardingLayout />,
@@ -37,7 +39,11 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: '/',
-                        element: <PostList />,
+                        element: (
+                            <ProtectedRoute>
+                                <PostList />
+                            </ProtectedRoute>
+                        ),
                     },
                     {
                         path: 'posts/:id',
@@ -45,13 +51,21 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'profile',
-                        element: <Profile />,
+                        element: (
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        ),
                     },
                 ],
             },
             {
                 path: 'write',
-                element: <PostCreate />,
+                element: (
+                    <ProtectedRoute>
+                        <PostCreate />
+                    </ProtectedRoute>
+                ),
             },
         ],
     },
