@@ -1,13 +1,10 @@
 import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import { SQLiteConnector } from 'anondb/node'
-import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
+import { IncrementalMerkleTree } from '@unirep/utils'
 import { CircuitConfig, Circuit, EpochKeyProof } from '@unirep/circuits'
 import { schema, UserState } from '@unirep/core'
-import {
-    defaultProver,
-    defaultProver as prover,
-} from '@unirep-app/circuits/provers/defaultProver'
+import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { poseidon1 } from 'poseidon-lite'
 import crypto from 'crypto'
 
@@ -82,7 +79,7 @@ export async function genEpochKeyProof(config: {
         attester_id: attesterId,
         reveal_nonce: revealNonce ?? 0,
     }
-    const r = await defaultProver.genProofAndPublicSignals(
+    const r = await prover.genProofAndPublicSignals(
         Circuit.epochKey,
         circuitInputs
     )
@@ -90,7 +87,7 @@ export async function genEpochKeyProof(config: {
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,
-        defaultProver
+        prover
     )
 
     return { publicSignals, proof }
