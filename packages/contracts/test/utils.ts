@@ -4,7 +4,10 @@ import { SQLiteConnector } from 'anondb/node'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { CircuitConfig, Circuit, EpochKeyProof } from '@unirep/circuits'
 import { schema, UserState } from '@unirep/core'
-import { defaultProver, defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
+import {
+    defaultProver,
+    defaultProver as prover,
+} from '@unirep-app/circuits/provers/defaultProver'
 import { poseidon1 } from 'poseidon-lite'
 import crypto from 'crypto'
 
@@ -39,7 +42,7 @@ export async function genUserState(id, app) {
     return userState
 }
 
-export async function genEpochKeyProof(config:{
+export async function genEpochKeyProof(config: {
     id: Identity
     tree: IncrementalMerkleTree
     leafIndex: number
@@ -83,7 +86,7 @@ export async function genEpochKeyProof(config:{
         Circuit.epochKey,
         circuitInputs
     )
-    
+
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,

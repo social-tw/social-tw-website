@@ -3,13 +3,22 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { CircuitConfig, Circuit } from '@unirep/circuits'
-import { stringifyBigInts, IncrementalMerkleTree, genStateTreeLeaf } from '@unirep/utils'
+import {
+    stringifyBigInts,
+    IncrementalMerkleTree,
+    genStateTreeLeaf,
+} from '@unirep/utils'
 import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils'
-import { createRandomUserIdentity, genEpochKeyProof, genUserState, randomData } from './utils'
+import {
+    createRandomUserIdentity,
+    genEpochKeyProof,
+    genUserState,
+    randomData,
+} from './utils'
 
 const { SUM_FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -114,10 +123,12 @@ describe('Unirep App', function () {
 
         it('should fail to post with reused proof', async function () {
             const content = 'Reused Proof'
-            expect(app.post(inputPublicSig, inputProof, content)).to.be.revertedWithCustomError(app, 'ProofHasUsed')
+            expect(
+                app.post(inputPublicSig, inputProof, content)
+            ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
 
-        it ('should fail to post with invalid epoch', async function () {
+        it('should fail to post with invalid epoch', async function () {
             const userState = await genUserState(id, app)
 
             // generating a proof with wrong epoch
@@ -125,7 +136,10 @@ describe('Unirep App', function () {
             const attesterId = await userState.sync.attesterId
             const epoch = await userState.latestTransitionedEpoch(attesterId)
             const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(epoch, attesterId)
+            const leafIndex = await userState.latestStateTreeLeafIndex(
+                epoch,
+                attesterId
+            )
             const data = randomData()
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
@@ -136,11 +150,12 @@ describe('Unirep App', function () {
                 attesterId,
                 data,
             })
-            expect(app.post(publicSignals, proof, 'Invalid Epoch')).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+            expect(
+                app.post(publicSignals, proof, 'Invalid Epoch')
+            ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
         })
 
-        it ('should fail to post with state tree', async function () {
-            
+        it('should fail to post with state tree', async function () {
             const userState = await genUserState(id, app)
 
             // generate a proof with invalid state tree
@@ -159,7 +174,9 @@ describe('Unirep App', function () {
                 attesterId,
                 data,
             })
-            expect(app.post(publicSignals, proof, 'Invalid State Tree')).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
+            expect(
+                app.post(publicSignals, proof, 'Invalid State Tree')
+            ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
         })
     })
 
