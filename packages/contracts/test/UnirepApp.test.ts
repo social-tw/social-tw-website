@@ -3,15 +3,15 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { CircuitConfig, Circuit } from '@unirep/circuits'
-import { stringifyBigInts } from '@unirep/utils'
+import { stringifyBigInts, IncrementalMerkleTree, genStateTreeLeaf } from '@unirep/utils'
 import { DataProof } from '@unirep-app/circuits'
 import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils'
-import { createRandomUserIdentity, genUserState } from './utils'
+import { createRandomUserIdentity, genEpochKeyProof, genUserState, randomData } from './utils'
 
-const { SUM_FIELD_COUNT } = CircuitConfig.default
+const { SUM_FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('Unirep App', function () {
     let unirep
@@ -87,32 +87,79 @@ describe('Unirep App', function () {
             const userState = await genUserState(id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof()
 
-            inputPublicSig = publicSignals
-            inputProof = proof
-
             // generate a fake proof
             const concoctProof = [...proof]
             const len = concoctProof[0].toString().length
             concoctProof[0] = BigInt(
                 proof[0].toString().slice(0, len - 1) + BigInt(2)
             )
-            const content = 'invalid proof'
+            const content = 'Invalid Proof'
 
-            expect(app.post(inputPublicSig, concoctProof, content)).to.be
+            expect(app.post(publicSignals, concoctProof, content)).to.be
                 .reverted // revert in epkHelper.verifyAndCheck()
         })
 
         it('should post with valid proof', async function () {
-            const content = 'testing'
+            const content = 'Valid Proof'
+            const userState = await genUserState(id, app)
+            const { publicSignals, proof } = await userState.genEpochKeyProof()
 
-            expect(app.post(inputPublicSig, inputProof, content))
+            inputPublicSig = publicSignals
+            inputProof = proof
+
+            expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
-                .withArgs(inputPublicSig[0], 0, 0, content)
+                .withArgs(publicSignals[0], 0, 0, content)
         })
 
         it('should fail to post with reused proof', async function () {
-            const content = 'reused proof'
-            expect(app.post(inputPublicSig, inputProof, content)).to.be.reverted
+            const content = 'Reused Proof'
+            expect(app.post(inputPublicSig, inputProof, content)).to.be.revertedWithCustomError(app, 'ProofHasUsed')
+        })
+
+        it ('should fail to post with invalid epoch', async function () {
+            const userState = await genUserState(id, app)
+
+            // generating a proof with wrong epoch
+            const wrongEpoch = 44444
+            const attesterId = await userState.sync.attesterId
+            const epoch = await userState.latestTransitionedEpoch(attesterId)
+            const tree = await userState.sync.genStateTree(epoch, attesterId)
+            const leafIndex = await userState.latestStateTreeLeafIndex(epoch, attesterId)
+            const data = randomData()
+            const { publicSignals, proof } = await genEpochKeyProof({
+                id,
+                tree,
+                leafIndex,
+                epoch: wrongEpoch,
+                nonce: 0,
+                attesterId,
+                data,
+            })
+            expect(app.post(publicSignals, proof, 'Invalid Epoch')).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+        })
+
+        it ('should fail to post with state tree', async function () {
+            
+            const userState = await genUserState(id, app)
+
+            // generate a proof with invalid state tree
+            const attesterId = await userState.sync.attesterId
+            const epoch = await userState.latestTransitionedEpoch(attesterId)
+            const tree = await new IncrementalMerkleTree(STATE_TREE_DEPTH)
+            const data = randomData()
+            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+            tree.insert(leaf)
+            const { publicSignals, proof } = await genEpochKeyProof({
+                id,
+                tree,
+                leafIndex: 0,
+                epoch,
+                nonce: 0,
+                attesterId,
+                data,
+            })
+            expect(app.post(publicSignals, proof, 'Invalid State Tree')).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
         })
     })
 
