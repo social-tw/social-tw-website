@@ -95,9 +95,8 @@ contract UnirepApp {
         proofNullifier[nullifier] = true;
 
         EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        // check the epoch != current epoch
+        // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
@@ -111,6 +110,9 @@ contract UnirepApp {
             )) {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
+
+        // should check lastly
+        epkHelper.verifyAndCheckCaller(publicSignals, proof);
         
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
