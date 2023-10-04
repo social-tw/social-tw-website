@@ -81,14 +81,34 @@ async function createPost(
             synchronizer.prover
         )
 
-        const valid = await epochKeyProof.verify()
-        if (!valid) {
+        // get current epoch and unirep contract
+        const epoch = await synchronizer.loadCurrentEpoch()
+
+        // check if epoch is valid
+        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
+        if (!isEpochvalid) {
+            res.status(400).json({ error: 'Invalid Epoch' })
+            return
+        }
+
+        // check if state tree exists in current epoch
+        const isStateTreeValid = await synchronizer.stateTreeRootExists(
+            epochKeyProof.stateTreeRoot,
+            Number(epochKeyProof.epoch),
+            epochKeyProof.attesterId
+        )
+        if (!isStateTreeValid) {
+            res.status(400).json({ error: 'Invalid State Tree' })
+            return
+        }
+
+        // check if proof is valid
+        const isProofValid = await epochKeyProof.verify()
+        if (!isProofValid) {
             res.status(400).json({ error: 'Invalid proof' })
             return
         }
 
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
         const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
