@@ -56,7 +56,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
-        db.upsert('Post', {
+        await db.upsert('Post', {
             where: {
                 _id: findPost._id,
             },
@@ -86,7 +86,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ? UserRegisterStatus.REGISTERER_SERVER
             : UserRegisterStatus.REGISTERER
 
-        db.create('SignUp', {
+        await db.create('SignUp', {
             hashUserId: hashUserId,
             status: status,
         })
