@@ -120,6 +120,30 @@ contract UnirepApp {
         emit Post(signals.epochKey, postId, signals.epoch, content);
     }
 
+    function leaveComment(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        string memory content
+    ) public {
+        // TODO: use a epochKeyProof to leave a comment
+        // TODO: should check if comment is left in current epoch (should be checked in backend as well)
+        // TODO: should check if state tree root exists (should be checked in backend as well)
+        // TODO:  emit an event of Comment(uint256 epochKey, string content)
+    }
+
+    function editComment(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        uint256 id,
+        bool isRemoving
+    ) public {
+        // TODO: use a epockLiteKey to prove identity
+        // TODO: determine the id to edit the comment content
+        // TODO: determine to remove the comment or not
+        // TODO: check attesterId is correct or not (should be checked in backend as well)
+        // TODO:  emit an event of RemoveComment(uint256 epockKey,string: content)/ EditComment(uint256 epochKey, string: before, string: after)
+    }
+
     function submitManyAttestations(
         uint256 epochKey,
         uint48 targetEpoch,
