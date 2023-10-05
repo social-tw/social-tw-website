@@ -91,25 +91,4 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             status: status,
         })
     }
-
-    async handleEpochEnded({ event, db, decodedData }: EventHandlerArgs) {
-        super.handleEpochEnded({ event, db, decodedData })
-
-        const number = Number(decodedData.epoch)
-
-        const votes = await this.db.findMany('Vote', {
-            where: {
-                epoch: number,
-            },
-        })
-        // if there's no vote during this epoch, do nothing
-        if (votes.length == 0) return
-
-        db.delete('Vote', {
-            where: {
-                epoch: number,
-            },
-        })
-        return true
-    }
 }
