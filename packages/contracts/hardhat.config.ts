@@ -7,8 +7,9 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 tdly.setup({ automaticVerifications: true })
 
-const { TENDERLY_ACCESS_KEY, TENDERLY_PROJECT_SLUG, DEVNET_RPC_URL } =
-    process.env
+const { TENDERLY_ACCESS_KEY, TENDERLY_PROJECT_SLUG } = process.env
+
+const DEVNET_RPC_URL = process.env.DEVNET_RPC_URL ?? ''
 
 export default {
     defaultNetwork: 'local',
