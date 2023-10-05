@@ -41,7 +41,8 @@ describe('POST /post', function () {
             provider,
             prover,
             unirep,
-            app
+            app,
+            synchronizer
         )
 
         // initUserStatus
