@@ -91,4 +91,26 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             status: status,
         })
     }
+
+    // overwrite handleEpochEnded to delete all epochKeyAction when the epoch ended
+    async handleEpochEnded({ event, db, decodedData }: EventHandlerArgs) {
+        super.handleEpochEnded({ event, db, decodedData })
+        const epoch = Number(decodedData.epoch)
+
+        const rows = await this.db.count('EpochKeyAction', {
+            where: {
+                epoch: epoch,
+            },
+        })
+
+        if (!rows) return
+
+        await this.db.delete('EpochKeyAction', {
+            where: {
+                epoch: epoch,
+            },
+        })
+
+        return true
+    }
 }
