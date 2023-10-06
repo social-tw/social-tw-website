@@ -9,7 +9,7 @@ export default (
     synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get(
-        '/api/epockeyaction',
+        '/api/counter',
         errorHandler(async (req, res, next) => {
             await fetchActions(req, res, db)
         })
@@ -29,6 +29,7 @@ async function fetchActions(req, res, db: DB) {
         // each user has 3 epoch keys during the epoch
         if (epks.length != 3) {
             res.status(400).json({ error: 'wrong number of epks' })
+            return
         }
 
         let counter = 0
@@ -44,7 +45,7 @@ async function fetchActions(req, res, db: DB) {
             // then reduce array to accumulate each count
             counter = actions
                 .flatMap((action) => action.count)
-                .reduce((acc, count) => acc + count, 0)
+                .reduce((acc, count) => acc + count)
         }
 
         res.json({ counter: counter })

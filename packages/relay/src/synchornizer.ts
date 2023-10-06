@@ -98,14 +98,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(decodedData.epoch)
 
         const rows = await this.db.count('EpochKeyAction', {
-            where: {
-                epoch: epoch,
-            },
+            epoch: epoch,
         })
 
-        if (!rows) return
+        // if there's no data in EpochKeyAction then do nothing
+        if (rows == 0) return
 
-        await this.db.delete('EpochKeyAction', {
+        db.delete('EpochKeyAction', {
             where: {
                 epoch: epoch,
             },

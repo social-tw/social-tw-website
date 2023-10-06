@@ -137,13 +137,46 @@ async function createPost(
             calldata
         )
 
-        const post = await db.create('Post', {
-            content: content,
-            cid: cid,
-            epochKey: epochKeyProof.epochKey.toString(),
-            epoch: epoch,
-            transactionHash: hash,
-            status: 0,
+        const epochKey = epochKeyProof.epochKey.toString()
+
+        // after post data store in DB, should add 1 to epoch key counter
+        await db.transaction(async (txDB) => {
+            txDB.create('Post', {
+                content: content,
+                cid: cid,
+                epochKey: epochKey,
+                epoch: epoch,
+                transactionHash: hash,
+                status: 0,
+            })
+
+            const counter = await db.findOne('EpochKeyAction', {
+                where: {
+                    epochKey: epochKey,
+                },
+            })
+
+            const count = counter ? counter.count + 1 : 1
+
+            txDB.upsert('EpochKeyAction', {
+                where: {
+                    epochKey: epochKey,
+                },
+                create: {
+                    epochKey: epochKey,
+                    epoch: epoch,
+                    count: count,
+                },
+                update: {
+                    count: count,
+                },
+            })
+        })
+
+        const post = await db.findOne('Post', {
+            where: {
+                transactionHash: hash,
+            },
         })
 
         res.json({

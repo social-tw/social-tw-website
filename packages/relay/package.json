@@ -29,6 +29,7 @@
     },
     "main": "index.js",
     "devDependencies": {
+        "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
         "@nomiclabs/hardhat-ethers": "^2.2.0",
         "@types/mocha": "^10.0.1",
         "@types/node-fetch": "^2.6.4",
