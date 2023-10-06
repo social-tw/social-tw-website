@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import Post from '../components/Post'
+import Post from '../components/post/Post'
 import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
