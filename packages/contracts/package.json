@@ -8,9 +8,8 @@
     "main": "build/src/index.js",
     "repository": "https://github.com/social-tw/social-tw-website.git",
     "scripts": {
-        "build": "yarn buildVerifier && hardhat compile && yarn abi && yarn genConfig",
+        "build": "yarn buildVerifier && hardhat compile && yarn abi",
         "buildVerifier": "ts-node ./scripts/genVerifier.ts ",
-        "genConfig": "sh ./scripts/genConfig.sh",
         "abi": "ts-node scripts/abi",
         "hardhat": "hardhat",
         "deploy": "hardhat run scripts/deploy.ts",
@@ -37,6 +36,7 @@
     },
     "dependencies": {
         "crypto": "^1.0.1",
+        "poseidon-lite": "^0.2.0",
         "poseidon-solidity": "^0.0.3"
     }
 }

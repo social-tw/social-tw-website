@@ -2,18 +2,24 @@
 import { ethers } from 'ethers'
 import { config } from 'dotenv'
 // constants and types
-import _config from '../../../config'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 
 config()
 
-export const UNIREP_ADDRESS =
-    process.env.UNIREP_ADDRESS ?? _config.UNIREP_ADDRESS
-export const APP_ADDRESS = process.env.APP_ADDRESS ?? _config.APP_ADDRESS
+// Provide default values for process.env
+Object.assign(process.env, {
+    UNIREP_ADDRESS: '0x4D137bb44553d55AE6B28B5391c6f537b06C9cc3',
+    APP_ADDRESS: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
+    ETH_PROVIDER_URL: 'http://127.0.0.1:8545',
+    PRIVATE_KEY:
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+    ...process.env,
+})
+
+export const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL, PRIVATE_KEY } =
+    process.env as any
+
 export const APP_ABI = ABI
-export const ETH_PROVIDER_URL =
-    process.env.ETH_PROVIDER_URL ?? _config.ETH_PROVIDER_URL
-export const PRIVATE_KEY = process.env.PRIVATE_KEY ?? _config.PRIVATE_KEY
 
 export const DB_PATH = process.env.DB_PATH ?? ':memory:'
 

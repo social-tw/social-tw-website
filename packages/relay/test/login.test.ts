@@ -59,7 +59,8 @@ describe('LOGIN /login', function () {
             provider,
             prover,
             unirep,
-            app
+            app,
+            synchronizer
         )
     })
 

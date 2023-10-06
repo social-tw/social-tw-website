@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Dialog from '../components/Dialog'
 import ErrorModal from '../components/modal/ErrorModal'
@@ -9,9 +8,9 @@ import useCreatePost from '../hooks/useCreatePost'
 import { CancelledTaskError } from '../utils/makeCancellableTask'
 
 export default function PostCreate() {
-    const errorDialog = useRef<HTMLDialogElement>(null)
-
     const { isLogin } = useUser()
+
+    const errorDialog = useRef<HTMLDialogElement>(null)
 
     const navigate = useNavigate()
 
@@ -21,7 +20,6 @@ export default function PostCreate() {
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
-            toast('貼文成功送出')
             navigate('/')
         } catch (err) {
             if (err instanceof CancelledTaskError) {

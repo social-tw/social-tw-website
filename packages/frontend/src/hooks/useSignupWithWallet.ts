@@ -1,5 +1,6 @@
 import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 declare global {
     interface Window {
@@ -12,6 +13,7 @@ const useSignupWithWallet = (
     hashUserId: string | null,
     navigate: (path: string) => void,
     setSignupStatus: (param: SignupStatus) => void,
+    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     signup: (
         fromServer: boolean,
@@ -19,35 +21,42 @@ const useSignupWithWallet = (
         hashUserId: string,
         accessToken: string
     ) => Promise<void>,
-    setIsLogin: (param: boolean) => void,
+    setIsLogin: (param: string) => void,
     createUserState: () => Promise<UserState | undefined>
 ) => {
     const signUpWithWallet = async () => {
         try {
             if (!hashUserId) {
-                throw new Error('No hash user id')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('hashUserId', hashUserId)
             if (!accessToken) {
-                throw new Error('No access token')
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
             localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
-                throw new Error('請安裝MetaMask錢包')
+                throw new Error(LOGIN_ERROR_MESSAGES.NO_WALLET.code)
             }
-            await handleWalletSignMessage(hashUserId)
+            try {
+                await handleWalletSignMessage(hashUserId)
+            } catch (error: any) {
+                throw new Error(LOGIN_ERROR_MESSAGES.WALLET_ISSUE.code)
+            }
             const userStateInstance = await createUserState()
-            if (!userStateInstance) throw new Error('No user state instance')
+            if (!userStateInstance)
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId, accessToken)
-            console.log('has signed up')
+            try {
+                await signup(false, userStateInstance, hashUserId, accessToken)
+            } catch (error: any) {
+                throw new Error(LOGIN_ERROR_MESSAGES.SIGNUP_FAILED.code)
+            }
             setSignupStatus('success')
-            localStorage.setItem('loginStatus', 'success')
-            setIsLogin(true)
-        } catch (error) {
+            setIsLogin('success')
+        } catch (error: any) {
             setSignupStatus('error')
-            console.error(error)
+            setErrorCode(error.message)
         }
     }
 
