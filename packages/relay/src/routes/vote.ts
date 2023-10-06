@@ -16,36 +16,34 @@ export default (
             await Vote(req, res, db, synchronizer)
         })
     )
-
-    // TODO: add get api to fetch all votes of post Id for frontend to check if user voted or not
 }
 
 /**
- * Use this function to help us find out which vote action the user
- * is going to do
+ * we should verify the action before we execute the transaction
  *
- * @param vote true for upvote action, false for downvote action
+ * @param voteAction the action that the user is about to do
  * @param findVote the vote data, if it's undefined then it's the first time to vote
- * @returns voteAction or error if it's wrong action
+ * @returns bool whether the vote action is valid or not
  */
-function selectVoteAction(vote: boolean, findVote: any): VoteAction | Error {
-    let voteAction: VoteAction
-    if (findVote) {
-        if (vote && findVote.upVote) {
-            voteAction = VoteAction.CANCEL_UPVOTE
-        } else if (!vote && findVote.downVote) {
-            voteAction = VoteAction.CANCEL_DOWNVOTE
-        } else {
-            return new Error('wrong vote action')
-        }
-    } else {
-        if (vote) {
-            voteAction = VoteAction.UPVOTE
-        } else {
-            voteAction = VoteAction.DOWNVOTE
-        }
+function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
+    let result = false
+    switch (voteAction) {
+        case VoteAction.UPVOTE, VoteAction.DOWNVOTE:
+            // this epk hasn't voted
+            result = !findVote
+            break;
+        case VoteAction.CANCEL_UPVOTE:
+            // this epk voted for upVote
+            result = findVote && findVote.upVote
+            break;
+        case VoteAction.CANCEL_DOWNVOTE:
+            // this epk voted for downVote
+            result = findVote && findVote.downVote
+            break;
+        default:
+            break;
     }
-    return voteAction
+    return result
 }
 
 /**
@@ -58,6 +56,7 @@ function selectVoteAction(vote: boolean, findVote: any): VoteAction | Error {
  * @param post the post that the user is about to vote
  * @param voteAction the vote action of the user
  */
+// TODO: need to increase / decrease the epochKey counter times
 async function exeuteTxs(
     db: DB,
     epochKey: string,
@@ -65,20 +64,22 @@ async function exeuteTxs(
     voteAction: VoteAction
 ): Promise<void> {
     const _id = post._id
+    let createVote = true
 
-    // using upsert, so left update blank for update statement
-    const voteStatement = {
-        where: {
-            postId: _id,
-            epochKey: epochKey,
-        },
+    const voteCreateStatement = {
         create: {
             postId: _id,
             epochKey: epochKey,
             upVote: false,
             downVote: false,
-        },
-        update: {},
+        }
+    }
+
+    const voteDeleteStatement = {
+        where: {
+            postId: _id,
+            epochKey: epochKey
+        }
     }
 
     // only modify the upCount and downCount
@@ -93,20 +94,20 @@ async function exeuteTxs(
     }
     switch (voteAction) {
         case VoteAction.UPVOTE:
-            voteStatement.create.upVote = true
+            voteCreateStatement.create.upVote = true
             postStatement.update.upCount += 1
             break
         case VoteAction.DOWNVOTE:
-            voteStatement.create.downVote = true
+            voteCreateStatement.create.downVote = true
             postStatement.update.downCount += 1
             break
         case VoteAction.CANCEL_UPVOTE:
-            voteStatement.update = { upVote: false }
             postStatement.update.upCount -= 1
+            createVote = false
             break
         case VoteAction.CANCEL_DOWNVOTE:
-            voteStatement.update = { downVote: false }
             postStatement.update.downCount -= 1
+            createVote = false
             break
         default:
             break
@@ -114,7 +115,11 @@ async function exeuteTxs(
 
     await db
         .transaction((txDB) => {
-            txDB.upsert('Vote', voteStatement)
+            if (createVote) {
+                txDB.create('Vote', voteCreateStatement)
+            } else {
+                txDB.delete('Vote', voteDeleteStatement)
+            }
             txDB.update('Post', postStatement)
         })
         .catch(() => console.log('Vote tx reverted'))
@@ -130,11 +135,10 @@ async function exeuteTxs(
  * @param synchronizer UnirepSocialSynchronizer
  * @returns
  */
-// TODO: need to increment the epochKey counter
 async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
     try {
         //vote for post with _id
-        const { _id, vote, publicSignals, proof } = req.body
+        const { _id, voteAction, publicSignals, proof } = req.body
 
         // user is able to restore the epochKey from the vote data
         const epochKeyProof = new EpochKeyProof(
@@ -172,9 +176,9 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
                 _id: _id,
             },
         })
-
         if (!findPost) {
             res.status(400).json({ error: 'Invalid postId' })
+            return
         }
 
         const epochKey = epochKeyProof.epochKey.toString()
@@ -186,14 +190,12 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
             },
         })
 
-        const voteAction = selectVoteAction(vote, findVote)
-
-        if (voteAction instanceof Error) {
-            res.status(400).json(voteAction as Error)
-            return
+        const isValidAction = verifyVoteAction(voteAction, findVote)
+        if (!isValidAction) {
+            res.status(400).json({error: 'Invalid vote action'})
         }
 
-        await exeuteTxs(db, epochKey, findPost, voteAction as VoteAction)
+        await exeuteTxs(db, epochKey, findPost, voteAction)
 
         res.status(201)
     } catch (error: any) {
