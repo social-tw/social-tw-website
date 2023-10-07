@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import {Unirep} from '@unirep/contracts/Unirep.sol';
 import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
-
+import {EpochKeyLiteVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol';
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
@@ -22,10 +22,13 @@ contract UnirepApp {
     Unirep public unirep;
     IVerifier internal dataVerifier;
     EpochKeyVerifierHelper internal epkHelper;
+    EpochKeyLiteVerifierHelper internal epkLiteHelper;
     
     // TODO write the document for the features
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
     mapping(uint256 => uint256) public epochKeyPostIndex;
+    mapping(uint256 => uint256) public postCommentIndex; // postId -> commentId
+    mapping(uint256 => mapping(uint256 => uint256)) epochKeyCommentMap ; // postId-commentId -> epochKey
     mapping(bytes32 => bool) public proofNullifier;
 
     mapping(uint256 => bool) public userRegistry;
@@ -37,7 +40,23 @@ contract UnirepApp {
         string content
     );
 
-    uint160 attesterId;
+    event Comment(
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed commentId,
+        uint256 epoch,
+        string content
+    );
+
+    event UpdatedComment(
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed commentId,
+        uint256 epoch,
+        string newContent
+    );
+
+    uint160 immutable attesterId;
 
     event UserSignUp(uint256 indexed hashUserId, bool indexed fromServer);
 
@@ -47,13 +66,18 @@ contract UnirepApp {
     error InvalidStateTreeRoot(uint stateTreeRoot);
     error InvalidEpoch();
     error ArrMismatch();
+    error InvalidCommentEpochKey(uint256 epochKey);
+    error InvalidCommentId(uint256 commentId);
 
-    constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, IVerifier _dataVerifier, uint48 _epochLength) {
+    constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, EpochKeyLiteVerifierHelper _epkLiteHelper, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
         unirep = _unirep;
 
         // set epoch key verifier helper address
         epkHelper = _epkHelper;
+
+        // set epoch key lite verifier helper address
+        epkLiteHelper = _epkLiteHelper;
 
         // set verifier address
         dataVerifier = _dataVerifier;
@@ -120,28 +144,106 @@ contract UnirepApp {
         emit Post(signals.epochKey, postId, signals.epoch, content);
     }
 
+    /**
+     * 
+     * @param publicSignals: public signals
+     * @param proof: epockKeyProof from the user 
+     * @param postId: postId where the comment wanna leave  
+     * @param content: comment content 
+     */
+
     function leaveComment(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
+        uint256 postId,
         string memory content
     ) public {
-        // TODO: use a epochKeyProof to leave a comment
-        // TODO: should check if comment is left in current epoch (should be checked in backend as well)
-        // TODO: should check if state tree root exists (should be checked in backend as well)
-        // TODO:  emit an event of Comment(uint256 epochKey, string content)
+
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+
+        // check the epoch != current epoch (ppl can only post in current aepoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch != epoch) {
+            revert InvalidEpoch();
+        }
+
+        // check state tree root        
+        if (!unirep.attesterStateTreeRootExists(
+                signals.attesterId, 
+                signals.epoch, 
+                signals.stateTreeRoot
+            )) {
+            revert InvalidStateTreeRoot(signals.stateTreeRoot);
+        }
+
+        // should check lastly
+        epkHelper.verifyAndCheckCaller(publicSignals, proof);
+
+        uint256 commentId = postCommentIndex[postId];
+        postCommentIndex[postId] = commentId + 1;
+        epochKeyCommentMap[postId][commentId] = signals.epochKey;
+
+        emit Comment(
+            signals.epochKey,
+            postId,
+            commentId,
+            signals.epoch,
+            content
+        );
     }
 
+    /**
+     * 
+     * @param publicSignals: public signals
+     * @param proof: epochKeyLiteProof 
+     * @param postId: postId 
+     * @param commentId: commentId which want to update
+     * @param newContent: new content of the comment. if this == "", means remove the comment 
+     */
     function editComment(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
-        uint256 id,
-        bool isRemoving
+        uint256 postId,
+        uint256 commentId,
+        string memory newContent
     ) public {
-        // TODO: use a epockLiteKey to prove identity
-        // TODO: determine the id to edit the comment content
-        // TODO: determine to remove the comment or not
-        // TODO: check attesterId is correct or not (should be checked in backend as well)
-        // TODO:  emit an event of RemoveComment(uint256 epockKey,string: content)/ EditComment(uint256 epochKey, string: before, string: after)
+
+        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
+
+        // check the epoch != current epoch (ppl can only post in current aepoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch != epoch) {
+            revert InvalidEpoch();
+        }
+
+        // check state tree root        
+        if (!unirep.attesterStateTreeRootExists(
+                signals.attesterId, 
+                signals.epoch, 
+                signals.stateTreeRoot
+            )) {
+            revert InvalidStateTreeRoot(signals.stateTreeRoot);
+        }
+
+        // should check lastly
+        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
+
+        if (commentId >= epochKeyPostIndex[postId]) {
+            revert InvalidCommentId(commentId);
+        }
+
+        // check the identity
+        if (epochKeyCommentMap[postId][commentId] != signals.epochKey) {
+            revert InvalidCommentEpochKey(signals.epochKey);
+        }
+
+        emit UpdatedComment(
+            signals.epochKey,
+            postId,
+            commentId,
+            signals.epoch,
+            newContent
+        );
     }
 
     function submitManyAttestations(

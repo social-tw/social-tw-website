@@ -12,6 +12,11 @@
                 "type": "address"
             },
             {
+                "internalType": "contract EpochKeyLiteVerifierHelper",
+                "name": "_epkLiteHelper",
+                "type": "address"
+            },
+            {
                 "internalType": "contract IVerifier",
                 "name": "_dataVerifier",
                 "type": "address"
@@ -27,6 +32,24 @@
     },
     { "inputs": [], "name": "ArrMismatch", "type": "error" },
     { "inputs": [], "name": "InvalidAttester", "type": "error" },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "epochKey", "type": "uint256" }
+        ],
+        "name": "InvalidCommentEpochKey",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "commentId",
+                "type": "uint256"
+            }
+        ],
+        "name": "InvalidCommentId",
+        "type": "error"
+    },
     { "inputs": [], "name": "InvalidEpoch", "type": "error" },
     {
         "inputs": [
@@ -69,6 +92,43 @@
             {
                 "indexed": true,
                 "internalType": "uint256",
+                "name": "commentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "epoch",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "content",
+                "type": "string"
+            }
+        ],
+        "name": "Comment",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "epochKey",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
                 "name": "epoch",
                 "type": "uint256"
             },
@@ -80,6 +140,43 @@
             }
         ],
         "name": "Post",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "epochKey",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "commentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "epoch",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "newContent",
+                "type": "string"
+            }
+        ],
+        "name": "UpdatedComment",
         "type": "event"
     },
     {
@@ -100,6 +197,31 @@
         ],
         "name": "UserSignUp",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            },
+            { "internalType": "uint256", "name": "postId", "type": "uint256" },
+            {
+                "internalType": "uint256",
+                "name": "commentId",
+                "type": "uint256"
+            },
+            { "internalType": "string", "name": "newContent", "type": "string" }
+        ],
+        "name": "editComment",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [
@@ -137,11 +259,42 @@
                 "name": "proof",
                 "type": "uint256[8]"
             },
+            { "internalType": "uint256", "name": "postId", "type": "uint256" },
+            { "internalType": "string", "name": "content", "type": "string" }
+        ],
+        "name": "leaveComment",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            },
             { "internalType": "string", "name": "content", "type": "string" }
         ],
         "name": "post",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "name": "postCommentIndex",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
