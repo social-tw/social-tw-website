@@ -172,7 +172,12 @@ describe('Unirep App', function () {
             const epoch = await userState.sync.loadCurrentEpoch()
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
-            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+            const leaf = genStateTreeLeaf(
+                user.id.secret,
+                attesterId,
+                epoch,
+                data
+            )
             tree.insert(leaf)
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
