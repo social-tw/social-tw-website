@@ -9,6 +9,7 @@ import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 import type { Helia } from '@helia/interface'
+import { addActionCount } from '../utils/TransactionHelper'
 
 export default (
     app: Express,
@@ -139,8 +140,8 @@ async function createPost(
 
         const epochKey = epochKeyProof.epochKey.toString()
 
-        // after post data store in DB, should add 1 to epoch key counter
-        await db.transaction(async (txDB) => {
+        // after post data stored in DB, should add 1 to epoch key counter
+        await addActionCount(db, epochKey, epoch, (txDB) => {
             txDB.create('Post', {
                 content: content,
                 cid: cid,
@@ -148,28 +149,6 @@ async function createPost(
                 epoch: epoch,
                 transactionHash: hash,
                 status: 0,
-            })
-
-            const counter = await db.findOne('EpochKeyAction', {
-                where: {
-                    epochKey: epochKey,
-                },
-            })
-
-            const count = counter ? counter.count + 1 : 1
-
-            txDB.upsert('EpochKeyAction', {
-                where: {
-                    epochKey: epochKey,
-                },
-                create: {
-                    epochKey: epochKey,
-                    epoch: epoch,
-                    count: count,
-                },
-                update: {
-                    count: count,
-                },
             })
         })
 

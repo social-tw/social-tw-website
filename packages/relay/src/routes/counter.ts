@@ -2,6 +2,7 @@ import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { errorHandler } from '../middleware'
 import { UnirepSocialSynchronizer } from '../synchornizer'
+import { EPOCHKEYS_AMOUNT } from '../config'
 
 export default (
     app: Express,
@@ -27,7 +28,7 @@ async function fetchActions(req, res, db: DB) {
     try {
         const epks = req.query.epks ? req.query.epks.split('_') : undefined
         // each user has 3 epoch keys during the epoch
-        if (epks.length != 3) {
+        if (epks.length != EPOCHKEYS_AMOUNT) {
             res.status(400).json({ error: 'wrong number of epks' })
             return
         }

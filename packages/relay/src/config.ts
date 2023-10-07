@@ -46,3 +46,4 @@ export const TWITTER_CLIENT_KEY = isInTest
     ? 'test-client-key'
     : process.env.TWITTER_CLIENT_KEY
 export const LOAD_POST_COUNT = 10
+export const EPOCHKEYS_AMOUNT = 3
