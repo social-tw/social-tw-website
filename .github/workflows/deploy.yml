@@ -41,11 +41,6 @@ jobs:
         - name: Production Code
           uses: 'actions/checkout@v3'
 
-        - name: Install node.js
-          uses: actions/setup-node@v3
-          with:
-              node-version: '18'
-
         - name: Authenticate to Google Cloud
           id: auth
           uses: 'google-github-actions/auth@v1'
@@ -117,9 +112,8 @@ jobs:
             password: ${{ steps.auth.outputs.access_token }}
 
         - name: Build and Push Container
-          working-directory: ./packages/frontend
           run: |-
-            docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}" ./
+            docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}" -f packages/frontend/Dockerfile .
             docker push "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}"
 
         - name: Deploy to Cloud Run
