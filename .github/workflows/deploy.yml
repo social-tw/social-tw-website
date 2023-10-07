@@ -31,15 +31,6 @@ jobs:
                   TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
                   TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
                   TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
-
-            #- name: Deploy backend
-            #  run:
-            #  env:
-            #      TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID}}
-            #      TWITTER_CLIENT_KEY: ${{secrets.TWITTER_CLIENT_KEY}}
-
-            #- name: Deploy frontend
-            #  run:
     backend:
       permissions:
         contents: 'read'
@@ -82,7 +73,7 @@ jobs:
           id: deploy
           uses: google-github-actions/deploy-cloudrun@v0
           with:
-            service: ${{ vars.SERVICE }}
+            service: ${{ vars.BACKEND_SERVICE }}
             region: ${{ vars.REGION }}
             image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}
             # add ENV as below
@@ -97,7 +88,6 @@ jobs:
         
         - name: Show Output
           run: echo ${{ steps.deploy.outputs.url }}
-
     frontend:
       permissions:
         contents: 'read'
@@ -136,7 +126,7 @@ jobs:
           id: deploy
           uses: google-github-actions/deploy-cloudrun@v0
           with:
-            service: ${{ vars.SERVICE }}
+            service: ${{ vars.FRONTEND_SERVICE }}
             region: ${{ vars.REGION }}
             image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}
             # add ENV as below
