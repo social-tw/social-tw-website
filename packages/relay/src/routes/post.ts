@@ -152,16 +152,8 @@ async function createPost(
             })
         })
 
-        const post = await db.findOne('Post', {
-            where: {
-                transactionHash: hash,
-            },
-        })
-
         res.json({
             transaction: hash,
-            currentEpoch: epoch,
-            post,
         })
     } catch (error: any) {
         console.log(error)

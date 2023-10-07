@@ -92,7 +92,6 @@ describe('POST /post', function () {
             return r.json()
         })
 
-        expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 

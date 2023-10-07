@@ -66,7 +66,6 @@ describe('GET /counter', function () {
 
     it('should add the counter number increment after the user posted', async function () {
         let res = await post(userState)
-        expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
