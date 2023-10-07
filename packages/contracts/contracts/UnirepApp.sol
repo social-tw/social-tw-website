@@ -69,7 +69,13 @@ contract UnirepApp {
     error InvalidCommentEpochKey(uint256 epochKey);
     error InvalidCommentId(uint256 commentId);
 
-    constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, EpochKeyLiteVerifierHelper _epkLiteHelper, IVerifier _dataVerifier, uint48 _epochLength) {
+    constructor(
+        Unirep _unirep, 
+        EpochKeyVerifierHelper _epkHelper, 
+        EpochKeyLiteVerifierHelper _epkLiteHelper, 
+        IVerifier _dataVerifier, 
+        uint48 _epochLength
+    ) {
         // set unirep address
         unirep = _unirep;
 
