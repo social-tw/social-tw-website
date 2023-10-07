@@ -1,4 +1,4 @@
-FROM node:16-buster
+FROM node:20-alpine
 
 COPY . /src
 
@@ -10,7 +10,7 @@ RUN sh scripts/loadKeys.sh
 
 RUN rm -r packages/relay/keys/buildOrdered*
 
-FROM node:16-buster
+FROM node:20-alpine
 
 COPY --from=0 /src /src
 WORKDIR /src/packages/relay
