@@ -7,10 +7,11 @@ import { schema, UserState } from '@unirep/core'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { poseidon1 } from 'poseidon-lite'
 import crypto from 'crypto'
+import { IdentityObject } from './types'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
 
-export function createRandomUserIdentity(): [string, Identity] {
+export function createRandomUserIdentity(): IdentityObject {
     const hash = crypto.createHash('sha3-224')
     const hashUserId = `0x${hash
         .update(new Identity().toString())
@@ -18,7 +19,21 @@ export function createRandomUserIdentity(): [string, Identity] {
     const id = new Identity(hashUserId) as Identity
     // console.log('Random hashed user id: ', hashUserId)
 
-    return [hashUserId, id]
+    return { hashUserId, id }
+}
+
+export function createMultipleUserIdentity(size: number): IdentityObject[] {
+    let result: IdentityObject[] = []
+    for (let i = 0; i < size; i++) {
+        const hash = crypto.createHash('sha3-224')
+        const hashUserId = `0x${hash
+            .update(new Identity().toString())
+            .digest('hex')}` as string
+        const id = new Identity(hashUserId) as Identity
+        let o: IdentityObject = { hashUserId, id }
+        result.push(o)
+    }
+    return result
 }
 
 export async function genUserState(id, app) {
