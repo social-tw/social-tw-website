@@ -11,8 +11,18 @@ RUN apt-get update \
         build-essential \
         libssl-dev \
         wget
+
+## install pacakages and remove frontend folder
 RUN yarn && rm -rf packages/frontend
 
+## install tenderly cli
+RUN curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
+
+## deploy contract to tenderly devnet which
+## will update the config.ts
+RUN yarn contracts deploy:devnet
+
+## load keys of circuits
 RUN sh scripts/loadKeys.sh
 
 FROM node:18-buster
