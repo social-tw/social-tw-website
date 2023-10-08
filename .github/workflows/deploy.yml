@@ -7,30 +7,6 @@ on:
             - stage
 
 jobs:
-    # contracts:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Check out repository code
-    #           uses: actions/checkout@v3
-
-    #         - name: Install node.js
-    #           uses: actions/setup-node@v3
-    #           with:
-    #               node-version: '18'
-
-    #         - name: Install dependencies
-    #           run: yarn
-
-    #         - name: Install Tenderly CLI
-    #           run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
-
-    #         - name: Deploy contracts
-    #           run: yarn contracts deploy:devnet
-    #           env:
-    #               TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
-    #               TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
-    #               TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
-    #               TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
     backend:
       permissions:
         contents: 'read'
@@ -61,7 +37,11 @@ jobs:
 
         - name: Build and Push Container
           run: |-
-            docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}" ./
+            docker build --build-arg TENDERLY_ACCESS_KEY=${{ secrets.TENDERLY_ACCESS_KEY }} \
+              --build-arg TENDERLY_PROJECT_SLUG=${{ secrets.TENDERLY_PROJECT_SLUG }} \
+              --build-arg TENDERLY_DEVNET_TEMPLATE=${{ secrets.TENDERLY_DEVNET_TEMPLATE }} \
+              --build-arg TENDERLY_ACCOUNT_ID=${{ secrets.TENDERLY_ACCOUNT_ID }} \
+              -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}" ./
             docker push "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}"
 
         - name: Deploy to Cloud Run
@@ -75,10 +55,6 @@ jobs:
             env_vars: |
               TWITTER_CLIENT_ID=${{ secrets.TWITTER_CLIENT_ID }}
               TWITTER_CLIENT_KEY=${{ secrets.TWITTER_CLIENT_KEY }}
-              TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
-              TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
-              TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
-              TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
               CLIENT_URL=${{ vars.CLIENT_URL }}
 
         - name: Allow public access
@@ -117,7 +93,7 @@ jobs:
 
         - name: Build and Push Container
           run: |-
-            docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}" -f packages/frontend/Dockerfile .
+            docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}" -f ./packages/frontend/Dockerfile .
             docker push "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}"
 
         - name: Deploy to Cloud Run

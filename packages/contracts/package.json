@@ -14,7 +14,7 @@
         "hardhat": "hardhat",
         "deploy": "hardhat run scripts/deploy.ts",
         "test": "hardhat test --network hardhat",
-        "spawn-devnet": "ts-node ./scripts/spawnDevnet.ts",
+        "spawn-devnet": "ts-node ./scripts/spawnDevNet.ts",
         "deploy:devnet": "yarn run spawn-devnet && hardhat run scripts/deploy.ts --network tenderly"
     },
     "bugs": {
