@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
-import { SQLiteConnector } from 'anondb/node.js'
+import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
 
 // libraries
 import { UnirepSocialSynchronizer } from './synchornizer'
@@ -26,7 +26,11 @@ main().catch((err) => {
 })
 
 async function main() {
-    const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+    var db;
+    if (DB_PATH.startsWith("postgres")) 
+        db = await PostgresConnector.create(schema, DB_PATH)
+    else 
+        db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
