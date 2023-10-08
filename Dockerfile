@@ -1,27 +1,24 @@
-FROM node:20-alpine
+FROM node:18-buster
 
 COPY . /src
 
 WORKDIR /src
 
-## FIX: some packages rely on node-datachannel which
+## some packages rely on node-datachannel which
 ## needs c++ to execute prebuild
-## but cmake cannot find openssl even I install
-RUN apk add --update --no-cache --virtual .gyp \
-    libffi-dev \
-    openssl-dev \
-    g++ \
-    cmake \
-    && yarn && rm -rf packages/frontend \
-    && apk del .gyp
+RUN apt-get update \
+    && apt-get install -y \
+        build-essential \
+        libssl-dev \
+        wget
+RUN yarn && rm -rf packages/frontend
 
 RUN sh scripts/loadKeys.sh
 
-RUN rm -r packages/relay/keys/buildOrdered*
-
-FROM node:20-alpine
+FROM node:18-buster
 
 COPY --from=0 /src /src
+
 WORKDIR /src/packages/relay
 
 CMD ["npm", "start"]
