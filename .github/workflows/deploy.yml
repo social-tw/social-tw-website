@@ -104,9 +104,11 @@ jobs:
                   service: ${{ vars.FRONTEND_SERVICE }}
                   region: ${{ vars.REGION }}
                   image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ github.sha }}
+                  ## set --max-old-space-size=8192 for node.js to increase memory limit
                   env_vars: |
                       ENV=${{ vars.ENV }}
                       STAGE_SERVER=${{ vars.STAGE_SERVER }}
+                      NODE_OPTIONS=${{ vars.NODE_OPTIONS }}
 
             - name: Allow public access
               id: unauthenticated
