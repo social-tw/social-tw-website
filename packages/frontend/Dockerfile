@@ -1,9 +1,5 @@
 FROM node:18-buster as build
 
-COPY . /src
-
-WORKDIR /src
-
 ## some packages rely on node-datachannel which
 ## needs c++ to execute prebuild
 RUN apt-get update \
@@ -12,22 +8,24 @@ RUN apt-get update \
         libssl-dev \
         wget
 
+COPY . /src
+
+WORKDIR /src
+
 ## install pacakages on root folder(social-tw-website)
 RUN yarn
 
-## change working directory to frontend
-WORKDIR /src/packages/frontend
-
-## build frontend project only
-RUN yarn build
+## frontend no need these folders
+RUN rm -rf pacakages/contracts pacakages/relay
 
 FROM node:18-buster as runner
 
-RUN npm i -g serve
-
-WORKDIR /app
-
 ## copy the build folder into app
-COPY --from=build /src/packages/frontend/build .
+## copy the files to node_modules/ exclude folder itself
+COPY --from=build /src/node_modules /src/node_modules/
 
-CMD ["serve"]
+COPY --from=build /src/packages /src/packages/
+
+WORKDIR /src/packages/frontend
+
+CMD ["npm", "start"]

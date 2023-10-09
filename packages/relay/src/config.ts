@@ -12,14 +12,20 @@ config()
 // we should update the contract related env if
 // we deploy contracts by devnet
 Object.assign(process.env, {
-    UNIREP_ADDRESS: contractConfig.UNIREP_ADDRESS ?? '0x4D137bb44553d55AE6B28B5391c6f537b06C9cc3',
-    APP_ADDRESS: contractConfig.APP_ADDRESS ?? '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
-    ETH_PROVIDER_URL: contractConfig.ETH_PROVIDER_URL ?? 'http://127.0.0.1:8545',
+    UNIREP_ADDRESS:
+        contractConfig.UNIREP_ADDRESS ??
+        '0x4D137bb44553d55AE6B28B5391c6f537b06C9cc3',
+    APP_ADDRESS:
+        contractConfig.APP_ADDRESS ??
+        '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
+    ETH_PROVIDER_URL:
+        contractConfig.ETH_PROVIDER_URL ?? 'http://127.0.0.1:8545',
     PRIVATE_KEY:
-        contractConfig.PRIVATE_KEY ?? '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+        contractConfig.PRIVATE_KEY ??
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     ...process.env,
 })
-console.log("contract config", contractConfig)
+console.log('contract config', contractConfig)
 export const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL, PRIVATE_KEY } =
     process.env as any
 
