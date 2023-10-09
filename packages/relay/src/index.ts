@@ -17,6 +17,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    TWITTER_CLIENT_ID,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -26,11 +27,13 @@ main().catch((err) => {
 })
 
 async function main() {
-    var db;
-    if (DB_PATH.startsWith("postgres")) 
+    var db
+    if (
+        DB_PATH.startsWith('postgres') &&
+        TWITTER_CLIENT_ID != 'test-client-id'
+    ) {
         db = await PostgresConnector.create(schema, DB_PATH)
-    else 
-        db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+    } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -43,6 +46,8 @@ async function main() {
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
 
+    // reset all data if reset flag is true and evn is not production
+    await synchronizer.resetDatabase()
     await synchronizer.start()
 
     const { createHelia } = await eval("import('helia')")

@@ -3,6 +3,8 @@ import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
 import { UserRegisterStatus } from './types'
+import schema from './singletons/schema'
+import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -40,6 +42,14 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 eventNames: ['Post', 'UserSignUp'],
             },
         }
+    }
+
+    async resetDatabase() {
+        if (RESET_DATABASE != 'true' || ENV == 'product' || IS_IN_TEST) return
+        console.log('start reset all data in postgres')
+        schema.map((obj) => {
+            this.db.delete(obj.name, { where: {} })
+        })
     }
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
