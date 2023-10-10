@@ -16,6 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
+    handleCommentClick
 }: {
     id: string
     epochKey: string
@@ -26,6 +27,7 @@ export default function ({
     upCount: number
     downCount: number
     compact?: boolean
+    handleCommentClick?: () => void
 }) {
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
@@ -98,7 +100,7 @@ export default function ({
                             {downCount}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1" onClick={handleCommentClick}>
                         <img className="w-5 h-5" src={Comment} alt="comment" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}

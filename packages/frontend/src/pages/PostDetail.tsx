@@ -6,6 +6,7 @@ import Post from '../components/post/Post'
 import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
+import CommentForm from '../components/comment/CommentForm'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -18,6 +19,7 @@ const demoPost = {
 }
 
 export default function PostDetail() {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
 
@@ -48,18 +50,25 @@ export default function PostDetail() {
     if (!post) return null
 
     return (
-        <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600')}>
-            <section className="py-6">
-                <Post
-                    id={post.id}
-                    epochKey={post.epochKey}
-                    content={post.content}
-                    publishedAt={post.publishedAt}
-                    commentCount={post.commentCount}
-                    upCount={post.upCount}
-                    downCount={post.downCount}
-                />
-            </section>
-        </div>
+        <>
+            <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600 px-4')}>
+                <section className="py-6">
+                    <Post
+                        id={post.id}
+                        epochKey={post.epochKey}
+                        content={post.content}
+                        publishedAt={post.publishedAt}
+                        commentCount={post.commentCount}
+                        upCount={post.upCount}
+                        downCount={post.downCount}
+                        handleCommentClick={() => setIsOpen(prev => !prev)}
+                    />
+                </section>
+            </div>
+            <CommentForm
+                isOpen={true}
+            />
+        </>
+
     )
 }

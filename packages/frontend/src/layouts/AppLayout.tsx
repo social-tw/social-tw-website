@@ -89,11 +89,11 @@ export default function AppLayout() {
                         Unirep Social TW
                     </h1>
                 </header>
-                <main className="max-w-5xl px-4 mx-auto">
+                <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
                 {signupStatus !== 'default' && isShow ? (
-                    <div className="fixed bottom-0 w-screen px-4 h-60">
+                    <div className="fixed bottom-0 w-screen h-60">
                         <SignUpLoadingModal
                             status={signupStatus}
                             isOpen={true}
@@ -107,7 +107,6 @@ export default function AppLayout() {
                             bottom-0 
                             w-screen 
                             h-20 
-                            px-4 
                             flex 
                             items-stretch 
                             rounded-t-3xl
