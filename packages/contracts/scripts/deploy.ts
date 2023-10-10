@@ -29,7 +29,7 @@ export async function main() {
         config.APP_ADDRESS = app.address
         config.ETH_PROVIDER_URL = hardhat.network.config.url ?? ''
         config.PRIVATE_KEY = Array.isArray(hardhat.network.config.accounts)
-            ? `${hardhat.network.config.accounts[0]}'`
+            ? `${hardhat.network.config.accounts[0]}`
             : `/**
               This contract was deployed using a mnemonic. The PRIVATE_KEY variable needs to be set manually
               **/`
