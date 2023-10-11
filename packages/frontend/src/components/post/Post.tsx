@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
+import { useState } from 'react'
 
 export default function ({
     id = '',
@@ -31,6 +32,13 @@ export default function ({
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
+
+    const [upvotes, setUpvotes] = useState(upCount)
+    const [downvotes, setDownvotes] = useState(downCount)
+    // TODO: Need get vote state from backend or calucate from ecpochKey
+    const [voteState, setVoteState] = useState<'upvote' | 'downvote' | null>(
+        null
+    ) // 'upvote', 'downvote', or null
 
     const postInfo = (
         <div className="space-y-3">
@@ -68,6 +76,54 @@ export default function ({
         </div>
     )
 
+    const handleUpvote = async () => {
+        try {
+            // If already upvoted, reset the vote
+            if (voteState === 'upvote') {
+                setUpvotes((prev) => prev - 1)
+                setVoteState(null)
+                return
+            }
+
+            // Increment upvotes count
+            setUpvotes((prev) => prev + 1)
+
+            // If previously downvoted, decrement downvotes count
+            if (voteState === 'downvote') {
+                setDownvotes((prev) => prev - 1)
+            }
+
+            // Update voteState to 'upvote'
+            setVoteState('upvote')
+        } catch (error) {
+            console.error('Failed to upvote:', error)
+        }
+    }
+
+    const handleDownvote = async () => {
+        try {
+            // If already downvoted, reset the vote
+            if (voteState === 'downvote') {
+                setDownvotes((prev) => prev - 1)
+                setVoteState(null)
+                return
+            }
+
+            // Increment downvotes count
+            setDownvotes((prev) => prev + 1)
+
+            // If previously upvoted, decrement upvotes count
+            if (voteState === 'upvote') {
+                setUpvotes((prev) => prev - 1)
+            }
+
+            // Update voteState to 'downvote'
+            setVoteState('downvote')
+        } catch (error) {
+            console.error('Failed to downvote:', error)
+        }
+    }
+
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
             <div className="flex-1 p-4 space-y-3">
@@ -82,20 +138,26 @@ export default function ({
                     </section>
                 )}
                 <footer className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
+                    <div
+                        className="flex items-center gap-1"
+                        onClick={handleUpvote}
+                    >
                         <img className="w-5 h-5" src={Upvote} alt="upvote" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
-                            {upCount}
+                            {upvotes}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div
+                        className="flex items-center gap-1"
+                        onClick={handleDownvote}
+                    >
                         <img
                             className="w-5 h-5"
                             src={Downvote}
                             alt="downvote"
                         />
                         <span className="text-xs font-medium tracking-wide text-black/80">
-                            {downCount}
+                            {downvotes}
                         </span>
                     </div>
                     <div className="flex items-center gap-1">
