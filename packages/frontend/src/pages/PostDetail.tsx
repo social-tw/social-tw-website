@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Post from '../components/post/Post'
 import { SERVER } from '../config'
+import TransactionModal from '../components/modal/ui/comment/TransactionModal'
+import PostForm, { PostValues } from '../components/post/PostForm'
 
 import type { PostInfo } from '../types'
-import CommentForm from '../components/comment/CommentForm'
-import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -21,8 +21,23 @@ const demoPost = {
 
 export default function PostDetail() {
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
+
+    const onSubmit = async (values: PostValues) => {
+        try {
+            console.log(values.content)
+            setIsModalOpen(true)
+            // TODO: await transactions
+            setTimeout(() => {
+                setIsModalOpen(false)
+                setIsModalOpen(false)
+            }, 3000)
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     useEffect(() => {
         async function loadPost() {
@@ -66,10 +81,18 @@ export default function PostDetail() {
                     />
                 </section>
             </div>
-            <CommentForm
-                isOpen={isOpen}
+            {isOpen && (
+                <div className='fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4'>
+                    <PostForm 
+                        type='comment'
+                        onSubmit={onSubmit}
+                        onCancel={() => setIsOpen(false)}
+                    />
+                </div>
+            )}
+            <TransactionModal 
+                isOpen={isModalOpen}
             />
-            <TransactionModal />
         </>
 
     )

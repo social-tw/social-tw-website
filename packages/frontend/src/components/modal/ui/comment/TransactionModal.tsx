@@ -3,7 +3,13 @@ import Modal from '../../Modal'
 import Comment from '../../../../assets/comment.png'
 import { motion } from 'framer-motion'
 
-const TransactionModal = () => {
+interface TransactionModalProps {
+    isOpen: boolean
+}
+
+const TransactionModal: React.FC<TransactionModalProps> = ({
+    isOpen,
+}) => {
     const items = [1, 2, 3]
     const variants = {
         animate: (i: number) => ({
@@ -19,13 +25,13 @@ const TransactionModal = () => {
     } 
     
     return (
-        <Modal isOpen={true} postion='fixed' background={'bg-black/70'}>
+        <Modal isOpen={isOpen} postion='fixed' background={'bg-black/70'}>
             <div className='w-full h-full flex justify-center items-center'>
-                <div className='flex flex-col gap-10'>
-                    <div className='flex justify-center'>
+                <div className='flex flex-col gap-8'>
+                    <div className='flex justify-center gap-2'>
                         <img src={Comment} alt="Comment" className='w-[120px] h-[120px]' />
                         <div className='flex items-end gap-2'>
-                            {items.map((item, i) => (
+                            {items.map((i) => (
                                 <motion.span
                                     key={i} 
                                     className='block w-4 h-4 bg-white rounded'
