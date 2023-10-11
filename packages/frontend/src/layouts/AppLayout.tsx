@@ -1,26 +1,22 @@
-import clsx from 'clsx'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import clsx from "clsx";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
-    Link,
-    NavLink,
-    Outlet,
-    useLocation,
-    useMatch,
-    useNavigate,
-} from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import AddIcon from '../assets/add.svg'
-import ArrowLeftIcon from '../assets/arrow-left.svg'
-import BellIcon from '../assets/bell.svg'
-import HomeIcon from '../assets/home.svg'
-import Logo from '../assets/logo.png'
-import PersonCircleIcon from '../assets/person-circle.svg'
-import SearchIcon from '../assets/search.svg'
-import StarIcon from '../assets/star.svg'
-import ErrorModal from '../components/modal/ErrorModal'
-import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
-import { useUser } from '../contexts/User'
+  Link, NavLink, Outlet, useLocation, useMatch, useNavigate
+} from "react-router-dom";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import AddIcon from "../assets/add.svg";
+import ArrowLeftIcon from "../assets/arrow-left.svg";
+import BellIcon from "../assets/bell.svg";
+import HomeIcon from "../assets/home.svg";
+import Logo from "../assets/logo.png";
+import PersonCircleIcon from "../assets/person-circle.svg";
+import SearchIcon from "../assets/search.svg";
+import StarIcon from "../assets/star.svg";
+import EpochInfo from "../components/EpochInfo";
+import ErrorModal from "../components/modal/ErrorModal";
+import SignUpLoadingModal from "../components/modal/SignupLoadingModal";
+import { useUser } from "../contexts/User";
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -89,6 +85,9 @@ export default function AppLayout() {
                         Unirep Social TW
                     </h1>
                 </header>
+                <section className="px-4">
+                    <EpochInfo />
+                </section>
                 <main className="max-w-5xl px-4 mx-auto">
                     <Outlet />
                 </main>
@@ -201,6 +200,7 @@ export default function AppLayout() {
                                 Unirep Social TW
                             </h1>
                         </Link>
+                        <EpochInfo />
                         <nav className="space-y-9">
                             <NavLink
                                 className={({ isActive }) =>
