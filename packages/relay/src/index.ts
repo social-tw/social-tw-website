@@ -17,7 +17,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
-    TWITTER_CLIENT_ID,
+    IS_IN_TEST,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -28,10 +28,7 @@ main().catch((err) => {
 
 async function main() {
     var db
-    if (
-        DB_PATH.startsWith('postgres') &&
-        TWITTER_CLIENT_ID != 'test-client-id'
-    ) {
+    if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
         db = await PostgresConnector.create(schema, DB_PATH)
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
