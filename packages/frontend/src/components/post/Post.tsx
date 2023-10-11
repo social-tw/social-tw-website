@@ -8,8 +8,7 @@ import Upvote from '../../assets/upvote.png'
 import { useState } from 'react'
 import { VoteAction } from '../../types/VoteAction'
 import useVotes from '../../hooks/useVotes'
-
-const { create } = useVotes()
+import { useUser } from '../../contexts/User'
 
 export default function ({
     id = '',
@@ -36,6 +35,9 @@ export default function ({
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
+
+    const { isLogin } = useUser()
+    const { create } = useVotes()
 
     const [upvotes, setUpvotes] = useState(upCount)
     const [downvotes, setDownvotes] = useState(downCount)
@@ -151,6 +153,7 @@ export default function ({
                     <div
                         className="flex items-center gap-1"
                         onClick={handleUpvote}
+                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <img className="w-5 h-5" src={Upvote} alt="upvote" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
@@ -160,6 +163,7 @@ export default function ({
                     <div
                         className="flex items-center gap-1"
                         onClick={handleDownvote}
+                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <img
                             className="w-5 h-5"
