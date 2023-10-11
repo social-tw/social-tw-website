@@ -13,7 +13,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
     if (!isOpen) return null
 
     return (
-        <div className='fixed w-screen bg-gray-900/60 py-4 px-4 bottom-0 z-50 flex flex-col border-gray-400 border-t-2'>
+        <form className='fixed w-screen bg-gray-900/60 py-4 px-4 bottom-0 z-50 flex flex-col border-gray-400 border-t-2'>
             <div className='w-full flex pb-2'>
                 <div className='w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto'>
                     <img src={Avatar} alt='Avatar' />
@@ -25,9 +25,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
                     發佈留言
                 </button>
             </div>
-            <form className='w-full'>
+            <div className='w-full'>
                 <section>
-
                     <RichTextEditor
                         ariaLabel='comment editor'
                         placeholder='你想留什麼言呢......？'
@@ -37,10 +36,9 @@ const CommentForm: React.FC<CommentFormProps> = ({
                             placeholder: 'text-gray-300 text-lg',
                         }}
                     />
-
                 </section>
-            </form>
-        </div>
+            </div>
+        </form>
     )
 }
 

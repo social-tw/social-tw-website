@@ -7,6 +7,7 @@ import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
 import CommentForm from '../components/comment/CommentForm'
+import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -66,8 +67,9 @@ export default function PostDetail() {
                 </section>
             </div>
             <CommentForm
-                isOpen={true}
+                isOpen={isOpen}
             />
+            <TransactionModal />
         </>
 
     )
