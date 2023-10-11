@@ -6,6 +6,10 @@ import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 import { useState } from 'react'
+import { VoteAction } from '../../types/VoteAction'
+import useVotes from '../../hooks/useVotes'
+
+const { create } = useVotes()
 
 export default function ({
     id = '',
@@ -78,23 +82,26 @@ export default function ({
 
     const handleUpvote = async () => {
         try {
+            let action
             // If already upvoted, reset the vote
             if (voteState === 'upvote') {
                 setUpvotes((prev) => prev - 1)
                 setVoteState(null)
-                return
+                action = VoteAction.CANCEL_UPVOTE
+            } else {
+                // Increment upvotes count
+                setUpvotes((prev) => prev + 1)
+
+                // If previously downvoted, decrement downvotes count
+                if (voteState === 'downvote') {
+                    setDownvotes((prev) => prev - 1)
+                }
+
+                // Update voteState to 'upvote'
+                setVoteState('upvote')
+                action = VoteAction.UPVOTE
             }
-
-            // Increment upvotes count
-            setUpvotes((prev) => prev + 1)
-
-            // If previously downvoted, decrement downvotes count
-            if (voteState === 'downvote') {
-                setDownvotes((prev) => prev - 1)
-            }
-
-            // Update voteState to 'upvote'
-            setVoteState('upvote')
+            await create(id, action)
         } catch (error) {
             console.error('Failed to upvote:', error)
         }
@@ -102,23 +109,26 @@ export default function ({
 
     const handleDownvote = async () => {
         try {
+            let action
             // If already downvoted, reset the vote
             if (voteState === 'downvote') {
                 setDownvotes((prev) => prev - 1)
                 setVoteState(null)
-                return
+                action = VoteAction.CANCEL_DOWNVOTE
+            } else {
+                // Increment downvotes count
+                setDownvotes((prev) => prev + 1)
+
+                // If previously upvoted, decrement upvotes count
+                if (voteState === 'upvote') {
+                    setUpvotes((prev) => prev - 1)
+                }
+
+                // Update voteState to 'downvote'
+                setVoteState('downvote')
+                action = VoteAction.DOWNVOTE
             }
-
-            // Increment downvotes count
-            setDownvotes((prev) => prev + 1)
-
-            // If previously upvoted, decrement upvotes count
-            if (voteState === 'upvote') {
-                setUpvotes((prev) => prev - 1)
-            }
-
-            // Update voteState to 'downvote'
-            setVoteState('downvote')
+            await create(id, action)
         } catch (error) {
             console.error('Failed to downvote:', error)
         }
