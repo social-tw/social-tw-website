@@ -1,15 +1,12 @@
-name: Build, Test and Lint
+name: CI-Test and Lint
 run-name: ${{ github.actor }} acitvates the actions 🚀
 
 on:
     push:
-        branches:
-            - main
+        branches: ['main']
     pull_request:
         types: [opened, reopened, synchronize]
-        branches:
-            - main
-            - release/integrate_0713
+        branches: ['main']
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,7 +26,6 @@ jobs:
             CR_PAT: ${{ secrets.CR_PAT }}
 
     lint:
-        name: Lint
         runs-on: ubuntu-22.04
         timeout-minutes: 10
         steps:

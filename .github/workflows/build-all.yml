@@ -1,0 +1,147 @@
+name: CD-Build All
+
+on:
+    workflow_call:
+        inputs:
+            build-services:
+                default: 'relay-frontend'
+                type: string
+            version:
+                default: '0.0.1'
+                type: string
+jobs:
+    build-all:
+        if: ${{ inputs.build-services == 'contract' }}
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Setup circom, related lib
+              run: |
+                  apt-get update && apt-get install -y build-essential curl
+                  curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y && \
+                      . "$HOME/.cargo/env" && \
+                      cd /tmp && \
+                      git clone https://github.com/iden3/circom.git && \
+                      cd circom && \
+                      cargo build --release && \
+                      cargo install --path circom
+                  echo "/root/.cargo/bin" >> $GITHUB_PATH
+
+            - name: Install and build packages
+              run: yarn && yarn build
+
+            - name: Install Tenderly CLI
+              run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
+
+            - name: Deploy contracts
+              run: |
+                  touch ./packages/relay/.env
+                  yarn contracts deploy:devnet
+              env:
+                  TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
+                  TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
+                  TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
+                  TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variable set -f ./packages/relay/.env --repo $GITHUB_REPOSITORY
+              env:
+                  GH_TOKEN: ${{ secrets.GH_PAT }}
+
+            - name: Authenticate to Google Cloud
+              id: auth
+              uses: 'google-github-actions/auth@v1'
+              with:
+                  token_format: access_token
+                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  access_token_lifetime: 300s
+
+            - name: Login Registry
+              id: docker-auth
+              uses: docker/login-action@v1
+              with:
+                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  username: oauth2accesstoken
+                  password: ${{ steps.auth.outputs.access_token }}
+
+            - name: push relay image
+              run: |
+                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
+                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+
+            - name: push frontend image
+              run: |
+                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
+                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
+
+            # - name: add tag to record version
+            #   run: |
+            #       git tag v${{ inputs.version }}
+            #       git push origin refs/tags/v${{ inputs.version }} -f
+
+    build-relay-frontend:
+        if: ${{ inputs.build-services == 'relay-frontend'}}
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Setup circom, related lib
+              run: |
+                  apt-get update && apt-get install -y build-essential curl
+                  curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y && \
+                      . "$HOME/.cargo/env" && \
+                      cd /tmp && \
+                      git clone https://github.com/iden3/circom.git && \
+                      cd circom && \
+                      cargo build --release && \
+                      cargo install --path circom
+                  echo "/root/.cargo/bin" >> $GITHUB_PATH
+
+            - name: Install and build packages
+              run: yarn && yarn build
+
+            - name: Authenticate to Google Cloud
+              id: auth
+              uses: 'google-github-actions/auth@v1'
+              with:
+                  token_format: access_token
+                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  access_token_lifetime: 300s
+
+            - name: Login Registry
+              id: docker-auth
+              uses: docker/login-action@v1
+              with:
+                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  username: oauth2accesstoken
+                  password: ${{ steps.auth.outputs.access_token }}
+
+            - name: push relay image
+              run: |
+                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
+                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+
+            - name: push frontend image
+              run: |
+                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
+                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
+
+            # - name: add tag to record version
+            #   run: |
+            #       git tag v${{ inputs.version }}
+            #       git push origin refs/tags/v${{ inputs.version }} -f

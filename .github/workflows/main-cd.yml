@@ -1,0 +1,50 @@
+name: CD-Main
+run-name: ${{ github.actor }} acitvates the actions 🚀
+
+on:
+    workflow_dispatch:
+        branches: ['feat_system_cicd_enhancment']
+        inputs:
+            build-services:
+                description: 'build which services'
+                required: true
+                default: 'relay-frontend'
+                type: choice
+                options:
+                    - relay-frontend
+                    - contract
+            version:
+                description: 'current deploy version'
+                required: true
+                default: '0.0.1'
+
+jobs:
+    build:
+        permissions:
+            contents: 'read'
+            id-token: 'write'
+        uses: ./.github/workflows/build-all.yml
+        with:
+            build-services: ${{ inputs.build-services }}
+            version: ${{ inputs.version }}
+        secrets: inherit
+
+    relay:
+        needs: build
+        permissions:
+            contents: 'read'
+            id-token: 'write'
+        uses: ./.github/workflows/deploy-relay.yml
+        with:
+            version: ${{ inputs.version }}
+        secrets: inherit
+
+    frontend:
+        needs: build
+        permissions:
+            contents: 'read'
+            id-token: 'write'
+        uses: ./.github/workflows/deploy-frontend.yml
+        with:
+            version: ${{ inputs.version }}
+        secrets: inherit

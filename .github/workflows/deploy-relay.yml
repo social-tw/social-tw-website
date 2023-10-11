@@ -1,0 +1,65 @@
+name: Manual-Relay-Deploy
+
+on:
+    workflow_dispatch:
+        branches: ['feat_system_cicd_enhancment']
+        inputs:
+            version:
+                type: string
+                required: true
+
+    workflow_call:
+        inputs:
+            version:
+                type: string
+                required: true
+
+jobs:
+    relay:
+        permissions:
+            contents: 'read'
+            id-token: 'write'
+
+        runs-on: ubuntu-latest
+        steps:
+            - name: Production Code
+              uses: 'actions/checkout@v3'
+
+            - name: Authenticate to Google Cloud
+              id: auth
+              uses: 'google-github-actions/auth@v1'
+              with:
+                  token_format: access_token
+                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  access_token_lifetime: 300s
+
+            ## artifact registry auth setup
+            - name: Login to Artifact Registry
+              id: docker-auth
+              uses: docker/login-action@v1
+              with:
+                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  username: oauth2accesstoken
+                  password: ${{ steps.auth.outputs.access_token }}
+
+            - name: Deploy to Cloud Run
+              id: deploy
+              uses: google-github-actions/deploy-cloudrun@v0
+              with:
+                  service: ${{ vars.BACKEND_SERVICE }}
+                  region: ${{ vars.REGION }}
+                  image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+                  # add ENV as below
+                  env_vars: |
+                      TWITTER_CLIENT_ID=${{ secrets.TWITTER_CLIENT_ID }}
+                      TWITTER_CLIENT_KEY=${{ secrets.TWITTER_CLIENT_KEY }}
+                      CLIENT_URL=${{ vars.CLIENT_URL }}
+                      CALLBACK_URL=${{ vars.CALLBACK_URL }}
+
+            - name: Allow public access
+              id: unauthenticated
+              run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ vars.REGION }} --member="allUsers" --role="roles/run.invoker"
+
+            - name: Show Output
+              run: echo ${{ steps.deploy.outputs.url }}
