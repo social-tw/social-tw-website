@@ -7,6 +7,35 @@ on:
             - stage
 
 jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: yarn
+
+            - name: Install Tenderly CLI
+              run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
+
+            - name: Deploy contracts
+              run: yarn contracts deploy:devnet
+              env:
+                  TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
+                  TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
+                  TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
+                  TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variables -f /packages/relay/.env --repo $GITHUB_REPOSITORY
+              env:
+                  GH_TOKEN: ${{ secrets.GH_PAT }}
     backend:
         permissions:
             contents: 'read'
@@ -37,11 +66,7 @@ jobs:
 
             - name: Build and Push Container
               run: |-
-                  docker build --build-arg TENDERLY_ACCESS_KEY=${{ secrets.TENDERLY_ACCESS_KEY }} \
-                    --build-arg TENDERLY_PROJECT_SLUG=${{ secrets.TENDERLY_PROJECT_SLUG }} \
-                    --build-arg TENDERLY_DEVNET_TEMPLATE=${{ secrets.TENDERLY_DEVNET_TEMPLATE }} \
-                    --build-arg TENDERLY_ACCOUNT_ID=${{ secrets.TENDERLY_ACCOUNT_ID }} \
-                    -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}" ./
+                  docker build -t "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}" ./
                   docker push "${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ github.sha }}"
 
             - name: Deploy to Cloud Run
@@ -107,7 +132,7 @@ jobs:
                   ## set --max-old-space-size=8192 for node.js to increase memory limit
                   env_vars: |
                       ENV=${{ vars.ENV }}
-                      STAGE_SERVER=${{ vars.STAGE_SERVER }}
+                      STAGE_SERVER=${{ vars.${{ vars.ENV }}_SERVER }}
                       NODE_OPTIONS=${{ vars.NODE_OPTIONS }}
 
             - name: Allow public access
