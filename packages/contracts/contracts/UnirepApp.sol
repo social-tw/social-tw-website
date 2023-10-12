@@ -151,13 +151,12 @@ contract UnirepApp {
     }
 
     /**
-     * 
+     * Leave a comment under a post
      * @param publicSignals: public signals
      * @param proof: epockKeyProof from the user 
      * @param postId: postId where the comment wanna leave  
      * @param content: comment content 
      */
-
     function leaveComment(
         uint256[] memory publicSignals,
         uint256[8] memory proof,
@@ -192,8 +191,8 @@ contract UnirepApp {
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
         uint256 commentId = postCommentIndex[postId];
-        postCommentIndex[postId] = commentId + 1;
         epochKeyCommentMap[postId][commentId] = signals.epochKey;
+        postCommentIndex[postId] = commentId + 1;
 
         emit Comment(
             signals.epochKey,
@@ -205,12 +204,12 @@ contract UnirepApp {
     }
 
     /**
-     * 
+     * Update the content of a specific comment
      * @param publicSignals: public signals
      * @param proof: epochKeyLiteProof 
      * @param postId: postId 
-     * @param commentId: commentId which want to update
-     * @param newContent: new content of the comment. if this == "", means remove the comment 
+     * @param commentId: the commentId user wants to update
+     * @param newContent: new content of the comment. if this == "", means removing
      */
     function editComment(
         uint256[] memory publicSignals,
@@ -235,19 +234,7 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        // check state tree root        
-        // if (!unirep.attesterStateTreeRootExists(
-        //         signals.attesterId, 
-        //         signals.epoch, 
-        //         signals.stateTreeRoot
-        //     )) {
-        //     revert InvalidStateTreeRoot(signals.stateTreeRoot);
-        // }
-
-        // check if the proof is valid
-        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
-
-        if (commentId >= epochKeyPostIndex[postId]) {
+        if (commentId >= postCommentIndex[postId]) {
             revert InvalidCommentId(commentId);
         }
 
@@ -255,6 +242,8 @@ contract UnirepApp {
         if (epochKeyCommentMap[postId][commentId] != signals.epochKey) {
             revert InvalidCommentEpochKey(signals.epochKey);
         }
+
+        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
         emit UpdatedComment(
             signals.epochKey,
