@@ -165,16 +165,16 @@ describe('Unirep App', function () {
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
         })
 
-        it('should fail to post with state tree', async function () {
+        it('should fail to post with invalid state tree', async function () {
             const userState = await genUserState(user.id, app)
             const id = user.id
             // generate a proof with invalid state tree
-            const attesterId = await userState.sync.attesterId
+            const attesterId = userState.sync.attesterId
             const epoch = await userState.latestTransitionedEpoch(attesterId)
-            const tree = await new IncrementalMerkleTree(STATE_TREE_DEPTH)
+            const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
             const leaf = genStateTreeLeaf(
-                user.id.secret,
+                id.secret,
                 attesterId,
                 epoch,
                 data
