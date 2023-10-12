@@ -70,7 +70,7 @@ describe('Unirep App', function () {
 
             const { publicSignals, proof } =
                 await userState.genUserSignUpProof()
-            expect(
+            await expect(
                 app.userSignUp(publicSignals, proof, user.hashUserId, false)
             ).to.be.revertedWithCustomError(app, 'UserHasRegistered')
 
@@ -87,7 +87,7 @@ describe('Unirep App', function () {
                 .slice(0, proof.length - 1)
                 .concat([BigInt(0)])
 
-            expect(
+            await expect(
                 app.userSignUp(
                     publicSignals,
                     invalidProof,
@@ -113,7 +113,7 @@ describe('Unirep App', function () {
             )
             const content = 'Invalid Proof'
 
-            expect(app.post(publicSignals, concoctProof, content)).to.be
+            await expect(app.post(publicSignals, concoctProof, content)).to.be
                 .reverted // revert in epkHelper.verifyAndCheck()
         })
 
@@ -125,14 +125,14 @@ describe('Unirep App', function () {
             inputPublicSig = publicSignals
             inputProof = proof
 
-            expect(app.post(publicSignals, proof, content))
+            await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 0, 0, content)
         })
 
         it('should fail to post with reused proof', async function () {
             const content = 'Reused Proof'
-            expect(
+            await expect(
                 app.post(inputPublicSig, inputProof, content)
             ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
@@ -159,7 +159,7 @@ describe('Unirep App', function () {
                 attesterId,
                 data,
             })
-            expect(
+            await expect(
                 app.post(publicSignals, proof, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
         })
@@ -183,7 +183,7 @@ describe('Unirep App', function () {
                 attesterId,
                 data,
             })
-            expect(
+            await expect(
                 app.post(publicSignals, proof, 'Invalid State Tree')
             ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
         })
