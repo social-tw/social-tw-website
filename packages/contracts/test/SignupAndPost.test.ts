@@ -173,7 +173,7 @@ describe('Unirep App', function () {
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
             const leaf = genStateTreeLeaf(
-                user.id.secret,
+                id.secret,
                 attesterId,
                 epoch,
                 data
