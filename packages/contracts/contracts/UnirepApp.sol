@@ -169,6 +169,7 @@ contract UnirepApp {
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
+        proofNullifier[nullifier] = true;
         
         EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
 
@@ -187,7 +188,7 @@ contract UnirepApp {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
-        // should check lastly
+        // check if the proof is valid
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
         uint256 commentId = postCommentIndex[postId];
@@ -223,6 +224,8 @@ contract UnirepApp {
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
+
+        proofNullifier[nullifier] = true;
         
         EpochKeyLiteVerifierHelper.EpochKeySignals memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
@@ -233,15 +236,15 @@ contract UnirepApp {
         }
 
         // check state tree root        
-        if (!unirep.attesterStateTreeRootExists(
-                signals.attesterId, 
-                signals.epoch, 
-                signals.stateTreeRoot
-            )) {
-            revert InvalidStateTreeRoot(signals.stateTreeRoot);
-        }
+        // if (!unirep.attesterStateTreeRootExists(
+        //         signals.attesterId, 
+        //         signals.epoch, 
+        //         signals.stateTreeRoot
+        //     )) {
+        //     revert InvalidStateTreeRoot(signals.stateTreeRoot);
+        // }
 
-        // should check lastly
+        // check if the proof is valid
         epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
         if (commentId >= epochKeyPostIndex[postId]) {
