@@ -2,10 +2,7 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { CircuitConfig } from '@unirep/circuits'
-import {
-    IncrementalMerkleTree,
-    genStateTreeLeaf,
-} from '@unirep/utils'
+import { IncrementalMerkleTree, genStateTreeLeaf } from '@unirep/utils'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils'
 import {
@@ -117,7 +114,12 @@ describe('Comment Test', function () {
             })
             const postId = 0
             expect(
-                app.leaveComment(publicSignals, proof, postId, 'Invalid State Tree')
+                app.leaveComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    'Invalid State Tree'
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
             userState.stop()
         })
@@ -146,7 +148,7 @@ describe('Comment Test', function () {
             const postId = 0
             const commentId = 0
             const epoch = await userState.sync.loadCurrentEpoch()
-            
+
             // record the used proof here
             inputPublicSig = publicSignals
             inputProof = proof
@@ -192,98 +194,112 @@ describe('Comment Test', function () {
             })
             await expect(
                 app.editComment(
-                    publicSignals, 
+                    publicSignals,
                     proof,
-                    postId, 
-                    commentId, 
-                    content)
+                    postId,
+                    commentId,
+                    content
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
         })
 
-        it ("should revert with invalid comment id", async function () {
+        it('should revert with invalid comment id', async function () {
             const userState = await genUserState(users[1].id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyLiteProof({ 
-                epoch: 0,
-                nonce: 0
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
             const postId = 0
             const commentId = 1
             const newContent = 'Invalid Comment Id'
-            await expect(app.editComment(
-                publicSignals,
-                proof,
-                postId,
-                commentId,
-                newContent
-            )).to.be.revertedWithCustomError(app, 'InvalidCommentId')
+            await expect(
+                app.editComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    commentId,
+                    newContent
+                )
+            ).to.be.revertedWithCustomError(app, 'InvalidCommentId')
             userState.stop()
         })
 
-        it ("should revert with invalid epochKey", async function () {
+        it('should revert with invalid epochKey', async function () {
             const userState = await genUserState(users[1].id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyLiteProof({ 
-                epoch: 0,
-                nonce: 0
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
             publicSignals[1] = BigInt(0)
             const postId = 0
             const commentId = 0
             const newContent = 'Invalid Comment Epoch Key'
-            await expect(app.editComment(
-                publicSignals,
-                proof,
-                postId,
-                commentId,
-                newContent
-            )).to.be.revertedWithCustomError(app, 'InvalidCommentEpochKey')
+            await expect(
+                app.editComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    commentId,
+                    newContent
+                )
+            ).to.be.revertedWithCustomError(app, 'InvalidCommentEpochKey')
             userState.stop()
         })
 
-        it ("should revert editing comment with invalid epoch key lite proof", async function () {
+        it('should revert editing comment with invalid epoch key lite proof', async function () {
             const userState = await genUserState(users[1].id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyLiteProof({ 
-                epoch: 0,
-                nonce: 0
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
             proof[0] = BigInt(0)
             const postId = 0
             const commentId = 0
             const newContent = 'Invalid Proof'
-            await expect(app.editComment(
-                publicSignals,
-                proof,
-                postId,
-                commentId,
-                newContent
-            )).to.be.reverted
+            await expect(
+                app.editComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    commentId,
+                    newContent
+                )
+            ).to.be.reverted
             userState.stop()
         })
 
-        it ("should update comment with same epoch and nonce", async function () {
+        it('should update comment with same epoch and nonce', async function () {
             const userState = await genUserState(users[1].id, app)
-            const { publicSignals, proof } = await userState.
-            genEpochKeyLiteProof()
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof()
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
-            
+
             inputPublicSig = publicSignals
             inputProof = proof
-            
-            await expect(app.editComment(
-                publicSignals,
-                proof,
-                postId,
-                commentId,
-                newContent
-            )).to.emit(app, 'UpdatedComment').withArgs(
-                publicSignals[1], // epochKey
-                postId,
-                commentId,
-                0, // epoch
-                newContent
+
+            await expect(
+                app.editComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    commentId,
+                    newContent
+                )
             )
+                .to.emit(app, 'UpdatedComment')
+                .withArgs(
+                    publicSignals[1], // epochKey
+                    postId,
+                    commentId,
+                    0, // epoch
+                    newContent
+                )
             userState.stop()
         })
 
@@ -293,45 +309,51 @@ describe('Comment Test', function () {
             await ethers.provider.send('evm_mine', [])
         }
 
-        it ("should update comment in another epoch", async function () {
+        it('should update comment in another epoch', async function () {
             const userState = await genUserState(users[1].id, app)
             userState.waitForSync()
-            const { publicSignals, proof } = await userState.
-            genEpochKeyLiteProof()
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof()
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
-            
+
             inputPublicSig = publicSignals
             inputProof = proof
-            
-            await expect(app.editComment(
-                publicSignals,
-                proof,
-                postId,
-                commentId,
-                newContent
-            )).to.emit(app, 'UpdatedComment').withArgs(
-                publicSignals[1], // epochKey
-                postId,
-                commentId,
-                0, // epoch
-                newContent
+
+            await expect(
+                app.editComment(
+                    publicSignals,
+                    proof,
+                    postId,
+                    commentId,
+                    newContent
+                )
             )
+                .to.emit(app, 'UpdatedComment')
+                .withArgs(
+                    publicSignals[1], // epochKey
+                    postId,
+                    commentId,
+                    0, // epoch
+                    newContent
+                )
             userState.stop()
         })
 
-        it ("should revert editing comment with reused proof", async function () {
+        it('should revert editing comment with reused proof', async function () {
             const postId = 0
             const commentId = 0
             const newContent = 'Reused Proof'
-            await expect(app.editComment(
-                inputPublicSig,
-                inputProof,
-                postId,
-                commentId,
-                newContent
-            )).to.be.revertedWithCustomError(app, 'ProofHasUsed')
+            await expect(
+                app.editComment(
+                    inputPublicSig,
+                    inputProof,
+                    postId,
+                    commentId,
+                    newContent
+                )
+            ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
     })
 })
