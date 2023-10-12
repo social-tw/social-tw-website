@@ -9,7 +9,6 @@ import {
     genStateTreeLeaf,
 } from '@unirep/utils'
 import { DataProof } from '@unirep-app/circuits'
-import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils'
@@ -24,11 +23,11 @@ import { IdentityObject } from './types'
 const { SUM_FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('Unirep App', function () {
-    let unirep
-    let app
+    let unirep: any
+    let app: any
     let user: IdentityObject
-    let inputPublicSig
-    let inputProof
+    let inputPublicSig: any
+    let inputProof: any
 
     // epoch length
     const epochLength = 300
@@ -143,8 +142,8 @@ describe('Unirep App', function () {
             const id = user.id
             // generating a proof with wrong epoch
             const wrongEpoch = 44444
-            const attesterId = await userState.sync.attesterId
-            const epoch = await userState.latestTransitionedEpoch(attesterId)
+            const attesterId = userState.sync.attesterId
+            const epoch = await userState.sync.loadCurrentEpoch()
             const tree = await userState.sync.genStateTree(epoch, attesterId)
             const leafIndex = await userState.latestStateTreeLeafIndex(
                 epoch,
@@ -170,15 +169,10 @@ describe('Unirep App', function () {
             const id = user.id
             // generate a proof with invalid state tree
             const attesterId = userState.sync.attesterId
-            const epoch = await userState.latestTransitionedEpoch(attesterId)
+            const epoch = await userState.sync.loadCurrentEpoch()
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
-            const leaf = genStateTreeLeaf(
-                id.secret,
-                attesterId,
-                epoch,
-                data
-            )
+            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
             tree.insert(leaf)
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
