@@ -3,6 +3,8 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
+import { Server, Socket } from 'socket.io'
+import { createServer } from "http"
 import { SQLiteConnector } from 'anondb/node.js'
 
 // libraries
@@ -17,6 +19,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    CLIENT_URL
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -48,8 +51,27 @@ async function main() {
     await TransactionManager.start()
 
     const app = express()
+    const httpServer = createServer(app)
+
+    const io = new Server(httpServer, {
+        cors: {
+            origin: CLIENT_URL,
+            methods: ['GET', 'POST']
+        }
+    })
+
+    io.on('connection', (socket) => {
+        console.log('a user connected')
+
+        socket.on('disconnect', () => {
+            console.log('user disconnected')
+        })
+    })
+
     const port = process.env.PORT ?? 8000
-    app.listen(port, () => console.log(`Listening on port ${port}`))
+
+    // app.listen(port, () => console.log(`Listening on port ${port}`))
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
