@@ -75,18 +75,18 @@ const router = createBrowserRouter([
 const App = () => {
     useEffect(() => {
         socket.on('connect', () => {
-          console.log('Connected to the server!')
+            console.log('Connected to the server!')
         })
-    
+
         socket.on('disconnect', () => {
-          console.log('Disconnected from the server!')
+            console.log('Disconnected from the server!')
         })
-    
+
         return () => {
-          socket.off('connect')
-          socket.off('disconnect')
+            socket.off('connect')
+            socket.off('disconnect')
         }
-      }, []) 
+    }, [])
     return (
         <UserProvider>
             <RouterProvider router={router} />

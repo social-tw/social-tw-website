@@ -4,7 +4,7 @@ import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
 import { Server, Socket } from 'socket.io'
-import { createServer } from "http"
+import { createServer } from 'http'
 import { SQLiteConnector } from 'anondb/node.js'
 
 // libraries
@@ -19,7 +19,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
-    CLIENT_URL
+    CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -56,8 +56,8 @@ async function main() {
     const io = new Server(httpServer, {
         cors: {
             origin: CLIENT_URL,
-            methods: ['GET', 'POST']
-        }
+            methods: ['GET', 'POST'],
+        },
     })
 
     io.on('connection', (socket) => {
