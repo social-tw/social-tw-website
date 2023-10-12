@@ -164,7 +164,12 @@ contract UnirepApp {
         uint256 postId,
         string memory content
     ) public {
-
+        // check if proof is used before
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        if (proofNullifier[nullifier]) {
+            revert ProofHasUsed();
+        }
+        
         EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
@@ -213,7 +218,12 @@ contract UnirepApp {
         uint256 commentId,
         string memory newContent
     ) public {
-
+        // check if proof is used before
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        if (proofNullifier[nullifier]) {
+            revert ProofHasUsed();
+        }
+        
         EpochKeyLiteVerifierHelper.EpochKeySignals memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
