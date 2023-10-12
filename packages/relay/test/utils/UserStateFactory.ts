@@ -1,6 +1,6 @@
 import { DB } from 'anondb'
 import { User } from '../../src/types'
-import { UserState } from '@unirep/core'
+import { Synchronizer, UserState } from '@unirep/core'
 import { Identity } from '@semaphore-protocol/identity'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
@@ -11,19 +11,22 @@ export class UserStateFactory {
     prover: Prover
     unirepAddress: string
     attesterId: string
+    synchronizer: Synchronizer
 
     constructor(
         db: DB,
         provider: ethers.providers.JsonRpcProvider,
         prover: Prover,
         unirepAddress: ethers.Contract,
-        attesterId: ethers.Contract
+        attesterId: ethers.Contract,
+        synchronizer: Synchronizer
     ) {
         this.db = db
         this.provider = provider
         this.prover = prover
         this.unirepAddress = unirepAddress.address
         this.attesterId = attesterId.address
+        this.synchronizer = synchronizer
     }
 
     async createUserState(user: User, wallet?: ethers.Wallet) {
@@ -39,6 +42,7 @@ export class UserStateFactory {
             unirepAddress: this.unirepAddress,
             attesterId: BigInt(this.attesterId),
             id: identity,
+            synchronizer: this.synchronizer,
         })
     }
 
