@@ -34,7 +34,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
     return (
         <>
             {isShow ? (
-                <div className={clsx(`fixed bottom-0 w-screen`, signupStatus === 'default' ? 'h-40' : 'h-24')}>
+                <div className={clsx(`fixed bottom-0 w-screen`, signupStatus === 'default' ? 'h-56' : 'h-24')}>
                     <SignUpLoadingModal
                         status={signupStatus}
                         isOpen={true}

@@ -98,7 +98,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                     <p className="text-white text-lg font-semibold tracking-wider">
                         即可按讚、留言、Po文！
                     </p>
-                    <button className="py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg w-4/5 mb-4">
+                    <button className="py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg w-4/5 my-4">
                         返回註冊/登入頁
                     </button>
                 </>
