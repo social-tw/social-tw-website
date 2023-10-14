@@ -40,6 +40,16 @@ async function Vote(
             synchronizer.prover
         )
 
+        // get current epoch and unirep contract
+        const epoch = await synchronizer.loadCurrentEpoch()
+
+        // check if epoch is valid
+        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
+        if (!isEpochvalid) {
+            res.status(400).json({ error: 'Invalid Epoch' })
+            return
+        }
+        
         const valid = await epochKeyProof.verify()
         if (!valid) {
             res.status(400).json({ error: 'Invalid proof' })
