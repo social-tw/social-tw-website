@@ -125,6 +125,7 @@ async function exeuteTxs(
         .catch(() => console.log('Vote tx reverted'))
 }
 
+// TODO: should check if user voted to the same post before with other epochKey
 /**
  * The user can vote or cancel the vote to the post even in the different epoch,
  * but the user is only allowed to vote either upvote or downvote, not both.

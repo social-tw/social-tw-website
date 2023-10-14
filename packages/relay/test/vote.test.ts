@@ -28,6 +28,7 @@ describe('POST /vote', function () {
     let sync: UnirepSocialSynchronizer
     let post: any
 
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
