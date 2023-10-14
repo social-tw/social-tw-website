@@ -103,7 +103,10 @@ export default function PostDetail() {
                     />
                 </div>
             )}
-            <ErrorModal isOpen={isOpen && !isLogin}/>
+            <ErrorModal 
+                isOpen={isOpen && !isLogin}
+                buttonText='返回註冊/登入頁'
+            />
             <TransactionModal 
                 isOpen={isModalOpen}
             />
