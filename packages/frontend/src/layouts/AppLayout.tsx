@@ -10,7 +10,6 @@ import {
     useNavigate,
 } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import AddIcon from '../assets/add.svg'
 import ArrowLeftIcon from '../assets/arrow-left.svg'
 import BellIcon from '../assets/bell.svg'
 import HomeIcon from '../assets/home.svg'
@@ -19,13 +18,13 @@ import PersonCircleIcon from '../assets/person-circle.svg'
 import SearchIcon from '../assets/search.svg'
 import StarIcon from '../assets/star.svg'
 import ErrorModal from '../components/modal/ErrorModal'
-import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
 import { useUser } from '../contexts/User'
+import MobileNavbar from '../components/layout/MobileNavbar'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
     const location = useLocation()
-    const { isLogin, signupStatus } = useUser()
+    const { isLogin, signupStatus, setSignupStatus } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
 
@@ -39,18 +38,6 @@ export default function AppLayout() {
         header = 'Profile 個人檔案'
     }
 
-    const navVariants = {
-        start: { y: 100 },
-        end: {
-            y: 0,
-            transition: {
-                delay: 0,
-                duration: 1,
-                ease: 'easeInOut',
-            },
-        },
-    }
-
     const goBack = () => {
         if (window.history.state && window.history.state.idx > 0) {
             navigate(-1)
@@ -60,13 +47,20 @@ export default function AppLayout() {
     }
 
     useEffect(() => {
-        if (isLogin) {
+        if (isLogin && signupStatus === 'success') {
             setTimeout(() => {
+                setSignupStatus('default')
                 setIsShow(false)
             }, 1500)
-        } else {
-            setIsShow(true)
+            return
         }
+        if (isLogin && signupStatus === 'default') {
+            setIsShow(false)
+        }
+        if (!isLogin) {
+            setIsShow(true)
+            return
+        } 
     }, [isLogin])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
@@ -92,67 +86,10 @@ export default function AppLayout() {
                 <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
-                {signupStatus !== 'default' && isShow ? (
-                    <div className="fixed bottom-0 w-screen h-60">
-                        <SignUpLoadingModal
-                            status={signupStatus}
-                            isOpen={true}
-                            opacity={0}
-                        />
-                    </div>
-                ) : (
-                    <motion.nav
-                        className="
-                            fixed 
-                            bottom-0 
-                            w-screen 
-                            h-20 
-                            flex 
-                            items-stretch 
-                            rounded-t-3xl
-                            bg-gradient-to-r 
-                            from-secondary 
-                            to-primary/80 
-                            shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset"
-                        variants={navVariants}
-                        initial="start"
-                        animate="end"
-                    >
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/"
-                        >
-                            <HomeIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/explore"
-                        >
-                            <StarIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <div className="relative flex justify-center flex-1">
-                            <NavLink
-                                className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
-                                title="create a post"
-                                to="/write"
-                            >
-                                <AddIcon className="w-8 h-8 text-secondary" />
-                            </NavLink>
-                        </div>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/nofitication"
-                        >
-                            <BellIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/profile"
-                        >
-                            <PersonCircleIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                    </motion.nav>
-                )}
+                <MobileNavbar 
+                    isShow={isShow}
+                    signupStatus={signupStatus}
+                />
             </div>
         )
     } else {

@@ -89,12 +89,18 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             )
             break
 
-        case 'default':
+        case 'default' || 'error':
             content = (
                 <>
                     <p className="text-white text-lg font-semibold tracking-wider">
-                        您尚未登入，無法使用發布貼文功能！
+                        註冊 / 登入後，
                     </p>
+                    <p className="text-white text-lg font-semibold tracking-wider">
+                        即可按讚、留言、Po文！
+                    </p>
+                    <button className="py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg w-4/5 mb-4">
+                        返回註冊/登入頁
+                    </button>
                 </>
             )
             break
@@ -112,7 +118,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
                     status !== 'default' && 'md:pt-12',
-                    isSmallDevice && 'mt-16'
+                    // isSmallDevice && 'mt-16'
                 )}
             >
                 {content}
@@ -120,7 +126,5 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
         </Modal>
     )
 }
-
-// background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
 
 export default SignUpLoadingModal
