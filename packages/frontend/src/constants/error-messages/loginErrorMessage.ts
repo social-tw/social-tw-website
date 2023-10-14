@@ -1,4 +1,4 @@
-const LOGIN_ERROR_MESSAGES = {
+const LOGIN_ERROR_MESSAGES: Record<string, { code: string; message: string }> = {
     SIGNUP_FAILED: {
         code: 'SIGNUP_FAILED',
         message: '很抱歉通知您，您註冊失敗，請返回註冊頁再次嘗試註冊，謝謝您！',
@@ -27,6 +27,10 @@ const LOGIN_ERROR_MESSAGES = {
         code: 'MISSING_ELEMENT',
         message: '很抱歉通知您，登入時發生未知錯誤，請再次嘗試註冊，謝謝您！',
     },
+    ACTION_WITHOUT_LOGIN: {
+        code: 'ACTION_WITHOUT_LOGIN',
+        message: '親愛的用戶：您還沒登入 / 註冊唷，請先登入 / 註冊再執行此動作，感謝您！',
+    }
 }
 
 export default LOGIN_ERROR_MESSAGES

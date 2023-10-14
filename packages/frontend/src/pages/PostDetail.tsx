@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Post from '../components/post/Post'
@@ -8,6 +8,10 @@ import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import PostForm, { PostValues } from '../components/post/PostForm'
 
 import type { PostInfo } from '../types'
+import CommentForm from '../components/comment/CommentForm'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -24,6 +28,7 @@ export default function PostDetail() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
+    const { isLogin, errorCode, setErrorCode } = useUser()
 
     const onSubmit = async (values: PostValues) => {
         try {
@@ -32,10 +37,17 @@ export default function PostDetail() {
             // TODO: await transactions
             setTimeout(() => {
                 setIsModalOpen(false)
-                setIsModalOpen(false)
             }, 3000)
         } catch (err) {
             console.error(err)
+        }
+    }
+
+    const handleClick = () => {
+        setIsOpen(prev => !prev)
+        if (!isLogin) {
+            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+            return 
         }
     }
 
@@ -77,19 +89,21 @@ export default function PostDetail() {
                         commentCount={post.commentCount}
                         upCount={post.upCount}
                         downCount={post.downCount}
-                        handleCommentClick={() => setIsOpen(prev => !prev)}
+                        handleCommentClick={handleClick}
                     />
                 </section>
             </div>
             {isOpen && (
-                <div className='fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4'>
-                    <PostForm 
-                        type='comment'
+                <div 
+                    className='fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4'
+                >
+                    <CommentForm 
                         onSubmit={onSubmit}
                         onCancel={() => setIsOpen(false)}
                     />
                 </div>
             )}
+            <ErrorModal isOpen={isOpen && !isLogin}/>
             <TransactionModal 
                 isOpen={isModalOpen}
             />
