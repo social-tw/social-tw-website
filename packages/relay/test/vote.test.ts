@@ -283,7 +283,7 @@ describe('POST /vote', function () {
             body: JSON.stringify(
                 stringifyBigInts({
                     _id: votePost._id,
-                    voteAction: "CANCEL_UPVOTE",
+                    voteAction: VoteAction.CANCEL_UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
@@ -304,7 +304,7 @@ describe('POST /vote', function () {
             body: JSON.stringify(
                 stringifyBigInts({
                     _id: votePost._id,
-                    voteAction: "UPVOTE",
+                    voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
@@ -321,7 +321,7 @@ describe('POST /vote', function () {
             body: JSON.stringify(
                 stringifyBigInts({
                     _id: votePost._id,
-                    voteAction: "UPVOTE",
+                    voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
