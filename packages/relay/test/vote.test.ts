@@ -16,6 +16,7 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { singUp } from './utils/signUp'
 import { post } from './utils/post'
+import { VoteAction } from '../src/types'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 
 describe('POST /vote', function () {
@@ -26,7 +27,6 @@ describe('POST /vote', function () {
     let userStateFactory: UserStateFactory
     let userState: UserState
     let sync: UnirepSocialSynchronizer
-    let post: any
 
 
     before(async function () {
@@ -40,6 +40,7 @@ describe('POST /vote', function () {
         anondb = db
         tm = TransactionManager
         express = server
+        sync = synchronizer
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -60,31 +61,6 @@ describe('POST /vote', function () {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
-
-        //Create a Post for vote
-        const testContent = 'test content'
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0,
-        })
-        
-        const postRes: any = await fetch(`${HTTP_SERVER}/api/post`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        post = postRes.post
-        console.log(post)
     })
 
     after(async function () {
@@ -93,20 +69,31 @@ describe('POST /vote', function () {
     })
 
     it('should vote for post', async function () {
+        let res = await post(userState)
+        await ethers.provider.waitForTransaction(res.transaction)
+        await sync.waitForSync()
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        let votePost = posts[posts.length - 1]
+        expect(votePost.transactionHash).equal(res.transaction)
+        expect(votePost.status).equal(1)
+
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
         //Upvote for post
-        const res: any = await fetch(`${HTTP_SERVER}/api/vote`, {
+        res = await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    postId: post._id,
-                    voteAction: "UPVOTE",
+                    _id: votePost._id,
+                    voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
@@ -117,11 +104,54 @@ describe('POST /vote', function () {
         })
 
         expect(res.post.upCount).equal(1)
+        userState.sync.stop()
+        //TODO check vote database?
+    })
 
+    it('should cancel vote for post', async function () {
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        let votePost = posts[posts.length - 1]
+        expect(votePost.status).equal(1)
+
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 0,
+        })
+
+        //Cancel upvote for post
+        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: votePost._id,
+                    voteAction: VoteAction.CANCEL_UPVOTE,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        expect(res.post.upCount).equal(0)
+        userState.sync.stop()
         //TODO check vote database?
     })
 
     it('should vote failed with wrong epoch', async function () {
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        let votePost = posts[posts.length - 1]
+        expect(votePost.status).equal(1)
+
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
         const attesterId = await userState.sync.attesterId
@@ -143,21 +173,21 @@ describe('POST /vote', function () {
             data,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/vote`, {
+        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    postId: post._id,
-                    voteAction: "UPVOTE",
+                    _id: votePost._id,
+                    voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
             ),
         }).then((r) => {
-            expect(r.status).equal(200)
+            expect(r.status).equal(400)
             return r.json()
         })
         expect(res.error).equal('Invalid Epoch')
@@ -165,27 +195,34 @@ describe('POST /vote', function () {
     })
 
     it('shuold vote failed with wrong proof', async function () {
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        let votePost = posts[posts.length - 1]
+        expect(votePost.status).equal(1)
+
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
         epochKeyProof.publicSignals[0] = BigInt(0)
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/vote`, {
+        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    postId: post._id,
-                    voteAction: "UPVOTE",
+                    _id: votePost._id,
+                    voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
             ),
         }).then((r) => {
-            expect(r.status).equal(200)
+            expect(r.status).equal(400)
             return r.json()
         })
 
@@ -195,7 +232,7 @@ describe('POST /vote', function () {
 
     it('should vote failed with invalid post', async function () {
         var epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0,
+            nonce: 1,
         })
 
         //Upvote for post
@@ -206,7 +243,84 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    postId: "invalid",
+                    _id: "invalid",
+                    voteAction: VoteAction.UPVOTE,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(res.error).equal("Invalid postId")
+        userState.sync.stop()
+    })
+
+    it('should vote failed with invalid vote action', async function () {
+        let res = await post(userState)
+        await ethers.provider.waitForTransaction(res.transaction)
+        await sync.waitForSync()
+        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        let votePost = posts[posts.length - 1]
+        expect(votePost.transactionHash).equal(res.transaction)
+        expect(votePost.status).equal(1)
+
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 1,
+        })
+
+        //Cancel upvote for post without upvote 
+        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: votePost._id,
+                    voteAction: "CANCEL_UPVOTE",
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        expect(res.error).equal("Invalid vote action")
+
+        //Upvote post twice
+        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: votePost._id,
+                    voteAction: "UPVOTE",
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: votePost._id,
                     voteAction: "UPVOTE",
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -217,10 +331,6 @@ describe('POST /vote', function () {
             return r.json()
         })
 
-        expect(res.post.upCount).equal(1)
-    })
-
-    it('should vote failed with invalid vote action', async function () {
-        
+        expect(res.error).equal("Invalid vote action")
     })
 })
