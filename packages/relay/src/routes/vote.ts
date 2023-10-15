@@ -28,7 +28,8 @@ export default (
 function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
     let result = false
     switch (voteAction) {
-        case VoteAction.UPVOTE, VoteAction.DOWNVOTE:
+        case VoteAction.UPVOTE:
+        case VoteAction.DOWNVOTE:
             // this epk hasn't voted
             result = !findVote
             break;
@@ -60,6 +61,7 @@ function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
 async function exeuteTxs(
     db: DB,
     epochKey: string,
+    epoch: number,
     post: any,
     voteAction: VoteAction
 ): Promise<void> {
@@ -67,12 +69,11 @@ async function exeuteTxs(
     let createVote = true
 
     const voteCreateStatement = {
-        create: {
             postId: _id,
             epochKey: epochKey,
+            epoch: epoch,
             upVote: false,
             downVote: false,
-        }
     }
 
     const voteDeleteStatement = {
@@ -94,11 +95,11 @@ async function exeuteTxs(
     }
     switch (voteAction) {
         case VoteAction.UPVOTE:
-            voteCreateStatement.create.upVote = true
+            voteCreateStatement.upVote = true
             postStatement.update.upCount += 1
             break
         case VoteAction.DOWNVOTE:
-            voteCreateStatement.create.downVote = true
+            voteCreateStatement.downVote = true
             postStatement.update.downCount += 1
             break
         case VoteAction.CANCEL_UPVOTE:
@@ -194,11 +195,12 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
         const isValidAction = verifyVoteAction(voteAction, findVote)
         if (!isValidAction) {
             res.status(400).json({error: 'Invalid vote action'})
+            return
         }
 
-        await exeuteTxs(db, epochKey, findPost, voteAction)
+        await exeuteTxs(db, epochKey, epoch, findPost, voteAction)
 
-        res.status(201)
+        res.status(201).json({})
     } catch (error: any) {
         console.log(error)
         res.status(500).json({ error })
