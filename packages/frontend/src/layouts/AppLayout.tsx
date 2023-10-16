@@ -1,6 +1,5 @@
-import clsx from 'clsx'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 import {
     Link,
     NavLink,
@@ -94,7 +93,7 @@ export default function AppLayout() {
         )
     } else {
         return (
-            <div className="flex divide-x divide-neutral-600">
+            <div className="flex min-h-screen divide-x divide-neutral-600">
                 <ErrorModal isOpen={signupStatus === 'error'} />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">

@@ -1,17 +1,18 @@
+import { useEffect, useState } from 'react'
+import { CommentStatus, PostInfo } from "../types";
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Post from '../components/post/Post'
-import { SERVER } from '../config'
-import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import PostForm, { PostValues } from '../components/post/PostForm'
-
-import type { PostInfo } from '../types'
+import Comment from "../components/post/Comment";
 import CommentForm from '../components/comment/CommentForm'
+import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import ErrorModal from '../components/modal/ErrorModal'
 import { useUser } from '../contexts/User'
+import { SERVER } from '../config'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -23,12 +24,39 @@ const demoPost = {
     downCount: 0,
 }
 
+const demoComments = [
+    {
+        id: '1',
+        epochKey: 'epochKey-2',
+        publishedAt: new Date(),
+        content: '台灣der小巷就是讚啦！',
+        status: CommentStatus.Success,
+        isMine: true,
+    },
+    {
+        id: '2',
+        epochKey: 'epochKey-3',
+        publishedAt: new Date(),
+        content: '這裡的芋圓推推推！',
+        status: CommentStatus.Success,
+        isMine: false,
+    },
+    {
+        id: '3',
+        epochKey: 'epochKey-4',
+        publishedAt: new Date(),
+        content: '請問這是哪裡啊？',
+        status: CommentStatus.Pending,
+        isMine: true,
+    },
+]
+
 export default function PostDetail() {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
-    const { isLogin, errorCode, setErrorCode } = useUser()
+    const { isLogin, setErrorCode } = useUser()
 
     const onSubmit = async (values: PostValues) => {
         try {
@@ -79,7 +107,7 @@ export default function PostDetail() {
 
     return (
         <>
-            <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600 px-4')}>
+            <div>
                 <section className="py-6">
                     <Post
                         id={post.id}
@@ -89,8 +117,16 @@ export default function PostDetail() {
                         commentCount={post.commentCount}
                         upCount={post.upCount}
                         downCount={post.downCount}
-                        handleCommentClick={handleClick}
                     />
+                </section>
+                <section className="px-4">
+                    <ul className="divide-y divide-neutral-600">
+                        {demoComments.map((comment) => (
+                            <li>
+                                <Comment {...comment} />
+                            </li>
+                        ))}
+                    </ul>
                 </section>
             </div>
             {isOpen && (
@@ -111,6 +147,5 @@ export default function PostDetail() {
                 isOpen={isModalOpen}
             />
         </>
-
     )
 }
