@@ -1,6 +1,5 @@
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Dialog from '../components/Dialog'
@@ -93,7 +92,6 @@ export default function PostList() {
         try {
             await create(values.content)
             await loadPosts()
-            toast('貼文成功送出')
         } catch (err) {
             if (err instanceof CancelledTaskError) {
                 reset()
@@ -108,8 +106,10 @@ export default function PostList() {
     return (
         <div
             className={clsx(
+                `px-4`,
                 !isSmallDevice && 'divide-y divide-neutral-600',
-                location.pathname === '/login' && 'max-w-[600px] w-11/12'
+                location.pathname === '/login' &&
+                    'max-w-[600px] w-11/12 h-screen'
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (

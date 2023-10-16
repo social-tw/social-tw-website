@@ -1,9 +1,15 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Comment from "../components/post/Comment";
-import Post from "../components/post/Post";
-import { SERVER } from "../config";
-import { CommentStatus, PostInfo } from "../types";
+import { useEffect, useState } from 'react'
+import { CommentStatus, PostInfo } from '../types'
+import { useParams } from 'react-router-dom'
+import Post from '../components/post/Post'
+import { PostValues } from '../components/post/PostForm'
+import Comment from '../components/post/Comment'
+import CommentForm from '../components/comment/CommentForm'
+import TransactionModal from '../components/modal/ui/comment/TransactionModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
+import { SERVER } from '../config'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const demoPost = {
     id: '1',
@@ -44,8 +50,32 @@ const demoComments = [
 ]
 
 export default function PostDetail() {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
+    const { isLogin, setErrorCode } = useUser()
+
+    const onSubmit = async (values: PostValues) => {
+        try {
+            console.log(values.content)
+            setIsModalOpen(true)
+            // TODO: await transactions
+            setTimeout(() => {
+                setIsModalOpen(false)
+            }, 3000)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    const handleClick = () => {
+        setIsOpen((prev) => !prev)
+        if (!isLogin) {
+            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+            return
+        }
+    }
 
     useEffect(() => {
         async function loadPost() {
@@ -72,27 +102,43 @@ export default function PostDetail() {
     if (!post) return null
 
     return (
-        <div>
-            <section className="py-6">
-                <Post
-                    id={post.id}
-                    epochKey={post.epochKey}
-                    content={post.content}
-                    publishedAt={post.publishedAt}
-                    commentCount={post.commentCount}
-                    upCount={post.upCount}
-                    downCount={post.downCount}
-                />
-            </section>
-            <section className="px-4">
-                <ul className="divide-y divide-neutral-600">
-                    {demoComments.map((comment) => (
-                        <li>
-                            <Comment {...comment} />
-                        </li>
-                    ))}
-                </ul>
-            </section>
-        </div>
+        <>
+            <div className="px-4">
+                <section className="py-6">
+                    <Post
+                        id={post.id}
+                        epochKey={post.epochKey}
+                        content={post.content}
+                        publishedAt={post.publishedAt}
+                        commentCount={post.commentCount}
+                        upCount={post.upCount}
+                        downCount={post.downCount}
+                        handleCommentClick={handleClick}
+                    />
+                </section>
+                <section>
+                    <ul className="divide-y divide-neutral-600">
+                        {demoComments.map((comment, i) => (
+                            <li key={i}>
+                                <Comment {...comment} />
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            </div>
+            {isOpen && (
+                <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
+                    <CommentForm
+                        onSubmit={onSubmit}
+                        onCancel={() => setIsOpen(false)}
+                    />
+                </div>
+            )}
+            <ErrorModal
+                isOpen={isOpen && !isLogin}
+                buttonText="返回註冊/登入頁"
+            />
+            <TransactionModal isOpen={isModalOpen} />
+        </>
     )
 }
