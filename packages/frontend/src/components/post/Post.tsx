@@ -16,7 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
-    handleCommentClick
+    handleCommentClick = () => {}
 }: {
     id: string
     epochKey: string

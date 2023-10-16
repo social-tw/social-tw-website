@@ -58,8 +58,10 @@ export default function Comment({
                 transition
                 portal
             >
-                {menu.map((menuItem) => (
-                    <MenuItem>
+                {menu.map((menuItem, i) => (
+                    <MenuItem
+                        key={i}
+                    >
                         <div className="max-lg:p-6 max-lg:text-2xl max-lg:font-medium">
                             {menuItem.icon}
                             <span>{menuItem.label}</span>

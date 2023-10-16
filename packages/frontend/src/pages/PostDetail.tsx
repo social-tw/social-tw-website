@@ -107,7 +107,7 @@ export default function PostDetail() {
 
     return (
         <>
-            <div>
+            <div className='px-4'>
                 <section className="py-6">
                     <Post
                         id={post.id}
@@ -117,12 +117,13 @@ export default function PostDetail() {
                         commentCount={post.commentCount}
                         upCount={post.upCount}
                         downCount={post.downCount}
+                        handleCommentClick={handleClick}
                     />
                 </section>
-                <section className="px-4">
+                <section>
                     <ul className="divide-y divide-neutral-600">
-                        {demoComments.map((comment) => (
-                            <li>
+                        {demoComments.map((comment, i) => (
+                            <li key={i}>
                                 <Comment {...comment} />
                             </li>
                         ))}
