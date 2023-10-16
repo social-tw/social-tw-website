@@ -1,11 +1,10 @@
-import clsx from 'clsx'
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import Post from '../components/post/Post'
-import { SERVER } from '../config'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Comment from "../components/post/Comment";
+import Post from "../components/post/Post";
+import { SERVER } from "../config";
+import { CommentStatus, PostInfo } from "../types";
 
-import type { PostInfo } from '../types'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -16,6 +15,33 @@ const demoPost = {
     upCount: 0,
     downCount: 0,
 }
+
+const demoComments = [
+    {
+        id: '1',
+        epochKey: 'epochKey-2',
+        publishedAt: new Date(),
+        content: '台灣der小巷就是讚啦！',
+        status: CommentStatus.Success,
+        isMine: true,
+    },
+    {
+        id: '2',
+        epochKey: 'epochKey-3',
+        publishedAt: new Date(),
+        content: '這裡的芋圓推推推！',
+        status: CommentStatus.Success,
+        isMine: false,
+    },
+    {
+        id: '3',
+        epochKey: 'epochKey-4',
+        publishedAt: new Date(),
+        content: '請問這是哪裡啊？',
+        status: CommentStatus.Pending,
+        isMine: true,
+    },
+]
 
 export default function PostDetail() {
     const { id } = useParams()
@@ -43,12 +69,10 @@ export default function PostDetail() {
         }
     }, [id])
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
-
     if (!post) return null
 
     return (
-        <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600')}>
+        <div>
             <section className="py-6">
                 <Post
                     id={post.id}
@@ -59,6 +83,15 @@ export default function PostDetail() {
                     upCount={post.upCount}
                     downCount={post.downCount}
                 />
+            </section>
+            <section className="px-4">
+                <ul className="divide-y divide-neutral-600">
+                    {demoComments.map((comment) => (
+                        <li>
+                            <Comment {...comment} />
+                        </li>
+                    ))}
+                </ul>
             </section>
         </div>
     )
