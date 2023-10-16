@@ -16,7 +16,7 @@ export default function PostForm({
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
-    type = 'post'
+    type = 'post',
 }: {
     onCancel?: () => void
     onSubmit?: (values: PostValues) => void
@@ -42,7 +42,8 @@ export default function PostForm({
         onCancel()
     }
 
-    const placeholder = type === 'comment' ? '你想留什麼言呢......？' : undefined
+    const placeholder =
+        type === 'comment' ? '你想留什麼言呢......？' : undefined
 
     useEffect(() => {
         if (isSubmitSuccessful) {
@@ -58,8 +59,8 @@ export default function PostForm({
             >
                 <section className="flex items-center justify-end gap-1">
                     {type === 'comment' && (
-                        <div className='w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto'>
-                            <img src={Avatar} alt='Avatar' />
+                        <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
+                            <img src={Avatar} alt="Avatar" />
                         </div>
                     )}
                     <button

@@ -1,5 +1,5 @@
-import clsx from "clsx";
-import { useEffect, useState } from "react";
+import clsx from 'clsx'
+import { useEffect, useState } from 'react'
 import {
     Link,
     NavLink,
@@ -59,7 +59,7 @@ export default function AppLayout() {
         if (!isLogin) {
             setIsShow(true)
             return
-        } 
+        }
     }, [isLogin])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
@@ -85,10 +85,7 @@ export default function AppLayout() {
                 <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
-                <MobileNavbar 
-                    isShow={isShow}
-                    signupStatus={signupStatus}
-                />
+                <MobileNavbar isShow={isShow} signupStatus={signupStatus} />
             </div>
         )
     } else {

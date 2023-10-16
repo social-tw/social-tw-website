@@ -17,7 +17,8 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     status,
     isOpen,
 }) => {
-    const [pendingText, setPendingText] = useState('努力註冊中，先來看看文章吧！')
+    const [pendingText, setPendingText] =
+        useState('努力註冊中，先來看看文章吧！')
     const navigate = useNavigate()
 
     const textsAndTimes: { text: string; time: number }[] = [
@@ -84,7 +85,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                     <p className="text-white text-lg font-semibold tracking-wider">
                         即可按讚、留言、Po文！
                     </p>
-                    <button 
+                    <button
                         className="py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg w-4/5 my-4"
                         onClick={onClick}
                     >
@@ -122,7 +123,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             <div
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
-                    status !== 'default' && 'md:pt-12',
+                    status !== 'default' && 'md:pt-12'
                     // isSmallDevice && 'mt-16'
                 )}
             >

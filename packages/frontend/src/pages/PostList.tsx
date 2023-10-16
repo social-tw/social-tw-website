@@ -105,9 +105,11 @@ export default function PostList() {
 
     return (
         <div
-            className={clsx(`px-4`,
+            className={clsx(
+                `px-4`,
                 !isSmallDevice && 'divide-y divide-neutral-600',
-                location.pathname === '/login' && 'max-w-[600px] w-11/12 h-screen'
+                location.pathname === '/login' &&
+                    'max-w-[600px] w-11/12 h-screen'
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (

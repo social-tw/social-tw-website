@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
-import { CommentStatus, PostInfo } from "../types";
-import clsx from 'clsx'
+import { CommentStatus, PostInfo } from '../types'
 import { useParams } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
 import Post from '../components/post/Post'
-import PostForm, { PostValues } from '../components/post/PostForm'
-import Comment from "../components/post/Comment";
+import { PostValues } from '../components/post/PostForm'
+import Comment from '../components/post/Comment'
 import CommentForm from '../components/comment/CommentForm'
 import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import ErrorModal from '../components/modal/ErrorModal'
@@ -72,10 +70,10 @@ export default function PostDetail() {
     }
 
     const handleClick = () => {
-        setIsOpen(prev => !prev)
+        setIsOpen((prev) => !prev)
         if (!isLogin) {
             setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
-            return 
+            return
         }
     }
 
@@ -101,13 +99,11 @@ export default function PostDetail() {
         }
     }, [id])
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
-
     if (!post) return null
 
     return (
         <>
-            <div className='px-4'>
+            <div className="px-4">
                 <section className="py-6">
                     <Post
                         id={post.id}
@@ -131,22 +127,18 @@ export default function PostDetail() {
                 </section>
             </div>
             {isOpen && (
-                <div 
-                    className='fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4'
-                >
-                    <CommentForm 
+                <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
+                    <CommentForm
                         onSubmit={onSubmit}
                         onCancel={() => setIsOpen(false)}
                     />
                 </div>
             )}
-            <ErrorModal 
+            <ErrorModal
                 isOpen={isOpen && !isLogin}
-                buttonText='返回註冊/登入頁'
+                buttonText="返回註冊/登入頁"
             />
-            <TransactionModal 
-                isOpen={isModalOpen}
-            />
+            <TransactionModal isOpen={isModalOpen} />
         </>
     )
 }

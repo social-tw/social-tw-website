@@ -7,12 +7,12 @@ import useErrorMessage from '../../hooks/useErrorMessage'
 
 interface ErrorModalProps {
     isOpen: boolean
-    buttonText? : string
+    buttonText?: string
 }
 
-const ErrorModal: React.FC<ErrorModalProps> = ({ 
+const ErrorModal: React.FC<ErrorModalProps> = ({
     isOpen,
-    buttonText = '返回註冊頁重新嘗試'
+    buttonText = '返回註冊頁重新嘗試',
 }) => {
     const { setSignupStatus, errorCode, setErrorCode } = useUser()
     const { message } = useErrorMessage(errorCode)

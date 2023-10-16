@@ -1,10 +1,10 @@
-import LinesEllipsis from "react-lines-ellipsis";
-import { Link } from "react-router-dom";
-import Comment from "../../assets/comment.png";
-import Downvote from "../../assets/downvote.png";
-import Upvote from "../../assets/upvote.png";
-import formatDate from "../../utils/formatDate";
-import Avatar from "./Avatar";
+import LinesEllipsis from 'react-lines-ellipsis'
+import { Link } from 'react-router-dom'
+import Comment from '../../assets/comment.png'
+import Downvote from '../../assets/downvote.png'
+import Upvote from '../../assets/upvote.png'
+import formatDate from '../../utils/formatDate'
+import Avatar from './Avatar'
 
 export default function ({
     id = '',
@@ -16,7 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
-    handleCommentClick = () => {}
+    handleCommentClick = () => {},
 }: {
     id: string
     epochKey: string
@@ -82,7 +82,10 @@ export default function ({
                             {downCount}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1" onClick={handleCommentClick}>
+                    <div
+                        className="flex items-center gap-1"
+                        onClick={handleCommentClick}
+                    >
                         <img className="w-5 h-5" src={Comment} alt="comment" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}

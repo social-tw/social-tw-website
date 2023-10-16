@@ -10,9 +10,9 @@ export interface CommentValues {
 }
 
 export default function CommentForm({
-    onCancel = () => { },
-    onSubmit = () => { },
-    onSubmitCancel = () => { },
+    onCancel = () => {},
+    onSubmit = () => {},
+    onSubmitCancel = () => {},
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
@@ -53,8 +53,8 @@ export default function CommentForm({
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <section className="flex items-center justify-end gap-1">
-                    <div className='w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto'>
-                        <img src={Avatar} alt='Avatar' />
+                    <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
+                        <img src={Avatar} alt="Avatar" />
                     </div>
                     <button
                         className="btn btn-sm btn-ghost"
@@ -85,7 +85,7 @@ export default function CommentForm({
                                 onValueChange={field.onChange}
                                 value={field.value}
                                 namespace={field.name}
-                                placeholder='你想留什麼言呢......？'
+                                placeholder="你想留什麼言呢......？"
                                 classes={{
                                     content:
                                         'min-h-[3rem] overflow-auto text-white text-lg tracking-wider',
