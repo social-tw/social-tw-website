@@ -105,6 +105,17 @@ describe('POST /vote', function () {
             return r.json()
         })
 
+        // find post which is upvoted
+        anondb.findOne('Post', {
+            where: {
+                _id: upVotePost._id,
+            },
+        }).then((post) => {
+            expect(post).to.exist
+            expect(post.upCount).equal(1)
+            expect(post.downCount).equal(0)
+        })
+
         //Downvote for post
         res = await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
@@ -114,7 +125,7 @@ describe('POST /vote', function () {
             body: JSON.stringify(
                 stringifyBigInts({
                     _id: downVotePost._id,
-                    voteAction: VoteAction.UPVOTE,
+                    voteAction: VoteAction.DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
@@ -124,7 +135,17 @@ describe('POST /vote', function () {
             return r.json()
         })
 
-        // expect(res.post.upCount).equal(1)
+        // find post which is downvoted
+        anondb.findOne('Post', {
+            where: {
+                _id: downVotePost._id,
+            },
+        }).then((post) => {
+            expect(post).to.exist
+            expect(post.upCount).equal(0)
+            expect(post.downCount).equal(1)
+        })
+
         userState.sync.stop()
     })
 
@@ -161,6 +182,17 @@ describe('POST /vote', function () {
             return r.json()
         })
 
+        // find post which is downvoted
+        anondb.findOne('Post', {
+            where: {
+                _id: upVotePost._id,
+            },
+        }).then((post) => {
+            expect(post).to.exist
+            expect(post.upCount).equal(0)
+            expect(post.downCount).equal(0)
+        })
+
         //Cancel downvote for post
         res = await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
@@ -170,7 +202,7 @@ describe('POST /vote', function () {
             body: JSON.stringify(
                 stringifyBigInts({
                     _id: downVotePost._id,
-                    voteAction: VoteAction.CANCEL_UPVOTE,
+                    voteAction: VoteAction.CANCEL_DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
                 })
@@ -180,10 +212,19 @@ describe('POST /vote', function () {
             return r.json()
         })
 
+        // find post which is downvoted
+        anondb.findOne('Post', {
+            where: {
+                _id: downVotePost._id,
+            },
+        }).then((post) => {
+            expect(post).to.exist
+            expect(post.upCount).equal(0)
+            expect(post.downCount).equal(0)
+        })
+
         // TODO: need to setup response otherwise won't get anything from res
-        // expect(res.post.upCount).equal(0)
         userState.sync.stop()
-        //TODO check vote database?
     })
 
     it('should vote failed with wrong epoch', async function () {
@@ -236,7 +277,7 @@ describe('POST /vote', function () {
         userState.sync.stop()
     })
 
-    it('shuold vote failed with wrong proof', async function () {
+    it('should vote failed with wrong proof', async function () {
         var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -274,7 +315,7 @@ describe('POST /vote', function () {
 
     it('should vote failed with invalid post', async function () {
         var epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 1,
+            nonce: 0,
         })
 
         //Upvote for post
