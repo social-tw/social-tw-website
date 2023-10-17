@@ -32,17 +32,17 @@ function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
         case VoteAction.DOWNVOTE:
             // this epk hasn't voted
             result = !findVote
-            break;
+            break
         case VoteAction.CANCEL_UPVOTE:
             // this epk voted for upVote
             result = findVote && findVote.upVote
-            break;
+            break
         case VoteAction.CANCEL_DOWNVOTE:
             // this epk voted for downVote
             result = findVote && findVote.downVote
-            break;
+            break
         default:
-            break;
+            break
     }
     return result
 }
@@ -69,18 +69,18 @@ async function exeuteTxs(
     let createVote = true
 
     const voteCreateStatement = {
-            postId: _id,
-            epochKey: epochKey,
-            epoch: epoch,
-            upVote: false,
-            downVote: false,
+        postId: _id,
+        epochKey: epochKey,
+        epoch: epoch,
+        upVote: false,
+        downVote: false,
     }
 
     const voteDeleteStatement = {
         where: {
             postId: _id,
-            epochKey: epochKey
-        }
+            epochKey: epochKey,
+        },
     }
 
     // only modify the upCount and downCount
@@ -158,7 +158,7 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
             res.status(400).json({ error: 'Invalid Epoch' })
             return
         }
-        
+
         // check attesterId
         if (epochKeyProof.attesterId != synchronizer.attesterId) {
             res.status(400).json({ error: 'Wrong attesterId' })
@@ -194,7 +194,7 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
 
         const isValidAction = verifyVoteAction(voteAction, findVote)
         if (!isValidAction) {
-            res.status(400).json({error: 'Invalid vote action'})
+            res.status(400).json({ error: 'Invalid vote action' })
             return
         }
 
