@@ -337,13 +337,14 @@ describe('POST /vote', function () {
         userState.sync.stop()
     })
 
-    it('should vote failed with invalid vote action', async function () {
+
+    it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
-        //Cancel upvote for post without upvote 
-        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        // Cancel upvote for post without upvote 
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -359,12 +360,12 @@ describe('POST /vote', function () {
         }).then((r) => {
             expect(r.status).equal(400)
             return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
         })
 
-        expect(res.error).equal("Invalid vote action")
-
-        //Cancel downvote for post without upvote 
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        // Cancel downvote for post without downvote
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -380,12 +381,18 @@ describe('POST /vote', function () {
         }).then((r) => {
             expect(r.status).equal(400)
             return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
+        })
+    })
+
+    it('should vote failed when vote again with the same type', async function () {
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 0,
         })
 
-        expect(res.error).equal("Invalid vote action")
-
-        //Upvote post twice
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        // Upvote post twice
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -402,7 +409,8 @@ describe('POST /vote', function () {
             expect(r.status).equal(201)
             return r.json()
         })
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -418,12 +426,57 @@ describe('POST /vote', function () {
         }).then((r) => {
             expect(r.status).equal(400)
             return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
         })
 
-        expect(res.error).equal("Invalid vote action")
+        // Downvote post twice
+        await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: downvotePostId,
+                    voteAction: VoteAction.UPVOTE,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(201)
+            return r.json()
+        })
 
-        //down vote for post which is Upvoted
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: downvotePostId,
+                    voteAction: VoteAction.UPVOTE,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
+        })
+    })
+
+    it('should vote failed when vote again with different type', async function () {
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 0,
+        })
+
+        // Downvote for post which is Upvoted
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -439,8 +492,30 @@ describe('POST /vote', function () {
         }).then((r) => {
             expect(r.status).equal(400)
             return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
         })
 
-        expect(res.error).equal("Invalid vote action")
+        // Upvote for post which is Downvoted
+        await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: downvotePostId,
+                    voteAction: VoteAction.UPVOTE,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        }).then((res) => {
+            expect(res.error).equal("Invalid vote action")
+        })
+
     })
 })
