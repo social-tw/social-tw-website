@@ -27,6 +27,8 @@ describe('POST /vote', function () {
     let userStateFactory: UserStateFactory
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let upvotePostId: string
+    let downvotePostId: string
 
 
     before(async function () {
@@ -61,18 +63,14 @@ describe('POST /vote', function () {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
-    })
 
-    after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        express.close()
-    })
-
-    it('should vote for post', async function () {
+        // post two posts
         let res = await post(userState)
         res = await post(userState)
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
+
+        // get the post ids
         var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -81,20 +79,29 @@ describe('POST /vote', function () {
         let downVotePost = posts[posts.length - 2]
         expect(upVotePost.status).equal(1)
         expect(downVotePost.status).equal(1)
+        upvotePostId = upVotePost._id
+        downvotePostId = downVotePost._id
+    })
 
+    after(async function () {
+        await ethers.provider.send('evm_revert', [snapshot])
+        express.close()
+    })
+
+    it('should vote for post', async function () {
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
         //Upvote for post
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -102,13 +109,12 @@ describe('POST /vote', function () {
             ),
         }).then((r) => {
             expect(r.status).equal(201)
-            return r.json()
         })
 
         // find post which is upvoted
         anondb.findOne('Post', {
             where: {
-                _id: upVotePost._id,
+                _id: upvotePostId,
             },
         }).then((post) => {
             expect(post).to.exist
@@ -117,14 +123,14 @@ describe('POST /vote', function () {
         })
 
         //Downvote for post
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
+        await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: downVotePost._id,
+                    _id: downvotePostId,
                     voteAction: VoteAction.DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -132,13 +138,12 @@ describe('POST /vote', function () {
             ),
         }).then((r) => {
             expect(r.status).equal(201)
-            return r.json()
         })
 
         // find post which is downvoted
         anondb.findOne('Post', {
             where: {
-                _id: downVotePost._id,
+                _id: downvotePostId,
             },
         }).then((post) => {
             expect(post).to.exist
@@ -150,15 +155,6 @@ describe('POST /vote', function () {
     })
 
     it('should cancel vote for post', async function () {
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        let upVotePost = posts[posts.length - 1]
-        let downVotePost = posts[posts.length - 2]
-        expect(upVotePost.status).equal(1)
-        expect(downVotePost.status).equal(1)
-
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -171,7 +167,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.CANCEL_UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -185,7 +181,7 @@ describe('POST /vote', function () {
         // find post which is downvoted
         anondb.findOne('Post', {
             where: {
-                _id: upVotePost._id,
+                _id: upvotePostId,
             },
         }).then((post) => {
             expect(post).to.exist
@@ -201,7 +197,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: downVotePost._id,
+                    _id: downvotePostId,
                     voteAction: VoteAction.CANCEL_DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -215,7 +211,7 @@ describe('POST /vote', function () {
         // find post which is downvoted
         anondb.findOne('Post', {
             where: {
-                _id: downVotePost._id,
+                _id: downvotePostId,
             },
         }).then((post) => {
             expect(post).to.exist
@@ -342,15 +338,6 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with invalid vote action', async function () {
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        let upVotePost = posts[posts.length - 1]
-        let downVotePost = posts[posts.length - 2]
-        expect(upVotePost.status).equal(1)
-        expect(downVotePost.status).equal(1)
-
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -363,7 +350,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.CANCEL_UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -384,7 +371,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: downVotePost._id,
+                    _id: downvotePostId,
                     voteAction: VoteAction.CANCEL_DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -405,7 +392,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -422,7 +409,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.UPVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
@@ -443,7 +430,7 @@ describe('POST /vote', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    _id: upVotePost._id,
+                    _id: upvotePostId,
                     voteAction: VoteAction.DOWNVOTE,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof
