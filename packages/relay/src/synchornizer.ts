@@ -39,7 +39,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ...super.contracts,
             [tempUnirepSocialContract.address]: {
                 contract: tempUnirepSocialContract,
-                eventNames: ['Post', 'UserSignUp'],
+                eventNames: ['Post', 'UserSignUp', 'Comment', 'UpdatedComment'],
             },
         }
     }
@@ -83,6 +83,72 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 postId,
             },
         })
+    }
+
+    async handleComment({ event, db, decodedData }: EventHandlerArgs) {
+        const transactionHash = event.transactionHash
+        const findComment = await this.db.findOne('Comment', {
+            where: {
+                transactionHash,
+            },
+        })
+        if (!findComment) return
+
+        const epochKey = BigInt(event.topics[1]).toString(10)
+        const postId = BigInt(event.topics[2]).toString()
+        const commentId = BigInt(event.topics[3]).toString()
+        const epoch = Number(event.topics[4])
+        const content = decodedData.content
+
+        db.upsert('Comment', {
+            where: {
+                _id: findComment._id,
+            },
+            create: {
+                commentId,
+                postId,
+                transactionHash,
+                content,
+                epoch,
+                epochKey,
+            },
+            update: {
+                commentId,
+            },
+        })
+
+        db.update('Post', {
+            where: {
+                postId,
+            },
+            update: {
+                commentCount: {
+                    $inc: 1,
+                },
+            },
+        })
+
+        return
+    }
+
+    async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
+        const postId = BigInt(event.topics[2]).toString()
+        const commentId = BigInt(event.topics[3]).toString()
+        const newContent = decodedData.newContent
+
+        // FIXME: Should we check the epoch key?
+
+        db.update('Comment', {
+            where: {
+                postId,
+                commentId,
+            },
+            update: {
+                newContent,
+            },
+        })
+
+        return
     }
 
     // once user signup, save the hash user id into db
