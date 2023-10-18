@@ -83,65 +83,65 @@ export default function ({
     )
 
     const handleUpvote = async () => {
-        let action;
-        let success = false;
+        let action
+        let success = false
 
         if (voteState === 'upvote') {
-            action = VoteAction.CANCEL_UPVOTE;
-            success = await create(id, action);
+            action = VoteAction.CANCEL_UPVOTE
+            success = await create(id, action)
 
             if (success) {
-                setUpvotes((prev) => prev - 1);
-                setVoteState(null);
+                setUpvotes((prev) => prev - 1)
+                setVoteState(null)
             }
         } else {
             if (voteState === 'downvote') {
-                action = VoteAction.CANCEL_DOWNVOTE;
-                success = await create(id, action);
+                action = VoteAction.CANCEL_DOWNVOTE
+                success = await create(id, action)
 
                 if (success) {
-                    setDownvotes((prev) => prev - 1);
+                    setDownvotes((prev) => prev - 1)
                 }
             }
 
-            action = VoteAction.UPVOTE;
-            success = await create(id, action);
+            action = VoteAction.UPVOTE
+            success = await create(id, action)
 
             if (success) {
-                setUpvotes((prev) => prev + 1);
-                setVoteState('upvote');
+                setUpvotes((prev) => prev + 1)
+                setVoteState('upvote')
             }
         }
     }
 
     const handleDownvote = async () => {
-        let action;
-        let success = false;
+        let action
+        let success = false
 
         if (voteState === 'downvote') {
-            action = VoteAction.CANCEL_DOWNVOTE;
-            success = await create(id, action);
+            action = VoteAction.CANCEL_DOWNVOTE
+            success = await create(id, action)
 
             if (success) {
-                setDownvotes((prev) => prev - 1);
-                setVoteState(null);
+                setDownvotes((prev) => prev - 1)
+                setVoteState(null)
             }
         } else {
             if (voteState === 'upvote') {
-                action = VoteAction.CANCEL_UPVOTE;
-                success = await create(id, action);
+                action = VoteAction.CANCEL_UPVOTE
+                success = await create(id, action)
 
                 if (success) {
-                    setUpvotes((prev) => prev - 1);
+                    setUpvotes((prev) => prev - 1)
                 }
             }
 
-            action = VoteAction.DOWNVOTE;
-            success = await create(id, action);
+            action = VoteAction.DOWNVOTE
+            success = await create(id, action)
 
             if (success) {
-                setDownvotes((prev) => prev + 1);
-                setVoteState('downvote');
+                setDownvotes((prev) => prev + 1)
+                setVoteState('downvote')
             }
         }
     }
