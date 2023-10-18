@@ -4,7 +4,7 @@ import './signupLoadingModal.css'
 import { SignupStatus } from '../../contexts/User'
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
-import { useMediaQuery } from '@uidotdev/usehooks'
+import { useNavigate } from 'react-router-dom'
 
 interface SignUpLoadingModal {
     status: SignupStatus
@@ -19,29 +19,12 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
 }) => {
     const [pendingText, setPendingText] =
         useState('努力註冊中，先來看看文章吧！')
+    const navigate = useNavigate()
 
     const textsAndTimes: { text: string; time: number }[] = [
         { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
         { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
     ]
-
-    useEffect(() => {
-        if (status === 'pending') {
-            const timers: NodeJS.Timeout[] = []
-
-            textsAndTimes.forEach(({ text, time }) => {
-                const timer = setTimeout(() => {
-                    setPendingText(text)
-                }, time)
-
-                timers.push(timer)
-            })
-
-            return () => {
-                timers.forEach((timer) => clearTimeout(timer))
-            }
-        } else return
-    }, [status])
 
     const opacityVarients = {
         visible: { opacity: 1 },
@@ -53,6 +36,10 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 ease: 'easeInOut',
             },
         },
+    }
+
+    const onClick = () => {
+        navigate('/login', { replace: true, state: {} })
     }
 
     let content
@@ -89,18 +76,43 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             )
             break
 
-        case 'default':
+        case 'default' || 'error':
             content = (
                 <>
                     <p className="text-white text-lg font-semibold tracking-wider">
-                        您尚未登入，無法使用發布貼文功能！
+                        註冊 / 登入後，
                     </p>
+                    <p className="text-white text-lg font-semibold tracking-wider">
+                        即可按讚、留言、Po文！
+                    </p>
+                    <button
+                        className="py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg w-4/5 my-4"
+                        onClick={onClick}
+                    >
+                        返回註冊/登入頁
+                    </button>
                 </>
             )
             break
     }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+    useEffect(() => {
+        if (status === 'pending') {
+            const timers: NodeJS.Timeout[] = []
+
+            textsAndTimes.forEach(({ text, time }) => {
+                const timer = setTimeout(() => {
+                    setPendingText(text)
+                }, time)
+
+                timers.push(timer)
+            })
+
+            return () => {
+                timers.forEach((timer) => clearTimeout(timer))
+            }
+        } else return
+    }, [status])
 
     return (
         <Modal
@@ -111,8 +123,8 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             <div
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
-                    status !== 'default' && 'md:pt-12',
-                    isSmallDevice && 'mt-16'
+                    status !== 'default' && 'md:pt-12'
+                    // isSmallDevice && 'mt-16'
                 )}
             >
                 {content}
@@ -120,7 +132,5 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
         </Modal>
     )
 }
-
-// background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
 
 export default SignUpLoadingModal

@@ -7,3 +7,18 @@ export interface PostInfo {
     upCount: number
     downCount: number
 }
+
+export enum CommentStatus {
+    Pending = 'pending',
+    Success = 'success',
+    Failure = 'failure',
+}
+
+export interface CommentInfo {
+    id: string
+    epochKey: string
+    content: string
+    publishedAt: Date
+    status: CommentStatus
+    isMine: boolean
+}

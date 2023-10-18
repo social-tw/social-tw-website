@@ -1,10 +1,10 @@
-import Avatar from 'boring-avatars'
-import dayjs from 'dayjs'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
+import formatDate from '../../utils/formatDate'
+import Avatar from './Avatar'
 
 export default function ({
     id = '',
@@ -16,6 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
+    handleCommentClick = () => {},
 }: {
     id: string
     epochKey: string
@@ -26,32 +27,15 @@ export default function ({
     upCount: number
     downCount: number
     compact?: boolean
+    handleCommentClick?: () => void
 }) {
-    const publishedTime = dayjs(publishedAt)
-    const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
-        ? publishedTime.format('YYYY/MM/DD')
-        : publishedTime.fromNow()
-
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center gap-4">
-                <div className="border-2 border-white rounded-full">
-                    <Avatar
-                        size={20}
-                        name={epochKey}
-                        variant="beam"
-                        colors={[
-                            '#92A1C6',
-                            '#146A7C',
-                            '#F0AB3D',
-                            '#C271B4',
-                            '#C20D90',
-                        ]}
-                    />
-                </div>
-                <div className="text-xs font-medium tracking-wide text-black/80">
-                    {publishedLabel}
-                </div>
+                <Avatar name={epochKey} />
+                <span className="text-xs font-medium tracking-wide text-black/80">
+                    {formatDate(publishedAt)}
+                </span>
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
@@ -98,7 +82,10 @@ export default function ({
                             {downCount}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div
+                        className="flex items-center gap-1"
+                        onClick={handleCommentClick}
+                    >
                         <img className="w-5 h-5" src={Comment} alt="comment" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}

@@ -7,9 +7,13 @@ import useErrorMessage from '../../hooks/useErrorMessage'
 
 interface ErrorModalProps {
     isOpen: boolean
+    buttonText?: string
 }
 
-const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
+const ErrorModal: React.FC<ErrorModalProps> = ({
+    isOpen,
+    buttonText = '返回註冊頁重新嘗試',
+}) => {
     const { setSignupStatus, errorCode, setErrorCode } = useUser()
     const { message } = useErrorMessage(errorCode)
     const navigate = useNavigate()
@@ -36,7 +40,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
                         className="w-full py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg"
                         onClick={handleClick}
                     >
-                        返回註冊頁重新嘗試
+                        {buttonText}
                     </button>
                 </div>
             </div>

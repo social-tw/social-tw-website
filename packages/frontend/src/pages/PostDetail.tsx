@@ -1,11 +1,16 @@
-import clsx from 'clsx'
 import { useEffect, useState } from 'react'
+import { CommentStatus, PostInfo } from '../types'
 import { useParams } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
 import Post from '../components/post/Post'
+import { PostValues } from '../components/post/PostForm'
+import Comment from '../components/post/Comment'
+import CommentForm from '../components/comment/CommentForm'
+import TransactionModal from '../components/modal/ui/comment/TransactionModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
 import { SERVER } from '../config'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
-import type { PostInfo } from '../types'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -17,9 +22,60 @@ const demoPost = {
     downCount: 0,
 }
 
+const demoComments = [
+    {
+        id: '1',
+        epochKey: 'epochKey-2',
+        publishedAt: new Date(),
+        content: '台灣der小巷就是讚啦！',
+        status: CommentStatus.Success,
+        isMine: true,
+    },
+    {
+        id: '2',
+        epochKey: 'epochKey-3',
+        publishedAt: new Date(),
+        content: '這裡的芋圓推推推！',
+        status: CommentStatus.Success,
+        isMine: false,
+    },
+    {
+        id: '3',
+        epochKey: 'epochKey-4',
+        publishedAt: new Date(),
+        content: '請問這是哪裡啊？',
+        status: CommentStatus.Pending,
+        isMine: true,
+    },
+]
+
 export default function PostDetail() {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
+    const { isLogin, setErrorCode } = useUser()
+
+    const onSubmit = async (values: PostValues) => {
+        try {
+            console.log(values.content)
+            setIsModalOpen(true)
+            // TODO: await transactions
+            setTimeout(() => {
+                setIsModalOpen(false)
+            }, 3000)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    const handleClick = () => {
+        setIsOpen((prev) => !prev)
+        if (!isLogin) {
+            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+            return
+        }
+    }
 
     useEffect(() => {
         async function loadPost() {
@@ -43,23 +99,46 @@ export default function PostDetail() {
         }
     }, [id])
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
-
     if (!post) return null
 
     return (
-        <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600')}>
-            <section className="py-6">
-                <Post
-                    id={post.id}
-                    epochKey={post.epochKey}
-                    content={post.content}
-                    publishedAt={post.publishedAt}
-                    commentCount={post.commentCount}
-                    upCount={post.upCount}
-                    downCount={post.downCount}
-                />
-            </section>
-        </div>
+        <>
+            <div className="px-4">
+                <section className="py-6">
+                    <Post
+                        id={post.id}
+                        epochKey={post.epochKey}
+                        content={post.content}
+                        publishedAt={post.publishedAt}
+                        commentCount={post.commentCount}
+                        upCount={post.upCount}
+                        downCount={post.downCount}
+                        handleCommentClick={handleClick}
+                    />
+                </section>
+                <section>
+                    <ul className="divide-y divide-neutral-600">
+                        {demoComments.map((comment, i) => (
+                            <li key={i}>
+                                <Comment {...comment} />
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            </div>
+            {isOpen && (
+                <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
+                    <CommentForm
+                        onSubmit={onSubmit}
+                        onCancel={() => setIsOpen(false)}
+                    />
+                </div>
+            )}
+            <ErrorModal
+                isOpen={isOpen && !isLogin}
+                buttonText="返回註冊/登入頁"
+            />
+            <TransactionModal isOpen={isModalOpen} />
+        </>
     )
 }

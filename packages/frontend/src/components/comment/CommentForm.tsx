@@ -5,29 +5,27 @@ import Modal from '../modal/Modal'
 import RichTextEditor from '../RichTextEditor'
 import Avatar from '../../assets/avatar.png'
 
-export interface PostValues {
+export interface CommentValues {
     content: string
 }
 
-export default function PostForm({
+export default function CommentForm({
     onCancel = () => {},
     onSubmit = () => {},
     onSubmitCancel = () => {},
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
-    type = 'post',
 }: {
     onCancel?: () => void
-    onSubmit?: (values: PostValues) => void
+    onSubmit?: (values: CommentValues) => void
     onSubmitCancel?: () => void
     isSubmitCancellable?: boolean
     isSubmitCancelled?: boolean
     disabled?: boolean
-    type?: 'post' | 'comment'
 }) {
     const { handleSubmit, control, reset, getValues, formState } =
-        useForm<PostValues>({
+        useForm<CommentValues>({
             defaultValues: {
                 content: '',
             },
@@ -42,9 +40,6 @@ export default function PostForm({
         onCancel()
     }
 
-    const placeholder =
-        type === 'comment' ? '你想留什麼言呢......？' : undefined
-
     useEffect(() => {
         if (isSubmitSuccessful) {
             reset({ content: '' })
@@ -58,11 +53,9 @@ export default function PostForm({
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <section className="flex items-center justify-end gap-1">
-                    {type === 'comment' && (
-                        <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
-                            <img src={Avatar} alt="Avatar" />
-                        </div>
-                    )}
+                    <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
+                        <img src={Avatar} alt="Avatar" />
+                    </div>
                     <button
                         className="btn btn-sm btn-ghost"
                         title="cancel a post"
@@ -70,7 +63,7 @@ export default function PostForm({
                         disabled={disabled}
                         onClick={_onCancel}
                     >
-                        取消編輯
+                        取消
                     </button>
                     <button
                         className="btn btn-sm btn-secondary"
@@ -92,11 +85,11 @@ export default function PostForm({
                                 onValueChange={field.onChange}
                                 value={field.value}
                                 namespace={field.name}
-                                placeholder={placeholder}
+                                placeholder="你想留什麼言呢......？"
                                 classes={{
                                     content:
-                                        'min-h-[3rem] overflow-auto text-white text-xl tracking-wide',
-                                    placeholder: 'text-gray-300 text-xl',
+                                        'min-h-[3rem] overflow-auto text-white text-lg tracking-wider',
+                                    placeholder: 'text-gray-300 text-lg',
                                 }}
                             />
                         )}
