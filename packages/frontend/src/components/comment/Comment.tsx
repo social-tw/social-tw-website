@@ -1,17 +1,15 @@
-import clsx from 'clsx'
-import { useRef } from 'react'
-import { FaBan, FaTrashCan } from 'react-icons/fa6'
-import { FiMoreHorizontal } from 'react-icons/fi'
+import clsx from "clsx";
+import { useRef, useState } from "react";
+import { FaBan, FaTrashCan } from "react-icons/fa6";
+import { FiMoreHorizontal } from "react-icons/fi";
 import {
-    ControlledMenu,
-    MenuItem,
-    useClick,
-    useMenuState,
-} from '@szhsin/react-menu'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { CommentInfo, CommentStatus } from '../../types'
-import formatDate from '../../utils/formatDate'
-import Avatar from './Avatar'
+  ControlledMenu, MenuItem, useClick, useMenuState
+} from "@szhsin/react-menu";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import { CommentInfo, CommentStatus } from "../../types";
+import formatDate from "../../utils/formatDate";
+import Avatar from "../post/Avatar";
+import CommentDeleteDialog from "./CommentDeleteDialog";
 
 export default function Comment({
     id,
@@ -21,6 +19,17 @@ export default function Comment({
     status = CommentStatus.Success,
     isMine = true,
 }: CommentInfo) {
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const onDelete = () => {
+        console.log(`delete the comment: ${id}`)
+        setIsDeleting(false)
+    }
+
+    const onCancelDelete = () => {
+        setIsDeleting(false)
+    }
+
     const menuButtonRef = useRef(null)
     const [menuState, toggleMenu] = useMenuState({ transition: true })
     const anchorProps = useClick(menuState.state, toggleMenu)
@@ -30,7 +39,10 @@ export default function Comment({
               {
                   label: '刪除留言',
                   icon: <FaTrashCan size={20} />,
-                  onClick: () => {},
+                  onClick: () => {
+                    console.log('delete comment')
+                    setIsDeleting(true)
+                  },
               },
           ]
         : [{ label: '檢舉留言', icon: <FaBan size={20} />, onClick: () => {} }]
@@ -75,15 +87,20 @@ export default function Comment({
                 transition
                 portal
             >
-                {menu.map((menuItem, i) => (
-                    <MenuItem key={i}>
+                {menu.map((item, i) => (
+                    <MenuItem key={i} onClick={item.onClick}>
                         <div className="max-lg:p-6 max-lg:text-2xl max-lg:font-medium">
-                            {menuItem.icon}
-                            <span>{menuItem.label}</span>
+                            {item.icon}
+                            <span>{item.label}</span>
                         </div>
                     </MenuItem>
                 ))}
             </ControlledMenu>
+            <CommentDeleteDialog
+                open={isDeleting}
+                onClose={onCancelDelete}
+                onConfirm={onDelete}
+            />
         </article>
     )
 }
