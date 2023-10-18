@@ -79,7 +79,9 @@ export default function AppLayout() {
                     </h1>
                 </header>
                 <section className="px-4">
-                    <EpochInfo />
+                    <div className="max-w-sm mx-auto">
+                        <EpochInfo />
+                    </div>
                 </section>
                 <main className="max-w-5xl px-4 mx-auto">
                     <Outlet />

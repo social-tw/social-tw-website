@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useUser } from "../contexts/User";
+import { useEffect, useState } from 'react'
+import { useUser } from '../contexts/User'
 
 const epochLength = 300000
 
@@ -19,6 +19,6 @@ export default function useEpoch() {
 
     return {
         remainingTime,
-        epochLength
+        epochLength,
     }
 }
