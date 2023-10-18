@@ -8,37 +8,49 @@ export default function useVotes() {
 
     const randomNonce = () => Math.round(Math.random())
 
-    const create = async (_id: string, voteAction: VoteAction) => {
-        if (!userState) throw new Error('user state not initialized')
+    const create = async (_id: string, voteAction: VoteAction): Promise<boolean> => {
+        try {
 
-        if (
-            userState.sync.calcCurrentEpoch() !==
-            (await userState.latestTransitionedEpoch())
-        ) {
-            await stateTransition()
-        }
+            if (!userState) throw new Error('User state not initialized');
 
-        const nonce = randomNonce()
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
-        })
-        const data = await fetch(`${SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
+            await stateTransition();
+
+            const nonce = randomNonce();
+
+            const epochKeyProof = await userState.genEpochKeyProof({nonce});
+
+            const response = await fetch(`${SERVER}/api/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(stringifyBigInts({
                     _id,
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => r.json())
-        await provider.waitForTransaction(data.transaction)
-        await userState.waitForSync()
-        await loadData(userState)
+                    proof: epochKeyProof.proof
+                }))
+            });
+
+            const data = await response.json();
+
+            await provider.waitForTransaction(data.transaction);
+
+            await userState.waitForSync();
+
+            await loadData(userState);
+
+            if (data.status === 201) {
+                console.log("Vote succeeded!");
+                return true;
+            } else {
+                throw new Error(`Vote failed with status: ${data.status}`);
+            }
+
+        } catch (error) {
+            console.error("Vote failed:", error);
+            return false;
+        }
     }
 
     return { create }

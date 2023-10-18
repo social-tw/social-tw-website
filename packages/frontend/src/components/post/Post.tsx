@@ -83,56 +83,66 @@ export default function ({
     )
 
     const handleUpvote = async () => {
-        try {
-            let action
-            // If already upvoted, reset the vote
-            if (voteState === 'upvote') {
-                setUpvotes((prev) => prev - 1)
-                setVoteState(null)
-                action = VoteAction.CANCEL_UPVOTE
-            } else {
-                // Increment upvotes count
-                setUpvotes((prev) => prev + 1)
+        let action;
+        let success = false;
 
-                // If previously downvoted, decrement downvotes count
-                if (voteState === 'downvote') {
-                    setDownvotes((prev) => prev - 1)
-                }
+        if (voteState === 'upvote') {
+            action = VoteAction.CANCEL_UPVOTE;
+            success = await create(id, action);
 
-                // Update voteState to 'upvote'
-                setVoteState('upvote')
-                action = VoteAction.UPVOTE
+            if (success) {
+                setUpvotes((prev) => prev - 1);
+                setVoteState(null);
             }
-            await create(id, action)
-        } catch (error) {
-            console.error('Failed to upvote:', error)
+        } else {
+            if (voteState === 'downvote') {
+                action = VoteAction.CANCEL_DOWNVOTE;
+                success = await create(id, action);
+
+                if (success) {
+                    setDownvotes((prev) => prev - 1);
+                }
+            }
+
+            action = VoteAction.UPVOTE;
+            success = await create(id, action);
+
+            if (success) {
+                setUpvotes((prev) => prev + 1);
+                setVoteState('upvote');
+            }
         }
     }
 
     const handleDownvote = async () => {
-        try {
-            let action
-            // If already downvoted, reset the vote
-            if (voteState === 'downvote') {
-                setDownvotes((prev) => prev - 1)
-                setVoteState(null)
-                action = VoteAction.CANCEL_DOWNVOTE
-            } else {
-                // Increment downvotes count
-                setDownvotes((prev) => prev + 1)
+        let action;
+        let success = false;
 
-                // If previously upvoted, decrement upvotes count
-                if (voteState === 'upvote') {
-                    setUpvotes((prev) => prev - 1)
-                }
+        if (voteState === 'downvote') {
+            action = VoteAction.CANCEL_DOWNVOTE;
+            success = await create(id, action);
 
-                // Update voteState to 'downvote'
-                setVoteState('downvote')
-                action = VoteAction.DOWNVOTE
+            if (success) {
+                setDownvotes((prev) => prev - 1);
+                setVoteState(null);
             }
-            await create(id, action)
-        } catch (error) {
-            console.error('Failed to downvote:', error)
+        } else {
+            if (voteState === 'upvote') {
+                action = VoteAction.CANCEL_UPVOTE;
+                success = await create(id, action);
+
+                if (success) {
+                    setUpvotes((prev) => prev - 1);
+                }
+            }
+
+            action = VoteAction.DOWNVOTE;
+            success = await create(id, action);
+
+            if (success) {
+                setDownvotes((prev) => prev + 1);
+                setVoteState('downvote');
+            }
         }
     }
 
