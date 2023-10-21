@@ -2,13 +2,13 @@ import { DB } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { EpochKeyProof } from '@unirep/circuits'
 import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import { errorHandler } from '../middleware'
 import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 import type { Helia } from '@helia/interface'
+import { epochKeyService } from '../services/EpochKeyService'
 
 export default (
     app: Express,
@@ -73,70 +73,38 @@ async function createPost(
 ) {
     try {
         const { content, publicSignals, proof } = req.body
+        if (!content) {
+            throw new Error('Could not have empty content')
+        }
 
-        // verify epochKeyProof of user
-        const epochKeyProof = new EpochKeyProof(
+        const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer
         )
-
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
-
-        // check if epoch is valid
-        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
-            res.status(400).json({ error: 'Invalid Epoch' })
-            return
-        }
-
-        // check if state tree exists in current epoch
-        const isStateTreeValid = await synchronizer.stateTreeRootExists(
-            epochKeyProof.stateTreeRoot,
-            Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId
-        )
-        if (!isStateTreeValid) {
-            res.status(400).json({ error: 'Invalid State Tree' })
-            return
-        }
-
-        // check if proof is valid
-        const isProofValid = await epochKeyProof.verify()
-        if (!isProofValid) {
-            res.status(400).json({ error: 'Invalid proof' })
-            return
-        }
-
         const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
-        let calldata: any
-        let cid: any
-        if (content) {
-            // if the content is not empty, post the content
-            calldata = appContract.interface.encodeFunctionData('post', [
-                epochKeyProof.publicSignals,
-                epochKeyProof.proof,
-                content,
-            ])
+        const calldata = appContract.interface.encodeFunctionData('post', [
+            epochKeyProof.publicSignals,
+            epochKeyProof.proof,
+            content,
+        ])
 
-            // store content into helia ipfs node with json plain
-            const { json } = await eval("import('@helia/json')")
-            const heliaJson = json(helia)
-            const IPFSContent = {
-                content: content,
-            }
-            let file = await heliaJson.add(JSON.stringify(IPFSContent))
-            cid = file.toString()
+        // store content into helia ipfs node with json plain
+        const { json } = await eval("import('@helia/json')")
+        const heliaJson = json(helia)
+        const IPFSContent = {
+            content: content,
         }
+        const cid = await heliaJson.add(JSON.stringify(IPFSContent)).toString()
 
         const hash = await TransactionManager.queueTransaction(
             APP_ADDRESS,
             calldata
         )
 
+        const epoch = epochKeyProof.epoch
         const post = await db.create('Post', {
             content: content,
             cid: cid,

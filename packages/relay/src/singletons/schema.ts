@@ -76,6 +76,25 @@ const _schema = [
             ['status', 'Int'],
         ],
     },
+    {
+        name: 'Comment',
+        primaryKey: 'hashUserId',
+        rows: [
+            {
+                name: 'publishedAt',
+                type: 'Int',
+                default: () => +new Date(),
+            },
+            ['commentId', 'String', { optional: true }],
+            ['postId', 'String', { optional: true }],
+            ['cid', 'String', { optional: true }],
+            ['transactionHash', 'String'],
+            ['content', 'String'],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            ['status', 'Int'],
+        ],
+    },
 ]
 
 export default _schema
