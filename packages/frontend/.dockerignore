@@ -1,5 +1,6 @@
 .git
 .github
 .DS_Store
+.env
 playwright-report
 test-result
