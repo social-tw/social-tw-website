@@ -56,6 +56,10 @@ jobs:
                       TWITTER_CLIENT_KEY=${{ secrets.TWITTER_CLIENT_KEY }}
                       CLIENT_URL=${{ vars.CLIENT_URL }}
                       CALLBACK_URL=${{ vars.CALLBACK_URL }}
+                      APP_ADDRESS=${{ vars.APP_ADDRESS }}
+                      UNIREP_ADDRESS=${{ vars.UNIREP_ADDRESS }}
+                      PRIVATE_KEY=${{ vars.PRIVATE_KEY }}
+                      ENV=${{ vars.ENV }}
 
             - name: Allow public access
               id: unauthenticated

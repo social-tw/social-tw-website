@@ -1,0 +1,43 @@
+name: Manual-Deploy Contract
+
+on:
+    workflow_dispatch:
+        branches: ['feat_system_cicd_enhancment']
+
+jobs:
+    contract:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Install and build packages
+              run: yarn && yarn contracts build
+
+            - name: Install Tenderly CLI
+              run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
+
+            - name: Deploy contracts
+              run: |
+                  touch ./packages/relay/.env
+                  yarn contracts deploy:devnet
+              env:
+                  TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
+                  TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
+                  TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
+                  TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variable set -f ./packages/relay/.env --repo $GITHUB_REPOSITORY
+              env:
+                  GH_TOKEN: ${{ secrets.GH_PAT }}
+
+            # - name: add tag to record version
+            #   run: |
+            #       git tag v${{ inputs.version }}
+            #       git push origin refs/tags/v${{ inputs.version }} -f
