@@ -1,3 +1,7 @@
+import { Identity } from '@semaphore-protocol/identity'
+import { DataProof } from '@unirep-app/circuits'
+import { UserState } from '@unirep/core'
+import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
     createContext,
@@ -7,15 +11,13 @@ import React, {
     useMemo,
     useState,
 } from 'react'
-import { Identity } from '@semaphore-protocol/identity'
-import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
-import prover from './Prover'
 import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import useInitUser from '../hooks/useInitUser'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import { fetchRelayConfig } from '../utils/api'
+import { createProviderByUrl } from '../utils/provider'
+import prover from './Prover'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -65,7 +67,7 @@ export interface UserContextType {
     ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
-    createUserState: () => Promise<UserState | undefined>
+    createUserState: () => Promise<UserState>
 }
 
 interface UserProviderProps {
@@ -108,35 +110,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     const createUserState = async () => {
-        const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
-        if (storedHashUserId.length === 0) return
-        setHashUserId(storedHashUserId)
-
-        const storedToken = localStorage.getItem('token') ?? ''
-        if (storedToken.length === 0) return
-        setToken(storedToken)
-
         const storedSignature = localStorage.getItem('signature') ?? ''
-        if (storedSignature.length === 0) return
-        setSignature(storedSignature)
-
-        const identity = new Identity(storedSignature)
-        const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
-            `${SERVER}/api/config`
-        ).then((r) => r.json())
-
-        const providerInstance = ETH_PROVIDER_URL.startsWith('http')
-            ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
-            : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
-
-        setProvider(providerInstance)
+        const relayConfig = await fetchRelayConfig()
+        const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
+        setProvider(provider)
 
         const userStateInstance = new UserState({
-            provider: providerInstance,
+            provider,
             prover,
-            unirepAddress: UNIREP_ADDRESS,
-            attesterId: BigInt(APP_ADDRESS),
-            id: identity,
+            unirepAddress: relayConfig.UNIREP_ADDRESS,
+            attesterId: BigInt(relayConfig.APP_ADDRESS),
+            id: new Identity(storedSignature),
         })
 
         await userStateInstance.sync.start()
