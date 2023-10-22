@@ -1,3 +1,7 @@
+import { Identity } from '@semaphore-protocol/identity'
+import { DataProof } from '@unirep-app/circuits'
+import { UserState } from '@unirep/core'
+import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
     createContext,
@@ -7,15 +11,11 @@ import React, {
     useMemo,
     useState,
 } from 'react'
-import { Identity } from '@semaphore-protocol/identity'
-import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
-import prover from './Prover'
 import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import useInitUser from '../hooks/useInitUser'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import prover from './Prover'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -107,19 +107,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setLatestTransitionedEpoch(latestEpoch)
     }
 
-    const createUserState = async () => {
-        const storedHashUserId = localStorage.getItem('hashUserId') ?? ''
-        if (storedHashUserId.length === 0) return
-        setHashUserId(storedHashUserId)
-
-        const storedToken = localStorage.getItem('token') ?? ''
-        if (storedToken.length === 0) return
-        setToken(storedToken)
-
+    const createUserState = async () => { 
         const storedSignature = localStorage.getItem('signature') ?? ''
-        if (storedSignature.length === 0) return
-        setSignature(storedSignature)
-
         const identity = new Identity(storedSignature)
         const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } = await fetch(
             `${SERVER}/api/config`
