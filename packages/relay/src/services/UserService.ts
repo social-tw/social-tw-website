@@ -12,7 +12,7 @@ import fetch from 'node-fetch'
 
 const STATE = 'state'
 
-class UserService {
+export class UserService {
     /**
      * Return User with hashUserId and loginStatus
      * - loginStatus = NOT_REGISTERD : User hasn't been registered

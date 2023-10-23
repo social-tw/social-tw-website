@@ -95,6 +95,15 @@ const _schema = [
             ['status', 'Int'],
         ],
     },
+    {
+        name: 'EpochKeyAction',
+        primaryKey: 'epochKey',
+        rows: [
+            ['epochKey', 'String'],
+            ['epoch', 'Int'],
+            ['count', 'Int'],
+        ],
+    },
 ]
 
 export default _schema
