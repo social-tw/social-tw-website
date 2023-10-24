@@ -27,6 +27,8 @@ main().catch((err) => {
 
 async function main() {
     const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+    // TODO: this should be switched by stage and prod
+    const blockNum = await provider.send('eth_blockNumber', [])
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -35,6 +37,7 @@ async function main() {
             prover: prover,
             provider: provider,
             unirepAddress: UNIREP_ADDRESS,
+            genesisBlock: parseInt(blockNum) - 999,
         },
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
