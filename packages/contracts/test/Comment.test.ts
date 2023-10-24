@@ -331,9 +331,12 @@ describe('Comment Test', function () {
             const toEpoch = await unirep.attesterCurrentEpoch(attesterId)
 
             await userState2.waitForSync()
-            const { publicSignals, proof } = await userState2.genUserStateTransitionProof({ toEpoch })
-            await unirep.userStateTransition(publicSignals, proof).then((tx) => tx.wait())
-            
+            const { publicSignals, proof } =
+                await userState2.genUserStateTransitionProof({ toEpoch })
+            await unirep
+                .userStateTransition(publicSignals, proof)
+                .then((tx) => tx.wait())
+
             userState2.sync.stop()
         }
 
