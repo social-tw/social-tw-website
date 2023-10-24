@@ -26,25 +26,20 @@ export default (
  * @returns bool whether the vote action is valid or not
  */
 function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
-    let result = false
     switch (voteAction) {
         case VoteAction.UPVOTE:
         case VoteAction.DOWNVOTE:
             // this epk hasn't voted
-            result = !findVote
-            break
+            return !findVote
         case VoteAction.CANCEL_UPVOTE:
             // this epk voted for upVote
-            result = findVote && findVote.upVote
-            break
+            return findVote && findVote.upVote
         case VoteAction.CANCEL_DOWNVOTE:
             // this epk voted for downVote
-            result = findVote && findVote.downVote
-            break
+            return findVote && findVote.downVote
         default:
-            break
+            return false
     }
-    return result
 }
 
 /**
@@ -153,21 +148,23 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
         const epoch = await synchronizer.loadCurrentEpoch()
 
         // check if epoch is valid
-        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
+        const isValidEpoch = epochKeyProof.epoch.toString() === epoch.toString()
+        if (!isValidEpoch) {
             res.status(400).json({ error: 'Invalid Epoch' })
             return
         }
 
         // check attesterId
-        if (epochKeyProof.attesterId != synchronizer.attesterId) {
+        const isValidAttesterId =
+            epochKeyProof.attesterId === synchronizer.attesterId
+        if (!isValidAttesterId) {
             res.status(400).json({ error: 'Wrong attesterId' })
             return
         }
 
         // verify epochKeyProof of user
-        const valid = await epochKeyProof.verify()
-        if (!valid) {
+        const isValidProof = await epochKeyProof.verify()
+        if (!isValidProof) {
             res.status(400).json({ error: 'Invalid proof' })
             return
         }

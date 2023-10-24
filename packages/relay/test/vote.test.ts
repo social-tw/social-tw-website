@@ -18,15 +18,16 @@ import { VoteAction } from '../src/types'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 
 describe('POST /vote', function () {
-    let snapshot: any
-    let anondb: DB
-    let tm: TransactionManager
-    let express: Server
-    let userStateFactory: UserStateFactory
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
-    let upvotePostId: string
-    let downvotePostId: string
+    var snapshot: any
+    var anondb: DB
+    var tm: TransactionManager
+    var express: Server
+    var userStateFactory: UserStateFactory
+    var userState: UserState
+    var sync: UnirepSocialSynchronizer
+    var upvotePostId: string
+    var downvotePostId: string
+    var otherPostId: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -67,23 +68,32 @@ describe('POST /vote', function () {
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
 
-        // post two posts
-        let res = await post(userState)
-        res = await post(userState)
-        await ethers.provider.waitForTransaction(res.transaction)
+        // produce three posts
+        const postPromises = [post(userState), post(userState), post(userState)]
+
+        const postResponses = await Promise.all(postPromises)
+        await Promise.all(
+            postResponses.map((res) =>
+                ethers.provider.waitForTransaction(res.transaction)
+            )
+        )
         await sync.waitForSync()
 
         // get the post ids
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        let upVotePost = posts[posts.length - 1]
-        let downVotePost = posts[posts.length - 2]
+        const response = await fetch(`${HTTP_SERVER}/api/post`)
+        expect(response.status).equal(200)
+        const posts = await response.json()
+        expect(posts.length).equal(3)
+
+        const upVotePost = posts[0]
+        const downVotePost = posts[1]
+        const otherPost = posts[2]
         expect(upVotePost.status).equal(1)
         expect(downVotePost.status).equal(1)
+        expect(otherPost.status).equal(1)
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
+        otherPostId = otherPost._id
     })
 
     after(async function () {
@@ -91,72 +101,57 @@ describe('POST /vote', function () {
         express.close()
     })
 
+    async function voteForPost(postId, voteAction, epochKeyProof) {
+        return await fetch(`${HTTP_SERVER}/api/vote`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    _id: postId,
+                    voteAction,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        })
+    }
+
+    async function verifyPostVote(postId, expectedUpCount, expectedDownCount) {
+        const post = await anondb.findOne('Post', {
+            where: { _id: postId },
+        })
+
+        expect(post).to.exist
+        expect(post.upCount).equal(expectedUpCount)
+        expect(post.downCount).equal(expectedDownCount)
+    }
+
     it('should vote for post', async function () {
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
-        //Upvote for post
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: upvotePostId,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(201)
-        })
-
+        // upvote for post
+        const upvoteResponse = await voteForPost(
+            upvotePostId,
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(201)
         // check the post is upvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: upvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(1)
-                expect(post.downCount).equal(0)
-            })
+        await verifyPostVote(upvotePostId, 1, 0)
 
-        //Downvote for post
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: downvotePostId,
-                    voteAction: VoteAction.DOWNVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(201)
-        })
-
+        // downvote for post
+        const downvoteResponse = await voteForPost(
+            downvotePostId,
+            VoteAction.DOWNVOTE,
+            epochKeyProof
+        )
+        expect(downvoteResponse.status).equal(201)
         // check the post is downvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: downvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(0)
-                expect(post.downCount).equal(1)
-            })
+        await verifyPostVote(downvotePostId, 0, 1)
 
         userState.sync.stop()
     })
@@ -166,77 +161,33 @@ describe('POST /vote', function () {
             nonce: 0,
         })
 
-        // check the post is upvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: upvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(1)
-                expect(post.downCount).equal(0)
-            })
-
-        // Upvote post again
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: upvotePostId,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is already upvoted
+        await verifyPostVote(upvotePostId, 1, 0)
+        // then upvote post again
+        const upvoteResponse = await voteForPost(
+            upvotePostId,
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
 
-        // check the post is downvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: downvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(0)
-                expect(post.downCount).equal(1)
-            })
-
-        // Downvote post again
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: downvotePostId,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is already downvoted
+        await verifyPostVote(downvotePostId, 0, 1)
+        // then downvote post again
+        const downvoteResponse = await voteForPost(
+            downvotePostId,
+            VoteAction.DOWNVOTE,
+            epochKeyProof
+        )
+        expect(downvoteResponse.status).equal(400)
+        await downvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
+
+        userState.sync.stop()
     })
 
     it('should vote failed when vote again with different type', async function () {
@@ -244,77 +195,33 @@ describe('POST /vote', function () {
             nonce: 0,
         })
 
-        // check the post is upvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: upvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(1)
-                expect(post.downCount).equal(0)
-            })
-
-        // Downvote for post which is Upvoted
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: upvotePostId,
-                    voteAction: VoteAction.DOWNVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is already upvoted
+        await verifyPostVote(upvotePostId, 1, 0)
+        // then downvote for the upvoted post
+        const downvoteResponse = await voteForPost(
+            upvotePostId,
+            VoteAction.DOWNVOTE,
+            epochKeyProof
+        )
+        expect(downvoteResponse.status).equal(400)
+        await downvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
 
-        // check the post is downvoted only
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: downvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(0)
-                expect(post.downCount).equal(1)
-            })
-
-        // Upvote for post which is Downvoted
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: downvotePostId,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is already downvoted
+        await verifyPostVote(downvotePostId, 0, 1)
+        // then upvote for the downvoted post
+        const upvoteResponse = await voteForPost(
+            downvotePostId,
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
+
+        userState.sync.stop()
     })
 
     it('should cancel vote for post', async function () {
@@ -322,69 +229,29 @@ describe('POST /vote', function () {
             nonce: 0,
         })
 
-        //Cancel upvote for post
-        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: upvotePostId,
-                    voteAction: VoteAction.CANCEL_UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(201)
-            return r.json()
-        })
-
+        // make sure the post is already upvoted
+        await verifyPostVote(upvotePostId, 1, 0)
+        // then cancel upvote for the post
+        const upvoteResponse = await voteForPost(
+            upvotePostId,
+            VoteAction.CANCEL_UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(201)
         // check the post is neither upvoted nor downvoted
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: upvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(0)
-                expect(post.downCount).equal(0)
-            })
+        await verifyPostVote(upvotePostId, 0, 0)
 
-        //Cancel downvote for post
-        res = await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: downvotePostId,
-                    voteAction: VoteAction.CANCEL_DOWNVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(201)
-            return r.json()
-        })
-
+        // make sure the post is already downvoted
+        await verifyPostVote(downvotePostId, 0, 1)
+        // then cancel downvote for the post
+        const downvoteResponse = await voteForPost(
+            downvotePostId,
+            VoteAction.CANCEL_DOWNVOTE,
+            epochKeyProof
+        )
+        expect(downvoteResponse.status).equal(201)
         // check the post is neither upvoted nor downvoted
-        anondb
-            .findOne('Post', {
-                where: {
-                    _id: downvotePostId,
-                },
-            })
-            .then((post) => {
-                expect(post).to.exist
-                expect(post.upCount).equal(0)
-                expect(post.downCount).equal(0)
-            })
+        await verifyPostVote(downvotePostId, 0, 0)
 
         // TODO: need to setup response otherwise won't get anything from res
         userState.sync.stop()
@@ -395,61 +262,36 @@ describe('POST /vote', function () {
             nonce: 0,
         })
 
-        // Cancel upvote for post without upvote
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: upvotePostId,
-                    voteAction: VoteAction.CANCEL_UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is not upvoted
+        await verifyPostVote(upvotePostId, 0, 0)
+        // then cancel upvote for post without upvote
+        const upvoteResponse = await voteForPost(
+            upvotePostId,
+            VoteAction.CANCEL_UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
 
-        // Cancel downvote for post without downvote
-        await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: downvotePostId,
-                    voteAction: VoteAction.CANCEL_DOWNVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
+        // make sure the post is not downvoted
+        await verifyPostVote(downvotePostId, 0, 0)
+        // then cancel downvote for post without downvote
+        const downvoteResponse = await voteForPost(
+            downvotePostId,
+            VoteAction.CANCEL_DOWNVOTE,
+            epochKeyProof
+        )
+        expect(downvoteResponse.status).equal(400)
+        await downvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid vote action')
         })
-            .then((r) => {
-                expect(r.status).equal(400)
-                return r.json()
-            })
-            .then((res) => {
-                expect(res.error).equal('Invalid vote action')
-            })
+
+        userState.sync.stop()
     })
 
     it('should vote failed with wrong epoch', async function () {
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        let votePost = posts[posts.length - 1]
-        expect(votePost.status).equal(1)
-
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
         const attesterId = userState.sync.attesterId
@@ -471,60 +313,38 @@ describe('POST /vote', function () {
             data,
         })
 
-        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: votePost._id,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
+        // upvote with the wrong epoch
+        const upvoteResponse = await voteForPost(
+            otherPostId,
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid Epoch')
         })
-        expect(res.error).equal('Invalid Epoch')
+
         userState.sync.stop()
     })
 
     it('should vote failed with wrong proof', async function () {
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-        let votePost = posts[posts.length - 1]
-        expect(votePost.status).equal(1)
-
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
         epochKeyProof.publicSignals[0] = BigInt(0)
 
-        let res = await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: votePost._id,
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
+        // upvote with the wrong proof
+        const upvoteResponse = await voteForPost(
+            otherPostId,
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid proof')
         })
 
-        expect(res.error).equal('Invalid proof')
         userState.sync.stop()
     })
 
@@ -533,26 +353,17 @@ describe('POST /vote', function () {
             nonce: 0,
         })
 
-        // Upvote for post
-        const res: any = await fetch(`${HTTP_SERVER}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    _id: 'invalid',
-                    voteAction: VoteAction.UPVOTE,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
+        // upvote with the wrong post id
+        const upvoteResponse = await voteForPost(
+            'invalid',
+            VoteAction.UPVOTE,
+            epochKeyProof
+        )
+        expect(upvoteResponse.status).equal(400)
+        await upvoteResponse.json().then((res) => {
+            expect(res.error).equal('Invalid postId')
         })
 
-        expect(res.error).equal('Invalid postId')
         userState.sync.stop()
     })
 })
