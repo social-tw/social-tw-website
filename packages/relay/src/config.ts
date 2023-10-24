@@ -20,8 +20,6 @@ Object.assign(process.env, {
     ...process.env,
 })
 
-console.log('RPC_URL', process.env.ETH_PROVIDER_URL)
-
 export const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL, PRIVATE_KEY } =
     process.env as any
 
