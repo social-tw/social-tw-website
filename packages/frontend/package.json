@@ -24,6 +24,7 @@
         "@headlessui/react": "^1.7.16",
         "@lexical/react": "^0.11.1",
         "@szhsin/react-menu": "^4.1.0",
+        "@tanstack/react-table": "^8.10.7",
         "@uidotdev/usehooks": "^2.1.0",
         "@unirep-app/circuits": "1.0.0",
         "@unirep/core": "2.0.0-beta-4",
