@@ -159,6 +159,27 @@ Ensure that your code is formatted correctly:
 yarn lint:check
 ```
 
+## 5. Deploy
+
+### 5.1 Deploy frontend locally
+
+```shell
+docker build --tag=social-tw-client:latest -f packages/frontend/Dockerfile .
+
+docker run -p 3000:3000 social-tw-client
+```
+
+### 5.2 Deploy backend locally
+
+```shell
+# Make sure to fill up the .env file
+source .env
+
+docker build --tag=social-tw-relay:latest .
+
+docker run -p 8000:8000 --env-file .env social-tw-relay
+```
+
 # Contributing
 
 ### Getting Started
@@ -190,3 +211,7 @@ Please follow the following branch naming scheme when creating your branch:
 Join the conversation and help the community.
 
 -   [Discord](https://discord.gg/RSwXuVNZ4H)
+
+```
+
+```

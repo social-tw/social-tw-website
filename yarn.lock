@@ -5104,6 +5104,11 @@
   resolved "https://registry.npmjs.org/@uidotdev/usehooks/-/usehooks-2.1.1.tgz"
   integrity sha512-sVJ1jXU62Edh22dREEa3mHcHnH2MUgokuzLw9guNS30ADCkdhYASNZxg2V8iB83iwY5H+jSeSxjqGaFvsRrNBQ==
 
+"@ungap/structured-clone@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
+  integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
+
 "@unirep/circuits@2.0.0-beta-4":
   version "2.0.0-beta-4"
   resolved "https://registry.npmjs.org/@unirep/circuits/-/circuits-2.0.0-beta-4.tgz"
@@ -5526,10 +5531,10 @@ ajv@^8.0.0, ajv@^8.6.0, ajv@^8.9.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-anondb@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.npmjs.org/anondb/-/anondb-0.0.13.tgz"
-  integrity sha512-z3S+oTWuu6PL6pxyGTUBwClZfH3YDrO8+5Q8EjKAqPcpLweA3Kr9eTVzqmzpCDI5sSn+gAtEHrXYRo+v4d+xwA==
+anondb@^0.0.16:
+  version "0.0.16"
+  resolved "https://registry.npmjs.org/anondb/-/anondb-0.0.16.tgz"
+  integrity sha512-F5vu1HzXcEHARhIe6bJhaIss40aqz4Ht4PnQx/4T2r0ZRmne7YbzGLjMimgV+MtA4QHk9jhe4pM8MdUmt0zYag==
   dependencies:
     async-lock "^1.2.11"
     idb "^6.0.0"
@@ -5539,11 +5544,12 @@ anondb@^0.0.13:
     sqlite "^4.0.19"
     sqlite3 "^5.0.2"
 
-anondb@^0.0.16:
-  version "0.0.16"
-  resolved "https://registry.npmjs.org/anondb/-/anondb-0.0.16.tgz"
-  integrity sha512-F5vu1HzXcEHARhIe6bJhaIss40aqz4Ht4PnQx/4T2r0ZRmne7YbzGLjMimgV+MtA4QHk9jhe4pM8MdUmt0zYag==
+anondb@^0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/anondb/-/anondb-0.0.21.tgz#6885dd4e535102c2f537ca171038b3c5f1c5faa3"
+  integrity sha512-0FR5NpjSI0E7R5r2Ok9O0xziUBbJanprTQzu2lM+szbUOckYDOQw42tWxvCfiamzhZDqcD7MHCLCs1tehf3P1Q==
   dependencies:
+    "@ungap/structured-clone" "^1.2.0"
     async-lock "^1.2.11"
     idb "^6.0.0"
     nanoid "^3.1.30"
