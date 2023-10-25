@@ -17,6 +17,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    GENESIS_BLOCK,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -27,8 +28,6 @@ main().catch((err) => {
 
 async function main() {
     const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
-    // TODO: this should be switched by stage and prod
-    const blockNum = await provider.send('eth_blockNumber', [])
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -37,7 +36,7 @@ async function main() {
             prover: prover,
             provider: provider,
             unirepAddress: UNIREP_ADDRESS,
-            genesisBlock: parseInt(blockNum) - 999,
+            genesisBlock: parseInt(GENESIS_BLOCK),
         },
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
