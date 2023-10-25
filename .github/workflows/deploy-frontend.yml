@@ -53,9 +53,9 @@ jobs:
                   ## set --max-old-space-size=8192 for node.js to increase memory limit
                   env_vars: |
                       ENV=${{ vars.ENV }}
-                      STAGE_SERVER=${{ vars.ENV }}_SERVER
+                      SERVER_NAME=${{ vars.STAGE_SERVER }}
                       NODE_OPTIONS=${{ vars.NODE_OPTIONS }}
-
+                  # TODO change above ENV as input variable instead of environment variable
             - name: Allow public access
               id: unauthenticated
               run: gcloud run services add-iam-policy-binding ${{ vars.FRONTEND_SERVICE }} --region=${{ vars.REGION }} --member="allUsers" --role="roles/run.invoker"

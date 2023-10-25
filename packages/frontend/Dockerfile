@@ -4,6 +4,8 @@ RUN apt-get install -y \
     ca-certificates && \
     update-ca-certificates
 
+COPY ./node_modules/ /src/node_modules/
+
 COPY ./tsconfig.json /src/tsconfig.json
 COPY ./packages/frontend/ /src/packages/frontend/
 
