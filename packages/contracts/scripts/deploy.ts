@@ -33,6 +33,10 @@ export async function main() {
             : `/**
               This contract was deployed using a mnemonic. The PRIVATE_KEY variable needs to be set manually
               **/`
+
+        // get forked block number
+        const blockNum = await ethers.provider.getBlockNumber()
+        config.GENESIS_BLOCK = (blockNum - 999).toString()
         await fs.promises.writeFile(configPath, envfile.stringify(config))
     })
 
