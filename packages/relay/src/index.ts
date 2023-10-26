@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
-import { Server, Socket } from 'socket.io'
+import { Server } from 'socket.io'
 import { createServer } from 'http'
 import { SQLiteConnector } from 'anondb/node.js'
 
@@ -70,7 +70,6 @@ async function main() {
 
     const port = process.env.PORT ?? 8000
 
-    // app.listen(port, () => console.log(`Listening on port ${port}`))
     httpServer.listen(port, () => console.log(`Listening on port ${port}`))
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
