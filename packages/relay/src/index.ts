@@ -70,14 +70,15 @@ async function main() {
 
     const port = process.env.PORT ?? 8000
 
-    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
-    app.use('*', (req, res, next) => {
-        res.set('access-control-allow-origin', '*')
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
         next()
     })
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
+
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
