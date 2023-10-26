@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Comment from "../components/comment/Comment";
-import CommentForm from "../components/comment/CommentForm";
+import CommentForm, { CommentValues } from "../components/comment/CommentForm";
 import ErrorModal from "../components/modal/ErrorModal";
 import TransactionModal from "../components/modal/ui/comment/TransactionModal";
 import Post from "../components/post/Post";
-import { PostValues } from "../components/post/PostForm";
 import { SERVER } from "../config";
 import LOGIN_ERROR_MESSAGES from "../constants/error-messages/loginErrorMessage";
 import { useUser } from "../contexts/User";
@@ -56,7 +55,7 @@ export default function PostDetail() {
     const [post, setPost] = useState<PostInfo>()
     const { isLogin, setErrorCode } = useUser()
 
-    const onSubmit = async (values: PostValues) => {
+    const onSubmit = async (values: CommentValues) => {
         try {
             console.log(values.content)
             setIsModalOpen(true)
@@ -120,7 +119,9 @@ export default function PostDetail() {
                     <ul className="divide-y divide-neutral-600">
                         {demoComments.map((comment, i) => (
                             <li key={i}>
-                                <Comment {...comment} />
+                                <Comment {...comment} 
+                                    isMine={true}
+                                />
                             </li>
                         ))}
                     </ul>
