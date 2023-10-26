@@ -4,7 +4,13 @@ import { EpochKeyProof } from '@unirep/circuits'
 import { errorHandler, voteErrorHandler } from '../middleware'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { VoteAction } from '../types'
-import { InvalidEpochError, InvalidAttesterIdError, InvalidProofError, InvalidPostIdError, InvalidVoteActionError } from '../error/voteError'
+import {
+    InvalidEpochError,
+    InvalidAttesterIdError,
+    InvalidProofError,
+    InvalidPostIdError,
+    InvalidVoteActionError,
+} from '../error/voteError'
 import { interfaces } from '@unirep-app/contracts/typechain-types/@unirep/contracts'
 
 export default (
@@ -73,12 +79,12 @@ async function verifyEpochKeyProof(epochKeyProof: EpochKeyProof) {
  * @throws InvalidVoteActionError otherwise
  */
 
-function verifyVoteAction(voteAction: VoteAction, findVote: any) { 
+function verifyVoteAction(voteAction: VoteAction, findVote: any) {
     switch (voteAction) {
         case VoteAction.UPVOTE:
         case VoteAction.DOWNVOTE:
             // this epk hasn't voted
-            if (findVote) { 
+            if (findVote) {
                 break
             }
             return
