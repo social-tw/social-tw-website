@@ -1,24 +1,20 @@
-import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 import {
-    Link,
-    NavLink,
-    Outlet,
-    useLocation,
-    useMatch,
-    useNavigate,
-} from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import ArrowLeftIcon from '../assets/arrow-left.svg'
-import BellIcon from '../assets/bell.svg'
-import HomeIcon from '../assets/home.svg'
-import Logo from '../assets/logo.png'
-import PersonCircleIcon from '../assets/person-circle.svg'
-import SearchIcon from '../assets/search.svg'
-import StarIcon from '../assets/star.svg'
-import ErrorModal from '../components/modal/ErrorModal'
-import { useUser } from '../contexts/User'
-import MobileNavbar from '../components/layout/MobileNavbar'
+    Link, NavLink, Outlet, useLocation, useMatch, useNavigate
+} from "react-router-dom";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import ArrowLeftIcon from "../assets/arrow-left.svg";
+import BellIcon from "../assets/bell.svg";
+import HomeIcon from "../assets/home.svg";
+import Logo from "../assets/logo.png";
+import PersonCircleIcon from "../assets/person-circle.svg";
+import SearchIcon from "../assets/search.svg";
+import StarIcon from "../assets/star.svg";
+import MobileNavbar from "../components/layout/MobileNavbar";
+import ErrorModal from "../components/modal/ErrorModal";
+import ActionNotification from "../components/notification/ActionNotification";
+import { useUser } from "../contexts/User";
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -82,6 +78,9 @@ export default function AppLayout() {
                         Unirep Social TW
                     </h1>
                 </header>
+                <section className="px-8 py-1">
+                    <ActionNotification />
+                </section>
                 <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
@@ -197,6 +196,9 @@ export default function AppLayout() {
                                 </span>
                             </NavLink>
                         </nav>
+                        <div className="pt-3">
+                            <ActionNotification />
+                        </div>
                     </div>
                 </section>
             </div>
