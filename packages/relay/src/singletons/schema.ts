@@ -77,6 +77,15 @@ const _schema = [
         ],
     },
     {
+        name: 'EpochKeyAction',
+        primaryKey: 'epochKey',
+        rows: [
+            ['epochKey', 'String'],
+            ['epoch', 'Int'],
+            ['count', 'Int'],
+        ],
+    },
+    {
         name: 'Vote',
         primaryKey: ['postId', 'epochKey'],
         rows: [

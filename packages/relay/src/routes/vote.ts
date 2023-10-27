@@ -1,9 +1,17 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { EpochKeyProof } from '@unirep/circuits'
-import { errorHandler } from '../middleware'
+import { errorHandler, voteErrorHandler } from '../middleware'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { VoteAction } from '../types'
+import {
+    InvalidEpochError,
+    InvalidAttesterIdError,
+    InvalidProofError,
+    InvalidPostIdError,
+    InvalidVoteActionError,
+} from '../error/voteError'
+import { interfaces } from '@unirep-app/contracts/typechain-types/@unirep/contracts'
 
 export default (
     app: Express,
@@ -19,31 +27,83 @@ export default (
 }
 
 /**
+ * we should validate the epoch before we execute the transaction
+ *
+ * @param epoch the epoch to be validated
+ * @param expectedEpoch the epoch for validation
+ * @throws InvalidEpochError if the epoch is invalid
+ */
+
+function validateEpoch(epoch: any, expectedEpoch: any) {
+    if (epoch.toString() === expectedEpoch.toString()) {
+        return
+    }
+    throw InvalidEpochError
+}
+
+/**
+ * we should validate the attester id before we execute the transaction
+ *
+ * @param attesterId the attester id to be validated
+ * @param expectedAttesterId the attester id for validation
+ * @throws InvalidAttesterIdError if the attester id is invalid
+ */
+
+function validateAttesterId(attesterId: any, expectedAttesterId: any) {
+    if (attesterId === expectedAttesterId) {
+        return
+    }
+    throw InvalidAttesterIdError
+}
+
+/**
+ * we should verify the epoch key proof before we execute the transaction
+ *
+ * @param epochKeyProof the epoch key proof that the user is about to vote
+ * @throws InvalidProofError if the proof is invalid
+ */
+
+async function verifyEpochKeyProof(epochKeyProof: EpochKeyProof) {
+    if (await epochKeyProof.verify()) {
+        return
+    }
+    throw InvalidProofError
+}
+
+/**
  * we should verify the action before we execute the transaction
  *
  * @param voteAction the action that the user is about to do
  * @param findVote the vote data, if it's undefined then it's the first time to vote
- * @returns bool whether the vote action is valid or not
+ * @returns if the vote action is valid
+ * @throws InvalidVoteActionError otherwise
  */
-function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
-    let result = false
+
+function verifyVoteAction(voteAction: VoteAction, findVote: any) {
     switch (voteAction) {
-        case VoteAction.UPVOTE, VoteAction.DOWNVOTE:
+        case VoteAction.UPVOTE:
+        case VoteAction.DOWNVOTE:
             // this epk hasn't voted
-            result = !findVote
-            break;
+            if (findVote) {
+                break
+            }
+            return
         case VoteAction.CANCEL_UPVOTE:
             // this epk voted for upVote
-            result = findVote && findVote.upVote
-            break;
+            if (!findVote || !findVote.upVote) {
+                break
+            }
+            return
         case VoteAction.CANCEL_DOWNVOTE:
             // this epk voted for downVote
-            result = findVote && findVote.downVote
-            break;
+            if (!findVote || !findVote.downVote) {
+                break
+            }
+            return
         default:
-            break;
+            return
     }
-    return result
+    throw InvalidVoteActionError
 }
 
 /**
@@ -60,6 +120,7 @@ function verifyVoteAction(voteAction: VoteAction, findVote: any): boolean {
 async function exeuteTxs(
     db: DB,
     epochKey: string,
+    epoch: number,
     post: any,
     voteAction: VoteAction
 ): Promise<void> {
@@ -67,19 +128,18 @@ async function exeuteTxs(
     let createVote = true
 
     const voteCreateStatement = {
-        create: {
-            postId: _id,
-            epochKey: epochKey,
-            upVote: false,
-            downVote: false,
-        }
+        postId: _id,
+        epochKey: epochKey,
+        epoch: epoch,
+        upVote: false,
+        downVote: false,
     }
 
     const voteDeleteStatement = {
         where: {
             postId: _id,
-            epochKey: epochKey
-        }
+            epochKey: epochKey,
+        },
     }
 
     // only modify the upCount and downCount
@@ -94,11 +154,11 @@ async function exeuteTxs(
     }
     switch (voteAction) {
         case VoteAction.UPVOTE:
-            voteCreateStatement.create.upVote = true
+            voteCreateStatement.upVote = true
             postStatement.update.upCount += 1
             break
         case VoteAction.DOWNVOTE:
-            voteCreateStatement.create.downVote = true
+            voteCreateStatement.downVote = true
             postStatement.update.downCount += 1
             break
         case VoteAction.CANCEL_UPVOTE:
@@ -148,18 +208,12 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
             synchronizer.prover
         )
 
-        // check attesterId
-        if (epochKeyProof.attesterId != synchronizer.attesterId) {
-            res.status(400).json({ error: 'Wrong attesterId' })
-            return
-        }
+        // get current epoch and unirep contract
+        const epoch = await synchronizer.loadCurrentEpoch()
 
-        // verify epochKeyProof of user
-        const valid = await epochKeyProof.verify()
-        if (!valid) {
-            res.status(400).json({ error: 'Invalid proof' })
-            return
-        }
+        validateEpoch(epochKeyProof.epoch, epoch)
+        validateAttesterId(epochKeyProof.attesterId, synchronizer.attesterId)
+        await verifyEpochKeyProof(epochKeyProof)
 
         // find post which is voted
         const findPost = await db.findOne('Post', {
@@ -168,8 +222,7 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
             },
         })
         if (!findPost) {
-            res.status(400).json({ error: 'Invalid postId' })
-            return
+            throw InvalidPostIdError
         }
 
         const epochKey = epochKeyProof.epochKey.toString()
@@ -181,16 +234,12 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
             },
         })
 
-        const isValidAction = verifyVoteAction(voteAction, findVote)
-        if (!isValidAction) {
-            res.status(400).json({error: 'Invalid vote action'})
-        }
+        verifyVoteAction(voteAction, findVote)
 
-        await exeuteTxs(db, epochKey, findPost, voteAction)
+        await exeuteTxs(db, epochKey, epoch, findPost, voteAction)
 
-        res.status(201)
+        res.status(201).json({})
     } catch (error: any) {
-        console.log(error)
-        res.status(500).json({ error })
+        voteErrorHandler(error, res)
     }
 }
