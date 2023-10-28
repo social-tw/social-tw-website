@@ -3,9 +3,9 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
+import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
-import { SQLiteConnector } from 'anondb/node.js'
 
 // libraries
 import { UnirepSocialSynchronizer } from './synchornizer'
@@ -19,6 +19,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    IS_IN_TEST,
     CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
@@ -29,7 +30,10 @@ main().catch((err) => {
 })
 
 async function main() {
-    const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+    var db
+    if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
+        db = await PostgresConnector.create(schema, DB_PATH)
+    } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -42,6 +46,8 @@ async function main() {
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
 
+    // reset all data if reset flag is true and evn is not production
+    await synchronizer.resetDatabase()
     await synchronizer.start()
 
     const { createHelia } = await eval("import('helia')")
