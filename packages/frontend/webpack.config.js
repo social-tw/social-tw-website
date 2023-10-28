@@ -4,7 +4,7 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const webpack = require('webpack')
-const dotenv = require('dotenv')
+const Dotenv = require('dotenv-webpack')
 
 module.exports = (env) => ({
     entry: ['./src/index.tsx'],
@@ -117,8 +117,9 @@ module.exports = (env) => ({
         }),
         new MiniCssExtractPlugin(),
         // new HtmlWebpackInlineSourcePlugin(),
+        new Dotenv({ path: './.env', systemvars: true }),
+
         new webpack.DefinePlugin({
-            'process.env': getEnvOrEmpty(),
             'process.argv': [],
             'process.versions': {},
             'process.versions.node': '"12"',
@@ -144,16 +145,8 @@ module.exports = (env) => ({
     ],
 })
 
-function getEnvOrEmpty() {
-    try {
-        return Object.entries(dotenv.config().parsed).reduce(
-            (acc, curr) => ({
-                ...acc,
-                [`${curr[0]}`]: JSON.stringify(curr[1]),
-            }),
-            {}
-        )
-    } catch (e) {
-        return '{}'
-    }
+function test() {
+    console.log()
+
+    return './.env'
 }
