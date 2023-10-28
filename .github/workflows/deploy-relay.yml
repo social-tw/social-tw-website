@@ -60,7 +60,7 @@ jobs:
                       UNIREP_ADDRESS=${{ vars.UNIREP_ADDRESS }}
                       PRIVATE_KEY=${{ vars.PRIVATE_KEY }}
                       ENV=${{ vars.ENV }}
-
+                  # TODO change above ENV as input variable instead of environment variable
             - name: Allow public access
               id: unauthenticated
               run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ vars.REGION }} --member="allUsers" --role="roles/run.invoker"
