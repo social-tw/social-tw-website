@@ -1,22 +1,6 @@
-<<<<<<< HEAD
-import { deployContracts, startServer } from './environment'
-import { ethers } from 'hardhat'
-import { Server } from 'http'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { DB } from 'anondb'
-import { TransactionManager } from '../src/singletons/TransactionManager'
-
-describe('POST /vote', function () {
-    let snapshot: any
-    let anondb: DB
-    let tm: TransactionManager
-    let express: Server
-    let userStateFactory: UserStateFactory
-=======
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { DB } from 'anondb'
-import { TransactionManager } from '../src/singletons/TransactionManager'
 
 import { UserState } from '@unirep/core'
 import { HTTP_SERVER } from './configs'
@@ -35,7 +19,6 @@ import { genEpochKeyProof, randomData } from './utils/genProof'
 describe('POST /vote', function () {
     var snapshot: any
     var anondb: DB
-    var tm: TransactionManager
     var express: Server
     var userStateFactory: UserStateFactory
     var userState: UserState
@@ -43,17 +26,12 @@ describe('POST /vote', function () {
     var upvotePostId: string
     var downvotePostId: string
     var otherPostId: string
->>>>>>> ef7da6b03f43a75403fe10dc89b2d4143509c2c1
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-<<<<<<< HEAD
-        const { db, prover, provider, TransactionManager, server, synchronizer } =
-            await startServer(unirep, app)
-=======
         const {
             db,
             prover,
@@ -62,15 +40,10 @@ describe('POST /vote', function () {
             server,
             synchronizer,
         } = await startServer(unirep, app)
->>>>>>> ef7da6b03f43a75403fe10dc89b2d4143509c2c1
 
         anondb = db
-        tm = TransactionManager
         express = server
-<<<<<<< HEAD
-=======
         sync = synchronizer
->>>>>>> ef7da6b03f43a75403fe10dc89b2d4143509c2c1
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -80,10 +53,6 @@ describe('POST /vote', function () {
             synchronizer
         )
 
-<<<<<<< HEAD
-        // TODO: create mock user, the logic was on epochKeyAction branch,
-        // should merge that PR first, then rebase to main
-=======
         const initUser = await userService.getLoginUser(db, '123', undefined)
         userState = await singUp(
             initUser,
@@ -122,7 +91,6 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
         otherPostId = otherPost._id
->>>>>>> ef7da6b03f43a75403fe10dc89b2d4143509c2c1
     })
 
     after(async function () {
@@ -130,28 +98,6 @@ describe('POST /vote', function () {
         express.close()
     })
 
-<<<<<<< HEAD
-    it('should vote for post', async function () {
-        
-    })
-
-    it('should vote failed with wrong epoch', async function () {
-        
-    })
-
-    it('shuold vote failed with wrong proof', async function () {
-        
-    })
-
-    it('should vote failed with invalid post', async function () {
-        
-    })
-
-    it('should vote failed with invalid vote action', async function () {
-        
-    })
-})
-=======
     async function voteForPost(postId, voteAction, epochKeyProof) {
         return await fetch(`${HTTP_SERVER}/api/vote`, {
             method: 'POST',
@@ -418,4 +364,3 @@ describe('POST /vote', function () {
         userState.sync.stop()
     })
 })
->>>>>>> ef7da6b03f43a75403fe10dc89b2d4143509c2c1

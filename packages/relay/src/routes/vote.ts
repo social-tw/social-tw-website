@@ -11,7 +11,7 @@ import {
     InvalidPostIdError,
     InvalidVoteActionError,
 } from '../error/voteError'
-import { interfaces } from '@unirep-app/contracts/typechain-types/@unirep/contracts'
+import { addActionCount } from '../utils/TransactionHelper'
 
 export default (
     app: Express,
@@ -173,16 +173,20 @@ async function exeuteTxs(
             break
     }
 
-    await db
-        .transaction((txDB) => {
-            if (createVote) {
-                txDB.create('Vote', voteCreateStatement)
-            } else {
-                txDB.delete('Vote', voteDeleteStatement)
-            }
-            txDB.update('Post', postStatement)
-        })
-        .catch(() => console.log('Vote tx reverted'))
+    await addActionCount(db, epochKey, epoch, (txDB) => {
+        let actionCount
+        if (createVote) {
+            txDB.create('Vote', voteCreateStatement)
+            actionCount = 1
+        } else {
+            txDB.delete('Vote', voteDeleteStatement)
+            // epk cancel the action, decrease 1 count
+            actionCount = -1
+        }
+        txDB.update('Post', postStatement)
+
+        return actionCount
+    })
 }
 
 // TODO: should check if user voted to the same post before with other epochKey

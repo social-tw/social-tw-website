@@ -9,7 +9,7 @@ export async function addActionCount(
 ): Promise<void> {
     await db
         .transaction(async (txDB) => {
-            action(txDB)
+            const actionCount = action(txDB)
 
             const counter = await db.findOne('EpochKeyAction', {
                 where: {
@@ -17,7 +17,7 @@ export async function addActionCount(
                 },
             })
 
-            const count = counter ? counter.count + 1 : 1
+            const count = counter ? counter.count + actionCount : 1
 
             txDB.upsert('EpochKeyAction', {
                 where: {
