@@ -15,6 +15,10 @@ COPY ./packages/circuits/package.json /src/packages/circuits/package.json
 
 WORKDIR /src/packages/frontend
 
+ENV ENV=${ENV}
+ENV STAGE_SERVER=${STAGE_SERVER}
+ENV NODE_OPTIONS=${NODE_OPTIONS}
+
 EXPOSE 3000
 
 CMD ["npm", "start"]

@@ -42,7 +42,7 @@
         "react-lines-ellipsis": "^0.15.3",
         "react-scripts": "^5.0.1",
         "react-twitter-login": "^1.5.0",
-        "dotenv": "^16.0.3"
+        "dotenv-webpack": "^8.0.1"
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
