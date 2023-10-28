@@ -59,6 +59,7 @@ jobs:
                       APP_ADDRESS=${{ vars.APP_ADDRESS }}
                       UNIREP_ADDRESS=${{ vars.UNIREP_ADDRESS }}
                       PRIVATE_KEY=${{ vars.PRIVATE_KEY }}
+                      GENESIS_BLOCK=${{ vars.GENESIS_BLOCK }}
                       ENV=${{ vars.ENV }}
                   # TODO change above ENV as input variable instead of environment variable
             - name: Allow public access
