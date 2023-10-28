@@ -4,6 +4,8 @@ import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
 import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
+import { Server } from 'socket.io'
+import { createServer } from 'http'
 
 // libraries
 import { UnirepSocialSynchronizer } from './synchornizer'
@@ -18,6 +20,7 @@ import {
     APP_ADDRESS,
     APP_ABI,
     IS_IN_TEST,
+    CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 
@@ -54,15 +57,34 @@ async function main() {
     await TransactionManager.start()
 
     const app = express()
+    const httpServer = createServer(app)
+
+    const io = new Server(httpServer, {
+        cors: {
+            origin: CLIENT_URL,
+            methods: ['GET', 'POST'],
+        },
+    })
+
+    io.on('connection', (socket) => {
+        console.log('a user connected')
+
+        socket.on('disconnect', () => {
+            console.log('user disconnected')
+        })
+    })
+
     const port = process.env.PORT ?? 8000
-    app.listen(port, () => console.log(`Listening on port ${port}`))
-    app.use('*', (req, res, next) => {
-        res.set('access-control-allow-origin', '*')
+
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
         next()
     })
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
+
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
