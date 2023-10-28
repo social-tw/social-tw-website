@@ -118,13 +118,7 @@ module.exports = (env) => ({
         new MiniCssExtractPlugin(),
         // new HtmlWebpackInlineSourcePlugin(),
         new webpack.DefinePlugin({
-            'process.env': Object.entries(dotenv.config().parsed).reduce(
-                (acc, curr) => ({
-                    ...acc,
-                    [`${curr[0]}`]: JSON.stringify(curr[1]),
-                }),
-                {}
-            ),
+            'process.env': getEnvOrEmpty(),
             'process.argv': [],
             'process.versions': {},
             'process.versions.node': '"12"',
@@ -149,3 +143,17 @@ module.exports = (env) => ({
         }),
     ],
 })
+
+function getEnvOrEmpty() {
+    try {
+        return Object.entries(dotenv.config().parsed).reduce(
+            (acc, curr) => ({
+                ...acc,
+                [`${curr[0]}`]: JSON.stringify(curr[1]),
+            }),
+            {}
+        )
+    } catch (e) {
+        return '{}'
+    }
+}
