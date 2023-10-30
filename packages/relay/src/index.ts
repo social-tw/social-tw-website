@@ -4,7 +4,6 @@ import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
 import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
-import { Server } from 'socket.io'
 import { createServer } from 'http'
 
 // libraries
@@ -23,6 +22,7 @@ import {
     CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
+import { SocketManager } from './singletons/SocketManager'
 
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
@@ -57,22 +57,10 @@ async function main() {
     await TransactionManager.start()
 
     const app = express()
+
     const httpServer = createServer(app)
 
-    const io = new Server(httpServer, {
-        cors: {
-            origin: CLIENT_URL,
-            methods: ['GET', 'POST'],
-        },
-    })
-
-    io.on('connection', (socket) => {
-        console.log('a user connected')
-
-        socket.on('disconnect', () => {
-            console.log('user disconnected')
-        })
-    })
+    const manager = new SocketManager(httpServer)
 
     const port = process.env.PORT ?? 8000
 
