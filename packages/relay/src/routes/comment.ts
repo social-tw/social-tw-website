@@ -1,16 +1,11 @@
 import { DB } from 'anondb/node'
 import { ethers } from 'ethers'
 import { Express } from 'express'
-import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import { errorHandler } from '../middleware'
-import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
+import { epochKeyService } from '../services/EpochKeyService'
 import type { Helia } from '@helia/interface'
 import type { Request, Response } from 'express';
-import { epochKeyService } from '../services/EpochKeyService'
-import { ipfsService } from '../services/IpfsService'
-
 
 export default (
     app: Express,
@@ -27,7 +22,7 @@ export default (
 
         .post(
             errorHandler(async (req, res) => {
-                await leaveComment(req, res, db, synchronizer)
+                await leaveComment(req, res, db, synchronizer, helia)
             })
         )
 }
@@ -61,43 +56,33 @@ async function leaveComment(
     res: Response,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
+    helia: Helia,
 ) {
     try {
-        const { content, publicSignals, postId, proof } = req.body
+        const { content, postId, publicSignals, proof } = req.body
         if (!content) {
             throw new Error('Could not have empty content')
         }
-
-        const epochKeyProof = await epochKeyService.getAndVerifyProof(
+        await checkPostExistence(postId, db);
+        
+        const entryArg = await epochKeyService.callContractAndProve(
+            'leaveComment',
+            [content],
             publicSignals,
             proof,
             synchronizer
         )
-
-        await checkPostExistence(postId, db);
-
-        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
-        const calldata = appContract.interface.encodeFunctionData(
-            'leaveComment',
-            [epochKeyProof.publicSignals, epochKeyProof.proof, content]
+        const comment = await epochKeyService.createEntryDbIpfs(
+            'comment',
+            entryArg,
+            helia,
+            db,
         )
 
-        const {cid, hash} = ipfsService.;
-
-        const epoch = epochKeyProof.epoch
-        const comment = await db.create('Comment', {
-            content: content,
-            cid: cid,
-            epochKey: epochKeyProof.epochKey.toString(),
-            epoch: epoch,
-            transactionHash: hash,
-            status: 0,
-        })
-
         res.json({
-            transaction: hash,
-            currentEpoch: epoch,
-            post: comment,
+            transaction: entryArg['hash'],
+            currentEpoch: entryArg['epoch'],
+            comment: comment,
         })
     } catch (error: any) {
         console.error(error)

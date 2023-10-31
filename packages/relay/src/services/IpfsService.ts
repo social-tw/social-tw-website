@@ -1,24 +1,21 @@
 import type { Helia } from '@helia/interface'
+import {json} from '@helia/json'
 
-class IpfsService {
-    private helia: Helia
-
-    constructor(helia: Helia) {
-        this.helia = helia
-    }
-
+// FIXME: is it okay not to be singleton?
+export class IpfsService {
     // store content into helia ipfs node with json plain
-    // TODO wrap this method to one service or singleton
-    const { json } = await eval("import('@helia/json')")
-    const heliaJson = json(this.helia)
-    const cid = await heliaJson
-        .add(JSON.stringify({ content: content }))
-        .toString()
-        
-        const hash = await TransactionManager.queueTransaction(
-            APP_ADDRESS,
-            calldata
-    )
+
+    // const { json } = await eval("import('@helia/json')")
+    async createIpfsContent (
+        helia: Helia,
+        content: string
+    ): Promise<string>{
+        const heliaJson = json(helia)
+        const cid = await heliaJson
+            .add(JSON.stringify({ content: content }))
+            .toString()
+        return cid
+    }
 }
 
 export const ipfsService = new IpfsService()
