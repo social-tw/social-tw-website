@@ -29,22 +29,22 @@ jobs:
             version: ${{ inputs.version }}
         secrets: inherit
 
-    relay:
-        needs: build
-        permissions:
-            contents: 'read'
-            id-token: 'write'
-        uses: ./.github/workflows/deploy-relay.yml
-        with:
-            version: ${{ inputs.version }}
-        secrets: inherit
-
     frontend:
         needs: build
         permissions:
             contents: 'read'
             id-token: 'write'
         uses: ./.github/workflows/deploy-frontend.yml
+        with:
+            version: ${{ inputs.version }}
+        secrets: inherit
+
+    relay:
+        needs: frontend
+        permissions:
+            contents: 'read'
+            id-token: 'write'
+        uses: ./.github/workflows/deploy-relay.yml
         with:
             version: ${{ inputs.version }}
         secrets: inherit
