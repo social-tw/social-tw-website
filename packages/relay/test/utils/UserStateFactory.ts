@@ -4,6 +4,7 @@ import { Synchronizer, UserState } from '@unirep/core'
 import { Identity } from '@semaphore-protocol/identity'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
+import { BaseSynchronizer } from '../../src/singletons/BaseSynchronizer'
 
 export class UserStateFactory {
     db: DB
@@ -11,7 +12,7 @@ export class UserStateFactory {
     prover: Prover
     unirepAddress: string
     attesterId: string
-    synchronizer: Synchronizer
+    synchronizer: BaseSynchronizer
 
     constructor(
         db: DB,
@@ -19,7 +20,7 @@ export class UserStateFactory {
         prover: Prover,
         unirepAddress: ethers.Contract,
         attesterId: ethers.Contract,
-        synchronizer: Synchronizer
+        synchronizer: BaseSynchronizer
     ) {
         this.db = db
         this.provider = provider
@@ -42,7 +43,7 @@ export class UserStateFactory {
             unirepAddress: this.unirepAddress,
             attesterId: BigInt(this.attesterId),
             id: identity,
-            synchronizer: this.synchronizer,
+            // synchronizer: this.synchronizer,
         })
     }
 
