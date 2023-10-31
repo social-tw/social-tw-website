@@ -2,6 +2,7 @@ import { Server } from 'socket.io'
 import { CLIENT_URL } from '../config'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import * as http from 'http'
+import { RoomType, VoteMsg } from '../types/SocketTypes'
 
 export class SocketManager {
     io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -20,6 +21,10 @@ export class SocketManager {
             })
         })
     }
+
+    emitVote = (vote: VoteMsg) => {
+        this.io.to(RoomType.VOTE).emit('vote', vote)
+    }
 }
 
-export let manager: SocketManager
+export let socketManager: SocketManager
