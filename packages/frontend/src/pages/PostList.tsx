@@ -1,14 +1,16 @@
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import Dialog from '../components/Dialog'
 import SignupLoadingModal from '../components/modal/SignupLoadingModal'
-import Post from '../components/Post'
-import PostForm, { PostValues } from '../components/PostForm'
+import Post from '../components/post/Post'
+import PostForm, { PostValues } from '../components/post/PostForm'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import usePosts from '../hooks/usePosts'
+import useCreatePost from '../hooks/useCreatePost'
+import { CancelledTaskError } from '../utils/makeCancellableTask'
 
 import type { PostInfo } from '../types'
 
@@ -84,16 +86,20 @@ export default function PostList() {
 
     const navigate = useNavigate()
 
-    const { create } = usePosts()
+    const { create, cancel, reset, isCancellable, isCancelled } =
+        useCreatePost()
 
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
             await loadPosts()
-            console.log('貼文成功送出')
+            toast('貼文成功送出')
         } catch (err) {
-            console.log(err)
-            errorDialog?.current?.showModal()
+            if (err instanceof CancelledTaskError) {
+                reset()
+            } else {
+                errorDialog?.current?.showModal()
+            }
         }
     }
 
@@ -118,7 +124,10 @@ export default function PostList() {
                     <PostForm
                         onCancel={() => navigate('/')}
                         onSubmit={onSubmit}
-                        isShow={signupStatus === 'default' ? true : !isShow}
+                        onSubmitCancel={cancel}
+                        isSubmitCancellable={isCancellable}
+                        isSubmitCancelled={isCancelled}
+                        disabled={signupStatus === 'default' ? false : isShow}
                     />
                 </section>
             )}

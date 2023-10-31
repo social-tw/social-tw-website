@@ -2,9 +2,9 @@ import Avatar from 'boring-avatars'
 import dayjs from 'dayjs'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
-import Comment from '../assets/comment.png'
-import Downvote from '../assets/downvote.png'
-import Upvote from '../assets/upvote.png'
+import Comment from '../../assets/comment.png'
+import Downvote from '../../assets/downvote.png'
+import Upvote from '../../assets/upvote.png'
 
 export default function ({
     id = '',

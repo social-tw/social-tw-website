@@ -40,6 +40,7 @@
     },
     "dependencies": {
         "crypto": "^1.0.1",
+        "poseidon-lite": "^0.2.0",
         "poseidon-solidity": "^0.0.3"
     }
 }

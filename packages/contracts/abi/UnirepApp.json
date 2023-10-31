@@ -25,6 +25,21 @@
         "stateMutability": "nonpayable",
         "type": "constructor"
     },
+    { "inputs": [], "name": "ArrMismatch", "type": "error" },
+    { "inputs": [], "name": "InvalidAttester", "type": "error" },
+    { "inputs": [], "name": "InvalidEpoch", "type": "error" },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "stateTreeRoot",
+                "type": "uint256"
+            }
+        ],
+        "name": "InvalidStateTreeRoot",
+        "type": "error"
+    },
+    { "inputs": [], "name": "ProofHasUsed", "type": "error" },
     {
         "inputs": [
             {

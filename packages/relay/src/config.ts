@@ -32,6 +32,8 @@ export const {
 export const APP_ABI = ABI
 
 export const DB_PATH = process.env.DB_PATH ?? ':memory:'
+export const ENV = process.env.ENV ?? 'local'
+export const RESET_DATABASE = process.env.RESET_DATABASE ?? 'false'
 
 export const provider = ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
@@ -48,11 +50,12 @@ export const TWITTER_ACCESS_TOKEN_URL =
 export const TWITTER_USER_URL =
     process.env.TWITTER_USER_URL ?? 'https://api.twitter.com/2/users/me'
 
-const isInTest = typeof global.it === 'function'
-export const TWITTER_CLIENT_ID = isInTest
+export const IS_IN_TEST = typeof global.it === 'function'
+export const TWITTER_CLIENT_ID = IS_IN_TEST
     ? 'test-client-id'
     : process.env.TWITTER_CLIENT_ID
-export const TWITTER_CLIENT_KEY = isInTest
+export const TWITTER_CLIENT_KEY = IS_IN_TEST
     ? 'test-client-key'
     : process.env.TWITTER_CLIENT_KEY
 export const LOAD_POST_COUNT = 10
+export const EPOCHKEYS_AMOUNT = 3

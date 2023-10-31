@@ -42,6 +42,11 @@ contract UnirepApp {
     event UserSignUp(uint256 indexed hashUserId, bool indexed fromServer);
 
     error UserHasRegistered(uint256 hashUserId);
+    error ProofHasUsed();
+    error InvalidAttester();
+    error InvalidStateTreeRoot(uint stateTreeRoot);
+    error InvalidEpoch();
+    error ArrMismatch();
 
     constructor(Unirep _unirep, EpochKeyVerifierHelper _epkHelper, IVerifier _dataVerifier, uint48 _epochLength) {
         // set unirep address
@@ -81,13 +86,34 @@ contract UnirepApp {
         uint256[8] memory proof,
         string memory content
     ) public {
+        // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
-        require(!proofNullifier[nullifier], 'The proof has been used before');
+        if (proofNullifier[nullifier]) {
+            revert ProofHasUsed();
+        }
+
         proofNullifier[nullifier] = true;
 
-        epkHelper.verifyAndCheck(publicSignals, proof);
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
-            .decodeEpochKeySignals(publicSignals);
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+
+        // check the epoch != current epoch (ppl can only post in current aepoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch != epoch) {
+            revert InvalidEpoch();
+        }
+
+        // check state tree root        
+        if (!unirep.attesterStateTreeRootExists(
+                signals.attesterId, 
+                signals.epoch, 
+                signals.stateTreeRoot
+            )) {
+            revert InvalidStateTreeRoot(signals.stateTreeRoot);
+        }
+
+        // should check lastly
+        epkHelper.verifyAndCheckCaller(publicSignals, proof);
+        
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
@@ -100,7 +126,10 @@ contract UnirepApp {
         uint[] calldata fieldIndices,
         uint[] calldata vals
     ) public {
-        require(fieldIndices.length == vals.length, 'arrmismatch');
+        if (fieldIndices.length != vals.length) {
+            revert ArrMismatch();
+        }
+        
         for (uint8 x = 0; x < fieldIndices.length; x++) {
             unirep.attest(epochKey, targetEpoch, fieldIndices[x], vals[x]);
         }

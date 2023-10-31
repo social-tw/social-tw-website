@@ -3,6 +3,8 @@ import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { BaseSynchronizer } from './singletons/BaseSynchronizer'
 import { UserRegisterStatus } from './types'
+import schema from './singletons/schema'
+import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -41,6 +43,14 @@ export class UnirepSocialSynchronizer extends BaseSynchronizer {
                 eventNames: ['Post', 'UserSignUp'],
             },
         }
+    }
+
+    async resetDatabase() {
+        if (RESET_DATABASE != 'true' || ENV == 'product' || IS_IN_TEST) return
+        console.log('start reset all data in postgres')
+        schema.map((obj) => {
+            this.db.delete(obj.name, { where: {} })
+        })
     }
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
@@ -91,5 +101,26 @@ export class UnirepSocialSynchronizer extends BaseSynchronizer {
             hashUserId: hashUserId,
             status: status,
         })
+    }
+
+    // overwrite handleEpochEnded to delete all epochKeyAction when the epoch ended
+    async handleEpochEnded({ event, db, decodedData }: EventHandlerArgs) {
+        super.handleEpochEnded({ event, db, decodedData })
+        const epoch = Number(decodedData.epoch)
+
+        const rows = await this.db.count('EpochKeyAction', {
+            epoch: epoch,
+        })
+
+        // if there's no data in EpochKeyAction then do nothing
+        if (rows == 0) return
+
+        db.delete('EpochKeyAction', {
+            where: {
+                epoch: epoch,
+            },
+        })
+
+        return true
     }
 }

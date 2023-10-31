@@ -2,8 +2,13 @@ import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
+import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
+import {
+    stringifyBigInts,
+    IncrementalMerkleTree,
+    genStateTreeLeaf,
+} from '@unirep/utils'
 
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer } from './environment'
@@ -12,6 +17,10 @@ import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
+import { genEpochKeyProof, randomData } from './utils/genProof'
+import { singUp } from './utils/signUp'
+
+const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 let snapshot: any
 let express: Server
@@ -33,24 +42,19 @@ describe('POST /post', function () {
             provider,
             prover,
             unirep,
-            app
+            app,
+            synchronizer
         )
 
         // initUserStatus
         var initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
-        userState = await userStateFactory.createUserState(initUser, wallet)
-        await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
-        // sign up
-        await userService.signup(
-            publicSignals,
-            signupProof._snarkProof,
-            initUser.hashUserId,
-            false,
-            synchronizer
+        userState = await singUp(
+            initUser,
+            userStateFactory,
+            userService,
+            synchronizer,
+            wallet
         )
 
         await userState.waitForSync()
@@ -88,7 +92,6 @@ describe('POST /post', function () {
             return r.json()
         })
 
-        expect(res.post.status).equal(0)
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
@@ -141,6 +144,93 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid proof')
+        userState.sync.stop()
+    })
+
+    it('should post failed with wrong epoch', async function () {
+        const testContent = 'invalid epoch'
+
+        // generating a proof with wrong epoch
+        const wrongEpoch = 44444
+        const attesterId = await userState.sync.attesterId
+        const epoch = await userState.latestTransitionedEpoch(attesterId)
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const id = userState.id
+        const data = randomData()
+        const epochKeyProof = await genEpochKeyProof({
+            id,
+            tree,
+            leafIndex,
+            epoch: wrongEpoch,
+            nonce: 0,
+            attesterId,
+            data,
+        })
+
+        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(res.error).equal('Invalid Epoch')
+        userState.sync.stop()
+    })
+
+    it('should post failed with wrong state tree', async function () {
+        const testContent = 'invalid state tree'
+
+        // generating a proof with wrong epoch
+        const attesterId = await userState.sync.attesterId
+        const epoch = await userState.latestTransitionedEpoch(attesterId)
+        const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
+        const data = randomData()
+        const id = userState.id
+        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        tree.insert(leaf)
+        const epochKeyProof = await genEpochKeyProof({
+            id,
+            tree,
+            leafIndex: 0,
+            epoch,
+            nonce: 0,
+            attesterId,
+            data,
+        })
+
+        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(res.error).equal('Invalid State Tree')
         userState.sync.stop()
     })
 })

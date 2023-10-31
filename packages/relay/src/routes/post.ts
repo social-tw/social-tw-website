@@ -9,6 +9,7 @@ import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 import type { Helia } from '@helia/interface'
+import { addActionCount } from '../utils/TransactionHelper'
 
 export default (
     app: Express,
@@ -81,14 +82,34 @@ async function createPost(
             synchronizer.prover
         )
 
-        const valid = await epochKeyProof.verify()
-        if (!valid) {
+        // get current epoch and unirep contract
+        const epoch = await synchronizer.loadCurrentEpoch()
+
+        // check if epoch is valid
+        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
+        if (!isEpochvalid) {
+            res.status(400).json({ error: 'Invalid Epoch' })
+            return
+        }
+
+        // check if state tree exists in current epoch
+        const isStateTreeValid = await synchronizer.stateTreeRootExists(
+            epochKeyProof.stateTreeRoot,
+            Number(epochKeyProof.epoch),
+            epochKeyProof.attesterId
+        )
+        if (!isStateTreeValid) {
+            res.status(400).json({ error: 'Invalid State Tree' })
+            return
+        }
+
+        // check if proof is valid
+        const isProofValid = await epochKeyProof.verify()
+        if (!isProofValid) {
             res.status(400).json({ error: 'Invalid proof' })
             return
         }
 
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
         const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
@@ -117,19 +138,22 @@ async function createPost(
             calldata
         )
 
-        const post = await db.create('Post', {
-            content: content,
-            cid: cid,
-            epochKey: epochKeyProof.epochKey.toString(),
-            epoch: epoch,
-            transactionHash: hash,
-            status: 0,
+        const epochKey = epochKeyProof.epochKey.toString()
+
+        // after post data stored in DB, should add 1 to epoch key counter
+        await addActionCount(db, epochKey, epoch, (txDB) => {
+            txDB.create('Post', {
+                content: content,
+                cid: cid,
+                epochKey: epochKey,
+                epoch: epoch,
+                transactionHash: hash,
+                status: 0,
+            })
         })
 
         res.json({
             transaction: hash,
-            currentEpoch: epoch,
-            post,
         })
     } catch (error: any) {
         console.log(error)
