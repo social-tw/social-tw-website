@@ -18,113 +18,100 @@ export default (
     synchronizer: UnirepSocialSynchronizer,
     helia: Helia
 ) => {
-    const commentController = new CommentController(db, synchronizer, helia);
-
     app.route('/api/comment')
         .get(
             errorHandler(async (req, res) => {
-                await commentController.fetchComments(req, res)
+                await fetchComments(req, res, db)
             })
         )
 
         .post(
             errorHandler(async (req, res) => {
-                await commentController.leaveComment(req, res)
+                await leaveComment(req, res, db, synchronizer)
             })
         )
 }
 
-class CommentController {
-    private db: DB;
-    private synchronizer: UnirepSocialSynchronizer;
-    private helia: Helia;
+// TODO do we need to create postservice for below logic?
+async function fetchComments(req: Request, res: Response, db:DB) {
+    try {
+        const { epks, postId } = req.query
 
-    constructor(
-        db: DB,
-        synchronizer: UnirepSocialSynchronizer,
-        helia: Helia
-    ){
-        this.db = db;
-        this.synchronizer = synchronizer;
-        this.helia = helia;
-    }
-
-    // TODO do we need to create postservice for below logic?
-    public async fetchComments(req: Request, res: Response) {
-        try {
-            const { epks, postId } = req.query
-
-            // TODO check condition below
-            // FIXME: if epks or postID not exist?
-            const comments = await this.db.findMany('Comment', {
-                where: {
-                    status: 1,
-                    postId: postId,
-                    epochKey: epks,
-                },
-                orderBy: {
-                    publishedAt: 'desc',
-                },
-                limit: 10,
-            })
-            res.json(comments)
-        } catch (error: any) {
-            res.status(500).json({ error })
-        }
-    }
-
-    public async leaveComment(req: Request, res: Response) {
-        try {
-            const { content, publicSignals, postId, proof } = req.body
-            if (!content) {
-                throw new Error('Could not have empty content')
-            }
-
-            const epochKeyProof = await epochKeyService.getAndVerifyProof(
-                publicSignals,
-                proof,
-                this.synchronizer
-            )
-
-            await this.checkPostExistence(postId);
-
-            const appContract = new ethers.Contract(APP_ADDRESS, ABI)
-            const calldata = appContract.interface.encodeFunctionData(
-                'leaveComment',
-                [epochKeyProof.publicSignals, epochKeyProof.proof, content]
-            )
-
-            const {cid, hash} = ipfsService.;
-
-            const epoch = epochKeyProof.epoch
-            const comment = await this.db.create('Comment', {
-                content: content,
-                cid: cid,
-                epochKey: epochKeyProof.epochKey.toString(),
-                epoch: epoch,
-                transactionHash: hash,
-                status: 0,
-            })
-
-            res.json({
-                transaction: hash,
-                currentEpoch: epoch,
-                post: comment,
-            })
-        } catch (error: any) {
-            console.error(error)
-            res.status(500).json({ error })
-        }
-    }
-
-    private async checkPostExistence(postId: string) {
-        // check post exist
-        const post = await this.db.findOne('Post', {
+        // TODO check condition below
+        // FIXME: if epks or postID not exist?
+        const comments = await db.findMany('Comment', {
             where: {
-                _id: postId,
                 status: 1,
+                postId: postId,
+                epochKey: epks,
             },
+            orderBy: {
+                publishedAt: 'desc',
+            },
+            limit: 10,
         })
-        if (!post) throw new Error("Post doesn't not exist, please try later")
+        res.json(comments)
+    } catch (error: any) {
+        res.status(500).json({ error })
     }
+}
+
+async function leaveComment(
+    req: Request, 
+    res: Response,
+    db: DB,
+    synchronizer: UnirepSocialSynchronizer,
+) {
+    try {
+        const { content, publicSignals, postId, proof } = req.body
+        if (!content) {
+            throw new Error('Could not have empty content')
+        }
+
+        const epochKeyProof = await epochKeyService.getAndVerifyProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
+
+        await checkPostExistence(postId, db);
+
+        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
+        const calldata = appContract.interface.encodeFunctionData(
+            'leaveComment',
+            [epochKeyProof.publicSignals, epochKeyProof.proof, content]
+        )
+
+        const {cid, hash} = ipfsService.;
+
+        const epoch = epochKeyProof.epoch
+        const comment = await db.create('Comment', {
+            content: content,
+            cid: cid,
+            epochKey: epochKeyProof.epochKey.toString(),
+            epoch: epoch,
+            transactionHash: hash,
+            status: 0,
+        })
+
+        res.json({
+            transaction: hash,
+            currentEpoch: epoch,
+            post: comment,
+        })
+    } catch (error: any) {
+        console.error(error)
+        res.status(500).json({ error })
+    }
+}
+
+async function checkPostExistence(postId: string, db: DB) {
+    // check post exist
+    const post = await db.findOne('Post', {
+        where: {
+            _id: postId,
+            status: 1,
+        },
+    })
+    if (!post) throw new Error("Post doesn't not exist, please try later")
 }
