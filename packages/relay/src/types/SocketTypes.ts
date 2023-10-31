@@ -1,3 +1,5 @@
+import { VoteAction } from './VoteAction'
+
 export enum RoomType {
     VOTE = 'VOTE',
     COMMENT = 'COMMENT',
@@ -5,6 +7,5 @@ export enum RoomType {
 
 export interface VoteMsg {
     postId: string
-    // TODO: change to VoteAction
-    vote: number
+    vote: VoteAction
 }

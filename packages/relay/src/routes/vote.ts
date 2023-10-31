@@ -12,6 +12,7 @@ import {
     InvalidVoteActionError,
 } from '../error/voteError'
 import { addActionCount } from '../utils/TransactionHelper'
+import { socketManager } from '../singletons/SocketManager'
 
 export default (
     app: Express,
@@ -184,6 +185,8 @@ async function exeuteTxs(
             actionCount = -1
         }
         txDB.update('Post', postStatement)
+
+        socketManager.emitVote({ postId: _id, vote: voteAction })
 
         return actionCount
     })
