@@ -82,3 +82,5 @@ async function main() {
         route(app, db, synchronizer, helia)
     }
 }
+
+export { socketManager }
