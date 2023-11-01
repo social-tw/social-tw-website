@@ -17,21 +17,29 @@ export async function addActionCount(
                 },
             })
 
-            const count = counter ? counter.count + actionCount : 1
+            const count = counter ? counter.count + actionCount : actionCount
 
-            txDB.upsert('EpochKeyAction', {
-                where: {
-                    epochKey: epochKey,
-                },
-                create: {
-                    epochKey: epochKey,
-                    epoch: epoch,
-                    count: count,
-                },
-                update: {
-                    count: count,
-                },
-            })
+            if (count == 0) {
+                txDB.delete('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                })
+            } else {
+                txDB.upsert('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                    create: {
+                        epochKey: epochKey,
+                        epoch: epoch,
+                        count: count,
+                    },
+                    update: {
+                        count: count,
+                    },
+                })
+            }
         })
         .catch(() => console.log('action reverted'))
 }
