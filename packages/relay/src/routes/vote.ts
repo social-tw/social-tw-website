@@ -12,7 +12,7 @@ import {
     InvalidVoteActionError,
 } from '../error/voteError'
 import { addActionCount } from '../utils/TransactionHelper'
-import { socketManager } from '../singletons/SocketManager'
+import { socketManager } from '../index'
 
 export default (
     app: Express,
