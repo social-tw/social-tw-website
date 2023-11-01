@@ -78,13 +78,13 @@ async function main() {
 
     const port = process.env.PORT ?? 8000
 
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
     app.use((req, res, next) => {
         res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
         next()
     })
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
 
     httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
