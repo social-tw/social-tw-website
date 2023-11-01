@@ -11,6 +11,7 @@ import Logo from "../assets/logo.png";
 import PersonCircleIcon from "../assets/person-circle.svg";
 import SearchIcon from "../assets/search.svg";
 import StarIcon from "../assets/star.svg";
+import EpochInfo from "../components/EpochInfo";
 import MobileNavbar from "../components/layout/MobileNavbar";
 import ErrorModal from "../components/modal/ErrorModal";
 import ActionNotification from "../components/notification/ActionNotification";
@@ -78,6 +79,11 @@ export default function AppLayout() {
                         Unirep Social TW
                     </h1>
                 </header>
+                <section className="px-4">
+                    <div className="max-w-sm mx-auto">
+                        <EpochInfo />
+                    </div>
+                </section>
                 <section className="px-8 py-1">
                     <ActionNotification />
                 </section>
@@ -132,6 +138,7 @@ export default function AppLayout() {
                                 Unirep Social TW
                             </h1>
                         </Link>
+                        <EpochInfo />
                         <nav className="space-y-9">
                             <NavLink
                                 className={({ isActive }) =>
