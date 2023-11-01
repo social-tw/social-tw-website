@@ -30,6 +30,7 @@ export default (
                     error: 'The user has already signed up.',
                 })
             } else {
+                console.error(error)
                 res.status(500).json({ error: 'Internal server error' })
             }
         }

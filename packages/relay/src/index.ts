@@ -26,7 +26,7 @@ import {
 import TransactionManager from './singletons/TransactionManager'
 
 main().catch((err) => {
-    console.log(`Uncaught error: ${err}`)
+    console.error(`Uncaught error: ${err}`)
     process.exit(1)
 })
 
@@ -61,6 +61,12 @@ async function main() {
     const app = express()
     const httpServer = createServer(app)
 
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
+        res.set('access-control-allow-headers', '*')
+        next()
+    })
+
     const io = new Server(httpServer, {
         cors: {
             origin: CLIENT_URL,
@@ -77,12 +83,6 @@ async function main() {
     })
 
     const port = process.env.PORT ?? 8000
-
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
     app.use(express.json())
     app.use('/build', express.static(path.join(__dirname, '../keys')))
 

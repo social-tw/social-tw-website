@@ -40,6 +40,7 @@ export default (
 }
 
 async function fetchPosts(req, res, db: DB) {
+    // todo remove this try-catch
     try {
         if (req.query.query === undefined) {
             const posts = await db.findMany('Post', {
@@ -61,6 +62,7 @@ async function fetchPosts(req, res, db: DB) {
 
         res.json(posts.slice(0, Math.min(LOAD_POST_COUNT, posts.length)))
     } catch (error: any) {
+        console.error(error)
         res.status(500).json({ error })
     }
 }
