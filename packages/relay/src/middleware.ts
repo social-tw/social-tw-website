@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { VoteError } from './error/voteError'
 
 export const errorHandler =
     (func: (req: Request, res: Response, next: NextFunction) => any) =>
@@ -15,7 +14,7 @@ export const errorHandler =
         }
     }
 
-export function voteErrorHandler(err: VoteError, res: any) {
+export function voteErrorHandler(err: any, res: any) {
     const status = err.status || 500
     const message = err.message || 'Internal Server Error'
 
