@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
-import { CommentStatus, PostInfo } from '../types'
-import { useParams } from 'react-router-dom'
-import Post from '../components/post/Post'
-import { PostValues } from '../components/post/PostForm'
-import Comment from '../components/post/Comment'
-import CommentForm from '../components/comment/CommentForm'
-import TransactionModal from '../components/modal/ui/comment/TransactionModal'
-import ErrorModal from '../components/modal/ErrorModal'
-import { useUser } from '../contexts/User'
-import { SERVER } from '../config'
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Comment from "../components/comment/Comment";
+import CommentForm from "../components/comment/CommentForm";
+import ErrorModal from "../components/modal/ErrorModal";
+import TransactionModal from "../components/modal/ui/comment/TransactionModal";
+import Post from "../components/post/Post";
+import { PostValues } from "../components/post/PostForm";
+import { SERVER } from "../config";
+import LOGIN_ERROR_MESSAGES from "../constants/error-messages/loginErrorMessage";
+import { useUser } from "../contexts/User";
+import { CommentStatus, PostInfo } from "../types";
 
 const demoPost = {
     id: '1',

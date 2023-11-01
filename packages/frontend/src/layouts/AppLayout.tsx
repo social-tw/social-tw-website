@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import {
-  Link, NavLink, Outlet, useLocation, useMatch, useNavigate
+    Link, NavLink, Outlet, useLocation, useMatch, useNavigate
 } from "react-router-dom";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import ArrowLeftIcon from "../assets/arrow-left.svg";
@@ -14,6 +14,7 @@ import StarIcon from "../assets/star.svg";
 import EpochInfo from "../components/EpochInfo";
 import MobileNavbar from "../components/layout/MobileNavbar";
 import ErrorModal from "../components/modal/ErrorModal";
+import ActionNotification from "../components/notification/ActionNotification";
 import { useUser } from "../contexts/User";
 
 export default function AppLayout() {
@@ -83,7 +84,10 @@ export default function AppLayout() {
                         <EpochInfo />
                     </div>
                 </section>
-                <main className="max-w-5xl px-4 mx-auto">
+                <section className="px-8 py-1">
+                    <ActionNotification />
+                </section>
+                <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
                 <MobileNavbar isShow={isShow} signupStatus={signupStatus} />
@@ -199,6 +203,9 @@ export default function AppLayout() {
                                 </span>
                             </NavLink>
                         </nav>
+                        <div className="pt-3">
+                            <ActionNotification />
+                        </div>
                     </div>
                 </section>
             </div>
