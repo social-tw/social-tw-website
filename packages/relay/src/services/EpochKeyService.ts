@@ -58,7 +58,7 @@ class EpochKeyService {
     }
 
     async callContractAndProve(
-        functionSignature: string,
+        functionSignature: string, // 'leaveComment' for example
         args: any[],
         publicSignals: (bigint | string)[],
         proof: SnarkProof,
@@ -95,9 +95,9 @@ class EpochKeyService {
         }
     }
 
-    // method interacting with db with epochKeyProof
+    // method insert entry into db and ipfs
     async createEntryDbIpfs(
-        entryName: string,
+        entryName: string, // 'comment' for example
         arg: CreateEntryArg,
         helia: Helia,
         db: DB,

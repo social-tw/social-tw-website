@@ -34,7 +34,7 @@ async function fetchComments(req: Request, res: Response, db:DB) {
 
         // TODO check condition below
         // FIXME: if epks or postID not exist?
-        const comments = await db.findMany('Comment', {
+        const comments = await db.findMany('comment', {
             where: {
                 status: 1,
                 postId: postId,
@@ -60,11 +60,15 @@ async function leaveComment(
 ) {
     try {
         const { content, postId, publicSignals, proof } = req.body
+        
+        // FIXME add counter
+
         if (!content) {
             throw new Error('Could not have empty content')
         }
         await checkPostExistence(postId, db);
         
+        // TODO further abstract?
         const entryArg = await epochKeyService.callContractAndProve(
             'leaveComment',
             [content],
