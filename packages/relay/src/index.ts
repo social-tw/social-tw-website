@@ -22,12 +22,14 @@ import {
     CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
-import { socketManager, SocketManager } from './singletons/SocketManager'
+import { SocketManager } from './singletons/SocketManager'
 
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
     process.exit(1)
 })
+
+let socketManager: SocketManager
 
 async function main() {
     var db
@@ -59,7 +61,7 @@ async function main() {
     const app = express()
 
     const httpServer = createServer(app)
-    new SocketManager(httpServer)
+    socketManager = new SocketManager(httpServer)
     const port = process.env.PORT ?? 8000
 
     app.use(express.json())
