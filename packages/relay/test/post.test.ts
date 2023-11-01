@@ -18,7 +18,7 @@ import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
-import { singUp } from './utils/signUp'
+import { signUp } from './utils/signUp'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -49,7 +49,7 @@ describe('POST /post', function () {
         // initUserStatus
         var initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
-        userState = await singUp(
+        userState = await signUp(
             initUser,
             userStateFactory,
             userService,

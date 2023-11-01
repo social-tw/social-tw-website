@@ -10,7 +10,7 @@ import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { singUp } from './utils/signUp'
+import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 
 import { time } from '@nomicfoundation/hardhat-network-helpers'
@@ -47,7 +47,7 @@ describe('GET /counter', function () {
 
         // initUserStatus
         const initUser = await userService.getLoginUser(db, '123', undefined)
-        userState = await singUp(
+        userState = await signUp(
             initUser,
             userStateFactory,
             userService,
