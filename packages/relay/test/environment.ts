@@ -12,6 +12,8 @@ import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
 
 import { PRIVATE_KEY } from '../src/config'
+import { createServer } from 'http'
+import { SocketManager } from '../src/singletons/SocketManager'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -19,6 +21,8 @@ export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
     return await deployApp(signer, epochLength)
 }
+
+let socketManager: SocketManager
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -51,15 +55,21 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     console.log('Transaction manager started')
 
     const app = express()
-    const port = process.env.PORT ?? 8000
-    const server = app.listen(port, () =>
-        console.log(`Listening on port ${port}`)
-    )
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
         next()
     })
+    const port = process.env.PORT ?? 8000
+    const server = app.listen(port, () =>
+        console.log(`Listening on port ${port}`)
+    )
+
+    console.log('Starting socket manager...')
+    const httpServer = createServer(app)
+    socketManager = new SocketManager(httpServer)
+    console.log('Socket manager started')
+
     app.use(express.json())
     app.use('/build', express.static(path.join(__dirname, '../keys')))
 
@@ -71,5 +81,13 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         route(app, synchronizer.db, synchronizer, helia)
     }
 
-    return { db, prover, provider, TransactionManager, synchronizer, server }
+    return {
+        db,
+        prover,
+        provider,
+        TransactionManager,
+        synchronizer,
+        server,
+        socketManager,
+    }
 }

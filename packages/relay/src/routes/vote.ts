@@ -186,7 +186,7 @@ async function exeuteTxs(
         }
         txDB.update('Post', postStatement)
 
-        socketManager.emitVote({ postId: _id, vote: voteAction })
+        socketManager.emitVote({ postId: _id, epoch: epoch, vote: voteAction })
 
         return actionCount
     })
@@ -207,7 +207,6 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
     try {
         //vote for post with _id
         const { _id, voteAction, publicSignals, proof } = req.body
-
         // user is able to restore the epochKey from the vote data
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
