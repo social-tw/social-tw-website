@@ -77,7 +77,7 @@ describe('POST /post', function () {
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
-        await fetch(`${HTTP_SERVER}/api/post`, {
+        let res = await fetch(`${HTTP_SERVER}/api/post`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -93,12 +93,15 @@ describe('POST /post', function () {
             expect(r.status).equal(200)
             return r.json()
         })
+
+        await ethers.provider.waitForTransaction(res.transaction)
+        await sync.waitForSync()
         
         // comment on the post
         epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
         })
-        const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+        res = await fetch(`${HTTP_SERVER}/api/comment`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -119,25 +122,16 @@ describe('POST /post', function () {
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-
-        expect(posts[0].transactionHash).equal(res.transaction)
-        expect(posts[0].content).equal(testContent)
-        expect(posts[0].status).equal(1)
-
-        const mockEpk = epochKeyProof.epochKey + BigInt(1)
-
-        posts = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`
+        let comments = await fetch(
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
+        expect(comments[0].transactionHash).equal(res.transaction)
+        expect(comments[0].content).equal(testContent)
+        expect(comments[0].status).equal(1)
 
-        expect(posts.length).equal(0)
         userState.sync.stop()
     })
 

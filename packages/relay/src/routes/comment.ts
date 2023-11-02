@@ -34,7 +34,7 @@ async function fetchComments(req: Request, res: Response, db:DB) {
 
         // TODO check condition below
         // FIXME: if epks or postID not exist?
-        const comments = await db.findMany('comment', {
+        const comments = await db.findMany('Comment', {
             where: {
                 status: 1,
                 postId: postId,
@@ -77,7 +77,7 @@ async function leaveComment(
             synchronizer
         )
         const comment = await epochKeyService.createEntryDbIpfs(
-            'comment',
+            'Comment',
             entryArg,
             helia,
             db,
