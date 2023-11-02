@@ -119,7 +119,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 epoch: epoch,
             },
         })
-
         return true
     }
 }

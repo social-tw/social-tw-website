@@ -9,7 +9,7 @@ export async function addActionCount(
 ): Promise<void> {
     await db
         .transaction(async (txDB) => {
-            action(txDB)
+            const actionCount = action(txDB)
 
             const counter = await db.findOne('EpochKeyAction', {
                 where: {
@@ -17,21 +17,29 @@ export async function addActionCount(
                 },
             })
 
-            const count = counter ? counter.count + 1 : 1
+            const count = counter ? counter.count + actionCount : actionCount
 
-            txDB.upsert('EpochKeyAction', {
-                where: {
-                    epochKey: epochKey,
-                },
-                create: {
-                    epochKey: epochKey,
-                    epoch: epoch,
-                    count: count,
-                },
-                update: {
-                    count: count,
-                },
-            })
+            if (count == 0) {
+                txDB.delete('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                })
+            } else {
+                txDB.upsert('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                    create: {
+                        epochKey: epochKey,
+                        epoch: epoch,
+                        count: count,
+                    },
+                    update: {
+                        count: count,
+                    },
+                })
+            }
         })
         .catch(() => console.log('action reverted'))
 }
