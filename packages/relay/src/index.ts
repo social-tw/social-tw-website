@@ -60,17 +60,19 @@ async function main() {
 
     const app = express()
 
+    // setting cors
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
+        res.set('access-control-allow-headers', '*')
+        next()
+    })
+
     const httpServer = createServer(app)
     socketManager = new SocketManager(httpServer)
     const port = process.env.PORT ?? 8000
 
     app.use(express.json())
     app.use('/build', express.static(path.join(__dirname, '../keys')))
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
 
     httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
