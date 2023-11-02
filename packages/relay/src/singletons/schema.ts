@@ -78,7 +78,7 @@ const _schema = [
     },
     {
         name: 'Comment',
-        primaryKey: 'hashUserId',
+        primaryKey: 'transactionHash',
         rows: [
             {
                 name: 'publishedAt',
