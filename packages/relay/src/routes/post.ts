@@ -150,6 +150,8 @@ async function createPost(
                 transactionHash: hash,
                 status: 0,
             })
+
+            return 1
         })
 
         res.json({
