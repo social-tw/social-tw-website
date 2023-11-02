@@ -27,7 +27,7 @@ let express: Server
 let userState: UserState
 let sync: UnirepSocialSynchronizer
 
-describe('POST /post', function () {
+describe('POST /comment', function () {
     beforeEach(async function () {
         // TODO refactor
 
@@ -47,9 +47,8 @@ describe('POST /post', function () {
             app,
             synchronizer
         )
-
         // initUserStatus
-        var initUser = await userService.getLoginUser(db, '123', undefined)
+        let initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
         userState = await signUp(
             initUser,
@@ -57,10 +56,11 @@ describe('POST /post', function () {
             userService,
             synchronizer,
             wallet
-        )
-
+        )    
+        
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
+        
         expect(hasSignedUp).equal(true)
     })
 
@@ -77,7 +77,7 @@ describe('POST /post', function () {
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
-        let res = await fetch(`${HTTP_SERVER}/api/post`, {
+        let res: any = await fetch(`${HTTP_SERVER}/api/post`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -122,7 +122,7 @@ describe('POST /post', function () {
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
-        let comments = await fetch(
+        let comments: any = await fetch(
             `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
         ).then((r) => {
             expect(r.status).equal(200)
