@@ -15,7 +15,10 @@ import { singUp } from './utils/signUp'
 import { post } from './utils/post'
 import { VoteAction } from '../src/types'
 import { genEpochKeyProof, randomData } from './utils/genProof'
+import { io } from 'socket.io-client'
+import { EventType, VoteMsg } from '../src/types/SocketTypes'
 
+let socketClient: any
 describe('POST /vote', function () {
     var snapshot: any
     var anondb: DB
@@ -40,6 +43,9 @@ describe('POST /vote', function () {
             server,
             synchronizer,
         } = await startServer(unirep, app)
+
+        // start socket client
+        socketClient = io('http://localhost:3000')
 
         anondb = db
         express = server
@@ -95,6 +101,7 @@ describe('POST /vote', function () {
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        socketClient.disconnect()
         express.close()
     })
 
@@ -147,6 +154,14 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(downvoteResponse.status).equal(201)
+
+        // check socket message
+        socketClient.on(EventType.VOTE, (data: VoteMsg) => {
+            expect(data.postId).equal(downvotePostId)
+            expect(data.epoch).equal(1)
+            expect(data.vote).equal(VoteAction.DOWNVOTE)
+        })
+
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
 
@@ -362,5 +377,19 @@ describe('POST /vote', function () {
         })
 
         userState.sync.stop()
+    })
+
+    it('should emit vote event on upvote', async () => {
+        socketClient.emit(EventType.VOTE, {
+            postId: upvotePostId,
+            epoch: 1,
+            vote: VoteAction.UPVOTE,
+        })
+
+        socketClient.on(EventType.VOTE, (data) => {
+            expect(data.postId).equal(upvotePostId)
+            expect(data.epoch).equal(1)
+            expect(data.vote).equal(VoteAction.UPVOTE)
+        })
     })
 })
