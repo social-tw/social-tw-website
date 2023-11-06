@@ -24,11 +24,13 @@
         "helia": "^2.0.1",
         "kubo-rpc-client": "^3.0.1",
         "node-fetch": "2",
+        "socket.io": "^4.7.2",
         "tsimportlib": "^0.0.5",
         "twitter-api-sdk": "^1.2.1"
     },
     "main": "index.js",
     "devDependencies": {
+        "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
         "@nomiclabs/hardhat-ethers": "^2.2.0",
         "@types/mocha": "^10.0.1",
         "@types/node-fetch": "^2.6.4",
