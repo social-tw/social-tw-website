@@ -12,7 +12,7 @@ export enum CommentStatus {
     Pending = 'pending',
     Success = 'success',
     Failure = 'failure',
-    Deleted = 'Deleted',
+    Deleted = 'deleted',
     Reported = 'reported'
 }
 
