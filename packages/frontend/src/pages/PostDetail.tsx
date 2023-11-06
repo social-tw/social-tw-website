@@ -4,12 +4,14 @@ import { useParams } from 'react-router-dom'
 import Post from '../components/post/Post'
 import { PostValues } from '../components/post/PostForm'
 import Comment from '../components/post/Comment'
-import CommentForm from '../components/comment/CommentForm'
+import CommentForm, { CommentValues } from '../components/comment/MobileCommentForm'
 import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import ErrorModal from '../components/modal/ErrorModal'
 import { useUser } from '../contexts/User'
 import { SERVER } from '../config'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import DesktopCommentForm from '../components/comment/DesktopCommentForm'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 const demoPost = {
     id: '1',
@@ -56,7 +58,7 @@ export default function PostDetail() {
     const [post, setPost] = useState<PostInfo>()
     const { isLogin, setErrorCode } = useUser()
 
-    const onSubmit = async (values: PostValues) => {
+    const onSubmit = async (values: CommentValues) => {
         try {
             console.log(values.content)
             setIsModalOpen(true)
@@ -99,6 +101,8 @@ export default function PostDetail() {
         }
     }, [id])
 
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+
     if (!post) return null
 
     return (
@@ -126,14 +130,19 @@ export default function PostDetail() {
                     </ul>
                 </section>
             </div>
-            {isOpen && (
-                <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
-                    <CommentForm
-                        onSubmit={onSubmit}
-                        onCancel={() => setIsOpen(false)}
-                    />
-                </div>
-            )}
+            {isSmallDevice ? 
+                <CommentForm
+                    isOpen={isOpen && isLogin}
+                    onSubmit={onSubmit}
+                    onCancel={() => setIsOpen(false)}
+                />
+                :
+                <DesktopCommentForm
+                    isOpen={isOpen && isLogin}
+                    onSubmit={onSubmit}
+                    onCancel={() => setIsOpen(false)}
+                />
+            }
             <ErrorModal
                 isOpen={isOpen && !isLogin}
                 buttonText="返回註冊/登入頁"
