@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import Modal from "../../Modal"
 import { Controller, useForm } from 'react-hook-form'
 import { GrFormClose } from 'react-icons/gr'
+import { clsx } from 'clsx'
 
 interface CommentReportDialogProps {
     isOpen: boolean
@@ -76,6 +77,7 @@ const CommentReportModal: React.FC<CommentReportDialogProps> = ({
                                     <Controller
                                         name="content"
                                         control={control}
+                                        rules={{ required: true }}
                                         render={
                                             ({ field }) => (
                                                 <textarea {...field}
@@ -86,8 +88,9 @@ const CommentReportModal: React.FC<CommentReportDialogProps> = ({
                                         }
                                     />
                                     <button
-                                        className="w-full h-14 rounded-lg bg-primary/90 text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]"
+                                        className={clsx('w-full h-14 rounded-lg text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]', isValid ? 'bg-primary/90': 'bg-[#8F8F8F]')}
                                         type="submit"
+                                        disabled={!isValid || isSubmitting}
                                     >
                                         確認檢舉
                                     </button>
