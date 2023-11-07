@@ -59,62 +59,92 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 transactionHash,
             },
         })
-        if (!findPost) return
 
         const epochKey = BigInt(event.topics[1]).toString(10)
         const postId = BigInt(event.topics[2]).toString()
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
-        db.upsert('Post', {
-            where: {
-                _id: findPost._id,
-            },
-            create: {
+        console.log('----handlePost----')
+        console.log('Epoch key:', epochKey)
+        console.log('Post id:', postId)
+        console.log('Epoch:', epoch)
+        console.log('Content:', content)
+        console.log('--------------------')
+
+        if (findPost) {
+            db.update('Post', {
+                where: {
+                    _id: findPost._id,
+                },
+                update: {
+                    status: 1,
+                    postId,
+                },
+            })
+        } else {
+            db.create('Post', {
                 postId,
                 epochKey,
                 epoch,
                 transactionHash,
                 status: 1,
                 content,
-            },
-            update: {
-                status: 1,
-                postId,
-            },
-        })
+                upCount: 0,
+                downCount: 0,
+                commentCount: 0,
+            })
+        }
+
+        return true
     }
 
     async handleComment({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
+        const epochKey = BigInt(event.topics[1]).toString(10)
+        const postId = BigInt(event.topics[2]).toString()
+        const commentId = BigInt(event.topics[3]).toString()
+        const epoch = Number(decodedData.epoch)
+        const content = decodedData.content
+
+        console.log('----handleComment---')
+        console.log('Epoch key:', epochKey)
+        console.log('Post id:', postId)
+        console.log('Comment id:', commentId)
+        console.log('Epoch:', epoch)
+        console.log('Content:', content)
+        console.log('--------------------')
+
         const findComment = await this.db.findOne('Comment', {
             where: {
                 transactionHash,
             },
         })
-        if (!findComment) return
-
-        const epochKey = BigInt(event.topics[1]).toString(10)
-        const postId = BigInt(event.topics[2]).toString()
-        const commentId = BigInt(event.topics[3]).toString()
-        const epoch = Number(event.topics[4])
-        const content = decodedData.content
-
-        db.upsert('Comment', {
-            where: {
-                _id: findComment._id,
-            },
-            create: {
+        if (findComment) {
+            db.update('Comment', {
+                where: {
+                    _id: findComment._id,
+                },
+                update: {
+                    commentId,
+                    status: 1,
+                },
+            })
+        } else {
+            db.create('Comment', {
                 commentId,
                 postId,
                 transactionHash,
                 content,
                 epoch,
                 epochKey,
-            },
-            update: {
-                commentId,
-            },
+                status: 1,
+            })
+        }
+
+        // atrieve the comment count of the post
+        const commentCount = await this.db.count('Comment', {
+            postId,
         })
 
         db.update('Post', {
@@ -122,13 +152,11 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 postId,
             },
             update: {
-                commentCount: {
-                    $inc: 1,
-                },
+                commentCount: commentCount + (findComment ? 0 : 1),
             },
         })
 
-        return
+        return true
     }
 
     async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
@@ -148,7 +176,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        return
+        return true
     }
 
     // once user signup, save the hash user id into db
