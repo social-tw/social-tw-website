@@ -120,7 +120,6 @@ export class UnirepSocialSynchronizer extends BaseSynchronizer {
                 epoch: epoch,
             },
         })
-
         return true
     }
 }

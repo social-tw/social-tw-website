@@ -5,5 +5,5 @@ export enum ActionType {
 }
 
 export interface Action {
-    (txDB: TransactionDB): void
+    (txDB: TransactionDB): number
 }
