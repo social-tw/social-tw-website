@@ -6,8 +6,8 @@ import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 import { useState } from 'react'
-import { VoteAction } from '../../types/VoteAction'
-import useVotes from '../../hooks/useVotes'
+import { VoteAction, VoteMsg } from '../../types/VoteAction'
+import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
 
 export default function ({
@@ -42,9 +42,12 @@ export default function ({
     const [upvotes, setUpvotes] = useState(upCount)
     const [downvotes, setDownvotes] = useState(downCount)
     // TODO: Need get vote state from backend or calucate from ecpochKey
+    // 'upvote', 'downvote', or null
     const [voteState, setVoteState] = useState<'upvote' | 'downvote' | null>(
         null
-    ) // 'upvote', 'downvote', or null
+    )
+    const [localUpCount, setLocalUpCount] = useState(upCount)
+    const [localDownCount, setLocalDownCount] = useState(downCount)
 
     const postInfo = (
         <div className="space-y-3">
@@ -146,6 +149,26 @@ export default function ({
         }
     }
 
+    useVoteEvents((msg: VoteMsg) => {
+        // 確保只響應當前帖子的投票事件
+        if (id !== msg.postId) return
+
+        switch (msg.vote) {
+            case VoteAction.UPVOTE:
+                setLocalUpCount((prev) => prev + 1)
+                break
+            case VoteAction.DOWNVOTE:
+                setLocalDownCount((prev) => prev + 1)
+                break
+            case VoteAction.CANCEL_UPVOTE:
+                setLocalUpCount((prev) => prev - 1)
+                break
+            case VoteAction.CANCEL_DOWNVOTE:
+                setLocalDownCount((prev) => prev - 1)
+                break
+        }
+    })
+
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
             <div className="flex-1 p-4 space-y-3">
@@ -167,7 +190,7 @@ export default function ({
                     >
                         <img className="w-5 h-5" src={Upvote} alt="upvote" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
-                            {upvotes}
+                            {localUpCount}
                         </span>
                     </div>
                     <div
@@ -181,7 +204,7 @@ export default function ({
                             alt="downvote"
                         />
                         <span className="text-xs font-medium tracking-wide text-black/80">
-                            {downvotes}
+                            {localDownCount}
                         </span>
                     </div>
                     <div className="flex items-center gap-1">

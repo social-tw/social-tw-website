@@ -6,6 +6,7 @@ import Post from '../components/post/Post'
 import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
+
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',

@@ -14,8 +14,6 @@ import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import Profile from './pages/Profile'
 import { ProtectedRoute } from './contexts/ProtectedRoute'
-import { socket } from './socket'
-import { useEffect } from 'react'
 
 dayjs.extend(relativeTime)
 
@@ -73,20 +71,6 @@ const router = createBrowserRouter([
 ])
 
 const App = () => {
-    useEffect(() => {
-        socket.on('connect', () => {
-            console.log('Connected to the server!')
-        })
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from the server!')
-        })
-
-        return () => {
-            socket.off('connect')
-            socket.off('disconnect')
-        }
-    }, [])
     return (
         <UserProvider>
             <RouterProvider router={router} />

@@ -13,6 +13,8 @@ import useCreatePost from '../hooks/useCreatePost'
 import { CancelledTaskError } from '../utils/makeCancellableTask'
 
 import type { PostInfo } from '../types'
+import { useVoteEvents } from '../hooks/useVotes'
+import { VoteAction, VoteMsg } from '../types/VoteAction'
 
 const examplePosts = [
     {
@@ -65,24 +67,74 @@ export default function PostList() {
     }, [isLogin])
 
     const loadPosts = useCallback(async () => {
-        const response = await fetch(`${SERVER}/api/post`)
-        const postsJson = await response.json()
-        const posts = postsJson.map((post: any) => ({
-            id: post._id,
-            epochKey: post.epochKey,
-            content: post.content,
-            publishedAt: post.publishedAt,
-            commentCount: post.commentCount,
-            upCount: post.upCount,
-            downCount: post.downCount,
-        }))
+        try {
+            // Check network status
+            if (!navigator.onLine) {
+                throw new Error('No internet connection')
+            }
+            const response = await fetch(`${SERVER}/api/post`)
+            // Check if the response was successful
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
 
-        setPosts([...posts, ...examplePosts])
+            const postsJson = await response.json()
+            const posts = postsJson.map((post: any) => ({
+                id: post._id,
+                epochKey: post.epochKey,
+                content: post.content,
+                publishedAt: post.publishedAt,
+                commentCount: post.commentCount,
+                upCount: post.upCount,
+                downCount: post.downCount,
+            }))
+
+            setPosts([...posts, ...examplePosts])
+        } catch (err: any) {
+            console.error('Failed to load posts:', err.message)
+        }
     }, [])
 
     useEffect(() => {
         loadPosts()
     }, [loadPosts])
+
+    // use Votes event effect
+    useVoteEvents((msg: VoteMsg) => {
+        setPosts((currentPosts) => {
+            // 找到要更新的帖子索引
+            const postIndex = currentPosts.findIndex(
+                (post) => post.id === msg.postId
+            )
+            if (postIndex > -1) {
+                // 創建新的帖子數組副本
+                const newPosts = [...currentPosts]
+                const newPost = { ...newPosts[postIndex] }
+
+                // 根據投票類型更新計數
+                switch (msg.vote) {
+                    case VoteAction.UPVOTE:
+                        newPost.upCount += 1
+                        break
+                    case VoteAction.DOWNVOTE:
+                        newPost.downCount += 1
+                        break
+                    case VoteAction.CANCEL_UPVOTE:
+                        newPost.upCount -= 1
+                        break
+                    case VoteAction.CANCEL_DOWNVOTE:
+                        newPost.downCount -= 1
+                        break
+                }
+                // 更新數組中的帖子
+                newPosts[postIndex] = newPost
+                // 返回新的帖子數組以更新狀態
+                return newPosts
+            }
+            // 如果沒有找到帖子，返回當前狀態
+            return currentPosts
+        })
+    })
 
     const navigate = useNavigate()
 

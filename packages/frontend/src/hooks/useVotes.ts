@@ -1,10 +1,12 @@
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import { VoteAction } from '../types/VoteAction'
+import { VoteAction, VoteMsg } from '../types/VoteAction'
+import { useEffect } from 'react'
+import client from '../socket'
 
 export default function useVotes() {
-    const { userState, stateTransition, provider, loadData } = useUser()
+    const { userState, provider, loadData } = useUser()
 
     const randomNonce = () => Math.round(Math.random())
 
@@ -14,8 +16,6 @@ export default function useVotes() {
     ): Promise<boolean> => {
         try {
             if (!userState) throw new Error('User state not initialized')
-
-            await stateTransition()
 
             const nonce = randomNonce()
 
@@ -57,4 +57,13 @@ export default function useVotes() {
     }
 
     return { create }
+}
+
+export const useVoteEvents = (callback: any) => {
+    useEffect(() => {
+        const handleVote = (data: VoteMsg) => callback(data)
+        client.onVoteEvent(handleVote)
+
+        return () => client.onVoteEvent(handleVote)
+    }, [])
 }
