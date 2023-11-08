@@ -65,13 +65,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
-        console.log('----handlePost----')
-        console.log('Epoch key:', epochKey)
-        console.log('Post id:', postId)
-        console.log('Epoch:', epoch)
-        console.log('Content:', content)
-        console.log('--------------------')
-
         if (findPost) {
             db.update('Post', {
                 where: {
@@ -106,14 +99,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const commentId = BigInt(event.topics[3]).toString()
         const epoch = Number(decodedData.epoch)
         const content = decodedData.content
-
-        console.log('----handleComment---')
-        console.log('Epoch key:', epochKey)
-        console.log('Post id:', postId)
-        console.log('Comment id:', commentId)
-        console.log('Epoch:', epoch)
-        console.log('Content:', content)
-        console.log('--------------------')
 
         const findComment = await this.db.findOne('Comment', {
             where: {
