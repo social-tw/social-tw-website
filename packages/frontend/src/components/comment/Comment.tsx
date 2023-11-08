@@ -10,6 +10,7 @@ import { CommentInfo, CommentStatus } from "../../types";
 import formatDate from "../../utils/formatDate";
 import Avatar from "../post/Avatar";
 import CommentDeleteDialog from "./CommentDeleteDialog";
+import CommentReportModal from "../modal/ui/comment/CommentReportModal";
 
 export default function Comment({
     id,
@@ -20,6 +21,7 @@ export default function Comment({
     isMine = true,
 }: CommentInfo) {
     const [isDeleting, setIsDeleting] = useState(false)
+    const [isReporting, setIsReporting] = useState(false)
 
     const onDelete = () => {
         console.log(`delete the comment: ${id}`)
@@ -30,24 +32,38 @@ export default function Comment({
         setIsDeleting(false)
     }
 
+    const onCancelReport = () => {
+        setIsReporting(false)
+    }
+
     const menuButtonRef = useRef(null)
     const [menuState, toggleMenu] = useMenuState({ transition: true })
     const anchorProps = useClick(menuState.state, toggleMenu)
 
-    const menu = isMine
-        ? [
-              {
-                  label: '刪除留言',
-                  icon: <FaTrashCan size={20} />,
-                  onClick: () => {
-                    console.log('delete comment')
-                    setIsDeleting(true)
-                  },
-              },
-          ]
-        : [{ label: '檢舉留言', icon: <FaBan size={20} />, onClick: () => {} }]
-
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+
+    const menu = isMine
+        ?   [
+                {
+                    label: '刪除留言',
+                    icon: <FaTrashCan size={ isSmallDevice ? 22 : 14} />,
+                    onClick: () => {
+                        console.log('delete comment')
+                        setIsDeleting(true)
+                    },
+                },
+            ]
+        : 
+            [
+                { 
+                    label: '檢舉留言', 
+                    icon: <FaBan size={isSmallDevice ? 22 : 14} className=""/>, 
+                    onClick: () => {
+                        console.log('reporting comment')
+                        setIsReporting(true)
+                    }
+                }
+            ]
 
     return (
         <article
@@ -89,9 +105,9 @@ export default function Comment({
             >
                 {menu.map((item, i) => (
                     <MenuItem key={i} onClick={item.onClick}>
-                        <div className="max-lg:p-6 max-lg:text-2xl max-lg:font-medium">
+                        <div className="max-md:p-6 font-medium text-white md:flex md:justify-center">
                             {item.icon}
-                            <span>{item.label}</span>
+                            <span className="md:text-sm text-lg tracking-wider mt-[2px]">{item.label}</span>
                         </div>
                     </MenuItem>
                 ))}
@@ -100,6 +116,10 @@ export default function Comment({
                 open={isDeleting}
                 onClose={onCancelDelete}
                 onConfirm={onDelete}
+            />
+            <CommentReportModal
+                isOpen={isReporting}
+                onClose={onCancelReport}
             />
         </article>
     )

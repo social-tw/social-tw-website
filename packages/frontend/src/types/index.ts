@@ -12,6 +12,8 @@ export enum CommentStatus {
     Pending = 'pending',
     Success = 'success',
     Failure = 'failure',
+    Deleted = 'deleted',
+    Reported = 'reported'
 }
 
 export interface CommentInfo {

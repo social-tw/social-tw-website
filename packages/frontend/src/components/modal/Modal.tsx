@@ -1,6 +1,4 @@
 import React, { Fragment } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { IoClose } from 'react-icons/io5'
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
 
@@ -45,8 +43,7 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className={clsx(
-                    `
+                className={clsx(`
                 ${postion} 
                 inset-0 
                 z-50
@@ -64,6 +61,7 @@ const Modal: React.FC<ModalProps> = ({
                 inset-0 
                 z-50
                 h-full
+                mt-0
                 `}
                 variants={chidrenVarients}
                 initial="hidden"

@@ -123,7 +123,7 @@ export default function PostDetail() {
                     <ul className="divide-y divide-neutral-600">
                         {demoComments.map((comment, i) => (
                             <li key={i}>
-                                <Comment {...comment} />
+                                <Comment {...comment}/>
                             </li>
                         ))}
                     </ul>
