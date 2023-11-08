@@ -7,7 +7,7 @@
     "license": "ISC",
     "repository": "https://github.com/social-tw/social-tw-website.git",
     "scripts": {
-        "build": "tsc && yarn keys",
+        "build": "tsc && yarn keys && cp .env.example .env",
         "start": "ts-node ./src/index.ts",
         "debug": "node --inspect -r ts-node/register ./src/index.ts",
         "keys": "sh scripts/loadKeys.sh",
@@ -20,6 +20,7 @@
         "@unirep/core": "2.0.0-beta-4",
         "anondb": "^0.0.13",
         "dotenv": "^16.0.3",
+        "envfile": "^6.18.0",
         "express": "^4.18.2",
         "helia": "^2.0.1",
         "kubo-rpc-client": "^3.0.1",

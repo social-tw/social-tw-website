@@ -4,9 +4,9 @@ import { config } from 'dotenv'
 // constants and types
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 
-config()
+config({'path': '../.env'})
 
-// Provide default values for process.env
+/* // Provide default values for process.env
 Object.assign(process.env, {
     UNIREP_ADDRESS: '0x4D137bb44553d55AE6B28B5391c6f537b06C9cc3',
     APP_ADDRESS: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
@@ -14,7 +14,7 @@ Object.assign(process.env, {
     PRIVATE_KEY:
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     ...process.env,
-})
+}) */
 
 export const { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL, PRIVATE_KEY } =
     process.env as any

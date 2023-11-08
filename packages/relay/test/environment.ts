@@ -4,6 +4,7 @@ import fs from 'fs'
 import express from 'express'
 import { SQLiteConnector } from 'anondb/node.js'
 import { deployApp } from '@unirep-app/contracts/scripts/utils'
+import { writeEnv } from './script/writeEnv'
 
 // libraries
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
@@ -17,7 +18,15 @@ __dirname = path.join(__dirname, '..', 'src')
 
 export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
-    return await deployApp(signer, epochLength)
+    const {unirep, app} = await deployApp(signer, epochLength)
+    
+    /* 
+    Unirep doesn't support user-defined contract address yet, so we need to
+    write Unirep and UnirepSocialAddress to .env
+    */
+    writeEnv(unirep.address, app.address)
+    
+    return { unirep, app }
 }
 
 export const startServer = async (unirep: any, unirepApp: any) => {
