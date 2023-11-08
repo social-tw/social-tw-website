@@ -1,5 +1,5 @@
 import { Identity } from '@semaphore-protocol/identity'
-import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
+import { IncrementalMerkleTree } from '@unirep/utils'
 import { CircuitConfig, Circuit, EpochKeyProof } from '@unirep/circuits'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { poseidon1 } from 'poseidon-lite'
