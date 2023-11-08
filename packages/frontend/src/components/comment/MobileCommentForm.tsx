@@ -10,6 +10,7 @@ export interface CommentValues {
 }
 
 export default function CommentForm({
+    isOpen = false,
     onCancel = () => {},
     onSubmit = () => {},
     onSubmitCancel = () => {},
@@ -17,6 +18,7 @@ export default function CommentForm({
     isSubmitCancelled = false,
     disabled = false,
 }: {
+    isOpen: boolean
     onCancel?: () => void
     onSubmit?: (values: CommentValues) => void
     onSubmitCancel?: () => void
@@ -24,7 +26,7 @@ export default function CommentForm({
     isSubmitCancelled?: boolean
     disabled?: boolean
 }) {
-    const { handleSubmit, control, reset, getValues, formState } =
+    const { handleSubmit, control, reset, formState } =
         useForm<CommentValues>({
             defaultValues: {
                 content: '',
@@ -46,8 +48,10 @@ export default function CommentForm({
         }
     }, [isSubmitSuccessful, reset])
 
+    if (!isOpen) return null
+
     return (
-        <>
+        <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
             <form
                 className={clsx('space-y-6', disabled && 'opacity-20')}
                 onSubmit={handleSubmit(onSubmit)}
@@ -96,27 +100,6 @@ export default function CommentForm({
                     />
                 </section>
             </form>
-            <Modal
-                isOpen={isPending}
-                postion="absolute"
-                background="bg-gradient-to-t from-black/100 to-white/0"
-            >
-                <div className="flex flex-col items-center justify-center h-full gap-4 backdrop-blur-sm">
-                    <progress className="w-8/12 h-[12px] rounded-2xl progress bg-[#222222]" />
-                    {isSubmitCancellable ? (
-                        <button
-                            className="btn btn-sm btn-primary"
-                            onClick={onSubmitCancel}
-                        >
-                            取消發布
-                        </button>
-                    ) : (
-                        <p className="text-lg font-semibold tracking-wider text-white">
-                            已無法取消發布
-                        </p>
-                    )}
-                </div>
-            </Modal>
-        </>
+        </div>
     )
 }
