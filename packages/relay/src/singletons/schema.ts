@@ -95,9 +95,9 @@ const _schema = [
             },
             ['commentId', 'String'],
             ['postId', 'String'],
-            ['transactionHash', 'String'],
-            ['content', 'String'],
-            ['cid', 'String'],
+            ['transactionHash', 'String', { optional: true }],
+            ['content', 'String', { optional: true }],
+            ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
             // status 0: haven't found the comment on-chain
