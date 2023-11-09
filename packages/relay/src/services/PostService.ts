@@ -91,7 +91,7 @@ export class PostService {
     async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
-                _id: id,
+                postId: id,
             },
         })
 

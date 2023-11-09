@@ -15,7 +15,7 @@ export default (
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
-            const query = req.query.query as string
+            const query = req.query.query?.toString()
             const epks =
                 typeof req.query.epks === 'string'
                     ? req.query.epks.split('_')
