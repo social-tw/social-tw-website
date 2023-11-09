@@ -28,6 +28,7 @@ describe('Unirep App', function () {
     let user: IdentityObject
     let inputPublicSig: any
     let inputProof: any
+    let chainId: number
 
     // epoch length
     const epochLength = 300
@@ -41,6 +42,7 @@ describe('Unirep App', function () {
         const contracts = await deployApp(deployer, epochLength)
         unirep = contracts.unirep
         app = contracts.app
+        chainId = (await ethers.provider.getNetwork()).chainId
     })
 
     describe('user signup', function () {
@@ -172,7 +174,13 @@ describe('Unirep App', function () {
             const epoch = await userState.sync.loadCurrentEpoch()
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
-            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+            const leaf = genStateTreeLeaf(
+                id.secret,
+                attesterId,
+                epoch,
+                data,
+                chainId
+            )
             tree.insert(leaf)
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
@@ -197,8 +205,9 @@ describe('Unirep App', function () {
                 await userState.genEpochKeyProof({ nonce })
             const [deployer] = await ethers.getSigners()
             const epkVerifier = await deployVerifierHelper(
+                unirep.address,
                 deployer,
-                Circuit.epochKey
+                Circuit.epochKeyLite
             )
             await epkVerifier.verifyAndCheck(publicSignals, proof)
 

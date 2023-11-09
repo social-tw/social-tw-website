@@ -12,8 +12,13 @@ import DataProofVerifier from '../artifacts/contracts/DataProofVerifier.sol/Data
 export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const unirep = await deployUnirep(deployer)
 
-    const epkHelper = await deployVerifierHelper(deployer, Circuit.epochKey)
+    const epkHelper = await deployVerifierHelper(
+        unirep.address,
+        deployer,
+        Circuit.epochKey
+    )
     const epkLiteHelper = await deployVerifierHelper(
+        unirep.address,
         deployer,
         Circuit.epochKeyLite
     )

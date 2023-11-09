@@ -54,7 +54,7 @@ export async function genUserState(id, app) {
         attesterId,
         id,
     })
-    await userState.sync.start()
+    await userState.start()
     await userState.waitForSync()
     return userState
 }

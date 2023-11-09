@@ -21,6 +21,7 @@ describe('Comment Test', function () {
     let unirep: Unirep
     let app: UnirepApp
     let users: IdentityObject[]
+    let chainId: number
 
     // for reused proof
     let inputPublicSig: any
@@ -61,6 +62,8 @@ describe('Comment Test', function () {
         const { publicSignals: epochKeySig1, proof: epochKeyProof1 } =
             await userState.genEpochKeyProof()
         await app.post(epochKeySig1, epochKeyProof1, content)
+
+        chainId = (await ethers.provider.getNetwork()).chainId
     })
 
     describe('leave comment', async function () {
@@ -87,7 +90,7 @@ describe('Comment Test', function () {
                 data,
             })
             const postId = 0
-            expect(
+            await expect(
                 app.leaveComment(publicSignals, proof, postId, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
@@ -101,7 +104,13 @@ describe('Comment Test', function () {
             const epoch = await userState.sync.loadCurrentEpoch()
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
-            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+            const leaf = genStateTreeLeaf(
+                id.secret,
+                attesterId,
+                epoch,
+                data,
+                chainId
+            )
             tree.insert(leaf)
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
