@@ -68,13 +68,14 @@ describe('POST /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        const commentPost = await fetch(`${HTTP_SERVER}/api/post`)
-            .then(async (r) => {
+        const commentPost = await fetch(`${HTTP_SERVER}/api/post`).then(
+            async (r) => {
                 expect(r.status).equal(200)
                 const posts = (await r.json()) as Post[]
                 expect(posts.length).equal(1)
                 return posts[0]
-            })
+            }
+        )
 
         console.log(commentPost)
     })
@@ -92,23 +93,20 @@ describe('POST /comment', function () {
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
         })
-        const result: any = await fetch(
-            `${HTTP_SERVER}/api/comment`,
-            {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(
-                    stringifyBigInts({
-                        content: testContent,
-                        postId: 0,
-                        publicSignals: epochKeyProof.publicSignals,
-                        proof: epochKeyProof.proof,
-                    })
-                ),
-            }
-        ).then((r) => {
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    content: testContent,
+                    postId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })

@@ -3,7 +3,8 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
-import { SQLiteConnector } from 'anondb/node.js'
+import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
+import { createServer } from 'http'
 
 // libraries
 import { UnirepSocialSynchronizer } from './synchornizer'
@@ -17,16 +18,24 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    IS_IN_TEST,
+    CLIENT_URL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
+import { SocketManager } from './singletons/SocketManager'
 
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
     process.exit(1)
 })
 
+let socketManager: SocketManager
+
 async function main() {
-    const db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+    var db
+    if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
+        db = await PostgresConnector.create(schema, DB_PATH)
+    } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -39,6 +48,8 @@ async function main() {
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
 
+    // reset all data if reset flag is true and evn is not production
+    await synchronizer.resetDatabase()
     await synchronizer.start()
 
     const { createHelia } = await eval("import('helia')")
@@ -48,15 +59,22 @@ async function main() {
     await TransactionManager.start()
 
     const app = express()
-    const port = process.env.PORT ?? 8000
-    app.listen(port, () => console.log(`Listening on port ${port}`))
-    app.use('*', (req, res, next) => {
-        res.set('access-control-allow-origin', '*')
+
+    // setting cors
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
         next()
     })
+
+    const httpServer = createServer(app)
+    socketManager = new SocketManager(httpServer)
+    const port = process.env.PORT ?? 8000
+
     app.use(express.json())
     app.use('/build', express.static(path.join(__dirname, '../keys')))
+
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
@@ -66,3 +84,5 @@ async function main() {
         route(app, db, synchronizer, helia)
     }
 }
+
+export { socketManager }

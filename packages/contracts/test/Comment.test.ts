@@ -303,10 +303,41 @@ describe('Comment Test', function () {
             userState.stop()
         })
 
+        it('should revert editing comment with reused proof', async function () {
+            const postId = 0
+            const commentId = 0
+            const newContent = 'Reused Proof'
+            await expect(
+                app.editComment(
+                    inputPublicSig,
+                    inputProof,
+                    postId,
+                    commentId,
+                    newContent
+                )
+            ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
+        })
+
         {
             // epoch transition
             await ethers.provider.send('evm_increaseTime', [epochLength])
             await ethers.provider.send('evm_mine', [])
+        }
+
+        {
+            // user state transition
+            const userState2 = await genUserState(users[1].id, app)
+            const attesterId = userState2.sync.attesterId
+            const toEpoch = await unirep.attesterCurrentEpoch(attesterId)
+
+            await userState2.waitForSync()
+            const { publicSignals, proof } =
+                await userState2.genUserStateTransitionProof({ toEpoch })
+            await unirep
+                .userStateTransition(publicSignals, proof)
+                .then((tx) => tx.wait())
+
+            userState2.sync.stop()
         }
 
         it('should update comment in another epoch', async function () {
@@ -317,9 +348,6 @@ describe('Comment Test', function () {
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
-
-            inputPublicSig = publicSignals
-            inputProof = proof
 
             await expect(
                 app.editComment(
@@ -339,21 +367,6 @@ describe('Comment Test', function () {
                     newContent
                 )
             userState.stop()
-        })
-
-        it('should revert editing comment with reused proof', async function () {
-            const postId = 0
-            const commentId = 0
-            const newContent = 'Reused Proof'
-            await expect(
-                app.editComment(
-                    inputPublicSig,
-                    inputProof,
-                    postId,
-                    commentId,
-                    newContent
-                )
-            ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
     })
 })

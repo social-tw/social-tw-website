@@ -21,3 +21,10 @@ export const errorHandler =
             }
         }
     }
+
+export function voteErrorHandler(err: any, res: any) {
+    const status = err.status || 500
+    const message = err.message || 'Internal Server Error'
+
+    res.status(status).json({ error: message })
+}

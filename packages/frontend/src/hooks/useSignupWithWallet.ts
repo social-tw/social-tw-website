@@ -1,6 +1,6 @@
-import { SignupStatus } from '../contexts/User'
 import { UserState } from '@unirep/core'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import { SignupStatus } from '../contexts/User'
 
 declare global {
     interface Window {
@@ -22,7 +22,7 @@ const useSignupWithWallet = (
         accessToken: string
     ) => Promise<void>,
     setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState | undefined>
+    createUserState: () => Promise<UserState>
 ) => {
     const signUpWithWallet = async () => {
         try {
@@ -43,8 +43,6 @@ const useSignupWithWallet = (
                 throw new Error(LOGIN_ERROR_MESSAGES.WALLET_ISSUE.code)
             }
             const userStateInstance = await createUserState()
-            if (!userStateInstance)
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             setSignupStatus('pending')
             navigate('/')
             try {
