@@ -4,7 +4,7 @@ import { Action } from '../types'
 export async function addActionCount(
     db: DB,
     epochKey: string,
-    epoch: bigint,
+    epoch: number,
     action: Action
 ): Promise<void> {
     await db

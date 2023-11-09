@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { InternalError } from './types/InternalError'
 
 export const errorHandler =
     (func: (req: Request, res: Response, next: NextFunction) => any) =>
@@ -6,10 +7,17 @@ export const errorHandler =
         try {
             await func(req, res, next)
         } catch (err: any) {
-            console.log('Uncaught error', err)
-            res.status(500).json({
-                message: 'Uncaught error',
-                info: err.toString(),
-            })
+            if (err instanceof InternalError) {
+                console.log('error', err)
+                res.status(err.httpStatusCode).json({
+                    error: err.message,
+                })
+            } else {
+                console.log('Uncaught error', err)
+                res.status(500).json({
+                    message: 'Uncaught error',
+                    info: err.message,
+                })
+            }
         }
     }

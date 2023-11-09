@@ -173,7 +173,10 @@ export class TransactionManager {
      * @param data - The transaction data.
      * @returns The keccak256 hash of the signed transaction.
      */
-    async queueTransaction(to: string, data: string | any = {}): Promise<string> {
+    async queueTransaction(
+        to: string,
+        data: string | any = {}
+    ): Promise<string> {
         const args = {} as any
         if (typeof data === 'string') {
             // assume it's input data

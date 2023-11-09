@@ -86,7 +86,7 @@ const _schema = [
                 default: () => +new Date(),
             },
             ['commentId', 'String', { optional: true }],
-            ['postId', 'String', { optional: true }],
+            ['postId', 'String'],
             ['cid', 'String', { optional: true }],
             ['transactionHash', 'String'],
             ['content', 'String'],

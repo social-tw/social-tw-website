@@ -5,16 +5,7 @@ import { ethers } from 'ethers'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
-import { ipfsService } from '../services/IpfsService'
-import type { DB } from 'anondb/node'
-import type { Helia } from '@helia/interface'
-
-interface CreateEntryArg {
-    epochKeyProof: string;
-    txHash: string;
-    epoch: bigint;
-    args: any[];
-}
+import { InternalError } from '../types/InternalError'
 
 class EpochKeyService {
     async getAndVerifyProof(
@@ -35,7 +26,7 @@ class EpochKeyService {
         // check if epoch is valid
         const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
         if (!isEpochvalid) {
-            throw new Error('Invalid Epoch')
+            throw new InternalError('Invalid Epoch', 400)
         }
 
         // check if state tree exists in current epoch
@@ -45,75 +36,34 @@ class EpochKeyService {
             epochKeyProof.attesterId
         )
         if (!isStateTreeValid) {
-            throw new Error('Invalid State Tree')
+            throw new InternalError('Invalid State Tree', 400)
         }
 
         // check if proof is valid
         const isProofValid = await epochKeyProof.verify()
         if (!isProofValid) {
-            throw new Error('Invalid proof')
+            throw new InternalError('Invalid proof', 400)
         }
 
         return epochKeyProof
     }
 
-    async callContractAndProve(
+    // TODO move this to other service?
+    async callContract(
         functionSignature: string, // 'leaveComment' for example
-        args: any[],
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
-        synchronizer: UnirepSocialSynchronizer
-    ): Promise<{
-        epochKeyProof: string, 
-        txHash: string, 
-        epoch: bigint,
         args: any[]
-    }> {
+    ): Promise<string> {
         const appContract = new ethers.Contract(APP_ADDRESS, ABI)
-        const epochKeyProof = await epochKeyService.getAndVerifyProof(
-            publicSignals,
-            proof,
-            synchronizer
-        )
-
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
-            [epochKeyProof.publicSignals, epochKeyProof.proof, ...args]
+            [...args]
         )
         const hash = await TransactionManager.queueTransaction(
             APP_ADDRESS,
             calldata
         )
 
-        // FIXME: error handling
-
-        return {
-            'epochKeyProof': epochKeyProof.epochKey.toString(),
-            'txHash': hash,
-            'epoch': epochKeyProof.epoch,
-            'args': args,
-        }
-    }
-
-    // method insert entry into db and ipfs
-    async createEntryDbIpfs(
-        entryName: string, // 'comment' for example
-        arg: CreateEntryArg,
-        helia: Helia,
-        db: DB,
-    ): Promise<any> {
-        let baseArg = {};
-        const cid = ipfsService.createIpfsContent(helia, arg[0]);
-        baseArg['cid'] = cid;
-        baseArg['status'] = 0;
-        Object.entries(arg).forEach(([key, value]) => {
-            baseArg[key] = value;
-        });
-
-        const entry = await db.create(entryName, baseArg)
-
-        // FIXME: error handling
-        return entry
+        return hash
     }
 }
 
