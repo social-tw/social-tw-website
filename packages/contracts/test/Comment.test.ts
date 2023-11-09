@@ -63,7 +63,7 @@ describe('Comment Test', function () {
             await userState.genEpochKeyProof()
         await app.post(epochKeySig1, epochKeyProof1, content)
 
-        chainId = (await ethers.provider.getNetwork()).chainId
+        chainId = await unirep.chainid()
     })
 
     describe('leave comment', async function () {
@@ -87,6 +87,7 @@ describe('Comment Test', function () {
                 epoch: wrongEpoch,
                 nonce: 0,
                 attesterId,
+                chainId: chainId,
                 data,
             })
             const postId = 0
@@ -119,6 +120,7 @@ describe('Comment Test', function () {
                 epoch,
                 nonce: 0,
                 attesterId,
+                chainId: chainId,
                 data,
             })
             const postId = 0
@@ -200,6 +202,7 @@ describe('Comment Test', function () {
                 epoch: wrongEpoch,
                 nonce: 0,
                 attesterId,
+                chainId: chainId,
             })
             await expect(
                 app.editComment(

@@ -20,7 +20,7 @@ import {
 } from './utils'
 import { IdentityObject } from './types'
 
-const { SUM_FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
+const { FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('Unirep App', function () {
     let unirep: any
@@ -42,7 +42,7 @@ describe('Unirep App', function () {
         const contracts = await deployApp(deployer, epochLength)
         unirep = contracts.unirep
         app = contracts.app
-        chainId = (await ethers.provider.getNetwork()).chainId
+        chainId = await unirep.chainid()
     })
 
     describe('user signup', function () {
@@ -159,6 +159,7 @@ describe('Unirep App', function () {
                 epoch: wrongEpoch,
                 nonce: 0,
                 attesterId,
+                chainId: chainId,
                 data,
             })
             await expect(
@@ -189,6 +190,7 @@ describe('Unirep App', function () {
                 epoch,
                 nonce: 0,
                 attesterId,
+                chainId: chainId,
                 data,
             })
             await expect(
@@ -207,7 +209,7 @@ describe('Unirep App', function () {
             const epkVerifier = await deployVerifierHelper(
                 unirep.address,
                 deployer,
-                Circuit.epochKeyLite
+                Circuit.epochKey
             )
             await epkVerifier.verifyAndCheck(publicSignals, proof)
 
@@ -243,14 +245,15 @@ describe('Unirep App', function () {
             const stateTreeProof = stateTree.createProof(index)
             const attesterId = app.address
             const data = await userState.getProvableData()
-            const value = Array(SUM_FIELD_COUNT).fill(0)
+            const value = Array(FIELD_COUNT).fill(0)
             const circuitInputs = stringifyBigInts({
                 identity_secret: user.id.secret,
-                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_indices: stateTreeProof.pathIndices,
                 state_tree_elements: stateTreeProof.siblings,
                 data: data,
                 epoch: epoch,
                 attester_id: attesterId,
+                chain_id: chainId,
                 value: value,
             })
             const p = await prover.genProofAndPublicSignals(
