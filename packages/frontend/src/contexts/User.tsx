@@ -196,9 +196,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (!userStateInstance)
                 throw new Error('user state not initialized')
             const signupProof = await userStateInstance.genUserSignUpProof()
-            const publicSignals = signupProof.publicSignals.map((item) =>
-                item.toString()
-            )
+            const publicSignals = signupProof.publicSignals
             const proof = signupProof.proof.map((item) => item.toString())
 
             const response = await fetch(`${SERVER}/api/signup`, {
@@ -307,7 +305,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const attesterId = userState.sync.attesterId
             const circuitInputs = stringifyBigInts({
                 identity_secret: userState.id.secret,
-                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_indices: stateTreeProof.pathIndices,
                 state_tree_elements: stateTreeProof.siblings,
                 data: provableData,
                 epoch: epoch,
