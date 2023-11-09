@@ -1,11 +1,11 @@
-import { clsx } from 'clsx'
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import Modal from '../modal/Modal'
-import RichTextEditor from '../RichTextEditor'
+import { clsx } from 'clsx';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import Modal from '../modal/Modal';
+import RichTextEditor from '../RichTextEditor';
 
 export interface PostValues {
-    content: string
+    content: string;
 }
 
 export default function PostForm({
@@ -16,34 +16,34 @@ export default function PostForm({
     isSubmitCancelled = false,
     disabled = false,
 }: {
-    onCancel?: () => void
-    onSubmit?: (values: PostValues) => void
-    onSubmitCancel?: () => void
-    isSubmitCancellable?: boolean
-    isSubmitCancelled?: boolean
-    disabled?: boolean
+    onCancel?: () => void;
+    onSubmit?: (values: PostValues) => void;
+    onSubmitCancel?: () => void;
+    isSubmitCancellable?: boolean;
+    isSubmitCancelled?: boolean;
+    disabled?: boolean;
 }) {
     const { handleSubmit, control, reset, getValues, formState } =
         useForm<PostValues>({
             defaultValues: {
                 content: '',
             },
-        })
+        });
 
-    const { isValid, isSubmitting, isSubmitSuccessful } = formState
+    const { isValid, isSubmitting, isSubmitSuccessful } = formState;
 
-    const isPending = !isSubmitCancelled && isSubmitting
+    const isPending = !isSubmitCancelled && isSubmitting;
 
     const _onCancel = () => {
-        reset({ content: '' })
-        onCancel()
-    }
+        reset({ content: '' });
+        onCancel();
+    };
 
     useEffect(() => {
         if (isSubmitSuccessful) {
-            reset({ content: '' })
+            reset({ content: '' });
         }
-    }, [isSubmitSuccessful, reset])
+    }, [isSubmitSuccessful, reset]);
 
     return (
         <>
@@ -113,5 +113,5 @@ export default function PostForm({
                 </div>
             </Modal>
         </>
-    )
+    );
 }

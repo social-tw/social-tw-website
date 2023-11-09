@@ -1,14 +1,14 @@
-import React from 'react'
-import { IoIosMore } from 'react-icons/io'
-import { BiSolidLike, BiSolidDislike, BiCommentDetail } from 'react-icons/bi'
-import { motion } from 'framer-motion'
+import React from 'react';
+import { IoIosMore } from 'react-icons/io';
+import { BiSolidLike, BiSolidDislike, BiCommentDetail } from 'react-icons/bi';
+import { motion } from 'framer-motion';
 
 interface DemoPostProps {
-    text: string
-    likes: number
-    dislikes: number
-    comments: number
-    index: number
+    text: string;
+    likes: number;
+    dislikes: number;
+    comments: number;
+    index: number;
 }
 
 const DemoPost: React.FC<DemoPostProps> = ({
@@ -21,17 +21,17 @@ const DemoPost: React.FC<DemoPostProps> = ({
     const getOpacity = (index: number): number => {
         switch (index) {
             case 1:
-                return 0.9
+                return 0.9;
             case 2:
-                return 0.2
+                return 0.2;
             case 4:
-                return 0.15
+                return 0.15;
             default:
-                return 0.1
+                return 0.1;
         }
-    }
+    };
 
-    const opacity = getOpacity(index)
+    const opacity = getOpacity(index);
 
     const postVarient = {
         visible: { opacity: 1 },
@@ -43,7 +43,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     return (
         <motion.div
@@ -85,7 +85,7 @@ const DemoPost: React.FC<DemoPostProps> = ({
                 </div>
             </div>
         </motion.div>
-    )
-}
+    );
+};
 
-export default DemoPost
+export default DemoPost;

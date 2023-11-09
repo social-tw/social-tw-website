@@ -1,16 +1,16 @@
-import { forwardRef, ReactNode } from 'react'
-import CloseIcon from '../assets/close.svg'
+import { forwardRef, ReactNode } from 'react';
+import CloseIcon from '../assets/close.svg';
 
 interface DialogProps {
-    children: ReactNode
-    ariaLabel?: string
-    open?: boolean
-    onClose?: () => void
+    children: ReactNode;
+    ariaLabel?: string;
+    open?: boolean;
+    onClose?: () => void;
 }
 
 export default forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
     { children, open = false, onClose = () => {}, ariaLabel = '' },
-    ref
+    ref,
 ) {
     return (
         <dialog
@@ -30,5 +30,5 @@ export default forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
             </form>
             <form method="dialog">{children}</form>
         </dialog>
-    )
-})
+    );
+});

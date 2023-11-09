@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion'
-import LogoWhite from '../../assets/logo-white.png'
-import Logo from '../../assets/logo.png'
-import Downvote from '../../assets/downvote.png'
-import Upvote from '../../assets/upvote.png'
-import Comment from '../../assets/comment.png'
+import { motion } from 'framer-motion';
+import LogoWhite from '../../assets/logo-white.png';
+import Logo from '../../assets/logo.png';
+import Downvote from '../../assets/downvote.png';
+import Upvote from '../../assets/upvote.png';
+import Comment from '../../assets/comment.png';
 
 const Forwording = () => {
     const upvoteVariants = {
@@ -16,7 +16,7 @@ const Forwording = () => {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     const downvoteVariants = {
         hidden: { opacity: 0 },
@@ -29,7 +29,7 @@ const Forwording = () => {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     const commentVariants = {
         hidden: { opacity: 0 },
@@ -42,7 +42,7 @@ const Forwording = () => {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     const logoColoredVariants = {
         hidden: { opacity: 0 },
@@ -55,7 +55,7 @@ const Forwording = () => {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     const logoWhiteVariants = {
         hidden: { opacity: 0 },
@@ -67,7 +67,7 @@ const Forwording = () => {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     return (
         <div className="w-full h-full flex justify-center items-center">
@@ -118,7 +118,7 @@ const Forwording = () => {
                 </motion.h2>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Forwording
+export default Forwording;

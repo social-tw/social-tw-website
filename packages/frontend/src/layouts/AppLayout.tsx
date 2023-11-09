@@ -1,6 +1,6 @@
-import clsx from 'clsx'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import clsx from 'clsx';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import {
     Link,
     NavLink,
@@ -8,35 +8,35 @@ import {
     useLocation,
     useMatch,
     useNavigate,
-} from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import AddIcon from '../assets/add.svg'
-import ArrowLeftIcon from '../assets/arrow-left.svg'
-import BellIcon from '../assets/bell.svg'
-import HomeIcon from '../assets/home.svg'
-import Logo from '../assets/logo.png'
-import PersonCircleIcon from '../assets/person-circle.svg'
-import SearchIcon from '../assets/search.svg'
-import StarIcon from '../assets/star.svg'
-import ErrorModal from '../components/modal/ErrorModal'
-import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
-import { useUser } from '../contexts/User'
+} from 'react-router-dom';
+import { useMediaQuery } from '@uidotdev/usehooks';
+import AddIcon from '../assets/add.svg';
+import ArrowLeftIcon from '../assets/arrow-left.svg';
+import BellIcon from '../assets/bell.svg';
+import HomeIcon from '../assets/home.svg';
+import Logo from '../assets/logo.png';
+import PersonCircleIcon from '../assets/person-circle.svg';
+import SearchIcon from '../assets/search.svg';
+import StarIcon from '../assets/star.svg';
+import ErrorModal from '../components/modal/ErrorModal';
+import SignUpLoadingModal from '../components/modal/SignupLoadingModal';
+import { useUser } from '../contexts/User';
 
 export default function AppLayout() {
-    const matchPath = useMatch('/')
-    const location = useLocation()
-    const { isLogin, signupStatus } = useUser()
-    const [isShow, setIsShow] = useState(true)
-    const navigate = useNavigate()
+    const matchPath = useMatch('/');
+    const location = useLocation();
+    const { isLogin, signupStatus } = useUser();
+    const [isShow, setIsShow] = useState(true);
+    const navigate = useNavigate();
 
-    let header = ''
+    let header = '';
 
     if (location.pathname === '/') {
-        header = 'Home'
+        header = 'Home';
     } else if (location.pathname.startsWith('/posts')) {
-        header = 'Posts'
+        header = 'Posts';
     } else if (location.pathname === '/profile') {
-        header = 'Profile 個人檔案'
+        header = 'Profile 個人檔案';
     }
 
     const navVariants = {
@@ -49,27 +49,27 @@ export default function AppLayout() {
                 ease: 'easeInOut',
             },
         },
-    }
+    };
 
     const goBack = () => {
         if (window.history.state && window.history.state.idx > 0) {
-            navigate(-1)
+            navigate(-1);
         } else {
-            navigate('/')
+            navigate('/');
         }
-    }
+    };
 
     useEffect(() => {
         if (isLogin) {
             setTimeout(() => {
-                setIsShow(false)
-            }, 1500)
+                setIsShow(false);
+            }, 1500);
         } else {
-            setIsShow(true)
+            setIsShow(true);
         }
-    }, [isLogin])
+    }, [isLogin]);
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
 
     if (isSmallDevice) {
         return (
@@ -155,7 +155,7 @@ export default function AppLayout() {
                     </motion.nav>
                 )}
             </div>
-        )
+        );
     } else {
         return (
             <div className="flex divide-x divide-neutral-600">
@@ -208,7 +208,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/"
@@ -222,7 +222,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/explore"
@@ -238,7 +238,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/nofitication"
@@ -254,7 +254,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/profile"
@@ -268,6 +268,6 @@ export default function AppLayout() {
                     </div>
                 </section>
             </div>
-        )
+        );
     }
 }

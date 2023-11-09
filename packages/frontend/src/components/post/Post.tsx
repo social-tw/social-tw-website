@@ -1,10 +1,10 @@
-import Avatar from 'boring-avatars'
-import dayjs from 'dayjs'
-import LinesEllipsis from 'react-lines-ellipsis'
-import { Link } from 'react-router-dom'
-import Comment from '../../assets/comment.png'
-import Downvote from '../../assets/downvote.png'
-import Upvote from '../../assets/upvote.png'
+import Avatar from 'boring-avatars';
+import dayjs from 'dayjs';
+import LinesEllipsis from 'react-lines-ellipsis';
+import { Link } from 'react-router-dom';
+import Comment from '../../assets/comment.png';
+import Downvote from '../../assets/downvote.png';
+import Upvote from '../../assets/upvote.png';
 
 export default function ({
     id = '',
@@ -17,20 +17,20 @@ export default function ({
     downCount = 0,
     compact = false,
 }: {
-    id: string
-    epochKey: string
-    content: string
-    imageUrl?: string
-    publishedAt: Date
-    commentCount: number
-    upCount: number
-    downCount: number
-    compact?: boolean
+    id: string;
+    epochKey: string;
+    content: string;
+    imageUrl?: string;
+    publishedAt: Date;
+    commentCount: number;
+    upCount: number;
+    downCount: number;
+    compact?: boolean;
 }) {
-    const publishedTime = dayjs(publishedAt)
+    const publishedTime = dayjs(publishedAt);
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
-        : publishedTime.fromNow()
+        : publishedTime.fromNow();
 
     const postInfo = (
         <div className="space-y-3">
@@ -66,7 +66,7 @@ export default function ({
                 )}
             </section>
         </div>
-    )
+    );
 
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
@@ -116,5 +116,5 @@ export default function ({
                 </div>
             )}
         </article>
-    )
+    );
 }

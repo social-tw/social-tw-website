@@ -1,11 +1,11 @@
-import React from 'react'
-import { IconType } from 'react-icons'
-import Modal from './Modal'
+import React from 'react';
+import { IconType } from 'react-icons';
+import Modal from './Modal';
 
 interface NoteModallProps {
-    noteStatus: string
-    icon: IconType
-    onClose: () => void
+    noteStatus: string;
+    icon: IconType;
+    onClose: () => void;
 }
 
 const NoteModal: React.FC<NoteModallProps> = ({
@@ -13,7 +13,7 @@ const NoteModal: React.FC<NoteModallProps> = ({
     icon: Icon,
     onClose,
 }) => {
-    let content
+    let content;
 
     switch (noteStatus) {
         case 'metamask':
@@ -41,8 +41,8 @@ const NoteModal: React.FC<NoteModallProps> = ({
                         都是一個不可或缺的工具。
                     </p>
                 </>
-            )
-            break
+            );
+            break;
         case 'server':
             content = (
                 <>
@@ -58,8 +58,8 @@ const NoteModal: React.FC<NoteModallProps> = ({
                         註冊將允許我們使用伺服器進行鍊上簽名，並進行註冊動作，放心一切資訊一樣會是匿名的。
                     </p>
                 </>
-            )
-            break
+            );
+            break;
     }
     return (
         <Modal
@@ -78,7 +78,7 @@ const NoteModal: React.FC<NoteModallProps> = ({
                 </div>
             </div>
         </Modal>
-    )
-}
+    );
+};
 
-export default NoteModal
+export default NoteModal;

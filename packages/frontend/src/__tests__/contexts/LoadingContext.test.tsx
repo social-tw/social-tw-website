@@ -1,32 +1,32 @@
-import React from 'react'
-import { render, act } from '@testing-library/react'
+import React from 'react';
+import { render, act } from '@testing-library/react';
 import {
     LoadingProvider,
     useLoading,
     LoadingStatus,
-} from '../../contexts/LoadingContext'
-import '@testing-library/jest-dom'
+} from '../../contexts/LoadingContext';
+import '@testing-library/jest-dom';
 
 describe('LoadingProvider', () => {
     it('provides the loading status value', () => {
         const TestComponent: React.FC = () => {
-            const { status } = useLoading()
-            return <div>{status}</div>
-        }
+            const { status } = useLoading();
+            return <div>{status}</div>;
+        };
 
         const { getByText } = render(
             <LoadingProvider>
                 <TestComponent />
-            </LoadingProvider>
-        )
+            </LoadingProvider>,
+        );
 
         // @ts-ignore
-        expect(getByText('loading')).toBeInTheDocument()
-    })
+        expect(getByText('loading')).toBeInTheDocument();
+    });
 
     it('allows updating the loading status', () => {
         const TestComponent: React.FC = () => {
-            const { status, setStatus } = useLoading()
+            const { status, setStatus } = useLoading();
 
             return (
                 <div>
@@ -35,25 +35,25 @@ describe('LoadingProvider', () => {
                         Update Status
                     </button>
                 </div>
-            )
-        }
+            );
+        };
 
         const { getByText, getByRole } = render(
             <LoadingProvider>
                 <TestComponent />
-            </LoadingProvider>
-        )
+            </LoadingProvider>,
+        );
 
         // init loading
         // @ts-ignore
-        expect(getByText('loading')).toBeInTheDocument()
+        expect(getByText('loading')).toBeInTheDocument();
 
         // update status success
         act(() => {
-            getByRole('button').click()
-        })
+            getByRole('button').click();
+        });
 
         // @ts-ignore
-        expect(getByText('success')).toBeInTheDocument()
-    })
-})
+        expect(getByText('success')).toBeInTheDocument();
+    });
+});

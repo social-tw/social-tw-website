@@ -1,23 +1,23 @@
-import './styles/main.css'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { UserProvider } from './contexts/User'
-import AppLayout from './layouts/AppLayout'
-import BaseLayout from './layouts/BaseLayout'
-import OnboardingLayout from './layouts/OnboardingLayout'
-import ErrorPage from './pages/ErrorPage'
-import Login from './pages/Login'
-import PostCreate from './pages/PostCreate'
-import PostDetail from './pages/PostDetail'
-import PostList from './pages/PostList'
-import Profile from './pages/Profile'
-import { ProtectedRoute } from './contexts/ProtectedRoute'
-import { socket } from './socket'
-import { useEffect } from 'react'
+import './styles/main.css';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { UserProvider } from './contexts/User';
+import AppLayout from './layouts/AppLayout';
+import BaseLayout from './layouts/BaseLayout';
+import OnboardingLayout from './layouts/OnboardingLayout';
+import ErrorPage from './pages/ErrorPage';
+import Login from './pages/Login';
+import PostCreate from './pages/PostCreate';
+import PostDetail from './pages/PostDetail';
+import PostList from './pages/PostList';
+import Profile from './pages/Profile';
+import { ProtectedRoute } from './contexts/ProtectedRoute';
+import { socket } from './socket';
+import { useEffect } from 'react';
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 const router = createBrowserRouter([
     {
@@ -70,34 +70,34 @@ const router = createBrowserRouter([
             },
         ],
     },
-])
+]);
 
 const App = () => {
     useEffect(() => {
         socket.on('connect', () => {
-            console.log('Connected to the server!')
-        })
+            console.log('Connected to the server!');
+        });
 
         socket.on('disconnect', () => {
-            console.log('Disconnected from the server!')
-        })
+            console.log('Disconnected from the server!');
+        });
 
         return () => {
-            socket.off('connect')
-            socket.off('disconnect')
-        }
-    }, [])
+            socket.off('connect');
+            socket.off('disconnect');
+        };
+    }, []);
     return (
         <UserProvider>
             <RouterProvider router={router} />
         </UserProvider>
-    )
-}
+    );
+};
 
-export default App
+export default App;
 
-const rootElement = document.getElementById('root')
+const rootElement = document.getElementById('root');
 if (rootElement) {
-    const root = createRoot(rootElement)
-    root.render(<App />)
+    const root = createRoot(rootElement);
+    root.render(<App />);
 }

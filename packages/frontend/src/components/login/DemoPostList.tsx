@@ -1,5 +1,5 @@
-import React from 'react'
-import DemoPost from './DemoPost'
+import React from 'react';
+import DemoPost from './DemoPost';
 
 // TODO: opacity animation
 const DemoPostList = () => {
@@ -28,7 +28,7 @@ const DemoPostList = () => {
             dislikes: 26,
             comments: 16,
         },
-    ]
+    ];
 
     return (
         <div
@@ -51,7 +51,7 @@ const DemoPostList = () => {
                 />
             ))}
         </div>
-    )
-}
+    );
+};
 
-export default DemoPostList
+export default DemoPostList;

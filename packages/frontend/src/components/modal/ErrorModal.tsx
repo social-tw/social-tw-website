@@ -1,23 +1,23 @@
-import React from 'react'
-import Modal from './Modal'
-import { GrFormClose } from 'react-icons/gr'
-import { useUser } from '../../contexts/User'
-import { useNavigate } from 'react-router-dom'
-import useErrorMessage from '../../hooks/useErrorMessage'
+import React from 'react';
+import Modal from './Modal';
+import { GrFormClose } from 'react-icons/gr';
+import { useUser } from '../../contexts/User';
+import { useNavigate } from 'react-router-dom';
+import useErrorMessage from '../../hooks/useErrorMessage';
 
 interface ErrorModalProps {
-    isOpen: boolean
+    isOpen: boolean;
 }
 
 const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
-    const { setSignupStatus, errorCode, setErrorCode } = useUser()
-    const { message } = useErrorMessage(errorCode)
-    const navigate = useNavigate()
+    const { setSignupStatus, errorCode, setErrorCode } = useUser();
+    const { message } = useErrorMessage(errorCode);
+    const navigate = useNavigate();
     const handleClick = () => {
-        setSignupStatus('default')
-        navigate('/login')
-        setErrorCode('')
-    }
+        setSignupStatus('default');
+        navigate('/login');
+        setErrorCode('');
+    };
 
     return (
         <Modal isOpen={isOpen} postion="fixed" background={'bg-black/75'}>
@@ -41,7 +41,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen }) => {
                 </div>
             </div>
         </Modal>
-    )
-}
+    );
+};
 
-export default ErrorModal
+export default ErrorModal;

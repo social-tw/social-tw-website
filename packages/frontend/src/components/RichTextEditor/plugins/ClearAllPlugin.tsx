@@ -1,20 +1,20 @@
-import { CLEAR_EDITOR_COMMAND } from 'lexical'
-import { useEffect } from 'react'
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { useIsFirstRender } from '@uidotdev/usehooks'
+import { CLEAR_EDITOR_COMMAND } from 'lexical';
+import { useEffect } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useIsFirstRender } from '@uidotdev/usehooks';
 
 export default function ClearAllPlugin({
     value,
 }: {
-    value?: string
+    value?: string;
 }): JSX.Element | null {
-    const isFirstRender = useIsFirstRender()
-    const [editor] = useLexicalComposerContext()
+    const isFirstRender = useIsFirstRender();
+    const [editor] = useLexicalComposerContext();
     useEffect(() => {
         if (!value && !isFirstRender) {
-            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
-            editor.focus()
+            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+            editor.focus();
         }
-    }, [value, isFirstRender])
-    return null
+    }, [value, isFirstRender]);
+    return null;
 }

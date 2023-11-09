@@ -1,14 +1,14 @@
-import React from 'react'
-import { VscAccount } from 'react-icons/vsc'
-import { useUser } from '../../contexts/User'
+import React from 'react';
+import { VscAccount } from 'react-icons/vsc';
+import { useUser } from '../../contexts/User';
 
 const UserDropdown: React.FC = () => {
-    const { logout } = useUser()
+    const { logout } = useUser();
 
     const handleLogout = (event: React.MouseEvent) => {
-        event.preventDefault()
-        logout()
-    }
+        event.preventDefault();
+        logout();
+    };
 
     return (
         <div className="dropdown dropdown-end">
@@ -24,7 +24,7 @@ const UserDropdown: React.FC = () => {
                 </li>
             </ul>
         </div>
-    )
-}
+    );
+};
 
-export default UserDropdown
+export default UserDropdown;
