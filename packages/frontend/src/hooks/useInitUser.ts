@@ -14,7 +14,9 @@ const useInitUser = (
                 }
                 await load()
             } catch (error: any) {
-                logout()
+                if (!error.message.includes('user is not signed up')) {
+                    logout()
+                }
             }
         }
 

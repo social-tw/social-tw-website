@@ -1,15 +1,16 @@
-import React from 'react'
-import LoginButton from '../components/login/LoginButton'
-import { useUser } from '../contexts/User'
 import { RiLogoutBoxRLine } from 'react-icons/ri'
-import Avatar from '../assets/avatar.png'
 import { useNavigate } from 'react-router-dom'
+
+import Avatar from '../assets/avatar.png'
+import LoginButton from '../components/login/LoginButton'
+import { PATHS } from '../constants/paths'
+import { useUser } from '../contexts/User'
 
 const Profile = () => {
     const { logout, signupStatus } = useUser()
     const navigate = useNavigate()
     const handleLogout = () => {
-        navigate('/login', { replace: true, state: {} })
+        navigate(PATHS.WELCOME, { replace: true, state: {} })
         logout()
     }
     return (

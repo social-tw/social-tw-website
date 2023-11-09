@@ -216,7 +216,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             })
 
             if (!response.ok) {
-                throw new Error('Signup Failed')
+                throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
             }
 
             await userStateInstance.waitForSync()

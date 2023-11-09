@@ -1,21 +1,29 @@
-import './styles/main.css'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
+import { PATHS } from './constants/paths'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
 import ErrorPage from './pages/ErrorPage'
-import Login from './pages/Login'
+import LoginOld from './pages/Login'
+import { Login } from './pages/Login2'
+import { InternalLogin } from './pages/Login2/InternalLogin'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import Profile from './pages/Profile'
-import { ProtectedRoute } from './contexts/ProtectedRoute'
+import { Signup } from './pages/Signup'
+import { InternalSignup } from './pages/Signup/InternalSignup'
+import { Welcome } from './pages/Welcome'
 import { socket } from './socket'
-import { useEffect } from 'react'
+
+import './styles/main.css'
 
 dayjs.extend(relativeTime)
 
@@ -25,8 +33,28 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
             {
-                path: 'login',
+                path: PATHS.WELCOME,
+                element: <Welcome />,
+            },
+            {
+                path: PATHS.LOGIN,
                 element: <Login />,
+            },
+            {
+                path: `${PATHS.LOGIN_INTERNAL}/:selectedSignupMethod`,
+                element: <InternalLogin />,
+            },
+            {
+                path: PATHS.SIGN_UP,
+                element: <Signup />,
+            },
+            {
+                path: PATHS.SIGN_UP_INTERNAL,
+                element: <InternalSignup />,
+            },
+            {
+                path: 'loginOld',
+                element: <LoginOld />,
             },
         ],
     },

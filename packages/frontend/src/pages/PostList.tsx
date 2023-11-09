@@ -109,10 +109,10 @@ export default function PostList() {
         <div
             className={clsx(
                 !isSmallDevice && 'divide-y divide-neutral-600',
-                location.pathname === '/login' && 'max-w-[600px] w-11/12'
+                location.pathname === '/loginOld' && 'max-w-[600px] w-11/12'
             )}
         >
-            {!isSmallDevice && location.pathname !== '/login' && (
+            {!isSmallDevice && location.pathname !== '/loginOld' && (
                 <section className="relative py-6">
                     {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
