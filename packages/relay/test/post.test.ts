@@ -26,6 +26,7 @@ let snapshot: any
 let express: Server
 let userState: UserState
 let sync: UnirepSocialSynchronizer
+let chainId: number
 
 describe('POST /post', function () {
     beforeEach(async function () {
@@ -60,6 +61,8 @@ describe('POST /post', function () {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
+
+        chainId = await unirep.chainid()
     })
 
     afterEach(async function () {
@@ -168,6 +171,7 @@ describe('POST /post', function () {
             epoch: wrongEpoch,
             nonce: 0,
             attesterId,
+            chainId,
             data,
         })
 
@@ -201,7 +205,13 @@ describe('POST /post', function () {
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
         const id = userState.id
-        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        const leaf = genStateTreeLeaf(
+            id.secret,
+            attesterId,
+            epoch,
+            data,
+            chainId
+        )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
             id,
@@ -210,6 +220,7 @@ describe('POST /post', function () {
             epoch,
             nonce: 0,
             attesterId,
+            chainId,
             data,
         })
 

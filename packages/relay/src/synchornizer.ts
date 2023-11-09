@@ -1,7 +1,7 @@
 import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
-import { BaseSynchronizer } from './singletons/BaseSynchronizer'
+import { Synchronizer } from '@unirep/core'
 import { UserRegisterStatus } from './types'
 import schema from './singletons/schema'
 import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
@@ -14,7 +14,7 @@ type EventHandlerArgs = {
 
 let tempUnirepSocialContract: ethers.Contract
 
-export class UnirepSocialSynchronizer extends BaseSynchronizer {
+export class UnirepSocialSynchronizer extends Synchronizer {
     unirepSocialContract: ethers.Contract
     prover: Prover
 

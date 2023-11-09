@@ -1,5 +1,6 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { Identity } from '@semaphore-protocol/identity'
 import { DB } from 'anondb'
 
 import { UserState } from '@unirep/core'
@@ -26,6 +27,7 @@ describe('POST /vote', function () {
     var upvotePostId: string
     var downvotePostId: string
     var otherPostId: string
+    var chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -91,6 +93,8 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
         otherPostId = otherPost._id
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -307,6 +311,7 @@ describe('POST /vote', function () {
             epoch: wrongEpoch,
             nonce: 0,
             attesterId,
+            chainId,
             data,
         })
 
