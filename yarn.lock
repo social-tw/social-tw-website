@@ -4063,17 +4063,6 @@
     "@ethersproject/strings" "^5.6.1"
     js-sha512 "^0.8.0"
 
-"@semaphore-protocol/identity@^3.6.0":
-  version "3.10.1"
-  resolved "https://registry.npmjs.org/@semaphore-protocol/identity/-/identity-3.10.1.tgz"
-  integrity sha512-H2GUHdox393YCcA4f389za2o5tnSIaGmtlPN8LCyI/UgCG/LJxQY5dLrSNM24j+kNRaq5LXaFzJIrM+zWvqBQQ==
-  dependencies:
-    "@ethersproject/bignumber" "^5.5.0"
-    "@ethersproject/keccak256" "^5.7.0"
-    "@ethersproject/random" "^5.5.1"
-    "@ethersproject/strings" "^5.6.1"
-    js-sha512 "^0.8.0"
-
 "@sentry/core@5.30.0":
   version "5.30.0"
   resolved "https://registry.npmjs.org/@sentry/core/-/core-5.30.0.tgz"
@@ -5579,19 +5568,6 @@ ajv@^8.0.0, ajv@^8.6.0, ajv@^8.9.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-anondb@^0.0.16:
-  version "0.0.16"
-  resolved "https://registry.npmjs.org/anondb/-/anondb-0.0.16.tgz"
-  integrity sha512-F5vu1HzXcEHARhIe6bJhaIss40aqz4Ht4PnQx/4T2r0ZRmne7YbzGLjMimgV+MtA4QHk9jhe4pM8MdUmt0zYag==
-  dependencies:
-    async-lock "^1.2.11"
-    idb "^6.0.0"
-    nanoid "^3.1.30"
-    pg "^8.5.1"
-    sql.js "^1.5.0"
-    sqlite "^4.0.19"
-    sqlite3 "^5.0.2"
-
 anondb@^0.0.21:
   version "0.0.21"
   resolved "https://registry.yarnpkg.com/anondb/-/anondb-0.0.21.tgz#6885dd4e535102c2f537ca171038b3c5f1c5faa3"
@@ -6872,13 +6848,6 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
   dependencies:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
-
-circom_runtime@0.1.21:
-  version "0.1.21"
-  resolved "https://registry.npmjs.org/circom_runtime/-/circom_runtime-0.1.21.tgz"
-  integrity sha512-qTkud630B/GK8y76hnOaaS1aNuF6prfV0dTrkeRsiJKnlP1ryQbP2FWLgDOPqn6aKyaPlam+Z+DTbBhkEzh8dA==
-  dependencies:
-    ffjavascript "0.2.56"
 
 circom_runtime@0.1.24:
   version "0.1.24"
@@ -9286,15 +9255,6 @@ fetch-blob@^3.1.2, fetch-blob@^3.1.4:
   dependencies:
     node-domexception "^1.0.0"
     web-streams-polyfill "^3.0.3"
-
-ffjavascript@0.2.56:
-  version "0.2.56"
-  resolved "https://registry.npmjs.org/ffjavascript/-/ffjavascript-0.2.56.tgz"
-  integrity sha512-em6G5Lrj7ucIqj4TYEgyoHs/j99Urwwqa4+YxEVY2hggnpRimVj+noX5pZQTxI1pvtiekZI4rG65JBf0xraXrg==
-  dependencies:
-    wasmbuilder "0.0.16"
-    wasmcurves "0.2.0"
-    web-worker "^1.2.0"
 
 ffjavascript@0.2.60:
   version "0.2.60"
@@ -15991,16 +15951,6 @@ quick-lru@^4.0.1:
   resolved "https://registry.npmjs.org/quick-lru/-/quick-lru-4.0.1.tgz"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-r1csfile@0.0.41:
-  version "0.0.41"
-  resolved "https://registry.npmjs.org/r1csfile/-/r1csfile-0.0.41.tgz"
-  integrity sha512-Q1WDF3u1vYeAwjHo4YuddkA8Aq0TulbKjmGm99+Atn13Lf5fTsMZBnBV9T741w8iSyPFG6Uh6sapQby77sREqA==
-  dependencies:
-    "@iden3/bigarray" "0.0.2"
-    "@iden3/binfileutils" "0.0.11"
-    fastfile "0.0.20"
-    ffjavascript "0.2.56"
-
 r1csfile@0.0.47:
   version "0.0.47"
   resolved "https://registry.yarnpkg.com/r1csfile/-/r1csfile-0.0.47.tgz#ed95a0dc8e910e9c070253906f7a31bd8c5333c8"
@@ -17106,22 +17056,6 @@ snake-case@^3.0.4:
   dependencies:
     dot-case "^3.0.4"
     tslib "^2.0.3"
-
-snarkjs@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/snarkjs/-/snarkjs-0.5.0.tgz"
-  integrity sha512-KWz8mZ2Y+6wvn6GGkQo6/ZlKwETdAGohd40Lzpwp5TUZCn6N6O4Az1SuX1rw/qREGL6Im+ycb19suCFE8/xaKA==
-  dependencies:
-    "@iden3/binfileutils" "0.0.11"
-    bfj "^7.0.2"
-    blake2b-wasm "^2.4.0"
-    circom_runtime "0.1.21"
-    ejs "^3.1.6"
-    fastfile "0.0.20"
-    ffjavascript "0.2.56"
-    js-sha3 "^0.8.0"
-    logplease "^1.2.15"
-    r1csfile "0.0.41"
 
 snarkjs@^0.7.0:
   version "0.7.2"
@@ -18806,13 +18740,6 @@ wasmbuilder@0.0.16:
   version "0.0.16"
   resolved "https://registry.npmjs.org/wasmbuilder/-/wasmbuilder-0.0.16.tgz"
   integrity sha512-Qx3lEFqaVvp1cEYW7Bfi+ebRJrOiwz2Ieu7ZG2l7YyeSJIok/reEQCQCuicj/Y32ITIJuGIM9xZQppGx5LrQdA==
-
-wasmcurves@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/wasmcurves/-/wasmcurves-0.2.0.tgz"
-  integrity sha512-3e2rbxdujOwaod657gxgmdhZNn+i1qKdHO3Y/bK+8E7bV8ttV/fu5FO4/WLBACF375cK0QDLOP+65Na63qYuWA==
-  dependencies:
-    wasmbuilder "0.0.16"
 
 wasmcurves@0.2.1:
   version "0.2.1"
