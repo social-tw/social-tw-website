@@ -5,12 +5,12 @@ on:
         branches: ['feat_system_cicd_enhancment']
         env:
             type: string
-            require: true
+            required: true
 
     workflow_call:
-            env:
-                type: string
-                require: true
+        env:
+            type: string
+            required: true
 
 # get repo vars before running jobs
 env:

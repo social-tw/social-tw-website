@@ -9,7 +9,7 @@ on:
                 required: true
             env:
                 type: string
-                require: true
+                required: true
 
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
                 required: true
             env:
                 type: string
-                require: true
+                required: true
 
 # get repo vars before running jobs
 env:

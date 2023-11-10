@@ -9,7 +9,7 @@ on:
                 required: true
             env:
                 type: string
-                require: true
+                required: true
 
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
                 required: true
             env:
                 type: string
-                require: true
+                required: true
 
 # get repo vars before running jobs
 env:
@@ -78,7 +78,7 @@ jobs:
                       PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}
                       GENESIS_BLOCK=${{ vars.GENESIS_BLOCK }}
                       ETH_PROVIDER_URL=${{ vars.ETH_PROVIDER_URL }}
-                      DB_PATH=${{ vars.DB_PATH }}
+                      DB_PATH=${{ secrets.DB_PATH }}
             - name: Allow public access
               id: unauthenticated
               run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ env.REGION }} --member="allUsers" --role="roles/run.invoker"
