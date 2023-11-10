@@ -106,3 +106,9 @@ Services for handling external operations such as API calls.
 Example: apiService.ts which abstracts the fetch calls to the API.
 
 -> TODO: Modify api service in for example User.tsx into units and put it in the folder
+
+### constants
+
+Constants are fixed values defined in a centralized location, used throughout the application for consistency and maintainability.
+
+Example: constants.ts might contain values like API endpoints, error messages, or reusable static information.
