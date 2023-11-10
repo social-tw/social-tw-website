@@ -3,10 +3,23 @@ name: Manual-Deploy Contract
 on:
     workflow_dispatch:
         branches: ['feat_system_cicd_enhancment']
+        env:
+            type: string
+            require: true
+
+    workflow_call:
+            env:
+                type: string
+                require: true
+
+# get repo vars before running jobs
+env:
+  GH_PAT: ${{ secrets.GH_PAT }}
 
 jobs:
     contract:
         runs-on: ubuntu-22.04
+        environment: ${{ inputs.env }}
         steps:
             - name: Install node.js
               uses: actions/setup-node@v3
@@ -19,23 +32,30 @@ jobs:
             - name: Install and build packages
               run: yarn && yarn contracts build
 
-            - name: Install Tenderly CLI
-              run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
-
-            - name: Deploy contracts
+            - name: Deploy contracts to devnet
+              if: ${{ inputs.env == 'dev' }}
               run: |
-                  touch ./packages/relay/.env
+                  curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
                   yarn contracts deploy:devnet
               env:
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
                   TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
                   TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
                   TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
                   TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
 
-            - name: Export Config to GitHub Envs
-              run: gh variable set -f ./packages/relay/.env --repo $GITHUB_REPOSITORY
+            - name: Deploy contracts to arbitrum test net
+              if: ${{ inputs.env == 'prod' }}
+              run: |
+                  yarn contracts deploy
               env:
-                  GH_TOKEN: ${{ secrets.GH_PAT }}
+                  ETH_PROVIDER_URL: ${{ vars.ETH_PROVIDER_URL }}
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variable set -f ./packages/relay/.env -e ${{ inputs.env }} --repo $GITHUB_REPOSITORY
+              env:
+                  GH_TOKEN: ${{ env.GH_PAT }}
 
             # - name: add tag to record version
             #   run: |

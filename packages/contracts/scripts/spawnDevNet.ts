@@ -35,8 +35,7 @@ const createDevNet = async () => {
         fs.appendFileSync('.env', 'DEVNET_RPC_URL=' + devNetUrl)
 
         // generate account by pk
-        const privateKey =
-            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+        const privateKey = process.env.PRIVATE_KEY!
         const provider = new ethers.providers.JsonRpcProvider(devNetUrl)
         const signer = new ethers.Wallet(privateKey, provider)
         // send money to account

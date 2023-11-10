@@ -7,12 +7,28 @@ on:
             version:
                 type: string
                 required: true
+            env:
+                type: string
+                require: true
 
     workflow_call:
         inputs:
             version:
                 type: string
                 required: true
+            env:
+                type: string
+                require: true
+
+# get repo vars before running jobs
+env:
+  NODE_OPTIONS: ${{ vars.NODE_OPTIONS }}
+  REGION: ${{ vars.REGION }}
+  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  REPOSITORY: ${{ vars.REPOSITORY }}
 
 jobs:
     frontend:
@@ -21,6 +37,7 @@ jobs:
             id-token: 'write'
 
         runs-on: ubuntu-latest
+        environment: ${{ inputs.env }}
         steps:
             - name: Production Code
               uses: 'actions/checkout@v3'
@@ -39,7 +56,7 @@ jobs:
               id: docker-auth
               uses: docker/login-action@v1
               with:
-                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
                   username: oauth2accesstoken
                   password: ${{ steps.auth.outputs.access_token }}
 
@@ -48,17 +65,15 @@ jobs:
               uses: google-github-actions/deploy-cloudrun@v0
               with:
                   service: ${{ vars.FRONTEND_SERVICE }}
-                  region: ${{ vars.REGION }}
-                  image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
+                  region: ${{ env.REGION }}
+                  image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
                   ## set --max-old-space-size=8192 for node.js to increase memory limit
                   env_vars: |
-                      ENV=${{ vars.ENV }}
-                      STAGE_SERVER=${{ vars.STAGE_SERVER }}
-                      NODE_OPTIONS=${{ vars.NODE_OPTIONS }}
-                  # TODO change above ENV as input variable instead of environment variable
+                      SERVER=${{ vars.SERVER }}
+                      NODE_OPTIONS=${{ env.NODE_OPTIONS }}
             - name: Allow public access
               id: unauthenticated
-              run: gcloud run services add-iam-policy-binding ${{ vars.FRONTEND_SERVICE }} --region=${{ vars.REGION }} --member="allUsers" --role="roles/run.invoker"
+              run: gcloud run services add-iam-policy-binding ${{ vars.FRONTEND_SERVICE }} --region=${{ env.REGION }} --member="allUsers" --role="roles/run.invoker"
 
             - name: Show Output
               run: echo ${{ steps.deploy.outputs.url }}

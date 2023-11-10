@@ -12,7 +12,7 @@
         "buildVerifier": "ts-node ./scripts/genVerifier.ts ",
         "abi": "ts-node scripts/abi",
         "hardhat": "hardhat",
-        "deploy": "hardhat run scripts/deploy.ts",
+        "deploy": "hardhat run scripts/deploy.ts --network arb",
         "test": "hardhat test --network hardhat",
         "spawn-devnet": "ts-node ./scripts/spawnDevNet.ts",
         "deploy:devnet": "yarn run spawn-devnet && hardhat run scripts/deploy.ts --network tenderly"

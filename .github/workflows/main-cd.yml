@@ -17,6 +17,10 @@ on:
                 description: 'current deploy version'
                 required: true
                 default: '0.0.1'
+            env:
+                description: 'deployment stage'
+                required: true
+                default: 'dev'
 
 jobs:
     build:
@@ -27,6 +31,7 @@ jobs:
         with:
             build-services: ${{ inputs.build-services }}
             version: ${{ inputs.version }}
+            env: ${{ inputs.env }}
         secrets: inherit
 
     frontend:
@@ -37,6 +42,7 @@ jobs:
         uses: ./.github/workflows/deploy-frontend.yml
         with:
             version: ${{ inputs.version }}
+            env: ${{ inputs.env }}
         secrets: inherit
 
     relay:
@@ -47,4 +53,5 @@ jobs:
         uses: ./.github/workflows/deploy-relay.yml
         with:
             version: ${{ inputs.version }}
+            env: ${{ inputs.env }}
         secrets: inherit

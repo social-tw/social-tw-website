@@ -37,8 +37,9 @@ export const provider = ETH_PROVIDER_URL.startsWith('http')
     : new ethers.providers.WebSocketProvider(ETH_PROVIDER_URL)
 
 export const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:3000'
-export const CALLBACK_URL =
-    process.env.CALLBACK_URL ?? 'http://localhost:8000/api/user'
+export const CALLBACK_URL = process.env.SERVER ?
+ `${process.env.SERVER}/api/user` :
+ 'http://localhost:8000/api/user'
 
 // twitter related settings
 export const TWITTER_ACCESS_TOKEN_URL =

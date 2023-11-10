@@ -7,12 +7,29 @@ on:
             version:
                 type: string
                 required: true
+            env:
+                type: string
+                require: true
 
     workflow_call:
         inputs:
             version:
                 type: string
                 required: true
+            env:
+                type: string
+                require: true
+
+# get repo vars before running jobs
+env:
+  REGION: ${{ vars.REGION }}
+  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  REPOSITORY: ${{ vars.REPOSITORY }}
+  TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
+  TWITTER_CLIENT_KEY: ${{ secrets.TWITTER_CLIENT_KEY }}
 
 jobs:
     relay:
@@ -21,6 +38,7 @@ jobs:
             id-token: 'write'
 
         runs-on: ubuntu-latest
+        environment: ${{ inputs.env }}
         steps:
             - name: Production Code
               uses: 'actions/checkout@v3'
@@ -30,8 +48,8 @@ jobs:
               uses: 'google-github-actions/auth@v1'
               with:
                   token_format: access_token
-                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
-                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+                  service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
                   access_token_lifetime: 300s
 
             ## artifact registry auth setup
@@ -39,7 +57,7 @@ jobs:
               id: docker-auth
               uses: docker/login-action@v1
               with:
-                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
                   username: oauth2accesstoken
                   password: ${{ steps.auth.outputs.access_token }}
 
@@ -48,25 +66,22 @@ jobs:
               uses: google-github-actions/deploy-cloudrun@v0
               with:
                   service: ${{ vars.BACKEND_SERVICE }}
-                  region: ${{ vars.REGION }}
-                  image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+                  region: ${{ env.REGION }}
+                  image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
                   # add ENV as below
                   env_vars: |
-                      TWITTER_CLIENT_ID=${{ secrets.TWITTER_CLIENT_ID }}
-                      TWITTER_CLIENT_KEY=${{ secrets.TWITTER_CLIENT_KEY }}
+                      TWITTER_CLIENT_ID=${{ env.TWITTER_CLIENT_ID }}
+                      TWITTER_CLIENT_KEY=${{ env.TWITTER_CLIENT_KEY }}
                       CLIENT_URL=${{ vars.CLIENT_URL }}
-                      CALLBACK_URL=${{ vars.CALLBACK_URL }}
                       APP_ADDRESS=${{ vars.APP_ADDRESS }}
                       UNIREP_ADDRESS=${{ vars.UNIREP_ADDRESS }}
-                      PRIVATE_KEY=${{ vars.PRIVATE_KEY }}
+                      PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}
                       GENESIS_BLOCK=${{ vars.GENESIS_BLOCK }}
                       ETH_PROVIDER_URL=${{ vars.ETH_PROVIDER_URL }}
                       DB_PATH=${{ vars.DB_PATH }}
-                      ENV=${{ vars.ENV }}
-                  # TODO change above ENV as input variable instead of environment variable
             - name: Allow public access
               id: unauthenticated
-              run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ vars.REGION }} --member="allUsers" --role="roles/run.invoker"
+              run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ env.REGION }} --member="allUsers" --role="roles/run.invoker"
 
             - name: Show Output
               run: echo ${{ steps.deploy.outputs.url }}

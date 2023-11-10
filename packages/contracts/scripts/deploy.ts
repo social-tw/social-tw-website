@@ -18,6 +18,11 @@ export async function main() {
 
     const configPath = path.join(__dirname, '../../relay/.env')
 
+    // if file not exists, create it
+    if (!fs.existsSync(configPath)) {
+        fs.writeFileSync(configPath, '')
+    }
+
     fs.readFile(configPath, 'utf8', async (err, data) => {
         if (err) {
             console.error(err)

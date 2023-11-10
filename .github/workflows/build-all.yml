@@ -9,10 +9,24 @@ on:
             version:
                 default: '0.0.1'
                 type: string
+            env:
+                default: 'dev'
+                type: string
+
+# get repo vars before running jobs
+env:
+  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  REPOSITORY: ${{ vars.REPOSITORY }}
+  GH_PAT: ${{ secrets.GH_PAT }}
+
 jobs:
     build-all:
         if: ${{ inputs.build-services == 'contract' }}
         runs-on: ubuntu-22.04
+        environment: ${{ inputs.env }}
         steps:
             - name: Install node.js
               uses: actions/setup-node@v3
@@ -37,50 +51,57 @@ jobs:
             - name: Install and build packages
               run: yarn && yarn build
 
-            - name: Install Tenderly CLI
-              run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
-
-            - name: Deploy contracts
+            - name: Deploy contracts to devnet
+              if: ${{ inputs.env == 'dev' }}
               run: |
-                  touch ./packages/relay/.env
+                  curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
                   yarn contracts deploy:devnet
               env:
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
                   TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
                   TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
                   TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
                   TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
 
-            - name: Export Config to GitHub Envs
-              run: gh variable set -f ./packages/relay/.env --repo $GITHUB_REPOSITORY
+            - name: Deploy contracts to arbitrum test net
+              if: ${{ inputs.env == 'prod' }}
+              run: |
+                  yarn contracts deploy
               env:
-                  GH_TOKEN: ${{ secrets.GH_PAT }}
+                  ETH_PROVIDER_URL: ${{ vars.ETH_PROVIDER_URL }}
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variable set -f ./packages/relay/.env -e ${{ inputs.env }} --repo $GITHUB_REPOSITORY
+              env:
+                  GH_TOKEN: ${{ env.GH_PAT }}
 
             - name: Authenticate to Google Cloud
               id: auth
               uses: 'google-github-actions/auth@v1'
               with:
                   token_format: access_token
-                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
-                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+                  service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
                   access_token_lifetime: 300s
 
             - name: Login Registry
               id: docker-auth
               uses: docker/login-action@v1
               with:
-                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
                   username: oauth2accesstoken
                   password: ${{ steps.auth.outputs.access_token }}
 
             - name: push relay image
               run: |
-                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
-                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+                  docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
+                  docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
 
             - name: push frontend image
               run: |
-                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
-                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
+                  docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
+                  docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
 
             # - name: add tag to record version
             #   run: |
@@ -90,6 +111,7 @@ jobs:
     build-relay-frontend:
         if: ${{ inputs.build-services == 'relay-frontend'}}
         runs-on: ubuntu-22.04
+        environment: ${{ inputs.env }}
         steps:
             - name: Install node.js
               uses: actions/setup-node@v3
@@ -119,27 +141,27 @@ jobs:
               uses: 'google-github-actions/auth@v1'
               with:
                   token_format: access_token
-                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
-                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+                  service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
                   access_token_lifetime: 300s
 
             - name: Login Registry
               id: docker-auth
               uses: docker/login-action@v1
               with:
-                  registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
+                  registry: ${{ env.GAR_LOCATION }}-docker.pkg.dev
                   username: oauth2accesstoken
                   password: ${{ steps.auth.outputs.access_token }}
 
             - name: push relay image
               run: |
-                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
-                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
+                  docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }} -f ./packages/relay/Dockerfile .
+                  docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.BACKEND_SERVICE }}:${{ inputs.version }}
 
             - name: push frontend image
               run: |
-                  docker build -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
-                  docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
+                  docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }} -f ./packages/frontend/Dockerfile .
+                  docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ vars.FRONTEND_SERVICE }}:${{ inputs.version }}
 
             # - name: add tag to record version
             #   run: |
