@@ -1,10 +1,10 @@
-import { useRouteError } from 'react-router-dom';
+import { useRouteError } from 'react-router-dom'
 
-type RouteError = Error & { statusText: string };
+type RouteError = Error & { statusText: string }
 
 export default function ErrorPage() {
-    const error = useRouteError() as RouteError;
-    console.error(error);
+    const error = useRouteError() as RouteError
+    console.error(error)
 
     return (
         <div className="flex flex-col items-center justify-center w-screen h-screen">
@@ -16,5 +16,5 @@ export default function ErrorPage() {
                 </p>
             </div>
         </div>
-    );
+    )
 }

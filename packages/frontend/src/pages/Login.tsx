@@ -1,35 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
-import AuthForm from '../components/login/AuthForm';
-import { motion } from 'framer-motion';
-import { clsx } from 'clsx';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { IoChevronBack } from 'react-icons/io5';
-import StepInfo from '../components/login/StepInfo';
-import LogoWhite from '../assets/logo-white.png';
-import { useMediaQuery } from '@uidotdev/usehooks';
-import PostList from './PostList';
-import ScrollingModal from '../components/modal/ui/ScrollingModal';
-import ErrorModal from '../components/modal/ErrorModal';
-import { useUser } from '../contexts/User';
+import React, { useEffect, useRef, useState } from 'react'
+import AuthForm from '../components/login/AuthForm'
+import { motion } from 'framer-motion'
+import { clsx } from 'clsx'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { IoChevronBack } from 'react-icons/io5'
+import StepInfo from '../components/login/StepInfo'
+import LogoWhite from '../assets/logo-white.png'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import PostList from './PostList'
+import ScrollingModal from '../components/modal/ui/ScrollingModal'
+import ErrorModal from '../components/modal/ErrorModal'
+import { useUser } from '../contexts/User'
 
-type Method = '' | 'signup' | 'login';
+type Method = '' | 'signup' | 'login'
 
 const Login: React.FC = () => {
-    const [searchParams] = useSearchParams();
-    const hashUserId = searchParams.get('code');
-    const accessToken = searchParams.get('token');
-    const status = searchParams.get('status');
-    const signMsg = searchParams.get('signMsg');
-    const navigate = useNavigate();
-    const { errorCode } = useUser();
+    const [searchParams] = useSearchParams()
+    const hashUserId = searchParams.get('code')
+    const accessToken = searchParams.get('token')
+    const status = searchParams.get('status')
+    const signMsg = searchParams.get('signMsg')
+    const navigate = useNavigate()
+    const { errorCode } = useUser()
     const [method, setMethod] = useState<Method>(
         status === '1'
             ? 'signup'
             : status === '2' || status === '3'
             ? 'login'
             : '',
-    );
-    const [isShow, setIsShow] = useState<boolean>(false);
+    )
+    const [isShow, setIsShow] = useState<boolean>(false)
 
     const basicVarients = {
         hidden: { opacity: 0 },
@@ -40,7 +40,7 @@ const Login: React.FC = () => {
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const textVariants = {
         hidden: { opacity: 0 },
@@ -52,7 +52,7 @@ const Login: React.FC = () => {
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const postListVariants = {
         start: { y: 700 },
@@ -64,33 +64,33 @@ const Login: React.FC = () => {
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
     const handleBack = () => {
-        setMethod('');
+        setMethod('')
         if (hashUserId) {
-            navigate('/login', { replace: true, state: {} });
+            navigate('/login', { replace: true, state: {} })
         } else {
-            return;
+            return
         }
-    };
+    }
 
     useEffect(() => {
-        const showParam = localStorage.getItem('showLogin');
+        const showParam = localStorage.getItem('showLogin')
         if (showParam === 'isShow' && method !== 'login') {
-            setIsShow(true);
+            setIsShow(true)
         } else {
-            setIsShow(false);
+            setIsShow(false)
         }
-    }, []);
+    }, [])
 
     const handleClick = () => {
-        localStorage.removeItem('showLogin');
-        setIsShow(false);
-        handleBack();
-    };
+        localStorage.removeItem('showLogin')
+        setIsShow(false)
+        handleBack()
+    }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
         <div className="flex flex-col h-full items-center">
@@ -221,7 +221,7 @@ const Login: React.FC = () => {
                 </ScrollingModal>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default Login;
+export default Login

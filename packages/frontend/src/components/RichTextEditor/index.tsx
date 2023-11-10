@@ -1,20 +1,20 @@
-import clsx from 'clsx';
-import { EditorState } from 'lexical';
+import clsx from 'clsx'
+import { EditorState } from 'lexical'
 import {
     $convertFromMarkdownString,
     $convertToMarkdownString,
-} from '@lexical/markdown';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import nodes from './nodes';
-import ClearAllPlugin from './plugins/ClearAllPlugin';
+} from '@lexical/markdown'
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
+import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
+import { LexicalComposer } from '@lexical/react/LexicalComposer'
+import { ContentEditable } from '@lexical/react/LexicalContentEditable'
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin'
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
+import nodes from './nodes'
+import ClearAllPlugin from './plugins/ClearAllPlugin'
 
 const theme = {
     text: {
@@ -25,7 +25,7 @@ const theme = {
         underlineStrikethrough: 'underline line-through',
         code: 'rt-text-code',
     },
-};
+}
 
 export default function RichTextEditor({
     namespace = 'RichTextEditor',
@@ -36,34 +36,34 @@ export default function RichTextEditor({
     onValueChange,
     onError,
 }: {
-    namespace?: string;
+    namespace?: string
     classes?: {
-        root?: string;
-        content?: string;
-        placeholder?: string;
-    };
-    ariaLabel?: string;
-    placeholder?: string;
-    value?: string;
-    onValueChange?: (md: string) => void;
-    onError?: (error: Error) => void;
+        root?: string
+        content?: string
+        placeholder?: string
+    }
+    ariaLabel?: string
+    placeholder?: string
+    value?: string
+    onValueChange?: (md: string) => void
+    onError?: (error: Error) => void
 }) {
-    const _editorState = () => $convertFromMarkdownString(value ?? '');
+    const _editorState = () => $convertFromMarkdownString(value ?? '')
 
     const _onChange = (editorState: EditorState) => {
         editorState.read(() => {
-            const markdown = $convertToMarkdownString();
+            const markdown = $convertToMarkdownString()
             if (onValueChange) {
-                onValueChange(markdown);
+                onValueChange(markdown)
             }
-        });
-    };
+        })
+    }
 
     const _onError = (e: Error) => {
         if (onError) {
-            onError(e);
+            onError(e)
         }
-    };
+    }
 
     const initialConfig = {
         namespace,
@@ -71,7 +71,7 @@ export default function RichTextEditor({
         nodes,
         editorState: _editorState,
         onError: _onError,
-    };
+    }
 
     return (
         <div className={classes?.root}>
@@ -108,5 +108,5 @@ export default function RichTextEditor({
                 </div>
             </LexicalComposer>
         </div>
-    );
+    )
 }

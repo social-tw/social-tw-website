@@ -1,18 +1,18 @@
-import clsx from 'clsx';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useMediaQuery } from '@uidotdev/usehooks';
-import Dialog from '../components/Dialog';
-import SignupLoadingModal from '../components/modal/SignupLoadingModal';
-import Post from '../components/post/Post';
-import PostForm, { PostValues } from '../components/post/PostForm';
-import { SERVER } from '../config';
-import { useUser } from '../contexts/User';
-import useCreatePost from '../hooks/useCreatePost';
-import { CancelledTaskError } from '../utils/makeCancellableTask';
+import clsx from 'clsx'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import Dialog from '../components/Dialog'
+import SignupLoadingModal from '../components/modal/SignupLoadingModal'
+import Post from '../components/post/Post'
+import PostForm, { PostValues } from '../components/post/PostForm'
+import { SERVER } from '../config'
+import { useUser } from '../contexts/User'
+import useCreatePost from '../hooks/useCreatePost'
+import { CancelledTaskError } from '../utils/makeCancellableTask'
 
-import type { PostInfo } from '../types';
+import type { PostInfo } from '../types'
 
 const examplePosts = [
     {
@@ -45,28 +45,28 @@ const examplePosts = [
         upCount: 0,
         downCount: 0,
     },
-];
+]
 
 export default function PostList() {
-    const errorDialog = useRef<HTMLDialogElement>(null);
-    const { isLogin, signupStatus } = useUser();
-    const [posts, setPosts] = useState<PostInfo[]>([]);
-    const [isShow, setIsShow] = useState(false);
-    const location = useLocation();
+    const errorDialog = useRef<HTMLDialogElement>(null)
+    const { isLogin, signupStatus } = useUser()
+    const [posts, setPosts] = useState<PostInfo[]>([])
+    const [isShow, setIsShow] = useState(false)
+    const location = useLocation()
 
     useEffect(() => {
         if (isLogin) {
             setTimeout(() => {
-                setIsShow(false);
-            }, 1500);
+                setIsShow(false)
+            }, 1500)
         } else {
-            setIsShow(true);
+            setIsShow(true)
         }
-    }, [isLogin]);
+    }, [isLogin])
 
     const loadPosts = useCallback(async () => {
-        const response = await fetch(`${SERVER}/api/post`);
-        const postsJson = await response.json();
+        const response = await fetch(`${SERVER}/api/post`)
+        const postsJson = await response.json()
         const posts = postsJson.map((post: any) => ({
             id: post._id,
             epochKey: post.epochKey,
@@ -75,35 +75,35 @@ export default function PostList() {
             commentCount: post.commentCount,
             upCount: post.upCount,
             downCount: post.downCount,
-        }));
+        }))
 
-        setPosts([...posts, ...examplePosts]);
-    }, []);
+        setPosts([...posts, ...examplePosts])
+    }, [])
 
     useEffect(() => {
-        loadPosts();
-    }, [loadPosts]);
+        loadPosts()
+    }, [loadPosts])
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     const { create, cancel, reset, isCancellable, isCancelled } =
-        useCreatePost();
+        useCreatePost()
 
     const onSubmit = async (values: PostValues) => {
         try {
-            await create(values.content);
-            await loadPosts();
-            toast('貼文成功送出');
+            await create(values.content)
+            await loadPosts()
+            toast('貼文成功送出')
         } catch (err) {
             if (err instanceof CancelledTaskError) {
-                reset();
+                reset()
             } else {
-                errorDialog?.current?.showModal();
+                errorDialog?.current?.showModal()
             }
         }
-    };
+    }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
         <div
@@ -171,5 +171,5 @@ export default function PostList() {
                 </section>
             </Dialog>
         </div>
-    );
+    )
 }

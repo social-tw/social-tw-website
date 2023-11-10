@@ -27,6 +27,6 @@ const LOGIN_ERROR_MESSAGES = {
         code: 'MISSING_ELEMENT',
         message: '很抱歉通知您，登入時發生未知錯誤，請再次嘗試註冊，謝謝您！',
     },
-};
+}
 
-export default LOGIN_ERROR_MESSAGES;
+export default LOGIN_ERROR_MESSAGES

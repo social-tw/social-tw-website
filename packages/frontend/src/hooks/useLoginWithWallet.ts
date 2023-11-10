@@ -1,5 +1,5 @@
-import { UserState } from '@unirep/core';
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage';
+import { UserState } from '@unirep/core'
+import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 
 const useLoginWithWallet = (
     accessToken: string | null,
@@ -13,31 +13,31 @@ const useLoginWithWallet = (
     const loginWithWallet = async () => {
         try {
             if (!hashUserId) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code);
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
-            localStorage.setItem('hashUserId', hashUserId);
+            localStorage.setItem('hashUserId', hashUserId)
             if (!accessToken) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code);
+                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
             }
-            localStorage.setItem('token', accessToken);
+            localStorage.setItem('token', accessToken)
             if (!window.ethereum) {
-                throw new Error(LOGIN_ERROR_MESSAGES.NO_WALLET.code);
+                throw new Error(LOGIN_ERROR_MESSAGES.NO_WALLET.code)
             }
             try {
-                await handleWalletSignMessage(hashUserId);
+                await handleWalletSignMessage(hashUserId)
             } catch (error: any) {
-                throw new Error(LOGIN_ERROR_MESSAGES.WALLET_ISSUE.code);
+                throw new Error(LOGIN_ERROR_MESSAGES.WALLET_ISSUE.code)
             }
-            await createUserState();
-            localStorage.removeItem('showLogin');
-            setIsLogin('success');
-            navigate('/');
+            await createUserState()
+            localStorage.removeItem('showLogin')
+            setIsLogin('success')
+            navigate('/')
         } catch (error: any) {
-            setErrorCode(error.message);
+            setErrorCode(error.message)
         }
-    };
+    }
 
-    return loginWithWallet;
-};
+    return loginWithWallet
+}
 
-export default useLoginWithWallet;
+export default useLoginWithWallet

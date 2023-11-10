@@ -1,8 +1,8 @@
-import { ethers } from 'ethers';
+import { ethers } from 'ethers'
 
 export function createProviderByUrl(url: string) {
-    const SCHEMA = 'http';
+    const SCHEMA = 'http'
     return url.startsWith(SCHEMA)
         ? new ethers.providers.JsonRpcProvider(url)
-        : new ethers.providers.WebSocketProvider(url);
+        : new ethers.providers.WebSocketProvider(url)
 }

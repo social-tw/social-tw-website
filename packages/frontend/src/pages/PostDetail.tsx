@@ -1,11 +1,11 @@
-import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useMediaQuery } from '@uidotdev/usehooks';
-import Post from '../components/post/Post';
-import { SERVER } from '../config';
+import clsx from 'clsx'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import Post from '../components/post/Post'
+import { SERVER } from '../config'
 
-import type { PostInfo } from '../types';
+import type { PostInfo } from '../types'
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -15,16 +15,16 @@ const demoPost = {
     commentCount: 0,
     upCount: 0,
     downCount: 0,
-};
+}
 
 export default function PostDetail() {
-    const { id } = useParams();
-    const [post, setPost] = useState<PostInfo>();
+    const { id } = useParams()
+    const [post, setPost] = useState<PostInfo>()
 
     useEffect(() => {
         async function loadPost() {
-            const response = await fetch(`${SERVER}/api/post/${id}`);
-            const post = await response.json();
+            const response = await fetch(`${SERVER}/api/post/${id}`)
+            const post = await response.json()
 
             setPost({
                 id: post._id,
@@ -34,18 +34,18 @@ export default function PostDetail() {
                 commentCount: post.commentCount,
                 upCount: post.upCount,
                 downCount: post.downCount,
-            });
+            })
         }
         if (id?.includes('demo')) {
-            setPost(demoPost);
+            setPost(demoPost)
         } else {
-            loadPost();
+            loadPost()
         }
-    }, [id]);
+    }, [id])
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
-    if (!post) return null;
+    if (!post) return null
 
     return (
         <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600')}>
@@ -61,5 +61,5 @@ export default function PostDetail() {
                 />
             </section>
         </div>
-    );
+    )
 }

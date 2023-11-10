@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { SignupStatus } from '../contexts/User';
+import { useEffect } from 'react'
+import { SignupStatus } from '../contexts/User'
 
 const useInitUser = (
     signupStatus: SignupStatus,
@@ -10,16 +10,16 @@ const useInitUser = (
         const initUser = async () => {
             try {
                 if (signupStatus === 'pending') {
-                    return;
+                    return
                 }
-                await load();
+                await load()
             } catch (error: any) {
-                logout();
+                logout()
             }
-        };
+        }
 
-        initUser();
-    }, [signupStatus]);
-};
+        initUser()
+    }, [signupStatus])
+}
 
-export default useInitUser;
+export default useInitUser

@@ -1,8 +1,8 @@
-import { clsx } from 'clsx';
-import React from 'react';
+import { clsx } from 'clsx'
+import React from 'react'
 
 interface StepInfoProps {
-    hashUserId: string | null;
+    hashUserId: string | null
 }
 
 const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
@@ -101,7 +101,7 @@ const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
                 </div>
             </div>
         </>
-    );
-};
+    )
+}
 
-export default StepInfo;
+export default StepInfo

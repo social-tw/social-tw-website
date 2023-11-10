@@ -1,33 +1,33 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { BsTwitter } from 'react-icons/bs';
-import LoginButton from './LoginButton';
-import { motion } from 'framer-motion';
-import { SERVER } from '../../config';
-import useTwitterVerify from '../../hooks/useTwitterVerify';
-import useSignUpWithWallet from '../../hooks/useSignupWithWallet';
-import useSignupWithServer from '../../hooks/useSignupWithServer';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import NoteModal from '../modal/NoteModal';
-import { GrFormClose } from 'react-icons/gr';
-import { useUser } from '../../contexts/User';
-import { useMediaQuery } from '@uidotdev/usehooks';
-import { clsx } from 'clsx';
-import useLoginWithServer from '../../hooks/useLoginWithServer';
-import useLoginWithWallet from '../../hooks/useLoginWithWallet';
+import React, { useContext, useEffect, useState } from 'react'
+import { BsTwitter } from 'react-icons/bs'
+import LoginButton from './LoginButton'
+import { motion } from 'framer-motion'
+import { SERVER } from '../../config'
+import useTwitterVerify from '../../hooks/useTwitterVerify'
+import useSignUpWithWallet from '../../hooks/useSignupWithWallet'
+import useSignupWithServer from '../../hooks/useSignupWithServer'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import NoteModal from '../modal/NoteModal'
+import { GrFormClose } from 'react-icons/gr'
+import { useUser } from '../../contexts/User'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { clsx } from 'clsx'
+import useLoginWithServer from '../../hooks/useLoginWithServer'
+import useLoginWithWallet from '../../hooks/useLoginWithWallet'
 
 interface AuthFormProps {
-    accessToken: string | null;
-    hashUserId: string | null;
-    signMsg: string | null;
-    status: string | null;
-    method: string;
-    isShow: boolean;
-    onSignup: () => void;
-    onLogin: () => void;
-    handleClick: () => void;
+    accessToken: string | null
+    hashUserId: string | null
+    signMsg: string | null
+    status: string | null
+    method: string
+    isShow: boolean
+    onSignup: () => void
+    onLogin: () => void
+    handleClick: () => void
 }
 
-type NoteStatus = 'close' | 'metamask' | 'server';
+type NoteStatus = 'close' | 'metamask' | 'server'
 
 const AuthForm: React.FC<AuthFormProps> = ({
     accessToken,
@@ -40,7 +40,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     onLogin,
     handleClick,
 }) => {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const {
         setSignupStatus,
         signupStatus,
@@ -49,9 +49,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setIsLogin,
         createUserState,
         setErrorCode,
-    } = useUser();
-    const [noteStatus, setNoteStatus] = useState<NoteStatus>('close');
-    const twitterVerify = useTwitterVerify(SERVER, method);
+    } = useUser()
+    const [noteStatus, setNoteStatus] = useState<NoteStatus>('close')
+    const twitterVerify = useTwitterVerify(SERVER, method)
 
     const signupWithWallet = useSignUpWithWallet(
         accessToken,
@@ -63,7 +63,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         signup,
         setIsLogin,
         createUserState,
-    );
+    )
 
     const signupWithServer = useSignupWithServer(
         accessToken,
@@ -75,7 +75,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         signup,
         setIsLogin,
         createUserState,
-    );
+    )
 
     const loginWithServer = useLoginWithServer(
         accessToken,
@@ -85,7 +85,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setErrorCode,
         setIsLogin,
         createUserState,
-    );
+    )
 
     const loginWithWallet = useLoginWithWallet(
         accessToken,
@@ -95,7 +95,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         handleWalletSignMessage,
         setIsLogin,
         createUserState,
-    );
+    )
 
     const authVarients = {
         hidden: { opacity: 0 },
@@ -107,9 +107,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     const secondStepContent = (
         <div
@@ -196,7 +196,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 </div>
             )}
         </div>
-    );
+    )
 
     const firtStepContent =
         method === '' ? (
@@ -234,7 +234,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     iconSize={32}
                 />
             </>
-        );
+        )
 
     return (
         <>
@@ -252,7 +252,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 onClose={() => setNoteStatus('close')}
             />
         </>
-    );
-};
+    )
+}
 
-export default AuthForm;
+export default AuthForm

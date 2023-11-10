@@ -1,18 +1,18 @@
-import { useMediaQuery } from '@uidotdev/usehooks';
-import { clsx } from 'clsx';
-import React from 'react';
-import { IconType, icons } from 'react-icons';
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { clsx } from 'clsx'
+import React from 'react'
+import { IconType, icons } from 'react-icons'
 
 interface LoginButtonProps {
-    icon?: IconType;
-    iconSize?: number;
-    isLoading: boolean;
-    onClick?: () => void;
-    title: string;
-    subTitle?: string;
-    color: string;
-    start?: boolean;
-    text: string;
+    icon?: IconType
+    iconSize?: number
+    isLoading: boolean
+    onClick?: () => void
+    title: string
+    subTitle?: string
+    color: string
+    start?: boolean
+    text: string
 }
 
 // TODO: signup with wallet and without wallet
@@ -67,7 +67,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             </span>
             <span className="text-xs tracking-wider">{subTitle}</span>
         </button>
-    );
-};
+    )
+}
 
-export default LoginButton;
+export default LoginButton

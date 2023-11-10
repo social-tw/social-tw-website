@@ -1,37 +1,37 @@
-import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Dialog from '../components/Dialog';
-import ErrorModal from '../components/modal/ErrorModal';
-import PostForm, { PostValues } from '../components/post/PostForm';
-import { useUser } from '../contexts/User';
-import useCreatePost from '../hooks/useCreatePost';
-import { CancelledTaskError } from '../utils/makeCancellableTask';
+import { useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Dialog from '../components/Dialog'
+import ErrorModal from '../components/modal/ErrorModal'
+import PostForm, { PostValues } from '../components/post/PostForm'
+import { useUser } from '../contexts/User'
+import useCreatePost from '../hooks/useCreatePost'
+import { CancelledTaskError } from '../utils/makeCancellableTask'
 
 export default function PostCreate() {
-    const { isLogin } = useUser();
+    const { isLogin } = useUser()
 
-    const errorDialog = useRef<HTMLDialogElement>(null);
+    const errorDialog = useRef<HTMLDialogElement>(null)
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     const { create, cancel, reset, isCancellable, isCancelled } =
-        useCreatePost();
+        useCreatePost()
 
     const onSubmit = async (values: PostValues) => {
         try {
-            await create(values.content);
-            navigate('/');
+            await create(values.content)
+            navigate('/')
         } catch (err) {
             if (err instanceof CancelledTaskError) {
-                reset();
+                reset()
             } else {
-                errorDialog?.current?.showModal();
+                errorDialog?.current?.showModal()
             }
         }
-    };
+    }
 
     if (!isLogin) {
-        return <ErrorModal isOpen={true} />;
+        return <ErrorModal isOpen={true} />
     } else {
         return (
             <div className="p-4">
@@ -61,6 +61,6 @@ export default function PostCreate() {
                     </section>
                 </Dialog>
             </div>
-        );
+        )
     }
 }

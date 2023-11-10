@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import Modal from './Modal';
-import './signupLoadingModal.css';
-import { SignupStatus } from '../../contexts/User';
-import { motion } from 'framer-motion';
-import clsx from 'clsx';
-import { useMediaQuery } from '@uidotdev/usehooks';
+import React, { useEffect, useState } from 'react'
+import Modal from './Modal'
+import './signupLoadingModal.css'
+import { SignupStatus } from '../../contexts/User'
+import { motion } from 'framer-motion'
+import clsx from 'clsx'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 interface SignUpLoadingModal {
-    status: SignupStatus;
-    isOpen: boolean;
-    opacity: number;
-    onClose?: () => void;
+    status: SignupStatus
+    isOpen: boolean
+    opacity: number
+    onClose?: () => void
 }
 
 const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
@@ -18,30 +18,30 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     isOpen,
 }) => {
     const [pendingText, setPendingText] =
-        useState('努力註冊中，先來看看文章吧！');
+        useState('努力註冊中，先來看看文章吧！')
 
     const textsAndTimes: { text: string; time: number }[] = [
         { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
         { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
-    ];
+    ]
 
     useEffect(() => {
         if (status === 'pending') {
-            const timers: NodeJS.Timeout[] = [];
+            const timers: NodeJS.Timeout[] = []
 
             textsAndTimes.forEach(({ text, time }) => {
                 const timer = setTimeout(() => {
-                    setPendingText(text);
-                }, time);
+                    setPendingText(text)
+                }, time)
 
-                timers.push(timer);
-            });
+                timers.push(timer)
+            })
 
             return () => {
-                timers.forEach((timer) => clearTimeout(timer));
-            };
-        } else return;
-    }, [status]);
+                timers.forEach((timer) => clearTimeout(timer))
+            }
+        } else return
+    }, [status])
 
     const opacityVarients = {
         visible: { opacity: 1 },
@@ -53,9 +53,9 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 ease: 'easeInOut',
             },
         },
-    };
+    }
 
-    let content;
+    let content
     switch (status) {
         case 'pending':
             content = (
@@ -65,8 +65,8 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                         {pendingText}
                     </p>
                 </>
-            );
-            break;
+            )
+            break
 
         case 'success':
             content = (
@@ -86,8 +86,8 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                         註冊成功！可以 Po 文、按讚跟留言囉！
                     </motion.p>
                 </>
-            );
-            break;
+            )
+            break
 
         case 'default':
             content = (
@@ -96,11 +96,11 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                         您尚未登入，無法使用發布貼文功能！
                     </p>
                 </>
-            );
-            break;
+            )
+            break
     }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
         <Modal
@@ -118,9 +118,9 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 {content}
             </div>
         </Modal>
-    );
-};
+    )
+}
 
 // background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
 
-export default SignUpLoadingModal;
+export default SignUpLoadingModal

@@ -5,7 +5,7 @@ import {
     Link,
     Strikethrough,
     Underline,
-} from 'iconoir-react';
+} from 'iconoir-react'
 import {
     $createParagraphNode,
     $getNodeByKey,
@@ -17,7 +17,7 @@ import {
     NodeSelection,
     RangeSelection,
     SELECTION_CHANGE_COMMAND,
-} from 'lexical';
+} from 'lexical'
 import {
     ChangeEvent,
     ChangeEventHandler,
@@ -29,34 +29,34 @@ import {
     useMemo,
     useRef,
     useState,
-} from 'react';
-import { createPortal } from 'react-dom';
+} from 'react'
+import { createPortal } from 'react-dom'
 import {
     $createCodeNode,
     $isCodeNode,
     getCodeLanguages,
     getDefaultCodeLanguage,
-} from '@lexical/code';
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+} from '@lexical/code'
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import {
     $isListNode,
     INSERT_ORDERED_LIST_COMMAND,
     INSERT_UNORDERED_LIST_COMMAND,
     ListNode,
     REMOVE_LIST_COMMAND,
-} from '@lexical/list';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+} from '@lexical/list'
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import {
     $createHeadingNode,
     $createQuoteNode,
     $isHeadingNode,
-} from '@lexical/rich-text';
-import { $isAtNodeEnd, $wrapNodes } from '@lexical/selection';
-import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils';
+} from '@lexical/rich-text'
+import { $isAtNodeEnd, $wrapNodes } from '@lexical/selection'
+import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils'
 
-const LowPriority = 1;
+const LowPriority = 1
 
-const supportedBlockTypes = new Set();
+const supportedBlockTypes = new Set()
 // const supportedBlockTypes = new Set([
 //     'paragraph',
 //     'quote',
@@ -78,63 +78,63 @@ const blockTypeToBlockName = {
     paragraph: 'Normal',
     quote: 'Quote',
     ul: 'Bulleted List',
-};
+}
 
 function Divider() {
-    return <div className="divider" />;
+    return <div className="divider" />
 }
 
 function positionEditorElement(editor: HTMLDivElement, rect: DOMRect | null) {
     if (rect === null) {
-        editor.style.opacity = '0';
-        editor.style.top = '-1000px';
-        editor.style.left = '-1000px';
+        editor.style.opacity = '0'
+        editor.style.top = '-1000px'
+        editor.style.left = '-1000px'
     } else {
-        editor.style.opacity = '1';
+        editor.style.opacity = '1'
         editor.style.top = `${
             rect.top + rect.height + window.pageYOffset + 10
-        }px`;
+        }px`
         editor.style.left = `${
             rect.left +
             window.pageXOffset -
             editor.offsetWidth / 2 +
             rect.width / 2
-        }px`;
+        }px`
     }
 }
 
 function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const mouseDownRef = useRef(false);
-    const [linkUrl, setLinkUrl] = useState('');
-    const [isEditMode, setEditMode] = useState(false);
+    const editorRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
+    const mouseDownRef = useRef(false)
+    const [linkUrl, setLinkUrl] = useState('')
+    const [isEditMode, setEditMode] = useState(false)
     const [lastSelection, setLastSelection] = useState<
         RangeSelection | NodeSelection | GridSelection | null
-    >(null);
+    >(null)
 
     const updateLinkEditor = useCallback(() => {
-        const selection = $getSelection();
+        const selection = $getSelection()
         if ($isRangeSelection(selection)) {
-            const node = getSelectedNode(selection);
-            const parent = node.getParent();
+            const node = getSelectedNode(selection)
+            const parent = node.getParent()
             if ($isLinkNode(parent)) {
-                setLinkUrl(parent.getURL());
+                setLinkUrl(parent.getURL())
             } else if ($isLinkNode(node)) {
-                setLinkUrl(node.getURL());
+                setLinkUrl(node.getURL())
             } else {
-                setLinkUrl('');
+                setLinkUrl('')
             }
         }
-        const editorElem = editorRef.current;
-        const nativeSelection = window.getSelection();
-        const activeElement = document.activeElement;
+        const editorElem = editorRef.current
+        const nativeSelection = window.getSelection()
+        const activeElement = document.activeElement
 
         if (editorElem === null) {
-            return;
+            return
         }
 
-        const rootElement = editor.getRootElement();
+        const rootElement = editor.getRootElement()
         if (
             selection !== null &&
             nativeSelection !== null &&
@@ -142,62 +142,62 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
             rootElement !== null &&
             rootElement.contains(nativeSelection.anchorNode)
         ) {
-            const domRange = nativeSelection.getRangeAt(0);
-            let rect;
+            const domRange = nativeSelection.getRangeAt(0)
+            let rect
             if (nativeSelection.anchorNode === rootElement) {
-                let inner: Element | null = rootElement;
+                let inner: Element | null = rootElement
                 while (inner.firstElementChild != null) {
-                    inner = inner.firstElementChild;
+                    inner = inner.firstElementChild
                 }
-                rect = inner.getBoundingClientRect();
+                rect = inner.getBoundingClientRect()
             } else {
-                rect = domRange.getBoundingClientRect();
+                rect = domRange.getBoundingClientRect()
             }
 
             if (!mouseDownRef.current) {
-                positionEditorElement(editorElem, rect);
+                positionEditorElement(editorElem, rect)
             }
-            setLastSelection(selection);
+            setLastSelection(selection)
         } else if (!activeElement || activeElement.className !== 'link-input') {
-            positionEditorElement(editorElem, null);
-            setLastSelection(null);
-            setEditMode(false);
-            setLinkUrl('');
+            positionEditorElement(editorElem, null)
+            setLastSelection(null)
+            setEditMode(false)
+            setLinkUrl('')
         }
 
-        return true;
-    }, [editor]);
+        return true
+    }, [editor])
 
     useEffect(() => {
         return mergeRegister(
             editor.registerUpdateListener(({ editorState }) => {
                 editorState.read(() => {
-                    updateLinkEditor();
-                });
+                    updateLinkEditor()
+                })
             }),
 
             editor.registerCommand(
                 SELECTION_CHANGE_COMMAND,
                 () => {
-                    updateLinkEditor();
-                    return true;
+                    updateLinkEditor()
+                    return true
                 },
                 LowPriority,
             ),
-        );
-    }, [editor, updateLinkEditor]);
+        )
+    }, [editor, updateLinkEditor])
 
     useEffect(() => {
         editor.getEditorState().read(() => {
-            updateLinkEditor();
-        });
-    }, [editor, updateLinkEditor]);
+            updateLinkEditor()
+        })
+    }, [editor, updateLinkEditor])
 
     useEffect(() => {
         if (isEditMode && inputRef.current) {
-            inputRef.current.focus();
+            inputRef.current.focus()
         }
-    }, [isEditMode]);
+    }, [isEditMode])
 
     return (
         <div ref={editorRef} className="link-editor">
@@ -207,23 +207,23 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
                     className="link-input"
                     value={linkUrl}
                     onChange={(event) => {
-                        setLinkUrl(event.target.value);
+                        setLinkUrl(event.target.value)
                     }}
                     onKeyDown={(event) => {
                         if (event.key === 'Enter') {
-                            event.preventDefault();
+                            event.preventDefault()
                             if (lastSelection !== null) {
                                 if (linkUrl !== '') {
                                     editor.dispatchCommand(
                                         TOGGLE_LINK_COMMAND,
                                         linkUrl,
-                                    );
+                                    )
                                 }
-                                setEditMode(false);
+                                setEditMode(false)
                             }
                         } else if (event.key === 'Escape') {
-                            event.preventDefault();
-                            setEditMode(false);
+                            event.preventDefault()
+                            setEditMode(false)
                         }
                     }}
                 />
@@ -243,14 +243,14 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
                             tabIndex={0}
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => {
-                                setEditMode(true);
+                                setEditMode(true)
                             }}
                         />
                     </div>
                 </>
             )}
         </div>
-    );
+    )
 }
 
 function Select({
@@ -259,10 +259,10 @@ function Select({
     options,
     value,
 }: {
-    onChange?: ChangeEventHandler<HTMLSelectElement>;
-    className?: string;
-    options?: string[];
-    value?: string;
+    onChange?: ChangeEventHandler<HTMLSelectElement>
+    className?: string
+    options?: string[]
+    value?: string
 }) {
     return (
         <select className={className} onChange={onChange} value={value}>
@@ -273,22 +273,22 @@ function Select({
                 </option>
             ))}
         </select>
-    );
+    )
 }
 
 function getSelectedNode(selection: RangeSelection) {
-    const anchor = selection.anchor;
-    const focus = selection.focus;
-    const anchorNode = selection.anchor.getNode();
-    const focusNode = selection.focus.getNode();
+    const anchor = selection.anchor
+    const focus = selection.focus
+    const anchorNode = selection.anchor.getNode()
+    const focusNode = selection.focus.getNode()
     if (anchorNode === focusNode) {
-        return anchorNode;
+        return anchorNode
     }
-    const isBackward = selection.isBackward();
+    const isBackward = selection.isBackward()
     if (isBackward) {
-        return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+        return $isAtNodeEnd(focus) ? anchorNode : focusNode
     } else {
-        return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
+        return $isAtNodeEnd(anchor) ? focusNode : anchorNode
     }
 }
 
@@ -298,129 +298,129 @@ function BlockOptionsDropdownList({
     toolbarRef,
     setShowBlockOptionsDropDown,
 }: {
-    editor: LexicalEditor;
-    blockType: string;
-    toolbarRef: RefObject<HTMLDivElement>;
-    setShowBlockOptionsDropDown: Dispatch<SetStateAction<boolean>>;
+    editor: LexicalEditor
+    blockType: string
+    toolbarRef: RefObject<HTMLDivElement>
+    setShowBlockOptionsDropDown: Dispatch<SetStateAction<boolean>>
 }) {
-    const dropDownRef = useRef<HTMLDivElement>(null);
+    const dropDownRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        const toolbar = toolbarRef.current;
-        const dropDown = dropDownRef.current;
+        const toolbar = toolbarRef.current
+        const dropDown = dropDownRef.current
 
         if (toolbar !== null && dropDown !== null) {
-            const { top, left } = toolbar.getBoundingClientRect();
-            dropDown.style.top = `${top + 40}px`;
-            dropDown.style.left = `${left}px`;
+            const { top, left } = toolbar.getBoundingClientRect()
+            dropDown.style.top = `${top + 40}px`
+            dropDown.style.left = `${left}px`
         }
-    }, [dropDownRef, toolbarRef]);
+    }, [dropDownRef, toolbarRef])
 
     useEffect(() => {
-        const dropDown = dropDownRef.current;
-        const toolbar = toolbarRef.current;
+        const dropDown = dropDownRef.current
+        const toolbar = toolbarRef.current
 
         if (dropDown !== null && toolbar !== null) {
             const handle = (event: MouseEvent) => {
-                const target = event.target;
+                const target = event.target
 
                 if (
                     !dropDown.contains(target as Node) &&
                     !toolbar.contains(target as Node)
                 ) {
-                    setShowBlockOptionsDropDown(false);
+                    setShowBlockOptionsDropDown(false)
                 }
-            };
-            document.addEventListener('click', handle);
+            }
+            document.addEventListener('click', handle)
 
             return () => {
-                document.removeEventListener('click', handle);
-            };
+                document.removeEventListener('click', handle)
+            }
         }
-    }, [dropDownRef, setShowBlockOptionsDropDown, toolbarRef]);
+    }, [dropDownRef, setShowBlockOptionsDropDown, toolbarRef])
 
     const formatParagraph = () => {
         if (blockType !== 'paragraph') {
             editor.update(() => {
-                const selection = $getSelection();
+                const selection = $getSelection()
 
                 if ($isRangeSelection(selection)) {
-                    $wrapNodes(selection, () => $createParagraphNode());
+                    $wrapNodes(selection, () => $createParagraphNode())
                 }
-            });
+            })
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatLargeHeading = () => {
         if (blockType !== 'h1') {
             editor.update(() => {
-                const selection = $getSelection();
+                const selection = $getSelection()
 
                 if ($isRangeSelection(selection)) {
-                    $wrapNodes(selection, () => $createHeadingNode('h1'));
+                    $wrapNodes(selection, () => $createHeadingNode('h1'))
                 }
-            });
+            })
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatSmallHeading = () => {
         if (blockType !== 'h2') {
             editor.update(() => {
-                const selection = $getSelection();
+                const selection = $getSelection()
 
                 if ($isRangeSelection(selection)) {
-                    $wrapNodes(selection, () => $createHeadingNode('h2'));
+                    $wrapNodes(selection, () => $createHeadingNode('h2'))
                 }
-            });
+            })
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatBulletList = () => {
         if (blockType !== 'ul') {
-            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
         } else {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatNumberedList = () => {
         if (blockType !== 'ol') {
-            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
         } else {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined)
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatQuote = () => {
         if (blockType !== 'quote') {
             editor.update(() => {
-                const selection = $getSelection();
+                const selection = $getSelection()
 
                 if ($isRangeSelection(selection)) {
-                    $wrapNodes(selection, () => $createQuoteNode());
+                    $wrapNodes(selection, () => $createQuoteNode())
                 }
-            });
+            })
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     const formatCode = () => {
         if (blockType !== 'code') {
             editor.update(() => {
-                const selection = $getSelection();
+                const selection = $getSelection()
 
                 if ($isRangeSelection(selection)) {
-                    $wrapNodes(selection, () => $createCodeNode());
+                    $wrapNodes(selection, () => $createCodeNode())
                 }
-            });
+            })
         }
-        setShowBlockOptionsDropDown(false);
-    };
+        setShowBlockOptionsDropDown(false)
+    }
 
     return (
         <div className="flex gap-1" ref={dropDownRef}>
@@ -460,117 +460,117 @@ function BlockOptionsDropdownList({
                 {blockType === 'code' && <span className="active" />}
             </button>
         </div>
-    );
+    )
 }
 
 export default function ToolbarPlugin() {
-    const [editor] = useLexicalComposerContext();
-    const toolbarRef = useRef<HTMLDivElement>(null);
-    const [blockType, setBlockType] = useState<string>('paragraph');
+    const [editor] = useLexicalComposerContext()
+    const toolbarRef = useRef<HTMLDivElement>(null)
+    const [blockType, setBlockType] = useState<string>('paragraph')
     const [selectedElementKey, setSelectedElementKey] = useState<string | null>(
         null,
-    );
+    )
     const [showBlockOptionsDropDown, setShowBlockOptionsDropDown] =
-        useState(false);
-    const [codeLanguage, setCodeLanguage] = useState('');
-    const [isLink, setIsLink] = useState(false);
-    const [isBold, setIsBold] = useState(false);
-    const [isItalic, setIsItalic] = useState(false);
-    const [isUnderline, setIsUnderline] = useState(false);
-    const [isStrikethrough, setIsStrikethrough] = useState(false);
-    const [isCode, setIsCode] = useState(false);
+        useState(false)
+    const [codeLanguage, setCodeLanguage] = useState('')
+    const [isLink, setIsLink] = useState(false)
+    const [isBold, setIsBold] = useState(false)
+    const [isItalic, setIsItalic] = useState(false)
+    const [isUnderline, setIsUnderline] = useState(false)
+    const [isStrikethrough, setIsStrikethrough] = useState(false)
+    const [isCode, setIsCode] = useState(false)
 
     const updateToolbar = useCallback(() => {
-        const selection = $getSelection();
+        const selection = $getSelection()
         if ($isRangeSelection(selection)) {
-            const anchorNode = selection.anchor.getNode();
+            const anchorNode = selection.anchor.getNode()
             const element =
                 anchorNode.getKey() === 'root'
                     ? anchorNode
-                    : anchorNode.getTopLevelElementOrThrow();
-            const elementKey = element.getKey();
-            const elementDOM = editor.getElementByKey(elementKey);
+                    : anchorNode.getTopLevelElementOrThrow()
+            const elementKey = element.getKey()
+            const elementDOM = editor.getElementByKey(elementKey)
             if (elementDOM !== null) {
-                setSelectedElementKey(elementKey);
+                setSelectedElementKey(elementKey)
                 if ($isListNode(element)) {
                     const parentList = $getNearestNodeOfType(
                         anchorNode,
                         ListNode,
-                    );
+                    )
                     const type = parentList
                         ? parentList.getTag()
-                        : element.getTag();
-                    setBlockType(type);
+                        : element.getTag()
+                    setBlockType(type)
                 } else {
                     const type = $isHeadingNode(element)
                         ? element.getTag()
-                        : element.getType();
-                    setBlockType(type);
+                        : element.getType()
+                    setBlockType(type)
                     if ($isCodeNode(element)) {
                         setCodeLanguage(
                             element.getLanguage() || getDefaultCodeLanguage(),
-                        );
+                        )
                     }
                 }
             }
             // Update text format
-            setIsBold(selection.hasFormat('bold'));
-            setIsItalic(selection.hasFormat('italic'));
-            setIsUnderline(selection.hasFormat('underline'));
-            setIsStrikethrough(selection.hasFormat('strikethrough'));
-            setIsCode(selection.hasFormat('code'));
+            setIsBold(selection.hasFormat('bold'))
+            setIsItalic(selection.hasFormat('italic'))
+            setIsUnderline(selection.hasFormat('underline'))
+            setIsStrikethrough(selection.hasFormat('strikethrough'))
+            setIsCode(selection.hasFormat('code'))
 
             // Update links
-            const node = getSelectedNode(selection);
-            const parent = node.getParent();
+            const node = getSelectedNode(selection)
+            const parent = node.getParent()
             if ($isLinkNode(parent) || $isLinkNode(node)) {
-                setIsLink(true);
+                setIsLink(true)
             } else {
-                setIsLink(false);
+                setIsLink(false)
             }
         }
-    }, [editor]);
+    }, [editor])
 
     useEffect(() => {
         return mergeRegister(
             editor.registerUpdateListener(({ editorState }) => {
                 editorState.read(() => {
-                    updateToolbar();
-                });
+                    updateToolbar()
+                })
             }),
             editor.registerCommand(
                 SELECTION_CHANGE_COMMAND,
                 (_payload, newEditor) => {
-                    updateToolbar();
-                    return false;
+                    updateToolbar()
+                    return false
                 },
                 LowPriority,
             ),
-        );
-    }, [editor, updateToolbar]);
+        )
+    }, [editor, updateToolbar])
 
-    const codeLanguges = useMemo(() => getCodeLanguages(), []);
+    const codeLanguges = useMemo(() => getCodeLanguages(), [])
     const onCodeLanguageSelect = useCallback(
         (e: ChangeEvent<HTMLSelectElement>) => {
             editor.update(() => {
                 if (selectedElementKey !== null) {
-                    const node = $getNodeByKey(selectedElementKey);
+                    const node = $getNodeByKey(selectedElementKey)
                     if ($isCodeNode(node)) {
-                        node.setLanguage(e.target.value);
+                        node.setLanguage(e.target.value)
                     }
                 }
-            });
+            })
         },
         [editor, selectedElementKey],
-    );
+    )
 
     const insertLink = useCallback(() => {
         if (!isLink) {
-            editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://')
         } else {
-            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
         }
-    }, [editor, isLink]);
+    }, [editor, isLink])
 
     return (
         <div className="flex gap-1 p-1" ref={toolbarRef}>
@@ -623,7 +623,7 @@ export default function ToolbarPlugin() {
                 <>
                     <button
                         onClick={() => {
-                            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+                            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
                         }}
                         className={
                             'btn btn-sm btn-square btn-ghost spaced ' +
@@ -638,7 +638,7 @@ export default function ToolbarPlugin() {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
                                 'italic',
-                            );
+                            )
                         }}
                         className={
                             'btn btn-sm btn-square btn-ghost spaced ' +
@@ -653,7 +653,7 @@ export default function ToolbarPlugin() {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
                                 'underline',
-                            );
+                            )
                         }}
                         className={
                             'btn btn-sm btn-square btn-ghost spaced ' +
@@ -668,7 +668,7 @@ export default function ToolbarPlugin() {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
                                 'strikethrough',
-                            );
+                            )
                         }}
                         className={
                             'btn btn-sm btn-square btn-ghost spaced ' +
@@ -680,7 +680,7 @@ export default function ToolbarPlugin() {
                     </button>
                     <button
                         onClick={() => {
-                            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
+                            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')
                         }}
                         className={
                             'btn btn-sm btn-square btn-ghost spaced ' +
@@ -708,5 +708,5 @@ export default function ToolbarPlugin() {
                 </>
             )}
         </div>
-    );
+    )
 }
