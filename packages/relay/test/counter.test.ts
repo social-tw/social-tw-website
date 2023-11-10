@@ -42,7 +42,7 @@ describe('GET /counter', function () {
             prover,
             unirep,
             contracts.app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -51,7 +51,7 @@ describe('GET /counter', function () {
             initUser,
             userStateFactory,
             userService,
-            synchronizer
+            synchronizer,
         )
 
         await userState.waitForSync()
@@ -98,7 +98,7 @@ describe('GET /counter', function () {
                 headers: {
                     'content-type': 'application/json',
                 },
-            }
+            },
         ).then((r) => {
             expect(r.status).equal(400)
             return r.json()

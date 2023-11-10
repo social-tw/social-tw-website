@@ -17,14 +17,14 @@ export default {
      */
     genProofAndPublicSignals: async (
         circuitName: string | Circuit,
-        inputs: any
+        inputs: any,
     ) => {
         const circuitWasmPath = path.join(buildPath, `${circuitName}.wasm`)
         const zkeyPath = path.join(buildPath, `${circuitName}.zkey`)
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(
             inputs,
             circuitWasmPath,
-            zkeyPath
+            zkeyPath,
         )
 
         return { proof, publicSignals }
@@ -40,10 +40,10 @@ export default {
     verifyProof: async (
         circuitName: string | Circuit,
         publicSignals: string[],
-        proof: string[]
+        proof: string[],
     ) => {
         const vkeyData = await fs.readFile(
-            path.join(buildPath, `${circuitName}.vkey.json`)
+            path.join(buildPath, `${circuitName}.vkey.json`),
         )
         const vkey = JSON.parse(vkeyData.toString())
         return snarkjs.groth16.verify(vkey, publicSignals, proof)

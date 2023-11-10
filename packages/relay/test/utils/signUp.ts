@@ -10,13 +10,12 @@ export async function singUp(
     userStateFactory: UserStateFactory,
     userService: UserService,
     synchronizer: UnirepSocialSynchronizer,
-    wallet?: Wallet
+    wallet?: Wallet,
 ): Promise<UserState> {
     const userState = await userStateFactory.createUserState(user, wallet)
     await userStateFactory.initUserState(userState)
-    const { signupProof, publicSignals } = await userStateFactory.genProof(
-        userState
-    )
+    const { signupProof, publicSignals } =
+        await userStateFactory.genProof(userState)
 
     const fromServer = wallet ? false : true
 
@@ -26,7 +25,7 @@ export async function singUp(
         signupProof._snarkProof,
         user.hashUserId,
         fromServer,
-        synchronizer
+        synchronizer,
     )
 
     return userState

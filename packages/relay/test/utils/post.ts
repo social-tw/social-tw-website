@@ -19,7 +19,7 @@ export async function post(userState: UserState): Promise<any> {
                 content: testContent,
                 publicSignals: epochKeyProof.publicSignals,
                 proof: epochKeyProof.proof,
-            })
+            }),
         ),
     }).then((r) => {
         return r.json()

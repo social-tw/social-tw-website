@@ -21,7 +21,7 @@ export class DataProof extends BaseProof {
     constructor(
         _publicSignals: (string | bigint)[],
         _proof: SnarkProof,
-        prover?: Prover
+        prover?: Prover,
     ) {
         super(_publicSignals, _proof, prover)
         this.stateTreeRoot = _publicSignals[this.idx.stateTreeRoot]

@@ -43,7 +43,7 @@ describe('POST /post', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -54,7 +54,7 @@ describe('POST /post', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet
+            wallet,
         )
 
         await userState.waitForSync()
@@ -85,7 +85,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -107,7 +107,7 @@ describe('POST /post', function () {
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
         posts = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`,
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -136,7 +136,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -157,7 +157,7 @@ describe('POST /post', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -181,7 +181,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -223,7 +223,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)

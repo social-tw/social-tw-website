@@ -32,4 +32,4 @@ module.exports = {
         'react/react-in-jsx-scope': 'off',
         'no-console': ['error', { allow: ['warn', 'error'] }],
     },
-};
+}
