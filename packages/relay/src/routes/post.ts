@@ -56,7 +56,7 @@ export default (
                 res.status(400).json({ error: 'id is undefined' })
             }
 
-            const post = await postService.fetchSinglePost(id, db)
+            const post = await postService.fetchSinglePost(id, db, undefined)
             if (!post) {
                 console.log(`post is not found: ${id}`)
                 res.status(404).json({ error: `post is not found: ${id}` })

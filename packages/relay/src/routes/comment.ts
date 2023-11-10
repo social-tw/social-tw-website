@@ -5,6 +5,7 @@ import { UnirepSocialSynchronizer } from '../synchornizer'
 import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { InternalError } from '../types/InternalError'
+import { postService } from '../services/PostService'
 
 export default (
     app: Express,
@@ -35,8 +36,17 @@ export default (
                 if (!content) {
                     throw new InternalError('Could not have empty content', 400)
                 }
+
+                const post = await postService.fetchSinglePost(postId.toString(), db, 1)
+                if (!post) {
+                    throw new InternalError(
+                        'Post does not exist, please try later',
+                        400
+                    )
+                }
+                console.log("post", post)
                 const hash = await commentService.leaveComment(
-                    postId,
+                    postId.toString(),
                     content,
                     publicSignals,
                     proof,

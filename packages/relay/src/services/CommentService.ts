@@ -1,12 +1,10 @@
 import { DB } from 'anondb'
 import { SnarkProof } from '@unirep/utils'
-import { APP_ADDRESS } from '../config'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { addActionCount } from '../utils/TransactionHelper'
 import { ipfsService } from './IpfsService'
 import { epochKeyService } from './EpochKeyService'
-import { InternalError } from '../types/InternalError'
 
 export class CommentService {
     async fetchComments(
@@ -39,8 +37,6 @@ export class CommentService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ) {
-        await this.checkPostExistence(postId, db)
-
         const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
@@ -70,24 +66,10 @@ export class CommentService {
                 transactionHash: txnHash,
                 status: 0,
             })
+            return 1
         })
 
         return txnHash
-    }
-
-    private async checkPostExistence(postId: string, db: DB) {
-        // check post exist
-        const post = await db.findOne('Post', {
-            where: {
-                postId: postId.toString(),
-                status: 1,
-            },
-        })
-        if (!post)
-            throw new InternalError(
-                'Post does not exist, please try later',
-                400
-            )
     }
 }
 

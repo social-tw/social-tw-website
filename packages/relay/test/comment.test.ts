@@ -68,16 +68,15 @@ describe('POST /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        const commentPost = await fetch(`${HTTP_SERVER}/api/post`).then(
+        await fetch(`${HTTP_SERVER}/api/post`).then(
             async (r) => {
                 expect(r.status).equal(200)
                 const posts = (await r.json()) as Post[]
                 expect(posts.length).equal(1)
+                expect(posts[0].status).equal(1)
                 return posts[0]
             }
         )
-
-        console.log(commentPost)
     })
 
     after(async function () {
@@ -116,11 +115,13 @@ describe('POST /comment', function () {
 
         // comment on the post
         let comments: any = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
+            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
+        console.log("comment", comments[0])
+        console.log("epochkey", result)
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
