@@ -54,29 +54,20 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const findPost = await this.db.findOne('Post', {
-            where: {
-                transactionHash,
-            },
-        })
-
         const epochKey = BigInt(event.topics[1]).toString(10)
         const postId = BigInt(event.topics[2]).toString()
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
-        if (findPost) {
-            db.update('Post', {
-                where: {
-                    _id: findPost._id,
-                },
-                update: {
-                    status: 1,
-                    postId,
-                },
-            })
-        } else {
-            db.create('Post', {
+        db.upsert('Post', {
+            where: {
+                transactionHash,
+            },
+            update: {
+                status: 1,
+                postId,
+            },
+            create: {
                 postId,
                 epochKey,
                 epoch,
@@ -86,8 +77,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 upCount: 0,
                 downCount: 0,
                 commentCount: 0,
-            })
-        }
+            },
+        })
 
         return true
     }
@@ -100,23 +91,17 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(decodedData.epoch)
         const content = decodedData.content
 
-        const findComment = await this.db.findOne('Comment', {
+        // We need to verify if we have already add commentCount to the post
+        const existingComment = await this.db.findOne('Comment', {
             where: {
                 transactionHash,
             },
         })
-        if (findComment) {
-            db.update('Comment', {
-                where: {
-                    _id: findComment._id,
-                },
-                update: {
-                    commentId,
-                    status: 1,
-                },
-            })
-        } else {
-            db.create('Comment', {
+
+        // Use upsert to either create a new comment or update an existing one
+        db.upsert('Comment', {
+            where: { transactionHash },
+            create: {
                 commentId,
                 postId,
                 transactionHash,
@@ -124,22 +109,26 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 epoch,
                 epochKey,
                 status: 1,
-            })
-        }
-
-        // atrieve the comment count of the post
-        const commentCount = await this.db.count('Comment', {
-            postId,
-        })
-
-        db.update('Post', {
-            where: {
-                postId,
             },
             update: {
-                commentCount: commentCount + (findComment ? 0 : 1),
+                commentId,
+                status: 1,
             },
         })
+
+        // If the comment didn't exist before, increment the commentCount of the post
+        if (!existingComment) {
+            const commentCount = await this.db.count('Comment', {
+                postId,
+            })
+
+            db.update('Post', {
+                where: { postId },
+                update: {
+                    commentCount: commentCount + 1,
+                },
+            })
+        }
 
         return true
     }
