@@ -23,25 +23,27 @@ import { singUp } from './utils/signUp'
 let snapshot: any
 let express: Server
 let sync: UnirepSocialSynchronizer
+let unirep: Unirep
 let unirepApp: UnirepApp
 let users: {
     hashUserId: String
     wallet: any
     userState: UserState
 }[] = []
-let userState: UserState
+const EPOCH_LENGTH = 300
 
 describe('Synchronize Comment Test', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // Deploy contract
-        const { unirep, app } = await deployContracts(100000)
-        unirepApp = app
+        const contracts = await deployContracts(EPOCH_LENGTH)
+        unirepApp = contracts.app
+        unirep = contracts.unirep
 
         // Start server
         const { db, prover, provider, synchronizer, server } =
-            await startServer(unirep, app)
+            await startServer(unirep, unirepApp)
         express = server
         sync = synchronizer
 
@@ -50,7 +52,7 @@ describe('Synchronize Comment Test', function () {
             provider,
             prover,
             unirep,
-            app,
+            unirepApp,
             synchronizer
         )
 
@@ -92,7 +94,7 @@ describe('Synchronize Comment Test', function () {
         express.close()
     })
 
-    describe('Synchronize Comment', function () {
+    describe('Synchronize Comment', async function () {
         before(async function () {
             // User 0 post a thread
             const postContent = "I'm a post"
@@ -108,6 +110,7 @@ describe('Synchronize Comment Test', function () {
                 .withArgs(publicSignals[0], 0, 0, postContent)
 
             await sync.waitForSync()
+            sync.stop()
 
             // check db if the post is synchronized
             let record = await sync.db.findMany('Post', { where: {} })
@@ -133,6 +136,7 @@ describe('Synchronize Comment Test', function () {
                 .withArgs(publicSignals[0], 0, 0, 0, commentContent)
 
             await sync.waitForSync()
+            sync.stop()
 
             // Check if the comment is synchronized
             let record = await sync.db.findMany('Comment', { where: {} })
@@ -154,21 +158,21 @@ describe('Synchronize Comment Test', function () {
 
         it('should update comment', async function () {
             // User 1 edit the comment
-            const newContent = "I'm not a comment what you want"
-
             const userState = users[1].userState
-            const epoch = await sync.loadCurrentEpoch()
-            const { publicSignals, proof } = await userState.genEpochKeyProof({
-                epoch,
-            })
+            const newContent = "I'm not a comment what you want"
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof()
 
             await expect(
-                unirepApp.editComment(publicSignals, proof, 0, 0, newContent)
+                unirepApp.editComment(publicSignals, proof, 0, 0, newContent, {
+                    gasLimit: 5000000,
+                })
             )
                 .to.emit(unirepApp, 'UpdatedComment')
-                .withArgs(publicSignals[0], 0, 0, 0, newContent)
+                .withArgs(publicSignals[1], 0, 0, 0, newContent)
 
             await sync.waitForSync()
+            sync.stop()
 
             // Check if the comment is synchronized
             let record = await sync.db.findMany('Comment', { where: {} })

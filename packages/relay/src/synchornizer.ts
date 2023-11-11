@@ -146,7 +146,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 commentId,
             },
             update: {
-                newContent,
+                content: newContent,
             },
         })
 
