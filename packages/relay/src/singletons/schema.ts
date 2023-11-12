@@ -31,6 +31,7 @@ const _schema = [
     },
     {
         name: 'Post',
+        primaryKey: 'transactionHash',
         rows: [
             {
                 name: 'publishedAt',
@@ -38,7 +39,7 @@ const _schema = [
                 default: () => +new Date(),
             },
             ['postId', 'String', { optional: true }],
-            ['transactionHash', 'String', { optional: true }],
+            ['transactionHash', 'String'],
             ['content', 'String', { optional: true }],
             ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
@@ -87,6 +88,7 @@ const _schema = [
     },
     {
         name: 'Comment',
+        primaryKey: 'transactionHash',
         rows: [
             {
                 name: 'publishedAt',
@@ -95,7 +97,7 @@ const _schema = [
             },
             ['commentId', 'String'],
             ['postId', 'String'],
-            ['transactionHash', 'String', { optional: true }],
+            ['transactionHash', 'String'],
             ['content', 'String', { optional: true }],
             ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
