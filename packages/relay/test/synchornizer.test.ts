@@ -1,17 +1,6 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { CircuitConfig } from '@unirep/circuits'
-import { IncrementalMerkleTree, genStateTreeLeaf } from '@unirep/utils'
-import { describe } from 'node:test'
-import { deployApp } from '@unirep-app/contracts/scripts/utils'
-import {
-    createRandomUserIdentity,
-    genEpochKeyProof,
-    genUserState,
-    randomData,
-} from '@unirep-app/contracts/test/utils'
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { Identity } from '@semaphore-protocol/identity'
 import { deployContracts, startServer } from './environment'
 import { Server } from 'http'
 import { UserState } from '@unirep/core'
@@ -20,19 +9,19 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { userService } from '../src/services/UserService'
 import { singUp } from './utils/signUp'
 
-let snapshot: any
-let express: Server
-let sync: UnirepSocialSynchronizer
-let unirep: Unirep
-let unirepApp: UnirepApp
-let users: {
-    hashUserId: String
-    wallet: any
-    userState: UserState
-}[] = []
-const EPOCH_LENGTH = 300
-
 describe('Synchronize Comment Test', function () {
+    let snapshot: any
+    let express: Server
+    let sync: UnirepSocialSynchronizer
+    let unirep: Unirep
+    let unirepApp: UnirepApp
+    let users: {
+        hashUserId: String
+        wallet: any
+        userState: UserState
+    }[] = []
+    const EPOCH_LENGTH = 300
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
@@ -90,8 +79,12 @@ describe('Synchronize Comment Test', function () {
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
+        console.log('Close server...')
         express.close()
+        await ethers.provider.send('evm_revert', [snapshot])
+        // users[0].userState.sync.stop()
+        // users[1].userState.sync.stop()
+        // sync.stop()
     })
 
     describe('Synchronize Comment', async function () {
@@ -110,7 +103,6 @@ describe('Synchronize Comment Test', function () {
                 .withArgs(publicSignals[0], 0, 0, postContent)
 
             await sync.waitForSync()
-            sync.stop()
 
             // check db if the post is synchronized
             let record = await sync.db.findMany('Post', { where: {} })
@@ -136,7 +128,6 @@ describe('Synchronize Comment Test', function () {
                 .withArgs(publicSignals[0], 0, 0, 0, commentContent)
 
             await sync.waitForSync()
-            sync.stop()
 
             // Check if the comment is synchronized
             let record = await sync.db.findMany('Comment', { where: {} })
@@ -172,7 +163,6 @@ describe('Synchronize Comment Test', function () {
                 .withArgs(publicSignals[1], 0, 0, 0, newContent)
 
             await sync.waitForSync()
-            sync.stop()
 
             // Check if the comment is synchronized
             let record = await sync.db.findMany('Comment', { where: {} })

@@ -22,12 +22,11 @@ import { singUp } from './utils/signUp'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-
 describe('POST /post', function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
     beforeEach(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts

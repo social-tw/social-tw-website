@@ -5,6 +5,7 @@ import { Synchronizer } from '@unirep/core'
 import { UserRegisterStatus } from './types'
 import schema from './singletons/schema'
 import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
+import { toDecString } from '@unirep/core/src/Synchronizer'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -54,8 +55,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const epochKey = BigInt(event.topics[1]).toString(10)
-        const postId = BigInt(event.topics[2]).toString()
+        const epochKey = toDecString(event.topics[1])
+        const postId = toDecString(event.topics[2])
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
@@ -85,9 +86,9 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handleComment({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const epochKey = BigInt(event.topics[1]).toString(10)
-        const postId = BigInt(event.topics[2]).toString()
-        const commentId = BigInt(event.topics[3]).toString()
+        const epochKey = toDecString(event.topics[1])
+        const postId = toDecString(event.topics[2])
+        const commentId = toDecString(event.topics[3])
         const epoch = Number(decodedData.epoch)
         const content = decodedData.content
 
@@ -134,8 +135,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     }
 
     async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
-        const postId = BigInt(event.topics[2]).toString()
-        const commentId = BigInt(event.topics[3]).toString()
+        const postId = toDecString(event.topics[2])
+        const commentId = toDecString(event.topics[3])
         const newContent = decodedData.newContent
 
         // FIXME: Should we check the epoch key?

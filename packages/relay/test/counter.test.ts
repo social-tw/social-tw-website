@@ -17,14 +17,13 @@ import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-let unirep: Unirep
-let anondb: DB
-
 describe('GET /counter', function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let unirep: Unirep
+    let anondb: DB
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
