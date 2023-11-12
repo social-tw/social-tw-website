@@ -22,14 +22,14 @@ on:
 
 # get repo vars before running jobs
 env:
-  REGION: ${{ vars.REGION }}
-  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
-  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
-  PROJECT_ID: ${{ vars.PROJECT_ID }}
-  REPOSITORY: ${{ vars.REPOSITORY }}
-  TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
-  TWITTER_CLIENT_KEY: ${{ secrets.TWITTER_CLIENT_KEY }}
+    REGION: ${{ vars.REGION }}
+    WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+    WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+    GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+    PROJECT_ID: ${{ vars.PROJECT_ID }}
+    REPOSITORY: ${{ vars.REPOSITORY }}
+    TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
+    TWITTER_CLIENT_KEY: ${{ secrets.TWITTER_CLIENT_KEY }}
 
 jobs:
     relay:

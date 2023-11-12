@@ -25,16 +25,18 @@ export default {
             ],
         },
         arb: {
-            url: process.env.ETH_PROVIDER_URL,
+            url: process.env.ETH_PROVIDER_URL ?? '',
             accounts: [
-                process.env.PRIVATE_KEY,
+                process.env.PRIVATE_KEY ??
+                    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
             ],
         },
         tenderly: {
             url: DEVNET_RPC_URL,
             chainId: 137,
             accounts: [
-                process.env.PRIVATE_KEY,
+                process.env.PRIVATE_KEY ??
+                    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
             ],
         },
     },

@@ -22,13 +22,13 @@ on:
 
 # get repo vars before running jobs
 env:
-  NODE_OPTIONS: ${{ vars.NODE_OPTIONS }}
-  REGION: ${{ vars.REGION }}
-  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
-  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
-  PROJECT_ID: ${{ vars.PROJECT_ID }}
-  REPOSITORY: ${{ vars.REPOSITORY }}
+    NODE_OPTIONS: ${{ vars.NODE_OPTIONS }}
+    REGION: ${{ vars.REGION }}
+    WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+    WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+    GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+    PROJECT_ID: ${{ vars.PROJECT_ID }}
+    REPOSITORY: ${{ vars.REPOSITORY }}
 
 jobs:
     frontend:
@@ -47,8 +47,8 @@ jobs:
               uses: 'google-github-actions/auth@v1'
               with:
                   token_format: access_token
-                  workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
-                  service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+                  workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+                  service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
                   access_token_lifetime: 900s
 
             ## artifact registry auth setup
