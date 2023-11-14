@@ -62,7 +62,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         handleWalletSignMessage,
         signup,
         setIsLogin,
-        createUserState
+        createUserState,
     )
 
     const signupWithServer = useSignupWithServer(
@@ -74,7 +74,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setErrorCode,
         signup,
         setIsLogin,
-        createUserState
+        createUserState,
     )
 
     const loginWithServer = useLoginWithServer(
@@ -84,7 +84,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         navigate,
         setErrorCode,
         setIsLogin,
-        createUserState
+        createUserState,
     )
 
     const loginWithWallet = useLoginWithWallet(
@@ -94,7 +94,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         setErrorCode,
         handleWalletSignMessage,
         setIsLogin,
-        createUserState
+        createUserState,
     )
 
     const authVarients = {
@@ -115,7 +115,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         <div
             className={clsx(
                 `w-full flex items-center justify-center gap-8`,
-                isSmallDevice && 'flex-col'
+                isSmallDevice && 'flex-col',
             )}
         >
             {isShow && (

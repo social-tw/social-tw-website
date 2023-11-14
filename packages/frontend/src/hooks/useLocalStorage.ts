@@ -9,7 +9,7 @@ export const useLocalStorage = (keyName: string, defaultValue: null) => {
             } else {
                 window.localStorage.setItem(
                     keyName,
-                    JSON.stringify(defaultValue)
+                    JSON.stringify(defaultValue),
                 )
                 return defaultValue
             }

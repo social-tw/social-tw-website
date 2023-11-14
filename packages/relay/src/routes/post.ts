@@ -15,27 +15,27 @@ export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia
+    helia: Helia,
 ) => {
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
             await fetchPosts(req, res, db)
-        })
+        }),
     )
 
     app.post(
         '/api/post',
         errorHandler(async (req, res, next) => {
             await createPost(req, res, db, synchronizer, helia)
-        })
+        }),
     )
 
     app.get(
         '/api/post/:id',
         errorHandler(async (req, res, next) => {
             await fetchSinglePost(req, res, db)
-        })
+        }),
     )
 }
 
@@ -70,7 +70,7 @@ async function createPost(
     res,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia
+    helia: Helia,
 ) {
     try {
         const { content, publicSignals, proof } = req.body
@@ -79,7 +79,7 @@ async function createPost(
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // get current epoch and unirep contract
@@ -96,7 +96,7 @@ async function createPost(
         const isStateTreeValid = await synchronizer.stateTreeRootExists(
             epochKeyProof.stateTreeRoot,
             Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId
+            epochKeyProof.attesterId,
         )
         if (!isStateTreeValid) {
             res.status(400).json({ error: 'Invalid State Tree' })
@@ -135,7 +135,7 @@ async function createPost(
 
         const hash = await TransactionManager.queueTransaction(
             APP_ADDRESS,
-            calldata
+            calldata,
         )
 
         const epochKey = epochKeyProof.epochKey.toString()

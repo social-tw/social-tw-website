@@ -38,7 +38,7 @@ export const createVerifierName = (circuit: string) => {
 export const genVerifier = (contractName: string, vk: any): string => {
     const templatePath = path.resolve(
         __dirname,
-        './template/groth16Verifier.txt'
+        './template/groth16Verifier.txt',
     )
 
     let template = fs.readFileSync(templatePath, 'utf8')
@@ -73,7 +73,7 @@ export const genVerifier = (contractName: string, vk: any): string => {
 
     template = template.replaceAll(
         '<%vk_input_length%>',
-        (vk.IC.length - 1).toString()
+        (vk.IC.length - 1).toString(),
     )
     template = template.replace('<%vk_ic_length%>', vk.IC.length.toString())
     let vi = ''

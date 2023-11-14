@@ -93,7 +93,7 @@ export class TransactionManager {
                 err
                     .toString()
                     .indexOf(
-                        'Your app has exceeded its compute units per second capacity'
+                        'Your app has exceeded its compute units per second capacity',
                     ) !== -1
             ) {
                 await new Promise((r) => setTimeout(r, 1000))
@@ -144,7 +144,7 @@ export class TransactionManager {
     async executeTransaction(
         contract: Contract,
         to: string,
-        data: string | any = {}
+        data: string | any = {},
     ): Promise<(ethers.utils.LogDescription | null)[]> {
         const hash = await this.queueTransaction(to, data)
         const receipt = await this.wallet?.provider.waitForTransaction(hash)
@@ -160,7 +160,7 @@ export class TransactionManager {
                     }
                 })
                 .filter(
-                    (log: ethers.utils.LogDescription | null) => log !== null
+                    (log: ethers.utils.LogDescription | null) => log !== null,
                 )
         }
         return parsedLogs ?? null

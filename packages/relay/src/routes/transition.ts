@@ -7,7 +7,7 @@ import { UnirepSocialSynchronizer } from '../synchornizer'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.post('/api/transition', async (req, res) => {
         try {
@@ -15,7 +15,7 @@ export default (
             const transitionProof = new UserStateTransitionProof(
                 publicSignals,
                 proof,
-                synchronizer.prover
+                synchronizer.prover,
             )
             const valid = await transitionProof.verify()
             if (!valid) {
@@ -26,11 +26,11 @@ export default (
             const calldata =
                 synchronizer.unirepContract.interface.encodeFunctionData(
                     'userStateTransition',
-                    [transitionProof.publicSignals, transitionProof.proof]
+                    [transitionProof.publicSignals, transitionProof.proof],
                 )
             const hash = await TransactionManager.queueTransaction(
                 synchronizer.unirepContract.address,
-                calldata
+                calldata,
             )
             res.json({ hash })
         } catch (error: any) {

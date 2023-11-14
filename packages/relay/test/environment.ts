@@ -33,7 +33,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
             provider: provider,
             unirepAddress: unirep.address,
         },
-        unirepApp
+        unirepApp,
     )
 
     console.log('Starting synchronizer...')
@@ -53,7 +53,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     const app = express()
     const port = process.env.PORT ?? 8000
     const server = app.listen(port, () =>
-        console.log(`Listening on port ${port}`)
+        console.log(`Listening on port ${port}`),
     )
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')

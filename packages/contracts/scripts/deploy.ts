@@ -16,7 +16,7 @@ export async function main() {
     const { unirep, app } = await deployApp(signer, epochLength)
 
     console.log(
-        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
+        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`,
     )
 
     const config = `export default {

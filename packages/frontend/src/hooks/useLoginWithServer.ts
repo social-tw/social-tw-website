@@ -8,7 +8,7 @@ const useLoginWithServer = (
     navigate: (path: string) => void,
     setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     setIsLogin: (param: any) => void,
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<UserState>,
 ) => {
     const loginWithServer = async () => {
         try {

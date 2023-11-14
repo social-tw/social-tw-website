@@ -50,7 +50,7 @@ describe('POST /vote', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         const initUser = await userService.getLoginUser(db, '123', undefined)
@@ -58,7 +58,7 @@ describe('POST /vote', function () {
             initUser,
             userStateFactory,
             userService,
-            synchronizer
+            synchronizer,
         )
 
         await userState.waitForSync()
@@ -71,8 +71,8 @@ describe('POST /vote', function () {
         const postResponses = await Promise.all(postPromises)
         await Promise.all(
             postResponses.map((res) =>
-                ethers.provider.waitForTransaction(res.transaction)
-            )
+                ethers.provider.waitForTransaction(res.transaction),
+            ),
         )
         await sync.waitForSync()
 
@@ -110,7 +110,7 @@ describe('POST /vote', function () {
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         })
     }
@@ -134,7 +134,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(201)
         // check the post is upvoted only
@@ -144,7 +144,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(downvoteResponse.status).equal(201)
         // check the post is downvoted only
@@ -164,7 +164,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
@@ -177,7 +177,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(downvoteResponse.status).equal(400)
         await downvoteResponse.json().then((res) => {
@@ -198,7 +198,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(downvoteResponse.status).equal(400)
         await downvoteResponse.json().then((res) => {
@@ -211,7 +211,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
@@ -232,7 +232,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(201)
         // check the post is neither upvoted nor downvoted
@@ -244,7 +244,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(downvoteResponse.status).equal(201)
         // check the post is neither upvoted nor downvoted
@@ -265,7 +265,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
@@ -278,7 +278,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(downvoteResponse.status).equal(400)
         await downvoteResponse.json().then((res) => {
@@ -296,7 +296,7 @@ describe('POST /vote', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -314,7 +314,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             otherPostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
@@ -335,7 +335,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             otherPostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
@@ -354,7 +354,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             'invalid',
             VoteAction.UPVOTE,
-            epochKeyProof
+            epochKeyProof,
         )
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
