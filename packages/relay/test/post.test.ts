@@ -22,13 +22,12 @@ import { signUp } from './utils/signUp'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-
 describe('POST /post', function () {
-    beforeEach(async function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
@@ -62,7 +61,7 @@ describe('POST /post', function () {
         expect(hasSignedUp).equal(true)
     })
 
-    afterEach(async function () {
+    after(async function () {
         ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })

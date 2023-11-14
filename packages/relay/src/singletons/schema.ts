@@ -31,6 +31,7 @@ const _schema = [
     },
     {
         name: 'Post',
+        primaryKey: 'transactionHash',
         rows: [
             {
                 name: 'publishedAt',
@@ -38,7 +39,7 @@ const _schema = [
                 default: () => +new Date(),
             },
             ['postId', 'String', { optional: true }],
-            ['transactionHash', 'String', { optional: true }],
+            ['transactionHash', 'String'],
             ['content', 'String', { optional: true }],
             ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
@@ -102,6 +103,27 @@ const _schema = [
             ['epochKey', 'String'],
             ['epoch', 'Int'],
             ['count', 'Int'],
+        ],
+    },
+    {
+        name: 'Comment',
+        primaryKey: 'transactionHash',
+        rows: [
+            {
+                name: 'publishedAt',
+                type: 'Int',
+                default: () => +new Date(),
+            },
+            ['commentId', 'String'],
+            ['postId', 'String'],
+            ['transactionHash', 'String'],
+            ['content', 'String', { optional: true }],
+            ['cid', 'String', { optional: true }],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            // status 0: haven't found the comment on-chain
+            // status 1: found the comment on-chain
+            ['status', 'Int'],
         ],
     },
     {
