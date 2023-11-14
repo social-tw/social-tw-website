@@ -114,7 +114,7 @@ describe('GET /counter', function () {
         const epoch = sync.calcCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
         // add 10s to make sure this epoch ended
-        await time.increase(epochRemainingTime + 10)
+        await time.increase(epochRemainingTime + 20)
         await unirep._updateEpochIfNeeded(sync.attesterId)
         await sync.waitForSync()
 

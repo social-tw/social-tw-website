@@ -27,7 +27,7 @@ describe('POST /post', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
-    beforeEach(async function () {
+    before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
@@ -61,7 +61,7 @@ describe('POST /post', function () {
         expect(hasSignedUp).equal(true)
     })
 
-    afterEach(async function () {
+    after(async function () {
         ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
