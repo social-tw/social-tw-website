@@ -17,14 +17,13 @@ import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-let unirep: Unirep
-let anondb: DB
-
 describe('GET /counter', function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let unirep: Unirep
+    let anondb: DB
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -115,7 +114,7 @@ describe('GET /counter', function () {
         const epoch = sync.calcCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
         // add 10s to make sure this epoch ended
-        await time.increase(epochRemainingTime + 10)
+        await time.increase(epochRemainingTime + 20)
         await unirep._updateEpochIfNeeded(sync.attesterId)
         await sync.waitForSync()
 
