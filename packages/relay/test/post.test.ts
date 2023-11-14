@@ -62,7 +62,7 @@ describe('POST /post', function () {
     })
 
     after(async function () {
-        ethers.provider.send('evm_revert', [snapshot])
+        await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 

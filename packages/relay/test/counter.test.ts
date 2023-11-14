@@ -13,7 +13,6 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 
-import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 
@@ -59,7 +58,7 @@ describe('GET /counter', function () {
     })
 
     after(async function () {
-        ethers.provider.send('evm_revert', [snapshot])
+        await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
@@ -111,11 +110,16 @@ describe('GET /counter', function () {
     // put this test in the end since this test will
     // go to next epoch
     it('should delete the EpochKeyAction table after the epoch ended', async function () {
-        const epoch = sync.calcCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
+
+        await ethers.provider.send('evm_increaseTime', [
+            epochRemainingTime + 100000,
+        ])
+
         // add 10s to make sure this epoch ended
-        await time.increase(epochRemainingTime + 20)
-        await unirep._updateEpochIfNeeded(sync.attesterId)
+        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
+
         await sync.waitForSync()
 
         const rows = await anondb.count('EpochKeyAction', {

@@ -1,14 +1,12 @@
 import { DB } from 'anondb'
-import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
+import { LOAD_POST_COUNT } from '../config'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { SnarkProof } from '@unirep/utils'
 import { epochKeyService } from './EpochKeyService'
-import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { ethers } from 'hardhat'
-import TransactionManager from '../singletons/TransactionManager'
 import { addActionCount } from '../utils/TransactionHelper'
 import { Post } from '../types/Post'
+import { ipfsService } from './IpfsService'
 
 export class PostService {
     async fetchPosts(
@@ -49,27 +47,14 @@ export class PostService {
             proof,
             synchronizer
         )
-        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
         // post content
-        const calldata = appContract.interface.encodeFunctionData('post', [
+        const cid = await ipfsService.createIpfsContent(helia, content)
+        const txnHash = await epochKeyService.callContract('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
             content,
         ])
-
-        // store content into helia ipfs node with json plain
-        const { json } = await eval("import('@helia/json')")
-        const heliaJson = json(helia)
-        const IPFSContent = {
-            content: content,
-        }
-        const cid = await heliaJson.add(JSON.stringify(IPFSContent))
-
-        const hash = await TransactionManager.queueTransaction(
-            APP_ADDRESS,
-            calldata
-        )
 
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
@@ -81,15 +66,19 @@ export class PostService {
                 cid: cid.toString(),
                 epochKey: epochKey,
                 epoch: epoch,
-                transactionHash: hash,
+                transactionHash: txnHash,
                 status: 0,
             })
             return 1
         })
-        return hash
+        return txnHash
     }
 
-    async fetchSinglePost(id: string, db: DB, status: number | undefined): Promise<Post | null> {
+    async fetchSinglePost(
+        id: string,
+        db: DB,
+        status: number | undefined
+    ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,

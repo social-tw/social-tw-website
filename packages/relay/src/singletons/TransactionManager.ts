@@ -188,7 +188,7 @@ export class TransactionManager {
         if (!args.gasLimit) {
             // don't estimate, use this for unpredictable gas limit tx's
             // transactions may revert with this
-            let gasLimit
+            let gasLimit: ethers.BigNumber = ethers.BigNumber.from(0)
             try {
                 gasLimit = await this.wallet.provider.estimateGas({
                     to,
@@ -208,7 +208,7 @@ export class TransactionManager {
             }
 
             Object.assign(args, {
-                gasLimit: gasLimit.add(50000),
+                gasLimit: gasLimit?.add(50000),
             })
         }
         const nonce = await this.getNonce(this.wallet.address)

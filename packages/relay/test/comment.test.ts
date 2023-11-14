@@ -24,12 +24,12 @@ import { Post } from '../src/types/Post'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
+describe('COMMENT /comment', function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
 
-describe('POST /comment', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -68,19 +68,17 @@ describe('POST /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        await fetch(`${HTTP_SERVER}/api/post`).then(
-            async (r) => {
-                expect(r.status).equal(200)
-                const posts = (await r.json()) as Post[]
-                expect(posts.length).equal(1)
-                expect(posts[0].status).equal(1)
-                return posts[0]
-            }
-        )
+        await fetch(`${HTTP_SERVER}/api/post`).then(async (r) => {
+            expect(r.status).equal(200)
+            const posts = (await r.json()) as Post[]
+            expect(posts.length).equal(1)
+            expect(posts[0].status).equal(1)
+            return posts[0]
+        })
     })
 
     after(async function () {
-        ethers.provider.send('evm_revert', [snapshot])
+        await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
@@ -120,8 +118,6 @@ describe('POST /comment', function () {
             expect(r.status).equal(200)
             return r.json()
         })
-        console.log("comment", comments[0])
-        console.log("epochkey", result)
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)

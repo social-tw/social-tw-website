@@ -37,14 +37,17 @@ export default (
                     throw new InternalError('Could not have empty content', 400)
                 }
 
-                const post = await postService.fetchSinglePost(postId.toString(), db, 1)
+                const post = await postService.fetchSinglePost(
+                    postId.toString(),
+                    db,
+                    1
+                )
                 if (!post) {
                     throw new InternalError(
                         'Post does not exist, please try later',
                         400
                     )
                 }
-                console.log("post", post)
                 const hash = await commentService.leaveComment(
                     postId.toString(),
                     content,

@@ -7,7 +7,7 @@ import { UserState } from '@unirep/core'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { userService } from '../src/services/UserService'
-import { singUp } from './utils/signUp'
+import { signUp } from './utils/signUp'
 
 describe('Synchronize Comment Test', function () {
     let snapshot: any
@@ -55,7 +55,7 @@ describe('Synchronize Comment Test', function () {
                 undefined
             )
 
-            let userState = await singUp(
+            let userState = await signUp(
                 initUser,
                 userStateFactory,
                 userService,
