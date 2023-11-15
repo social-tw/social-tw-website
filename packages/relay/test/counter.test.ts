@@ -113,11 +113,11 @@ describe('GET /counter', function () {
         const epoch = await sync.loadCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
 
+        // add epoch time to make sure this epoch ended
         await ethers.provider.send('evm_increaseTime', [
             epochRemainingTime + 100000,
         ])
 
-        // add 10s to make sure this epoch ended
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
 
         await sync.waitForSync()

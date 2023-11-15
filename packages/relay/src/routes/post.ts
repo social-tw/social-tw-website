@@ -53,7 +53,7 @@ export default (
             const id = req.params.id
             if (!id) {
                 console.log('id is undefined')
-                res.status(400).json({ error: 'id is undefined' })
+                return res.status(400).json({ error: 'id is undefined' })
             }
 
             const post = await postService.fetchSinglePost(id, db, undefined)

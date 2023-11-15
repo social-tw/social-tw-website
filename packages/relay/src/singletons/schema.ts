@@ -106,27 +106,6 @@ const _schema = [
         ],
     },
     {
-        name: 'Comment',
-        primaryKey: 'transactionHash',
-        rows: [
-            {
-                name: 'publishedAt',
-                type: 'Int',
-                default: () => +new Date(),
-            },
-            ['commentId', 'String'],
-            ['postId', 'String'],
-            ['transactionHash', 'String'],
-            ['content', 'String', { optional: true }],
-            ['cid', 'String', { optional: true }],
-            ['epoch', 'Int'],
-            ['epochKey', 'String'],
-            // status 0: haven't found the comment on-chain
-            // status 1: found the comment on-chain
-            ['status', 'Int'],
-        ],
-    },
-    {
         name: 'Vote',
         primaryKey: ['postId', 'epochKey'],
         rows: [
