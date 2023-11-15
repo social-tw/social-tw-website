@@ -78,15 +78,6 @@ const _schema = [
         ],
     },
     {
-        name: 'EpochKeyAction',
-        primaryKey: 'epochKey',
-        rows: [
-            ['epochKey', 'String'],
-            ['epoch', 'Int'],
-            ['count', 'Int'],
-        ],
-    },
-    {
         name: 'Comment',
         primaryKey: 'transactionHash',
         rows: [
@@ -95,16 +86,23 @@ const _schema = [
                 type: 'Int',
                 default: () => +new Date(),
             },
-            ['commentId', 'String'],
+            ['commentId', 'String', { optional: true }],
             ['postId', 'String'],
-            ['transactionHash', 'String'],
-            ['content', 'String', { optional: true }],
             ['cid', 'String', { optional: true }],
+            ['transactionHash', 'String'],
+            ['content', 'String'],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
-            // status 0: haven't found the comment on-chain
-            // status 1: found the comment on-chain
             ['status', 'Int'],
+        ],
+    },
+    {
+        name: 'EpochKeyAction',
+        primaryKey: 'epochKey',
+        rows: [
+            ['epochKey', 'String'],
+            ['epoch', 'Int'],
+            ['count', 'Int'],
         ],
     },
     {
