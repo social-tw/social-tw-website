@@ -21,6 +21,7 @@ import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 import { Post } from '../src/types/Post'
+import { io } from 'socket.io-client'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -85,11 +86,22 @@ describe('COMMENT /comment', function () {
     it('should create a comment', async function () {
         // TODO: Look for fuzzer to test content
         const testContent = 'test content'
-
-        // create a comment
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
         })
+
+        // set up socket listener
+        const clientSocket = io(HTTP_SERVER)
+        clientSocket.on('comment', (...args) => {
+            const [comment] = args
+            expect(comment.postId).equal('0')
+            expect(comment.content).equal(testContent)
+            expect(comment.epochKey).equal(epochKeyProof.epochKey)
+            expect(comment.epoch).equal(epochKeyProof.epoch)
+            clientSocket.close()
+        })
+
+        // create a comment
         const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
             method: 'POST',
             headers: {
