@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import Countdown from 'react-countdown'
-import epochImg from '../assets/epoch.svg?url'
-import useEpoch from '../hooks/useEpoch'
+import { useEffect, useState } from "react";
+import Countdown from "react-countdown";
+import epochImg from "@/assets/epoch.svg?url";
+import useEpoch from "@/hooks/useEpoch";
 
 const epochLength = 300000
 

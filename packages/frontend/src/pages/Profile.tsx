@@ -1,9 +1,8 @@
-import React from 'react'
-import LoginButton from '../components/login/LoginButton'
-import { useUser } from '../contexts/User'
-import { RiLogoutBoxRLine } from 'react-icons/ri'
-import Avatar from '../assets/avatar.png'
-import { useNavigate } from 'react-router-dom'
+import { RiLogoutBoxRLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import Avatar from "@/assets/avatar.png";
+import LoginButton from "@/components/login/LoginButton";
+import { useUser } from "@/contexts/User";
 
 const Profile = () => {
     const { logout, signupStatus } = useUser()
@@ -13,7 +12,7 @@ const Profile = () => {
         logout()
     }
     return (
-        <div className="h-screen w-full flex justify-center md:pt-24 pt-8 px-4">
+        <div className="flex justify-center w-full h-screen px-4 pt-8 md:pt-24">
             <div className="w-full md:w-11/12 md:max-w-[400px] flex flex-col items-center gap-8">
                 <div className="w-[100px] h-[100px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center">
                     <img src={Avatar} alt="Avatar" />

@@ -1,26 +1,21 @@
-import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 import {
-    Link,
-    NavLink,
-    Outlet,
-    useLocation,
-    useMatch,
-    useNavigate,
-} from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import ArrowLeftIcon from '../assets/arrow-left.svg'
-import BellIcon from '../assets/bell.svg'
-import HomeIcon from '../assets/home.svg'
-import Logo from '../assets/logo.png'
-import PersonCircleIcon from '../assets/person-circle.svg'
-import SearchIcon from '../assets/search.svg'
-import StarIcon from '../assets/star.svg'
-import EpochInfo from '../components/EpochInfo'
-import MobileNavbar from '../components/layout/MobileNavbar'
-import ErrorModal from '../components/modal/ErrorModal'
-import ActionNotification from '../components/notification/ActionNotification'
-import { useUser } from '../contexts/User'
+    Link, NavLink, Outlet, useLocation, useMatch, useNavigate
+} from "react-router-dom";
+import ArrowLeftIcon from "@/assets/arrow-left.svg";
+import BellIcon from "@/assets/bell.svg";
+import HomeIcon from "@/assets/home.svg";
+import Logo from "@/assets/logo.png";
+import PersonCircleIcon from "@/assets/person-circle.svg";
+import SearchIcon from "@/assets/search.svg";
+import StarIcon from "@/assets/star.svg";
+import ActionNotification from "@/components/layout/ActionNotification";
+import EpochInfo from "@/components/layout/EpochInfo";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import AuthErrorDialog from "@/components/login/AuthErrorDialog";
+import { useUser } from "@/contexts/User";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -69,7 +64,7 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-8">
-                <ErrorModal isOpen={signupStatus === 'error'} />
+                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -95,13 +90,13 @@ export default function AppLayout() {
                 <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
-                <MobileNavbar isShow={isShow} signupStatus={signupStatus} />
+                <MobileBottomNav isShow={isShow} signupStatus={signupStatus} />
             </div>
         )
     } else {
         return (
             <div className="flex min-h-screen divide-x divide-neutral-600">
-                <ErrorModal isOpen={signupStatus === 'error'} />
+                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">

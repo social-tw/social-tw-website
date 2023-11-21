@@ -1,6 +1,6 @@
-import React from 'react'
-import { IconType } from 'react-icons'
-import Modal from './Modal'
+import React from "react";
+import { IconType } from "react-icons";
+import Dialog from "@/components/common/Dialog";
 
 interface NoteModallProps {
     noteStatus: string
@@ -8,7 +8,7 @@ interface NoteModallProps {
     onClose: () => void
 }
 
-const NoteModal: React.FC<NoteModallProps> = ({
+const AuthNoteDialog: React.FC<NoteModallProps> = ({
     noteStatus,
     icon: Icon,
     onClose,
@@ -19,7 +19,7 @@ const NoteModal: React.FC<NoteModallProps> = ({
         case 'metamask':
             content = (
                 <>
-                    <p className="underline font-semibold">
+                    <p className="font-semibold underline">
                         什麼是 MetaMask 錢包？
                     </p>
                     <p>
@@ -46,7 +46,7 @@ const NoteModal: React.FC<NoteModallProps> = ({
         case 'server':
             content = (
                 <>
-                    <p className="underline font-semibold">
+                    <p className="font-semibold underline">
                         甚麼是 Server 註冊？
                     </p>
                     <p>
@@ -61,24 +61,14 @@ const NoteModal: React.FC<NoteModallProps> = ({
             )
             break
     }
+
     return (
-        <Modal
-            isOpen={noteStatus !== 'close'}
-            postion="fixed"
-            background={'bg-black/70'}
-        >
-            <div className="flex flex-col justify-center items-center h-full p-4">
-                <div className="relative p-12 flex flex-col gap-4 bg-white/95 max-w-[600px] overflow-auto leading-7 text-[15px] tracking-wider text-black rounded-lg">
-                    <Icon
-                        className="absolute md:right-8 md:top-8 right-4 top-4 cursor-pointer"
-                        size={24}
-                        onClick={onClose}
-                    />
-                    {content}
-                </div>
+        <Dialog isOpen={noteStatus !== 'close'} onClose={onClose}>
+            <div className="p-12 flex flex-col gap-4 overflow-auto leading-7 text-[15px] tracking-wider text-black rounded-lg">
+                {content}
             </div>
-        </Modal>
+        </Dialog>
     )
 }
 
-export default NoteModal
+export default AuthNoteDialog

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
+import React, { useEffect, useRef } from "react";
 
 interface ScrollingModalProps {
     children: React.ReactNode
@@ -7,7 +7,7 @@ interface ScrollingModalProps {
     variants: any
 }
 
-const ScrollingModal: React.FC<ScrollingModalProps> = ({
+const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
     children,
     method,
     variants,
@@ -67,4 +67,4 @@ const ScrollingModal: React.FC<ScrollingModalProps> = ({
     )
 }
 
-export default ScrollingModal
+export default WelcomeBackgroundList

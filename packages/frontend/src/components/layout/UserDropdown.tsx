@@ -1,6 +1,6 @@
-import React from 'react'
-import { VscAccount } from 'react-icons/vsc'
-import { useUser } from '../../contexts/User'
+import React from "react";
+import { VscAccount } from "react-icons/vsc";
+import { useUser } from "@/contexts/User";
 
 const UserDropdown: React.FC = () => {
     const { logout } = useUser()

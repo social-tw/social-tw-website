@@ -1,17 +1,17 @@
-import clsx from 'clsx'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import Dialog from '../components/Dialog'
-import SignupLoadingModal from '../components/modal/SignupLoadingModal'
-import Post from '../components/post/Post'
-import PostForm, { PostValues } from '../components/post/PostForm'
-import { SERVER } from '../config'
-import { useUser } from '../contexts/User'
-import useCreatePost from '../hooks/useCreatePost'
-import { CancelledTaskError } from '../utils/makeCancellableTask'
+import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Dialog from "@/components/common/Dialog";
+import SignupLoadingModal from "@/components/login/SignupPendingTransition";
+import Post from "@/components/post/Post";
+import PostForm, { PostValues } from "@/components/post/PostForm";
+import { SERVER } from "@/config";
+import { useUser } from "@/contexts/User";
+import useCreatePost from "@/hooks/useCreatePost";
+import { CancelledTaskError } from "@/utils/makeCancellableTask";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
-import type { PostInfo } from '../types'
+import type { PostInfo } from '@/types'
 
 const examplePosts = [
     {
@@ -47,7 +47,6 @@ const examplePosts = [
 ]
 
 export default function PostList() {
-    const errorDialog = useRef<HTMLDialogElement>(null)
     const { isLogin, signupStatus } = useUser()
     const [posts, setPosts] = useState<PostInfo[]>([])
     const [isShow, setIsShow] = useState(false)
@@ -88,6 +87,7 @@ export default function PostList() {
     const { create, cancel, reset, isCancellable, isCancelled } =
         useCreatePost()
 
+    const [isOpenError, setIsOpenError] = useState(false)
     const onSubmit = async (values: PostValues) => {
         try {
             await create(values.content)
@@ -96,7 +96,7 @@ export default function PostList() {
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {
-                errorDialog?.current?.showModal()
+                setIsOpenError(true)
             }
         }
     }
@@ -109,7 +109,7 @@ export default function PostList() {
                 `px-4`,
                 !isSmallDevice && 'divide-y divide-neutral-600',
                 location.pathname === '/login' &&
-                    'max-w-[600px] w-11/12 h-screen'
+                'max-w-[600px] w-11/12 h-screen'
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (
@@ -152,7 +152,7 @@ export default function PostList() {
                     ))}
                 </ul>
             </section>
-            <Dialog ref={errorDialog} ariaLabel="post error message">
+            <Dialog isOpen={isOpenError} onClose={() => setIsOpenError(false)}>
                 <section className="p-6 md:px-12">
                     <p className="text-base font-medium text-black/90">
                         親愛的用戶：

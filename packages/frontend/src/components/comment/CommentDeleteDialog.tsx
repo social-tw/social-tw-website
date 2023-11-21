@@ -1,9 +1,9 @@
-import Dialog from '../Dialog'
+import Dialog from "@/components/common/Dialog";
 
 export default function CommentDeleteDialog({
     open = false,
-    onClose = () => {},
-    onConfirm = () => {},
+    onClose = () => { },
+    onConfirm = () => { },
 }: {
     open?: boolean
     onClose?: () => void
@@ -15,9 +15,8 @@ export default function CommentDeleteDialog({
 
     return (
         <Dialog
-            open={open}
+            isOpen={open}
             onClose={onClose}
-            ariaLabel="confirm-to-delete-comment"
         >
             <section className="p-6 md:px-12">
                 <p className="text-base font-medium text-black/90">

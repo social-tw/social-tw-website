@@ -1,16 +1,16 @@
-import React from 'react'
-import Modal from './Modal'
-import { GrFormClose } from 'react-icons/gr'
-import { useUser } from '../../contexts/User'
-import { useNavigate } from 'react-router-dom'
-import useErrorMessage from '../../hooks/useErrorMessage'
+import React from "react";
+import { GrFormClose } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
+import Backdrop from "@/components/common/Backdrop";
+import { useUser } from "@/contexts/User";
+import useErrorMessage from "@/hooks/useErrorMessage";
 
 interface ErrorModalProps {
     isOpen: boolean
     buttonText?: string
 }
 
-const ErrorModal: React.FC<ErrorModalProps> = ({
+const AuthErrorDialog: React.FC<ErrorModalProps> = ({
     isOpen,
     buttonText = '返回註冊頁重新嘗試',
 }) => {
@@ -24,11 +24,11 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
     }
 
     return (
-        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/75'}>
+        <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/75'}>
             <div className="flex items-center justify-center w-full h-full p-4">
                 <div className="p-12 flex flex-col justify-center items-center bg-white/80 relative text-black text-[15px] tracking-wider gap-12 rounded-lg">
                     <GrFormClose
-                        className="absolute top-4 right-4 cursor-pointer"
+                        className="absolute cursor-pointer top-4 right-4"
                         size={24}
                         onClick={handleClick}
                     />
@@ -44,8 +44,8 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
                     </button>
                 </div>
             </div>
-        </Modal>
+        </Backdrop>
     )
 }
 
-export default ErrorModal
+export default AuthErrorDialog

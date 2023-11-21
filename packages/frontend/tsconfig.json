@@ -17,7 +17,10 @@
         "jsx": "react-jsx",
         "typeRoots": ["./types", "./node_modules/@types"],
         "useDefineForClassFields": true,
-        "outDir": "build"
+        "outDir": "build",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
     "include": ["src", "../../node_modules/ts-jest/globals.d.ts"],
     "exclude": ["node_modules", "typings", "build/**/*"]

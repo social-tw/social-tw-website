@@ -1,7 +1,6 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { clsx } from 'clsx'
-import React from 'react'
-import { IconType, icons } from 'react-icons'
+import { clsx } from "clsx";
+import React from "react";
+import { IconType } from "react-icons";
 
 interface LoginButtonProps {
     icon?: IconType

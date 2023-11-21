@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
-import AuthForm from '../components/login/AuthForm'
-import { motion } from 'framer-motion'
-import { clsx } from 'clsx'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IoChevronBack } from 'react-icons/io5'
-import StepInfo from '../components/login/StepInfo'
-import LogoWhite from '../assets/logo-white.png'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import PostList from './PostList'
-import ScrollingModal from '../components/modal/ui/ScrollingModal'
-import ErrorModal from '../components/modal/ErrorModal'
-import { useUser } from '../contexts/User'
+import { clsx } from "clsx";
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { IoChevronBack } from "react-icons/io5";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import LogoWhite from "@/assets/logo-white.png";
+import AuthErrorDialog from "@/components/login/AuthErrorDialog";
+import AuthForm from "@/components/login/AuthForm";
+import StepInfo from "@/components/login/StepInfo";
+import WelcomeBackgroundList from "@/components/login/WelcomeBackgroundList";
+import { useUser } from "@/contexts/User";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import PostList from "./PostList";
 
 type Method = '' | 'signup' | 'login'
 
@@ -26,8 +26,8 @@ const Login: React.FC = () => {
         status === '1'
             ? 'signup'
             : status === '2' || status === '3'
-            ? 'login'
-            : ''
+                ? 'login'
+                : ''
     )
     const [isShow, setIsShow] = useState<boolean>(false)
 
@@ -93,8 +93,8 @@ const Login: React.FC = () => {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className="flex flex-col h-full items-center">
-            <ErrorModal isOpen={errorCode !== ''} />
+        <div className="flex flex-col items-center h-full">
+            <AuthErrorDialog isOpen={errorCode !== ''} />
             <div
                 className={clsx(
                     `z-20 flex flex-col w-11/12`,
@@ -149,7 +149,7 @@ const Login: React.FC = () => {
                     )}
 
                     {method !== '' && (
-                        <div className="md:hidden flex flex-col text-white font-semibold text-2xl tracking-wider mt-24">
+                        <div className="flex flex-col mt-24 text-2xl font-semibold tracking-wider text-white md:hidden">
                             {isShow ? <p>您尚未註冊</p> : <p>歡迎回到</p>}
                             <p>Unirep Social TW！</p>
                             {method === 'login' && hashUserId && !isShow && (
@@ -162,13 +162,13 @@ const Login: React.FC = () => {
                     )}
 
                     {status === '1' && !isShow && (
-                        <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                        <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
                             再一步即可完成註冊
                         </p>
                     )}
 
                     {(status === '2' || status === '3') && !isShow && (
-                        <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                        <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
                             再一步即可完成登入
                         </p>
                     )}
@@ -198,7 +198,7 @@ const Login: React.FC = () => {
                         onClick={handleBack}
                     >
                         <IoChevronBack size={16} />
-                        <span className="md:block hidden mx-2 text-sm font-bold">
+                        <span className="hidden mx-2 text-sm font-bold md:block">
                             回到註冊頁
                         </span>
                     </div>
@@ -216,9 +216,9 @@ const Login: React.FC = () => {
                 handleClick={handleClick}
             />
             {method === '' && (
-                <ScrollingModal method={method} variants={postListVariants}>
+                <WelcomeBackgroundList method={method} variants={postListVariants}>
                     <PostList />
-                </ScrollingModal>
+                </WelcomeBackgroundList>
             )}
         </div>
     )

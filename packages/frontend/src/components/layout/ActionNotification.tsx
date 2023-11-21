@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Dialog } from '@headlessui/react'
-import CloseIcon from '../../assets/close.svg'
-import PostIcon from '../../assets/post.svg'
-import ActionTable from './ActionTable'
+import { useState } from "react";
+import CloseIcon from "@/assets/close.svg";
+import PostIcon from "@/assets/post.svg";
+import { Dialog } from "@headlessui/react";
+import ActionTable from "./ActionTable";
 
 export default function ActionNotification() {
     const [isOpen, setIsOpen] = useState(false)
