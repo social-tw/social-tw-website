@@ -26,12 +26,11 @@ export default function CommentForm({
     isSubmitCancelled?: boolean
     disabled?: boolean
 }) {
-    const { handleSubmit, control, reset, formState } =
-        useForm<CommentValues>({
-            defaultValues: {
-                content: '',
-            },
-        })
+    const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
+        defaultValues: {
+            content: '',
+        },
+    })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 

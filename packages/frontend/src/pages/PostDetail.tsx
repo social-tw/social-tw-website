@@ -3,7 +3,9 @@ import { CommentStatus, PostInfo } from '../types'
 import { useParams } from 'react-router-dom'
 import Post from '../components/post/Post'
 import Comment from '../components/comment/Comment'
-import CommentForm, { CommentValues } from '../components/comment/MobileCommentForm'
+import CommentForm, {
+    CommentValues,
+} from '../components/comment/MobileCommentForm'
 import TransactionModal from '../components/modal/ui/comment/TransactionModal'
 import ErrorModal from '../components/modal/ErrorModal'
 import { useUser } from '../contexts/User'
@@ -123,25 +125,25 @@ export default function PostDetail() {
                     <ul className="divide-y divide-neutral-600">
                         {demoComments.map((comment, i) => (
                             <li key={i}>
-                                <Comment {...comment}/>
+                                <Comment {...comment} />
                             </li>
                         ))}
                     </ul>
                 </section>
             </div>
-            {isSmallDevice ? 
+            {isSmallDevice ? (
                 <CommentForm
                     isOpen={isOpen && isLogin}
                     onSubmit={onSubmit}
                     onCancel={() => setIsOpen(false)}
                 />
-                :
+            ) : (
                 <DesktopCommentForm
                     isOpen={isOpen && isLogin}
                     onSubmit={onSubmit}
                     onCancel={() => setIsOpen(false)}
                 />
-            }
+            )}
             <ErrorModal
                 isOpen={isOpen && !isLogin}
                 buttonText="返回註冊/登入頁"
