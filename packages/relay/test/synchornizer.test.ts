@@ -8,6 +8,8 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { userService } from '../src/services/UserService'
 import { signUp } from './utils/signUp'
+import { HTTP_SERVER } from './configs'
+import { io } from 'socket.io-client'
 
 describe('Synchronize Comment Test', function () {
     let snapshot: any
@@ -119,6 +121,16 @@ describe('Synchronize Comment Test', function () {
             const epoch = await sync.loadCurrentEpoch()
             const { publicSignals, proof } = await userState.genEpochKeyProof({
                 epoch,
+            })
+
+            // set up socket listener
+            const clientSocket = io(HTTP_SERVER)
+            clientSocket.on('comment', (...args) => {
+                const [comment] = args
+                expect(comment.postId).equal('0')
+                expect(comment.content).equal(commentContent)
+                expect(comment.epoch).equal(epoch)
+                clientSocket.close()
             })
 
             await expect(

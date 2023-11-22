@@ -6,6 +6,7 @@ import { UserRegisterStatus } from './types'
 import schema from './singletons/schema'
 import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
+import { socketManager } from './singletons/SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -130,6 +131,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 },
             })
         }
+
+        socketManager.emitComment({
+            postId: postId,
+            content: content,
+            epochKey: epochKey,
+            epoch: epoch,
+        })
 
         return true
     }
