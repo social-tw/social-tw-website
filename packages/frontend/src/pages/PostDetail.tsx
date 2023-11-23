@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Comment from "@/components/comment/Comment";
 import CommentPublishTransition from "@/components/comment/CommentPublishTransition";
 import DesktopCommentForm from "@/components/comment/DesktopCommentForm";
-import CommentForm, {
+import MobileCommentForm, {
     CommentValues
 } from "@/components/comment/MobileCommentForm";
 import AuthErrorDialog from "@/components/login/AuthErrorDialog";
@@ -11,7 +11,9 @@ import Post from "@/components/post/Post";
 import { SERVER } from "@/config";
 import LOGIN_ERROR_MESSAGES from "@/constants/error-messages/loginErrorMessage";
 import { useUser } from "@/contexts/User";
-import { CommentStatus, PostInfo } from "@/types";
+import useCreateComment from "@/hooks/useCreateComment";
+import useFetchComment from "@/hooks/useFetchComment";
+import { PostInfo } from "@/types";
 import { useMediaQuery } from "@uidotdev/usehooks";
 
 const demoPost = {
@@ -25,60 +27,49 @@ const demoPost = {
     downCount: 0,
 }
 
-const demoComments = [
-    {
-        id: '1',
-        epochKey: 'epochKey-2',
-        publishedAt: new Date(),
-        content: '台灣der小巷就是讚啦！',
-        status: CommentStatus.Success,
-        isMine: true,
-    },
-    {
-        id: '2',
-        epochKey: 'epochKey-3',
-        publishedAt: new Date(),
-        content: '這裡的芋圓推推推！',
-        status: CommentStatus.Success,
-        isMine: false,
-    },
-    {
-        id: '3',
-        epochKey: 'epochKey-4',
-        publishedAt: new Date(),
-        content: '請問這是哪裡啊？',
-        status: CommentStatus.Pending,
-        isMine: true,
-    },
-]
-
 export default function PostDetail() {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-    const { id } = useParams()
-    const [post, setPost] = useState<PostInfo>()
-    const { isLogin, setErrorCode } = useUser()
+    const { id } = useParams();
 
-    const onSubmit = async (values: CommentValues) => {
+    const { isLogin, setErrorCode } = useUser();
+
+    const [post, setPost] = useState<PostInfo>();
+
+    const { data: comments } = useFetchComment(id);
+
+    const { create: createCommnet } = useCreateComment();
+
+    const [isOpenComment, setIsOpenCommnet] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
+    const [isError, setIsError] = useState(false);
+
+    const onWriteComment = () => {
+        if (!isLogin) {
+            setIsError(true);
+            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code);
+            return;
+        }
+        setIsOpenCommnet((prev) => !prev);
+    };
+
+    const onSubmitComment = async (values: CommentValues) => {
         try {
-            console.log(values.content)
-            setIsModalOpen(true)
-            // TODO: await transactions
+            if (!id) return;
+
+            const { content } = values
+
+            setIsOpenCommnet(false)
+            setIsPublishing(true)
+
             setTimeout(() => {
-                setIsModalOpen(false)
+                setIsPublishing(false)
             }, 3000)
+
+            createCommnet(id, content);
         } catch (err) {
             console.error(err)
         }
     }
 
-    const handleClick = () => {
-        setIsOpen((prev) => !prev)
-        if (!isLogin) {
-            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
-            return
-        }
-    }
 
     useEffect(() => {
         async function loadPost() {
@@ -102,6 +93,16 @@ export default function PostDetail() {
         }
     }, [id])
 
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.hash) {
+            const id = location.hash.replace('#', '');
+            const element = document.getElementById(id);
+            element?.scrollIntoView();
+        }
+    }, [location.hash])
+
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     if (!post) return null
@@ -118,37 +119,38 @@ export default function PostDetail() {
                         commentCount={post.commentCount}
                         upCount={post.upCount}
                         downCount={post.downCount}
-                        handleCommentClick={handleClick}
+                        onComment={onWriteComment}
                     />
                 </section>
                 <section>
                     <ul className="divide-y divide-neutral-600">
-                        {demoComments.map((comment, i) => (
+                        {comments.map((comment, i) => (
                             <li key={i}>
                                 <Comment {...comment} />
                             </li>
                         ))}
                     </ul>
+                    <div className="h-[50vh]"></div>
                 </section>
             </div>
             {isSmallDevice ? (
-                <CommentForm
-                    isOpen={isOpen && isLogin}
-                    onSubmit={onSubmit}
-                    onCancel={() => setIsOpen(false)}
+                <MobileCommentForm
+                    isOpen={isOpenComment}
+                    onSubmit={onSubmitComment}
+                    onCancel={() => setIsOpenCommnet(false)}
                 />
             ) : (
                 <DesktopCommentForm
-                    isOpen={isOpen && isLogin}
-                    onSubmit={onSubmit}
-                    onCancel={() => setIsOpen(false)}
+                    isOpen={isOpenComment}
+                    onSubmit={onSubmitComment}
+                    onCancel={() => setIsOpenCommnet(false)}
                 />
             )}
             <AuthErrorDialog
-                isOpen={isOpen && !isLogin}
+                isOpen={isError}
                 buttonText="返回註冊/登入頁"
             />
-            <CommentPublishTransition isOpen={isModalOpen} />
+            <CommentPublishTransition isOpen={isPublishing} />
         </>
     )
 }

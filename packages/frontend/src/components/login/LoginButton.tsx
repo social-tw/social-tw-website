@@ -31,25 +31,25 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             type="button"
             onClick={onClick}
             disabled={isLoading}
-            className={clsx(
-                `
-            flex
-            w-full
-            max-w-[44rem]           
-            items-center
-            rounded-xl
-            bg-[${color}]
-            p-4
-            text-white
-            focus:outline-offset-0
-            bg-opacity-70
-            transition 
-            duration-300 
-            ease-in-out
-            `,
+            className={clsx(`
+                flex
+                w-full
+                max-w-[44rem]           
+                items-center
+                rounded-xl
+                bg-[${color}]
+                p-4
+                text-white
+                focus:outline-offset-0
+                bg-opacity-70
+                transition 
+                duration-300 
+                ease-in-out
+                `,
                 Icon ? 'flex-row gap-2' : 'flex-col',
                 start ? 'justify-start' : 'justify-center'
             )}
+            style={{ backgroundColor: color }}
         >
             {Icon && <Icon size={iconSize} />}
             <span

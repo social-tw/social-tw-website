@@ -79,12 +79,10 @@ export default function AppLayout() {
                         Unirep Social TW
                     </h1>
                 </header>
-                <section className="px-4">
+                <section className="px-8 py-4 space-y-3">
                     <div className="max-w-sm mx-auto">
                         <EpochInfo />
                     </div>
-                </section>
-                <section className="px-8 py-1">
                     <ActionNotification />
                 </section>
                 <main className="max-w-5xl mx-auto">
@@ -138,7 +136,6 @@ export default function AppLayout() {
                                 Unirep Social TW
                             </h1>
                         </Link>
-                        <EpochInfo />
                         <nav className="space-y-9">
                             <NavLink
                                 className={({ isActive }) =>
@@ -203,7 +200,8 @@ export default function AppLayout() {
                                 </span>
                             </NavLink>
                         </nav>
-                        <div className="pt-3">
+                        <div className="mt-16 space-y-3">
+                            <EpochInfo />
                             <ActionNotification />
                         </div>
                     </div>

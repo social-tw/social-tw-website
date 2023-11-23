@@ -1,76 +1,56 @@
-import dayjs from 'dayjs'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import dayjs from "dayjs";
+import { Link } from "react-router-dom";
 import {
-    createColumnHelper,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
+    actionsSelector, ActionStatus, ActionType, useActionStore
+} from "@/contexts/Actions";
+import {
+    createColumnHelper, flexRender, getCoreRowModel, useReactTable
+} from "@tanstack/react-table";
 
-enum ActionType {
-    Post = 'post',
-    Comment = 'comment',
+import type { Action } from "@/contexts/Actions";
+
+export function getActionTypeLabel(type: ActionType) {
+    const typeLabels = {
+        [ActionType.Post]: '貼文',
+        [ActionType.Comment]: '留言',
+    };
+    return typeLabels[type];
 }
 
-enum ActionStatus {
-    Pending = 'pending',
-    Success = 'success',
-    Failure = 'failure',
+export function getActionLink(action: Action) {
+    if (action.type === ActionType.Post) {
+        return `/posts/${action.data.id}`;
+    }
+    if (action.type === ActionType.Comment) {
+        return `/posts/${action.data.postId}#${action.data.id}`;
+    }
+    return '#';
 }
 
-type Action = {
-    submittedAt: number
-    type: ActionType
-    status: ActionStatus
-    id: string
-    data?: Record<string, any>
-}
-
-const defaultData = [
-    {
-        submittedAt: Date.now(),
-        type: ActionType.Post,
-        status: ActionStatus.Pending,
-        id: '1',
-    },
-    {
-        submittedAt: Date.now(),
-        type: ActionType.Comment,
-        status: ActionStatus.Success,
-        id: '1',
-    },
-    {
-        submittedAt: Date.now(),
-        type: ActionType.Comment,
-        status: ActionStatus.Failure,
-        id: '1',
-    },
-]
-
-const ActionTypeLabels = {
-    [ActionType.Post]: '貼文',
-    [ActionType.Comment]: '留言',
-}
-
-const ActionStatusContent = {
-    [ActionStatus.Pending]: (
-        <progress className="w-full h-3 rounded-none progress progress-primary" />
-    ),
-    [ActionStatus.Success]: <span>存取交易成功！</span>,
-    [ActionStatus.Failure]: (
-        <span className="text-primary">存取交易失敗！</span>
-    ),
+function getActionStatusLabel(status: ActionStatus) {
+    const actionStatusLabels = {
+        [ActionStatus.Pending]: (
+            <progress className="w-full h-3 rounded-none progress progress-primary" />
+        ),
+        [ActionStatus.Success]: <span>存取交易成功！</span>,
+        [ActionStatus.Failure]: (
+            <span className="text-primary">存取交易失敗！</span>
+        ),
+    };
+    return actionStatusLabels[status];
 }
 
 function ActionLink({ action }: { action: Action }) {
+    const link = getActionLink(action);
+
     if (action.status === ActionStatus.Pending) {
-        return <span>請稍候</span>
+        return <span className="text-white">請稍候</span>;
     }
+
     return (
         <Link
             className="underline text-secondary"
-            to={`/posts/${action?.data?.postId}/#${action.id}`}
+            to={link}
         >
             前往查看
         </Link>
@@ -86,11 +66,11 @@ const columns = [
     }),
     columnHelper.accessor('type', {
         header: 'Action',
-        cell: (info) => ActionTypeLabels[info.getValue()],
+        cell: (info) => getActionTypeLabel(info.getValue()),
     }),
     columnHelper.accessor('status', {
         header: 'Status',
-        cell: (info) => ActionStatusContent[info.getValue()],
+        cell: (info) => getActionStatusLabel(info.getValue()),
     }),
     columnHelper.display({
         id: 'link',
@@ -100,7 +80,7 @@ const columns = [
 ]
 
 export default function ActionTable() {
-    const [data, setData] = useState(() => [...defaultData])
+    const data = useActionStore(actionsSelector);
 
     const table = useReactTable({
         data,
@@ -122,9 +102,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext()
-                                          )}
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
                                 </th>
                             ))}
                         </tr>
@@ -155,9 +135,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                              header.column.columnDef.footer,
-                                              header.getContext()
-                                          )}
+                                            header.column.columnDef.footer,
+                                            header.getContext()
+                                        )}
                                 </th>
                             ))}
                         </tr>

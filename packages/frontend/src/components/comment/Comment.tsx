@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 import { FaBan, FaTrashCan } from "react-icons/fa6";
 import { FiMoreHorizontal } from "react-icons/fi";
 import Avatar from "@/components/common/Avatar";
+import { removeActionByCommentId } from "@/contexts/Actions";
+import useCreateComment from "@/hooks/useCreateComment";
 import formatDate from "@/utils/formatDate";
 import {
     ControlledMenu, MenuItem, useClick, useMenuState
@@ -10,18 +12,26 @@ import {
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { CommentInfo, CommentStatus } from "../../types";
 import CommentDeleteDialog from "./CommentDeleteDialog";
-import CommentReportModal from "./CommentReportDialog";
+import CommentReportDialog from "./CommentReportDialog";
 
 export default function Comment({
     id,
+    postId,
     epochKey = '',
     content = '',
-    publishedAt = new Date(),
+    publishedAt,
     status = CommentStatus.Success,
     isMine = true,
 }: CommentInfo) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
+
+    const { create: createCommnet } = useCreateComment();
+
+    const onRepublish = async () => {
+        removeActionByCommentId(id);
+        await createCommnet(postId, content);
+    }
 
     const onDelete = () => {
         console.log(`delete the comment: ${id}`)
@@ -65,31 +75,45 @@ export default function Comment({
         ]
 
     return (
-        <article
-            id={id}
-            className={clsx(
-                'pt-4 pb-6 space-y-2',
-                status === CommentStatus.Pending && 'opacity-30'
-            )}
-        >
-            <header className="flex items-center justify-between">
-                <div className="flex items-center gap-5">
-                    <Avatar name={epochKey} />
-                    <span className="text-xs font-medium tracking-wide text-white">
-                        {formatDate(publishedAt)}
-                    </span>
-                </div>
-                <div>
+        <>
+            <article
+                id={id}
+                className={clsx(
+                    'pt-4 pb-6 space-y-2',
+                    status !== CommentStatus.Success && 'opacity-30'
+                )}
+            >
+                <header className="grid grid-cols-[1fr_auto] items-center">
+                    <div className="flex items-center gap-5">
+                        <Avatar name={epochKey} />
+                        <span className="text-xs font-medium tracking-wide text-white">
+                            {status === CommentStatus.Failure ? '存取失敗，請再嘗試留言' : formatDate(publishedAt)}
+                        </span>
+                    </div>
+                    <div>
+                        {status !== CommentStatus.Failure && (
+                            <button
+                                className="btn btn-circle btn-sm btn-ghost"
+                                ref={menuButtonRef}
+                                {...anchorProps}
+                            >
+                                <FiMoreHorizontal size={24} />
+                            </button>
+                        )}
+                    </div>
+                </header>
+                <p className="text-sm font-medium text-white">{content}</p>
+            </article>
+            {status === CommentStatus.Failure && (
+                <div className="mb-6">
                     <button
-                        className="btn btn-circle btn-sm btn-ghost"
-                        ref={menuButtonRef}
-                        {...anchorProps}
+                        className="btn btn-sm btn-outline btn-primary border-2 h-10"
+                        onClick={onRepublish}
                     >
-                        <FiMoreHorizontal size={24} />
+                        再次發佈這則留言
                     </button>
                 </div>
-            </header>
-            <p className="text-sm font-medium text-white">{content}</p>
+            )}
             <ControlledMenu
                 {...menuState}
                 anchorRef={isSmallDevice ? undefined : menuButtonRef}
@@ -118,7 +142,10 @@ export default function Comment({
                 onClose={onCancelDelete}
                 onConfirm={onDelete}
             />
-            <CommentReportModal isOpen={isReporting} onClose={onCancelReport} />
-        </article>
+            <CommentReportDialog
+                isOpen={isReporting}
+                onClose={onCancelReport}
+            />
+        </>
     )
 }

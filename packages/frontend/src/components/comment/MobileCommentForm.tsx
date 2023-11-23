@@ -8,7 +8,7 @@ export interface CommentValues {
     content: string
 }
 
-export default function CommentForm({
+export default function MobileCommentForm({
     isOpen = false,
     onCancel = () => { },
     onSubmit = () => { },
