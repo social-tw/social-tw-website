@@ -1,21 +1,21 @@
-import React from 'react'
-import { SignupStatus } from '../../contexts/User'
-import SignUpLoadingModal from '../modal/SignupLoadingModal'
-import { motion } from 'framer-motion'
-import { NavLink } from 'react-router-dom'
-import HomeIcon from '../../assets/home.svg'
-import StarIcon from '../../assets/star.svg'
-import AddIcon from '../../assets/add.svg'
-import BellIcon from '../../assets/bell.svg'
-import PersonCircleIcon from '../../assets/person-circle.svg'
-import { clsx } from 'clsx'
+import { clsx } from "clsx";
+import { motion } from "framer-motion";
+import React from "react";
+import { NavLink } from "react-router-dom";
+import AddIcon from "@/assets/add.svg";
+import BellIcon from "@/assets/bell.svg";
+import HomeIcon from "@/assets/home.svg";
+import PersonCircleIcon from "@/assets/person-circle.svg";
+import StarIcon from "@/assets/star.svg";
+import SignUpLoadingModal from "@/components/login/SignupPendingTransition";
+import { SignupStatus } from "@/contexts/User";
 
 interface MobileNavbarProps {
     isShow: boolean
     signupStatus: SignupStatus
 }
 
-const MobileNavbar: React.FC<MobileNavbarProps> = ({
+const MobileBottomNav: React.FC<MobileNavbarProps> = ({
     isShow,
     signupStatus,
 }) => {
@@ -103,4 +103,4 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
     )
 }
 
-export default MobileNavbar
+export default MobileBottomNav

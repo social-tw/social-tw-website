@@ -1,13 +1,13 @@
-import React from 'react'
-import Modal from '../../Modal'
-import Comment from '../../../../assets/comment.png'
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
+import React from "react";
+import Comment from "@/assets/comment.png";
+import Backdrop from "@/components/common/Backdrop";
 
 interface TransactionModalProps {
     isOpen: boolean
 }
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen }) => {
+const CommentPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
     const items = [1, 2, 3]
     const variants = {
         animate: (i: number) => ({
@@ -23,8 +23,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen }) => {
     }
 
     return (
-        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/70'}>
-            <div className="w-full h-full flex justify-center items-center">
+        <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/70'}>
+            <div className="flex items-center justify-center w-full h-full">
                 <div className="flex flex-col gap-8">
                     <div className="flex justify-center gap-2">
                         <img
@@ -44,14 +44,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen }) => {
                             ))}
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2 items-center justify-center text-lg tracking-wide text-white">
+                    <div className="flex flex-col items-center justify-center gap-2 text-lg tracking-wide text-white">
                         <h4>您的留言正在發布中，</h4>
                         <h4>請留意留上方資訊並確認存取狀態</h4>
                     </div>
                 </div>
             </div>
-        </Modal>
+        </Backdrop>
     )
 }
 
-export default TransactionModal
+export default CommentPublishTransition

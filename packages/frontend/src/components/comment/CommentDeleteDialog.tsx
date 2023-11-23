@@ -1,22 +1,23 @@
-
-import Dialog from "../Dialog";
+import Dialog from "@/components/common/Dialog";
 
 export default function CommentDeleteDialog({
     open = false,
     onClose = () => { },
     onConfirm = () => { },
 }: {
-    open?: boolean,
-    onClose?: () => void,
+    open?: boolean
+    onClose?: () => void
     onConfirm?: () => Promise<void> | void
 }) {
-
     const _onConfirm = async () => {
         await onConfirm()
     }
 
     return (
-        <Dialog open={open} onClose={onClose} ariaLabel="confirm-to-delete-comment">
+        <Dialog
+            isOpen={open}
+            onClose={onClose}
+        >
             <section className="p-6 md:px-12">
                 <p className="text-base font-medium text-black/90">
                     親愛的用戶：

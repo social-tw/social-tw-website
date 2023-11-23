@@ -1,9 +1,8 @@
-import { clsx } from 'clsx'
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import Modal from '../modal/Modal'
-import RichTextEditor from '../RichTextEditor'
-import Avatar from '../../assets/avatar.png'
+import { clsx } from "clsx";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import Avatar from "@/assets/avatar.png";
+import RichTextEditor from "@/components/common/RichTextEditor";
 
 export interface CommentValues {
     content: string
@@ -11,9 +10,9 @@ export interface CommentValues {
 
 export default function CommentForm({
     isOpen = false,
-    onCancel = () => {},
-    onSubmit = () => {},
-    onSubmitCancel = () => {},
+    onCancel = () => { },
+    onSubmit = () => { },
+    onSubmitCancel = () => { },
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
@@ -26,12 +25,11 @@ export default function CommentForm({
     isSubmitCancelled?: boolean
     disabled?: boolean
 }) {
-    const { handleSubmit, control, reset, formState } =
-        useForm<CommentValues>({
-            defaultValues: {
-                content: '',
-            },
-        })
+    const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
+        defaultValues: {
+            content: '',
+        },
+    })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
@@ -51,7 +49,7 @@ export default function CommentForm({
     if (!isOpen) return null
 
     return (
-        <div className="fixed w-screen bottom-0 z-50 bg-gray-900/60 border-gray-400 border-t-2 p-4">
+        <div className="fixed bottom-0 z-50 w-screen p-4 bg-gray-900 border-t-2 border-gray-400">
             <form
                 className={clsx('space-y-6', disabled && 'opacity-20')}
                 onSubmit={handleSubmit(onSubmit)}

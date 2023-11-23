@@ -1,28 +1,21 @@
+import { PostgresConnector, SQLiteConnector } from "anondb/node.js";
+import cors from "cors";
+import { ethers } from "ethers";
+import express from "express";
+import fs from "fs";
+import { createServer } from "http";
 // imported libraries
-import path from 'path'
-import fs from 'fs'
-import express from 'express'
-import { ethers } from 'ethers'
-import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
-import { Server } from 'socket.io'
-import { createServer } from 'http'
-
-// libraries
-import { UnirepSocialSynchronizer } from './synchornizer'
-import prover from './singletons/prover'
-import schema from './singletons/schema'
-
+import path from "path";
+import { Server } from "socket.io";
 import {
-    provider,
-    PRIVATE_KEY,
-    UNIREP_ADDRESS,
-    DB_PATH,
-    APP_ADDRESS,
-    APP_ABI,
-    IS_IN_TEST,
-    CLIENT_URL,
-} from './config'
-import TransactionManager from './singletons/TransactionManager'
+  APP_ABI, APP_ADDRESS, CLIENT_URL, DB_PATH, IS_IN_TEST, PRIVATE_KEY, provider,
+  UNIREP_ADDRESS
+} from "./config";
+import prover from "./singletons/prover";
+import schema from "./singletons/schema";
+import TransactionManager from "./singletons/TransactionManager";
+// libraries
+import { UnirepSocialSynchronizer } from "./synchornizer";
 
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
@@ -57,6 +50,15 @@ async function main() {
     await TransactionManager.start()
 
     const app = express()
+    app.use(cors())
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
+        res.set('access-control-allow-headers', '*')
+        next()
+    })
+
     const httpServer = createServer(app)
 
     const io = new Server(httpServer, {
@@ -75,14 +77,6 @@ async function main() {
     })
 
     const port = process.env.PORT ?? 8000
-
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
 
     httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 

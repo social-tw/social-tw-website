@@ -13,7 +13,7 @@ export enum CommentStatus {
     Success = 'success',
     Failure = 'failure',
     Deleted = 'deleted',
-    Reported = 'reported'
+    Reported = 'reported',
 }
 
 export interface CommentInfo {

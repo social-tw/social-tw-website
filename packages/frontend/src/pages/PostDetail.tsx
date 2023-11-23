@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react'
-import { CommentStatus, PostInfo } from '../types'
-import { useParams } from 'react-router-dom'
-import Post from '../components/post/Post'
-import Comment from '../components/comment/Comment'
-import CommentForm, { CommentValues } from '../components/comment/MobileCommentForm'
-import TransactionModal from '../components/modal/ui/comment/TransactionModal'
-import ErrorModal from '../components/modal/ErrorModal'
-import { useUser } from '../contexts/User'
-import { SERVER } from '../config'
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
-import DesktopCommentForm from '../components/comment/DesktopCommentForm'
-import { useMediaQuery } from '@uidotdev/usehooks'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Comment from "@/components/comment/Comment";
+import CommentPublishTransition from "@/components/comment/CommentPublishTransition";
+import DesktopCommentForm from "@/components/comment/DesktopCommentForm";
+import CommentForm, {
+    CommentValues
+} from "@/components/comment/MobileCommentForm";
+import AuthErrorDialog from "@/components/login/AuthErrorDialog";
+import Post from "@/components/post/Post";
+import { SERVER } from "@/config";
+import LOGIN_ERROR_MESSAGES from "@/constants/error-messages/loginErrorMessage";
+import { useUser } from "@/contexts/User";
+import { CommentStatus, PostInfo } from "@/types";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
 const demoPost = {
     id: '1',
@@ -123,30 +125,30 @@ export default function PostDetail() {
                     <ul className="divide-y divide-neutral-600">
                         {demoComments.map((comment, i) => (
                             <li key={i}>
-                                <Comment {...comment}/>
+                                <Comment {...comment} />
                             </li>
                         ))}
                     </ul>
                 </section>
             </div>
-            {isSmallDevice ? 
+            {isSmallDevice ? (
                 <CommentForm
                     isOpen={isOpen && isLogin}
                     onSubmit={onSubmit}
                     onCancel={() => setIsOpen(false)}
                 />
-                :
+            ) : (
                 <DesktopCommentForm
                     isOpen={isOpen && isLogin}
                     onSubmit={onSubmit}
                     onCancel={() => setIsOpen(false)}
                 />
-            }
-            <ErrorModal
+            )}
+            <AuthErrorDialog
                 isOpen={isOpen && !isLogin}
                 buttonText="返回註冊/登入頁"
             />
-            <TransactionModal isOpen={isModalOpen} />
+            <CommentPublishTransition isOpen={isModalOpen} />
         </>
     )
 }

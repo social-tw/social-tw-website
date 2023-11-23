@@ -1,19 +1,19 @@
-import React, { Fragment } from 'react'
-import { motion } from 'framer-motion'
-import { clsx } from 'clsx'
+import { clsx } from "clsx";
+import { motion } from "framer-motion";
+import React from "react";
 
-interface ModalProps {
+interface BackdropProps {
     isOpen: boolean
     background?: string
     children: React.ReactNode
-    postion: 'absolute' | 'fixed'
+    position: 'absolute' | 'fixed'
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Backdrop: React.FC<BackdropProps> = ({
     isOpen,
     background,
     children,
-    postion,
+    position,
 }) => {
     const modalVariants = {
         hidden: { opacity: 0 },
@@ -43,8 +43,9 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <>
             <motion.div
-                className={clsx(`
-                ${postion} 
+                className={clsx(
+                    `
+                ${position} 
                 inset-0 
                 z-50
                 h-full
@@ -57,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({
             />
             <motion.div
                 className={`
-                ${postion} 
+                ${position} 
                 inset-0 
                 z-50
                 h-full
@@ -73,4 +74,4 @@ const Modal: React.FC<ModalProps> = ({
     )
 }
 
-export default Modal
+export default Backdrop

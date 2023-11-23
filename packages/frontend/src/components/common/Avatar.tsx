@@ -1,4 +1,4 @@
-import BoringAvatar from 'boring-avatars'
+import BoringAvatar from "boring-avatars";
 
 export default function Avatar({
     name,

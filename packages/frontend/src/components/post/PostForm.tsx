@@ -1,18 +1,18 @@
-import { clsx } from 'clsx'
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import Modal from '../modal/Modal'
-import RichTextEditor from '../RichTextEditor'
-import Avatar from '../../assets/avatar.png'
+import { clsx } from "clsx";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import Avatar from "@/assets/avatar.png";
+import Backdrop from "@/components/common/Backdrop";
+import RichTextEditor from "@/components/common/RichTextEditor";
 
 export interface PostValues {
     content: string
 }
 
 export default function PostForm({
-    onCancel = () => {},
-    onSubmit = () => {},
-    onSubmitCancel = () => {},
+    onCancel = () => { },
+    onSubmit = () => { },
+    onSubmitCancel = () => { },
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
@@ -103,9 +103,9 @@ export default function PostForm({
                     />
                 </section>
             </form>
-            <Modal
+            <Backdrop
                 isOpen={isPending}
-                postion="absolute"
+                position="absolute"
                 background="bg-gradient-to-t from-black/100 to-white/0"
             >
                 <div className="flex flex-col items-center justify-center h-full gap-4 backdrop-blur-sm">
@@ -123,7 +123,7 @@ export default function PostForm({
                         </p>
                     )}
                 </div>
-            </Modal>
+            </Backdrop>
         </>
     )
 }

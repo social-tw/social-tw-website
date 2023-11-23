@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import Modal from './Modal'
-import './signupLoadingModal.css'
-import { SignupStatus } from '../../contexts/User'
-import { motion } from 'framer-motion'
-import clsx from 'clsx'
-import { useNavigate } from 'react-router-dom'
+import "./signupPendingTransition.css";
+import clsx from "clsx";
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Backdrop from "@/components/common/Backdrop";
+import { SignupStatus } from "@/contexts/User";
 
 interface SignUpLoadingModal {
     status: SignupStatus
@@ -48,7 +48,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             content = (
                 <>
                     <div className="w-8/12 h-[12px] rounded-2xl progress bg-[#222222]" />
-                    <p className="text-white text-lg font-semibold tracking-wider text-center w-11/12 h-14">
+                    <p className="w-11/12 text-lg font-semibold tracking-wider text-center text-white h-14">
                         {pendingText}
                     </p>
                 </>
@@ -65,7 +65,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                         animate="hidden"
                     />
                     <motion.p
-                        className="text-white text-lg font-semibold tracking-wider w-11/12 h-14 text-center"
+                        className="w-11/12 text-lg font-semibold tracking-wider text-center text-white h-14"
                         variants={opacityVarients}
                         initial="visible"
                         animate="hidden"
@@ -79,10 +79,10 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
         case 'default' || 'error':
             content = (
                 <>
-                    <p className="text-white text-lg font-semibold tracking-wider">
+                    <p className="text-lg font-semibold tracking-wider text-white">
                         註冊 / 登入後，
                     </p>
-                    <p className="text-white text-lg font-semibold tracking-wider">
+                    <p className="text-lg font-semibold tracking-wider text-white">
                         即可按讚、留言、Po文！
                     </p>
                     <button
@@ -115,9 +115,9 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     }, [status])
 
     return (
-        <Modal
+        <Backdrop
             isOpen={isOpen}
-            postion="absolute"
+            position="absolute"
             background="bg-gradient-to-t from-black/100 to-white/0"
         >
             <div
@@ -129,7 +129,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
             >
                 {content}
             </div>
-        </Modal>
+        </Backdrop>
     )
 }
 
