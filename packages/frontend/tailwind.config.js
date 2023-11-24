@@ -19,11 +19,12 @@ module.exports = {
             {
                 dark: {
                     ...require('daisyui/src/theming/themes')[
-                        '[data-theme=dark]'
+                    '[data-theme=dark]'
                     ],
                     primary: '#FF892A',
                     secondary: '#52ACBC',
                     accent: '#3F3F3F',
+                    error: '#FF1D1D',
                     '--rounded-btn': '0.75rem',
                 },
             },

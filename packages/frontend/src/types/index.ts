@@ -8,6 +8,14 @@ export interface PostInfo {
     downCount: number
 }
 
+// mock api repsonse
+export interface CommnetDataFromApi {
+    id: string
+    epochKey: string
+    content: string
+    publishedAt: number | string
+}
+
 export enum CommentStatus {
     Pending = 'pending',
     Success = 'success',
@@ -18,9 +26,10 @@ export enum CommentStatus {
 
 export interface CommentInfo {
     id: string
+    postId: string
     epochKey: string
     content: string
-    publishedAt: Date
+    publishedAt: number | string
     status: CommentStatus
     isMine: boolean
 }

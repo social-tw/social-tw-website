@@ -1,23 +1,74 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import CloseIcon from "@/assets/close.svg";
 import PostIcon from "@/assets/post.svg";
+import {
+    ActionStatus, latestActionSelector, pendingCountSelector, useActionStore
+} from "@/contexts/Actions";
 import { Dialog } from "@headlessui/react";
-import ActionTable from "./ActionTable";
+import ActionTable, { getActionLink, getActionTypeLabel } from "./ActionTable";
+
+import type { Action } from "@/contexts/Actions";
+
+function getActionStatusLabel(action: Action) {
+    const actionTypeLabel = getActionTypeLabel(action.type);
+    const actionLink = getActionLink(action);
+
+    switch (action.status) {
+        case ActionStatus.Pending: {
+            return (
+                <div className="flex items-center gap-2">
+                    <PostIcon className="w-4 text-primary" />
+                    <span className="text-xs text-primary">{actionTypeLabel}存取交易進行中</span>
+                    <progress className="flex-1 h-3 rounded-none progress progress-primary" />
+                </div>
+            );
+        }
+        case ActionStatus.Success: {
+            return (
+                <div className="flex items-center gap-2">
+                    <PostIcon className="w-4 text-white" />
+                    <span className="text-xs text-white">{actionTypeLabel}存取交易成功!</span>
+                    <Link className="text-xs text-secondary" to={actionLink}>前往查看{actionTypeLabel}</Link>
+                </div>
+            );
+        }
+        case ActionStatus.Failure: {
+            return (
+                <div className="flex items-center gap-2">
+                    <PostIcon className="w-4 text-primary" />
+                    <span className="text-xs text-primary">{actionTypeLabel}存取交易失敗!</span>
+                    <Link className="text-xs text-secondary" to={actionLink}>前往查看{actionTypeLabel}</Link>
+                </div>
+            );
+        }
+        default: {
+            return null
+        }
+    }
+}
 
 export default function ActionNotification() {
-    const [isOpen, setIsOpen] = useState(false)
+    const lastestAction = useActionStore(latestActionSelector);
+
+    const pendingCount = useActionStore(pendingCountSelector);
+
+    const [isOpen, setIsOpen] = useState(false);
+
+
+    if (!lastestAction) return null;
+
+    const statusLabel = getActionStatusLabel(lastestAction);
 
     return (
         <>
-            <div className="flex items-center justify-between gap-2">
-                <PostIcon className="w-4 text-primary" />
-                <span className="text-xs text-primary">貼文存取交易進行中</span>
-                <progress className="flex-1 h-3 rounded-none progress progress-primary" />
+            <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+                {statusLabel}
                 <button
                     className="px-1.5 py-px text-xs border text-primary border-primary leading-none"
                     onClick={() => setIsOpen(true)}
                 >
-                    2
+                    {pendingCount}
                 </button>
             </div>
             <Dialog

@@ -16,7 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
-    handleCommentClick = () => { },
+    onComment = () => { },
 }: {
     id: string
     epochKey: string
@@ -27,7 +27,7 @@ export default function ({
     upCount: number
     downCount: number
     compact?: boolean
-    handleCommentClick?: () => void
+    onComment?: () => void
 }) {
     const postInfo = (
         <div className="space-y-3">
@@ -84,7 +84,7 @@ export default function ({
                     </div>
                     <div
                         className="flex items-center gap-1"
-                        onClick={handleCommentClick}
+                        onClick={onComment}
                     >
                         <img className="w-5 h-5" src={Comment} alt="comment" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
