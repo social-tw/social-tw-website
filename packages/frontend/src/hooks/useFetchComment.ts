@@ -30,13 +30,11 @@ const demoComments = [
     },
 ]
 
-async function fetchCommentsByPostId(postId: string, epks: string): Promise<CommnetDataFromApi[]> {
+async function fetchCommentsByPostId(postId: string): Promise<CommnetDataFromApi[]> {
     const queryParams = new URLSearchParams();
+
     if (postId) {
         queryParams.append('postId', postId);
-    }
-    if (epks) {
-        queryParams.append('epks', epks);
     }
 
     const response = await fetch(`http://localhost:8000/api/comment?${queryParams.toString()}`);
@@ -73,24 +71,9 @@ export default function useFetchComment(postId?: string) {
 
     useEffect(() => {
         async function loadCommnets() {
-            if (!postId || !userState) return;
-            
-            const latestTransitionedEpoch = await userState.latestTransitionedEpoch();
-            console.log(latestTransitionedEpoch);
-            console.log(userState.sync.calcCurrentEpoch());
+            if (!postId) return;
 
-            if (
-                userState.sync.calcCurrentEpoch() !==
-                latestTransitionedEpoch
-            ) {
-                await stateTransition()
-            };
-
-            const nonce = randomNonce();
-            const epk = userState.getEpochKeys(latestTransitionedEpoch, nonce);
-            const epks = stringifyBigInts(epk);
-
-            const comments = await fetchCommentsByPostId(postId, epks);
+            const comments = await fetchCommentsByPostId(postId);
             console.log(comments);
             const successfulComments = comments.map((comment) => ({
                 ...comment,
@@ -105,7 +88,7 @@ export default function useFetchComment(postId?: string) {
         console.log('loading comments success');
 
         loadCommnets();
-    }, [userState]);
+    }, []);
 
     return {
         data: allComments,

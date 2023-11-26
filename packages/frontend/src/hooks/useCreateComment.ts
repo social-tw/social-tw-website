@@ -51,7 +51,7 @@ export default function useCreateComment() {
         try {
             const comment = await publishComment(data);
             console.log(comment);
-            await provider.waitForTransaction(comment.transaction);
+            await provider.waitForTransaction(comment?.transaction);
             await userState.waitForSync();
             await loadData(userState);
             succeedActionById(actionId, { id: comment?.id });

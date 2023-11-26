@@ -8,7 +8,6 @@ import { epochKeyService } from './EpochKeyService'
 
 export class CommentService {
     async fetchComments(
-        epks: string | undefined,
         postId: string,
         db: DB
     ): Promise<Comment[]> {
@@ -18,7 +17,6 @@ export class CommentService {
             where: {
                 status: 1,
                 postId: postId,
-                epochKey: epks,
             },
             orderBy: {
                 publishedAt: 'desc',
