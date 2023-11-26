@@ -53,9 +53,10 @@ export default function PostDetail() {
 
     const onSubmitComment = async (values: CommentValues) => {
         try {
-            if (!id) return;
+            if (!id) return
 
             const { content } = values
+            console.log(content)
 
             setIsOpenCommnet(false)
             setIsPublishing(true)
@@ -75,9 +76,10 @@ export default function PostDetail() {
         async function loadPost() {
             const response = await fetch(`${SERVER}/api/post/${id}`)
             const post = await response.json()
+            console.log(post)
 
             setPost({
-                id: post._id,
+                id: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,

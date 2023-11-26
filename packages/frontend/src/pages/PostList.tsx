@@ -65,8 +65,9 @@ export default function PostList() {
     const loadPosts = useCallback(async () => {
         const response = await fetch(`${SERVER}/api/post`)
         const postsJson = await response.json()
+        console.log(postsJson)
         const posts = postsJson.map((post: any) => ({
-            id: post._id,
+            id: post.postId,
             epochKey: post.epochKey,
             content: post.content,
             publishedAt: post.publishedAt,
