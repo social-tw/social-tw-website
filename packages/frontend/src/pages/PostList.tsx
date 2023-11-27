@@ -1,8 +1,8 @@
+import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
 import Dialog from '../components/Dialog'
 import SignupLoadingModal from '../components/modal/SignupLoadingModal'
 import Post from '../components/post/Post'
@@ -106,13 +106,8 @@ export default function PostList() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div
-            className={clsx(
-                !isSmallDevice && 'divide-y divide-neutral-600',
-                location.pathname === '/loginOld' && 'max-w-[600px] w-11/12'
-            )}
-        >
-            {!isSmallDevice && location.pathname !== '/loginOld' && (
+        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
+            {!isSmallDevice && (
                 <section className="relative py-6">
                     {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
