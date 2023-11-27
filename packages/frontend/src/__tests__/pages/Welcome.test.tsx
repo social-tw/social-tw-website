@@ -1,20 +1,20 @@
-import '@testing-library/jest-dom'
-import { MemoryRouter } from 'react-router-dom'
 import { expect } from '@jest/globals'
+import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { UserProvider } from '../../contexts/User'
-import Login from '../../pages/Login'
+import { Welcome } from '../../pages/Welcome'
 
 jest.mock('@uidotdev/usehooks', () => ({
     useMediaQuery: jest.fn().mockReturnValue(true),
     useIsFirstRender: jest.fn().mockReturnValue(false),
 }))
 
-test('Login should render', () => {
+test('Welcome should render', () => {
     render(
         <MemoryRouter>
             <UserProvider>
-                <Login />
+                <Welcome />
             </UserProvider>
         </MemoryRouter>
     )

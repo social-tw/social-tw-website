@@ -11,9 +11,8 @@ import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
 import ErrorPage from './pages/ErrorPage'
-import LoginOld from './pages/Login'
-import { Login } from './pages/Login2'
-import { InternalLogin } from './pages/Login2/InternalLogin'
+import { Login } from './pages/Login'
+import { InternalLogin } from './pages/Login/InternalLogin'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
@@ -51,10 +50,6 @@ const router = createBrowserRouter([
             {
                 path: PATHS.SIGN_UP_INTERNAL,
                 element: <InternalSignup />,
-            },
-            {
-                path: 'loginOld',
-                element: <LoginOld />,
             },
         ],
     },
