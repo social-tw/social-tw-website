@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/User'
 import { LocalStorageHelper } from '../utils/LocalStorageHelper'
 
-export function useSignUpWithWallet() {
+export function useSignupWithWallet() {
     const navigate = useNavigate()
     const {
         handleWalletSignMessage,

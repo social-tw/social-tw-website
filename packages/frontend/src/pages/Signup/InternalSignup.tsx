@@ -14,8 +14,8 @@ import StepInfo from '../../components/login/StepInfo'
 import ErrorModal from '../../components/modal/ErrorModal'
 import NoteModal from '../../components/modal/NoteModal'
 import { useUser } from '../../contexts/User'
-import { useSignUpWithServer } from '../../hooks/useSignUpWithServer'
-import { useSignUpWithWallet } from '../../hooks/useSignUpWithWallet'
+import { useSignupWithServer } from '../../hooks/useSignupWithServer'
+import { useSignupWithWallet } from '../../hooks/useSignupWithWallet'
 import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
 import { getVariantAutoScrollY } from '../../utils/motionVariants'
 
@@ -28,8 +28,8 @@ enum NoteStatus {
 export function InternalSignup() {
     const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
     const { signupStatus, errorCode } = useUser()
-    const signUpWithWallet = useSignUpWithWallet()
-    const signUpWithServer = useSignUpWithServer()
+    const signUpWithWallet = useSignupWithWallet()
+    const signUpWithServer = useSignupWithServer()
     const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
