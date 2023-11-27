@@ -26,8 +26,8 @@ export default function useCreateComment() {
         if (!userState) throw new Error('user state not initialized');
 
         const latestTransitionedEpoch = await userState.latestTransitionedEpoch();
-        console.log(latestTransitionedEpoch);
-        console.log(userState.sync.calcCurrentEpoch())
+        console.log(latestTransitionedEpoch)
+
 
         if (
             userState.sync.calcCurrentEpoch() !==
@@ -50,7 +50,6 @@ export default function useCreateComment() {
 
         try {
             const comment = await publishComment(data);
-            console.log(comment);
             await provider.waitForTransaction(comment?.transaction);
             await userState.waitForSync();
             await loadData(userState);

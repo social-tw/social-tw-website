@@ -1,33 +1,41 @@
-import { action } from 'mobx';
 import { useEffect, useMemo, useState } from 'react';
 import {
     commentActionsSelector, CommentData, failedCommentActionsSelector,
     pendingCommentActionsSelector, useActionStore
 } from '@/contexts/Actions';
-import { useUser } from '@/contexts/User';
 import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types';
+import { useUser } from '@/contexts/User';
 import randomNonce from '@/utils/randomNonce';
-import { stringifyBigInts } from '@unirep/utils';
+import checkCommentIsMine from '@/utils/checkCommentIsMine';
 
 const demoComments = [
     {
-        id: '1',
+        id: '100',
+        postId: '0',
         epochKey: 'epochKey-2',
-        publishedAt: Date.now(),
         content: '台灣der小巷就是讚啦！',
+        publishedAt: Date.now(),
+        status: CommentStatus.Success,
+        isMine: true
     },
     {
-        id: '2',
-        epochKey: 'epochKey-3',
+        id: '101',
+        postId: '0',
+        epochKey: 'epochKey-2',
+        content: '請問這是哪裡？',
         publishedAt: Date.now(),
+        status: CommentStatus.Success,
+        isMine: true
+    },
+    {
+        id: '102',
+        postId: '0',
+        epochKey: 'epochKey-2',
         content: '這裡的芋圓推推推！',
-    },
-    {
-        id: '3',
-        epochKey: 'epochKey-4',
         publishedAt: Date.now(),
-        content: '請問這是哪裡啊？',
-    },
+        status: CommentStatus.Success,
+        isMine: true
+    }
 ]
 
 async function fetchCommentsByPostId(postId: string): Promise<CommnetDataFromApi[]> {
@@ -48,8 +56,8 @@ async function fetchCommentsByPostId(postId: string): Promise<CommnetDataFromApi
 
 
 export default function useFetchComment(postId?: string) {
-    const { userState, stateTransition } = useUser();
     const [comments, setComments] = useState<CommentInfo[]>([]);
+    const { userState } = useUser();
 
     const commentActions = useActionStore(commentActionsSelector);
     const failedActions = useActionStore(failedCommentActionsSelector);
@@ -60,7 +68,6 @@ export default function useFetchComment(postId?: string) {
             ...action.data as CommentData,
             publishedAt: action.submittedAt,
             status: action.status as unknown as CommentStatus,
-            // TODO: check this comment is mine
             isMine: true,
         }));
         return [
@@ -70,25 +77,31 @@ export default function useFetchComment(postId?: string) {
     }, [comments, failedActions, pendingActions]);
 
     useEffect(() => {
-        async function loadCommnets() {
+        async function loadComments() {
             if (!postId) return;
 
             const comments = await fetchCommentsByPostId(postId);
-            console.log(comments);
-            const successfulComments = comments.map((comment) => ({
-                ...comment,
-                postId,
-                status: CommentStatus.Success,
-                // TODO: check this comment is mine
-                isMine: false,
-            }));
 
-            setComments(successfulComments);
-        }
-        console.log('loading comments success');
+            const successfulComments = comments.map((comment) => {
 
-        loadCommnets();
-    }, []);
+                const isMine = userState ? checkCommentIsMine(comment, userState) : false;
+
+                return {
+                    id: comment.commentId,
+                    postId,
+                    epochKey: comment.epochKey,
+                    content: comment.content,
+                    publishedAt: comment.publishedAt,
+                    status: CommentStatus.Success,
+                    isMine: isMine,
+                }
+            });
+
+            setComments([...successfulComments, ...demoComments]);
+        };
+
+        loadComments();
+    }, [userState]);
 
     return {
         data: allComments,
