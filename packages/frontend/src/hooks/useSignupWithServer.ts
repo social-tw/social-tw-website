@@ -1,45 +1,24 @@
-import { UserState } from '@unirep/core'
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
-import { SignupStatus } from '../contexts/User'
+import { useNavigate } from 'react-router-dom'
+import { useUser } from '../contexts/User'
+import { LocalStorageHelper } from '../utils/LocalStorageHelper'
 
-const useSignupWithServer = (
-    accessToken: string | null,
-    hashUserId: string | null,
-    signMsg: string | null,
-    navigate: (path: string) => void,
-    setSignupStatus: (param: SignupStatus) => void,
-    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
-    signup: (
-        fromServer: boolean,
-        userStateInstance: UserState,
-        hashUserId: string,
-        accessToken: string
-    ) => Promise<void>,
-    setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState>
-) => {
+export function useSignUpWithServer() {
+    const navigate = useNavigate()
+    const {
+        signup,
+        setIsLogin,
+        createUserState,
+        setErrorCode,
+        setSignupStatus,
+    } = useUser()
     const signupWithServer = async () => {
         try {
-            if (!hashUserId) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('hashUserId', hashUserId)
-            if (!signMsg) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('signature', signMsg)
-            if (!accessToken) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('token', accessToken)
+            const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
+            const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
             const userStateInstance = await createUserState()
             setSignupStatus('pending')
             navigate('/')
-            try {
-                await signup(true, userStateInstance, hashUserId, accessToken)
-            } catch (error: any) {
-                throw new Error(LOGIN_ERROR_MESSAGES.SIGNUP_FAILED.code)
-            }
+            await signup(true, userStateInstance, hashUserId, accessToken)
             setSignupStatus('success')
             setIsLogin('success')
         } catch (error: any) {
@@ -47,8 +26,5 @@ const useSignupWithServer = (
             setErrorCode(error.message)
         }
     }
-
     return signupWithServer
 }
-
-export default useSignupWithServer

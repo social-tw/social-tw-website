@@ -12,8 +12,8 @@ import ErrorModal from '../../components/modal/ErrorModal'
 import NoteModal from '../../components/modal/NoteModal'
 import { SIGNUP_METHODS } from '../../constants/signupMethods'
 import { useUser } from '../../contexts/User'
-import { useLoginWithServer } from '../../hooks/useLoginWithServer2'
-import { useLoginWithWallet } from '../../hooks/useLoginWithWallet2'
+import { useLoginWithServer } from '../../hooks/useLoginWithServer'
+import { useLoginWithWallet } from '../../hooks/useLoginWithWallet'
 
 enum NoteStatus {
     Close = 'close',
