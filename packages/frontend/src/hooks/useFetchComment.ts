@@ -5,7 +5,6 @@ import {
 } from '@/contexts/Actions';
 import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types';
 import { useUser } from '@/contexts/User';
-import randomNonce from '@/utils/randomNonce';
 import checkCommentIsMine from '@/utils/checkCommentIsMine';
 
 const demoComments = [
@@ -16,7 +15,7 @@ const demoComments = [
         content: '台灣der小巷就是讚啦！',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: true
+        isMine: false
     },
     {
         id: '101',
@@ -25,7 +24,7 @@ const demoComments = [
         content: '請問這是哪裡？',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: true
+        isMine: false
     },
     {
         id: '102',
@@ -34,7 +33,7 @@ const demoComments = [
         content: '這裡的芋圓推推推！',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: true
+        isMine: false
     }
 ]
 
@@ -107,3 +106,5 @@ export default function useFetchComment(postId?: string) {
         data: allComments,
     };
 }
+
+//TODO: animation states and delete block styles

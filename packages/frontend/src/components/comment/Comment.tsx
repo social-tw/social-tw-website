@@ -1,18 +1,18 @@
-import clsx from "clsx";
-import { useRef, useState } from "react";
-import { FaBan, FaTrashCan } from "react-icons/fa6";
-import { FiMoreHorizontal } from "react-icons/fi";
-import Avatar from "@/components/common/Avatar";
-import { removeActionByCommentId } from "@/contexts/Actions";
-import useCreateComment from "@/hooks/useCreateComment";
-import formatDate from "@/utils/formatDate";
+import clsx from 'clsx';
+import { useRef, useState } from 'react';
+import { FaBan, FaTrashCan } from 'react-icons/fa6';
+import { FiMoreHorizontal } from 'react-icons/fi';
+import Avatar from '@/components/common/Avatar';
+import { removeActionByCommentId } from '@/contexts/Actions';
+import useCreateComment from '@/hooks/useCreateComment';
+import formatDate from '@/utils/formatDate';
 import {
     ControlledMenu, MenuItem, useClick, useMenuState
-} from "@szhsin/react-menu";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import { CommentInfo, CommentStatus } from "../../types";
-import CommentDeleteDialog from "./CommentDeleteDialog";
-import CommentReportDialog from "./CommentReportDialog";
+} from '@szhsin/react-menu';
+import { useMediaQuery } from '@uidotdev/usehooks';
+import { CommentInfo, CommentStatus } from '../../types';
+import CommentDeleteDialog from './CommentDeleteDialog';
+import CommentReportDialog from './CommentReportDialog';
 
 export default function Comment({
     id,
@@ -34,7 +34,6 @@ export default function Comment({
     }
 
     const onDelete = () => {
-        console.log(`delete the comment: ${id}`)
         setIsDeleting(false)
     }
 
@@ -66,7 +65,7 @@ export default function Comment({
         : [
             {
                 label: '檢舉留言',
-                icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+                icon: <FaBan size={isSmallDevice ? 22 : 14} className='' />,
                 onClick: () => {
                     console.log('reporting comment')
                     setIsReporting(true)
@@ -83,17 +82,17 @@ export default function Comment({
                     status !== CommentStatus.Success && 'opacity-30'
                 )}
             >
-                <header className="grid grid-cols-[1fr_auto] items-center">
-                    <div className="flex items-center gap-5">
+                <header className='grid grid-cols-[1fr_auto] items-center'>
+                    <div className='flex items-center gap-5'>
                         <Avatar name={epochKey} />
-                        <span className="text-xs font-medium tracking-wide text-white">
+                        <span className='text-xs font-medium tracking-wide text-white'>
                             {status === CommentStatus.Failure ? '存取失敗，請再嘗試留言' : formatDate(publishedAt)}
                         </span>
                     </div>
                     <div>
                         {status !== CommentStatus.Failure && (
                             <button
-                                className="btn btn-circle btn-sm btn-ghost"
+                                className='btn btn-circle btn-sm btn-ghost'
                                 ref={menuButtonRef}
                                 {...anchorProps}
                             >
@@ -102,12 +101,12 @@ export default function Comment({
                         )}
                     </div>
                 </header>
-                <p className="text-sm font-medium text-white">{content}</p>
+                <p className='text-sm font-medium text-white'>{content}</p>
             </article>
             {status === CommentStatus.Failure && (
-                <div className="mb-6">
+                <div className='mb-6'>
                     <button
-                        className="btn btn-sm btn-outline btn-primary border-2 h-10"
+                        className='btn btn-sm btn-outline btn-primary border-2 h-10'
                         onClick={onRepublish}
                     >
                         再次發佈這則留言
@@ -120,17 +119,18 @@ export default function Comment({
                 anchorPoint={
                     isSmallDevice ? { x: 0, y: window.innerHeight } : undefined
                 }
-                align="end"
-                menuClassName="menu bg-[#363636] w-screen lg:w-36 rounded-box max-lg:rounded-b-none p-0"
+                align='end'
+                viewScroll='close'
+                menuClassName={clsx('menu w-screen bg-[#363636] md:w-36 rounded-box max-md:rounded-b-none p-0', isSmallDevice && 'h-20')}
                 onClose={() => toggleMenu(false)}
                 transition
                 portal
             >
                 {menu.map((item, i) => (
                     <MenuItem key={i} onClick={item.onClick}>
-                        <div className="font-medium text-white max-md:p-6 md:flex md:justify-center">
+                        <div className='font-medium text-white max-md:p-6 md:flex md:justify-center'>
                             {item.icon}
-                            <span className="md:text-sm text-lg tracking-wider mt-[2px]">
+                            <span className='md:text-sm text-lg tracking-wider mt-[2px]'>
                                 {item.label}
                             </span>
                         </div>
