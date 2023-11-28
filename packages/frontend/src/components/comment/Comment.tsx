@@ -125,7 +125,7 @@ export default function Comment({
                     isSmallDevice ? { x: 0, y: window.innerHeight } : undefined
                 }
                 align="end"
-                viewScroll="close"
+                viewScroll="auto"
                 menuClassName={clsx(
                     'menu w-screen bg-[#363636] md:w-36 rounded-box max-md:rounded-b-none p-0',
                     isSmallDevice && 'h-20'
