@@ -1,19 +1,19 @@
-import { clsx } from "clsx";
-import { motion } from "framer-motion";
-import React, { useState } from "react";
-import { BsTwitter } from "react-icons/bs";
-import { GrFormClose } from "react-icons/gr";
-import { useNavigate } from "react-router-dom";
-import { SERVER } from "@/config";
-import { useUser } from "@/contexts/User";
-import useLoginWithServer from "@/hooks/useLoginWithServer";
-import useLoginWithWallet from "@/hooks/useLoginWithWallet";
-import useSignupWithServer from "@/hooks/useSignupWithServer";
-import useSignUpWithWallet from "@/hooks/useSignupWithWallet";
-import useTwitterVerify from "@/hooks/useTwitterVerify";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import AuthNoteDialog from "./AuthNoteDialog";
-import LoginButton from "./LoginButton";
+import { clsx } from 'clsx'
+import { motion } from 'framer-motion'
+import React, { useState } from 'react'
+import { BsTwitter } from 'react-icons/bs'
+import { GrFormClose } from 'react-icons/gr'
+import { useNavigate } from 'react-router-dom'
+import { SERVER } from '@/config'
+import { useUser } from '@/contexts/User'
+import useLoginWithServer from '@/hooks/useLoginWithServer'
+import useLoginWithWallet from '@/hooks/useLoginWithWallet'
+import useSignupWithServer from '@/hooks/useSignupWithServer'
+import useSignUpWithWallet from '@/hooks/useSignupWithWallet'
+import useTwitterVerify from '@/hooks/useTwitterVerify'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import AuthNoteDialog from './AuthNoteDialog'
+import LoginButton from './LoginButton'
 
 interface AuthFormProps {
     accessToken: string | null

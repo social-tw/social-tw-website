@@ -7,10 +7,7 @@ import { ipfsService } from './IpfsService'
 import { epochKeyService } from './EpochKeyService'
 
 export class CommentService {
-    async fetchComments(
-        postId: string,
-        db: DB
-    ): Promise<Comment[]> {
+    async fetchComments(postId: string, db: DB): Promise<Comment[]> {
         // TODO check condition below
         // FIXME: if epks or postID not exist?
         const comments = await db.findMany('Comment', {

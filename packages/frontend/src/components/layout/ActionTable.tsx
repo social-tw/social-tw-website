@@ -1,30 +1,36 @@
-import dayjs from "dayjs";
-import { Link } from "react-router-dom";
+import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
 import {
-    actionsSelector, ActionStatus, ActionType, useActionStore
-} from "@/contexts/Actions";
+    actionsSelector,
+    ActionStatus,
+    ActionType,
+    useActionStore,
+} from '@/contexts/Actions'
 import {
-    createColumnHelper, flexRender, getCoreRowModel, useReactTable
-} from "@tanstack/react-table";
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 
-import type { Action } from "@/contexts/Actions";
+import type { Action } from '@/contexts/Actions'
 
 export function getActionTypeLabel(type: ActionType) {
     const typeLabels = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
-    };
-    return typeLabels[type];
+    }
+    return typeLabels[type]
 }
 
 export function getActionLink(action: Action) {
     if (action.type === ActionType.Post) {
-        return `/posts/${action.data.id}`;
+        return `/posts/${action.data.id}`
     }
     if (action.type === ActionType.Comment) {
-        return `/posts/${action.data.postId}#${action.data.id}`;
+        return `/posts/${action.data.postId}#${action.data.id}`
     }
-    return '#';
+    return '#'
 }
 
 function getActionStatusLabel(status: ActionStatus) {
@@ -36,22 +42,19 @@ function getActionStatusLabel(status: ActionStatus) {
         [ActionStatus.Failure]: (
             <span className="text-primary">存取交易失敗！</span>
         ),
-    };
-    return actionStatusLabels[status];
+    }
+    return actionStatusLabels[status]
 }
 
 function ActionLink({ action }: { action: Action }) {
-    const link = getActionLink(action);
+    const link = getActionLink(action)
 
     if (action.status === ActionStatus.Pending) {
-        return <span className="text-white">請稍候</span>;
+        return <span className="text-white">請稍候</span>
     }
 
     return (
-        <Link
-            className="underline text-secondary"
-            to={link}
-        >
+        <Link className="underline text-secondary" to={link}>
             前往查看
         </Link>
     )
@@ -80,7 +83,7 @@ const columns = [
 ]
 
 export default function ActionTable() {
-    const data = useActionStore(actionsSelector);
+    const data = useActionStore(actionsSelector)
 
     const table = useReactTable({
         data,
@@ -102,9 +105,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
+                                              header.column.columnDef.header,
+                                              header.getContext()
+                                          )}
                                 </th>
                             ))}
                         </tr>
@@ -135,9 +138,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                            header.column.columnDef.footer,
-                                            header.getContext()
-                                        )}
+                                              header.column.columnDef.footer,
+                                              header.getContext()
+                                          )}
                                 </th>
                             ))}
                         </tr>

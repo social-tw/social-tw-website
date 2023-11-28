@@ -1,12 +1,15 @@
-import { CommnetDataFromApi } from "@/types";
-import { UserState } from '@unirep/core';
+import { CommnetDataFromApi } from '@/types'
+import { UserState } from '@unirep/core'
 
-const checkCommentIsMine = (comment: CommnetDataFromApi, userState: UserState) => {
-  const epochKeys = userState.getEpochKeys(comment.epoch).toString();
+const checkCommentIsMine = (
+    comment: CommnetDataFromApi,
+    userState: UserState
+) => {
+    const epochKeys = userState.getEpochKeys(comment.epoch).toString()
 
-  if (epochKeys.includes(comment.epochKey)) return true
+    if (epochKeys.includes(comment.epochKey)) return true
 
-  return false
-};
+    return false
+}
 
 export default checkCommentIsMine

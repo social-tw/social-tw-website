@@ -1,23 +1,22 @@
-import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
-import Countdown from "react-countdown";
-import epochImg from "@/assets/epoch.svg?url";
-import { countByTimeRangeSelector, useActionStore } from "@/contexts/Actions";
-import useEpoch from "@/hooks/useEpoch";
+import clsx from 'clsx'
+import { useEffect, useMemo, useState } from 'react'
+import Countdown from 'react-countdown'
+import epochImg from '@/assets/epoch.svg?url'
+import { countByTimeRangeSelector, useActionStore } from '@/contexts/Actions'
+import useEpoch from '@/hooks/useEpoch'
 
 export default function EpochInfo() {
     const { epochLength, remainingTime, epoch } = useEpoch()
 
     const startTime = useMemo(
-        () => epoch && remainingTime
-            ? Date.now() - ((epochLength - remainingTime) * 1000)
-            : 0,
+        () =>
+            epoch && remainingTime
+                ? Date.now() - (epochLength - remainingTime) * 1000
+                : 0,
         [epoch, epochLength, remainingTime]
     )
     const endTime = useMemo(
-        () => epoch && remainingTime
-            ? Date.now() + (remainingTime * 1000)
-            : 0,
+        () => (epoch && remainingTime ? Date.now() + remainingTime * 1000 : 0),
         [epoch, epochLength, remainingTime]
     )
 
@@ -30,7 +29,15 @@ export default function EpochInfo() {
 
     const count = useActionStore(countByTimeRangeSelector(startTime, endTime))
 
-    const countColors = ['bg-secondary', 'bg-secondary', 'bg-secondary', 'bg-primary', 'bg-primary', 'bg-error', 'bg-error'];
+    const countColors = [
+        'bg-secondary',
+        'bg-secondary',
+        'bg-secondary',
+        'bg-primary',
+        'bg-primary',
+        'bg-error',
+        'bg-error',
+    ]
 
     return (
         <div className="flex items-stretch gap-3">
@@ -63,7 +70,15 @@ export default function EpochInfo() {
                     </div>
                     <div className="flex flex-1 gap-2">
                         {new Array(7).fill(0).map((_, index) => (
-                            <div key={index} className={clsx("flex-1", index < count ? countColors[index] : "bg-[#d9d9d9]")} />
+                            <div
+                                key={index}
+                                className={clsx(
+                                    'flex-1',
+                                    index < count
+                                        ? countColors[index]
+                                        : 'bg-[#d9d9d9]'
+                                )}
+                            />
                         ))}
                     </div>
                 </div>

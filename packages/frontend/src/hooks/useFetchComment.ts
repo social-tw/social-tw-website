@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react'
 import {
-    commentActionsSelector, CommentData, failedCommentActionsSelector,
-    pendingCommentActionsSelector, useActionStore
-} from '@/contexts/Actions';
-import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types';
-import { useUser } from '@/contexts/User';
-import checkCommentIsMine from '@/utils/checkCommentIsMine';
+    commentActionsSelector,
+    CommentData,
+    failedCommentActionsSelector,
+    pendingCommentActionsSelector,
+    useActionStore,
+} from '@/contexts/Actions'
+import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
+import { useUser } from '@/contexts/User'
+import checkCommentIsMine from '@/utils/checkCommentIsMine'
 
 const demoComments = [
     {
@@ -15,7 +18,7 @@ const demoComments = [
         content: '台灣der小巷就是讚啦！',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: false
+        isMine: false,
     },
     {
         id: '101',
@@ -24,7 +27,7 @@ const demoComments = [
         content: '請問這是哪裡？',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: false
+        isMine: false,
     },
     {
         id: '102',
@@ -33,57 +36,58 @@ const demoComments = [
         content: '這裡的芋圓推推推！',
         publishedAt: Date.now(),
         status: CommentStatus.Success,
-        isMine: false
-    }
+        isMine: false,
+    },
 ]
 
-async function fetchCommentsByPostId(postId: string): Promise<CommnetDataFromApi[]> {
-    const queryParams = new URLSearchParams();
+async function fetchCommentsByPostId(
+    postId: string
+): Promise<CommnetDataFromApi[]> {
+    const queryParams = new URLSearchParams()
 
     if (postId) {
-        queryParams.append('postId', postId);
+        queryParams.append('postId', postId)
     }
 
-    const response = await fetch(`http://localhost:8000/api/comment?${queryParams.toString()}`);
+    const response = await fetch(
+        `http://localhost:8000/api/comment?${queryParams.toString()}`
+    )
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    return await response.json(); 
+    return await response.json()
 }
 
-
 export default function useFetchComment(postId?: string) {
-    const [comments, setComments] = useState<CommentInfo[]>([]);
-    const { userState } = useUser();
+    const [comments, setComments] = useState<CommentInfo[]>([])
+    const { userState } = useUser()
 
-    const commentActions = useActionStore(commentActionsSelector);
-    const failedActions = useActionStore(failedCommentActionsSelector);
-    const pendingActions = useActionStore(pendingCommentActionsSelector);
+    const commentActions = useActionStore(commentActionsSelector)
+    const failedActions = useActionStore(failedCommentActionsSelector)
+    const pendingActions = useActionStore(pendingCommentActionsSelector)
 
     const allComments = useMemo(() => {
         const localComments: CommentInfo[] = commentActions.map((action) => ({
-            ...action.data as CommentData,
+            ...(action.data as CommentData),
             publishedAt: action.submittedAt,
             status: action.status as unknown as CommentStatus,
             isMine: true,
-        }));
-        return [
-            ...comments,
-            ...localComments,
-        ];
-    }, [comments, failedActions, pendingActions]);
+        }))
+        return [...comments, ...localComments]
+    }, [comments, failedActions, pendingActions])
 
     useEffect(() => {
         async function loadComments() {
-            if (!postId) return;
+            if (!postId) return
 
-            const comments = await fetchCommentsByPostId(postId);
+            const comments = await fetchCommentsByPostId(postId)
 
             const successfulComments = comments.map((comment) => {
-
-                const isMine = userState ? checkCommentIsMine(comment, userState) : false;
+                const isMine = userState
+                    ? checkCommentIsMine(comment, userState)
+                    : false
 
                 return {
                     id: comment.commentId,
@@ -94,17 +98,17 @@ export default function useFetchComment(postId?: string) {
                     status: CommentStatus.Success,
                     isMine: isMine,
                 }
-            });
+            })
 
-            setComments([...successfulComments, ...demoComments]);
-        };
+            setComments([...successfulComments, ...demoComments])
+        }
 
-        loadComments();
-    }, [userState]);
+        loadComments()
+    }, [userState])
 
     return {
         data: allComments,
-    };
+    }
 }
 
 //TODO: animation states and delete block styles

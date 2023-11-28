@@ -1,9 +1,9 @@
-import React from "react";
-import { GrFormClose } from "react-icons/gr";
-import { useNavigate } from "react-router-dom";
-import Backdrop from "@/components/common/Backdrop";
-import { useUser } from "@/contexts/User";
-import useErrorMessage from "@/hooks/useErrorMessage";
+import React from 'react'
+import { GrFormClose } from 'react-icons/gr'
+import { useNavigate } from 'react-router-dom'
+import Backdrop from '@/components/common/Backdrop'
+import { useUser } from '@/contexts/User'
+import useErrorMessage from '@/hooks/useErrorMessage'
 
 interface ErrorModalProps {
     isOpen: boolean
