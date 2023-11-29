@@ -1,18 +1,21 @@
-import clsx from "clsx";
-import { useRef, useState } from "react";
-import { FaBan, FaTrashCan } from "react-icons/fa6";
-import { FiMoreHorizontal } from "react-icons/fi";
-import Avatar from "@/components/common/Avatar";
-import { removeActionByCommentId } from "@/contexts/Actions";
-import useCreateComment from "@/hooks/useCreateComment";
-import formatDate from "@/utils/formatDate";
+import clsx from 'clsx'
+import { useRef, useState } from 'react'
+import { FaBan, FaTrashCan } from 'react-icons/fa6'
+import { FiMoreHorizontal } from 'react-icons/fi'
+import Avatar from '@/components/common/Avatar'
+import { removeActionByCommentId } from '@/contexts/Actions'
+import useCreateComment from '@/hooks/useCreateComment'
+import formatDate from '@/utils/formatDate'
 import {
-    ControlledMenu, MenuItem, useClick, useMenuState
-} from "@szhsin/react-menu";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import { CommentInfo, CommentStatus } from "../../types";
-import CommentDeleteDialog from "./CommentDeleteDialog";
-import CommentReportDialog from "./CommentReportDialog";
+    ControlledMenu,
+    MenuItem,
+    useClick,
+    useMenuState,
+} from '@szhsin/react-menu'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { CommentInfo, CommentStatus } from '../../types'
+import CommentDeleteDialog from './CommentDeleteDialog'
+import CommentReportDialog from './CommentReportDialog'
 
 export default function Comment({
     id,
@@ -26,11 +29,11 @@ export default function Comment({
     const [isDeleting, setIsDeleting] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
 
-    const { create: createCommnet } = useCreateComment();
+    const { create: createCommnet } = useCreateComment()
 
     const onRepublish = async () => {
-        removeActionByCommentId(id);
-        await createCommnet(postId, content);
+        removeActionByCommentId(id)
+        await createCommnet(postId, content)
     }
 
     const onDelete = () => {
@@ -54,25 +57,25 @@ export default function Comment({
 
     const menu = isMine
         ? [
-            {
-                label: '刪除留言',
-                icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                onClick: () => {
-                    console.log('delete comment')
-                    setIsDeleting(true)
-                },
-            },
-        ]
+              {
+                  label: '刪除留言',
+                  icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+                  onClick: () => {
+                      console.log('delete comment')
+                      setIsDeleting(true)
+                  },
+              },
+          ]
         : [
-            {
-                label: '檢舉留言',
-                icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-                onClick: () => {
-                    console.log('reporting comment')
-                    setIsReporting(true)
-                },
-            },
-        ]
+              {
+                  label: '檢舉留言',
+                  icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+                  onClick: () => {
+                      console.log('reporting comment')
+                      setIsReporting(true)
+                  },
+              },
+          ]
 
     return (
         <>
@@ -87,7 +90,9 @@ export default function Comment({
                     <div className="flex items-center gap-5">
                         <Avatar name={epochKey} />
                         <span className="text-xs font-medium tracking-wide text-white">
-                            {status === CommentStatus.Failure ? '存取失敗，請再嘗試留言' : formatDate(publishedAt)}
+                            {status === CommentStatus.Failure
+                                ? '存取失敗，請再嘗試留言'
+                                : formatDate(publishedAt)}
                         </span>
                     </div>
                     <div>

@@ -10,6 +10,7 @@ export interface VoteMsg {
 }
 
 export interface CommentMsg {
+    id: string
     postId: string
     content: string
     epochKey: string

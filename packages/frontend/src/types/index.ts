@@ -33,3 +33,29 @@ export interface CommentInfo {
     status: CommentStatus
     isMine: boolean
 }
+
+export enum VoteAction {
+    UPVOTE,
+    DOWNVOTE,
+    CANCEL_UPVOTE,
+    CANCEL_DOWNVOTE,
+}
+
+export enum EventType {
+    VOTE = 'VOTE',
+    COMMENT = 'comment',
+}
+
+export interface VoteMsg {
+    postId: string
+    epoch: number
+    vote: VoteAction
+}
+
+export interface CommentMsg {
+    id: string
+    postId: string
+    content: string
+    epochKey: string
+    epoch: number
+}

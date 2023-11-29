@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
-import randomNonce from "@/utils/randomNonce";
-import { stringifyBigInts } from "@unirep/utils";
-import { SERVER } from "../config";
-import { useUser } from "../contexts/User";
-import makeCancellableTask from "../utils/makeCancellableTask";
+import { useRef, useState } from 'react'
+import randomNonce from '@/utils/randomNonce'
+import { stringifyBigInts } from '@unirep/utils'
+import { SERVER } from '../config'
+import { useUser } from '../contexts/User'
+import makeCancellableTask from '../utils/makeCancellableTask'
 
 export default function useCreatePost() {
     const { userState, stateTransition, provider, loadData } = useUser()

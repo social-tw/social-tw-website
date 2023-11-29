@@ -2,11 +2,11 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { UserRegisterStatus } from './types'
-import schema from './singletons/schema'
-import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
+import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
+import schema from './singletons/schema'
 import { socketManager } from './singletons/SocketManager'
+import { UserRegisterStatus } from './types'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -133,6 +133,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         }
 
         socketManager.emitComment({
+            id: commentId,
             postId: postId,
             content: content,
             epochKey: epochKey,

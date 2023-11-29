@@ -1,7 +1,7 @@
-import { forwardRef } from "react";
-import CloseIcon from "@/assets/close.svg";
-import { Dialog as HeadlessDialog } from "@headlessui/react";
-import Backdrop from "./Backdrop";
+import { forwardRef } from 'react'
+import CloseIcon from '@/assets/close.svg'
+import { Dialog as HeadlessDialog } from '@headlessui/react'
+import Backdrop from './Backdrop'
 
 interface DialogProps {
     children: React.ReactNode
@@ -10,7 +10,7 @@ interface DialogProps {
 }
 
 const Dialog = forwardRef<HTMLDivElement, DialogProps>((props, ref) => {
-    const { children, isOpen = false, onClose = () => { } } = props;
+    const { children, isOpen = false, onClose = () => {} } = props
 
     return (
         <HeadlessDialog
@@ -22,7 +22,7 @@ const Dialog = forwardRef<HTMLDivElement, DialogProps>((props, ref) => {
                 <div className="flex items-center justify-center min-h-full p-4">
                     <HeadlessDialog.Panel
                         className="relative block w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-white/90 shadow-base"
-                        as='dialog'
+                        as="dialog"
                         ref={ref}
                     >
                         <button
@@ -37,7 +37,7 @@ const Dialog = forwardRef<HTMLDivElement, DialogProps>((props, ref) => {
                 </div>
             </Backdrop>
         </HeadlessDialog>
-    );
-});
+    )
+})
 
-export default Dialog;
+export default Dialog

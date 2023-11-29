@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
@@ -13,9 +14,6 @@ import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
 import Profile from './pages/Profile'
-import { ProtectedRoute } from './contexts/ProtectedRoute'
-import { socket } from './socket'
-import { useEffect } from 'react'
 
 dayjs.extend(relativeTime)
 
@@ -73,20 +71,6 @@ const router = createBrowserRouter([
 ])
 
 const App = () => {
-    useEffect(() => {
-        socket.on('connect', () => {
-            console.log('Connected to the server!')
-        })
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from the server!')
-        })
-
-        return () => {
-            socket.off('connect')
-            socket.off('disconnect')
-        }
-    }, [])
     return (
         <UserProvider>
             <RouterProvider router={router} />
