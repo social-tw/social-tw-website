@@ -5,6 +5,11 @@ export enum EventType {
     COMMENT = 'COMMENT',
 }
 
+export enum RoomType {
+    VOTE = 'VOTE',
+    COMMENT = 'COMMENT',
+}
+
 export interface VoteMsg {
     postId: string
     epoch: number
