@@ -10,10 +10,9 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import prover from '../src/singletons/prover'
 import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
-
+import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { createServer } from 'http'
-import { SocketManager } from '../src/singletons/SocketManager'
+import { SocketManager, socketManager } from '../src/singletons/SocketManager'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -55,19 +54,17 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     console.log('Transaction manager started')
 
     const app = express()
+    const port = process.env.PORT ?? 8000
+    const server = http.createServer(app)
+    server.listen(port, () => console.log(`Listening on port ${port}`))
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
         next()
     })
-    const port = process.env.PORT ?? 8000
-    const server = app.listen(port, () =>
-        console.log(`Listening on port ${port}`)
-    )
 
     console.log('Starting socket manager...')
-    const httpServer = createServer(app)
-    socketManager = new SocketManager(httpServer)
+    new SocketManager(server)
     console.log('Socket manager started')
 
     app.use(express.json())

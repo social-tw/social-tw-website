@@ -10,3 +10,10 @@ export interface VoteMsg {
     epoch: number
     vote: VoteAction
 }
+
+export interface CommentMsg {
+    postId: string
+    content: string
+    epochKey: string
+    epoch: number
+}
