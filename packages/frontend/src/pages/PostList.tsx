@@ -110,7 +110,7 @@ export default function PostList() {
                 `px-4`,
                 !isSmallDevice && 'divide-y divide-neutral-600',
                 location.pathname === '/login' &&
-                    'max-w-[600px] w-11/12 h-screen'
+                    'max-w-[600px] w-11/12 h-screen my-[200px]'
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (
