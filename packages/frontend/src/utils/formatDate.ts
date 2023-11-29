@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs'
 
 export default function formatDate(date: number | string | Date) {
     const publishedTime = dayjs(date)

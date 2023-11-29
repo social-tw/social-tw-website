@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import Comment from "@/components/comment/Comment";
-import CommentPublishTransition from "@/components/comment/CommentPublishTransition";
-import DesktopCommentForm from "@/components/comment/DesktopCommentForm";
+import { useEffect, useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
+import Comment from '@/components/comment/Comment'
+import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
+import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
 import MobileCommentForm, {
-    CommentValues
-} from "@/components/comment/MobileCommentForm";
-import AuthErrorDialog from "@/components/login/AuthErrorDialog";
-import Post from "@/components/post/Post";
-import { SERVER } from "@/config";
-import LOGIN_ERROR_MESSAGES from "@/constants/error-messages/loginErrorMessage";
-import { useUser } from "@/contexts/User";
-import useCreateComment from "@/hooks/useCreateComment";
-import useFetchComment from "@/hooks/useFetchComment";
-import { PostInfo } from "@/types";
-import { useMediaQuery } from "@uidotdev/usehooks";
+    CommentValues,
+} from '@/components/comment/MobileCommentForm'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import Post from '@/components/post/Post'
+import { SERVER } from '@/config'
+import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
+import { useUser } from '@/contexts/User'
+import useCreateComment from '@/hooks/useCreateComment'
+import useFetchComment from '@/hooks/useFetchComment'
+import { PostInfo } from '@/types'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 const demoPost = {
     id: '1',
@@ -28,34 +28,35 @@ const demoPost = {
 }
 
 export default function PostDetail() {
-    const { id } = useParams();
+    const { id } = useParams()
 
-    const { isLogin, setErrorCode } = useUser();
+    const { isLogin, setErrorCode } = useUser()
 
-    const [post, setPost] = useState<PostInfo>();
+    const [post, setPost] = useState<PostInfo>()
 
-    const { data: comments } = useFetchComment(id);
+    const { data: comments } = useFetchComment(id)
 
-    const { create: createCommnet } = useCreateComment();
+    const { create: createCommnet } = useCreateComment()
 
-    const [isOpenComment, setIsOpenCommnet] = useState(false);
-    const [isPublishing, setIsPublishing] = useState(false);
-    const [isError, setIsError] = useState(false);
+    const [isOpenComment, setIsOpenCommnet] = useState(false)
+    const [isPublishing, setIsPublishing] = useState(false)
+    const [isError, setIsError] = useState(false)
 
     const onWriteComment = () => {
         if (!isLogin) {
-            setIsError(true);
-            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code);
-            return;
+            setIsError(true)
+            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+            return
         }
-        setIsOpenCommnet((prev) => !prev);
-    };
+        setIsOpenCommnet((prev) => !prev)
+    }
 
     const onSubmitComment = async (values: CommentValues) => {
         try {
-            if (!id) return;
+            if (!id) return
 
             const { content } = values
+            console.log(content)
 
             setIsOpenCommnet(false)
             setIsPublishing(true)
@@ -64,12 +65,11 @@ export default function PostDetail() {
                 setIsPublishing(false)
             }, 3000)
 
-            createCommnet(id, content);
+            createCommnet(id, content)
         } catch (err) {
             console.error(err)
         }
     }
-
 
     useEffect(() => {
         async function loadPost() {
@@ -77,7 +77,7 @@ export default function PostDetail() {
             const post = await response.json()
 
             setPost({
-                id: post._id,
+                id: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
@@ -93,13 +93,13 @@ export default function PostDetail() {
         }
     }, [id])
 
-    const location = useLocation();
+    const location = useLocation()
 
     useEffect(() => {
         if (location.hash) {
-            const id = location.hash.replace('#', '');
-            const element = document.getElementById(id);
-            element?.scrollIntoView();
+            const id = location.hash.replace('#', '')
+            const element = document.getElementById(id)
+            element?.scrollIntoView()
         }
     }, [location.hash])
 
@@ -146,10 +146,7 @@ export default function PostDetail() {
                     onCancel={() => setIsOpenCommnet(false)}
                 />
             )}
-            <AuthErrorDialog
-                isOpen={isError}
-                buttonText="返回註冊/登入頁"
-            />
+            <AuthErrorDialog isOpen={isError} buttonText="返回註冊/登入頁" />
             <CommentPublishTransition isOpen={isPublishing} />
         </>
     )

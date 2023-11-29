@@ -31,6 +31,7 @@ const _schema = [
     },
     {
         name: 'Post',
+        primaryKey: 'transactionHash',
         rows: [
             {
                 name: 'publishedAt',
@@ -38,7 +39,7 @@ const _schema = [
                 default: () => +new Date(),
             },
             ['postId', 'String', { optional: true }],
-            ['transactionHash', 'String', { optional: true }],
+            ['transactionHash', 'String'],
             ['content', 'String', { optional: true }],
             ['cid', 'String', { optional: true }],
             ['epoch', 'Int'],
@@ -77,12 +78,50 @@ const _schema = [
         ],
     },
     {
+        name: 'Comment',
+        primaryKey: 'transactionHash',
+        rows: [
+            {
+                name: 'publishedAt',
+                type: 'Int',
+                default: () => +new Date(),
+            },
+            ['commentId', 'String', { optional: true }],
+            ['postId', 'String'],
+            ['cid', 'String', { optional: true }],
+            ['transactionHash', 'String'],
+            ['content', 'String'],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            ['status', 'Int'],
+        ],
+    },
+    {
         name: 'EpochKeyAction',
         primaryKey: 'epochKey',
         rows: [
             ['epochKey', 'String'],
             ['epoch', 'Int'],
             ['count', 'Int'],
+        ],
+    },
+    {
+        name: 'Vote',
+        primaryKey: ['postId', 'epochKey'],
+        rows: [
+            ['postId', 'String'],
+            ['epochKey', 'String'],
+            ['epoch', 'Int'],
+            {
+                name: 'upVote',
+                type: 'Bool',
+                default: () => false,
+            },
+            {
+                name: 'downVote',
+                type: 'Bool',
+                default: () => false,
+            },
         ],
     },
 ]

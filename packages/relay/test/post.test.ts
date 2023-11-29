@@ -18,17 +18,16 @@ import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
-import { singUp } from './utils/signUp'
+import { signUp } from './utils/signUp'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-
 describe('POST /post', function () {
-    beforeEach(async function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
@@ -49,7 +48,7 @@ describe('POST /post', function () {
         // initUserStatus
         var initUser = await userService.getLoginUser(db, '123', undefined)
         const wallet = ethers.Wallet.createRandom()
-        userState = await singUp(
+        userState = await signUp(
             initUser,
             userStateFactory,
             userService,
@@ -62,8 +61,8 @@ describe('POST /post', function () {
         expect(hasSignedUp).equal(true)
     })
 
-    afterEach(async function () {
-        ethers.provider.send('evm_revert', [snapshot])
+    after(async function () {
+        await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 

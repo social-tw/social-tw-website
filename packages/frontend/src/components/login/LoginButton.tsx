@@ -1,6 +1,6 @@
-import { clsx } from "clsx";
-import React from "react";
-import { IconType } from "react-icons";
+import { clsx } from 'clsx'
+import React from 'react'
+import { IconType } from 'react-icons'
 
 interface LoginButtonProps {
     icon?: IconType
@@ -31,7 +31,8 @@ const LoginButton: React.FC<LoginButtonProps> = ({
             type="button"
             onClick={onClick}
             disabled={isLoading}
-            className={clsx(`
+            className={clsx(
+                `
                 flex
                 w-full
                 max-w-[44rem]           

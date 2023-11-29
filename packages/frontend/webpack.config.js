@@ -4,7 +4,7 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const webpack = require('webpack')
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = (env) => ({
     entry: ['./src/index.tsx'],
@@ -136,8 +136,8 @@ module.exports = (env) => ({
             },
             ...(env.CYPRESS
                 ? {
-                    ['process.env.CYPRESS']: 'true',
-                }
+                      ['process.env.CYPRESS']: 'true',
+                  }
                 : {}),
         }),
         new webpack.ProvidePlugin({

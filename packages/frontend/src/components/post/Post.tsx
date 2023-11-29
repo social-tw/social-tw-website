@@ -1,10 +1,10 @@
-import LinesEllipsis from "react-lines-ellipsis";
-import { Link } from "react-router-dom";
-import Comment from "@/assets/comment.png";
-import Downvote from "@/assets/downvote.png";
-import Upvote from "@/assets/upvote.png";
-import Avatar from "@/components/common/Avatar";
-import formatDate from "@/utils/formatDate";
+import LinesEllipsis from 'react-lines-ellipsis'
+import { Link } from 'react-router-dom'
+import Comment from '@/assets/comment.png'
+import Downvote from '@/assets/downvote.png'
+import Upvote from '@/assets/upvote.png'
+import Avatar from '@/components/common/Avatar'
+import formatDate from '@/utils/formatDate'
 
 export default function ({
     id = '',
@@ -16,7 +16,7 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
-    onComment = () => { },
+    onComment = () => {},
 }: {
     id: string
     epochKey: string

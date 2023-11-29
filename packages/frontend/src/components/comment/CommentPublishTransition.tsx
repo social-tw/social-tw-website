@@ -1,13 +1,15 @@
-import { motion } from "framer-motion";
-import React from "react";
-import Comment from "@/assets/comment.png";
-import Backdrop from "@/components/common/Backdrop";
+import { motion } from 'framer-motion'
+import React from 'react'
+import Comment from '@/assets/comment.png'
+import Backdrop from '@/components/common/Backdrop'
 
 interface TransactionModalProps {
     isOpen: boolean
 }
 
-const CommentPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
+const CommentPublishTransition: React.FC<TransactionModalProps> = ({
+    isOpen,
+}) => {
     const items = [1, 2, 3]
     const variants = {
         animate: (i: number) => ({

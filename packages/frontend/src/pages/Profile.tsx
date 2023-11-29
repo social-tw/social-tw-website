@@ -1,8 +1,8 @@
-import { RiLogoutBoxRLine } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
-import Avatar from "@/assets/avatar.png";
-import LoginButton from "@/components/login/LoginButton";
-import { useUser } from "@/contexts/User";
+import { RiLogoutBoxRLine } from 'react-icons/ri'
+import { useNavigate } from 'react-router-dom'
+import Avatar from '@/assets/avatar.png'
+import LoginButton from '@/components/login/LoginButton'
+import { useUser } from '@/contexts/User'
 
 const Profile = () => {
     const { logout, signupStatus } = useUser()

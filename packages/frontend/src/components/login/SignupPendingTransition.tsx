@@ -1,10 +1,10 @@
-import "./signupPendingTransition.css";
-import clsx from "clsx";
-import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Backdrop from "@/components/common/Backdrop";
-import { SignupStatus } from "@/contexts/User";
+import './signupPendingTransition.css'
+import clsx from 'clsx'
+import { motion } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Backdrop from '@/components/common/Backdrop'
+import { SignupStatus } from '@/contexts/User'
 
 interface SignUpLoadingModal {
     status: SignupStatus
