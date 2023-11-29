@@ -55,7 +55,7 @@ jobs:
             - name: Export Config to GitHub Envs
               run: gh variable set -f ./packages/relay/.env -e ${{ inputs.env }} --repo $GITHUB_REPOSITORY
               env:
-                  GH_TOKEN: ${{ env.GH_PAT }}
+                  GITHUB_TOKEN: ${{ env.GH_PAT }}
 
             # - name: add tag to record version
             #   run: |
