@@ -12,8 +12,11 @@ import DataProofVerifier from '../artifacts/contracts/DataProofVerifier.sol/Data
 export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const unirep = await deployUnirep(deployer)
 
-    const helper = await deployVerifierHelper(deployer, Circuit.epochKey)
-
+    const epkHelper = await deployVerifierHelper(deployer, Circuit.epochKey)
+    const epkLiteHelper = await deployVerifierHelper(
+        deployer,
+        Circuit.epochKeyLite
+    )
     const _DataProofVerifierF = new ethers.ContractFactory(
         DataProofVerifier.abi,
         DataProofVerifier.bytecode,
@@ -27,7 +30,8 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
 
     const app = await AppF.deploy(
         unirep.address,
-        helper.address,
+        epkHelper.address,
+        epkLiteHelper.address,
         verifier.address,
         epochLength
     )
