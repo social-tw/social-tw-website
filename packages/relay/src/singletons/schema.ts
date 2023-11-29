@@ -93,7 +93,7 @@ const _schema = [
             ['content', 'String'],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
-            ['status', 'Int'],
+            ['status', 'Int'], // 0: init, 1: success, 2: deleted
         ],
     },
     {

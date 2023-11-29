@@ -97,16 +97,22 @@ export class CommentService {
             synchronizer
         )
 
-        const epoch = Number(epochKeyLiteProof.epoch)
-        const epochKey = epochKeyLiteProof.epochKey.toString()
-
-        return await epochKeyService.callContract('editComment', [
-            publicSignals,
-            proof,
+        const txnHash = await epochKeyService.callContract('editComment', [
+            epochKeyLiteProof.publicSignals,
+            epochKeyLiteProof.proof,
             comment.postId,
             commentId,
             '',
         ])
+
+        const epoch = Number(epochKeyLiteProof.epoch)
+        const epochKey = epochKeyLiteProof.epochKey.toString()
+
+        await addActionCount(db, epochKey, epoch, (_) => {
+            return 1
+        })
+
+        return txnHash
     }
 }
 

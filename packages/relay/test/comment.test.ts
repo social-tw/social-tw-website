@@ -256,4 +256,45 @@ describe('COMMENT /comment', function () {
         expect(res.error).equal('Invalid State Tree')
         userState.sync.stop()
     })
+
+    it('delete the comment success', async function () {
+        let epochKeyProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
+        })
+
+        // create a comment
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        await ethers.provider.waitForTransaction(result.transaction)
+        console.log('waitForSync')
+        await sync.waitForSync()
+
+        console.log('delete comment', result)
+        // check comment exist
+        let comments: any = await fetch(
+            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
+        ).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+        console.log('comments', comments)
+        expect(comments.length).equal(0)
+
+        sync.stop()
+    })
 })

@@ -121,13 +121,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         // If the comment didn't exist before, increment the commentCount of the post
         if (!existingComment) {
             const commentCount = await this.db.count('Comment', {
-                postId,
+                where: { 
+                    postId, 
+                    status : 1 
+                }
             })
 
             db.update('Post', {
                 where: { postId },
                 update: {
-                    commentCount: commentCount + 1,
+                    commentCount: commentCount
                 },
             })
         }
@@ -148,6 +151,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const newContent = decodedData.newContent
 
         // FIXME: Should we check the epoch key?
+        console.log('update comment', decodedData)
 
         db.update('Comment', {
             where: {
@@ -156,8 +160,23 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
             update: {
                 content: newContent,
+                status: 2, // 2 is deleted
             },
         })
+
+        const commentCount = await this.db.count('Comment', {
+            where: { 
+                postId, 
+                status : 1 
+            }
+        });
+
+        db.update('Post', {
+            where: { postId },
+            update: {
+                commentCount: commentCount
+            },
+        });
 
         return true
     }
