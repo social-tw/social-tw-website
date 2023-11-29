@@ -12,7 +12,7 @@ import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager, socketManager } from '../src/singletons/SocketManager'
+import { SocketManager } from '../src/singletons/SocketManager'
 
 __dirname = path.join(__dirname, '..', 'src')
 
