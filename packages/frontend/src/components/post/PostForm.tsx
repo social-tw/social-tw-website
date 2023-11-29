@@ -1,18 +1,18 @@
-import { clsx } from "clsx";
-import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import Avatar from "@/assets/avatar.png";
-import Backdrop from "@/components/common/Backdrop";
-import RichTextEditor from "@/components/common/RichTextEditor";
+import { clsx } from 'clsx'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import Avatar from '@/assets/avatar.png'
+import Backdrop from '@/components/common/Backdrop'
+import RichTextEditor from '@/components/common/RichTextEditor'
 
 export interface PostValues {
     content: string
 }
 
 export default function PostForm({
-    onCancel = () => { },
-    onSubmit = () => { },
-    onSubmitCancel = () => { },
+    onCancel = () => {},
+    onSubmit = () => {},
+    onSubmitCancel = () => {},
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,

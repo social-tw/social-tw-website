@@ -1,10 +1,13 @@
-import { action } from "mobx";
-import { useEffect, useMemo, useState } from "react";
+import { action } from 'mobx'
+import { useEffect, useMemo, useState } from 'react'
 import {
-  commentActionsSelector, CommentData, failedCommentActionsSelector,
-  pendingCommentActionsSelector, useActionStore
-} from "@/contexts/Actions";
-import { CommentInfo, CommentStatus, CommnetDataFromApi } from "@/types";
+    commentActionsSelector,
+    CommentData,
+    failedCommentActionsSelector,
+    pendingCommentActionsSelector,
+    useActionStore,
+} from '@/contexts/Actions'
+import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 
 const demoComments = [
     {
@@ -31,52 +34,49 @@ async function fetchCommentsByPostId(postId: string) {
     // mock api call
     return new Promise<CommnetDataFromApi[]>((resolve) => {
         setTimeout(() => {
-            resolve(demoComments);
-        }, 500);
-    });
+            resolve(demoComments)
+        }, 500)
+    })
 }
 
 export default function useFetchComment(postId?: string) {
-    const [comments, setComments] = useState<CommentInfo[]>([]);
+    const [comments, setComments] = useState<CommentInfo[]>([])
 
-    const commentActions = useActionStore(commentActionsSelector);
-    const failedActions = useActionStore(failedCommentActionsSelector);
-    const pendingActions = useActionStore(pendingCommentActionsSelector);
+    const commentActions = useActionStore(commentActionsSelector)
+    const failedActions = useActionStore(failedCommentActionsSelector)
+    const pendingActions = useActionStore(pendingCommentActionsSelector)
 
     const allComments = useMemo(() => {
         const localComments: CommentInfo[] = commentActions.map((action) => ({
-            ...action.data as CommentData,
+            ...(action.data as CommentData),
             publishedAt: action.submittedAt,
             status: action.status as unknown as CommentStatus,
             // TODO: check this comment is mine
             isMine: true,
-        }));
-        return [
-            ...comments,
-            ...localComments,
-        ];
-    }, [comments, failedActions, pendingActions]);
+        }))
+        return [...comments, ...localComments]
+    }, [comments, failedActions, pendingActions])
 
     useEffect(() => {
         async function loadCommnets() {
-            if (!postId) return;
+            if (!postId) return
 
-            const comments = await fetchCommentsByPostId(postId);
+            const comments = await fetchCommentsByPostId(postId)
             const successfulComments = comments.map((comment) => ({
                 ...comment,
                 postId,
                 status: CommentStatus.Success,
                 // TODO: check this comment is mine
                 isMine: false,
-            }));
+            }))
 
-            setComments(successfulComments);
+            setComments(successfulComments)
         }
 
-        loadCommnets();
-    }, []);
+        loadCommnets()
+    }, [])
 
     return {
         data: allComments,
-    };
+    }
 }

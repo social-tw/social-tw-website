@@ -1,16 +1,16 @@
-import { clsx } from "clsx";
-import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
-import { IoChevronBack } from "react-icons/io5";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import LogoWhite from "@/assets/logo-white.png";
-import AuthErrorDialog from "@/components/login/AuthErrorDialog";
-import AuthForm from "@/components/login/AuthForm";
-import StepInfo from "@/components/login/StepInfo";
-import WelcomeBackgroundList from "@/components/login/WelcomeBackgroundList";
-import { useUser } from "@/contexts/User";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import PostList from "./PostList";
+import { clsx } from 'clsx'
+import { motion } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { IoChevronBack } from 'react-icons/io5'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import LogoWhite from '@/assets/logo-white.png'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import AuthForm from '@/components/login/AuthForm'
+import StepInfo from '@/components/login/StepInfo'
+import WelcomeBackgroundList from '@/components/login/WelcomeBackgroundList'
+import { useUser } from '@/contexts/User'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import PostList from './PostList'
 
 type Method = '' | 'signup' | 'login'
 
@@ -26,8 +26,8 @@ const Login: React.FC = () => {
         status === '1'
             ? 'signup'
             : status === '2' || status === '3'
-                ? 'login'
-                : ''
+            ? 'login'
+            : ''
     )
     const [isShow, setIsShow] = useState<boolean>(false)
 
@@ -216,7 +216,10 @@ const Login: React.FC = () => {
                 handleClick={handleClick}
             />
             {method === '' && (
-                <WelcomeBackgroundList method={method} variants={postListVariants}>
+                <WelcomeBackgroundList
+                    method={method}
+                    variants={postListVariants}
+                >
                     <PostList />
                 </WelcomeBackgroundList>
             )}

@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Dialog from "@/components/common/Dialog";
-import AuthErrorDialog from "@/components/login/AuthErrorDialog";
-import PostForm, { PostValues } from "@/components/post/PostForm";
-import { useUser } from "@/contexts/User";
-import useCreatePost from "@/hooks/useCreatePost";
-import { CancelledTaskError } from "@/utils/makeCancellableTask";
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Dialog from '@/components/common/Dialog'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import PostForm, { PostValues } from '@/components/post/PostForm'
+import { useUser } from '@/contexts/User'
+import useCreatePost from '@/hooks/useCreatePost'
+import { CancelledTaskError } from '@/utils/makeCancellableTask'
 
 export default function PostCreate() {
     const { isLogin } = useUser()
@@ -42,7 +42,10 @@ export default function PostCreate() {
                     isSubmitCancellable={isCancellable}
                     isSubmitCancelled={isCancelled}
                 />
-                <Dialog isOpen={isOpenError} onClose={() => setIsOpenError(false)}>
+                <Dialog
+                    isOpen={isOpenError}
+                    onClose={() => setIsOpenError(false)}
+                >
                     <section className="p-6 md:px-12">
                         <p className="text-base font-medium text-black/90">
                             親愛的用戶：
