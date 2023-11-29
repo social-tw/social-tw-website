@@ -5,6 +5,8 @@ import { Synchronizer } from '@unirep/core'
 import { UserRegisterStatus } from './types'
 import schema from './singletons/schema'
 import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
+import { toDecString } from '@unirep/core/src/Synchronizer'
+import { socketManager } from './singletons/SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -39,7 +41,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ...super.contracts,
             [tempUnirepSocialContract.address]: {
                 contract: tempUnirepSocialContract,
-                eventNames: ['Post', 'UserSignUp'],
+                eventNames: ['Post', 'UserSignUp', 'Comment', 'UpdatedComment'],
             },
         }
     }
@@ -54,21 +56,18 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const findPost = await this.db.findOne('Post', {
-            where: {
-                transactionHash,
-            },
-        })
-        if (!findPost) return
-
-        const epochKey = BigInt(event.topics[1]).toString(10)
-        const postId = BigInt(event.topics[2]).toString()
+        const epochKey = toDecString(event.topics[1])
+        const postId = toDecString(event.topics[2])
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
         db.upsert('Post', {
             where: {
-                _id: findPost._id,
+                transactionHash,
+            },
+            update: {
+                status: 1,
+                postId,
             },
             create: {
                 postId,
@@ -77,12 +76,90 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 transactionHash,
                 status: 1,
                 content,
-            },
-            update: {
-                status: 1,
-                postId,
+                upCount: 0,
+                downCount: 0,
+                commentCount: 0,
             },
         })
+
+        return true
+    }
+
+    async handleComment({ event, db, decodedData }: EventHandlerArgs) {
+        const transactionHash = event.transactionHash
+        const epochKey = toDecString(event.topics[1])
+        const postId = toDecString(event.topics[2])
+        const commentId = toDecString(event.topics[3])
+        const epoch = Number(decodedData.epoch)
+        const content = decodedData.content
+
+        // We need to verify if we have already add commentCount to the post
+        const existingComment = await this.db.findOne('Comment', {
+            where: {
+                transactionHash,
+            },
+        })
+
+        // Use upsert to either create a new comment or update an existing one
+        db.upsert('Comment', {
+            where: { transactionHash },
+            create: {
+                commentId,
+                postId,
+                transactionHash,
+                content,
+                epoch,
+                epochKey,
+                status: 1,
+            },
+            update: {
+                commentId,
+                status: 1,
+            },
+        })
+
+        // If the comment didn't exist before, increment the commentCount of the post
+        if (!existingComment) {
+            const commentCount = await this.db.count('Comment', {
+                postId,
+            })
+
+            db.update('Post', {
+                where: { postId },
+                update: {
+                    commentCount: commentCount + 1,
+                },
+            })
+        }
+
+        socketManager.emitComment({
+            postId: postId,
+            content: content,
+            epochKey: epochKey,
+            epoch: epoch,
+        })
+
+        return true
+    }
+
+    async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
+        const postId = toDecString(event.topics[2])
+        const commentId = toDecString(event.topics[3])
+        const newContent = decodedData.newContent
+
+        // FIXME: Should we check the epoch key?
+
+        db.update('Comment', {
+            where: {
+                postId,
+                commentId,
+            },
+            update: {
+                content: newContent,
+            },
+        })
+
+        return true
     }
 
     // once user signup, save the hash user id into db
