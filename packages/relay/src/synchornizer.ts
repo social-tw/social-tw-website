@@ -150,9 +150,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const commentId = toDecString(event.topics[3])
         const newContent = decodedData.newContent
 
-        // FIXME: Should we check the epoch key?
-        console.log('update comment', decodedData)
-
         db.update('Comment', {
             where: {
                 postId,

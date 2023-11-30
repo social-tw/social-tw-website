@@ -281,10 +281,8 @@ describe('COMMENT /comment', function () {
         })
 
         await ethers.provider.waitForTransaction(result.transaction)
-        console.log('waitForSync')
         await sync.waitForSync()
 
-        console.log('delete comment', result)
         // check comment exist
         let comments: any = await fetch(
             `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
@@ -292,7 +290,6 @@ describe('COMMENT /comment', function () {
             expect(r.status).equal(200)
             return r.json()
         })
-        console.log('comments', comments)
         expect(comments.length).equal(0)
 
         sync.stop()
