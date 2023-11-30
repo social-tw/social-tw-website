@@ -5,8 +5,6 @@ import { Helia } from 'helia'
 import { addActionCount } from '../utils/TransactionHelper'
 import { ipfsService } from './IpfsService'
 import { epochKeyService } from './EpochKeyService'
-import { InternalError } from '../types/InternalError'
-import { Comment } from '../types/Comment'
 
 export class CommentService {
     async fetchComments(
@@ -72,42 +70,6 @@ export class CommentService {
         })
 
         return txnHash
-    }
-
-    async deleteComment(
-        commentId: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
-        synchronizer: UnirepSocialSynchronizer,
-        db: DB
-    ) {
-
-        const comment: Comment = await db.findOne('Comment', {
-            where: {
-                status: 1,
-                commentId: commentId
-            }
-        })
-        if(!comment) {
-            throw new InternalError('Comment does not exist', 400)
-        }
-
-        const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
-            publicSignals,
-            proof, 
-            synchronizer
-        )
-
-        const epoch = Number(epochKeyLiteProof.epoch)
-        const epochKey = epochKeyLiteProof.epochKey.toString()
-        
-        return await epochKeyService.callContract('editComment', [
-            publicSignals,
-            proof,
-            comment.postId,
-            commentId,
-            "",
-        ])
     }
 }
 

@@ -1,4 +1,4 @@
-import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
+import { EpochKeyProof } from '@unirep/circuits'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { SnarkProof } from '@unirep/utils'
 import { ethers } from 'ethers'
@@ -47,36 +47,6 @@ class EpochKeyService {
 
         return epochKeyProof
     }
-
-    async getAndVerifyLiteProof(
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
-        synchronizer: UnirepSocialSynchronizer
-    ): Promise<EpochKeyLiteProof> {
-        
-        const epochKeyLiteProof = new EpochKeyLiteProof(
-            publicSignals,
-            proof,
-            synchronizer.prover
-        )
-
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
-
-        // check if epoch is valid
-        const isEpochvalid = epochKeyLiteProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
-            throw new InternalError('Invalid Epoch', 400)
-        }
-        
-        const isProofValid = await epochKeyLiteProof.verify()
-        if (!isProofValid) {
-            throw new InternalError('Invalid proof', 400)
-        }
-
-        return epochKeyLiteProof
-    }
-
 
     // TODO move this to other service?
     async callContract(
