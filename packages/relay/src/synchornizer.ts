@@ -121,16 +121,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         // If the comment didn't exist before, increment the commentCount of the post
         if (!existingComment) {
             const commentCount = await this.db.count('Comment', {
-                where: { 
-                    postId, 
-                    status : 1 
-                }
+                AND: [{ postId }, { status: 1 }],
             })
 
             db.update('Post', {
                 where: { postId },
                 update: {
-                    commentCount: commentCount
+                    commentCount: commentCount + 1,
                 },
             })
         }
@@ -152,8 +149,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
         db.update('Comment', {
             where: {
-                postId,
-                commentId,
+                AND: [{ postId: postId }, { commentId: commentId }],
             },
             update: {
                 content: newContent,
@@ -161,19 +157,17 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
+        // update comment count into post table
         const commentCount = await this.db.count('Comment', {
-            where: { 
-                postId, 
-                status : 1 
-            }
-        });
+            AND: [{ postId: postId }, { status: 1 }],
+        })
 
         db.update('Post', {
             where: { postId },
             update: {
-                commentCount: commentCount
+                commentCount: commentCount - 1,
             },
-        });
+        })
 
         return true
     }
