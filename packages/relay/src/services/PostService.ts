@@ -32,7 +32,7 @@ export class PostService {
             if (whereClause.length == 0) {
                 whereClause = whereClause + `WHERE epoch_key=${epks![i]} `
             } else {
-                whereClause = whereClause + `AND epoch_key=${epks![i]}`
+                whereClause = whereClause + `OR epoch_key=${epks![i]}`
             }
         }
 
@@ -59,8 +59,8 @@ export class PostService {
         TmpPost.up_count, TmpPost.down_count, TmpPost.vote_sum, TmpPost.status, TmpPost.comment_count
         FROM (
             SELECT *, 
-            (EXTRACT(DAY NOW() - published_at) * (-0.5) + (up_count * 0.2) - (down_count * 0.2) + (comment_count * 0.1)) AS SORT_ALGO FROM Post
-            ORDER BY SORT_ALGO DESC
+            ((EXTRACT(DAY NOW() - published_at) * (-0.5)) + (up_count * 0.2) - (down_count * 0.2) + (comment_count * 0.1)) AS SORT_ALGO FROM Post
+            ORDER BY SORT_ALGO DESC, published_at
             ) AS TmpPost
             ${whereClause}
             AND EXTRACT(DAY NOW() - published_at) <= 2
