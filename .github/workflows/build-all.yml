@@ -51,22 +51,9 @@ jobs:
             - name: Install and build packages
               run: yarn && yarn build
 
-            - name: Deploy contracts to devnet
-              if: ${{ inputs.env == 'dev' }}
+            - name: Deploy contracts
               run: |
-                  curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sudo sh
-                  yarn contracts deploy:devnet
-              env:
-                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-                  TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
-                  TENDERLY_PROJECT_SLUG: ${{ secrets.TENDERLY_PROJECT_SLUG }}
-                  TENDERLY_DEVNET_TEMPLATE: ${{ secrets.TENDERLY_DEVNET_TEMPLATE }}
-                  TENDERLY_ACCOUNT_ID: ${{ secrets.TENDERLY_ACCOUNT_ID }}
-
-            - name: Deploy contracts to arbitrum test net
-              if: ${{ inputs.env == 'prod' }}
-              run: |
-                  yarn contracts deploy
+                  yarn contracts deploy:${{ inputs.env }}
               env:
                   ETH_PROVIDER_URL: ${{ vars.ETH_PROVIDER_URL }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
