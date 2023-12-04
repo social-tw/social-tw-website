@@ -8,8 +8,9 @@ dotenv.config()
 tdly.setup({ automaticVerifications: true })
 
 const { TENDERLY_ACCESS_KEY, TENDERLY_PROJECT_SLUG } = process.env
-
 const DEVNET_RPC_URL = process.env.DEVNET_RPC_URL ?? ''
+const DEFAULT_PRIVATE_KEY =
+    '0x0f70e777f814334daa4456ac32b9a1fdca75ae07f70c2e6cef92679bad06c88b'
 
 export default {
     defaultNetwork: 'local',
@@ -20,24 +21,24 @@ export default {
         local: {
             url: 'http://127.0.0.1:8545',
             blockGasLimit: 12000000,
-            accounts: [
-                '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-            ],
+            accounts: [DEFAULT_PRIVATE_KEY],
+        },
+        dev: {
+            url: process.env.ETH_PROVIDER_URL ?? '',
+            accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
+        },
+        prod: {
+            url: process.env.ETH_PROVIDER_URL ?? '',
+            accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
         },
         arb: {
             url: process.env.ETH_PROVIDER_URL ?? '',
-            accounts: [
-                process.env.PRIVATE_KEY ??
-                    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-            ],
+            accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
         },
         tenderly: {
             url: DEVNET_RPC_URL,
             chainId: 137,
-            accounts: [
-                process.env.PRIVATE_KEY ??
-                    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-            ],
+            accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
         },
     },
     tenderly: {
