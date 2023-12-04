@@ -133,8 +133,6 @@ describe('COMMENT /comment', function () {
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
-
-        userState.sync.stop()
     })
 
     it('should comment failed with wrong proof', async function () {
@@ -165,7 +163,6 @@ describe('COMMENT /comment', function () {
         })
 
         expect(res.error).equal('Invalid proof')
-        userState.sync.stop()
     })
 
     it('should comment failed with wrong epoch', async function () {
@@ -211,7 +208,6 @@ describe('COMMENT /comment', function () {
         })
 
         expect(res.error).equal('Invalid Epoch')
-        userState.sync.stop()
     })
 
     it('should comment failed with wrong state tree', async function () {
@@ -254,6 +250,98 @@ describe('COMMENT /comment', function () {
         })
 
         expect(res.error).equal('Invalid State Tree')
-        userState.sync.stop()
+    })
+
+    it('delete the comment failed with wrong proof', async function () {
+        let epochKeyProof = await userState.genEpochKeyLiteProof({
+            nonce: 0,
+        })
+
+        epochKeyProof.publicSignals[0] = BigInt(0)
+
+        // create a comment
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(result.error).equal('Invalid proof')
+    })
+
+    it('delete the comment failed with wrong epoch', async function () {
+        const wrongEpoch = 44444
+        let epochKeyProof = await userState.genEpochKeyLiteProof({
+            nonce: 0,
+            epoch: wrongEpoch,
+        })
+
+        // create a comment
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(result.error).equal('Invalid Epoch')
+    })
+
+    it('delete the comment success', async function () {
+        let epochKeyProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
+        })
+
+        // create a comment
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        await ethers.provider.waitForTransaction(result.transaction)
+        await sync.waitForSync()
+
+        // check comment exist
+        let comments: any = await fetch(
+            `${HTTP_SERVER}/api/comment?postId=0`
+        ).then((r) => {
+            expect(r.status).equal(200)
+            return r.json()
+        })
+
+        expect(comments.length).equal(0)
     })
 })
