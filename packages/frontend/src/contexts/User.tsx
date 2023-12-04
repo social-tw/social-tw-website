@@ -21,6 +21,8 @@ import prover from './Prover'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
+
+
 export interface UserContextType {
     currentEpoch: number
     setCurrentEpoch: (epoch: number) => void
