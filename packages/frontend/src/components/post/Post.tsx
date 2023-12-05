@@ -9,6 +9,8 @@ import { useState } from 'react'
 import { VoteAction, VoteMsg } from '../../types/VoteAction'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
+import LikeAnimation from '../ui/animations/LikeAnimation'; // 假設LikeAnimation和Post.tsx在同一個目錄
+
 
 export default function ({
     id = '',
@@ -35,6 +37,10 @@ export default function ({
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
+    const [isLiked, setIsLiked] = useState(true);
+    const handleLike = () => {
+        setIsLiked(!isLiked); // 切換點讚狀態
+    };
 
     const { isLogin } = useUser()
     const { create } = useVotes()
@@ -224,6 +230,7 @@ export default function ({
                     />
                 </div>
             )}
+            <LikeAnimation isLiked={isLiked} />
         </article>
     )
 }
