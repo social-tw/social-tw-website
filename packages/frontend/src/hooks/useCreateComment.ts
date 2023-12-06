@@ -1,14 +1,13 @@
-import { nanoid } from 'nanoid'
 import {
     ActionType,
     addAction,
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
 import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
+import { SERVER } from '../config'
 
 async function publishComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {

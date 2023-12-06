@@ -111,10 +111,13 @@ export function pendingCountSelector(state: ActionState) {
 }
 
 export function countByTimeRangeSelector(startTime: number, endTime: number) {
+    const _startTime = startTime * 1000
+    const _endTime = endTime * 1000
     return function (state: ActionState) {
         return Object.values(state.entities).filter(
             (action) =>
-                action.submittedAt > startTime && action.submittedAt <= endTime
+                action.submittedAt > _startTime &&
+                action.submittedAt <= _endTime
         ).length
     }
 }
