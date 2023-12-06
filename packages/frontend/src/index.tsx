@@ -1,8 +1,9 @@
-import './styles/main.css'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
@@ -12,10 +13,12 @@ import Login from './pages/Login'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
-import Profile from './pages/Profile'
-import { ProtectedRoute } from './contexts/ProtectedRoute'
+import { History } from './pages/Profile/History'
+import Profile from './pages/Profile/Profile'
+import ProfileLayout from './pages/Profile/ProfileLayout'
+import { Reputation } from './pages/Profile/Reputation'
 import { socket } from './socket'
-import { useEffect } from 'react'
+import './styles/main.css'
 
 dayjs.extend(relativeTime)
 
@@ -54,9 +57,23 @@ const router = createBrowserRouter([
                         path: 'profile',
                         element: (
                             <ProtectedRoute>
-                                <Profile />
+                                <ProfileLayout />
                             </ProtectedRoute>
                         ),
+                        children: [
+                            {
+                                path: '',
+                                element: <Profile />,
+                            },
+                            {
+                                path: 'reputation',
+                                element: <Reputation />,
+                            },
+                            {
+                                path: 'history',
+                                element: <History />,
+                            },
+                        ],
                     },
                 ],
             },
