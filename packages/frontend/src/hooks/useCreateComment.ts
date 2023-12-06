@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import {
     ActionType,
     addAction,
@@ -46,14 +45,16 @@ export default function useCreateComment() {
         })
 
         const actionId = addAction(ActionType.Comment, data)
+        // TODO: seperate the functions
         onCloseAnimation()
 
         try {
-            const comment = await publishComment(data)
-            await provider.waitForTransaction(comment?.transaction)
+            const { transaction } = await publishComment(data)
+            await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            succeedActionById(actionId, { id: comment?.id })
+            // TODO: fix the commentId redirection
+            succeedActionById(actionId, { commentId: "Tocheck" })
         } catch (error) {
             console.error(error)
             failActionById(actionId)

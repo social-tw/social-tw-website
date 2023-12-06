@@ -20,7 +20,7 @@ export interface PostData {
 }
 
 export interface CommentData {
-    id: string
+    commentId: string
     postId: string
     content: string
     epochKey: string
@@ -134,7 +134,6 @@ export function createAction(
 }
 
 export function addAction(type: ActionType, data: PostData | CommentData) {
-    // TODO: check if it successfully store comment in the localStorage
     const action = createAction(type, data)
     useActionStore.setState((state) => {
         state.entities[action.id] = action
@@ -149,7 +148,6 @@ export function succeedActionById(
     id: string,
     data: Partial<PostData | CommentData> = {}
 ) {
-    console.log(data)
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Success
         state.entities[id].data = { ...state.entities[id].data, ...data }
@@ -179,7 +177,12 @@ export function removeActionById(id: string) {
 export function removeActionByCommentId(commentId: string) {
     const state = useActionStore.getState()
     const actions = commentActionsSelector(state)
-    const action = actions.find((action) => action.data.id === commentId)
+    const action = actions.find((action) => {
+        if (action.type === ActionType.Comment) {
+            return action.data.commentId === commentId;
+        }
+        return false;
+    });
 
     if (!action) return
     removeActionById(action.id)

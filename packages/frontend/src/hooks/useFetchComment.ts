@@ -12,7 +12,7 @@ import checkCommentIsMine from '@/utils/checkCommentIsMine'
 
 const demoComments = [
     {
-        id: '100',
+        commentId: '100',
         postId: '0',
         epoch: 100,
         epochKey: 'epochKey-2',
@@ -22,7 +22,7 @@ const demoComments = [
         isMine: false,
     },
     {
-        id: '101',
+        commentId: '101',
         postId: '0',
         epoch: 100,
         epochKey: 'epochKey-2',
@@ -32,7 +32,7 @@ const demoComments = [
         isMine: false,
     },
     {
-        id: '102',
+        commentId: '102',
         postId: '0',
         epoch: 100,
         epochKey: 'epochKey-2',
@@ -94,8 +94,8 @@ export default function useFetchComment(postId?: string) {
                     : false
 
                 return {
-                    id: comment.commentId,
-                    postId,
+                    postId: postId,
+                    commentId: comment.commentId,
                     epoch: comment.epoch,
                     epochKey: comment.epochKey,
                     content: comment.content,
@@ -117,3 +117,15 @@ export default function useFetchComment(postId?: string) {
 }
 
 //TODO: animation states and delete block styles
+
+// 
+cid: "bagaaiera46shbrwueuccehnhapimkvexwzhacf4gqs7gezlawf6gculdkflq"
+commentId: "8"
+content: "hehe"
+epoch: 18
+epochKey: "21251839863605658399112761703096590829564711325236006469746262908856542755413"
+postId: "0"
+publishedAt: 1701855294877
+status: 1
+transactionHash: "0x80ee3d0bfa6efeb9e65cbafe897f7a990a121b14731a38819f838ce932bf0350"
+_id: "IpvqvYL1_c_UnleUETqv4"

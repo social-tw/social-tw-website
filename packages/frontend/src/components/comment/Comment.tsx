@@ -18,12 +18,13 @@ import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
 import useDeleteComment from '@/hooks/useDeleteComments'
 
-interface ExtendedCommentInfo extends CommentInfo {
-    onCloseAnimation?: () => void;
+interface CommentProps extends CommentInfo {
+    onCloseAnimation?: () => void
+    onOpenAnimation?: () => void
 }
 
 export default function Comment({
-    id,
+    commentId,
     postId,
     epoch,
     epochKey = '',
@@ -31,8 +32,9 @@ export default function Comment({
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-    onCloseAnimation = () => {}
-}: ExtendedCommentInfo) {
+    onCloseAnimation = () => {},
+    onOpenAnimation = () => {},
+}: CommentProps) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
 
@@ -40,7 +42,8 @@ export default function Comment({
     const { remove: deleteComment } = useDeleteComment()
 
     const onRepublish = async () => {
-        removeActionByCommentId(id)
+        removeActionByCommentId(commentId)
+        onOpenAnimation()
         await createCommnet(postId, content, onCloseAnimation)
     }
 
@@ -88,7 +91,7 @@ export default function Comment({
     return (
         <>
             <article
-                id={id}
+                id={commentId}
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30'
@@ -158,7 +161,7 @@ export default function Comment({
                 open={isDeleting}
                 onClose={onCancelDelete}
                 onConfirm={onDelete}
-                commentId={id}
+                commentId={commentId}
                 epoch={epoch}
             />
             <CommentReportDialog

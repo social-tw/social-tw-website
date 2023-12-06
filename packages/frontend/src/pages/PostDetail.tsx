@@ -55,6 +55,10 @@ export default function PostDetail() {
         setIsPublishing(false)
     }
 
+    const onOpenAnimation = () => {
+        setIsPublishing(true)
+    }
+
     const onSubmitComment = async (values: CommentValues) => {
         try {
             if (!id) return
@@ -128,6 +132,7 @@ export default function PostDetail() {
                                 <Comment 
                                 {...comment}
                                 onCloseAnimation={onCloseAnimation}
+                                onOpenAnimation={onOpenAnimation}
                                 />
                             </li>
                         ))}

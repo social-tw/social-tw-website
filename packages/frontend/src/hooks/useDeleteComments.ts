@@ -51,11 +51,10 @@ export default function useDeleteComment() {
         // const actionId = addAction(ActionType.Comment, data)
 
         try {
-            const response = await deleteComment(data)
-            await provider.waitForTransaction(response?.transaction)
+            const { transaction } = await deleteComment(data)
+            await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            console.log(response)
             // succeedActionById(actionId, { id: comment?.id })
         } catch (error) {
             console.error(error)
