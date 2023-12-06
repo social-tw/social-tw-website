@@ -60,14 +60,15 @@ class EpochKeyService {
         )
 
         // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
+        // TODO: FIX: NOT CURRENT EPOCH
+        // const epoch = await synchronizer.loadCurrentEpoch()
 
-        // check if epoch is valid
-        const isEpochvalid =
-            epochKeyLiteProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
-            throw new InternalError('Invalid Epoch', 400)
-        }
+        // // check if epoch is valid
+        // const isEpochvalid =
+        //     epochKeyLiteProof.epoch.toString() === epoch.toString()
+        // if (!isEpochvalid) {
+        //     throw new InternalError('Invalid Epoch', 400)
+        // }
 
         const isProofValid = await epochKeyLiteProof.verify()
         if (!isProofValid) {

@@ -26,24 +26,25 @@ export default function useDeleteComment() {
 
     const remove = async (commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
+        console.log(epoch)
 
         const latestTransitionedEpoch =
             await userState.latestTransitionedEpoch()
-        console.log(latestTransitionedEpoch)
-        
 
         if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
             await stateTransition()
         }
 
+        console.log(userState.sync.calcCurrentEpoch())
+
         const nonce = randomNonce()
-        const epochKeyProof = await userState.genEpochKeyLiteProof({ nonce })
-        console.log(epochKeyProof)
+        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({ epoch, nonce })
+        console.log(EpochKeyLiteProof)
 
         const data = stringifyBigInts({
             commentId,
-            publicSignals: epochKeyProof.publicSignals,
-            proof: epochKeyProof.proof,
+            publicSignals: EpochKeyLiteProof.publicSignals,
+            proof: EpochKeyLiteProof.proof,
         })
 
         console.log(data)
