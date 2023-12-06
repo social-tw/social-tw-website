@@ -1,10 +1,13 @@
 import {
-  ActionType, addAction, failActionById, succeedActionById
-} from "@/contexts/Actions";
-import { useUser } from "@/contexts/User";
-import randomNonce from "@/utils/randomNonce";
-import { stringifyBigInts } from "@unirep/utils";
-import { SERVER } from "../config";
+    ActionType,
+    addAction,
+    failActionById,
+    succeedActionById,
+} from '@/contexts/Actions'
+import { useUser } from '@/contexts/User'
+import randomNonce from '@/utils/randomNonce'
+import { stringifyBigInts } from '@unirep/utils'
+import { SERVER } from '../config'
 
 async function publishComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
