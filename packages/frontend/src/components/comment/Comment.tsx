@@ -37,7 +37,6 @@ export default function Comment({
     }
 
     const onDelete = () => {
-        console.log(`delete the comment: ${id}`)
         setIsDeleting(false)
     }
 
@@ -126,7 +125,11 @@ export default function Comment({
                     isSmallDevice ? { x: 0, y: window.innerHeight } : undefined
                 }
                 align="end"
-                menuClassName="menu bg-[#363636] w-screen lg:w-36 rounded-box max-lg:rounded-b-none p-0"
+                viewScroll="auto"
+                menuClassName={clsx(
+                    'menu w-screen bg-[#363636] md:w-36 rounded-box max-md:rounded-b-none p-0',
+                    isSmallDevice && 'h-20'
+                )}
                 onClose={() => toggleMenu(false)}
                 viewScroll="auto"
                 transition

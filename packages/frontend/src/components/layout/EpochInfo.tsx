@@ -1,9 +1,9 @@
-import clsx from 'clsx'
-import { useEffect, useState } from 'react'
-import Countdown from 'react-countdown'
-import epochImg from '@/assets/epoch.svg?url'
-import useActionCount from '@/hooks/useActionCount'
-import useEpoch from '@/hooks/useEpoch'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import Countdown from "react-countdown";
+import epochImg from "@/assets/epoch.svg?url";
+import useActionCount from "@/hooks/useActionCount";
+import useEpoch from "@/hooks/useEpoch";
 
 export default function EpochInfo() {
     const { epochLength, remainingTime } = useEpoch()

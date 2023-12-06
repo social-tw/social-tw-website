@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useUser } from '../contexts/User'
+import { useEffect, useMemo, useState } from "react";
+import { useUser } from "../contexts/User";
 
 const epochLength = 300
 

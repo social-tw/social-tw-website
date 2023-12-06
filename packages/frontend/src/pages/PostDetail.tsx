@@ -56,6 +56,7 @@ export default function PostDetail() {
             if (!id) return
 
             const { content } = values
+            console.log(content)
 
             setIsOpenCommnet(false)
             setIsPublishing(true)
@@ -76,7 +77,7 @@ export default function PostDetail() {
             const post = await response.json()
 
             setPost({
-                id: post._id,
+                id: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
