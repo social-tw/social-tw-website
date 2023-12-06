@@ -1,11 +1,24 @@
-import { useEffect, useState } from 'react'
-import { useUser } from '../contexts/User'
+import { useEffect, useMemo, useState } from "react";
+import { useUser } from "../contexts/User";
 
 const epochLength = 300
 
 export default function useEpoch() {
     const [epoch, setEpoch] = useState<number>()
     const [remainingTime, setRemainingTime] = useState<number>()
+
+    const epochStartTime = useMemo(
+        () =>
+            epoch && remainingTime
+                ? Date.now() / 1000 - (epochLength - remainingTime)
+                : 0,
+        [epoch, epochLength, remainingTime]
+    )
+    const epochEndTime = useMemo(
+        () => (epoch && remainingTime ? Date.now() / 1000 + remainingTime : 0),
+        [epoch, epochLength, remainingTime]
+    )
+
     const { userState } = useUser()
 
     useEffect(() => {
@@ -33,6 +46,8 @@ export default function useEpoch() {
     return {
         epochLength,
         epoch,
+        epochStartTime,
+        epochEndTime,
         remainingTime,
     }
 }

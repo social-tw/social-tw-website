@@ -10,8 +10,9 @@ export interface PostInfo {
 
 // mock api repsonse
 export interface CommnetDataFromApi {
-    id: string
+    commentId: string
     epochKey: string
+    epoch: number | bigint
     content: string
     publishedAt: number | string
 }

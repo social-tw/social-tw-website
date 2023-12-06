@@ -37,7 +37,6 @@ export default function Comment({
     }
 
     const onDelete = () => {
-        console.log(`delete the comment: ${id}`)
         setIsDeleting(false)
     }
 
@@ -112,7 +111,7 @@ export default function Comment({
             {status === CommentStatus.Failure && (
                 <div className="mb-6">
                     <button
-                        className="btn btn-sm btn-outline btn-primary border-2 h-10"
+                        className="h-10 border-2 btn btn-sm btn-outline btn-primary"
                         onClick={onRepublish}
                     >
                         再次發佈這則留言
@@ -126,7 +125,11 @@ export default function Comment({
                     isSmallDevice ? { x: 0, y: window.innerHeight } : undefined
                 }
                 align="end"
-                menuClassName="menu bg-[#363636] w-screen lg:w-36 rounded-box max-lg:rounded-b-none p-0"
+                viewScroll="auto"
+                menuClassName={clsx(
+                    'menu w-screen bg-[#363636] md:w-36 rounded-box max-md:rounded-b-none p-0',
+                    isSmallDevice && 'h-20'
+                )}
                 onClose={() => toggleMenu(false)}
                 transition
                 portal

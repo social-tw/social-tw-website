@@ -1,24 +1,12 @@
-import clsx from 'clsx'
-import { useEffect, useMemo, useState } from 'react'
-import Countdown from 'react-countdown'
-import epochImg from '@/assets/epoch.svg?url'
-import { countByTimeRangeSelector, useActionStore } from '@/contexts/Actions'
-import useEpoch from '@/hooks/useEpoch'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import Countdown from "react-countdown";
+import epochImg from "@/assets/epoch.svg?url";
+import useActionCount from "@/hooks/useActionCount";
+import useEpoch from "@/hooks/useEpoch";
 
 export default function EpochInfo() {
-    const { epochLength, remainingTime, epoch } = useEpoch()
-
-    const startTime = useMemo(
-        () =>
-            epoch && remainingTime
-                ? Date.now() - (epochLength - remainingTime) * 1000
-                : 0,
-        [epoch, epochLength, remainingTime]
-    )
-    const endTime = useMemo(
-        () => (epoch && remainingTime ? Date.now() + remainingTime * 1000 : 0),
-        [epoch, epochLength, remainingTime]
-    )
+    const { epochLength, remainingTime } = useEpoch()
 
     const [nextEpochTime, setNextEpochTime] = useState<number>()
     useEffect(() => {
@@ -27,7 +15,7 @@ export default function EpochInfo() {
         }
     }, [remainingTime])
 
-    const count = useActionStore(countByTimeRangeSelector(startTime, endTime))
+    const count = useActionCount()
 
     const countColors = [
         'bg-secondary',
@@ -61,7 +49,7 @@ export default function EpochInfo() {
                                     }
                                     onComplete={() =>
                                         setNextEpochTime(
-                                            Date.now() + epochLength
+                                            Date.now() / 1000 + epochLength
                                         )
                                     }
                                 />

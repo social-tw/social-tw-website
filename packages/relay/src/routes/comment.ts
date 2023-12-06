@@ -16,13 +16,12 @@ export default (
     app.route('/api/comment')
         .get(
             errorHandler(async (req, res) => {
-                const { epks, postId } = req.query
+                const { postId } = req.query
                 if (!postId) {
                     throw new InternalError('postId is undefined', 400)
                 }
 
                 const comments = await commentService.fetchComments(
-                    epks?.toString(),
                     postId.toString(),
                     db
                 )
@@ -56,6 +55,20 @@ export default (
                     db,
                     synchronizer,
                     helia
+                )
+                res.json({ transaction: hash })
+            })
+        )
+
+        .delete(
+            errorHandler(async (req, res) => {
+                const { commentId, publicSignals, proof } = req.body
+                const hash = await commentService.deleteComment(
+                    commentId.toString(),
+                    publicSignals,
+                    proof,
+                    synchronizer,
+                    db
                 )
                 res.json({ transaction: hash })
             })
