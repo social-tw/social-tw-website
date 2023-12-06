@@ -102,9 +102,7 @@ export default function ({
                 setVoteState(null)
             }
         } else {
-            setShow(true)
             if (voteState === 'downvote') {
-                setImgType('downvote')
                 action = VoteAction.CANCEL_DOWNVOTE
                 success = await create(id, action)
 
@@ -112,6 +110,7 @@ export default function ({
                     setDownvotes((prev) => prev - 1)
                 }
             }
+            setShow(true)
             setImgType('upvote')
             action = VoteAction.UPVOTE
             success = await create(id, action)
@@ -145,7 +144,8 @@ export default function ({
                     setUpvotes((prev) => prev - 1)
                 }
             }
-
+            setShow(true)
+            setImgType('downvote')
             action = VoteAction.DOWNVOTE
             success = await create(id, action)
 
@@ -153,6 +153,7 @@ export default function ({
                 setDownvotes((prev) => prev + 1)
                 setVoteState('downvote')
             }
+            setShow(false)
         }
     }
 
@@ -177,7 +178,7 @@ export default function ({
 
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
-            {<LikeAnimation isLiked={show} type={setImgType} />}
+            {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>

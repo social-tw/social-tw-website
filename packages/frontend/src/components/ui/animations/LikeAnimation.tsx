@@ -4,7 +4,7 @@ import downvoteImage from '../../../assets/downvote.png'
 
 interface LikeAnimationProps {
     isLiked: boolean
-    type: 'upvote' | 'downvote'
+    imgType: string
 }
 
 enum Images {
@@ -12,15 +12,15 @@ enum Images {
     DOWNVOTE = downvoteImage,
 }
 
-const LikeAnimation = ({ isLiked, type }: LikeAnimationProps) => {
+const LikeAnimation = ({ isLiked, imgType }: LikeAnimationProps) => {
     let image
 
-    if (type === 'upvote') {
+    if (imgType === 'upvote') {
         image = Images.UPVOTE
     } else {
         image = Images.DOWNVOTE
     }
-
+    console.log(imgType, image)
     return (
         <AnimatePresence>
             {isLiked && (
