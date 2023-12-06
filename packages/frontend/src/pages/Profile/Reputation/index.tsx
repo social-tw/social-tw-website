@@ -1,3 +1,11 @@
+import { Hint } from './Hint'
+import { Score } from './Score'
+
 export const Reputation = () => {
-    return <div>Reputation Page</div>
+    return (
+        <div>
+            <Score />
+            <Hint />
+        </div>
+    )
 }
