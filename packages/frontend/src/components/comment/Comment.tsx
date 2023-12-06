@@ -131,7 +131,6 @@ export default function Comment({
                     isSmallDevice && 'h-20'
                 )}
                 onClose={() => toggleMenu(false)}
-                viewScroll="auto"
                 transition
                 portal
             >
