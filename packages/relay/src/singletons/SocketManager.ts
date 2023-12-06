@@ -1,7 +1,7 @@
-import { Server } from 'socket.io'
-import { CLIENT_URL } from '../config'
-import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import * as http from 'http'
+import { Server } from 'socket.io'
+import { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import { CLIENT_URL } from '../config'
 import { CommentMsg, RoomType, VoteMsg } from '../types/SocketTypes'
 
 export class SocketManager {
