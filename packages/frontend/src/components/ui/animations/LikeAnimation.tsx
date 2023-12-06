@@ -1,45 +1,48 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import likeIcon from '../../../assets/upvote.png'; // 確保這裡的路徑指向您的圖片文件
+import { motion, AnimatePresence } from 'framer-motion'
+import upvoteImage from '../../../assets/upvote.png'
+import downvoteImage from '../../../assets/downvote.png'
 
 interface LikeAnimationProps {
-    isLiked: boolean;
+    isLiked: boolean
+    type: 'upvote' | 'downvote'
 }
 
-const LikeAnimation = ({ isLiked }: LikeAnimationProps) => {
-    const variants = {
-        initial: {
-            scale: 0.5, // 從較小的大小開始
-            opacity: 0, // 完全透明
-        },
-        animate: {
-            scale: 1, // 動畫到正常大小
-            opacity: 1, // 完全不透明
-            transition: {
-                type: 'spring',
-                stiffness: 500,
-                damping: 30
-            }
-        },
-        exit: {
-            scale: 0.5, // 結束時縮小回初始大小
-            opacity: 0, // 淡出到透明
-            transition: { duration: 0.5 }
-        }
-    };
+enum Images {
+    UPVOTE = upvoteImage,
+    DOWNVOTE = downvoteImage,
+}
+
+const LikeAnimation = ({ isLiked, type }: LikeAnimationProps) => {
+    let image
+
+    if (type === 'upvote') {
+        image = Images.UPVOTE
+    } else {
+        image = Images.DOWNVOTE
+    }
 
     return (
         <AnimatePresence>
             {isLiked && (
                 <motion.img
-                    src={likeIcon} // 使用圖片代替文字表情
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    variants={variants}
-                />
+                    style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                    }}
+                    initial={{ x: '-50%', opacity: 0, scale: 0 }}
+                    animate={{ x: '-50%', opacity: 1, scale: 3 }}
+                    exit={{ opacity: 0, scale: 5 }}
+                    transition={{
+                        opacity: { duration: 0.8, delay: 0.5 },
+                        scale: { duration: 0.8, delay: 0.5 },
+                        ease: [0, 0.71, 0.2, 1.01],
+                    }}
+                    src={image as unknown as string}
+                ></motion.img>
             )}
         </AnimatePresence>
-    );
-};
+    )
+}
 
-export default LikeAnimation;
+export default LikeAnimation

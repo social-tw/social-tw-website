@@ -102,16 +102,13 @@ export default function PostList() {
     // use Votes event effect
     useVoteEvents((msg: VoteMsg) => {
         setPosts((currentPosts) => {
-            // 找到要更新的帖子索引
             const postIndex = currentPosts.findIndex(
                 (post) => post.id === msg.postId
             )
             if (postIndex > -1) {
-                // 創建新的帖子數組副本
                 const newPosts = [...currentPosts]
                 const newPost = { ...newPosts[postIndex] }
 
-                // 根據投票類型更新計數
                 switch (msg.vote) {
                     case VoteAction.UPVOTE:
                         newPost.upCount += 1
@@ -126,12 +123,9 @@ export default function PostList() {
                         newPost.downCount -= 1
                         break
                 }
-                // 更新數組中的帖子
                 newPosts[postIndex] = newPost
-                // 返回新的帖子數組以更新狀態
                 return newPosts
             }
-            // 如果沒有找到帖子，返回當前狀態
             return currentPosts
         })
     })

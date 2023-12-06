@@ -9,8 +9,7 @@ import { useState } from 'react'
 import { VoteAction, VoteMsg } from '../../types/VoteAction'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
-import LikeAnimation from '../ui/animations/LikeAnimation'; // 假設LikeAnimation和Post.tsx在同一個目錄
-
+import LikeAnimation from '../ui/animations/LikeAnimation'
 
 export default function ({
     id = '',
@@ -37,10 +36,6 @@ export default function ({
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
-    const [isLiked, setIsLiked] = useState(true);
-    const handleLike = () => {
-        setIsLiked(!isLiked); // 切換點讚狀態
-    };
 
     const { isLogin } = useUser()
     const { create } = useVotes()
@@ -54,6 +49,9 @@ export default function ({
     )
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
+
+    const [show, setShow] = useState(false)
+    const [imgType, setImgType] = useState<'upvote' | 'downvote'>('upvote')
 
     const postInfo = (
         <div className="space-y-3">
@@ -104,7 +102,9 @@ export default function ({
                 setVoteState(null)
             }
         } else {
+            setShow(true)
             if (voteState === 'downvote') {
+                setImgType('downvote')
                 action = VoteAction.CANCEL_DOWNVOTE
                 success = await create(id, action)
 
@@ -112,7 +112,7 @@ export default function ({
                     setDownvotes((prev) => prev - 1)
                 }
             }
-
+            setImgType('upvote')
             action = VoteAction.UPVOTE
             success = await create(id, action)
 
@@ -120,6 +120,7 @@ export default function ({
                 setUpvotes((prev) => prev + 1)
                 setVoteState('upvote')
             }
+            setShow(false)
         }
     }
 
@@ -156,7 +157,6 @@ export default function ({
     }
 
     useVoteEvents((msg: VoteMsg) => {
-        // 確保只響應當前帖子的投票事件
         if (id !== msg.postId) return
 
         switch (msg.vote) {
@@ -177,6 +177,7 @@ export default function ({
 
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
+            {<LikeAnimation isLiked={show} type={setImgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
@@ -230,7 +231,6 @@ export default function ({
                     />
                 </div>
             )}
-            <LikeAnimation isLiked={isLiked} />
         </article>
     )
 }
