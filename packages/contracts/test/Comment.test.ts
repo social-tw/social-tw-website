@@ -344,7 +344,7 @@ describe('Comment Test', function () {
             const userState = await genUserState(users[1].id, app)
             userState.waitForSync()
             const { publicSignals, proof } =
-                await userState.genEpochKeyLiteProof()
+                await userState.genEpochKeyLiteProof({ nonce: 0, epoch: 0 })
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'

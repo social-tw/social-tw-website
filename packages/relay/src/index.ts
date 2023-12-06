@@ -62,7 +62,10 @@ async function main() {
     app.use((req, res, next) => {
         res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
-        res.set('access-control-allow-methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        res.set(
+            'access-control-allow-methods',
+            'GET, POST, PUT, DELETE, OPTIONS'
+        )
         next()
     })
 

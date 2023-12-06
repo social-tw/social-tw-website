@@ -89,7 +89,8 @@ export class CommentService {
         const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
+            comment.epochKey
         )
 
         const txnHash = await epochKeyService.callContract('editComment', [

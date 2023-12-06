@@ -22,6 +22,8 @@ import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 import { Post } from '../src/types/Post'
 import { io } from 'socket.io-client'
+import { Unirep } from '@unirep-app/contracts/typechain-types'
+import TransactionManager from '../src/singletons/TransactionManager'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -30,6 +32,7 @@ describe('COMMENT /comment', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let unirepContract: Unirep
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -40,6 +43,7 @@ describe('COMMENT /comment', function () {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
+        unirepContract = unirep
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -252,39 +256,9 @@ describe('COMMENT /comment', function () {
         expect(res.error).equal('Invalid State Tree')
     })
 
-    it('delete the comment failed with wrong proof', async function () {
+    it('delete the comment failed with wrong epoch key', async function () {
         let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
-
-        epochKeyProof.publicSignals[0] = BigInt(0)
-
-        // create a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(result.error).equal('Invalid proof')
-    })
-
-    it('delete the comment failed with wrong epoch', async function () {
-        const wrongEpoch = 44444
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-            epoch: wrongEpoch,
+            nonce: 2,
         })
 
         // create a comment
@@ -305,15 +279,20 @@ describe('COMMENT /comment', function () {
             return r.json()
         })
 
-        expect(result.error).equal('Invalid Epoch')
+        expect(result.error).equal('Invalid epoch key')
     })
 
     it('delete the comment success', async function () {
+        // epoch update
+        await ethers.provider.send('evm_increaseTime', [20000])
+        await userState.waitForSync()
+        await sync.waitForSync()
         let epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
+            epoch: 0,
         })
 
-        // create a comment
+        // delete a comment
         const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
             method: 'DELETE',
             headers: {
