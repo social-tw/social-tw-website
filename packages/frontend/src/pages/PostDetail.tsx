@@ -51,21 +51,20 @@ export default function PostDetail() {
         setIsOpenCommnet((prev) => !prev)
     }
 
+    const onCloseAnimation = () => {
+        setIsPublishing(false)
+    }
+
     const onSubmitComment = async (values: CommentValues) => {
         try {
             if (!id) return
 
             const { content } = values
-            console.log(content)
 
             setIsOpenCommnet(false)
             setIsPublishing(true)
 
-            setTimeout(() => {
-                setIsPublishing(false)
-            }, 3000)
-
-            createCommnet(id, content)
+            createCommnet(id, content, onCloseAnimation)
         } catch (err) {
             console.error(err)
         }
@@ -126,7 +125,10 @@ export default function PostDetail() {
                     <ul className="divide-y divide-neutral-600">
                         {comments.map((comment, i) => (
                             <li key={i}>
-                                <Comment {...comment} />
+                                <Comment 
+                                {...comment}
+                                onCloseAnimation={onCloseAnimation}
+                                />
                             </li>
                         ))}
                     </ul>

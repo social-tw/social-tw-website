@@ -24,6 +24,7 @@ export interface CommentData {
     postId: string
     content: string
     epochKey: string
+    epoch: number
 }
 
 export interface BaseAction<Type, Data> {
@@ -133,6 +134,7 @@ export function createAction(
 }
 
 export function addAction(type: ActionType, data: PostData | CommentData) {
+    // TODO: check if it successfully store comment in the localStorage
     const action = createAction(type, data)
     useActionStore.setState((state) => {
         state.entities[action.id] = action
@@ -147,6 +149,7 @@ export function succeedActionById(
     id: string,
     data: Partial<PostData | CommentData> = {}
 ) {
+    console.log(data)
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Success
         state.entities[id].data = { ...state.entities[id].data, ...data }

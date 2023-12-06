@@ -8,11 +8,10 @@ export interface PostInfo {
     downCount: number
 }
 
-// mock api repsonse
 export interface CommnetDataFromApi {
     commentId: string
     epochKey: string
-    epoch: number | bigint
+    epoch: number
     content: string
     publishedAt: number | string
 }
@@ -28,6 +27,7 @@ export enum CommentStatus {
 export interface CommentInfo {
     id: string
     postId: string
+    epoch: number
     epochKey: string
     content: string
     publishedAt: number | string

@@ -4,13 +4,17 @@ export default function CommentDeleteDialog({
     open = false,
     onClose = () => {},
     onConfirm = () => {},
+    commentId = '',
+    epoch = 1000,
 }: {
     open?: boolean
     onClose?: () => void
-    onConfirm?: () => Promise<void> | void
+    onConfirm?: (comentId: string, epoch: number) => Promise<void> | void
+    commentId: string
+    epoch: number
 }) {
-    const _onConfirm = async () => {
-        await onConfirm()
+    const _onConfirm = async (commentId: string, epoch: number) => {
+        await onConfirm(commentId, epoch)
     }
 
     return (
@@ -26,7 +30,7 @@ export default function CommentDeleteDialog({
             <section className="flex justify-center p-6 md:p-12 md:pt-0">
                 <button
                     className="max-w-[285px] w-full h-14 rounded-lg bg-primary/90 text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]"
-                    onClick={_onConfirm}
+                    onClick={() => _onConfirm(commentId, epoch)}
                 >
                     確認刪除
                 </button>

@@ -16,28 +16,37 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { CommentInfo, CommentStatus } from '../../types'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
+import useDeleteComment from '@/hooks/useDeleteComments'
+
+interface ExtendedCommentInfo extends CommentInfo {
+    onCloseAnimation?: () => void;
+}
 
 export default function Comment({
     id,
     postId,
+    epoch,
     epochKey = '',
     content = '',
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-}: CommentInfo) {
+    onCloseAnimation = () => {}
+}: ExtendedCommentInfo) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
 
     const { create: createCommnet } = useCreateComment()
+    const { remove: deleteComment } = useDeleteComment()
 
     const onRepublish = async () => {
         removeActionByCommentId(id)
-        await createCommnet(postId, content)
+        await createCommnet(postId, content, onCloseAnimation)
     }
 
-    const onDelete = () => {
+    const onDelete = async (commentId: string, epoch: number) => {
         setIsDeleting(false)
+        await deleteComment(commentId, epoch)
     }
 
     const onCancelDelete = () => {
@@ -149,6 +158,8 @@ export default function Comment({
                 open={isDeleting}
                 onClose={onCancelDelete}
                 onConfirm={onDelete}
+                commentId={id}
+                epoch={epoch}
             />
             <CommentReportDialog
                 isOpen={isReporting}

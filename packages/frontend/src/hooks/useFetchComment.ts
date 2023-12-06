@@ -14,6 +14,7 @@ const demoComments = [
     {
         id: '100',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '台灣der小巷就是讚啦！',
         publishedAt: Date.now(),
@@ -23,6 +24,7 @@ const demoComments = [
     {
         id: '101',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '請問這是哪裡？',
         publishedAt: Date.now(),
@@ -32,6 +34,7 @@ const demoComments = [
     {
         id: '102',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '這裡的芋圓推推推！',
         publishedAt: Date.now(),
@@ -83,6 +86,7 @@ export default function useFetchComment(postId?: string) {
             if (!postId) return
 
             const comments = await fetchCommentsByPostId(postId)
+            console.log(comments)
 
             const successfulComments = comments.map((comment) => {
                 const isMine = userState
@@ -92,6 +96,7 @@ export default function useFetchComment(postId?: string) {
                 return {
                     id: comment.commentId,
                     postId,
+                    epoch: comment.epoch,
                     epochKey: comment.epochKey,
                     content: comment.content,
                     publishedAt: comment.publishedAt,

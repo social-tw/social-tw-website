@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import {
     ActionType,
     addAction,
@@ -10,9 +9,9 @@ import { useUser } from '@/contexts/User'
 import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
 
-async function publishComment(data: string) {
+async function deleteComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
             'content-type': 'application/json',
         },
@@ -22,45 +21,49 @@ async function publishComment(data: string) {
     return await response.json()
 }
 
-export default function useCreateComment() {
+export default function useDeleteComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
 
-    const create = async (postId: string, content: string, onCloseAnimation: () => void) => {
+    const remove = async (commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
 
         const latestTransitionedEpoch =
             await userState.latestTransitionedEpoch()
+        console.log(latestTransitionedEpoch)
+        
 
         if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
             await stateTransition()
         }
 
         const nonce = randomNonce()
-        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+        const epochKeyProof = await userState.genEpochKeyLiteProof({ nonce })
+        console.log(epochKeyProof)
 
         const data = stringifyBigInts({
-            content,
-            postId,
+            commentId,
             publicSignals: epochKeyProof.publicSignals,
             proof: epochKeyProof.proof,
         })
 
-        const actionId = addAction(ActionType.Comment, data)
-        onCloseAnimation()
+        console.log(data)
+
+        // const actionId = addAction(ActionType.Comment, data)
 
         try {
-            const comment = await publishComment(data)
-            await provider.waitForTransaction(comment?.transaction)
+            const response = await deleteComment(data)
+            await provider.waitForTransaction(response?.transaction)
             await userState.waitForSync()
             await loadData(userState)
-            succeedActionById(actionId, { id: comment?.id })
+            console.log(response)
+            // succeedActionById(actionId, { id: comment?.id })
         } catch (error) {
             console.error(error)
-            failActionById(actionId)
+            // failActionById(actionId)
         }
     }
 
     return {
-        create,
+        remove,
     }
 }
