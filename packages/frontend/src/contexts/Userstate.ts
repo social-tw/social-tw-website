@@ -20,16 +20,12 @@ import {
     MAX_EPOCH,
 } from '@unirep/utils'
 
-type ProvableData = {
-    toEpoch: number,
-    data: bigint[]
-}
 
 type UserStateDB = {
     attesterId: bigint | bigint[];
     latestTransitionedEpoch: number;
     latestTransitionedIndex: number;
-    provableData: ProvableData[];
+    provableData: bigint[];
     latestData: bigint[];
 };
 
