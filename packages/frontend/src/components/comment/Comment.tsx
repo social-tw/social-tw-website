@@ -39,7 +39,7 @@ export default function Comment({
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
-    const [isDeleted, setIIsDeleted] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false)
 
     const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
     const { remove: deleteComment } = useDeleteComment()
@@ -54,8 +54,12 @@ export default function Comment({
 
     const onDelete = async (commentId: string, epoch: number) => {
         setIsDeletingDialogOpen(false)
-        await deleteComment(commentId, epoch)
-        setIIsDeleted(true)
+        try {
+            await deleteComment(commentId, epoch)
+            setIsDeleted(true)
+        } catch (error) {
+            console.error(error)            
+        }
     }
 
     const onCancelDelete = () => {
