@@ -1,12 +1,12 @@
 import {
     ActionType,
+    CommentData,
     addAction,
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
 import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
-import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
 
 async function publishComment(data: string) {
@@ -24,7 +24,7 @@ async function publishComment(data: string) {
 export default function useCreateComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
 
-    const create = async (postId: string, content: string, onCloseAnimation: () => void) => {
+    const genProof = async (postId: string, content: string) => {
         if (!userState) throw new Error('user state not initialized')
 
         const latestTransitionedEpoch =
@@ -34,8 +34,8 @@ export default function useCreateComment() {
             await stateTransition()
         }
 
-        const nonce = randomNonce()
-        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+        // TODO: What is nonce doing and how it should be set
+        const epochKeyProof = await userState.genEpochKeyProof()
 
         const data = stringifyBigInts({
             content,
@@ -44,24 +44,33 @@ export default function useCreateComment() {
             proof: epochKeyProof.proof,
         })
 
-        const actionId = addAction(ActionType.Comment, data)
-        // TODO: seperate the functions
-        onCloseAnimation()
+        return data
+    }
+
+    const create = async (proof: string, postId: string, content: string) => { 
+        if (!userState) throw new Error('user state not initialized')
+        const commentData = {
+            commentId: 'notGetYet',
+            postId: postId,
+            content: content,
+        }
+        const actionId = addAction(ActionType.Comment, commentData)
 
         try {
-            const { transaction } = await publishComment(data)
+            const { transaction } = await publishComment(proof)
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            // TODO: fix the commentId redirection
-            succeedActionById(actionId, { commentId: "Tocheck" })
+            // TODO: fix the commentId redirection. Discuss with backend
+            succeedActionById(actionId)
         } catch (error) {
             console.error(error)
             failActionById(actionId)
         }
-    }
+    }   
 
     return {
         create,
+        genProof,
     }
 }

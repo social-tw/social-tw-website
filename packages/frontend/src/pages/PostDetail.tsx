@@ -29,18 +29,23 @@ const demoPost = {
 
 export default function PostDetail() {
     const { id } = useParams()
-
     const { isLogin, setErrorCode } = useUser()
 
-    const [post, setPost] = useState<PostInfo>()
-
     const { data: comments } = useFetchComment(id)
+    const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
 
-    const { create: createCommnet } = useCreateComment()
-
+    const [post, setPost] = useState<PostInfo>()
     const [isOpenComment, setIsOpenCommnet] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
     const [isError, setIsError] = useState(false)
+
+    const onCloseAnimation = () => {
+        setIsPublishing(false)
+    }
+
+    const onOpenAnimation = () => {
+        setIsPublishing(true)
+    }
 
     const onWriteComment = () => {
         if (!isLogin) {
@@ -51,27 +56,17 @@ export default function PostDetail() {
         setIsOpenCommnet((prev) => !prev)
     }
 
-    const onCloseAnimation = () => {
-        setIsPublishing(false)
-    }
-
-    const onOpenAnimation = () => {
-        setIsPublishing(true)
-    }
-
     const onSubmitComment = async (values: CommentValues) => {
-        try {
-            if (!id) return
+        if (!id) return
 
-            const { content } = values
+        const { content } = values
 
-            setIsOpenCommnet(false)
-            setIsPublishing(true)
+        setIsOpenCommnet(false)
+        onOpenAnimation()
 
-            createCommnet(id, content, onCloseAnimation)
-        } catch (err) {
-            console.error(err)
-        }
+        const proof = await genCommentProof(id, content)
+        onCloseAnimation()
+        await createCommnet(proof, id, content)
     }
 
     useEffect(() => {
@@ -126,13 +121,14 @@ export default function PostDetail() {
                     />
                 </section>
                 <section>
-                    <ul className="divide-y divide-neutral-600">
+                    <ul>
                         {comments.map((comment, i) => (
                             <li key={i}>
-                                <Comment 
-                                {...comment}
-                                onCloseAnimation={onCloseAnimation}
-                                onOpenAnimation={onOpenAnimation}
+                                <Comment
+                                    isLast={i === comments.length - 1}
+                                    {...comment}
+                                    onCloseAnimation={onCloseAnimation}
+                                    onOpenAnimation={onOpenAnimation}
                                 />
                             </li>
                         ))}

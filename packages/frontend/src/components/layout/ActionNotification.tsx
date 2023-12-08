@@ -36,9 +36,11 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-white">
                         {actionTypeLabel}存取交易成功!
                     </span>
-                    <Link className="text-xs text-secondary" to={actionLink}>
-                        前往查看{actionTypeLabel}
-                    </Link>
+                    {actionTypeLabel !== "刪除留言" &&
+                        <Link className="text-xs text-secondary" to={actionLink}>
+                            前往查看{actionTypeLabel}
+                        </Link>
+                    }
                 </div>
             )
         }

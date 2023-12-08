@@ -11,7 +11,7 @@ export default function CommentDeleteDialog({
     onClose?: () => void
     onConfirm?: (comentId: string, epoch: number) => Promise<void> | void
     commentId: string
-    epoch: number
+    epoch?: number
 }) {
     const _onConfirm = async (commentId: string, epoch: number) => {
         await onConfirm(commentId, epoch)

@@ -73,7 +73,7 @@ export default function MobileCommentForm({
                         type="submit"
                         disabled={disabled || !isValid || isPending}
                     >
-                        {isPending ? '發佈中...' : '發佈文章'}
+                        {isPending ? '發佈中...' : '發佈留言'}
                     </button>
                 </section>
                 <section>

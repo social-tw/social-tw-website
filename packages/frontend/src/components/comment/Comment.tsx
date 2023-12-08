@@ -21,9 +21,11 @@ import useDeleteComment from '@/hooks/useDeleteComments'
 interface CommentProps extends CommentInfo {
     onCloseAnimation?: () => void
     onOpenAnimation?: () => void
+    isLast?: boolean
 }
 
 export default function Comment({
+    isLast,
     commentId,
     postId,
     epoch,
@@ -35,25 +37,29 @@ export default function Comment({
     onCloseAnimation = () => {},
     onOpenAnimation = () => {},
 }: CommentProps) {
-    const [isDeleting, setIsDeleting] = useState(false)
+    const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
+    const [isDeleted, setIIsDeleted] = useState(false)
 
-    const { create: createCommnet } = useCreateComment()
+    const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
     const { remove: deleteComment } = useDeleteComment()
 
     const onRepublish = async () => {
         removeActionByCommentId(commentId)
         onOpenAnimation()
-        await createCommnet(postId, content, onCloseAnimation)
+        const proof = await genCommentProof(postId, content)
+        onCloseAnimation()
+        await createCommnet(proof, postId, content)
     }
 
     const onDelete = async (commentId: string, epoch: number) => {
-        setIsDeleting(false)
+        setIsDeletingDialogOpen(false)
         await deleteComment(commentId, epoch)
+        setIIsDeleted(true)
     }
 
     const onCancelDelete = () => {
-        setIsDeleting(false)
+        setIsDeletingDialogOpen(false)
     }
 
     const onCancelReport = () => {
@@ -73,7 +79,7 @@ export default function Comment({
                   icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
                   onClick: () => {
                       console.log('delete comment')
-                      setIsDeleting(true)
+                      setIsDeletingDialogOpen(true)
                   },
               },
           ]
@@ -88,13 +94,16 @@ export default function Comment({
               },
           ]
 
+    if (isDeleted) return null
+
     return (
         <>
             <article
                 id={commentId}
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
-                    status !== CommentStatus.Success && 'opacity-30'
+                    status !== CommentStatus.Success && 'opacity-30',
+                    (!isLast && status === CommentStatus.Success) && 'border-b border-neutral-600'
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
@@ -158,7 +167,7 @@ export default function Comment({
                 ))}
             </ControlledMenu>
             <CommentDeleteDialog
-                open={isDeleting}
+                open={isDeletingDialogOpen}
                 onClose={onCancelDelete}
                 onConfirm={onDelete}
                 commentId={commentId}

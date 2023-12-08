@@ -6,7 +6,6 @@ import {
 } from '@/contexts/Actions'
 import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
-import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
 
 async function deleteComment(data: string) {
@@ -26,7 +25,6 @@ export default function useDeleteComment() {
 
     const remove = async (commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
-        console.log(epoch)
 
         const latestTransitionedEpoch =
             await userState.latestTransitionedEpoch()
@@ -35,11 +33,7 @@ export default function useDeleteComment() {
             await stateTransition()
         }
 
-        console.log(userState.sync.calcCurrentEpoch())
-
-        const nonce = randomNonce()
-        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({ epoch, nonce })
-        console.log(EpochKeyLiteProof)
+        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({ epoch })       
 
         const data = stringifyBigInts({
             commentId,
@@ -47,19 +41,17 @@ export default function useDeleteComment() {
             proof: EpochKeyLiteProof.proof,
         })
 
-        console.log(data)
-
-        // const actionId = addAction(ActionType.Comment, data)
+        const actionId = addAction(ActionType.DeleteComment, { commentId, epoch })
 
         try {
             const { transaction } = await deleteComment(data)
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            // succeedActionById(actionId, { id: comment?.id })
+            succeedActionById(actionId)
         } catch (error) {
             console.error(error)
-            // failActionById(actionId)
+            failActionById(actionId)
         }
     }
 

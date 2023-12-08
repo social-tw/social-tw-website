@@ -6,6 +6,7 @@ import { immer } from 'zustand/middleware/immer'
 export enum ActionType {
     Post = 'post',
     Comment = 'comment',
+    DeleteComment = 'deleteComment',
 }
 
 export enum ActionStatus {
@@ -23,8 +24,13 @@ export interface CommentData {
     commentId: string
     postId: string
     content: string
-    epochKey: string
-    epoch: number
+    epochKey?: string
+    epoch?: number
+}
+
+export interface DeleteCommentData {
+    commentId: string
+    epoch?: number
 }
 
 export interface BaseAction<Type, Data> {
@@ -122,7 +128,7 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
 
 export function createAction(
     type: ActionType,
-    data: PostData | CommentData
+    data: PostData | CommentData | DeleteCommentData
 ): Action {
     return {
         id: nanoid(),
@@ -133,7 +139,7 @@ export function createAction(
     } as Action
 }
 
-export function addAction(type: ActionType, data: PostData | CommentData) {
+export function addAction(type: ActionType, data: PostData | CommentData | DeleteCommentData) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {
         state.entities[action.id] = action
@@ -179,10 +185,10 @@ export function removeActionByCommentId(commentId: string) {
     const actions = commentActionsSelector(state)
     const action = actions.find((action) => {
         if (action.type === ActionType.Comment) {
-            return action.data.commentId === commentId;
+            return action.data.commentId === commentId
         }
-        return false;
-    });
+        return false
+    })
 
     if (!action) return
     removeActionById(action.id)

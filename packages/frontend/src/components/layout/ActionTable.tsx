@@ -19,6 +19,7 @@ export function getActionTypeLabel(type: ActionType) {
     const typeLabels = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
+        [ActionType.DeleteComment]: '刪除留言',
     }
     return typeLabels[type]
 }
