@@ -1,33 +1,17 @@
 import { UserState } from '@unirep/core'
 import { Synchronizer } from '@unirep/core'
 import { DB } from 'anondb'
-import { MemoryConnector } from 'anondb/web'
 import { constructSchema } from 'anondb/types'
 import { IndexedDBConnector } from 'anondb/web'
 import { ethers } from 'ethers'
 import { Identity } from '@semaphore-protocol/identity'
-import {
-    Circuit,
-    Prover,
-    ReputationProof,
-    EpochKeyProof,
-    SignupProof,
-    UserStateTransitionProof,
-    EpochKeyLiteProof,
-} from '@unirep/circuits'
-import {
-    stringifyBigInts,
-    genEpochKey,
-    genStateTreeLeaf,
-    F,
-    MAX_EPOCH,
-} from '@unirep/utils'
+import { Prover } from '@unirep/circuits'
+import { genEpochKey } from '@unirep/utils'
 import { schema }  from './schema'
 
 function toDecString(content: bigint | string | number) {
     return BigInt(content).toString()
 }
-
 
 export class SocialUserstate extends UserState {
 
@@ -142,7 +126,6 @@ export class SocialUserstate extends UserState {
         return foundData.latestTransitionedEpoch
     }
 
-
     public override getProvableData = async (
         attesterId: bigint | string = this.sync.attesterId
     ): Promise<bigint[]> => {
@@ -183,7 +166,7 @@ export class SocialUserstate extends UserState {
     // }
 
     
-    updateUserData = async (
+    public updateUserData = async (
         attesterId: bigint | string,
         latestData: bigint[]
     ) => {
