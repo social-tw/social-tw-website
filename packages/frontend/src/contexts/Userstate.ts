@@ -35,9 +35,7 @@ export class SocialUserstate extends UserState {
 
     private _chainId: number
 
-    get db(): DB {
-        return this._db; 
-    }
+    private initDataComplete = false
 
     get chainId() {
         return this._chainId
@@ -53,13 +51,14 @@ export class SocialUserstate extends UserState {
         id: Identity
         prover: Prover
     }) {
-        const { userdb } = config;
         super(config);
+        const { userdb, attesterId } = config;
         this._db = userdb ?? new IndexedDBConnector(constructSchema(schema))
-        this._chainId = -1
+        this._chainId = -1 // Unirep v2-beta-6
+        this.initData(attesterId).then(() => (this.initDataComplete = true))
     }
-    
-    // shall check if this method is needed
+      
+    // shall check if this method is needed (ust might use db.upsert)
     initData = async (attesterId: bigint | bigint[]) => {     
         if (Array.isArray(attesterId)) {
             this._db.create('Userstate', attesterId.map(id => ({
@@ -87,6 +86,12 @@ export class SocialUserstate extends UserState {
         
         const _attesterId = toDecString(attesterId)
         const _latestTransitionedEpoch = await this.latestTransitionedEpoch(_attesterId)
+
+        // check if searching for db
+        if(toEpoch && (toEpoch !== _latestTransitionedEpoch - 1)){
+            const data = await super.getData(toEpoch, attesterId); 
+            return data
+        }
         
         //check if usted in different device
         const nullifiers = [
@@ -114,6 +119,13 @@ export class SocialUserstate extends UserState {
                     attesterId: _attesterId
                 }
             })
+
+            if(!foundData){
+                throw new Error(
+                    '@unirep/core: UserState data has not initialized'
+                )
+            }
+
             return foundData.provableData
         }
     }
@@ -142,36 +154,36 @@ export class SocialUserstate extends UserState {
         return foundData.provableData
     }
 
-    //done
-    override latestStateTreeLeafIndex = async (
-        epoch?: number,
-        attesterId: bigint | string = this.sync.attesterId
-    ): Promise<number> => {
-        const _attesterId = toDecString(attesterId)
-        const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
-        const latestTransitionedEpoch = await this.latestTransitionedEpoch(
-            _attesterId
-        )
-        if (latestTransitionedEpoch !== currentEpoch)
-            throw new Error(
-                '@unirep/core:UserState user has not transitioned to epoch'
-            )
+    //
+    // override latestStateTreeLeafIndex = async (
+    //     epoch?: number,
+    //     attesterId: bigint | string = this.sync.attesterId
+    // ): Promise<number> => {
+    //     const _attesterId = toDecString(attesterId)
+    //     const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
+    //     const latestTransitionedEpoch = await this.latestTransitionedEpoch(
+    //         _attesterId
+    //     )
+    //     if (latestTransitionedEpoch !== currentEpoch)
+    //         throw new Error(
+    //             '@unirep/core:UserState user has not transitioned to epoch'
+    //         )
 
-        const foundData = await this._db.findOne('Userstate', {
-            where: {
-                latestTransitionedEpoch,
-                attesterId: _attesterId
-            }
-        })
-        if (!foundData)
-            throw new Error(
-                '@unirep/core:UserState unable to find state tree leaf index'
-            )
-        return foundData.latestTransitionedIndex
-    }
+    //     const foundData = await this._db.findOne('Userstate', {
+    //         where: {
+    //             latestTransitionedEpoch,
+    //             attesterId: _attesterId
+    //         }
+    //     })
+    //     if (!foundData)
+    //         throw new Error(
+    //             '@unirep/core:UserState unable to find state tree leaf index'
+    //         )
+    //     return foundData.latestTransitionedIndex
+    // }
 
-    //update userstate db 
-    userStateTransition = async (
+    
+    updateUserData = async (
         attesterId: bigint | string,
         latestData: bigint[]
     ) => {
@@ -181,27 +193,33 @@ export class SocialUserstate extends UserState {
                 _attesterId
             }
         })
-
         if (!foundData) {
             throw new Error('User state not found for attesterId: ' + _attesterId);
         }
 
-        const provableData = foundData.provableData;
+        const provableData = await this.getProvableData();
         const newData: bigint[] = []
         for(let i = 0; i < provableData.length; i++){
             newData[i] = latestData[i] + provableData[i] 
         }
+        const latestTransitionedIndex = await super.latestStateTreeLeafIndex()
+        const latestTransitionedEpoch = await this.sync.loadCurrentEpoch();
 
+
+
+        //update
         await this._db.update('Userstate', {
             where: {
                 _attesterId
             },
             update: {
+                latestTransitionedIndex,
+                latestTransitionedEpoch,
                 provableData: newData
             }
         })
 
-        console.log('User state transition successful.');
+        console.log('User db updated successful.');
     }
 
 
