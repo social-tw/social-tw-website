@@ -1,6 +1,7 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
+// import { UserState } from '@unirep/core'
+import { SocialUserstate } from './Userstate'
 import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
@@ -18,6 +19,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 import { fetchRelayConfig } from '../utils/api'
 import { createProviderByUrl } from '../utils/createProviderByUrl'
 import prover from './Prover'
+import { IndexedDBConnector } from 'anondb/web'
+import { schema } from './schema'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -34,8 +37,8 @@ export interface UserContextType {
     setData: (data: bigint[]) => void
     provableData: bigint[]
     setProvableData: (provableData: bigint[]) => void
-    userState?: UserState
-    setUserState: (userState?: UserState) => void
+    userState?: SocialUserstate
+    setUserState: (userState?: SocialUserstate) => void
     provider: any
     setProvider: (provider: any) => void
     signature: string
@@ -48,7 +51,7 @@ export interface UserContextType {
     setSignupStatus: (signupStatus: SignupStatus) => void
     errorCode: keyof typeof ERROR_MESSAGES | ''
     setErrorCode: (errorCode: keyof typeof ERROR_MESSAGES | '') => void
-    loadData: (userState: UserState) => Promise<void>
+    loadData: (userState: SocialUserstate) => Promise<void>
     fieldCount: () => number | undefined
     sumFieldCount: () => number | undefined
     epochKey: (nonce: number) => string
@@ -56,7 +59,7 @@ export interface UserContextType {
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
     signup: (
         fromServer: boolean,
-        userStateInstance: UserState,
+        userStateInstance: SocialUserstate,
         hashUserId: string,
         accessToken: string
     ) => Promise<void>
@@ -67,7 +70,7 @@ export interface UserContextType {
     ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<SocialUserstate>
 }
 
 interface UserProviderProps {
@@ -90,7 +93,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
-    const [userState, setUserState] = useState<UserState | undefined>()
+    const [userState, setUserState] = useState<SocialUserstate | undefined>()
     const [provider, setProvider] = useState<any>()
     const [signature, setSignature] = useState<string>('')
     const [hashUserId, setHashUserId] = useState<string>('')
@@ -115,13 +118,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
         setProvider(provider)
 
-        const userStateInstance = new UserState({
+        const userdb = await IndexedDBConnector.create(schema)
+
+        const userStateInstance = new SocialUserstate({
             provider,
             prover,
             unirepAddress: relayConfig.UNIREP_ADDRESS,
             attesterId: BigInt(relayConfig.APP_ADDRESS),
             id: new Identity(storedSignature),
+            userdb,
         })
+
+        
 
         await userStateInstance.sync.start()
         await userStateInstance.waitForSync()
@@ -131,7 +139,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     const checkSignupStatus = useCallback(
-        async (userState: UserState) => {
+        async (userState: SocialUserstate) => {
             if (!userState) throw new Error('user state not initialized')
             const hasSignedUpStatus = await userState.hasSignedUp()
             setHasSignedUp(hasSignedUpStatus)
@@ -140,7 +148,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     )
 
     const loadData = useCallback(
-        async (userState: UserState) => {
+        async (userState: SocialUserstate) => {
             if (!userState) throw new Error('user state not initialized')
 
             const fetchedData = await userState.getData()
@@ -189,7 +197,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const signup = useCallback(
         async (
             fromServer: boolean,
-            userStateInstance: UserState,
+            userStateInstance: SocialUserstate,
             hashUserId: string,
             accessToken: string
         ) => {

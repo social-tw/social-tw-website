@@ -21,6 +21,7 @@ const _schema = [
                 defulat: 0
             },
             ['provableData', 'Int'],
+            ['latestData', 'Int']
         ]
     }
 ]
