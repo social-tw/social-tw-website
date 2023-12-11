@@ -70,7 +70,7 @@ export default function useCreateComment() {
     }   
 
     return {
-        create,
         genProof,
+        create,
     }
 }

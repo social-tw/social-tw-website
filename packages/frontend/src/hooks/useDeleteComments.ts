@@ -7,6 +7,7 @@ import {
 import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
 import { stringifyBigInts } from '@unirep/utils'
+import { useState } from 'react'
 
 async function deleteComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
@@ -22,8 +23,9 @@ async function deleteComment(data: string) {
 
 export default function useDeleteComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
+    const [isDeleted, setIsDeleted] = useState(false)
 
-    const remove = async (commentId: string, epoch: number) => {
+    const genProof = async (commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
 
         const latestTransitionedEpoch =
@@ -35,20 +37,26 @@ export default function useDeleteComment() {
 
         const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({ epoch })       
 
-        const data = stringifyBigInts({
+        const proof = stringifyBigInts({
             commentId,
             publicSignals: EpochKeyLiteProof.publicSignals,
             proof: EpochKeyLiteProof.proof,
         })
 
+        return proof
+    }
+
+    const remove = async(proof: string, commentId: string, epoch: number) => {
+        if (!userState) throw new Error('user state not initialized')
         const actionId = addAction(ActionType.DeleteComment, { commentId, epoch })
 
         try {
-            const { transaction } = await deleteComment(data)
+            const { transaction } = await deleteComment(proof)
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
             succeedActionById(actionId)
+            setIsDeleted(true)
         } catch (error) {
             console.error(error)
             failActionById(actionId)
@@ -56,6 +64,8 @@ export default function useDeleteComment() {
     }
 
     return {
+        genProof,
         remove,
+        isDeleted,
     }
 }

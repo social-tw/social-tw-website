@@ -39,10 +39,10 @@ export default function Comment({
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
-    const [isDeleted, setIsDeleted] = useState(false)
+    
 
     const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
-    const { remove: deleteComment } = useDeleteComment()
+    const { remove: deleteComment, genProof: genDeleteProof, isDeleted: isDeleted } = useDeleteComment()
 
     const onRepublish = async () => {
         removeActionByCommentId(commentId)
@@ -54,12 +54,10 @@ export default function Comment({
 
     const onDelete = async (commentId: string, epoch: number) => {
         setIsDeletingDialogOpen(false)
-        try {
-            await deleteComment(commentId, epoch)
-            setIsDeleted(true)
-        } catch (error) {
-            console.error(error)            
-        }
+        onOpenAnimation()
+        const proof = await genDeleteProof(commentId, epoch)
+        onCloseAnimation()
+        await deleteComment(proof, commentId, epoch)
     }
 
     const onCancelDelete = () => {
