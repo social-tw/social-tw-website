@@ -1,5 +1,5 @@
 import { DB } from 'anondb'
-import { DB_PATH, LOAD_POST_COUNT } from '../config'
+import { DB_PATH, LOAD_POST_COUNT, UPDATE_POST_ORDER_INTERVAL } from '../config'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { SnarkProof } from '@unirep/utils'
@@ -11,6 +11,16 @@ import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 
 export class PostService {
     private cache: string[] = []
+
+    async start(db: DB): Promise<void> {
+        // fetch all posts during the initalization
+        await this.updateOrder(db)
+
+        // update post order every 3 hrs
+        setInterval(async () => {
+            await this.updateOrder(db)
+        }, UPDATE_POST_ORDER_INTERVAL)
+    }
 
     async updateOrder(db: DB): Promise<void> {
         //      if user just posted, get the first ten result from db
@@ -89,7 +99,7 @@ export class PostService {
         const posts = await db.findMany('Post', {
             where: {
                 postId: postIds,
-                epks: epks,
+                epochKey: epks,
             },
         })
 

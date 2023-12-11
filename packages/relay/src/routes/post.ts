@@ -20,8 +20,9 @@ export default (
                 typeof req.query.epks === 'string'
                     ? req.query.epks.split('_')
                     : undefined
+            const offset = Number(req.query.offset!)
 
-            const posts = await postService.fetchPosts(query, epks, db)
+            const posts = await postService.fetchPosts(query, epks, offset, db)
             res.json(posts)
         })
     )

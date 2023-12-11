@@ -19,6 +19,7 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
+import { VoteAction } from '../src/types'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -68,7 +69,7 @@ describe('POST /post', function () {
 
     it('should create a post', async function () {
         // FIXME: Look for fuzzer to test content
-        const testContent = 'test content'
+        const testContent = 'test content #0'
 
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
@@ -151,7 +152,7 @@ describe('POST /post', function () {
 
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = await userState.sync.attesterId
+        const attesterId = userState.sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
@@ -195,7 +196,7 @@ describe('POST /post', function () {
         const testContent = 'invalid state tree'
 
         // generating a proof with wrong epoch
-        const attesterId = await userState.sync.attesterId
+        const attesterId = userState.sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
@@ -231,5 +232,131 @@ describe('POST /post', function () {
 
         expect(res.error).equal('Invalid State Tree')
         userState.sync.stop()
+    })
+
+    it('should update post order periodcally', async function () {
+        // add 9 posts
+        for (let i = 1; i <= 9; i++) {
+            const testContent = `test content #${i}`
+
+            console.log('Nonce #', i)
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
+
+            const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(
+                    stringifyBigInts({
+                        content: testContent,
+                        publicSignals: epochKeyProof.publicSignals,
+                        proof: epochKeyProof.proof,
+                    })
+                ),
+            }).then((r) => r.json())
+
+            await ethers.provider.waitForTransaction(res.transaction)
+            await sync.waitForSync()
+        }
+
+        let posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json',
+            },
+        }).then((res) => res.json())
+
+        console.log('Before Sorting:', posts)
+
+        // add upvote to posts ramdonly
+        for (let i = 1; i <= 10; i++) {
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
+
+            const postId = (Math.random() * 100) % 10
+
+            await fetch(`${HTTP_SERVER}/api/vote`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(
+                    stringifyBigInts({
+                        _id: postId,
+                        voteAction: VoteAction.UPVOTE,
+                        publicSignals: epochKeyProof.publicSignals,
+                        proof: epochKeyProof.proof,
+                    })
+                ),
+            })
+        }
+
+        // add downvote to posts randomly
+        for (let i = 1; i <= 10; i++) {
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
+
+            const postId = (Math.random() * 100) % 10
+
+            await fetch(`${HTTP_SERVER}/api/vote`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(
+                    stringifyBigInts({
+                        _id: postId,
+                        voteAction: VoteAction.DOWNVOTE,
+                        publicSignals: epochKeyProof.publicSignals,
+                        proof: epochKeyProof.proof,
+                    })
+                ),
+            })
+        }
+
+        // add comment to posts randomly
+        for (let i = 1; i <= 10; i++) {
+            const testContent = `test comment #${i}`
+
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
+
+            const postId = (Math.random() * 100) % 10
+
+            const res: any = fetch(`${HTTP_SERVER}/api/comment`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(
+                    stringifyBigInts({
+                        content: testContent,
+                        postId: postId,
+                        publicSignals: epochKeyProof.publicSignals,
+                        proof: epochKeyProof.proof,
+                    })
+                ),
+            }).then(async (r) => {
+                return await r.json()
+            })
+
+            await ethers.provider.waitForTransaction(res.transaction)
+            await sync.waitForSync()
+        }
+
+        posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json',
+            },
+        }).then((res) => res.json())
+
+        console.log('After Sorting:', posts)
     })
 })

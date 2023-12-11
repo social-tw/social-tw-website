@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
-import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
+import { SQLiteConnector, PostgresConnector, DB } from 'anondb/node.js'
 import { createServer } from 'http'
 
 // libraries
@@ -20,7 +20,6 @@ import {
     APP_ABI,
     IS_IN_TEST,
     CLIENT_URL,
-    UPDATE_POST_ORDER_INTERVAL,
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 import { SocketManager } from './singletons/SocketManager'
@@ -32,15 +31,12 @@ main().catch((err) => {
 })
 
 async function main() {
-    var db
+    let db: DB
     if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
         db = await PostgresConnector.create(schema, DB_PATH)
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
-    // update post order every 3 hrs
-    setInterval(async () => {
-        await postService.updateOrder(db)
-    }, UPDATE_POST_ORDER_INTERVAL)
+    await postService.start(db)
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
