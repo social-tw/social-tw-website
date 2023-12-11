@@ -17,7 +17,7 @@ import { Suspense } from 'react'
 
 const ImageComponent = React.lazy(
     // @ts-ignore
-    () => import('./ImageComponent'),
+    () => import('./ImageComponent')
 )
 
 export interface ImagePayload {
@@ -81,7 +81,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
             node.__showCaption,
             node.__caption,
             node.__captionsEnabled,
-            node.__key,
+            node.__key
         )
     }
 
@@ -131,7 +131,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         showCaption?: boolean,
         caption?: LexicalEditor,
         captionsEnabled?: boolean,
-        key?: NodeKey,
+        key?: NodeKey
     ) {
         super(key)
         this.__src = src
@@ -161,7 +161,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
     setWidthAndHeight(
         width: 'inherit' | number,
-        height: 'inherit' | number,
+        height: 'inherit' | number
     ): void {
         const writable = this.getWritable()
         writable.__width = width
@@ -238,13 +238,13 @@ export function $createImageNode({
             showCaption,
             caption,
             captionsEnabled,
-            key,
-        ),
+            key
+        )
     )
 }
 
 export function $isImageNode(
-    node: LexicalNode | null | undefined,
+    node: LexicalNode | null | undefined
 ): node is ImageNode {
     return node instanceof ImageNode
 }

@@ -8,7 +8,7 @@ const useLoginWithWallet = (
     setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState>,
+    createUserState: () => Promise<UserState>
 ) => {
     const loginWithWallet = async () => {
         try {

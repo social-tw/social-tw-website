@@ -112,7 +112,7 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
                     status !== 'default' && 'md:pt-12',
-                    isSmallDevice && 'mt-16',
+                    isSmallDevice && 'mt-16'
                 )}
             >
                 {content}

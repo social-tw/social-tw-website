@@ -14,14 +14,14 @@ it('provides context to children', () => {
     render(
         <UserProvider>
             <TestComponent />
-        </UserProvider>,
+        </UserProvider>
     )
 })
 
 it('throws error when useUser is called outside of UserProvider', () => {
     const TestComponent = () => {
         expect(useUser).toThrowError(
-            'useUser must be used within a UserProvider',
+            'useUser must be used within a UserProvider'
         )
         return null
     }

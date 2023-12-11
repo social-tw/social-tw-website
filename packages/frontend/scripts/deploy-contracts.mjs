@@ -27,12 +27,12 @@ async function deployUnirepSocial(
     deployer,
     UnirepAddr,
     helperAddr,
-    epochLength,
+    epochLength
 ) {
     const verifierFactory = new ContractFactory(
         DATA_PROOF_VIRIFIER.abi,
         DATA_PROOF_VIRIFIER.bytecode,
-        deployer,
+        deployer
     )
     const verifierContract = await verifierFactory.deploy()
     await verifierContract.deployTransaction.wait()
@@ -42,7 +42,7 @@ async function deployUnirepSocial(
         unirepAddr,
         helperAddr,
         verifier.address,
-        epochLength,
+        epochLength
     )
     await appContract.deployTransaction.wait()
 
@@ -63,7 +63,7 @@ async function main() {
         wallet,
         unirep.address,
         helper.address,
-        epochLength,
+        epochLength
     )
 
     console.log('Unirep: ', unirep.address)

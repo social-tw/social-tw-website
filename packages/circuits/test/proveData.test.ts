@@ -26,7 +26,7 @@ const genCircuitInput = (config: {
                 replField: [],
                 proveValues: [],
             },
-            config,
+            config
         )
 
     const startBalance = [
@@ -41,7 +41,7 @@ const genCircuitInput = (config: {
         id.secret,
         BigInt(attesterId),
         epoch,
-        startBalance as any,
+        startBalance as any
     )
     stateTree.insert(hashedLeaf)
     const stateTreeProof = stateTree.createProof(0) // if there is only one GST leaf, the index is 0
@@ -65,7 +65,7 @@ const genCircuitInput = (config: {
 
 const genProofAndVerify = async (
     circuit: Circuit | string,
-    circuitInputs: any,
+    circuitInputs: any
 ) => {
     const startTime = new Date().getTime()
     const { proof, publicSignals } =
@@ -73,13 +73,13 @@ const genProofAndVerify = async (
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000,
-        )} s)`,
+            (endTime - startTime) / 1000
+        )} s)`
     )
     const isValid = await defaultProver.verifyProof(
         circuit,
         publicSignals,
-        proof,
+        proof
     )
     return { isValid, proof, publicSignals }
 }

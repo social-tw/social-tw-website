@@ -140,6 +140,6 @@ export default _schema
                         default: () => nanoid(),
                     },
                 ],
-            }) as TableData,
+            } as TableData)
     )
     .concat(schema)

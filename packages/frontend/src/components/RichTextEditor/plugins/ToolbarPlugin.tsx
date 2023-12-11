@@ -182,8 +182,8 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
                     updateLinkEditor()
                     return true
                 },
-                LowPriority,
-            ),
+                LowPriority
+            )
         )
     }, [editor, updateLinkEditor])
 
@@ -216,7 +216,7 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
                                 if (linkUrl !== '') {
                                     editor.dispatchCommand(
                                         TOGGLE_LINK_COMMAND,
-                                        linkUrl,
+                                        linkUrl
                                     )
                                 }
                                 setEditMode(false)
@@ -468,7 +468,7 @@ export default function ToolbarPlugin() {
     const toolbarRef = useRef<HTMLDivElement>(null)
     const [blockType, setBlockType] = useState<string>('paragraph')
     const [selectedElementKey, setSelectedElementKey] = useState<string | null>(
-        null,
+        null
     )
     const [showBlockOptionsDropDown, setShowBlockOptionsDropDown] =
         useState(false)
@@ -495,7 +495,7 @@ export default function ToolbarPlugin() {
                 if ($isListNode(element)) {
                     const parentList = $getNearestNodeOfType(
                         anchorNode,
-                        ListNode,
+                        ListNode
                     )
                     const type = parentList
                         ? parentList.getTag()
@@ -508,7 +508,7 @@ export default function ToolbarPlugin() {
                     setBlockType(type)
                     if ($isCodeNode(element)) {
                         setCodeLanguage(
-                            element.getLanguage() || getDefaultCodeLanguage(),
+                            element.getLanguage() || getDefaultCodeLanguage()
                         )
                     }
                 }
@@ -544,8 +544,8 @@ export default function ToolbarPlugin() {
                     updateToolbar()
                     return false
                 },
-                LowPriority,
-            ),
+                LowPriority
+            )
         )
     }, [editor, updateToolbar])
 
@@ -561,7 +561,7 @@ export default function ToolbarPlugin() {
                 }
             })
         },
-        [editor, selectedElementKey],
+        [editor, selectedElementKey]
     )
 
     const insertLink = useCallback(() => {
@@ -580,7 +580,7 @@ export default function ToolbarPlugin() {
                         className="btn btn-sm btn-square btn-ghost block-controls"
                         onClick={() =>
                             setShowBlockOptionsDropDown(
-                                !showBlockOptionsDropDown,
+                                !showBlockOptionsDropDown
                             )
                         }
                         aria-label="Formatting Options"
@@ -605,7 +605,7 @@ export default function ToolbarPlugin() {
                                     setShowBlockOptionsDropDown
                                 }
                             />,
-                            document.body,
+                            document.body
                         )}
                 </>
             )}
@@ -637,7 +637,7 @@ export default function ToolbarPlugin() {
                         onClick={() => {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
-                                'italic',
+                                'italic'
                             )
                         }}
                         className={
@@ -652,7 +652,7 @@ export default function ToolbarPlugin() {
                         onClick={() => {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
-                                'underline',
+                                'underline'
                             )
                         }}
                         className={
@@ -667,7 +667,7 @@ export default function ToolbarPlugin() {
                         onClick={() => {
                             editor.dispatchCommand(
                                 FORMAT_TEXT_COMMAND,
-                                'strikethrough',
+                                'strikethrough'
                             )
                         }}
                         className={
@@ -703,7 +703,7 @@ export default function ToolbarPlugin() {
                     {isLink &&
                         createPortal(
                             <FloatingLinkEditor editor={editor} />,
-                            document.body,
+                            document.body
                         )}
                 </>
             )}

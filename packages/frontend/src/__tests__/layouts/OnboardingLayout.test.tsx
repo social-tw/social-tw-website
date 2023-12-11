@@ -12,6 +12,6 @@ test('OnboardingLayout should render', () => {
             <UserProvider>
                 <OnboardingLayout />
             </UserProvider>
-        </MemoryRouter>,
+        </MemoryRouter>
     )
 })

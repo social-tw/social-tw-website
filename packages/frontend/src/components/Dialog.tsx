@@ -10,7 +10,7 @@ interface DialogProps {
 
 export default forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
     { children, open = false, onClose = () => {}, ariaLabel = '' },
-    ref,
+    ref
 ) {
     return (
         <dialog
