@@ -8,3 +8,10 @@ export interface VoteMsg {
     // TODO: change to VoteAction
     vote: number
 }
+
+export interface CommentMsg {
+    postId: string
+    content: string
+    epochKey: string
+    epoch: number
+}
