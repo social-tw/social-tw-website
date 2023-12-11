@@ -20,8 +20,7 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { VoteAction } from '../src/types'
-import { Post } from '../src/types/Post'
-import { PostService } from '../src/services/PostService'
+import { SQLiteConnector } from 'anondb/node'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -30,6 +29,7 @@ describe('POST /post', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let sqlite: SQLiteConnector
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -40,6 +40,7 @@ describe('POST /post', function () {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
+        sqlite = db as SQLiteConnector
 
         const userStateFactory = new UserStateFactory(
             db,
@@ -235,7 +236,7 @@ describe('POST /post', function () {
         expect(res.error).equal('Invalid State Tree')
     })
 
-    it('should update post order periodcally', async function (done) {
+    it('should update post order periodcally', async function () {
         // add 9 posts
         for (let i = 1; i <= 9; i++) {
             const testContent = `test content #${i}`
@@ -261,14 +262,15 @@ describe('POST /post', function () {
         }
         await sync.waitForSync()
 
-        let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-            },
-        }).then((res) => res.json())
+        // let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'content-type': 'application/json',
+        //     },
+        // }).then((res) => res.json())
+        let posts = await sqlite.db.all("select * from post")
 
-        console.log('Before Sorting:', posts.map((post) => post.postId))
+        console.log('Before Sorting:', posts)
 
         // add upvote to posts ramdonly
         for (let i = 1; i <= 10; i++) {
@@ -346,10 +348,12 @@ describe('POST /post', function () {
         }
         await sync.waitForSync()
 
-        setTimeout(function(){
-            console.log('waiting over.');
-            done();
-        }, 10000)
+        const sleep = () => { 
+            return new Promise(resolve => {
+                setTimeout(resolve, 10000)
+            })
+        }
+        await sleep()
 
         posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
             method: 'GET',

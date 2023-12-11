@@ -47,33 +47,32 @@ export class PostService {
         //      select post gt 2 days and order them by the rules
         let DAYDIFF: string;
         const SQL_LITE_DAYDIFF = "(JULIANDAY('now') - JULIANDAY(DATETIME(publishedAt, 'unixepoch')))"
-        const POSTGRES_DAYDIFF = "(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt)))"
+        const POSTGRES_DAYDIFF = "(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt, 'YYYY-MM-DD')))"
         if (DB_PATH.startsWith('postgres')) {
             DAYDIFF = POSTGRES_DAYDIFF
         } else {
             DAYDIFF = SQL_LITE_DAYDIFF
         }
 
-        const statement = `
-            SELECT POSTS_WITHIN_2._id
+        let statement = `
+            SELECT POSTSLETWO._id
             FROM (
                 SELECT *,
                 (${DAYDIFF} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) AS SORT_ALGO
                 FROM Post
                 WHERE ${DAYDIFF} <= 2
-                ORDER BY SORT_ALGO DESC, publishedAt
-            ) AS POSTS_WITHIN_2
+                ORDER BY SORT_ALGO DESC, publishedAt DESC
+            ) AS POSTSLETWO
             UNION
-            SELECT POSTS_AFTER_2._id
+            SELECT POSTSGTTWO._id
             FROM (
                 SELECT *,
                 (upCount + commentCount) AS FIRST_PRIORTY
                 FROM Post
                 WHERE ${DAYDIFF} > 2
                 ORDER BY FIRST_PRIORTY DESC, upCount DESC, commentCount DESC
-            ) AS POSTS_AFTER_2
+            ) AS POSTSGTTWO
         `
-
         let results: any
         // anondb does't provide add column api
         // use lower level db api directly from postgres / sqlite
@@ -85,13 +84,13 @@ export class PostService {
         } else {
             // sqlite situation
             const sq = db as SQLiteConnector
-            console.log(statement)
             results = await sq.db.all(statement)
         }
 
+        // TODO: no result
         console.log("Query Result:", results)
 
-        this.cache = results.rows.map((post: any) => post.post_id)
+        // this.cache = results.rows.map((post: any) => post.post_id)
     }
 
     async fetchPosts(
@@ -109,6 +108,7 @@ export class PostService {
             return posts
         }
 
+        console.log("Cache", this.cache)
         // pagination
         const postIds = this.cache.slice(offset, offset + LOAD_POST_COUNT - 1)
 
