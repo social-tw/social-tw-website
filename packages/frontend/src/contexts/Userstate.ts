@@ -39,11 +39,10 @@ export class SocialUserstate extends UserState {
         const { userdb, attesterId } = config;
         this._db = userdb ?? new IndexedDBConnector(constructSchema(schema))
         this._chainId = -1 // Unirep v2-beta-6
-        this.initData(attesterId).then(() => (this.initDataComplete = true))
+        this._initData(attesterId).then(() => (this.initDataComplete = true))
     }
       
-    // shall check if this method is needed (ust might use db.upsert)
-    initData = async (attesterId: bigint | bigint[]) => {     
+    _initData = async (attesterId: bigint | bigint[]) => {     
         if (Array.isArray(attesterId)) {
             this._db.create('Userstate', attesterId.map(id => ({
                 attesterId: id,
@@ -71,7 +70,7 @@ export class SocialUserstate extends UserState {
         const _attesterId = toDecString(attesterId)
         const _latestTransitionedEpoch = await this.latestTransitionedEpoch(_attesterId)
 
-        // check if searching for db
+        // check if not searching for provableData
         if(toEpoch && (toEpoch !== _latestTransitionedEpoch - 1)){
             const data = await super.getData(toEpoch, attesterId); 
             return data
@@ -165,10 +164,9 @@ export class SocialUserstate extends UserState {
     //     return foundData.latestTransitionedIndex
     // }
 
-    
+    // call this after ust
     public updateUserData = async (
-        attesterId: bigint | string,
-        latestData: bigint[]
+        attesterId: bigint | string = this.sync.attesterId,
     ) => {
         const _attesterId = toDecString(attesterId)
         const foundData = await this._db.findOne('Userstate', {
@@ -180,17 +178,10 @@ export class SocialUserstate extends UserState {
             throw new Error('User state not found for attesterId: ' + _attesterId);
         }
 
-        const provableData = await this.getProvableData();
-        const newData: bigint[] = []
-        for(let i = 0; i < provableData.length; i++){
-            newData[i] = latestData[i] + provableData[i] 
-        }
+        const newProvableData = await super.getData()
         const latestTransitionedIndex = await super.latestStateTreeLeafIndex()
         const latestTransitionedEpoch = await this.sync.loadCurrentEpoch();
 
-
-
-        //update
         await this._db.update('Userstate', {
             where: {
                 _attesterId
@@ -198,11 +189,11 @@ export class SocialUserstate extends UserState {
             update: {
                 latestTransitionedIndex,
                 latestTransitionedEpoch,
-                provableData: newData
+                provableData: newProvableData
             }
         })
 
-        console.log('User db updated successful.');
+        console.log('User db updated successfully.');
     }
 
 

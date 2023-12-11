@@ -129,11 +129,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             userdb,
         })
 
-        
-
         await userStateInstance.sync.start()
         await userStateInstance.waitForSync()
-
+        
         setUserState(userStateInstance)
         return userStateInstance
     }
@@ -255,6 +253,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }).then((r) => r.json())
         await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
+
+        await userState.updateUserData()
+
         await loadData(userState)
         const latestTransitionEpoch = await userState.latestTransitionedEpoch()
         setLatestTransitionedEpoch(latestTransitionEpoch)
