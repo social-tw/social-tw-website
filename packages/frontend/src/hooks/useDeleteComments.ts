@@ -35,7 +35,9 @@ export default function useDeleteComment() {
             await stateTransition()
         }
 
-        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({ epoch })       
+        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            epoch,
+        })
 
         const proof = stringifyBigInts({
             commentId,
@@ -46,9 +48,12 @@ export default function useDeleteComment() {
         return proof
     }
 
-    const remove = async(proof: string, commentId: string, epoch: number) => {
+    const remove = async (proof: string, commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
-        const actionId = addAction(ActionType.DeleteComment, { commentId, epoch })
+        const actionId = addAction(ActionType.DeleteComment, {
+            commentId,
+            epoch,
+        })
 
         try {
             const { transaction } = await deleteComment(proof)

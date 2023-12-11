@@ -47,7 +47,7 @@ export default function useCreateComment() {
         return data
     }
 
-    const create = async (proof: string, postId: string, content: string) => { 
+    const create = async (proof: string, postId: string, content: string) => {
         if (!userState) throw new Error('user state not initialized')
         const commentData = {
             commentId: 'notGetYet',
@@ -67,7 +67,7 @@ export default function useCreateComment() {
             console.error(error)
             failActionById(actionId)
         }
-    }   
+    }
 
     return {
         genProof,

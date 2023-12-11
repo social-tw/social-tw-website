@@ -32,7 +32,8 @@ export default function PostDetail() {
     const { isLogin, setErrorCode } = useUser()
 
     const { data: comments } = useFetchComment(id)
-    const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
+    const { create: createCommnet, genProof: genCommentProof } =
+        useCreateComment()
 
     const [post, setPost] = useState<PostInfo>()
     const [isOpenComment, setIsOpenCommnet] = useState(false)

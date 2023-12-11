@@ -114,5 +114,3 @@ export default function useFetchComment(postId?: string) {
         data: allComments,
     }
 }
-
-

@@ -25,7 +25,7 @@ export function getActionTypeLabel(type: ActionType) {
 }
 
 export function getActionLink(action: Action) {
-   // TODO: check the comment link to redirect
+    // TODO: check the comment link to redirect
     if (action.type === ActionType.Post) {
         return `/posts/${action.data.id}`
     }

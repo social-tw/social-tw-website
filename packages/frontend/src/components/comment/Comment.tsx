@@ -39,10 +39,14 @@ export default function Comment({
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
-    
 
-    const { create: createCommnet, genProof: genCommentProof } = useCreateComment()
-    const { remove: deleteComment, genProof: genDeleteProof, isDeleted: isDeleted } = useDeleteComment()
+    const { create: createCommnet, genProof: genCommentProof } =
+        useCreateComment()
+    const {
+        remove: deleteComment,
+        genProof: genDeleteProof,
+        isDeleted: isDeleted,
+    } = useDeleteComment()
 
     const onRepublish = async () => {
         removeActionByCommentId(commentId)
@@ -105,7 +109,9 @@ export default function Comment({
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30',
-                    (!isLast && status === CommentStatus.Success) && 'border-b border-neutral-600'
+                    !isLast &&
+                        status === CommentStatus.Success &&
+                        'border-b border-neutral-600'
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">

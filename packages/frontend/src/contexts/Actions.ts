@@ -139,7 +139,10 @@ export function createAction(
     } as Action
 }
 
-export function addAction(type: ActionType, data: PostData | CommentData | DeleteCommentData) {
+export function addAction(
+    type: ActionType,
+    data: PostData | CommentData | DeleteCommentData
+) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {
         state.entities[action.id] = action
