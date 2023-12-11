@@ -10,7 +10,7 @@ import { UnirepSocialSynchronizer } from '../synchornizer'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post('/api/request', async (req, res) => {
         try {
@@ -19,7 +19,7 @@ export default (
             const epochKeyProof = new EpochKeyProof(
                 publicSignals,
                 proof,
-                synchronizer.prover,
+                synchronizer.prover
             )
             const valid = await epochKeyProof.verify()
             if (!valid) {
@@ -34,7 +34,7 @@ export default (
             if (keys.length === 1) {
                 calldata = appContract.interface.encodeFunctionData(
                     'submitAttestation',
-                    [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]],
+                    [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]]
                 )
             } else if (keys.length > 1) {
                 calldata = appContract.interface.encodeFunctionData(
@@ -44,13 +44,13 @@ export default (
                         epoch,
                         keys,
                         keys.map((k) => reqData[k]),
-                    ],
+                    ]
                 )
             }
 
             const hash = await TransactionManager.queueTransaction(
                 APP_ADDRESS,
-                calldata,
+                calldata
             )
             res.json({ hash })
         } catch (error: any) {

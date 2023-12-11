@@ -74,7 +74,7 @@ describe('Comment Test', function () {
             const tree = await userState.sync.genStateTree(epoch, attesterId)
             const leafIndex = await userState.latestStateTreeLeafIndex(
                 epoch,
-                attesterId,
+                attesterId
             )
             const data = randomData()
             const { publicSignals, proof } = await genEpochKeyProof({
@@ -88,7 +88,7 @@ describe('Comment Test', function () {
             })
             const postId = 0
             expect(
-                app.leaveComment(publicSignals, proof, postId, 'Invalid Epoch'),
+                app.leaveComment(publicSignals, proof, postId, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
         })
@@ -118,8 +118,8 @@ describe('Comment Test', function () {
                     publicSignals,
                     proof,
                     postId,
-                    'Invalid State Tree',
-                ),
+                    'Invalid State Tree'
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
             userState.stop()
         })
@@ -134,7 +134,7 @@ describe('Comment Test', function () {
             proof[0] = BigInt(0)
 
             await expect(
-                app.leaveComment(publicSignals, proof, BigInt(0), content),
+                app.leaveComment(publicSignals, proof, BigInt(0), content)
             ).to.be.reverted
             userState.stop()
         })
@@ -154,7 +154,7 @@ describe('Comment Test', function () {
             inputProof = proof
 
             await expect(
-                app.leaveComment(publicSignals, proof, postId, content),
+                app.leaveComment(publicSignals, proof, postId, content)
             )
                 .to.emit(app, 'Comment')
                 .withArgs(
@@ -162,7 +162,7 @@ describe('Comment Test', function () {
                     postId,
                     commentId,
                     epoch,
-                    content,
+                    content
                 )
             userState.stop()
         })
@@ -171,7 +171,7 @@ describe('Comment Test', function () {
             const postId = 0
             const content = 'Reused Proof'
             expect(
-                app.leaveComment(inputPublicSig, inputProof, postId, content),
+                app.leaveComment(inputPublicSig, inputProof, postId, content)
             ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
     })
@@ -198,8 +198,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    content,
-                ),
+                    content
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
         })
@@ -220,8 +220,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidCommentId')
             userState.stop()
         })
@@ -243,8 +243,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidCommentEpochKey')
             userState.stop()
         })
@@ -266,8 +266,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             ).to.be.reverted
             userState.stop()
         })
@@ -289,8 +289,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             )
                 .to.emit(app, 'UpdatedComment')
                 .withArgs(
@@ -298,7 +298,7 @@ describe('Comment Test', function () {
                     postId,
                     commentId,
                     0, // epoch
-                    newContent,
+                    newContent
                 )
             userState.stop()
         })
@@ -313,8 +313,8 @@ describe('Comment Test', function () {
                     inputProof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
 
@@ -355,8 +355,8 @@ describe('Comment Test', function () {
                     proof,
                     postId,
                     commentId,
-                    newContent,
-                ),
+                    newContent
+                )
             )
                 .to.emit(app, 'UpdatedComment')
                 .withArgs(
@@ -364,7 +364,7 @@ describe('Comment Test', function () {
                     postId,
                     commentId,
                     0, // epoch
-                    newContent,
+                    newContent
                 )
             userState.stop()
         })

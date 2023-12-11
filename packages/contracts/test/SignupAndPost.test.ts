@@ -53,8 +53,8 @@ describe('Unirep App', function () {
                     publicSignals,
                     proof,
                     user.hashUserId,
-                    false,
-                ),
+                    false
+                )
             )
                 .to.emit(app, 'UserSignUp')
                 .withArgs(user.hashUserId, false)
@@ -71,7 +71,7 @@ describe('Unirep App', function () {
             const { publicSignals, proof } =
                 await userState.genUserSignUpProof()
             await expect(
-                app.userSignUp(publicSignals, proof, user.hashUserId, false),
+                app.userSignUp(publicSignals, proof, user.hashUserId, false)
             ).to.be.revertedWithCustomError(app, 'UserHasRegistered')
 
             userState.stop()
@@ -92,8 +92,8 @@ describe('Unirep App', function () {
                     publicSignals,
                     invalidProof,
                     user.hashUserId,
-                    true,
-                ),
+                    true
+                )
             ).to.be.reverted
 
             userState.stop()
@@ -109,7 +109,7 @@ describe('Unirep App', function () {
             const concoctProof = [...proof]
             const len = concoctProof[0].toString().length
             concoctProof[0] = BigInt(
-                proof[0].toString().slice(0, len - 1) + BigInt(2),
+                proof[0].toString().slice(0, len - 1) + BigInt(2)
             )
             const content = 'Invalid Proof'
 
@@ -133,7 +133,7 @@ describe('Unirep App', function () {
         it('should fail to post with reused proof', async function () {
             const content = 'Reused Proof'
             await expect(
-                app.post(inputPublicSig, inputProof, content),
+                app.post(inputPublicSig, inputProof, content)
             ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
 
@@ -147,7 +147,7 @@ describe('Unirep App', function () {
             const tree = await userState.sync.genStateTree(epoch, attesterId)
             const leafIndex = await userState.latestStateTreeLeafIndex(
                 epoch,
-                attesterId,
+                attesterId
             )
             const data = randomData()
             const { publicSignals, proof } = await genEpochKeyProof({
@@ -160,7 +160,7 @@ describe('Unirep App', function () {
                 data,
             })
             await expect(
-                app.post(publicSignals, proof, 'Invalid Epoch'),
+                app.post(publicSignals, proof, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
         })
 
@@ -184,7 +184,7 @@ describe('Unirep App', function () {
                 data,
             })
             await expect(
-                app.post(publicSignals, proof, 'Invalid State Tree'),
+                app.post(publicSignals, proof, 'Invalid State Tree')
             ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
         })
     })
@@ -198,7 +198,7 @@ describe('Unirep App', function () {
             const [deployer] = await ethers.getSigners()
             const epkVerifier = await deployVerifierHelper(
                 deployer,
-                Circuit.epochKey,
+                Circuit.epochKey
             )
             await epkVerifier.verifyAndCheck(publicSignals, proof)
 
@@ -246,12 +246,12 @@ describe('Unirep App', function () {
             })
             const p = await prover.genProofAndPublicSignals(
                 'dataProof',
-                circuitInputs,
+                circuitInputs
             )
             const { publicSignals, proof } = new DataProof(
                 p.publicSignals,
                 p.proof,
-                prover,
+                prover
             )
             const isValid = await app.verifyDataProof(publicSignals, proof)
             expect(isValid).to.be.true
