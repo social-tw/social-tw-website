@@ -46,6 +46,8 @@
         "react-lines-ellipsis": "^0.15.3",
         "react-scripts": "^5.0.1",
         "react-twitter-login": "^1.5.0",
+        "react-virtualized-auto-sizer": "^1.0.20",
+        "react-window": "^1.8.10",
         "socket.io-client": "^4.7.2"
     },
     "devDependencies": {
@@ -67,6 +69,7 @@
         "@types/react-router-dom": "^5.3.3",
         "@typescript-eslint/eslint-plugin": "^6.10.0",
         "@typescript-eslint/parser": "^6.10.0",
+        "@types/react-window": "^1.8.8",
         "anondb": "^0.0.16",
         "assert": "^2.0.0",
         "autoprefixer": "^10.4.14",
