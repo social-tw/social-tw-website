@@ -10,21 +10,19 @@ import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { singUp } from './utils/signUp'
+import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 
-import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 
-let snapshot: any
-let express: Server
-let userState: UserState
-let sync: UnirepSocialSynchronizer
-let unirep: Unirep
-let anondb: DB
-
 describe('GET /counter', function () {
+    let snapshot: any
+    let express: Server
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let unirep: Unirep
+    let anondb: DB
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -47,7 +45,7 @@ describe('GET /counter', function () {
 
         // initUserStatus
         const initUser = await userService.getLoginUser(db, '123', undefined)
-        userState = await singUp(
+        userState = await signUp(
             initUser,
             userStateFactory,
             userService,
@@ -60,7 +58,7 @@ describe('GET /counter', function () {
     })
 
     after(async function () {
-        ethers.provider.send('evm_revert', [snapshot])
+        await ethers.provider.send('evm_revert', [snapshot])
         express.close()
     })
 
@@ -112,11 +110,16 @@ describe('GET /counter', function () {
     // put this test in the end since this test will
     // go to next epoch
     it('should delete the EpochKeyAction table after the epoch ended', async function () {
-        const epoch = sync.calcCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
-        // add 10s to make sure this epoch ended
-        await time.increase(epochRemainingTime + 10)
-        await unirep._updateEpochIfNeeded(sync.attesterId)
+
+        // add epoch time to make sure this epoch ended
+        await ethers.provider.send('evm_increaseTime', [
+            epochRemainingTime + 100000,
+        ])
+
+        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
+
         await sync.waitForSync()
 
         const rows = await anondb.count('EpochKeyAction', {

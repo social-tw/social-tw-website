@@ -1,186 +1,68 @@
 import { DB } from 'anondb/node'
-import { ethers } from 'ethers'
 import { Express } from 'express'
-import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { EpochKeyProof } from '@unirep/circuits'
-import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
 import { errorHandler } from '../middleware'
-import TransactionManager from '../singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 
 import type { Helia } from '@helia/interface'
-import { addActionCount } from '../utils/TransactionHelper'
+import { postService } from '../services/PostService'
 
 export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
+    helia: Helia
 ) => {
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
-            await fetchPosts(req, res, db)
-        }),
+            const query = req.query.query?.toString()
+            const epks =
+                typeof req.query.epks === 'string'
+                    ? req.query.epks.split('_')
+                    : undefined
+
+            const posts = await postService.fetchPosts(query, epks, db)
+            res.json(posts)
+        })
     )
 
     app.post(
         '/api/post',
         errorHandler(async (req, res, next) => {
-            await createPost(req, res, db, synchronizer, helia)
-        }),
+            const { content, publicSignals, proof } = req.body
+            if (!content) {
+                res.status(400).json({ error: 'Could not have empty content' })
+            }
+
+            const hash = await postService.createPost(
+                content,
+                publicSignals,
+                proof,
+                db,
+                synchronizer,
+                helia
+            )
+
+            res.json({ transaction: hash })
+        })
     )
 
     app.get(
         '/api/post/:id',
         errorHandler(async (req, res, next) => {
-            await fetchSinglePost(req, res, db)
-        }),
-    )
-}
-
-async function fetchPosts(req, res, db: DB) {
-    try {
-        if (req.query.query === undefined) {
-            const posts = await db.findMany('Post', {
-                where: {
-                    status: 1,
-                },
-            })
-            res.json(posts)
-            return
-        }
-
-        const epks = req.query.epks ? req.query.epks.split('_') : undefined
-
-        const posts = await db.findMany('Post', {
-            where: {
-                epochKey: epks,
-            },
-        })
-
-        res.json(posts.slice(0, Math.min(LOAD_POST_COUNT, posts.length)))
-    } catch (error: any) {
-        res.status(500).json({ error })
-    }
-}
-
-async function createPost(
-    req,
-    res,
-    db: DB,
-    synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
-) {
-    try {
-        const { content, publicSignals, proof } = req.body
-
-        // verify epochKeyProof of user
-        const epochKeyProof = new EpochKeyProof(
-            publicSignals,
-            proof,
-            synchronizer.prover,
-        )
-
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
-
-        // check if epoch is valid
-        const isEpochvalid = epochKeyProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
-            res.status(400).json({ error: 'Invalid Epoch' })
-            return
-        }
-
-        // check if state tree exists in current epoch
-        const isStateTreeValid = await synchronizer.stateTreeRootExists(
-            epochKeyProof.stateTreeRoot,
-            Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId,
-        )
-        if (!isStateTreeValid) {
-            res.status(400).json({ error: 'Invalid State Tree' })
-            return
-        }
-
-        // check if proof is valid
-        const isProofValid = await epochKeyProof.verify()
-        if (!isProofValid) {
-            res.status(400).json({ error: 'Invalid proof' })
-            return
-        }
-
-        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
-
-        // post content
-        let calldata: any
-        let cid: any
-        if (content) {
-            // if the content is not empty, post the content
-            calldata = appContract.interface.encodeFunctionData('post', [
-                epochKeyProof.publicSignals,
-                epochKeyProof.proof,
-                content,
-            ])
-
-            // store content into helia ipfs node with json plain
-            const { json } = await eval("import('@helia/json')")
-            const heliaJson = json(helia)
-            const IPFSContent = {
-                content: content,
+            const id = req.params.id
+            if (!id) {
+                console.log('id is undefined')
+                return res.status(400).json({ error: 'id is undefined' })
             }
-            let file = await heliaJson.add(JSON.stringify(IPFSContent))
-            cid = file.toString()
-        }
 
-        const hash = await TransactionManager.queueTransaction(
-            APP_ADDRESS,
-            calldata,
-        )
-
-        const epochKey = epochKeyProof.epochKey.toString()
-
-        // after post data stored in DB, should add 1 to epoch key counter
-        await addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.create('Post', {
-                content: content,
-                cid: cid,
-                epochKey: epochKey,
-                epoch: epoch,
-                transactionHash: hash,
-                status: 0,
-            })
-
-            return 1
+            const post = await postService.fetchSinglePost(id, db, undefined)
+            if (!post) {
+                console.log(`post is not found: ${id}`)
+                res.status(404).json({ error: `post is not found: ${id}` })
+            } else {
+                res.json(post)
+            }
         })
-
-        res.json({
-            transaction: hash,
-        })
-    } catch (error: any) {
-        console.log(error)
-        res.status(500).json({ error })
-    }
-}
-
-async function fetchSinglePost(req, res, db: DB) {
-    try {
-        const id = req.params.id
-        if (!id) {
-            res.status(400).json({ error: 'id is undefined' })
-        }
-
-        const post = await db.findOne('Post', {
-            where: {
-                _id: id,
-            },
-        })
-        if (!post) {
-            res.status(404).json({ error: `post is not found: ${id}` })
-        }
-
-        res.json(post)
-    } catch (error: any) {
-        res.status(500).json({ error })
-    }
+    )
 }
