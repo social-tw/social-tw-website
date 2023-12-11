@@ -1,4 +1,4 @@
-import { UserState } from '@unirep/core'
+import { SocialUserstate } from '../contexts/Userstate'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import { SignupStatus } from '../contexts/User'
 
@@ -17,12 +17,12 @@ const useSignupWithWallet = (
     handleWalletSignMessage: (hashUserId: string) => Promise<void>,
     signup: (
         fromServer: boolean,
-        userStateInstance: UserState,
+        userStateInstance: SocialUserstate,
         hashUserId: string,
         accessToken: string
     ) => Promise<void>,
     setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<SocialUserstate>
 ) => {
     const signUpWithWallet = async () => {
         try {

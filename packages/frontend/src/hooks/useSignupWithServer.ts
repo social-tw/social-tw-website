@@ -1,4 +1,4 @@
-import { UserState } from '@unirep/core'
+import { SocialUserstate } from '../contexts/Userstate'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import { SignupStatus } from '../contexts/User'
 
@@ -11,12 +11,12 @@ const useSignupWithServer = (
     setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
     signup: (
         fromServer: boolean,
-        userStateInstance: UserState,
+        userStateInstance: SocialUserstate,
         hashUserId: string,
         accessToken: string
     ) => Promise<void>,
     setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<SocialUserstate>
 ) => {
     const signupWithServer = async () => {
         try {

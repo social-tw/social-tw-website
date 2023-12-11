@@ -62,6 +62,14 @@ export class SocialUserstate extends UserState {
         }
     }
 
+
+    public async originGetData(
+        toEpoch?: number,
+        attesterId: bigint | string = this.sync.attesterId
+    ): Promise<bigint[]> {
+        return await super.getData(toEpoch, attesterId);
+    }
+
     public override getData = async (
         toEpoch?: number,
         attesterId: bigint | string = this.sync.attesterId
@@ -72,7 +80,7 @@ export class SocialUserstate extends UserState {
 
         // check if not searching for provableData
         if(toEpoch && (toEpoch !== _latestTransitionedEpoch - 1)){
-            const data = await super.getData(toEpoch, attesterId); 
+            const data = await this.originGetData(toEpoch, attesterId); 
             return data
         }
         
@@ -94,7 +102,7 @@ export class SocialUserstate extends UserState {
         const nullifier2Used = await this.sync.nullifierExist(nullifiers[1])
 
         if(nullifier1Used || nullifier2Used){
-            const data = await super.getData(undefined, attesterId)
+            const data = await this.originGetData(undefined, attesterId)
             return data
         } else {
             const foundData = await this._db.findOne('Userstate', {
@@ -165,9 +173,9 @@ export class SocialUserstate extends UserState {
     // }
 
     // call this after ust
-    public updateUserData = async (
+    public async updateUserData (
         attesterId: bigint | string = this.sync.attesterId,
-    ) => {
+    ) {
         const _attesterId = toDecString(attesterId)
         const foundData = await this._db.findOne('Userstate', {
             where: {
