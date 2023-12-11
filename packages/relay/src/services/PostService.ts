@@ -13,8 +13,11 @@ export class PostService {
     private cache: string[] = []
 
     async start(db: DB): Promise<void> {
-        // fetch all posts during the initalization
-        await this.updateOrder(db)
+        const rows = await db.count('Post', {})
+        if (rows > 0) {
+            // fetch all posts during the initalization
+            await this.updateOrder(db)
+        }
 
         // update post order every 3 hrs
         setInterval(async () => {
@@ -23,6 +26,7 @@ export class PostService {
     }
 
     async updateOrder(db: DB): Promise<void> {
+        console.log("sorting posts...")
         //      if user just posted, get the first ten result from db
         //      pop last one and insert new post to the first element
 
@@ -41,22 +45,33 @@ export class PostService {
         //      select posts le 2 days and order them by the rules
         //      union
         //      select post gt 2 days and order them by the rules
+        let DAYDIFF: string;
+        const SQL_LITE_DAYDIFF = "(JULIANDAY('now') - JULIANDAY(DATETIME(publishedAt, 'unixepoch')))"
+        const POSTGRES_DAYDIFF = "(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt)))"
+        if (DB_PATH.startsWith('postgres')) {
+            DAYDIFF = POSTGRES_DAYDIFF
+        } else {
+            DAYDIFF = SQL_LITE_DAYDIFF
+        }
+
         const statement = `
-            SELECT TmpPost.id
+            SELECT POSTS_WITHIN_2._id
             FROM (
-                SELECT *, 
-                ((EXTRACT(DAY NOW() - published_at) * (-0.5)) + (up_count * 0.2) - (down_count * 0.2) + (comment_count * 0.1)) AS SORT_ALGO FROM Post
-                ORDER BY SORT_ALGO DESC, published_at
-                ) AS TmpPost
-                AND EXTRACT(DAY NOW() - published_at) <= 2
+                SELECT *,
+                (${DAYDIFF} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) AS SORT_ALGO
+                FROM Post
+                WHERE ${DAYDIFF} <= 2
+                ORDER BY SORT_ALGO DESC, publishedAt
+            ) AS POSTS_WITHIN_2
             UNION
-            SELECT TmpPost.id
+            SELECT POSTS_AFTER_2._id
             FROM (
-                SELECT *, 
-                (up_count + comment_count) AS FIRST_PRIORTY FROM Post
-                ORDER BY FIRST_PRIORTY DESC, upvote DESC, comments DESC
-                ) AS TmpPost
-                AND EXTRACT(DAY NOW() - published_at) > 2
+                SELECT *,
+                (upCount + commentCount) AS FIRST_PRIORTY
+                FROM Post
+                WHERE ${DAYDIFF} > 2
+                ORDER BY FIRST_PRIORTY DESC, upCount DESC, commentCount DESC
+            ) AS POSTS_AFTER_2
         `
 
         let results: any
@@ -70,12 +85,13 @@ export class PostService {
         } else {
             // sqlite situation
             const sq = db as SQLiteConnector
+            console.log(statement)
             results = await sq.db.all(statement)
         }
 
-        this.cache = results.rows.map((post: any) => {
-            return post.post_id
-        })
+        console.log("Query Result:", results)
+
+        this.cache = results.rows.map((post: any) => post.post_id)
     }
 
     async fetchPosts(

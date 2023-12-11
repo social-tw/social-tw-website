@@ -20,6 +20,8 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { VoteAction } from '../src/types'
+import { Post } from '../src/types/Post'
+import { PostService } from '../src/services/PostService'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -28,6 +30,7 @@ describe('POST /post', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -37,6 +40,7 @@ describe('POST /post', function () {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
+
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -64,6 +68,7 @@ describe('POST /post', function () {
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        sync.stop()
         express.close()
     })
 
@@ -114,7 +119,6 @@ describe('POST /post', function () {
         })
 
         expect(posts.length).equal(0)
-        userState.sync.stop()
     })
 
     it('should post failed with wrong proof', async function () {
@@ -144,7 +148,6 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid proof')
-        userState.sync.stop()
     })
 
     it('should post failed with wrong epoch', async function () {
@@ -189,7 +192,6 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid Epoch')
-        userState.sync.stop()
     })
 
     it('should post failed with wrong state tree', async function () {
@@ -231,15 +233,12 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid State Tree')
-        userState.sync.stop()
     })
 
-    it('should update post order periodcally', async function () {
+    it('should update post order periodcally', async function (done) {
         // add 9 posts
         for (let i = 1; i <= 9; i++) {
             const testContent = `test content #${i}`
-
-            console.log('Nonce #', i)
             const epochKeyProof = await userState.genEpochKeyProof({
                 nonce: 0,
             })
@@ -259,17 +258,17 @@ describe('POST /post', function () {
             }).then((r) => r.json())
 
             await ethers.provider.waitForTransaction(res.transaction)
-            await sync.waitForSync()
         }
+        await sync.waitForSync()
 
-        let posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+        let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',
             },
         }).then((res) => res.json())
 
-        console.log('Before Sorting:', posts)
+        console.log('Before Sorting:', posts.map((post) => post.postId))
 
         // add upvote to posts ramdonly
         for (let i = 1; i <= 10; i++) {
@@ -277,7 +276,7 @@ describe('POST /post', function () {
                 nonce: 0,
             })
 
-            const postId = (Math.random() * 100) % 10
+            const idx = Math.floor((Math.random() * 100) % 10)
 
             await fetch(`${HTTP_SERVER}/api/vote`, {
                 method: 'POST',
@@ -286,7 +285,7 @@ describe('POST /post', function () {
                 },
                 body: JSON.stringify(
                     stringifyBigInts({
-                        _id: postId,
+                        _id: posts[idx]._id,
                         voteAction: VoteAction.UPVOTE,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
@@ -301,7 +300,7 @@ describe('POST /post', function () {
                 nonce: 0,
             })
 
-            const postId = (Math.random() * 100) % 10
+            const idx = Math.floor((Math.random() * 100) % 10)
 
             await fetch(`${HTTP_SERVER}/api/vote`, {
                 method: 'POST',
@@ -310,7 +309,7 @@ describe('POST /post', function () {
                 },
                 body: JSON.stringify(
                     stringifyBigInts({
-                        _id: postId,
+                        _id: posts[idx]._id,
                         voteAction: VoteAction.DOWNVOTE,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
@@ -322,14 +321,13 @@ describe('POST /post', function () {
         // add comment to posts randomly
         for (let i = 1; i <= 10; i++) {
             const testContent = `test comment #${i}`
-
             const epochKeyProof = await userState.genEpochKeyProof({
                 nonce: 0,
             })
 
-            const postId = (Math.random() * 100) % 10
+            const postId = Math.floor((Math.random() * 100) % 10)
 
-            const res: any = fetch(`${HTTP_SERVER}/api/comment`, {
+            const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -342,13 +340,16 @@ describe('POST /post', function () {
                         proof: epochKeyProof.proof,
                     })
                 ),
-            }).then(async (r) => {
-                return await r.json()
-            })
+            }).then((r) => r.json())
 
             await ethers.provider.waitForTransaction(res.transaction)
-            await sync.waitForSync()
         }
+        await sync.waitForSync()
+
+        setTimeout(function(){
+            console.log('waiting over.');
+            done();
+        }, 10000)
 
         posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
             method: 'GET',
@@ -357,6 +358,6 @@ describe('POST /post', function () {
             },
         }).then((res) => res.json())
 
-        console.log('After Sorting:', posts)
+        console.log('After Sorting:', posts.map((post) => post.postId))
     })
 })

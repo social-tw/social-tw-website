@@ -12,7 +12,8 @@ import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager, socketManager } from '../src/singletons/SocketManager'
+import { SocketManager } from '../src/singletons/SocketManager'
+import { postService } from '../src/services/PostService'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -60,6 +61,8 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         res.set('access-control-allow-headers', '*')
         next()
     })
+
+    await postService.start(db)
 
     console.log('Starting socket manager...')
     new SocketManager(server)
