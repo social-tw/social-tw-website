@@ -1,17 +1,64 @@
-export const TabHeader = () => {
-    return (
-        <div className="flex gap-4">
-            <TabButton onClick={() => {}} title="貼文" isActive={true} />
-            <TabButton onClick={() => {}} title="留言" isActive={false} />
-            <TabButton onClick={() => {}} title="讚/倒讚" isActive={false} />
-        </div>
-    )
-}
+import {
+    useProfileHistory,
+    useProfileHistoryActiveTab,
+} from './useProfileHistoryStore'
 
 interface TabButtonProps {
     onClick: () => void
     title: string
     isActive: boolean
+}
+
+export const TabHeader = () => {
+    return (
+        <div className="flex gap-4">
+            <PostTabButton />
+            <CommentTabButton />
+            <VoteTabButton />
+        </div>
+    )
+}
+
+function PostTabButton() {
+    const { isPostActive } = useProfileHistoryActiveTab()
+    const setActiveTabToPost = useProfileHistory(
+        (state) => state.setActiveTabToPost
+    )
+    return (
+        <TabButton
+            onClick={setActiveTabToPost}
+            title="貼文"
+            isActive={isPostActive}
+        />
+    )
+}
+
+function CommentTabButton() {
+    const { isCommentActive } = useProfileHistoryActiveTab()
+    const setActiveTabToComment = useProfileHistory(
+        (state) => state.setActiveTabToComment
+    )
+    return (
+        <TabButton
+            onClick={setActiveTabToComment}
+            title="留言"
+            isActive={isCommentActive}
+        />
+    )
+}
+
+function VoteTabButton() {
+    const { isVoteActive } = useProfileHistoryActiveTab()
+    const setActiveTabToVote = useProfileHistory(
+        (state) => state.setActiveTabToVote
+    )
+    return (
+        <TabButton
+            onClick={setActiveTabToVote}
+            title="讚/倒讚"
+            isActive={isVoteActive}
+        />
+    )
 }
 
 function TabButton({ onClick, title, isActive }: TabButtonProps) {
