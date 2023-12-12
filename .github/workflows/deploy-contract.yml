@@ -2,7 +2,7 @@ name: Manual-Deploy Contract
 
 on:
     workflow_dispatch:
-        branches: ['feat_system_cicd_enhancment']
+        branches: ['dev', 'prod']
         env:
             type: string
             required: true

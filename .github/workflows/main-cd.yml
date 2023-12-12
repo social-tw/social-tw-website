@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} acitvates the actions 🚀
 
 on:
     workflow_dispatch:
-        branches: ['feat_system_cicd_enhancment']
+        branches: ['dev', 'prod']
         inputs:
             build-services:
                 description: 'build which services'
