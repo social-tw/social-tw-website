@@ -10,8 +10,9 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import prover from '../src/singletons/prover'
 import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
-
+import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
+import { SocketManager } from '../src/singletons/SocketManager'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -19,6 +20,8 @@ export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
     return await deployApp(signer, epochLength)
 }
+
+let socketManager: SocketManager
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -52,14 +55,18 @@ export const startServer = async (unirep: any, unirepApp: any) => {
 
     const app = express()
     const port = process.env.PORT ?? 8000
-    const server = app.listen(port, () =>
-        console.log(`Listening on port ${port}`)
-    )
+    const server = http.createServer(app)
+    server.listen(port, () => console.log(`Listening on port ${port}`))
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
         next()
     })
+
+    console.log('Starting socket manager...')
+    new SocketManager(server)
+    console.log('Socket manager started')
+
     app.use(express.json())
     app.use('/build', express.static(path.join(__dirname, '../keys')))
 
@@ -71,5 +78,13 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         route(app, synchronizer.db, synchronizer, helia)
     }
 
-    return { db, prover, provider, TransactionManager, synchronizer, server }
+    return {
+        db,
+        prover,
+        provider,
+        TransactionManager,
+        synchronizer,
+        server,
+        socketManager,
+    }
 }

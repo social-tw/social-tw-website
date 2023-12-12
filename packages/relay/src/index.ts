@@ -30,8 +30,6 @@ main().catch((err) => {
     process.exit(1)
 })
 
-let socketManager: SocketManager
-
 async function main() {
     var db
     if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
@@ -70,7 +68,7 @@ async function main() {
     })
 
     const httpServer = createServer(app)
-    socketManager = new SocketManager(httpServer)
+    new SocketManager(httpServer)
     const port = process.env.PORT ?? 8000
 
     app.use(express.json())
@@ -86,5 +84,3 @@ async function main() {
         route(app, db, synchronizer, helia)
     }
 }
-
-export { socketManager }

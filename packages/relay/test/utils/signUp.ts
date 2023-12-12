@@ -5,7 +5,7 @@ import { UserService } from '../../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../../src/synchornizer'
 import { UserState } from '@unirep/core'
 
-export async function singUp(
+export async function signUp(
     user: User,
     userStateFactory: UserStateFactory,
     userService: UserService,

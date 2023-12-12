@@ -2,7 +2,7 @@ import { Server } from 'socket.io'
 import { CLIENT_URL } from '../config'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import * as http from 'http'
-import { RoomType, VoteMsg } from '../types/SocketTypes'
+import { EventType, CommentMsg, VoteMsg } from '../types/SocketTypes'
 
 export class SocketManager {
     io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -20,10 +20,17 @@ export class SocketManager {
                 console.log('user disconnected')
             })
         })
+
+        // assign this to singleton
+        socketManager = this
     }
 
     emitVote = (vote: VoteMsg) => {
-        this.io.to(RoomType.VOTE).emit('vote', vote)
+        this.io.emit(EventType.VOTE, vote)
+    }
+
+    emitComment = (comment: CommentMsg) => {
+        this.io.emit(EventType.COMMENT, comment)
     }
 }
 
