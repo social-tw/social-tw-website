@@ -19,7 +19,7 @@ jobs:
             image: ghcr.io/social-tw/circom_node_env:0.0.1
             credentials:
                 username: ${{ github.actor }}
-                password: ${{ secrets.CR_PAT }}
+                password: ${{ secrets.GITHUB_TOKEN }}
         timeout-minutes: 30
         steps:
             - name: Modify system variable PATH
