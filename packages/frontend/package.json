@@ -48,7 +48,8 @@
         "react-twitter-login": "^1.5.0",
         "react-virtualized-auto-sizer": "^1.0.20",
         "react-window": "^1.8.10",
-        "socket.io-client": "^4.7.2"
+        "socket.io-client": "^4.7.2",
+        "zustand": "^4.4.7"
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
