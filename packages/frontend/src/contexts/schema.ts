@@ -20,8 +20,28 @@ const _schema = [
                 type: 'Int',
                 defulat: 0
             },
-            ['provableData', 'Int'],
-            ['latestData', 'Int']
+            {
+                name: 'provableData',
+                type: 'Object',
+                relation: {
+                  1: 'Int',
+                  2: 'Int',
+                  3: 'Int',
+                  4: 'Int',
+                  5: 'Int'
+                }
+            },
+            {
+                name: 'latestData',
+                type: 'Object',
+                relation: {
+                  1: 'Int',
+                  2: 'Int',
+                  3: 'Int',
+                  4: 'Int',
+                  5: 'Int'
+                }
+            },
         ]
     }
 ]
