@@ -1,5 +1,10 @@
 import { DB } from 'anondb'
-import { DB_PATH, LOAD_POST_COUNT, UPDATE_POST_ORDER_INTERVAL } from '../config'
+import {
+    DAY_DIFF_STAEMENT,
+    DB_PATH,
+    LOAD_POST_COUNT,
+    UPDATE_POST_ORDER_INTERVAL,
+} from '../config'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { SnarkProof } from '@unirep/utils'
@@ -10,7 +15,7 @@ import { ipfsService } from './IpfsService'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 
 export class PostService {
-    private cache: string[] = []
+    private cache: Post[] = []
 
     async start(db: DB): Promise<void> {
         const rows = await db.count('Post', {})
@@ -19,14 +24,13 @@ export class PostService {
             await this.updateOrder(db)
         }
 
-        // update post order every 3 hrs
+        // update the order of post table in the given interval
         setInterval(async () => {
             await this.updateOrder(db)
         }, UPDATE_POST_ORDER_INTERVAL)
     }
 
     async updateOrder(db: DB): Promise<void> {
-        console.log("sorting posts...")
         //      if user just posted, get the first ten result from db
         //      pop last one and insert new post to the first element
 
@@ -45,52 +49,35 @@ export class PostService {
         //      select posts le 2 days and order them by the rules
         //      union
         //      select post gt 2 days and order them by the rules
-        let DAYDIFF: string;
-        const SQL_LITE_DAYDIFF = "(JULIANDAY('now') - JULIANDAY(DATETIME(publishedAt, 'unixepoch')))"
-        const POSTGRES_DAYDIFF = "(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt, 'YYYY-MM-DD')))"
-        if (DB_PATH.startsWith('postgres')) {
-            DAYDIFF = POSTGRES_DAYDIFF
-        } else {
-            DAYDIFF = SQL_LITE_DAYDIFF
-        }
-
         let statement = `
-            SELECT POSTSLETWO._id
-            FROM (
-                SELECT *,
-                (${DAYDIFF} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) AS SORT_ALGO
-                FROM Post
-                WHERE ${DAYDIFF} <= 2
-                ORDER BY SORT_ALGO DESC, publishedAt DESC
-            ) AS POSTSLETWO
-            UNION
-            SELECT POSTSGTTWO._id
-            FROM (
-                SELECT *,
-                (upCount + commentCount) AS FIRST_PRIORTY
-                FROM Post
-                WHERE ${DAYDIFF} > 2
-                ORDER BY FIRST_PRIORTY DESC, upCount DESC, commentCount DESC
-            ) AS POSTSGTTWO
+            SELECT publishedAt, postId, transactionHash, content, cid, epoch, epochKey, upCount, downCount, voteSum, status, commentCount, _id FROM (
+                SELECT * FROM (
+                    SELECT *, 1 AS FILTER
+                    FROM (
+                        SELECT *, ROW_NUMBER() over ( ORDER BY (${DAY_DIFF_STAEMENT} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) DESC, publishedAt DESC ) AS OD
+                        FROM Post 
+                        WHERE ${DAY_DIFF_STAEMENT} <= 2
+                    )
+                    UNION
+                    SELECT *, 2 AS FILTER
+                    FROM (
+                        SELECT *, ROW_NUMBER() over ( ORDER BY (upCount + commentCount) DESC, upCount DESC, commentCount DESC, publishedAt DESC ) AS OD
+                        FROM Post
+                        WHERE ${DAY_DIFF_STAEMENT} > 2
+                    )
+                ) ORDER BY FILTER, OD
+            )
         `
-        let results: any
         // anondb does't provide add column api
         // use lower level db api directly from postgres / sqlite
         // for the complex sql statement
         if (DB_PATH.startsWith('postgres')) {
-            // postgres situation
             const pg = db as PostgresConnector
-            results = await pg.db.query(statement)
+            this.cache = await pg.db.query(statement)
         } else {
-            // sqlite situation
             const sq = db as SQLiteConnector
-            results = await sq.db.all(statement)
+            this.cache = await sq.db.all(statement)
         }
-
-        // TODO: no result
-        console.log("Query Result:", results)
-
-        // this.cache = results.rows.map((post: any) => post.post_id)
     }
 
     async fetchPosts(
@@ -100,6 +87,7 @@ export class PostService {
         db: DB
     ): Promise<Post[] | null> {
         if (!query) {
+            console.log('Cache', this.cache)
             const posts = await db.findMany('Post', {
                 where: {
                     status: 1,
@@ -108,7 +96,6 @@ export class PostService {
             return posts
         }
 
-        console.log("Cache", this.cache)
         // pagination
         const postIds = this.cache.slice(offset, offset + LOAD_POST_COUNT - 1)
 

@@ -29,7 +29,6 @@ describe('POST /post', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
-    let sqlite: SQLiteConnector
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -40,7 +39,6 @@ describe('POST /post', function () {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
-        sqlite = db as SQLiteConnector
 
         const userStateFactory = new UserStateFactory(
             db,
@@ -262,15 +260,12 @@ describe('POST /post', function () {
         }
         await sync.waitForSync()
 
-        // let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
-        //     method: 'GET',
-        //     headers: {
-        //         'content-type': 'application/json',
-        //     },
-        // }).then((res) => res.json())
-        let posts = await sqlite.db.all("select * from post")
-
-        console.log('Before Sorting:', posts)
+        let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json',
+            },
+        }).then((res) => res.json())
 
         // add upvote to posts ramdonly
         for (let i = 1; i <= 10; i++) {
@@ -348,8 +343,8 @@ describe('POST /post', function () {
         }
         await sync.waitForSync()
 
-        const sleep = () => { 
-            return new Promise(resolve => {
+        const sleep = () => {
+            return new Promise((resolve) => {
                 setTimeout(resolve, 10000)
             })
         }
@@ -361,7 +356,5 @@ describe('POST /post', function () {
                 'content-type': 'application/json',
             },
         }).then((res) => res.json())
-
-        console.log('After Sorting:', posts.map((post) => post.postId))
     })
 })

@@ -52,3 +52,6 @@ export const EPOCHKEYS_AMOUNT = 3
 // default update post order interval 3 hrs convert into milisecond
 // export const UPDATE_POST_ORDER_INTERVAL = 3 * 60 * 60 * 1000
 export const UPDATE_POST_ORDER_INTERVAL = 2.5 * 60 * 1000
+export const DAY_DIFF_STAEMENT = DB_PATH.startsWith('postgres')
+    ? "(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt, 'YYYY-MM-DD')))"
+    : "FLOOR(JULIANDAY('now') - JULIANDAY(DATETIME(publishedAt / 1000, 'unixepoch')))"
