@@ -15,7 +15,3 @@ WORKDIR /src/packages/relay
 EXPOSE 8000
 
 CMD ["npm", "start"]
-
-# local run command
-# docker build -t test-relay:0.1 -f packages/relay/Dockerfile .
-# docker run --network="host" --rm -p 8000:8000 test-relay:0.1

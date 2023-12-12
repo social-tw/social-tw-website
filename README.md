@@ -164,20 +164,17 @@ yarn lint:check
 ### 5.1 Deploy frontend locally
 
 ```shell
-docker build --tag=social-tw-client:latest -f packages/frontend/Dockerfile .
+docker build -t test-frontend:0.1 -f packages/frontend/Dockerfile .
 
-docker run -p 3000:3000 social-tw-client
+docker run --rm -p 3000:3000 --network="bridge" test-frontend:0.1
 ```
 
 ### 5.2 Deploy backend locally
 
 ```shell
-# Make sure to fill up the .env file
-source .env
+docker build -t test-relay:0.1 -f packages/relay/Dockerfile .
 
-docker build --tag=social-tw-relay:latest .
-
-docker run -p 8000:8000 --env-file .env social-tw-relay
+docker run --network="host" --rm -p 8000:8000 test-relay:0.1
 ```
 
 # Contributing
@@ -211,7 +208,3 @@ Please follow the following branch naming scheme when creating your branch:
 Join the conversation and help the community.
 
 -   [Discord](https://discord.gg/RSwXuVNZ4H)
-
-```
-
-```

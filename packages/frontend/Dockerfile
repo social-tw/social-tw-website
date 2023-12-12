@@ -22,7 +22,3 @@ ENV NODE_OPTIONS=${NODE_OPTIONS}
 EXPOSE 3000
 
 CMD ["npm", "start"]
-
-# local run command
-# docker build -t test-frontend:0.1 -f packages/frontend/Dockerfile .
-# docker run --rm -p 3000:3000 --network="bridge" test-frontend:0.1
