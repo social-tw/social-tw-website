@@ -186,10 +186,24 @@ export class SocialUserstate extends UserState {
             throw new Error('User state not found for attesterId: ' + _attesterId);
         }
 
-        const newProvableData = await super.getData()
+        // calc new provableData
+        const oldEpoch = foundData.latestTransitionedEpoch
+        const provableData = foundData.provableData
+        const changes =  await this.sync.db.findMany('Attestation', {
+            where: {
+                attesterId,
+                epoch: oldEpoch
+            }
+        })
+        const newProvableData: bigint[] = new Array(5).fill(0)
+        for (const [i, _change] of changes.entries()) {
+            newProvableData[i] = provableData[i] + Number(_change.change);
+        }
+
         const latestTransitionedIndex = await super.latestStateTreeLeafIndex()
         const latestTransitionedEpoch = await this.sync.loadCurrentEpoch();
 
+        // updata new data
         await this._db.update('Userstate', {
             where: {
                 _attesterId
