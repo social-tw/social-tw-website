@@ -20,7 +20,6 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { VoteAction } from '../src/types'
-import { SQLiteConnector } from 'anondb/node'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 

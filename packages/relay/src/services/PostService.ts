@@ -57,15 +57,15 @@ export class PostService {
                         SELECT *, ROW_NUMBER() over ( ORDER BY (${DAY_DIFF_STAEMENT} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) DESC, publishedAt DESC ) AS OD
                         FROM Post 
                         WHERE ${DAY_DIFF_STAEMENT} <= 2
-                    )
+                    ) AS POSTS_LE_2
                     UNION
                     SELECT *, 2 AS FILTER
                     FROM (
                         SELECT *, ROW_NUMBER() over ( ORDER BY (upCount + commentCount) DESC, upCount DESC, commentCount DESC, publishedAt DESC ) AS OD
                         FROM Post
                         WHERE ${DAY_DIFF_STAEMENT} > 2
-                    )
-                ) ORDER BY FILTER, OD
+                    ) AS POSTS_GT_2
+                ) AS POST ORDER BY FILTER, OD
             )
         `
         // anondb does't provide add column api
@@ -73,7 +73,7 @@ export class PostService {
         // for the complex sql statement
         if (DB_PATH.startsWith('postgres')) {
             const pg = db as PostgresConnector
-            this.cache = await pg.db.query(statement)
+            this.cache = (await pg.db.query(statement)).rows
         } else {
             const sq = db as SQLiteConnector
             this.cache = await sq.db.all(statement)
