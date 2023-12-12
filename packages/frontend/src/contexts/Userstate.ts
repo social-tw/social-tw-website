@@ -2,7 +2,7 @@ import { UserState } from '@unirep/core'
 import { Synchronizer } from '@unirep/core'
 import { DB } from 'anondb'
 import { constructSchema } from 'anondb/types'
-import { IndexedDBConnector } from 'anondb/web'
+import { MemoryConnector } from 'anondb/web'
 import { ethers } from 'ethers'
 import { Identity } from '@semaphore-protocol/identity'
 import { Prover } from '@unirep/circuits'
@@ -35,25 +35,42 @@ export class SocialUserstate extends UserState {
         id: Identity
         prover: Prover
     }) {
-        super(config);
-        const { userdb, attesterId } = config;
-        this._db = userdb ?? new IndexedDBConnector(constructSchema(schema))
+        const { 
+            synchronizer,
+            db,
+            userdb,
+            attesterId,
+            unirepAddress,
+            provider,
+            id,
+            prover 
+        } = config;
+        super({
+            synchronizer,
+            db,
+            attesterId,
+            unirepAddress,
+            provider,
+            id,
+            prover 
+        });
+        this._db = userdb ?? new MemoryConnector(constructSchema(schema))
         this._chainId = -1 // Unirep v2-beta-6
         this._initData(attesterId).then(() => (this.initDataComplete = true))
     }
       
     _initData = async (attesterId: bigint | bigint[]) => {     
         if (Array.isArray(attesterId)) {
-            this._db.create('Userstate', attesterId.map(id => ({
-                attesterId: id,
+            await this._db.create('Userstate', attesterId.map(id => ({
+                attesterId: toDecString(id),
                 latestTransitionedEpoch: this.sync.calcCurrentEpoch(),
                 latestTransitionedIndex: -1,
                 provableData: Array(this.sync.settings.fieldCount).fill(BigInt(0)),
                 latestData: Array(this.sync.settings.fieldCount).fill(BigInt(0))
             })))
         } else {
-            this._db.create('Userstate', {
-                attesterId,
+            await this._db.create('Userstate', {
+                attesterId: toDecString(attesterId),
                 latestTransitionedEpoch: this.sync.calcCurrentEpoch(),
                 latestTransitionedIndex: -1,
                 provableData: Array(this.sync.settings.fieldCount).fill(BigInt(0)),

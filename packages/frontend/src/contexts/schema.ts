@@ -6,20 +6,9 @@ const _schema = [
         name: 'Userstate',
         indexes: [{keys: ['attesterId']}],
         rows: [
-            {
-                name: 'attesterId', 
-                type: 'String'
-            },
-            {
-                name: 'latestTransitionedEpoch',
-                type: 'Int',
-                default: 0
-            },
-            {
-                name: 'latestTransitionedIndex',
-                type: 'Int',
-                defulat: 0
-            },
+            ['attesterId', 'String'],
+            ['latestTransitionedEpoch', 'Int'],
+            ['latestTransitionedIndex','Int'],
             {
                 name: 'provableData',
                 type: 'Object',
