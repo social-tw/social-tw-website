@@ -65,18 +65,15 @@ describe('Synchronize Comment Test', function () {
                 wallet
             )
 
+            await userState.waitForSync()
+            let hasSignUp = await userState.hasSignedUp()
+            expect(hasSignUp).equal(true)
+
             users.push({
                 hashUserId: initUser.hashUserId,
                 wallet: wallet,
                 userState: userState,
             })
-        }
-
-        // Ensure users are signed up
-        for (let i = 0; i < 2; i++) {
-            await users[i].userState.waitForSync()
-            let hasSignUp = await users[i].userState.hasSignedUp()
-            expect(hasSignUp).equal(true)
         }
     })
 
