@@ -71,7 +71,7 @@ function useHandleTwitterCallback() {
                 status === '1' && navigate(PATHS.SIGN_UP_INTERNAL)
                 status === '2' &&
                     navigate(
-                        `${PATHS.LOGIN_INTERNAL}/${SIGNUP_METHODS.METAMASK}`
+                        `${PATHS.LOGIN_INTERNAL}/${SIGNUP_METHODS.METAMASK}`,
                     )
                 status === '3' &&
                     navigate(`${PATHS.LOGIN_INTERNAL}/${SIGNUP_METHODS.SERVER}`)

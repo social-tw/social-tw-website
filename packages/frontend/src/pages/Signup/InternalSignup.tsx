@@ -67,7 +67,7 @@ export function InternalSignup() {
             <div
                 className={clsx(
                     `w-full flex items-center justify-center gap-8`,
-                    isSmallDevice && 'flex-col'
+                    isSmallDevice && 'flex-col',
                 )}
             >
                 <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
