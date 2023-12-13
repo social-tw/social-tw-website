@@ -58,12 +58,12 @@ export interface UserContextType {
         fromServer: boolean,
         userStateInstance: UserState,
         hashUserId: string,
-        accessToken: string
+        accessToken: string,
     ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
         reqData: { [key: number]: string | number },
-        epkNonce: number
+        epkNonce: number,
     ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
@@ -136,7 +136,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const hasSignedUpStatus = await userState.hasSignedUp()
             setHasSignedUp(hasSignedUpStatus)
         },
-        [userState]
+        [userState],
     )
 
     const loadData = useCallback(
@@ -149,7 +149,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             setData(fetchedData)
             setProvableData(fetchedProvableData)
         },
-        [userState]
+        [userState],
     )
 
     const fieldCount = useMemo(() => {
@@ -167,7 +167,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const key = userState.getEpochKeys(epoch, nonce)
             return `0x${key.toString(16)}`
         },
-        [userState]
+        [userState],
     )
 
     const handleWalletSignMessage = async (hashUserId: string) => {
@@ -191,13 +191,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             fromServer: boolean,
             userStateInstance: UserState,
             hashUserId: string,
-            accessToken: string
+            accessToken: string,
         ) => {
             if (!userStateInstance)
                 throw new Error('user state not initialized')
             const signupProof = await userStateInstance.genUserSignUpProof()
             const publicSignals = signupProof.publicSignals.map((item) =>
-                item.toString()
+                item.toString(),
             )
             const proof = signupProof.proof.map((item) => item.toString())
 
@@ -225,7 +225,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
             setLatestTransitionedEpoch(latestEpoch)
         },
-        [SERVER]
+        [SERVER],
     )
 
     const stateTransition = async () => {
@@ -242,7 +242,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 stringifyBigInts({
                     publicSignals: signupProof.publicSignals,
                     proof: signupProof.proof,
-                })
+                }),
             ),
         }).then((r) => r.json())
         await provider.waitForTransaction(data.hash)
@@ -255,7 +255,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const requestData = useCallback(
         async (
             reqData: { [key: number]: string | number },
-            epkNonce: number
+            epkNonce: number,
         ) => {
             if (!userState) throw new Error('user state not initialized')
 
@@ -280,7 +280,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                         reqData: filteredReqData,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
-                    })
+                    }),
                 ),
             })
             const data = await response.json()
@@ -288,7 +288,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             await userState.waitForSync()
             await loadData(userState)
         },
-        [userState, provider, loadData]
+        [userState, provider, loadData],
     )
 
     const proveData = useCallback(
@@ -301,7 +301,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const provableData = await userState.getProvableData()
             const sumFieldCount = userState.sync.settings.sumFieldCount
             const values = Array(sumFieldCount).fill(0)
-            for (let [key, value] of Object.entries(data)) {
+            for (const [key, value] of Object.entries(data)) {
                 values[Number(key)] = value
             }
             const attesterId = userState.sync.attesterId
@@ -317,7 +317,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const { publicSignals, proof } =
                 await prover.genProofAndPublicSignals(
                     'dataProof',
-                    circuitInputs
+                    circuitInputs,
                 )
             const dataProof = new DataProof(publicSignals, proof, prover)
             const valid = await dataProof.verify()
@@ -327,7 +327,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 valid,
             })
         },
-        [userState]
+        [userState],
     )
 
     const logout = () => {

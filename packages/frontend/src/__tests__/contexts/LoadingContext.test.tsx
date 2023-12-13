@@ -17,7 +17,7 @@ describe('LoadingProvider', () => {
         const { getByText } = render(
             <LoadingProvider>
                 <TestComponent />
-            </LoadingProvider>
+            </LoadingProvider>,
         )
 
         // @ts-ignore
@@ -41,7 +41,7 @@ describe('LoadingProvider', () => {
         const { getByText, getByRole } = render(
             <LoadingProvider>
                 <TestComponent />
-            </LoadingProvider>
+            </LoadingProvider>,
         )
 
         // init loading

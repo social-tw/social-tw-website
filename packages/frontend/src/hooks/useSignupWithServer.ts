@@ -13,10 +13,10 @@ const useSignupWithServer = (
         fromServer: boolean,
         userStateInstance: UserState,
         hashUserId: string,
-        accessToken: string
+        accessToken: string,
     ) => Promise<void>,
     setIsLogin: (param: string) => void,
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<UserState>,
 ) => {
     const signupWithServer = async () => {
         try {
