@@ -50,23 +50,21 @@ export class PostService {
         //      union
         //      select post gt 2 days and order them by the rules
         let statement = `
-            SELECT publishedAt, postId, transactionHash, content, cid, epoch, epochKey, upCount, downCount, voteSum, status, commentCount, _id FROM (
-                SELECT * FROM (
-                    SELECT *, 1 AS FILTER
-                    FROM (
-                        SELECT *, ROW_NUMBER() over ( ORDER BY (${DAY_DIFF_STAEMENT} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) DESC, publishedAt DESC ) AS OD
-                        FROM Post 
-                        WHERE ${DAY_DIFF_STAEMENT} <= 2
-                    ) AS POSTS_LE_2
-                    UNION
-                    SELECT *, 2 AS FILTER
-                    FROM (
-                        SELECT *, ROW_NUMBER() over ( ORDER BY (upCount + commentCount) DESC, upCount DESC, commentCount DESC, publishedAt DESC ) AS OD
-                        FROM Post
-                        WHERE ${DAY_DIFF_STAEMENT} > 2
-                    ) AS POSTS_GT_2
-                ) AS POST ORDER BY FILTER, OD
-            )
+            SELECT * FROM (
+                SELECT *, 1 AS FILTER
+                FROM (
+                    SELECT *, ROW_NUMBER() over ( ORDER BY (${DAY_DIFF_STAEMENT} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) DESC, publishedAt DESC ) AS OD
+                    FROM Post 
+                    WHERE ${DAY_DIFF_STAEMENT} <= 2
+                ) AS POSTS_LE_2
+                UNION
+                SELECT *, 2 AS FILTER
+                FROM (
+                    SELECT *, ROW_NUMBER() over ( ORDER BY (upCount + commentCount) DESC, upCount DESC, commentCount DESC, publishedAt DESC ) AS OD
+                    FROM Post
+                    WHERE ${DAY_DIFF_STAEMENT} > 2
+                ) AS POSTS_GT_2
+            ) AS POST ORDER BY FILTER, OD
         `
         // anondb does't provide add column api
         // use lower level db api directly from postgres / sqlite
@@ -80,6 +78,11 @@ export class PostService {
         }
     }
 
+    // returns the LOAD_POST_COUNT posts of the given page
+    // offset starting from 1 for page 1
+    // page = (1 - 1) * LOAD_POST_COUNT = 0 ... start index
+    // end = page + LOAD_POST_COUNT ... end index
+    // slice(page, end) ... the end element will be excluded
     async fetchPosts(
         query: string | undefined,
         epks: string[] | undefined,
@@ -87,23 +90,18 @@ export class PostService {
         db: DB
     ): Promise<Post[] | null> {
         if (!query) {
-            console.log('Cache', this.cache)
-            const posts = await db.findMany('Post', {
-                where: {
-                    status: 1,
-                },
-            })
+            // query the posts from the cache with given pagination
+            const page = (offset - 1) * LOAD_POST_COUNT
+            const posts = this.cache.slice(page, page + LOAD_POST_COUNT)
             return posts
         }
 
-        // pagination
-        const postIds = this.cache.slice(offset, offset + LOAD_POST_COUNT - 1)
-
+        // TODO: check epks is undefined case ?
         const posts = await db.findMany('Post', {
             where: {
-                postId: postIds,
                 epochKey: epks,
             },
+            limit: LOAD_POST_COUNT,
         })
 
         return posts

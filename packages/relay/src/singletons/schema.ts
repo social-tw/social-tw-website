@@ -35,8 +35,8 @@ const _schema = [
         rows: [
             {
                 name: 'publishedAt',
-                type: 'Int',
-                default: () => +new Date(),
+                type: 'String',
+                default: () => (+new Date()).toString(),
             },
             ['postId', 'String', { optional: true }],
             ['transactionHash', 'String'],

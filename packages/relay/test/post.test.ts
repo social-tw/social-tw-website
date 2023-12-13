@@ -20,6 +20,8 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { VoteAction } from '../src/types'
+import { UPDATE_POST_ORDER_INTERVAL } from '../src/config'
+import { SQLiteConnector } from 'anondb/node'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -28,6 +30,7 @@ describe('POST /post', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let sqlite: SQLiteConnector
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -38,6 +41,7 @@ describe('POST /post', function () {
             await startServer(unirep, app)
         express = server
         sync = synchronizer
+        sqlite = db as SQLiteConnector
 
         const userStateFactory = new UserStateFactory(
             db,
@@ -98,7 +102,9 @@ describe('POST /post', function () {
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
-        var posts: any = await fetch(`${HTTP_SERVER}/api/post`).then((r) => {
+        let posts: any = await fetch(
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
+        ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
@@ -233,7 +239,7 @@ describe('POST /post', function () {
         expect(res.error).equal('Invalid State Tree')
     })
 
-    it('should update post order periodcally', async function () {
+    it('should update post order periodically', async function () {
         // add 9 posts
         for (let i = 1; i <= 9; i++) {
             const testContent = `test content #${i}`
@@ -259,12 +265,7 @@ describe('POST /post', function () {
         }
         await sync.waitForSync()
 
-        let posts: any = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-            },
-        }).then((res) => res.json())
+        let posts: any = await sqlite.db.all('SELECT * FROM Post')
 
         // add upvote to posts ramdonly
         for (let i = 1; i <= 10; i++) {
@@ -344,16 +345,18 @@ describe('POST /post', function () {
 
         const sleep = () => {
             return new Promise((resolve) => {
-                setTimeout(resolve, 10000)
+                setTimeout(resolve, UPDATE_POST_ORDER_INTERVAL)
             })
         }
         await sleep()
 
-        posts = await fetch(`${HTTP_SERVER}/api/post?offset=0`, {
+        posts = await fetch(`${HTTP_SERVER}/api/post?offset=1`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',
             },
         }).then((res) => res.json())
+
+        console.log(posts)
     })
 })
