@@ -3,6 +3,7 @@ import { FixedSizeGrid } from 'react-window'
 import { Post } from '../DTO/Post'
 
 interface TabContentBodyProps {
+    isInit: boolean
     isLoading: boolean
     data: BodyCellData[][]
 }
@@ -29,12 +30,16 @@ interface CellLinkProps {
     url?: string
 }
 
-export function TabContentBody({ data, isLoading }: TabContentBodyProps) {
+export function TabContentBody({
+    data,
+    isLoading,
+    isInit,
+}: TabContentBodyProps) {
     return (
         <div>
-            {isLoading && <div>IS LOADING</div>}
-            {data.length === 0 && <div>NO DATA</div>}
-            {data.length > 0 && (
+            {(!isInit || isLoading) && <Loading />}
+            {isInit && data.length === 0 && <div>NO DATA</div>}
+            {isInit && data.length > 0 && (
                 <AutoSizer>
                     {({ height, width }) => {
                         const rowHeight = 35
@@ -64,6 +69,17 @@ export function TabContentBody({ data, isLoading }: TabContentBodyProps) {
                     }}
                 </AutoSizer>
             )}
+        </div>
+    )
+}
+
+function Loading() {
+    return (
+        <div className="grid gap-4 pt-6">
+            <progress className="w-8/12 h-[16px] rounded-2xl progress bg-[#222222]" />
+            <progress className="w-6/12 h-[16px] rounded-2xl progress bg-[#222222]" />
+            <progress className="w-4/12 h-[16px] rounded-2xl progress bg-[#222222]" />
+            <progress className="w-2/12 h-[16px] rounded-2xl progress bg-[#222222]" />
         </div>
     )
 }

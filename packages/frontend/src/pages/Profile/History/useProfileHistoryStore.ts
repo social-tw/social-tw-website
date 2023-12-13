@@ -1,10 +1,12 @@
+import { UserState } from '@unirep/core'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import { ProfileHistoryPostsResponse } from '../../../types/api'
-import { fetchProfileHistoryPosts } from '../../../utils/api'
+import { Directions, SortKeys } from '../../../types/api'
+import { fetchPostsByEpochKeys } from '../../../utils/api'
 import { Comment } from './DTO/Comment'
 import { Post } from './DTO/Post'
 import { Vote } from './DTO/Vote'
+import { ProfileHistoryStoreParser } from './ProfileHistoryStoreParser'
 
 enum ActiveTab {
     Post = 'POST',
@@ -47,7 +49,7 @@ interface ProfileHistoryActions {
     setCommentActiveFilterToPopularity: () => void
     setVoteActiveFilterToLatest: () => void
     setVoteActiveFilterToOldest: () => void
-    fetchPosts: () => Promise<void>
+    fetchPosts: (userState: UserState) => Promise<void>
 }
 
 export const useProfileHistory = create<
@@ -113,20 +115,37 @@ export const useProfileHistory = create<
             set((state) => {
                 state.votes.activeFilter = ActiveFilter.Oldest
             }),
-        fetchPosts: async () => {
+        fetchPosts: async (userState: UserState) => {
             try {
                 set((state) => {
                     state.posts.isFetching = true
                 })
-                const rawPosts = await fetchProfileHistoryPosts()
-                const posts = parseRawPostsToPosts(rawPosts)
+                const currentEpoch = userState.sync.calcCurrentEpoch()
+                const epochKeyChunks = getEpochKeyChunks(
+                    userState,
+                    currentEpoch,
+                    10
+                )
+                const batchedRawPosts = await Promise.all(
+                    epochKeyChunks.map((epochKeyChunk) =>
+                        fetchPostsByEpochKeys({
+                            epochKeys: epochKeyChunk,
+                            direction: Directions.Asc,
+                            sortKey: SortKeys.PublishAt,
+                        })
+                    )
+                )
+                const batchedPosts = batchedRawPosts.map(
+                    ProfileHistoryStoreParser.parseRelaySourcePostsToPosts
+                )
                 set((state) => {
-                    state.posts.data = [...state.posts.data, ...posts]
-                    state.posts.isInit = true
+                    state.posts.data = batchedPosts.flat(2)
+                    if (!state.posts.isInit) {
+                        state.posts.isInit = true
+                    }
                 })
             } catch (err) {
-                // TODO: handle error, ex popup toast...
-                console.log(err)
+                console.log('FetchPosts Error:', err)
             } finally {
                 set((state) => {
                     state.posts.isFetching = false
@@ -178,8 +197,28 @@ export function useProfileHistoryVoteActiveFilter() {
     }
 }
 
-function parseRawPostsToPosts(rawPosts: ProfileHistoryPostsResponse): Post[] {
-    return rawPosts.map(
-        (data) => new Post(data.date, data.content, data.epochKey, data.url)
-    )
+function getEpochKeyChunks(
+    userState: UserState,
+    currentEpoch: number,
+    chunkSize: number
+): BigInt[][] {
+    const epochKeys = []
+    for (let i = 0; i < currentEpoch; i++) {
+        const epochKeysOfCertainEpoch = userState.getEpochKeys(i)
+        Array.isArray(epochKeysOfCertainEpoch)
+            ? epochKeys.push(...epochKeysOfCertainEpoch)
+            : epochKeys.push(epochKeysOfCertainEpoch)
+    }
+    const chunks = chunkData(epochKeys, chunkSize)
+    return chunks
+}
+
+function chunkData<T>(data: T[], chunkSize: number): T[][] {
+    const chunks = []
+    let index = 0
+    while (index < data.length) {
+        chunks.push(data.slice(index, index + chunkSize))
+        index += chunkSize
+    }
+    return chunks
 }

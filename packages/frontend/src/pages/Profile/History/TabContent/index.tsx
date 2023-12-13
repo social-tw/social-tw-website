@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useUser } from '../../../../contexts/User'
 import {
     useProfileHistory,
     useProfileHistoryActiveTab,
@@ -24,27 +25,24 @@ export const TabContent = () => {
 }
 
 function PostTabContent() {
-    const { isPostsFetching, isPostsInit, posts, fetchPosts } =
-        useProfileHistory((state) => ({
+    const { isPostsFetching, isPostsInit, posts } = useProfileHistory(
+        (state) => ({
             isPostsFetching: state.posts.isFetching,
             isPostsInit: state.posts.isInit,
             posts: state.posts.data,
-            fetchPosts: state.fetchPosts,
-        }))
-
+        })
+    )
     const headerData = getPostHeaderData()
     const bodyData = parsePostsToBodyData(posts)
-
-    useEffect(() => {
-        if (!isPostsInit) {
-            fetchPosts()
-        }
-    }, [isPostsInit, fetchPosts])
-
+    useInitPostTabContent()
     return (
         <div className={`h-full grid grid-rows-[auto_1fr]`}>
             <TabContentHeader data={headerData} />
-            <TabContentBody data={bodyData} isLoading={isPostsFetching} />
+            <TabContentBody
+                data={bodyData}
+                isLoading={isPostsFetching}
+                isInit={isPostsInit}
+            />
         </div>
     )
 }
@@ -55,7 +53,7 @@ function CommentTabContent() {
     return (
         <div className={`h-full grid grid-rows-[auto_1fr]`}>
             <TabContentHeader data={headerData} />
-            <TabContentBody data={bodyData} isLoading={false} />
+            <TabContentBody data={bodyData} isLoading={false} isInit={false} />
         </div>
     )
 }
@@ -66,7 +64,21 @@ function VoteTabContent() {
     return (
         <div className={`h-full grid grid-rows-[auto_1fr]`}>
             <TabContentHeader data={headerData} />
-            <TabContentBody data={bodyData} isLoading={false} />
+            <TabContentBody data={bodyData} isLoading={false} isInit={false} />
         </div>
     )
+}
+
+function useInitPostTabContent() {
+    const { userState } = useUser()
+    const { isPostsInit, fetchPosts } = useProfileHistory((state) => ({
+        isPostsInit: state.posts.isInit,
+        fetchPosts: state.fetchPosts,
+    }))
+
+    useEffect(() => {
+        if (!isPostsInit && userState) {
+            fetchPosts(userState)
+        }
+    }, [isPostsInit, userState, fetchPosts])
 }
