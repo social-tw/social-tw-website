@@ -116,7 +116,7 @@ describe('POST /post', function () {
         })
 
         expect(posts.length).equal(0)
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should post failed with wrong proof', async function () {
@@ -146,7 +146,7 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid proof')
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should post failed with wrong epoch', async function () {
@@ -192,7 +192,7 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid Epoch')
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should post failed with wrong state tree', async function () {
@@ -241,6 +241,6 @@ describe('POST /post', function () {
         })
 
         expect(res.error).equal('Invalid State Tree')
-        userState.sync.stop()
+        userState.stop()
     })
 })
