@@ -70,7 +70,7 @@ export class CommentService {
     }
 
     async deleteComment(
-        commentId: string,
+        transactionHash: string,
         publicSignals: (bigint | string)[],
         proof: SnarkProof,
         synchronizer: UnirepSocialSynchronizer,
@@ -78,12 +78,26 @@ export class CommentService {
     ) {
         const comment: Comment = await db.findOne('Comment', {
             where: {
-                status: 1,
-                commentId: commentId,
+                transactionHash,
             },
         })
         if (!comment) {
             throw new InternalError('Comment does not exist', 400)
+        }
+
+        if (!comment.commentId) {
+            console.log(
+                'comment does not have commentId, update deleted status only '
+            )
+            await db.update('Comment', {
+                where: {
+                    transactionHash,
+                },
+                update: {
+                    status: 2,
+                },
+            })
+            return
         }
 
         const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
@@ -97,7 +111,7 @@ export class CommentService {
             epochKeyLiteProof.publicSignals,
             epochKeyLiteProof.proof,
             comment.postId,
-            commentId,
+            comment.commentId,
             '',
         ])
 

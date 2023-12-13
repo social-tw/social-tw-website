@@ -33,6 +33,7 @@ describe('COMMENT /comment', function () {
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let unirepContract: Unirep
+    let transactionHash: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -134,6 +135,8 @@ describe('COMMENT /comment', function () {
             expect(r.status).equal(200)
             return r.json()
         })
+
+        transactionHash = result.transaction
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
@@ -269,7 +272,7 @@ describe('COMMENT /comment', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    commentId: 0,
+                    commentId: transactionHash,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
@@ -300,7 +303,7 @@ describe('COMMENT /comment', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    commentId: 0,
+                    commentId: transactionHash,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
