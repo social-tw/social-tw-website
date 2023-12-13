@@ -95,6 +95,12 @@ export class SocialUserstate extends UserState {
         const _attesterId = toDecString(attesterId)
         const _latestTransitionedEpoch = await this.latestTransitionedEpoch(_attesterId)
 
+        // check if first usted
+        if(_latestTransitionedEpoch == -1){
+            const data = await this.originGetData(toEpoch, attesterId); 
+            return data
+        }
+
         // check if not searching for provableData
         if(toEpoch && (toEpoch !== _latestTransitionedEpoch - 1)){
             const data = await this.originGetData(toEpoch, attesterId); 
@@ -112,11 +118,11 @@ export class SocialUserstate extends UserState {
                 _latestTransitionedEpoch,
                 v,
                 this.chainId
-            ).toString()
+            )
         )
 
-        const nullifier1Used = await this.sync.nullifierExist(nullifiers[0])
-        const nullifier2Used = await this.sync.nullifierExist(nullifiers[1])
+        const nullifier1Used = await this.sync.unirepContract.usedNullifiers(nullifiers[0])
+        const nullifier2Used = await this.sync.unirepContract.usedNullifiers(nullifiers[1])
 
         if(nullifier1Used || nullifier2Used){
             const data = await this.originGetData(undefined, attesterId)
