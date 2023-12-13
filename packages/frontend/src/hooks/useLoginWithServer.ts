@@ -1,32 +1,15 @@
-import { UserState } from '@unirep/core'
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import { useNavigate } from 'react-router-dom'
+import { useUser } from '../contexts/User'
+import { LocalStorageHelper } from '../utils/LocalStorageHelper'
 
-const useLoginWithServer = (
-    accessToken: string | null,
-    hashUserId: string | null,
-    signMsg: string | null,
-    navigate: (path: string) => void,
-    setErrorCode: (errorCode: keyof typeof LOGIN_ERROR_MESSAGES) => void,
-    setIsLogin: (param: any) => void,
-    createUserState: () => Promise<UserState>,
-) => {
+export function useLoginWithServer() {
+    const navigate = useNavigate()
+    const { createUserState, setIsLogin, setErrorCode } = useUser()
     const loginWithServer = async () => {
         try {
-            if (!hashUserId) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('hashUserId', hashUserId)
-            if (!signMsg) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('signature', signMsg)
-            if (!accessToken) {
-                throw new Error(LOGIN_ERROR_MESSAGES.MISSING_ELEMENT.code)
-            }
-            localStorage.setItem('token', accessToken)
             await createUserState()
             setIsLogin('success')
-            localStorage.removeItem('showLogin')
+            LocalStorageHelper.removeIsTwitterVerified()
             navigate('/')
         } catch (error: any) {
             setErrorCode(error.message)
@@ -34,5 +17,3 @@ const useLoginWithServer = (
     }
     return loginWithServer
 }
-
-export default useLoginWithServer
