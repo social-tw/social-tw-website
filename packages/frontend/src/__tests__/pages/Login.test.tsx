@@ -16,7 +16,7 @@ test('Login should render', () => {
             <UserProvider>
                 <Login />
             </UserProvider>
-        </MemoryRouter>
+        </MemoryRouter>,
     )
     // @ts-ignore
     expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()

@@ -7,7 +7,7 @@ export default {
     verifyProof: async (
         circuitName: string | Circuit,
         publicSignals: SnarkPublicSignals,
-        proof: SnarkProof
+        proof: SnarkProof,
     ) => {
         const url = new URL(`/build/${circuitName}.vkey.json`, KEY_SERVER)
         const vkey = await fetch(url.toString()).then((r) => r.json())
@@ -15,21 +15,21 @@ export default {
     },
     genProofAndPublicSignals: async (
         circuitName: string | Circuit,
-        inputs: any
+        inputs: any,
     ) => {
         const wasmUrl = new URL(`${circuitName}.wasm`, KEY_SERVER)
 
         const wasm = await fetch(wasmUrl.toString()).then((r) =>
-            r.arrayBuffer()
+            r.arrayBuffer(),
         )
         const zkeyUrl = new URL(`${circuitName}.zkey`, KEY_SERVER)
         const zkey = await fetch(zkeyUrl.toString()).then((r) =>
-            r.arrayBuffer()
+            r.arrayBuffer(),
         )
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(
             inputs,
             new Uint8Array(wasm),
-            new Uint8Array(zkey)
+            new Uint8Array(zkey),
         )
         return { proof, publicSignals }
     },

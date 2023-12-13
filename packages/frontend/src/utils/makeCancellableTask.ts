@@ -19,7 +19,7 @@ export interface CancellableTaskRunner {
 }
 
 export type CancellableTaskFunction = (
-    runner: CancellableTaskRunner
+    runner: CancellableTaskRunner,
 ) => PromiseFunction | Promise<unknown>
 
 export interface CancellableTaskReturn {
@@ -45,7 +45,7 @@ export class CannotCancelError extends Error {
 
 export default function makeCancellableTask(
     fn: CancellableTaskFunction,
-    options?: CancellableTaskOption
+    options?: CancellableTaskOption,
 ): CancellableTaskReturn {
     const { initialState, onCancellableChange, onCancel, onReset } =
         options ?? {}
