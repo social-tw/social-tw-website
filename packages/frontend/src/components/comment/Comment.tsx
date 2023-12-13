@@ -51,12 +51,12 @@ export default function Comment({
     const onRepublish = async () => {
         removeActionByCommentId(commentId)
         onOpenAnimation()
-        const proof = await genCommentProof(postId, content)
+        const { proof, epoch } = await genCommentProof(postId, content)
         onCloseAnimation()
-        await createCommnet(proof, postId, content)
+        await createCommnet(proof, postId, content, epoch)
     }
 
-    const onDelete = async (commentId: string, epoch: number) => {
+    const onDelete = async () => {
         setIsDeletingDialogOpen(false)
         onOpenAnimation()
         const proof = await genDeleteProof(commentId, epoch)
@@ -177,7 +177,7 @@ export default function Comment({
             <CommentDeleteDialog
                 open={isDeletingDialogOpen}
                 onClose={onCancelDelete}
-                onConfirm={onDelete}
+                onConfirm={() => onDelete()}
                 commentId={commentId}
                 epoch={epoch}
             />

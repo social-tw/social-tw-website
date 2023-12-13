@@ -27,7 +27,7 @@ export enum CommentStatus {
 export interface CommentInfo {
     commentId: string
     postId: string
-    epoch?: number
+    epoch: number
     epochKey?: string
     content: string
     publishedAt: number | string

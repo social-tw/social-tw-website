@@ -81,32 +81,32 @@ export default function useFetchComment(postId?: string) {
         return [...comments, ...localComments]
     }, [comments, failedActions, pendingActions])
 
-    const loadComments = async () => {
-        if (!postId) return
-
-        const comments = await fetchCommentsByPostId(postId)
-
-        const successfulComments = comments.map((comment) => {
-            const isMine = userState
-                ? checkCommentIsMine(comment, userState)
-                : false
-
-            return {
-                postId: postId,
-                commentId: comment.commentId,
-                epoch: comment.epoch,
-                epochKey: comment.epochKey,
-                content: comment.content,
-                publishedAt: comment.publishedAt,
-                status: CommentStatus.Success,
-                isMine: isMine,
-            }
-        })
-
-        setComments([...successfulComments, ...demoComments])
-    }
-
     useEffect(() => {
+        const loadComments = async () => {
+            if (!postId) return
+    
+            const comments = await fetchCommentsByPostId(postId)
+    
+            const successfulComments = comments.map((comment) => {
+                const isMine = userState
+                    ? checkCommentIsMine(comment, userState)
+                    : false
+    
+                return {
+                    postId: postId,
+                    commentId: comment.commentId,
+                    epoch: comment.epoch,
+                    epochKey: comment.epochKey,
+                    content: comment.content,
+                    publishedAt: comment.publishedAt,
+                    status: CommentStatus.Success,
+                    isMine: isMine,
+                }
+            })
+    
+            setComments([...successfulComments, ...demoComments])
+        }
+            
         loadComments()
     }, [userState])
 

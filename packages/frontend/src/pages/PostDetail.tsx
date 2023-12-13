@@ -65,9 +65,9 @@ export default function PostDetail() {
         setIsOpenCommnet(false)
         onOpenAnimation()
 
-        const proof = await genCommentProof(id, content)
+        const { proof, epoch } = await genCommentProof(id, content)
         onCloseAnimation()
-        await createCommnet(proof, id, content)
+        await createCommnet(proof, id, content, epoch)
     }
 
     useEffect(() => {

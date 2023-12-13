@@ -25,12 +25,12 @@ export interface CommentData {
     postId: string
     content: string
     epochKey?: string
-    epoch?: number
+    epoch: number
 }
 
 export interface DeleteCommentData {
     commentId: string
-    epoch?: number
+    epoch: number
 }
 
 export interface BaseAction<Type, Data> {
@@ -44,6 +44,7 @@ export interface BaseAction<Type, Data> {
 export type Action =
     | BaseAction<ActionType.Post, PostData>
     | BaseAction<ActionType.Comment, CommentData>
+    | BaseAction<ActionType.DeleteComment, DeleteCommentData>
 
 export interface ActionState {
     entities: Record<string, Action>
