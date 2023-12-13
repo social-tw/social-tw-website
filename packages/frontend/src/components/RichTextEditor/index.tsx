@@ -91,7 +91,7 @@ export default function RichTextEditor({
                             <div
                                 className={clsx(
                                     'absolute top-0 -z-10',
-                                    classes?.placeholder
+                                    classes?.placeholder,
                                 )}
                             >
                                 {placeholder}

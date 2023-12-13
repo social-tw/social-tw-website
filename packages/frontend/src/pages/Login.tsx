@@ -27,7 +27,7 @@ const Login: React.FC = () => {
             ? 'signup'
             : status === '2' || status === '3'
             ? 'login'
-            : ''
+            : '',
     )
     const [isShow, setIsShow] = useState<boolean>(false)
 
@@ -98,7 +98,7 @@ const Login: React.FC = () => {
             <div
                 className={clsx(
                     `z-20 flex flex-col w-11/12`,
-                    method !== '' ? 'mb-6' : 'h-full'
+                    method !== '' ? 'mb-6' : 'h-full',
                 )}
             >
                 <div className="flex flex-col gap-12">
@@ -106,7 +106,7 @@ const Login: React.FC = () => {
                         <div
                             className={clsx(
                                 'flex items-center flex-col justify-center',
-                                isShow ? 'pt-60' : 'pt-24'
+                                isShow ? 'pt-60' : 'pt-24',
                             )}
                         >
                             <motion.img
