@@ -8,7 +8,7 @@ import { deployContracts, startServer } from './environment'
 import { Server } from 'http'
 import { addActionCount } from '../src/utils/TransactionHelper'
 
-describe('My Account Page', function () {
+describe.only('My Account Page', function () {
     let snapshot: any
     let express: Server
     let postEpochKey = 'post-epoch-key'
@@ -51,5 +51,29 @@ describe('My Account Page', function () {
         })
 
         expect(posts.length).equal(1)
+    })
+
+    it('should fail if epks is empty', async function () {
+        const posts: any = await fetch(
+            `${HTTP_SERVER}/api/my-account/posts`,
+        ).then((r) => {
+            expect(r.status).equal(400)
+        })
+    })
+
+    it('should fail if sortKey is not allowed', async function () {
+        const posts: any = await fetch(
+            `${HTTP_SERVER}/api/my-account/posts?sortKey=foo`,
+        ).then((r) => {
+            expect(r.status).equal(400)
+        })
+    })
+
+    it('should fail if direction is not allowed', async function () {
+        const posts: any = await fetch(
+            `${HTTP_SERVER}/api/my-account/posts?direction=foo`,
+        ).then((r) => {
+            expect(r.status).equal(400)
+        })
     })
 })

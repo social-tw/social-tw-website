@@ -22,7 +22,7 @@ export default (app: Express, db: DB) => {
         if (parsedEpks.length === 0) {
             throw new InternalError(
                 'epks must be specified and should be a non-empty string',
-                40,
+                400,
             )
         }
 
