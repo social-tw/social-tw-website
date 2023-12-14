@@ -66,6 +66,8 @@ export default class UserState {
     private _id: Identity
     private _sync: Synchronizer
     private _chainId: number
+    private _db: DB;
+    private initDataComplete = false
 
     /**
      * The [Semaphore](https://semaphore.pse.dev/) identity commitment of the user.
@@ -104,8 +106,9 @@ export default class UserState {
 
     constructor(config: {
         synchronizer?: Synchronizer
+        userdb?: DB
         db?: DB
-        attesterId?: bigint | bigint[]
+        attesterId: bigint | bigint[]
         unirepAddress?: string
         provider?: ethers.providers.Provider
         id: Identity
@@ -119,6 +122,7 @@ export default class UserState {
             provider,
             prover,
             db,
+            userdb
         } = config
         if (!id) {
             throw new Error(
@@ -130,6 +134,9 @@ export default class UserState {
                 '@unirep/core:UserState: prover must be supplied as an argument when initialized with a sync'
             )
         }
+
+        this._db = userdb ?? new MemoryConnector(constructSchema(schema))
+
         if (synchronizer) {
             this._sync = synchronizer
         } else {
@@ -148,6 +155,28 @@ export default class UserState {
         this._id = id
         this._prover = prover
         this._chainId = -1 // need to be setup in async function
+        this._initData(attesterId).then(() => (this.initDataComplete = true))
+    }
+
+    _initData = async (attesterId: bigint | bigint[]) => {     
+        if (Array.isArray(attesterId)) {
+            await this._db.create('Userstate', attesterId.map(id => ({
+                attesterId: toDecString(id),
+                latestTransitionedEpoch: -1,
+                latestTransitionedIndex: -1,
+                provableData: Array(this.sync.settings.fieldCount).fill(BigInt(0)),
+                latestData: Array(this.sync.settings.fieldCount).fill(BigInt(0))
+            })))
+        } else {
+            const _attesterId = toDecString(attesterId)
+            await this._db.create('Userstate', {
+                attesterId: _attesterId,
+                latestTransitionedEpoch: -1,
+                latestTransitionedIndex: -1,
+                provableData: Array(this.sync.settings.fieldCount).fill(BigInt(0)),
+                latestData: Array(this.sync.settings.fieldCount).fill(BigInt(0))
+            })
+        }
     }
 
     /**
@@ -202,46 +231,12 @@ export default class UserState {
     async latestTransitionedEpoch(
         attesterId: bigint | string = this.sync.attesterId
     ): Promise<number> {
-        this._checkSync()
-        const _attesterId = toDecString(attesterId)
-        this.sync.checkAttesterId(attesterId)
-        const currentEpoch = await this.sync.loadCurrentEpoch(_attesterId)
-        let latestTransitionedEpoch = -1
-        for (let x = currentEpoch; x >= 0; x--) {
-            const nullifiers = [
-                0,
-                this.sync.settings.numEpochKeyNoncePerEpoch,
-            ].map((v) =>
-                genEpochKey(
-                    this.id.secret,
-                    _attesterId,
-                    x,
-                    v,
-                    this.chainId
-                ).toString()
-            )
-            const n = await this.sync.db.findOne('Nullifier', {
-                where: {
-                    nullifier: nullifiers,
-                },
-            })
-            if (n) {
-                latestTransitionedEpoch = n.epoch
-                break
+        const foundData = await this._db.findOne('Userstate', {
+            where: {
+                attesterId
             }
-        }
-        if (latestTransitionedEpoch === -1) {
-            const signup = await this.sync.db.findOne('UserSignUp', {
-                where: {
-                    commitment: this.commitment.toString(),
-                    attesterId: _attesterId,
-                },
-            })
-            if (!signup)
-                throw new Error('@unirep/core:UserState user is not signed up')
-            return signup.epoch
-        }
-        return latestTransitionedEpoch
+        })
+        return foundData.latestTransitionedEpoch
     }
 
     /**
@@ -362,8 +357,49 @@ export default class UserState {
         toEpoch?: number,
         attesterId: bigint | string = this.sync.attesterId
     ): Promise<bigint[]> => {
-        const data = Array(this.sync.settings.fieldCount).fill(BigInt(0))
+
         const _attesterId = toDecString(attesterId)
+        const _latestTransitionedEpoch = await this.latestTransitionedEpoch(_attesterId)
+
+        const foundData = await this._db.findOne('Userstate', {
+            where: {
+                attesterId: _attesterId
+            }
+        })
+        // if(!foundData){
+        //     throw new Error(
+        //         '@unirep/core: UserState data has not initialized'
+        //     )
+        // }
+        if(_latestTransitionedEpoch !== -1){
+            return foundData.data
+        }
+        if(toEpoch && (toEpoch == _latestTransitionedEpoch - 1)){
+            return foundData.data
+        }
+
+        //check if usted in different device
+        const nullifiers = [
+            0,
+            this.sync.settings.numEpochKeyNoncePerEpoch,
+        ].map((v) =>
+            genEpochKey(
+                this.id.secret,
+                _attesterId,
+                _latestTransitionedEpoch,
+                v,
+                this.chainId
+            )
+        )
+        const nullifier1Used = await this.sync.unirepContract.usedNullifiers(nullifiers[0])
+        const nullifier2Used = await this.sync.unirepContract.usedNullifiers(nullifiers[1])
+
+        if(!(nullifier1Used || nullifier2Used)){
+            return foundData.data
+        }
+
+        // others
+        const data = Array(this.sync.settings.fieldCount).fill(BigInt(0))
         const orClauses = [] as any[]
         const _toEpoch =
             toEpoch ?? (await this.latestTransitionedEpoch(_attesterId))
@@ -484,8 +520,12 @@ export default class UserState {
     public async getProvableData(
         attesterId: bigint | string = this.sync.attesterId
     ): Promise<bigint[]> {
-        const epoch = await this.latestTransitionedEpoch(attesterId)
-        return this.getData(epoch - 1, attesterId)
+        const foundData = await this._db.findOne('Userstate', {
+            where: {
+                attesterId
+            }
+        })
+        return foundData.provableData
     }
 
     /**
@@ -953,6 +993,51 @@ export default class UserState {
             results.proof,
             this.prover
         )
+    }
+
+    public async updateUserData (
+        attesterId: bigint | string = this.sync.attesterId,
+    ) {
+        const _attesterId = toDecString(attesterId)
+        const foundData = await this._db.findOne('Userstate', {
+            where: {
+                _attesterId
+            }
+        })
+        if (!foundData) {
+            throw new Error('User state not found for attesterId: ' + _attesterId);
+        }
+
+        // calc new provableData
+        const oldEpoch = foundData.latestTransitionedEpoch
+        const provableData = foundData.provableData
+        const changes =  await this.sync.db.findMany('Attestation', {
+            where: {
+                attesterId,
+                epoch: oldEpoch
+            }
+        })
+        const newProvableData: bigint[] = new Array(5).fill(0)
+        for (const [i, _change] of changes.entries()) {
+            newProvableData[i] = provableData[i] + Number(_change.change);
+        }
+
+        const latestTransitionedIndex = await super.latestStateTreeLeafIndex()
+        const latestTransitionedEpoch = await this.sync.loadCurrentEpoch();
+
+        // updata new data
+        await this._db.update('Userstate', {
+            where: {
+                _attesterId
+            },
+            update: {
+                latestTransitionedIndex,
+                latestTransitionedEpoch,
+                provableData: newProvableData
+            }
+        })
+
+        console.log('User db updated successfully.');
     }
 }
 
