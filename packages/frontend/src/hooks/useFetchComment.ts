@@ -17,6 +17,7 @@ const demoComments = [
         epoch: 100,
         epochKey: 'epochKey-2',
         content: '台灣der小巷就是讚啦！',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
@@ -27,6 +28,7 @@ const demoComments = [
         epoch: 100,
         epochKey: 'epochKey-2',
         content: '請問這是哪裡？',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
@@ -37,6 +39,7 @@ const demoComments = [
         epoch: 100,
         epochKey: 'epochKey-2',
         content: '這裡的芋圓推推推！',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
@@ -86,6 +89,7 @@ export default function useFetchComment(postId?: string) {
             if (!postId) return
     
             const comments = await fetchCommentsByPostId(postId)
+            console.log(comments)
     
             const successfulComments = comments.map((comment) => {
                 const isMine = userState
@@ -99,6 +103,7 @@ export default function useFetchComment(postId?: string) {
                     epochKey: comment.epochKey,
                     content: comment.content,
                     publishedAt: comment.publishedAt,
+                    transactionHash: comment.transactionHash,
                     status: CommentStatus.Success,
                     isMine: isMine,
                 }

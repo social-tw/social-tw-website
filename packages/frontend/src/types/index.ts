@@ -13,6 +13,7 @@ export interface CommnetDataFromApi {
     epochKey: string
     epoch: number
     content: string
+    transactionHash: string,
     publishedAt: number | string
 }
 
@@ -30,6 +31,7 @@ export interface CommentInfo {
     epoch: number
     epochKey?: string
     content: string
+    transactionHash: string
     publishedAt: number | string
     status: CommentStatus
     isMine: boolean

@@ -56,7 +56,8 @@ export default function useCreateComment() {
             commentId: 'notGetYet',
             postId: postId,
             content: content,
-            epoch
+            epoch,
+            transactionHash: ""
         }
         const actionId = addAction(ActionType.Comment, commentData)
 
@@ -66,7 +67,7 @@ export default function useCreateComment() {
             await userState.waitForSync()
             await loadData(userState)
             // TODO: fix the commentId redirection. Discuss with backend
-            succeedActionById(actionId)
+            succeedActionById(actionId, { transactionHash: transaction })
         } catch (error) {
             console.error(error)
             failActionById(actionId)

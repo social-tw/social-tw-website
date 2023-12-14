@@ -31,6 +31,7 @@ export default function Comment({
     epoch,
     epochKey = '',
     content = '',
+    transactionHash = '',
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
@@ -59,9 +60,9 @@ export default function Comment({
     const onDelete = async () => {
         setIsDeletingDialogOpen(false)
         onOpenAnimation()
-        const proof = await genDeleteProof(commentId, epoch)
+        const proof = await genDeleteProof(epoch, transactionHash)
         onCloseAnimation()
-        await deleteComment(proof, commentId, epoch)
+        await deleteComment(proof, epoch, transactionHash)
     }
 
     const onCancelDelete = () => {

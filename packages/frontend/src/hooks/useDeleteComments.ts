@@ -25,7 +25,7 @@ export default function useDeleteComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
     const [isDeleted, setIsDeleted] = useState(false)
 
-    const genProof = async (commentId: string, epoch: number) => {
+    const genProof = async (epoch: number, transactionHash: string) => {
         if (!userState) throw new Error('user state not initialized')
 
         const latestTransitionedEpoch =
@@ -40,7 +40,7 @@ export default function useDeleteComment() {
         })
 
         const proof = stringifyBigInts({
-            commentId,
+            transactionHash,
             publicSignals: EpochKeyLiteProof.publicSignals,
             proof: EpochKeyLiteProof.proof,
         })
@@ -48,11 +48,11 @@ export default function useDeleteComment() {
         return proof
     }
 
-    const remove = async (proof: string, commentId: string, epoch: number) => {
+    const remove = async (proof: string, epoch: number, transactionHash: string) => {
         if (!userState) throw new Error('user state not initialized')
         const actionId = addAction(ActionType.DeleteComment, {
-            commentId,
             epoch,
+            transactionHash,
         })
 
         try {

@@ -26,11 +26,13 @@ export interface CommentData {
     content: string
     epochKey?: string
     epoch: number
+    transactionHash: string
 }
 
 export interface DeleteCommentData {
-    commentId: string
+    commentId?: string
     epoch: number
+    transactionHash: string
 }
 
 export interface BaseAction<Type, Data> {
