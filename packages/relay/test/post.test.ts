@@ -19,9 +19,10 @@ import { UnirepSocialSynchronizer } from '../src/synchornizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
-import { VoteAction } from '../src/types'
-import { UPDATE_POST_ORDER_INTERVAL } from '../src/config'
 import { SQLiteConnector } from 'anondb/node'
+import { data } from './mocks/posts'
+import { PostService } from '../src/services/PostService'
+import { Post } from '../src/types/Post'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -31,17 +32,19 @@ describe('POST /post', function () {
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let sqlite: SQLiteConnector
+    let pService: PostService
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, server } =
+        const { db, prover, provider, synchronizer, server, postService } =
             await startServer(unirep, app)
         express = server
         sync = synchronizer
         sqlite = db as SQLiteConnector
+        pService = postService
 
         const userStateFactory = new UserStateFactory(
             db,
@@ -240,123 +243,77 @@ describe('POST /post', function () {
     })
 
     it('should update post order periodically', async function () {
-        // add 9 posts
-        for (let i = 1; i <= 9; i++) {
-            const testContent = `test content #${i}`
-            const epochKeyProof = await userState.genEpochKeyProof({
-                nonce: 0,
-            })
+        const getRandom = () => {
+            return Math.floor(Math.random() * 1000)
+        }
 
-            const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
+        const DAY_IN_MILLISECOND = 86400000
+        const HOUR_IN_MILLISECOND = 3600000
+
+        // insert 9 mock posts into
+        const mockPosts = data
+        mockPosts.unshift(
+            await sqlite.findOne('Post', { where: { postId: '0' } })
+        )
+        for (let i = 0; i < mockPosts.length; i++) {
+            const mockPost = mockPosts[i]
+            // make first 5 posts are posted within 2 days
+            if (i > 0 && i < 5) {
+                mockPost.publishedAt = (
+                    +new Date() -
+                    DAY_IN_MILLISECOND -
+                    HOUR_IN_MILLISECOND * i
+                ).toString()
+            } else {
+                mockPost.publishedAt = (
+                    +new Date() -
+                    DAY_IN_MILLISECOND * 3 -
+                    HOUR_IN_MILLISECOND * i
+                ).toString()
+            }
+            // let commentCount, upCount, downCount of each post
+            // have value range from 0 ~ 999
+            mockPost.commentCount = getRandom()
+            mockPost.upCount = getRandom()
+            mockPost.downCount = getRandom()
+
+            await sqlite.upsert('Post', {
+                where: { postId: mockPost.postId },
+                create: {
+                    ...mockPost,
                 },
-                body: JSON.stringify(
-                    stringifyBigInts({
-                        content: testContent,
-                        publicSignals: epochKeyProof.publicSignals,
-                        proof: epochKeyProof.proof,
-                    })
-                ),
-            }).then((r) => r.json())
-
-            await ethers.provider.waitForTransaction(res.transaction)
-        }
-        await sync.waitForSync()
-
-        let posts: any = await sqlite.db.all('SELECT * FROM Post')
-
-        // add upvote to posts ramdonly
-        for (let i = 1; i <= 10; i++) {
-            const epochKeyProof = await userState.genEpochKeyProof({
-                nonce: 0,
-            })
-
-            const idx = Math.floor((Math.random() * 100) % 10)
-
-            await fetch(`${HTTP_SERVER}/api/vote`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
+                update: {
+                    upCount: mockPost.upCount,
+                    downCount: mockPost.downCount,
+                    commentCount: mockPost.commentCount,
                 },
-                body: JSON.stringify(
-                    stringifyBigInts({
-                        _id: posts[idx]._id,
-                        voteAction: VoteAction.UPVOTE,
-                        publicSignals: epochKeyProof.publicSignals,
-                        proof: epochKeyProof.proof,
-                    })
-                ),
+                constraintKey: 'transactionHash',
             })
         }
 
-        // add downvote to posts randomly
-        for (let i = 1; i <= 10; i++) {
-            const epochKeyProof = await userState.genEpochKeyProof({
-                nonce: 0,
-            })
+        await pService.updateOrder(sqlite)
 
-            const idx = Math.floor((Math.random() * 100) % 10)
-
-            await fetch(`${HTTP_SERVER}/api/vote`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(
-                    stringifyBigInts({
-                        _id: posts[idx]._id,
-                        voteAction: VoteAction.DOWNVOTE,
-                        publicSignals: epochKeyProof.publicSignals,
-                        proof: epochKeyProof.proof,
-                    })
-                ),
-            })
-        }
-
-        // add comment to posts randomly
-        for (let i = 1; i <= 10; i++) {
-            const testContent = `test comment #${i}`
-            const epochKeyProof = await userState.genEpochKeyProof({
-                nonce: 0,
-            })
-
-            const postId = Math.floor((Math.random() * 100) % 10)
-
-            const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(
-                    stringifyBigInts({
-                        content: testContent,
-                        postId: postId,
-                        publicSignals: epochKeyProof.publicSignals,
-                        proof: epochKeyProof.proof,
-                    })
-                ),
-            }).then((r) => r.json())
-
-            await ethers.provider.waitForTransaction(res.transaction)
-        }
-        await sync.waitForSync()
-
-        const sleep = () => {
-            return new Promise((resolve) => {
-                setTimeout(resolve, UPDATE_POST_ORDER_INTERVAL)
-            })
-        }
-        await sleep()
-
-        posts = await fetch(`${HTTP_SERVER}/api/post?offset=1`, {
+        const posts: [] = await fetch(`${HTTP_SERVER}/api/post?page=1`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',
             },
-        }).then((res) => res.json())
+        }).then(async (res) => {
+            expect(res.status).equal(200)
+            const data: any = await res.json()
+            return data as []
+        })
 
-        console.log(posts)
+        for (let i = 0; i < posts.length; i++) {
+            const post: any = posts[i]
+            if (i < 5) {
+                // posts less than 2 days will be grouped on filter 1
+                expect(post.FILTER).equal(1)
+            } else {
+                expect(post.FILTER).equal(2)
+            }
+            // post with higher score will have smaller number
+            expect(post.OD).equal((i % 5) + 1)
+        }
     })
 })

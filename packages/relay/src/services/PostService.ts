@@ -79,20 +79,20 @@ export class PostService {
     }
 
     // returns the LOAD_POST_COUNT posts of the given page
-    // offset starting from 1 for page 1
-    // page = (1 - 1) * LOAD_POST_COUNT = 0 ... start index
+    // page 1
+    // start = (1 - 1) * LOAD_POST_COUNT = 0 ... start index
     // end = page + LOAD_POST_COUNT ... end index
     // slice(page, end) ... the end element will be excluded
     async fetchPosts(
         query: string | undefined,
         epks: string[] | undefined,
-        offset: number,
+        page: number,
         db: DB
     ): Promise<Post[] | null> {
         if (!query) {
             // query the posts from the cache with given pagination
-            const page = (offset - 1) * LOAD_POST_COUNT
-            const posts = this.cache.slice(page, page + LOAD_POST_COUNT)
+            const start = (page - 1) * LOAD_POST_COUNT
+            const posts = this.cache.slice(start, start + LOAD_POST_COUNT)
             return posts
         }
 

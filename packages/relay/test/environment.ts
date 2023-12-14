@@ -62,8 +62,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         next()
     })
 
-    await postService.start(db)
-
     console.log('Starting socket manager...')
     new SocketManager(server)
     console.log('Socket manager started')
@@ -79,5 +77,13 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         route(app, synchronizer.db, synchronizer, helia)
     }
 
-    return { db, prover, provider, TransactionManager, synchronizer, server }
+    return {
+        db,
+        prover,
+        provider,
+        TransactionManager,
+        synchronizer,
+        server,
+        postService,
+    }
 }
