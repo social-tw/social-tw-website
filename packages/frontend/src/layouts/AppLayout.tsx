@@ -212,7 +212,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/"
@@ -226,7 +226,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/explore"
@@ -242,7 +242,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/nofitication"
@@ -258,7 +258,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/profile"

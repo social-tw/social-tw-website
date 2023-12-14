@@ -1,8 +1,7 @@
-import { RiLogoutBoxRLine } from 'react-icons/ri'
+import { RiShieldStarLine } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
 import { CyanButton } from '../../../components/buttons/CyanButton'
 
-// TODO: update the icon
 export const ReputationButton = () => {
     const navigate = useNavigate()
     const handleLogout = () => {
@@ -13,7 +12,7 @@ export const ReputationButton = () => {
             isLoading={false}
             onClick={handleLogout}
             title="信譽分數"
-            icon={RiLogoutBoxRLine}
+            icon={RiShieldStarLine}
             start={true}
             text="lg"
             iconSize={24}

@@ -1,8 +1,7 @@
-import { RiLogoutBoxRLine } from 'react-icons/ri'
+import { RiHourglassFill } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
 import { CyanButton } from '../../../components/buttons/CyanButton'
 
-// TODO: update the icon
 export const HistoryButton = () => {
     const navigate = useNavigate()
     const handleLogout = () => {
@@ -13,7 +12,7 @@ export const HistoryButton = () => {
             isLoading={false}
             onClick={handleLogout}
             title="歷史紀錄"
-            icon={RiLogoutBoxRLine}
+            icon={RiHourglassFill}
             start={true}
             text="lg"
             iconSize={24}

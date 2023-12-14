@@ -1,5 +1,5 @@
 export const Score = () => {
-    const myScore = -1
+    const myScore = 0
     const myScoreStyle = getScoreStyle(myScore)
     const hint = getHintByScore(myScore)
     return (
