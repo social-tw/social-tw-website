@@ -45,7 +45,7 @@ export const CyanButton: React.FC<CyanButtonProps> = ({
                 ease-in-out
                 `,
                 Icon ? 'flex-row gap-2' : 'flex-col',
-                start ? 'justify-start' : 'justify-center'
+                start ? 'justify-start' : 'justify-center',
             )}
         >
             {Icon && <Icon size={iconSize} />}
@@ -57,7 +57,7 @@ export const CyanButton: React.FC<CyanButtonProps> = ({
                     text-${text} 
                     tracking-wider
                     `,
-                    Icon && 'mt-1'
+                    Icon && 'mt-1',
                 )}
             >
                 {title}
