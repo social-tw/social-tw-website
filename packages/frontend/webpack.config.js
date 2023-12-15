@@ -37,6 +37,9 @@ module.exports = (env) => ({
             readline: false,
             constants: false,
         },
+        alias: {
+            '@': path.resolve(__dirname, 'src/')
+        }
     },
     module: {
         rules: [

@@ -6,5 +6,6 @@ module.exports = {
         '@testing-library/react':
             '<rootDir>/node_modules/@testing-library/react',
         '@types/jest': 'jest',
+        '^@/(.*)$': '<rootDir>/src/$1',
     },
 }
