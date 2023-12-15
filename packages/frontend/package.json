@@ -15,7 +15,7 @@
         "test:playwright": "yarn playwright test",
         "test:e2e": "sh ./scripts/start-test-environment.sh && yarn test:playwright",
         "test": "CI=true yarn test:dom",
-        "test:dom": "react-scripts test",
+        "test:dom": "react-app-rewired test",
         "test:domwatch": "react-scripts test --watchAll --coverage"
     },
     "dependencies": {
@@ -85,6 +85,7 @@
         "postcss": "^8.4.24",
         "postcss-loader": "^7.3.3",
         "react": "^18.2.0",
+        "react-app-rewired": "^2.2.1",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.4.2",
         "snarkjs": "^0.5.0",
