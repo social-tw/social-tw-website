@@ -16,7 +16,10 @@ import { InternalLogin } from './pages/Login/InternalLogin'
 import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
 import PostList from './pages/PostList'
-import Profile from './pages/Profile'
+import { History } from './pages/Profile/History'
+import Profile from './pages/Profile/Profile'
+import ProfileLayout from './pages/Profile/ProfileLayout'
+import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
@@ -77,9 +80,23 @@ const router = createBrowserRouter([
                         path: 'profile',
                         element: (
                             <ProtectedRoute>
-                                <Profile />
+                                <ProfileLayout />
                             </ProtectedRoute>
                         ),
+                        children: [
+                            {
+                                path: '',
+                                element: <Profile />,
+                            },
+                            {
+                                path: 'reputation',
+                                element: <Reputation />,
+                            },
+                            {
+                                path: 'history',
+                                element: <History />,
+                            },
+                        ],
                     },
                 ],
             },
