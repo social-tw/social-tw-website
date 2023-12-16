@@ -131,7 +131,7 @@ export const useProfileHistory = create<
                         fetchPostsByEpochKeys({
                             epochKeys: epochKeyChunk,
                             direction: Directions.Asc,
-                            sortKey: SortKeys.PublishAt,
+                            sortKey: SortKeys.PublishedAt,
                         }),
                     ),
                 )

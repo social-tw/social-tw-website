@@ -4,7 +4,7 @@ export enum Directions {
 }
 
 export enum SortKeys {
-    PublishAt = 'publishAt',
+    PublishedAt = 'publishedAt',
     VoteSum = 'voteSum',
 }
 
