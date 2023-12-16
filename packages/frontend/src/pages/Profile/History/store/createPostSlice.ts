@@ -45,7 +45,7 @@ export const createPostSlice: StatePostSlice = (set) => ({
                 ),
             )
             const batchedPosts = batchedRawPosts.map(
-                ProfileHistoryStoreParser.parseRelaySourcePostsToPosts,
+                ProfileHistoryStoreParser.parseRelayRawPostsToPosts,
             )
             set((state) => {
                 state.posts.data = batchedPosts.flat(2)

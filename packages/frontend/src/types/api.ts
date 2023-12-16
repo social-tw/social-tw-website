@@ -9,16 +9,16 @@ export enum SortKeys {
 }
 
 export interface FetchPostsByEpochKeysParams {
-    epochKeys: BigInt[]
+    epochKeys: bigint[]
     direction: Directions
     sortKey: SortKeys
 }
 
 export interface RelayRawPost {
-    date: string
+    publishedAt: string
     content: string
     epochKey: string
-    url: string
+    _id: string
 }
 
 export type FetchPostsByEpochKeysResponse = RelayRawPost[]

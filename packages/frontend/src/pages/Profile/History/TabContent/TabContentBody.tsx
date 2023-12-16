@@ -1,5 +1,7 @@
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
+
+import { Link } from 'react-router-dom'
 import { Post } from '../DTO/Post'
 
 interface TabContentBodyProps {
@@ -27,7 +29,7 @@ interface CellTextProps {
 
 interface CellLinkProps {
     content: string
-    url?: string
+    url: string
 }
 
 export function TabContentBody({
@@ -90,7 +92,7 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
         <div style={{ ...style, overflow: 'hidden', paddingRight: '20px' }}>
             {type === 'text' && <BodyCellText content={data.content} />}
             {type === 'link' && (
-                <BodyCellLink content={data.content} url={data.url} />
+                <BodyCellLink content={data.content} url={data.url || ''} />
             )}
         </div>
     )
@@ -106,9 +108,9 @@ function BodyCellText({ content }: CellTextProps) {
 
 function BodyCellLink({ content, url }: CellLinkProps) {
     return (
-        <a href={url} target="_blank" className={`text-[#2F9CAF] underline`}>
+        <Link to={url} className={`text-[#2F9CAF] underline`}>
             {content}
-        </a>
+        </Link>
     )
 }
 
