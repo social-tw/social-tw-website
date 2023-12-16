@@ -1,7 +1,7 @@
 import {
-    useProfileHistory,
     useProfileHistoryActiveTab,
-} from './useProfileHistoryStore'
+    useProfileHistoryStore,
+} from './store/useProfileHistoryStore'
 
 interface TabButtonProps {
     onClick: () => void
@@ -21,7 +21,7 @@ export const TabHeader = () => {
 
 function PostTabButton() {
     const { isPostActive } = useProfileHistoryActiveTab()
-    const setActiveTabToPost = useProfileHistory(
+    const setActiveTabToPost = useProfileHistoryStore(
         (state) => state.setActiveTabToPost,
     )
     return (
@@ -35,7 +35,7 @@ function PostTabButton() {
 
 function CommentTabButton() {
     const { isCommentActive } = useProfileHistoryActiveTab()
-    const setActiveTabToComment = useProfileHistory(
+    const setActiveTabToComment = useProfileHistoryStore(
         (state) => state.setActiveTabToComment,
     )
     return (
@@ -49,7 +49,7 @@ function CommentTabButton() {
 
 function VoteTabButton() {
     const { isVoteActive } = useProfileHistoryActiveTab()
-    const setActiveTabToVote = useProfileHistory(
+    const setActiveTabToVote = useProfileHistoryStore(
         (state) => state.setActiveTabToVote,
     )
     return (

@@ -1,10 +1,10 @@
 import {
-    useProfileHistory,
     useProfileHistoryActiveTab,
     useProfileHistoryCommentActiveFilter,
     useProfileHistoryPostActiveFilter,
+    useProfileHistoryStore,
     useProfileHistoryVoteActiveFilter,
-} from './useProfileHistoryStore'
+} from './store/useProfileHistoryStore'
 
 interface FilterButtonProps {
     onClick: () => void
@@ -30,13 +30,13 @@ function PostFilter() {
         isFilterOldestActive,
         isFilterPopularityActive,
     } = useProfileHistoryPostActiveFilter()
-    const setPostActiveFilterToLatest = useProfileHistory(
+    const setPostActiveFilterToLatest = useProfileHistoryStore(
         (state) => state.setPostActiveFilterToLatest,
     )
-    const setPostActiveFilterToOldest = useProfileHistory(
+    const setPostActiveFilterToOldest = useProfileHistoryStore(
         (state) => state.setPostActiveFilterToOldest,
     )
-    const setPostActiveFilterToPopularity = useProfileHistory(
+    const setPostActiveFilterToPopularity = useProfileHistoryStore(
         (state) => state.setPostActiveFilterToPopularity,
     )
     return (
@@ -66,13 +66,13 @@ function CommentFilter() {
         isFilterOldestActive,
         isFilterPopularityActive,
     } = useProfileHistoryCommentActiveFilter()
-    const setCommentActiveFilterToLatest = useProfileHistory(
+    const setCommentActiveFilterToLatest = useProfileHistoryStore(
         (state) => state.setCommentActiveFilterToLatest,
     )
-    const setCommentActiveFilterToOldest = useProfileHistory(
+    const setCommentActiveFilterToOldest = useProfileHistoryStore(
         (state) => state.setCommentActiveFilterToOldest,
     )
-    const setCommentActiveFilterToPopularity = useProfileHistory(
+    const setCommentActiveFilterToPopularity = useProfileHistoryStore(
         (state) => state.setCommentActiveFilterToPopularity,
     )
     return (
@@ -99,10 +99,10 @@ function CommentFilter() {
 function VoteFilter() {
     const { isFilterLatestActive, isFilterOldestActive } =
         useProfileHistoryVoteActiveFilter()
-    const setVoteActiveFilterToLatest = useProfileHistory(
+    const setVoteActiveFilterToLatest = useProfileHistoryStore(
         (state) => state.setVoteActiveFilterToLatest,
     )
-    const setVoteActiveFilterToOldest = useProfileHistory(
+    const setVoteActiveFilterToOldest = useProfileHistoryStore(
         (state) => state.setVoteActiveFilterToOldest,
     )
     return (

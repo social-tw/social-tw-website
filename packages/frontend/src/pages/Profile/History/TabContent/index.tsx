@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { useUser } from '../../../../contexts/User'
 import {
-    useProfileHistory,
     useProfileHistoryActiveTab,
-} from '../useProfileHistoryStore'
+    useProfileHistoryStore,
+} from '../store/useProfileHistoryStore'
 import { TabContentBody, parsePostsToBodyData } from './TabContentBody'
 import {
     TabContentHeader,
@@ -25,7 +25,7 @@ export const TabContent = () => {
 }
 
 function PostTabContent() {
-    const { isPostsFetching, isPostsInit, posts } = useProfileHistory(
+    const { isPostsFetching, isPostsInit, posts } = useProfileHistoryStore(
         (state) => ({
             isPostsFetching: state.posts.isFetching,
             isPostsInit: state.posts.isInit,
@@ -71,7 +71,7 @@ function VoteTabContent() {
 
 function useInitPostTabContent() {
     const { userState } = useUser()
-    const { isPostsInit, fetchPosts } = useProfileHistory((state) => ({
+    const { isPostsInit, fetchPosts } = useProfileHistoryStore((state) => ({
         isPostsInit: state.posts.isInit,
         fetchPosts: state.fetchPosts,
     }))
