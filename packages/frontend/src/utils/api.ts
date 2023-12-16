@@ -1,7 +1,9 @@
 import { SERVER } from '../config'
 import {
+    Directions,
     FetchPostsByEpochKeysParams,
     FetchPostsByEpochKeysResponse,
+    SortKeys,
 } from '../types/api'
 
 export async function fetchRelayConfig() {
@@ -16,10 +18,10 @@ export async function fetchLogin() {
 
 export async function fetchPostsByEpochKeys({
     epochKeys,
-    direction,
-    sortKey,
 }: FetchPostsByEpochKeysParams): Promise<FetchPostsByEpochKeysResponse> {
     const epks = epochKeys.map((key) => key.toString()).join('_')
+    const direction = Directions.Asc
+    const sortKey = SortKeys.PublishedAt
     const res = await fetch(
         `${SERVER}/api/my-account/posts?epks=${epks}&direction=${direction}&sortKey=${sortKey}`,
     )

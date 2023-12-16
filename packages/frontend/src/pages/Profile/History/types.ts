@@ -11,9 +11,9 @@ export enum ActiveTab {
     Vote = 'VOTE',
 }
 export enum ActiveFilter {
-    Latest = 'LATEST',
-    Oldest = 'OLDEST',
-    Popularity = 'POPULARITY',
+    DateAsc = 'DATE_ASC',
+    DateDesc = 'DATE_DESC',
+    PopularityAsc = 'POPULARITY_ASC',
 }
 
 export type ProfileHistoryStore = TabSlice &
@@ -63,10 +63,10 @@ interface PostSlice {
         isInit: boolean
         data: Post[]
     }
-    setPostActiveFilterToLatest: () => void
-    setPostActiveFilterToOldest: () => void
-    setPostActiveFilterToPopularity: () => void
-    fetchPosts: (userState: UserState) => Promise<void>
+    setPostActiveFilterToDateAsc: () => void
+    setPostActiveFilterToDateDesc: () => void
+    setPostActiveFilterToPopularityAsc: () => void
+    invokeInitHistoryPostsFlow: (userState: UserState) => Promise<void>
 }
 
 interface CommentSlice {
@@ -81,7 +81,7 @@ interface CommentSlice {
 
 interface VoteSlice {
     votes: {
-        activeFilter: Omit<ActiveFilter, ActiveFilter.Popularity>
+        activeFilter: Omit<ActiveFilter, ActiveFilter.PopularityAsc>
         data: Vote[]
     }
     setVoteActiveFilterToLatest: () => void

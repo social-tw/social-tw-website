@@ -30,9 +30,10 @@ export function useProfileHistoryPostActiveFilter() {
         (state) => state.posts.activeFilter,
     )
     return {
-        isFilterLatestActive: postActiveFilter === ActiveFilter.Latest,
-        isFilterOldestActive: postActiveFilter === ActiveFilter.Oldest,
-        isFilterPopularityActive: postActiveFilter === ActiveFilter.Popularity,
+        isFilterDateAscActive: postActiveFilter === ActiveFilter.DateAsc,
+        isFilterDateDescActive: postActiveFilter === ActiveFilter.DateDesc,
+        isFilterPopularityAscActive:
+            postActiveFilter === ActiveFilter.PopularityAsc,
     }
 }
 
@@ -41,10 +42,10 @@ export function useProfileHistoryCommentActiveFilter() {
         (state) => state.comments.activeFilter,
     )
     return {
-        isFilterLatestActive: commentActiveFilter === ActiveFilter.Latest,
-        isFilterOldestActive: commentActiveFilter === ActiveFilter.Oldest,
-        isFilterPopularityActive:
-            commentActiveFilter === ActiveFilter.Popularity,
+        isFilterDateAscActive: commentActiveFilter === ActiveFilter.DateAsc,
+        isFilterDateDescActive: commentActiveFilter === ActiveFilter.DateDesc,
+        isFilterPopularityAscActive:
+            commentActiveFilter === ActiveFilter.PopularityAsc,
     }
 }
 
@@ -53,7 +54,7 @@ export function useProfileHistoryVoteActiveFilter() {
         (state) => state.votes.activeFilter,
     )
     return {
-        isFilterLatestActive: voteActiveFilter === ActiveFilter.Latest,
-        isFilterOldestActive: voteActiveFilter === ActiveFilter.Oldest,
+        isFilterDateAscActive: voteActiveFilter === ActiveFilter.DateAsc,
+        isFilterDateDescActive: voteActiveFilter === ActiveFilter.DateDesc,
     }
 }

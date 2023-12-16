@@ -26,33 +26,36 @@ export const TabFilter = () => {
 
 function PostFilter() {
     const {
-        isFilterLatestActive,
-        isFilterOldestActive,
-        isFilterPopularityActive,
+        isFilterDateAscActive: isFilterLatestActive,
+        isFilterDateDescActive: isFilterOldestActive,
+        isFilterPopularityAscActive: isFilterPopularityActive,
     } = useProfileHistoryPostActiveFilter()
-    const setPostActiveFilterToLatest = useProfileHistoryStore(
-        (state) => state.setPostActiveFilterToLatest,
-    )
-    const setPostActiveFilterToOldest = useProfileHistoryStore(
-        (state) => state.setPostActiveFilterToOldest,
-    )
-    const setPostActiveFilterToPopularity = useProfileHistoryStore(
-        (state) => state.setPostActiveFilterToPopularity,
-    )
+
+    const {
+        setPostActiveFilterToDateAsc,
+        setPostActiveFilterToDateDesc,
+        setPostActiveFilterToPopularityAsc,
+    } = useProfileHistoryStore((state) => ({
+        setPostActiveFilterToDateAsc: state.setPostActiveFilterToDateAsc,
+        setPostActiveFilterToDateDesc: state.setPostActiveFilterToDateDesc,
+        setPostActiveFilterToPopularityAsc:
+            state.setPostActiveFilterToPopularityAsc,
+    }))
+
     return (
         <div className="flex mt-4 gap-4 justify-end">
             <FilterButton
-                onClick={setPostActiveFilterToLatest}
+                onClick={setPostActiveFilterToDateAsc}
                 title="由新到舊"
                 isActive={isFilterLatestActive}
             />
             <FilterButton
-                onClick={setPostActiveFilterToOldest}
+                onClick={setPostActiveFilterToDateDesc}
                 title="由舊到新"
                 isActive={isFilterOldestActive}
             />
             <FilterButton
-                onClick={setPostActiveFilterToPopularity}
+                onClick={setPostActiveFilterToPopularityAsc}
                 title="熱門程度"
                 isActive={isFilterPopularityActive}
             />
@@ -62,9 +65,9 @@ function PostFilter() {
 
 function CommentFilter() {
     const {
-        isFilterLatestActive,
-        isFilterOldestActive,
-        isFilterPopularityActive,
+        isFilterDateAscActive: isFilterLatestActive,
+        isFilterDateDescActive: isFilterOldestActive,
+        isFilterPopularityAscActive: isFilterPopularityActive,
     } = useProfileHistoryCommentActiveFilter()
     const setCommentActiveFilterToLatest = useProfileHistoryStore(
         (state) => state.setCommentActiveFilterToLatest,
@@ -97,8 +100,10 @@ function CommentFilter() {
 }
 
 function VoteFilter() {
-    const { isFilterLatestActive, isFilterOldestActive } =
-        useProfileHistoryVoteActiveFilter()
+    const {
+        isFilterDateAscActive: isFilterLatestActive,
+        isFilterDateDescActive: isFilterOldestActive,
+    } = useProfileHistoryVoteActiveFilter()
     const setVoteActiveFilterToLatest = useProfileHistoryStore(
         (state) => state.setVoteActiveFilterToLatest,
     )

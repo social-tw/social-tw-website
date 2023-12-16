@@ -71,14 +71,14 @@ function VoteTabContent() {
 
 function useInitPostTabContent() {
     const { userState } = useUser()
-    const { isPostsInit, fetchPosts } = useProfileHistoryStore((state) => ({
-        isPostsInit: state.posts.isInit,
-        fetchPosts: state.fetchPosts,
-    }))
-
+    const { isHistoryPostsInit, invokeInitHistoryPostsFlow } =
+        useProfileHistoryStore((state) => ({
+            isHistoryPostsInit: state.posts.isInit,
+            invokeInitHistoryPostsFlow: state.invokeInitHistoryPostsFlow,
+        }))
     useEffect(() => {
-        if (!isPostsInit && userState) {
-            fetchPosts(userState)
+        if (!isHistoryPostsInit && userState) {
+            invokeInitHistoryPostsFlow(userState)
         }
-    }, [isPostsInit, userState, fetchPosts])
+    }, [isHistoryPostsInit, userState, invokeInitHistoryPostsFlow])
 }

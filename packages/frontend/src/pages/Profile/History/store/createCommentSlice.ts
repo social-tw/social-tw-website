@@ -2,19 +2,19 @@ import { ActiveFilter, StateCommentSlice } from '../types'
 
 export const createCommentSlice: StateCommentSlice = (set) => ({
     comments: {
-        activeFilter: ActiveFilter.Latest,
+        activeFilter: ActiveFilter.DateAsc,
         data: [],
     },
     setCommentActiveFilterToLatest: () =>
         set((state) => {
-            state.comments.activeFilter = ActiveFilter.Latest
+            state.comments.activeFilter = ActiveFilter.DateAsc
         }),
     setCommentActiveFilterToOldest: () =>
         set((state) => {
-            state.comments.activeFilter = ActiveFilter.Oldest
+            state.comments.activeFilter = ActiveFilter.DateDesc
         }),
     setCommentActiveFilterToPopularity: () =>
         set((state) => {
-            state.comments.activeFilter = ActiveFilter.Popularity
+            state.comments.activeFilter = ActiveFilter.PopularityAsc
         }),
 })

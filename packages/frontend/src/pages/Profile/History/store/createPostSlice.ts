@@ -1,61 +1,67 @@
 import { UserState } from '@unirep/core'
-import { Directions, SortKeys } from '../../../../types/api'
-import { fetchPostsByEpochKeys } from '../../../../utils/api'
-import { ProfileHistoryStoreParser } from '../ProfileHistoryStoreParser'
+import { PostService } from '../services/PostService'
 import { ActiveFilter, StatePostSlice } from '../types'
-import { getEpochKeyChunks } from '../utils'
 
-export const createPostSlice: StatePostSlice = (set) => ({
+export const createPostSlice: StatePostSlice = (set, get) => ({
     posts: {
-        activeFilter: ActiveFilter.Latest,
+        activeFilter: ActiveFilter.DateAsc,
         isFetching: false,
         isInit: false,
         data: [],
     },
-    setPostActiveFilterToLatest: () =>
+    setPostActiveFilterToDateAsc: () => {
         set((state) => {
-            state.posts.activeFilter = ActiveFilter.Latest
-        }),
-    setPostActiveFilterToOldest: () =>
+            const posts = state.posts.data
+            const postService = new PostService()
+            const sortedPosts = postService.sortPosts(
+                posts,
+                ActiveFilter.DateAsc,
+            )
+            state.posts.activeFilter = ActiveFilter.DateAsc
+            state.posts.data = sortedPosts
+        })
+    },
+    setPostActiveFilterToDateDesc: () => {
         set((state) => {
-            state.posts.activeFilter = ActiveFilter.Oldest
-        }),
-    setPostActiveFilterToPopularity: () =>
+            const posts = state.posts.data
+            const postService = new PostService()
+            const sortedPosts = postService.sortPosts(
+                posts,
+                ActiveFilter.DateDesc,
+            )
+            state.posts.activeFilter = ActiveFilter.DateDesc
+            state.posts.data = sortedPosts
+        })
+    },
+    setPostActiveFilterToPopularityAsc: () => {
         set((state) => {
-            state.posts.activeFilter = ActiveFilter.Popularity
-        }),
-    fetchPosts: async (userState: UserState) => {
+            const posts = state.posts.data
+            const postService = new PostService()
+            const sortedPosts = postService.sortPosts(
+                posts,
+                ActiveFilter.PopularityAsc,
+            )
+            state.posts.activeFilter = ActiveFilter.PopularityAsc
+            state.posts.data = sortedPosts
+        })
+    },
+    invokeInitHistoryPostsFlow: async (userState: UserState) => {
         try {
             set((state) => {
                 state.posts.isFetching = true
             })
-            const currentEpoch = userState.sync.calcCurrentEpoch()
-            const epochKeyChunks = getEpochKeyChunks(
-                userState,
-                currentEpoch,
-                10,
-            )
-            const batchedRawPosts = await Promise.all(
-                epochKeyChunks.map((epochKeyChunk) =>
-                    fetchPostsByEpochKeys({
-                        epochKeys: epochKeyChunk,
-                        direction: Directions.Asc,
-                        sortKey: SortKeys.PublishedAt,
-                    }),
-                ),
-            )
-            const batchedPosts = batchedRawPosts.map(
-                ProfileHistoryStoreParser.parseRelayRawPostsToPosts,
+            const postService = new PostService()
+            const posts = await postService.fetchPostsByUserState(userState)
+            const sortedPosts = postService.sortPosts(
+                posts,
+                get().posts.activeFilter,
             )
             set((state) => {
-                state.posts.data = batchedPosts.flat(2)
-                if (!state.posts.isInit) {
-                    state.posts.isInit = true
-                }
+                state.posts.data = sortedPosts
+                state.posts.isInit = true
             })
         } catch (err) {
-            // TODO: handle error
-            // console.log('FetchPosts Error:', err)
+            console.error('Init History Posts Error:', err)
         } finally {
             set((state) => {
                 state.posts.isFetching = false
