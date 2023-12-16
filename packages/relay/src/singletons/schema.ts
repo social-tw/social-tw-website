@@ -83,8 +83,8 @@ const _schema = [
         rows: [
             {
                 name: 'publishedAt',
-                type: 'Int',
-                default: () => +new Date(),
+                type: 'String',
+                default: () => (+new Date()).toString(),
             },
             ['commentId', 'String', { optional: true }],
             ['postId', 'String'],
@@ -109,6 +109,11 @@ const _schema = [
         name: 'Vote',
         primaryKey: ['postId', 'epochKey'],
         rows: [
+            {
+                name: 'publishedAt',
+                type: 'String',
+                default: () => (+new Date()).toString(),
+            },
             ['postId', 'String'],
             ['epochKey', 'String'],
             ['epoch', 'Int'],

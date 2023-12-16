@@ -15,6 +15,7 @@ import { ipfsService } from './IpfsService'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 
 export class PostService {
+    // TODO: modify the cache data structure
     private cache: Post[] = []
 
     async start(db: DB): Promise<void> {
@@ -46,25 +47,65 @@ export class PostService {
         //         d. The remaining posts of the day
         //      4. The order of the posts will be refreshed every time the user visits / refreshes the Homepage
 
-        //      select posts le 2 days and order them by the rules
-        //      union
-        //      select post gt 2 days and order them by the rules
+        //      1. use CASE to cal scores by different groups (posts <= 2 days | posts > 2 days)
+        //      2. use Join to cal daily upVotes & downVotes for the posts
+        //      3. use Join to cal daily comments for the posts
+        //      4. order by
+        //         a. CASE posts <= 2 days = 0 | posts > 2 days first = 1
+        //         b. sorting_score
+        //         c. CASE posts <= 2 days = 0 | posts > 2 days daily_upvotes DESC
+        //         d. CASE posts <= 2 days = 0 | posts > 2 days daily_comments DESC
+        //         e. publishedAt DESC
         let statement = `
-            SELECT * FROM (
-                SELECT *, 1 AS FILTER
-                FROM (
-                    SELECT *, ROW_NUMBER() over ( ORDER BY (${DAY_DIFF_STAEMENT} * (-0.5)) + (upCount * 0.2) - (downCount * 0.2) + (commentCount * 0.1) DESC, publishedAt DESC ) AS OD
-                    FROM Post 
-                    WHERE ${DAY_DIFF_STAEMENT} <= 2
-                ) AS POSTS_LE_2
-                UNION
-                SELECT *, 2 AS FILTER
-                FROM (
-                    SELECT *, ROW_NUMBER() over ( ORDER BY (upCount + commentCount) DESC, upCount DESC, commentCount DESC, publishedAt DESC ) AS OD
-                    FROM Post
-                    WHERE ${DAY_DIFF_STAEMENT} > 2
-                ) AS POSTS_GT_2
-            ) AS POST ORDER BY FILTER, OD
+            SELECT
+                p.*,
+                CASE
+                    WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN
+                        -0.5 * ${DAY_DIFF_STAEMENT} + p.upCount * 0.2 - p.downCount * 0.2 + p.commentCount * 0.1
+                    ELSE
+                        COALESCE(v.daily_upvotes, 0) + COALESCE(c.daily_comments, 0)
+                END AS sorting_score,
+                v.daily_upvotes AS daily_upvotes,
+                c.daily_comments AS daily_comments
+            FROM
+                Post AS p
+            LEFT JOIN (
+                SELECT
+                    postId,
+                    SUM(CAST(upVote AS INTEGER)) AS daily_upvotes,
+                    SUM(CAST(downVote AS INTEGER)) AS daily_downvotes
+                FROM
+                    Vote
+                WHERE 
+                    ${DAY_DIFF_STAEMENT} = 0
+                GROUP BY
+                    postId
+            ) AS v ON p.postId = v.postId
+            LEFT JOIN (
+                SELECT
+                    postId,
+                    COUNT(*) AS daily_comments
+                FROM
+                    Comment
+                WHERE
+                    ${DAY_DIFF_STAEMENT} = 0
+                GROUP BY
+                    postId
+            ) AS c ON p.postId = c.postId
+            ORDER BY 
+                CASE
+                    WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
+                    ELSE 1
+                END, sorting_score DESC, 
+                CASE
+                    WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
+                    ELSE v.daily_upvotes
+                END DESC,
+                CASE
+                    WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
+                    ELSE COALESCE(c.daily_comments, 0)
+                END DESC,
+                CAST(p.publishedAt AS INTEGER) DESC
         `
         // anondb does't provide add column api
         // use lower level db api directly from postgres / sqlite

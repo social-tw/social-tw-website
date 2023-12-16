@@ -20,9 +20,9 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
 import { SQLiteConnector } from 'anondb/node'
-import { data } from './mocks/posts'
+import { postData } from './mocks/posts'
 import { PostService } from '../src/services/PostService'
-import { Post } from '../src/types/Post'
+import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -243,53 +243,16 @@ describe('POST /post', function () {
     })
 
     it('should update post order periodically', async function () {
-        const getRandom = () => {
-            return Math.floor(Math.random() * 1000)
-        }
-
-        const DAY_IN_MILLISECOND = 86400000
-        const HOUR_IN_MILLISECOND = 3600000
-
-        // insert 9 mock posts into
-        const mockPosts = data
+        // insert 9 mock posts into db
+        const mockPosts = postData
         mockPosts.unshift(
             await sqlite.findOne('Post', { where: { postId: '0' } })
         )
-        for (let i = 0; i < mockPosts.length; i++) {
-            const mockPost = mockPosts[i]
-            // make first 5 posts are posted within 2 days
-            if (i > 0 && i < 5) {
-                mockPost.publishedAt = (
-                    +new Date() -
-                    DAY_IN_MILLISECOND -
-                    HOUR_IN_MILLISECOND * i
-                ).toString()
-            } else {
-                mockPost.publishedAt = (
-                    +new Date() -
-                    DAY_IN_MILLISECOND * 3 -
-                    HOUR_IN_MILLISECOND * i
-                ).toString()
-            }
-            // let commentCount, upCount, downCount of each post
-            // have value range from 0 ~ 999
-            mockPost.commentCount = getRandom()
-            mockPost.upCount = getRandom()
-            mockPost.downCount = getRandom()
-
-            await sqlite.upsert('Post', {
-                where: { postId: mockPost.postId },
-                create: {
-                    ...mockPost,
-                },
-                update: {
-                    upCount: mockPost.upCount,
-                    downCount: mockPost.downCount,
-                    commentCount: mockPost.commentCount,
-                },
-                constraintKey: 'transactionHash',
-            })
-        }
+        await insertPosts(sqlite)
+        // insert random amount of comments into db
+        await insertComments(sqlite)
+        // insert random amount of votes into db
+        await insertVotes(sqlite)
 
         await pService.updateOrder(sqlite)
 
@@ -304,16 +267,48 @@ describe('POST /post', function () {
             return data as []
         })
 
-        for (let i = 0; i < posts.length; i++) {
-            const post: any = posts[i]
-            if (i < 5) {
-                // posts less than 2 days will be grouped on filter 1
-                expect(post.FILTER).equal(1)
-            } else {
-                expect(post.FILTER).equal(2)
+        for (let i = 0; i < posts.length - 1; i++) {
+            // postId 0 ~ 4: published <= 2 days
+            // postId 5 ~ 9: published > 2 days
+            if (i == 4) {
+                continue
             }
-            // post with higher score will have smaller number
-            expect(post.OD).equal((i % 5) + 1)
+
+            const prevPost: any = posts[i]
+            const nextPost: any = posts[i + 1]
+            if (i < 5) {
+                // 1. sorting score prevPost >= nextPost
+                // 2. sorting score eq, publishedAt prevPost >= nextPost
+                expect(prevPost.sorting_score).gte(nextPost.sorting_score)
+                if (prevPost.sorting_score == nextPost.sorting_score) {
+                    expect(BigInt(prevPost.publishedAt)).gte(
+                        BigInt(nextPost.publishedAt)
+                    )
+                }
+            } else {
+                // 1. sorting score prevPost >= nextPost
+                // 2. sorting score eq, daily_upvotes prevPost >= nextPost
+                // 3. daily_upvotes eq, daily_comments prevPost >= nextPost
+                // 4. daily_comments eq, publishedAt prevPost > nextPost
+                expect(prevPost.sorting_score).gte(nextPost.sorting_score)
+                if (prevPost.sorting_score == nextPost.sorting_score) {
+                    expect(prevPost.daily_upvotes).gte(nextPost.daily_upvotes)
+
+                    if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
+                        expect(prevPost.daily_comments).gte(
+                            nextPost.daily_comments
+                        )
+
+                        if (
+                            prevPost.daily_comments == nextPost.daily_comments
+                        ) {
+                            expect(BigInt(prevPost.publishedAt)).gte(
+                                BigInt(nextPost.publishedAt)
+                            )
+                        }
+                    }
+                }
+            }
         }
     })
 })

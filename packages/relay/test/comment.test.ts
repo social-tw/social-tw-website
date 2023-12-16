@@ -69,12 +69,10 @@ describe('COMMENT /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        await fetch(`${HTTP_SERVER}/api/post`).then(async (r) => {
+        await fetch(`${HTTP_SERVER}/api/post/0`).then(async (r) => {
             expect(r.status).equal(200)
-            const posts = (await r.json()) as Post[]
-            expect(posts.length).equal(1)
-            expect(posts[0].status).equal(1)
-            return posts[0]
+            const post = (await r.json()) as Post
+            expect(post.status).equal(1)
         })
     })
 
@@ -130,6 +128,7 @@ describe('COMMENT /comment', function () {
             expect(r.status).equal(200)
             return r.json()
         })
+        console.log(comments)
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
