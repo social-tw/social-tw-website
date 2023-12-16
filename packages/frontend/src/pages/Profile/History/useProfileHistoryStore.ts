@@ -124,7 +124,7 @@ export const useProfileHistory = create<
                 const epochKeyChunks = getEpochKeyChunks(
                     userState,
                     currentEpoch,
-                    10
+                    10,
                 )
                 const batchedRawPosts = await Promise.all(
                     epochKeyChunks.map((epochKeyChunk) =>
@@ -132,11 +132,11 @@ export const useProfileHistory = create<
                             epochKeys: epochKeyChunk,
                             direction: Directions.Asc,
                             sortKey: SortKeys.PublishAt,
-                        })
-                    )
+                        }),
+                    ),
                 )
                 const batchedPosts = batchedRawPosts.map(
-                    ProfileHistoryStoreParser.parseRelaySourcePostsToPosts
+                    ProfileHistoryStoreParser.parseRelaySourcePostsToPosts,
                 )
                 set((state) => {
                     state.posts.data = batchedPosts.flat(2)
@@ -152,7 +152,7 @@ export const useProfileHistory = create<
                 })
             }
         },
-    }))
+    })),
 )
 
 export function useProfileHistoryActiveTab() {
@@ -166,7 +166,7 @@ export function useProfileHistoryActiveTab() {
 
 export function useProfileHistoryPostActiveFilter() {
     const postActiveFilter = useProfileHistory(
-        (state) => state.posts.activeFilter
+        (state) => state.posts.activeFilter,
     )
     return {
         isFilterLatestActive: postActiveFilter === ActiveFilter.Latest,
@@ -177,7 +177,7 @@ export function useProfileHistoryPostActiveFilter() {
 
 export function useProfileHistoryCommentActiveFilter() {
     const commentActiveFilter = useProfileHistory(
-        (state) => state.comments.activeFilter
+        (state) => state.comments.activeFilter,
     )
     return {
         isFilterLatestActive: commentActiveFilter === ActiveFilter.Latest,
@@ -189,7 +189,7 @@ export function useProfileHistoryCommentActiveFilter() {
 
 export function useProfileHistoryVoteActiveFilter() {
     const voteActiveFilter = useProfileHistory(
-        (state) => state.votes.activeFilter
+        (state) => state.votes.activeFilter,
     )
     return {
         isFilterLatestActive: voteActiveFilter === ActiveFilter.Latest,
@@ -200,7 +200,7 @@ export function useProfileHistoryVoteActiveFilter() {
 function getEpochKeyChunks(
     userState: UserState,
     currentEpoch: number,
-    chunkSize: number
+    chunkSize: number,
 ): BigInt[][] {
     const epochKeys = []
     for (let i = 0; i < currentEpoch; i++) {

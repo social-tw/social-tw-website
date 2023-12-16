@@ -31,13 +31,13 @@ function PostFilter() {
         isFilterPopularityActive,
     } = useProfileHistoryPostActiveFilter()
     const setPostActiveFilterToLatest = useProfileHistory(
-        (state) => state.setPostActiveFilterToLatest
+        (state) => state.setPostActiveFilterToLatest,
     )
     const setPostActiveFilterToOldest = useProfileHistory(
-        (state) => state.setPostActiveFilterToOldest
+        (state) => state.setPostActiveFilterToOldest,
     )
     const setPostActiveFilterToPopularity = useProfileHistory(
-        (state) => state.setPostActiveFilterToPopularity
+        (state) => state.setPostActiveFilterToPopularity,
     )
     return (
         <div className="flex mt-4 gap-4 justify-end">
@@ -67,13 +67,13 @@ function CommentFilter() {
         isFilterPopularityActive,
     } = useProfileHistoryCommentActiveFilter()
     const setCommentActiveFilterToLatest = useProfileHistory(
-        (state) => state.setCommentActiveFilterToLatest
+        (state) => state.setCommentActiveFilterToLatest,
     )
     const setCommentActiveFilterToOldest = useProfileHistory(
-        (state) => state.setCommentActiveFilterToOldest
+        (state) => state.setCommentActiveFilterToOldest,
     )
     const setCommentActiveFilterToPopularity = useProfileHistory(
-        (state) => state.setCommentActiveFilterToPopularity
+        (state) => state.setCommentActiveFilterToPopularity,
     )
     return (
         <div className="flex mt-4 gap-4 justify-end">
@@ -100,10 +100,10 @@ function VoteFilter() {
     const { isFilterLatestActive, isFilterOldestActive } =
         useProfileHistoryVoteActiveFilter()
     const setVoteActiveFilterToLatest = useProfileHistory(
-        (state) => state.setVoteActiveFilterToLatest
+        (state) => state.setVoteActiveFilterToLatest,
     )
     const setVoteActiveFilterToOldest = useProfileHistory(
-        (state) => state.setVoteActiveFilterToOldest
+        (state) => state.setVoteActiveFilterToOldest,
     )
     return (
         <div className="flex mt-4 gap-4 justify-end">

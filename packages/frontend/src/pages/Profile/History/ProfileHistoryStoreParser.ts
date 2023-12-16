@@ -9,8 +9,8 @@ export class ProfileHistoryStoreParser {
                     relaySourcePost.date,
                     relaySourcePost.content,
                     relaySourcePost.epochKey,
-                    relaySourcePost.url
-                )
+                    relaySourcePost.url,
+                ),
         )
     }
 }

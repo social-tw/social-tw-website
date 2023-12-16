@@ -30,7 +30,7 @@ function PostTabContent() {
             isPostsFetching: state.posts.isFetching,
             isPostsInit: state.posts.isInit,
             posts: state.posts.data,
-        })
+        }),
     )
     const headerData = getPostHeaderData()
     const bodyData = parsePostsToBodyData(posts)

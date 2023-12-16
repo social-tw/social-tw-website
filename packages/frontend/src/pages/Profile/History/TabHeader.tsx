@@ -22,7 +22,7 @@ export const TabHeader = () => {
 function PostTabButton() {
     const { isPostActive } = useProfileHistoryActiveTab()
     const setActiveTabToPost = useProfileHistory(
-        (state) => state.setActiveTabToPost
+        (state) => state.setActiveTabToPost,
     )
     return (
         <TabButton
@@ -36,7 +36,7 @@ function PostTabButton() {
 function CommentTabButton() {
     const { isCommentActive } = useProfileHistoryActiveTab()
     const setActiveTabToComment = useProfileHistory(
-        (state) => state.setActiveTabToComment
+        (state) => state.setActiveTabToComment,
     )
     return (
         <TabButton
@@ -50,7 +50,7 @@ function CommentTabButton() {
 function VoteTabButton() {
     const { isVoteActive } = useProfileHistoryActiveTab()
     const setActiveTabToVote = useProfileHistory(
-        (state) => state.setActiveTabToVote
+        (state) => state.setActiveTabToVote,
     )
     return (
         <TabButton

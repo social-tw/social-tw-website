@@ -3,6 +3,6 @@ export class Comment {
         public date: string,
         public content: string,
         public epochKey: string,
-        public url: string
+        public url: string,
     ) {}
 }

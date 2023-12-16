@@ -4,6 +4,6 @@ export class Vote {
         public content: string,
         public type: string,
         public epochKey: string,
-        public url: string
+        public url: string,
     ) {}
 }
