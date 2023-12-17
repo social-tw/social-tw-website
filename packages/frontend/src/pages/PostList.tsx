@@ -201,6 +201,8 @@ export default function PostList() {
                                 upCount={post.upCount}
                                 downCount={post.downCount}
                                 compact
+                                isMine={post.isMine}
+                                finalAction={post.finalAction}
                             />
                         </li>
                     ))}

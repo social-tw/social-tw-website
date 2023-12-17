@@ -21,6 +21,8 @@ export default function ({
     upCount = 0,
     downCount = 0,
     compact = false,
+    isMine = false,
+    finalAction = null,
 }: {
     id: string
     epochKey: string
@@ -31,6 +33,8 @@ export default function ({
     upCount: number
     downCount: number
     compact?: boolean
+    isMine?: boolean
+    finalAction?: VoteAction | null
 }) {
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
@@ -192,25 +196,45 @@ export default function ({
                 )}
                 <footer className="flex items-center gap-4">
                     <div
-                        className="flex items-center gap-1"
+                        className={`flex items-center gap-1`}
                         onClick={handleUpvote}
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
-                        <img className="w-5 h-5" src={Upvote} alt="upvote" />
+                        <div
+                            className={`${
+                                isMine && finalAction === VoteAction.UPVOTE
+                                    ? 'border-4 border-white rounded-full'
+                                    : ''
+                            }`}
+                        >
+                            <img
+                                className="w-5 h-5"
+                                src={Upvote}
+                                alt="upvote"
+                            />
+                        </div>
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {localUpCount}
                         </span>
                     </div>
                     <div
-                        className="flex items-center gap-1"
+                        className={`flex items-center gap-1`}
                         onClick={handleDownvote}
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
-                        <img
-                            className="w-5 h-5"
-                            src={Downvote}
-                            alt="downvote"
-                        />
+                        <div
+                            className={`${
+                                isMine && finalAction === VoteAction.DOWNVOTE
+                                    ? 'border-4 border-white rounded-full'
+                                    : ''
+                            }`}
+                        >
+                            <img
+                                className="w-5 h-5"
+                                src={Downvote}
+                                alt="downvote"
+                            />
+                        </div>
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {localDownCount}
                         </span>

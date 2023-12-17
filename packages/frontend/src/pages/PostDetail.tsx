@@ -73,6 +73,8 @@ export default function PostDetail() {
                     commentCount={post.commentCount}
                     upCount={post.upCount}
                     downCount={post.downCount}
+                    isMine={post.isMine}
+                    finalAction={post.finalAction}
                 />
             </section>
         </div>
