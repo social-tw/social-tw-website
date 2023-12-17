@@ -24,24 +24,24 @@ interface BodyCellProps {
 }
 
 enum BodyCellType {
-    TEXT = 'text',
-    LINK = 'link',
-    IMG = 'img',
+    Text = 'Text',
+    Link = 'Link',
+    Img = 'Img',
 }
 
 interface BodyCellTextData {
-    type: BodyCellType.TEXT
+    type: BodyCellType.Text
     content: string
 }
 
 interface BodyCellLinkData {
-    type: BodyCellType.LINK
+    type: BodyCellType.Link
     content: string
     url: string
 }
 
 interface BodyCellImgData {
-    type: BodyCellType.IMG
+    type: BodyCellType.Img
     src: string
     alt: string
 }
@@ -120,13 +120,13 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
     const type = data.type
     return (
         <div style={{ ...style, overflow: 'hidden', paddingRight: '20px' }}>
-            {type === BodyCellType.TEXT && (
+            {type === BodyCellType.Text && (
                 <BodyCellText content={data.content} />
             )}
-            {type === BodyCellType.LINK && (
+            {type === BodyCellType.Link && (
                 <BodyCellLink content={data.content} url={data.url} />
             )}
-            {type === BodyCellType.IMG && (
+            {type === BodyCellType.Img && (
                 <BodyCellImg src={data.src} alt={data.alt} />
             )}
         </div>
@@ -156,10 +156,10 @@ function BodyCellImg({ src, alt }: CellImgProps) {
 export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
     return posts.map((post) => {
         return [
-            { type: BodyCellType.TEXT, content: post.date },
-            { type: BodyCellType.TEXT, content: post.content },
-            { type: BodyCellType.TEXT, content: post.epochKey },
-            { type: BodyCellType.LINK, content: '前往查看', url: post.url },
+            { type: BodyCellType.Text, content: post.date },
+            { type: BodyCellType.Text, content: post.content },
+            { type: BodyCellType.Text, content: post.epochKey },
+            { type: BodyCellType.Link, content: '前往查看', url: post.url },
         ]
     })
 }
@@ -167,10 +167,10 @@ export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
 export function parseCommentsToBodyData(comments: Comment[]): BodyCellData[][] {
     return comments.map((comment) => {
         return [
-            { type: BodyCellType.TEXT, content: comment.date },
-            { type: BodyCellType.TEXT, content: comment.content },
-            { type: BodyCellType.TEXT, content: comment.epochKey },
-            { type: BodyCellType.LINK, content: '前往查看', url: comment.url },
+            { type: BodyCellType.Text, content: comment.date },
+            { type: BodyCellType.Text, content: comment.content },
+            { type: BodyCellType.Text, content: comment.epochKey },
+            { type: BodyCellType.Link, content: '前往查看', url: comment.url },
         ]
     })
 }
@@ -181,11 +181,11 @@ export function parseVotesToBodyData(votes: Vote[]): BodyCellData[][] {
         const imgSrc = voteService.isUpvote(vote) ? Upvote : Downvote
         const imgAlt = voteService.isUpvote(vote) ? 'Upvote' : 'Downvote'
         return [
-            { type: BodyCellType.TEXT, content: vote.date },
-            { type: BodyCellType.TEXT, content: vote.content },
-            { type: BodyCellType.IMG, src: imgSrc, alt: imgAlt },
-            { type: BodyCellType.TEXT, content: vote.epochKey },
-            { type: BodyCellType.LINK, content: '前往查看', url: vote.url },
+            { type: BodyCellType.Text, content: vote.date },
+            { type: BodyCellType.Text, content: vote.content },
+            { type: BodyCellType.Img, src: imgSrc, alt: imgAlt },
+            { type: BodyCellType.Text, content: vote.epochKey },
+            { type: BodyCellType.Link, content: '前往查看', url: vote.url },
         ]
     })
 }

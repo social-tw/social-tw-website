@@ -39,8 +39,9 @@ export const createVoteSlice: StateVoteSlice = (set, get) => ({
                 state.votes.isFetching = true
             })
             const voteService = new VoteService()
-            const votes =
-                await voteService.fetchVoteHistoryByUserState(userState)
+            const votes = await voteService.fetchVoteHistoryByUserState(
+                userState,
+            )
             const sortedVotes = voteService.sortVotes(
                 votes,
                 get().votes.activeFilter,
