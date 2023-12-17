@@ -6,14 +6,19 @@ import type { Post } from './DTO/Post'
 import type { Vote } from './DTO/Vote'
 
 export enum ActiveTab {
-    Post = 'POST',
-    Comment = 'COMMENT',
-    Vote = 'VOTE',
+    Post = 'Post',
+    Comment = 'Comment',
+    Vote = 'Vote',
 }
 export enum ActiveFilter {
-    DateAsc = 'DATE_ASC',
-    DateDesc = 'DATE_DESC',
-    PopularityAsc = 'POPULARITY_ASC',
+    DateAsc = 'DateAsc',
+    DateDesc = 'DateDesc',
+    PopularityAsc = 'PopularityAsc',
+}
+
+export enum VoteType {
+    Upvote = 'Upvote',
+    Downvote = 'Downvote',
 }
 
 export type ProfileHistoryStore = TabSlice &
@@ -84,9 +89,12 @@ interface CommentSlice {
 
 interface VoteSlice {
     votes: {
-        activeFilter: Omit<ActiveFilter, ActiveFilter.PopularityAsc>
+        activeFilter: Exclude<ActiveFilter, ActiveFilter.PopularityAsc>
+        isFetching: boolean
+        isInit: boolean
         data: Vote[]
     }
-    setVoteActiveFilterToLatest: () => void
-    setVoteActiveFilterToOldest: () => void
+    setVoteActiveFilterToDateAsc: () => void
+    setVoteActiveFilterToDateDesc: () => void
+    invokeInitHistoryVotesFlow: (userState: UserState) => Promise<void>
 }

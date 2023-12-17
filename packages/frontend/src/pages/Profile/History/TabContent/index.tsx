@@ -8,6 +8,7 @@ import {
     TabContentBody,
     parseCommentsToBodyData,
     parsePostsToBodyData,
+    parseVotesToBodyData,
 } from './TabContentBody'
 import {
     TabContentHeader,
@@ -74,12 +75,24 @@ function CommentTabContent() {
 }
 
 function VoteTabContent() {
+    const { isVotesFetching, isVotesInit, votes } = useProfileHistoryStore(
+        (state) => ({
+            isVotesFetching: state.votes.isFetching,
+            isVotesInit: state.votes.isInit,
+            votes: state.votes.data,
+        }),
+    )
     const headerData = getVoteHeaderData()
-    const bodyData = [[]]
+    const bodyData = parseVotesToBodyData(votes)
+    useInitVoteTabContent()
     return (
         <div className={`h-full grid grid-rows-[auto_1fr]`}>
             <TabContentHeader data={headerData} />
-            <TabContentBody data={bodyData} isLoading={false} isInit={false} />
+            <TabContentBody
+                data={bodyData}
+                isLoading={isVotesFetching}
+                isInit={isVotesInit}
+            />
         </div>
     )
 }
@@ -110,4 +123,18 @@ function useInitCommentTabContent() {
             invokeInitHistoryCommentsFlow(userState)
         }
     }, [isHistoryCommentsInit, userState, invokeInitHistoryCommentsFlow])
+}
+
+function useInitVoteTabContent() {
+    const { userState } = useUser()
+    const { isHistoryVotesInit, invokeInitHistoryVotesFlow } =
+        useProfileHistoryStore((state) => ({
+            isHistoryVotesInit: state.votes.isInit,
+            invokeInitHistoryVotesFlow: state.invokeInitHistoryVotesFlow,
+        }))
+    useEffect(() => {
+        if (!isHistoryVotesInit && userState) {
+            invokeInitHistoryVotesFlow(userState)
+        }
+    }, [isHistoryVotesInit, userState, invokeInitHistoryVotesFlow])
 }

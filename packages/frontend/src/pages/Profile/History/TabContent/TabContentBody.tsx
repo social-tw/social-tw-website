@@ -2,8 +2,13 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
 
 import { Link } from 'react-router-dom'
+
+import Downvote from '../../../../assets/downvote.png'
+import Upvote from '../../../../assets/upvote.png'
 import { Comment } from '../DTO/Comment'
 import { Post } from '../DTO/Post'
+import { Vote } from '../DTO/Vote'
+import { VoteService } from '../services/VoteService'
 
 interface TabContentBodyProps {
     isInit: boolean
@@ -24,11 +29,24 @@ enum BodyCellType {
     IMG = 'img',
 }
 
-interface BodyCellData {
-    type: BodyCellType
+interface BodyCellTextData {
+    type: BodyCellType.TEXT
     content: string
-    url?: string
 }
+
+interface BodyCellLinkData {
+    type: BodyCellType.LINK
+    content: string
+    url: string
+}
+
+interface BodyCellImgData {
+    type: BodyCellType.IMG
+    src: string
+    alt: string
+}
+
+type BodyCellData = BodyCellTextData | BodyCellLinkData | BodyCellImgData
 
 interface CellTextProps {
     content: string
@@ -37,6 +55,11 @@ interface CellTextProps {
 interface CellLinkProps {
     content: string
     url: string
+}
+
+interface CellImgProps {
+    src: string
+    alt: string
 }
 
 export function TabContentBody({
@@ -101,7 +124,10 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
                 <BodyCellText content={data.content} />
             )}
             {type === BodyCellType.LINK && (
-                <BodyCellLink content={data.content} url={data.url || ''} />
+                <BodyCellLink content={data.content} url={data.url} />
+            )}
+            {type === BodyCellType.IMG && (
+                <BodyCellImg src={data.src} alt={data.alt} />
             )}
         </div>
     )
@@ -123,6 +149,10 @@ function BodyCellLink({ content, url }: CellLinkProps) {
     )
 }
 
+function BodyCellImg({ src, alt }: CellImgProps) {
+    return <img className="w-5 h-5" src={src} alt={alt} />
+}
+
 export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
     return posts.map((post) => {
         return [
@@ -141,6 +171,21 @@ export function parseCommentsToBodyData(comments: Comment[]): BodyCellData[][] {
             { type: BodyCellType.TEXT, content: comment.content },
             { type: BodyCellType.TEXT, content: comment.epochKey },
             { type: BodyCellType.LINK, content: '前往查看', url: comment.url },
+        ]
+    })
+}
+
+export function parseVotesToBodyData(votes: Vote[]): BodyCellData[][] {
+    const voteService = new VoteService()
+    return votes.map((vote) => {
+        const imgSrc = voteService.isUpvote(vote) ? Upvote : Downvote
+        const imgAlt = voteService.isUpvote(vote) ? 'Upvote' : 'Downvote'
+        return [
+            { type: BodyCellType.TEXT, content: vote.date },
+            { type: BodyCellType.TEXT, content: vote.content },
+            { type: BodyCellType.IMG, src: imgSrc, alt: imgAlt },
+            { type: BodyCellType.TEXT, content: vote.epochKey },
+            { type: BodyCellType.LINK, content: '前往查看', url: vote.url },
         ]
     })
 }

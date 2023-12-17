@@ -51,7 +51,8 @@ export const createPostSlice: StatePostSlice = (set, get) => ({
                 state.posts.isFetching = true
             })
             const postService = new PostService()
-            const posts = await postService.fetchPostsByUserState(userState)
+            const posts =
+                await postService.fetchPostHistoryByUserState(userState)
             const sortedPosts = postService.sortPosts(
                 posts,
                 get().posts.activeFilter,

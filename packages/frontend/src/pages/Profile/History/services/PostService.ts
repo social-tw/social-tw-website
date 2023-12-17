@@ -8,7 +8,7 @@ import { ActiveFilter } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
 
 export class PostService {
-    async fetchPostsByUserState(userState: UserState) {
+    async fetchPostHistoryByUserState(userState: UserState) {
         const chunkSize = 50
         const batchedRawPosts = await fetchAllByEpochKeysInBatches(
             userState,

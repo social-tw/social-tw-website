@@ -13,24 +13,24 @@ export const createCommentSlice: StateCommentSlice = (set, get) => ({
         set((state) => {
             const comments = state.comments.data
             const commentService = new CommentService()
-            const sortedPosts = commentService.sortComments(
+            const sortedComments = commentService.sortComments(
                 comments,
                 ActiveFilter.DateAsc,
             )
             state.comments.activeFilter = ActiveFilter.DateAsc
-            state.comments.data = sortedPosts
+            state.comments.data = sortedComments
         })
     },
     setCommentActiveFilterToDateDesc: () => {
         set((state) => {
             const comments = state.comments.data
             const commentService = new CommentService()
-            const sortedPosts = commentService.sortComments(
+            const sortedComments = commentService.sortComments(
                 comments,
                 ActiveFilter.DateDesc,
             )
             state.comments.activeFilter = ActiveFilter.DateDesc
-            state.comments.data = sortedPosts
+            state.comments.data = sortedComments
         })
     },
     setCommentActiveFilterToPopularityAsc: () => {
@@ -52,7 +52,7 @@ export const createCommentSlice: StateCommentSlice = (set, get) => ({
             })
             const commentService = new CommentService()
             const comments =
-                await commentService.fetchCommentsByUserState(userState)
+                await commentService.fetchCommentHistoryByUserState(userState)
             const sortedComments = commentService.sortComments(
                 comments,
                 get().comments.activeFilter,

@@ -8,7 +8,7 @@ import { ActiveFilter } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
 
 export class CommentService {
-    async fetchCommentsByUserState(userState: UserState) {
+    async fetchCommentHistoryByUserState(userState: UserState) {
         const chunkSize = 50
         const batchedRawComments = await fetchAllByEpochKeysInBatches(
             userState,

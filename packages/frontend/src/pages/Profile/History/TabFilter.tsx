@@ -26,9 +26,9 @@ export const TabFilter = () => {
 
 function PostFilter() {
     const {
-        isFilterDateAscActive: isFilterLatestActive,
-        isFilterDateDescActive: isFilterOldestActive,
-        isFilterPopularityAscActive: isFilterPopularityActive,
+        isFilterDateAscActive,
+        isFilterDateDescActive,
+        isFilterPopularityAscActive,
     } = useProfileHistoryPostActiveFilter()
 
     const {
@@ -47,17 +47,17 @@ function PostFilter() {
             <FilterButton
                 onClick={setPostActiveFilterToDateAsc}
                 title="由新到舊"
-                isActive={isFilterLatestActive}
+                isActive={isFilterDateAscActive}
             />
             <FilterButton
                 onClick={setPostActiveFilterToDateDesc}
                 title="由舊到新"
-                isActive={isFilterOldestActive}
+                isActive={isFilterDateDescActive}
             />
             <FilterButton
                 onClick={setPostActiveFilterToPopularityAsc}
                 title="熱門程度"
-                isActive={isFilterPopularityActive}
+                isActive={isFilterPopularityAscActive}
             />
         </div>
     )
@@ -65,9 +65,9 @@ function PostFilter() {
 
 function CommentFilter() {
     const {
-        isFilterDateAscActive: isFilterLatestActive,
-        isFilterDateDescActive: isFilterOldestActive,
-        isFilterPopularityAscActive: isFilterPopularityActive,
+        isFilterDateAscActive,
+        isFilterDateDescActive,
+        isFilterPopularityAscActive,
     } = useProfileHistoryCommentActiveFilter()
     const {
         setCommentActiveFilterToDateAsc,
@@ -85,44 +85,41 @@ function CommentFilter() {
             <FilterButton
                 onClick={setCommentActiveFilterToDateAsc}
                 title="由新到舊"
-                isActive={isFilterLatestActive}
+                isActive={isFilterDateAscActive}
             />
             <FilterButton
                 onClick={setCommentActiveFilterToDateDesc}
                 title="由舊到新"
-                isActive={isFilterOldestActive}
+                isActive={isFilterDateDescActive}
             />
             <FilterButton
                 onClick={setCommentActiveFilterToPopularityAsc}
                 title="熱門程度"
-                isActive={isFilterPopularityActive}
+                isActive={isFilterPopularityAscActive}
             />
         </div>
     )
 }
 
 function VoteFilter() {
-    const {
-        isFilterDateAscActive: isFilterLatestActive,
-        isFilterDateDescActive: isFilterOldestActive,
-    } = useProfileHistoryVoteActiveFilter()
-    const setVoteActiveFilterToLatest = useProfileHistoryStore(
-        (state) => state.setVoteActiveFilterToLatest,
-    )
-    const setVoteActiveFilterToOldest = useProfileHistoryStore(
-        (state) => state.setVoteActiveFilterToOldest,
-    )
+    const { isFilterDateAscActive, isFilterDateDescActive } =
+        useProfileHistoryVoteActiveFilter()
+    const { setVoteActiveFilterToDateAsc, setVoteActiveFilterToDateDesc } =
+        useProfileHistoryStore((state) => ({
+            setVoteActiveFilterToDateAsc: state.setVoteActiveFilterToDateAsc,
+            setVoteActiveFilterToDateDesc: state.setVoteActiveFilterToDateDesc,
+        }))
     return (
         <div className="flex mt-4 gap-4 justify-end">
             <FilterButton
-                onClick={setVoteActiveFilterToLatest}
+                onClick={setVoteActiveFilterToDateAsc}
                 title="由新到舊"
-                isActive={isFilterLatestActive}
+                isActive={isFilterDateAscActive}
             />
             <FilterButton
-                onClick={setVoteActiveFilterToOldest}
+                onClick={setVoteActiveFilterToDateDesc}
                 title="由舊到新"
-                isActive={isFilterOldestActive}
+                isActive={isFilterDateDescActive}
             />
         </div>
     )
