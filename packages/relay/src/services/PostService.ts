@@ -15,7 +15,7 @@ import { ipfsService } from './IpfsService'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 
 export class PostService {
-    // TODO: modify the cache data structure
+    // TODO: modify the cache data structure to avoid memory leak
     private cache: Post[] = []
 
     async start(db: DB): Promise<void> {
@@ -131,9 +131,23 @@ export class PostService {
         db: DB
     ): Promise<Post[] | null> {
         if (!query) {
-            // query the posts from the cache with given pagination
+            let posts: Post[]
             const start = (page - 1) * LOAD_POST_COUNT
-            const posts = this.cache.slice(start, start + LOAD_POST_COUNT)
+            if (this.cache.length == 0) {
+                // anondb doesn't have offset property to
+                // implement pagination
+                const statement = `SELECT * FROM Post WHERE status = 1 LIMIT ${LOAD_POST_COUNT} OFFSET ${start}`
+                if (DB_PATH.startsWith('postgres')) {
+                    const pg = db as PostgresConnector
+                    posts = (await pg.db.query(statement)).rows
+                } else {
+                    const sq = db as SQLiteConnector
+                    posts = await sq.db.all(statement)
+                }
+            } else {
+                // query the posts from the cache with given page
+                posts = this.cache.slice(start, start + LOAD_POST_COUNT)
+            }
             return posts
         }
 
