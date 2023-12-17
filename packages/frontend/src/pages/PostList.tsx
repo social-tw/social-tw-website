@@ -12,9 +12,10 @@ import { useUser } from '../contexts/User'
 import useCreatePost from '../hooks/useCreatePost'
 import { CancelledTaskError } from '../utils/makeCancellableTask'
 
-import type { PostInfo } from '../types'
+import type { PostInfo, Vote } from '../types'
 import { useVoteEvents } from '../hooks/useVotes'
 import { VoteAction, VoteMsg } from '../types/VoteAction'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 const examplePosts = [
     {
@@ -55,6 +56,7 @@ export default function PostList() {
     const [posts, setPosts] = useState<PostInfo[]>([])
     const [isShow, setIsShow] = useState(false)
     const location = useLocation()
+    const { userState } = useUser()
 
     useEffect(() => {
         if (isLogin) {
@@ -79,17 +81,23 @@ export default function PostList() {
             }
 
             const postsJson = await response.json()
-            const posts = postsJson.map((post: any) => ({
-                id: post._id,
-                epochKey: post.epochKey,
-                content: post.content,
-                publishedAt: post.publishedAt,
-                commentCount: post.commentCount,
-                upCount: post.upCount,
-                downCount: post.downCount,
-            }))
 
-            setPosts([...posts, ...examplePosts])
+            const updatedPosts = postsJson.map((post: any) => {
+                let isMine = false
+                let finalAction = null
+
+                if (userState) {
+                    const voteCheck = checkVoteIsMine(post.votes, userState)
+                    isMine = voteCheck.isMine
+                    finalAction = voteCheck.finalAction
+                }
+                return {
+                    ...post,
+                    isMine,
+                    finalAction,
+                }
+            })
+            setPosts([...updatedPosts, ...examplePosts])
         } catch (err: any) {
             console.error('Failed to load posts:', err.message)
         }
@@ -103,7 +111,7 @@ export default function PostList() {
     useVoteEvents((msg: VoteMsg) => {
         setPosts((currentPosts) => {
             const postIndex = currentPosts.findIndex(
-                (post) => post.id === msg.postId
+                (post) => post._id === msg.postId,
             )
             if (postIndex > -1) {
                 const newPosts = [...currentPosts]
@@ -181,11 +189,11 @@ export default function PostList() {
                 <ul className={clsx(isSmallDevice ? 'space-y-3' : 'space-y-6')}>
                     {posts.map((post) => (
                         <li
-                            key={post.id}
+                            key={post._id}
                             className="transition-opacity duration-500"
                         >
                             <Post
-                                id={post.id}
+                                id={post._id}
                                 epochKey={post.epochKey}
                                 content={post.content}
                                 publishedAt={post.publishedAt}

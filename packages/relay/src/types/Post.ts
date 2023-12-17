@@ -11,4 +11,5 @@ export type Post = {
     voteSum: number
     status: number
     commentCount: number
+    votes: any[]
 }

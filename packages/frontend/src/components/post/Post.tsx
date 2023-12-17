@@ -45,7 +45,7 @@ export default function ({
     // TODO: Need get vote state from backend or calucate from ecpochKey
     // 'upvote', 'downvote', or null
     const [voteState, setVoteState] = useState<'upvote' | 'downvote' | null>(
-        null
+        null,
     )
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)

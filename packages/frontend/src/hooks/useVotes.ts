@@ -12,7 +12,7 @@ export default function useVotes() {
 
     const create = async (
         _id: string,
-        voteAction: VoteAction
+        voteAction: VoteAction,
     ): Promise<boolean> => {
         try {
             if (!userState) throw new Error('User state not initialized')
@@ -32,7 +32,7 @@ export default function useVotes() {
                         voteAction,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
-                    })
+                    }),
                 ),
             })
 

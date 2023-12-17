@@ -14,24 +14,42 @@ export class PostService {
         epks: string[] | undefined,
         db: DB
     ): Promise<Post[] | null> {
+        let posts
         if (!query) {
-            const posts = await db.findMany('Post', {
+            // Fetch posts without query
+            posts = await db.findMany('Post', {
                 where: {
                     status: 1,
                 },
             })
-            return posts
+        } else {
+            // TODO check epks is undefined case ?
+            // Fetch posts with query
+            posts = await db.findMany('Post', {
+                where: {
+                    epochKey: epks,
+                },
+                limit: LOAD_POST_COUNT,
+            })
         }
 
-        // TODO check epks is undefined case ?
-        const posts = await db.findMany('Post', {
-            where: {
-                epochKey: epks,
-            },
-            limit: LOAD_POST_COUNT,
-        })
+        // Check if posts were found
+        if (!posts) {
+            return null
+        }
 
-        return posts
+        // Fetch votes for each post and add to post object
+        const postsWithVotes = await Promise.all(
+            posts.map(async (post) => {
+                const votes = await db.findMany('Vote', {
+                    where: { postId: post._id },
+                })
+
+                return { ...post, votes }
+            })
+        )
+
+        return postsWithVotes
     }
 
     async createPost(
@@ -81,9 +99,20 @@ export class PostService {
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
-                postId: id,
+                _id: id,
                 status: status, // could be undefined
             },
+        })
+
+        // Check if the post exists
+        if (!post) {
+            return post // Return null if no post is found
+        }
+
+        // Fetch the votes for the post
+        // Add the vote data to the post object
+        post.votes = await db.findMany('Vote', {
+            where: { postId: id },
         })
 
         return post

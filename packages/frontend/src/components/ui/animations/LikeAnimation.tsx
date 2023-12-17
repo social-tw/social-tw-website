@@ -20,7 +20,6 @@ const LikeAnimation = ({ isLiked, imgType }: LikeAnimationProps) => {
     } else {
         image = Images.DOWNVOTE
     }
-    console.log(imgType, image)
     return (
         <AnimatePresence>
             {isLiked && (

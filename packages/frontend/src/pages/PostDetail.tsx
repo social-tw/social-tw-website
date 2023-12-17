@@ -6,9 +6,11 @@ import Post from '../components/post/Post'
 import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
+import { useUser } from '../contexts/User'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 const demoPost = {
-    id: '1',
+    _id: '1',
     epochKey: 'epochKey-1',
     publishedAt: new Date(),
     content:
@@ -16,25 +18,37 @@ const demoPost = {
     commentCount: 0,
     upCount: 0,
     downCount: 0,
+    isMine: false,
+    finalAction: null,
 }
 
 export default function PostDetail() {
     const { id } = useParams()
     const [post, setPost] = useState<PostInfo>()
+    const { userState } = useUser()
 
     useEffect(() => {
         async function loadPost() {
             const response = await fetch(`${SERVER}/api/post/${id}`)
             const post = await response.json()
 
+            let isMine = false
+            let finalAction = null
+            if (userState) {
+                const voteCheck = checkVoteIsMine(post.votes, userState)
+                isMine = voteCheck.isMine
+                finalAction = voteCheck.finalAction
+            }
             setPost({
-                id: post._id,
+                _id: post._id,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
                 commentCount: post.commentCount,
                 upCount: post.upCount,
                 downCount: post.downCount,
+                isMine: isMine,
+                finalAction: finalAction,
             })
         }
         if (id?.includes('demo')) {
@@ -52,7 +66,7 @@ export default function PostDetail() {
         <div className={clsx(isSmallDevice && 'divide-y divide-neutral-600')}>
             <section className="py-6">
                 <Post
-                    id={post.id}
+                    id={post._id}
                     epochKey={post.epochKey}
                     content={post.content}
                     publishedAt={post.publishedAt}
