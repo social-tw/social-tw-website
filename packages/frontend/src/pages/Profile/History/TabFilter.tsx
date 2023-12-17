@@ -69,29 +69,31 @@ function CommentFilter() {
         isFilterDateDescActive: isFilterOldestActive,
         isFilterPopularityAscActive: isFilterPopularityActive,
     } = useProfileHistoryCommentActiveFilter()
-    const setCommentActiveFilterToLatest = useProfileHistoryStore(
-        (state) => state.setCommentActiveFilterToLatest,
-    )
-    const setCommentActiveFilterToOldest = useProfileHistoryStore(
-        (state) => state.setCommentActiveFilterToOldest,
-    )
-    const setCommentActiveFilterToPopularity = useProfileHistoryStore(
-        (state) => state.setCommentActiveFilterToPopularity,
-    )
+    const {
+        setCommentActiveFilterToDateAsc,
+        setCommentActiveFilterToDateDesc,
+        setCommentActiveFilterToPopularityAsc,
+    } = useProfileHistoryStore((state) => ({
+        setCommentActiveFilterToDateAsc: state.setCommentActiveFilterToDateAsc,
+        setCommentActiveFilterToDateDesc:
+            state.setCommentActiveFilterToDateDesc,
+        setCommentActiveFilterToPopularityAsc:
+            state.setCommentActiveFilterToPopularityAsc,
+    }))
     return (
         <div className="flex mt-4 gap-4 justify-end">
             <FilterButton
-                onClick={setCommentActiveFilterToLatest}
+                onClick={setCommentActiveFilterToDateAsc}
                 title="由新到舊"
                 isActive={isFilterLatestActive}
             />
             <FilterButton
-                onClick={setCommentActiveFilterToOldest}
+                onClick={setCommentActiveFilterToDateDesc}
                 title="由舊到新"
                 isActive={isFilterOldestActive}
             />
             <FilterButton
-                onClick={setCommentActiveFilterToPopularity}
+                onClick={setCommentActiveFilterToPopularityAsc}
                 title="熱門程度"
                 isActive={isFilterPopularityActive}
             />

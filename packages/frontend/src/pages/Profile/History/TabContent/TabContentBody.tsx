@@ -2,6 +2,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
 
 import { Link } from 'react-router-dom'
+import { Comment } from '../DTO/Comment'
 import { Post } from '../DTO/Post'
 
 interface TabContentBodyProps {
@@ -17,8 +18,14 @@ interface BodyCellProps {
     style: React.CSSProperties
 }
 
+enum BodyCellType {
+    TEXT = 'text',
+    LINK = 'link',
+    IMG = 'img',
+}
+
 interface BodyCellData {
-    type: 'text' | 'link' | 'img'
+    type: BodyCellType
     content: string
     url?: string
 }
@@ -90,8 +97,10 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
     const type = data.type
     return (
         <div style={{ ...style, overflow: 'hidden', paddingRight: '20px' }}>
-            {type === 'text' && <BodyCellText content={data.content} />}
-            {type === 'link' && (
+            {type === BodyCellType.TEXT && (
+                <BodyCellText content={data.content} />
+            )}
+            {type === BodyCellType.LINK && (
                 <BodyCellLink content={data.content} url={data.url || ''} />
             )}
         </div>
@@ -117,10 +126,21 @@ function BodyCellLink({ content, url }: CellLinkProps) {
 export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
     return posts.map((post) => {
         return [
-            { type: 'text', content: post.date },
-            { type: 'text', content: post.content },
-            { type: 'text', content: post.epochKey },
-            { type: 'link', content: '前往查看', url: post.url },
+            { type: BodyCellType.TEXT, content: post.date },
+            { type: BodyCellType.TEXT, content: post.content },
+            { type: BodyCellType.TEXT, content: post.epochKey },
+            { type: BodyCellType.LINK, content: '前往查看', url: post.url },
+        ]
+    })
+}
+
+export function parseCommentsToBodyData(comments: Comment[]): BodyCellData[][] {
+    return comments.map((comment) => {
+        return [
+            { type: BodyCellType.TEXT, content: comment.date },
+            { type: BodyCellType.TEXT, content: comment.content },
+            { type: BodyCellType.TEXT, content: comment.epochKey },
+            { type: BodyCellType.LINK, content: '前往查看', url: comment.url },
         ]
     })
 }

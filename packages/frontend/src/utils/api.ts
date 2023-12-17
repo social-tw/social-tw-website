@@ -1,6 +1,8 @@
 import { SERVER } from '../config'
 import {
     Directions,
+    FetchCommentsByEpochKeysParams,
+    FetchCommentsByEpochKeysResponse,
     FetchPostsByEpochKeysParams,
     FetchPostsByEpochKeysResponse,
     SortKeys,
@@ -24,6 +26,18 @@ export async function fetchPostsByEpochKeys({
     const sortKey = SortKeys.PublishedAt
     const res = await fetch(
         `${SERVER}/api/my-account/posts?epks=${epks}&direction=${direction}&sortKey=${sortKey}`,
+    )
+    return res.json()
+}
+
+export async function fetchCommentsByEpochKeys({
+    epochKeys,
+}: FetchCommentsByEpochKeysParams): Promise<FetchCommentsByEpochKeysResponse> {
+    const epks = epochKeys.map((key) => key.toString()).join('_')
+    const direction = Directions.Asc
+    const sortKey = SortKeys.PublishedAt
+    const res = await fetch(
+        `${SERVER}/api/my-account/comments?epks=${epks}&direction=${direction}&sortKey=${sortKey}`,
     )
     return res.json()
 }

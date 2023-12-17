@@ -1,20 +1,72 @@
+import { UserState } from '@unirep/core'
+import { CommentService } from '../services/CommentService'
 import { ActiveFilter, StateCommentSlice } from '../types'
 
-export const createCommentSlice: StateCommentSlice = (set) => ({
+export const createCommentSlice: StateCommentSlice = (set, get) => ({
     comments: {
         activeFilter: ActiveFilter.DateAsc,
+        isFetching: false,
+        isInit: false,
         data: [],
     },
-    setCommentActiveFilterToLatest: () =>
+    setCommentActiveFilterToDateAsc: () => {
         set((state) => {
+            const comments = state.comments.data
+            const commentService = new CommentService()
+            const sortedPosts = commentService.sortComments(
+                comments,
+                ActiveFilter.DateAsc,
+            )
             state.comments.activeFilter = ActiveFilter.DateAsc
-        }),
-    setCommentActiveFilterToOldest: () =>
+            state.comments.data = sortedPosts
+        })
+    },
+    setCommentActiveFilterToDateDesc: () => {
         set((state) => {
+            const comments = state.comments.data
+            const commentService = new CommentService()
+            const sortedPosts = commentService.sortComments(
+                comments,
+                ActiveFilter.DateDesc,
+            )
             state.comments.activeFilter = ActiveFilter.DateDesc
-        }),
-    setCommentActiveFilterToPopularity: () =>
+            state.comments.data = sortedPosts
+        })
+    },
+    setCommentActiveFilterToPopularityAsc: () => {
         set((state) => {
+            const comments = state.comments.data
+            const commentService = new CommentService()
+            const sortedComments = commentService.sortComments(
+                comments,
+                ActiveFilter.PopularityAsc,
+            )
             state.comments.activeFilter = ActiveFilter.PopularityAsc
-        }),
+            state.comments.data = sortedComments
+        })
+    },
+    invokeInitHistoryCommentsFlow: async (userState: UserState) => {
+        try {
+            set((state) => {
+                state.comments.isFetching = true
+            })
+            const commentService = new CommentService()
+            const comments =
+                await commentService.fetchCommentsByUserState(userState)
+            const sortedComments = commentService.sortComments(
+                comments,
+                get().comments.activeFilter,
+            )
+            set((state) => {
+                state.comments.data = sortedComments
+                state.comments.isInit = true
+            })
+        } catch (err) {
+            console.error('Init History Comments Error:', err)
+        } finally {
+            set((state) => {
+                state.comments.isFetching = false
+            })
+        }
+    },
 })

@@ -5,21 +5,15 @@ import { RelayRawPost } from '../../../../types/api'
 import { fetchPostsByEpochKeys } from '../../../../utils/api'
 import { Post } from '../DTO/Post'
 import { ActiveFilter } from '../types'
-import { getEpochKeyChunks } from '../utils'
+import { fetchAllByEpochKeysInBatches } from '../utils'
 
 export class PostService {
     async fetchPostsByUserState(userState: UserState) {
-        const currentEpoch = userState.sync.calcCurrentEpoch()
         const chunkSize = 50
-        const epochKeyChunks = getEpochKeyChunks(
+        const batchedRawPosts = await fetchAllByEpochKeysInBatches(
             userState,
-            currentEpoch,
             chunkSize,
-        )
-        const batchedRawPosts = await Promise.all(
-            epochKeyChunks.map((epochKeyChunk) =>
-                fetchPostsByEpochKeys({ epochKeys: epochKeyChunk }),
-            ),
+            fetchPostsByEpochKeys,
         )
         return batchedRawPosts
             .map(this.parseRelayRawPostsToPosts.bind(this))

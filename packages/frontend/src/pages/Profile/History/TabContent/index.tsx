@@ -4,7 +4,11 @@ import {
     useProfileHistoryActiveTab,
     useProfileHistoryStore,
 } from '../store/useProfileHistoryStore'
-import { TabContentBody, parsePostsToBodyData } from './TabContentBody'
+import {
+    TabContentBody,
+    parseCommentsToBodyData,
+    parsePostsToBodyData,
+} from './TabContentBody'
 import {
     TabContentHeader,
     getCommentHeaderData,
@@ -48,12 +52,23 @@ function PostTabContent() {
 }
 
 function CommentTabContent() {
+    const { isCommentsFetching, isCommentsInit, comments } =
+        useProfileHistoryStore((state) => ({
+            isCommentsFetching: state.comments.isFetching,
+            isCommentsInit: state.comments.isInit,
+            comments: state.comments.data,
+        }))
     const headerData = getCommentHeaderData()
-    const bodyData = [[]]
+    const bodyData = parseCommentsToBodyData(comments)
+    useInitCommentTabContent()
     return (
         <div className={`h-full grid grid-rows-[auto_1fr]`}>
             <TabContentHeader data={headerData} />
-            <TabContentBody data={bodyData} isLoading={false} isInit={false} />
+            <TabContentBody
+                data={bodyData}
+                isLoading={isCommentsFetching}
+                isInit={isCommentsInit}
+            />
         </div>
     )
 }
@@ -81,4 +96,18 @@ function useInitPostTabContent() {
             invokeInitHistoryPostsFlow(userState)
         }
     }, [isHistoryPostsInit, userState, invokeInitHistoryPostsFlow])
+}
+
+function useInitCommentTabContent() {
+    const { userState } = useUser()
+    const { isHistoryCommentsInit, invokeInitHistoryCommentsFlow } =
+        useProfileHistoryStore((state) => ({
+            isHistoryCommentsInit: state.comments.isInit,
+            invokeInitHistoryCommentsFlow: state.invokeInitHistoryCommentsFlow,
+        }))
+    useEffect(() => {
+        if (!isHistoryCommentsInit && userState) {
+            invokeInitHistoryCommentsFlow(userState)
+        }
+    }, [isHistoryCommentsInit, userState, invokeInitHistoryCommentsFlow])
 }

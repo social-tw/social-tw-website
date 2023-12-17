@@ -72,11 +72,14 @@ interface PostSlice {
 interface CommentSlice {
     comments: {
         activeFilter: ActiveFilter
+        isFetching: boolean
+        isInit: boolean
         data: Comment[]
     }
-    setCommentActiveFilterToLatest: () => void
-    setCommentActiveFilterToOldest: () => void
-    setCommentActiveFilterToPopularity: () => void
+    setCommentActiveFilterToDateAsc: () => void
+    setCommentActiveFilterToDateDesc: () => void
+    setCommentActiveFilterToPopularityAsc: () => void
+    invokeInitHistoryCommentsFlow: (userState: UserState) => Promise<void>
 }
 
 interface VoteSlice {

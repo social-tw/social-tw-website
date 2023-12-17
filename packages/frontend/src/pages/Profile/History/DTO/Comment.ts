@@ -1,8 +1,11 @@
 export class Comment {
     constructor(
-        public date: string,
-        public content: string,
+        public id: string,
         public epochKey: string,
+        public publishedAt: number,
+        public content: string,
+        public voteSum: number,
+        public date: string,
         public url: string,
     ) {}
 }
