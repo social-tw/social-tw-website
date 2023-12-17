@@ -4,7 +4,7 @@ import { SignupStatus } from '../contexts/User'
 const useInitUser = (
     signupStatus: SignupStatus,
     load: () => Promise<void>,
-    logout: () => void
+    logout: () => void,
 ) => {
     useEffect(() => {
         const initUser = async () => {
@@ -14,7 +14,9 @@ const useInitUser = (
                 }
                 await load()
             } catch (error: any) {
-                logout()
+                if (!error.message.includes('user is not signed up')) {
+                    logout()
+                }
             }
         }
 

@@ -52,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({
                 z-50
                 h-full
                 `,
-                    background && `${background}`
+                    background && `${background}`,
                 )}
                 variants={modalVariants}
                 initial="hidden"

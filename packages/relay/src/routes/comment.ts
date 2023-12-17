@@ -60,4 +60,18 @@ export default (
                 res.json({ transaction: hash })
             })
         )
+
+        .delete(
+            errorHandler(async (req, res) => {
+                const { commentId, publicSignals, proof } = req.body
+                const hash = await commentService.deleteComment(
+                    commentId.toString(),
+                    publicSignals,
+                    proof,
+                    synchronizer,
+                    db
+                )
+                res.json({ transaction: hash })
+            })
+        )
 }

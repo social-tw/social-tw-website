@@ -31,7 +31,7 @@ const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
                         rounded-full 
                         text-[30px]
                         `,
-                        hashUserId && 'border-[5px] border-white'
+                        hashUserId && 'border-[5px] border-white',
                     )}
                 >
                     1
@@ -67,7 +67,7 @@ const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
             <div
                 className={clsx(
                     `flex w-[80px] flex-col justify-center items-center gap-2`,
-                    !hashUserId && 'opacity-30'
+                    !hashUserId && 'opacity-30',
                 )}
             >
                 <div

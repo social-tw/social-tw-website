@@ -22,6 +22,8 @@ export const deployContracts = async (epochLength: number) => {
     return await deployApp(signer, epochLength)
 }
 
+let socketManager: SocketManager
+
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
 
@@ -85,5 +87,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         synchronizer,
         server,
         postService,
+        socketManager,
     }
 }

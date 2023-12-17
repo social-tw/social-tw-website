@@ -136,7 +136,12 @@ export class PostService {
             if (this.cache.length == 0) {
                 // anondb doesn't have offset property to
                 // implement pagination
-                const statement = `SELECT * FROM Post WHERE status = 1 LIMIT ${LOAD_POST_COUNT} OFFSET ${start}`
+                const statement = `
+                    SELECT * FROM Post 
+                    WHERE status = 1 
+                    ORDER BY CAST(publishedAt AS INTEGER) DESC 
+                    LIMIT ${LOAD_POST_COUNT} OFFSET ${start}
+                `
                 if (DB_PATH.startsWith('postgres')) {
                     const pg = db as PostgresConnector
                     posts = (await pg.db.query(statement)).rows

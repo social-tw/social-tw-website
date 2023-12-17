@@ -1,5 +1,7 @@
 import { DB } from 'anondb/node'
-import { commentTemplate, postData, voteTemplate } from '../mocks/posts'
+import { postData } from '../mocks/posts'
+import { commentTemplate } from '../mocks/comment'
+import { voteTemplate } from '../mocks/vote'
 
 export const getRandom = () => {
     return Math.floor(Math.random() * 1000)
