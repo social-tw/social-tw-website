@@ -13,6 +13,7 @@ import TransactionManager from '../src/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
 import { SocketManager } from '../src/singletons/SocketManager'
+import { postService } from '../src/services/PostService'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -85,6 +86,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         TransactionManager,
         synchronizer,
         server,
+        postService,
         socketManager,
     }
 }
