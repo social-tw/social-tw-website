@@ -23,7 +23,7 @@ jobs:
         with:
             target: ${{ matrix.target }}
         secrets:
-            CR_PAT: ${{ secrets.CR_PAT }}
+            CR_PAT: ${{ secrets.CR_PAT_CI_CD }}
 
     lint:
         runs-on: ubuntu-22.04
