@@ -24,7 +24,7 @@ export const LogoutModal: React.FC<LogoutModalProps> = ({
     }
     return (
         <Modal isOpen={isOpen} postion="fixed" background={'bg-black/75'}>
-            <div className="flex items-center justify-center w-full h-full">
+            <div className="flex items-center justify-center w-full h-full p-4">
                 <div className={getBoxStyle()}>
                     <GrFormClose
                         className="absolute top-4 right-4 cursor-pointer"
