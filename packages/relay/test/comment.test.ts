@@ -128,7 +128,6 @@ describe('COMMENT /comment', function () {
             expect(r.status).equal(200)
             return r.json()
         })
-        console.log(comments)
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
