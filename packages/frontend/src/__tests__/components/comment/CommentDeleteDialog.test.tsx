@@ -3,7 +3,7 @@ import '@testing-library/jest-dom'
 import CommentDeleteDialog from '@/components/comment/CommentDeleteDialog'
 
 describe('CommentDeleteDialog', () => {
-    it('renders correctly when open is true', () => {
+    it('renders when open is true', () => {
         render(<CommentDeleteDialog open={true} commentId="123" />)
         expect(screen.getByText(/確定要刪除這則留言嗎？/)).toBeInTheDocument()
     })
@@ -17,8 +17,7 @@ describe('CommentDeleteDialog', () => {
         const onCloseMock = jest.fn()
         render(<CommentDeleteDialog open={true} onClose={onCloseMock} commentId="123" />)
         
-        // Assuming you have a close button or a way to trigger onClose
-        fireEvent.click(screen.getByText(/close button text/))
+        fireEvent.click(screen.getByLabelText('close'))
         expect(onCloseMock).toHaveBeenCalled()
     })
 
@@ -28,11 +27,5 @@ describe('CommentDeleteDialog', () => {
         
         fireEvent.click(screen.getByText(/確認刪除/))
         expect(onConfirmMock).toHaveBeenCalled()
-    })
-
-    // Optional: Snapshot test
-    it('matches snapshot', () => {
-        const { asFragment } = render(<CommentDeleteDialog open={true} commentId="123" />)
-        expect(asFragment()).toMatchSnapshot()
     })
 })

@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { expect } from '@jest/globals'
 import { fireEvent, render, screen } from '@testing-library/react'
-import PostForm from '../../components/post/PostForm'
+import PostForm from '../../../components/post/PostForm'
 
 jest.mock('@uidotdev/usehooks', () => ({
     useIsFirstRender: jest.fn().mockReturnValue(false),

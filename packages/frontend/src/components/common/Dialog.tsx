@@ -26,6 +26,7 @@ const Dialog = forwardRef<HTMLDivElement, DialogProps>((props, ref) => {
                         ref={ref}
                     >
                         <button
+                            aria-label="close"
                             className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-[#051532]"
                             type="submit"
                             onClick={onClose}
