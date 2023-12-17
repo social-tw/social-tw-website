@@ -127,6 +127,7 @@ export class PostService {
     async fetchPosts(
         query: string | undefined,
         epks: string[] | undefined,
+        page: number,
         db: DB,
     ): Promise<Post[] | null> {
         if (!query) {
