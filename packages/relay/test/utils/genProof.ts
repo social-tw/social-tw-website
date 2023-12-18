@@ -25,6 +25,7 @@ export async function genEpochKeyProof(config: {
     leafIndex: number
     epoch: number
     nonce: number
+    chainId: number
     attesterId: number | bigint
     data?: bigint[]
     sigData?: bigint
@@ -36,6 +37,7 @@ export async function genEpochKeyProof(config: {
         leafIndex,
         epoch,
         nonce,
+        chainId,
         attesterId,
         data: _data,
         sigData,
@@ -50,12 +52,13 @@ export async function genEpochKeyProof(config: {
     const _proof = tree.createProof(leafIndex)
     const circuitInputs = {
         state_tree_elements: _proof.siblings,
-        state_tree_indexes: _proof.pathIndices,
+        state_tree_indices: _proof.pathIndices,
         identity_secret: id.secret,
         data,
         sig_data: sigData ?? BigInt(0),
         nonce,
         epoch,
+        chain_id: chainId,
         attester_id: attesterId,
         reveal_nonce: revealNonce ?? 0,
     }

@@ -30,6 +30,7 @@ describe('COMMENT /comment', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -74,6 +75,8 @@ describe('COMMENT /comment', function () {
             const post = (await r.json()) as Post
             expect(post.status).equal(1)
         })
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -183,6 +186,7 @@ describe('COMMENT /comment', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })
@@ -217,7 +221,13 @@ describe('COMMENT /comment', function () {
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
         const id = userState.id
-        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        const leaf = genStateTreeLeaf(
+            id.secret,
+            attesterId,
+            epoch,
+            data,
+            chainId
+        )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
             id,
@@ -225,6 +235,7 @@ describe('COMMENT /comment', function () {
             leafIndex: 0,
             epoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })
