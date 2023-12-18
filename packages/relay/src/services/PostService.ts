@@ -128,11 +128,10 @@ export class PostService {
         query: string | undefined,
         epks: string[] | undefined,
         page: number,
-        db: DB,
+        db: DB
     ): Promise<Post[] | null> {
-        let posts
+        let posts: Post[]
         if (!query) {
-            let posts: Post[]
             const start = (page - 1) * LOAD_POST_COUNT
             if (this.cache.length == 0) {
                 // anondb doesn't have offset property to
@@ -154,27 +153,40 @@ export class PostService {
                 // query the posts from the cache with given page
                 posts = this.cache.slice(start, start + LOAD_POST_COUNT)
             }
+        } else {
+            // TODO: check epks is undefined case ?
+            posts = await db.findMany('Post', {
+                where: {
+                    epochKey: epks,
+                },
+                limit: LOAD_POST_COUNT,
+            })
+        }
+
+        if (!posts) {
             return posts
         }
 
-        // TODO: check epks is undefined case ?
-        const posts = await db.findMany('Post', {
-            where: {
-                epochKey: epks,
-            },
-            limit: LOAD_POST_COUNT,
-        })
+        // Fetch votes for each post and add to post object
+        return await Promise.all(
+            posts.map(async (post) => {
+                const votes = await db.findMany('Vote', {
+                    where: { postId: post._id },
+                })
 
-        return posts
+                return { ...post, votes }
+            })
+        )
     }
 
     async fetchMyAccountPosts(
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB,
+        db: DB
     ): Promise<Post[]> {
-        return db.findMany('Post', {
+        let posts: Post[]
+        posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
             },
@@ -183,6 +195,17 @@ export class PostService {
             },
             limit: LOAD_POST_COUNT,
         })
+
+        // Fetch votes for each post and add to post object
+        return await Promise.all(
+            posts.map(async (post) => {
+                const votes = await db.findMany('Vote', {
+                    where: { postId: post._id },
+                })
+
+                return { ...post, votes }
+            })
+        )
     }
 
     async createPost(
@@ -191,12 +214,12 @@ export class PostService {
         proof: SnarkProof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia,
+        helia: Helia
     ): Promise<string> {
         const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // post content
@@ -229,7 +252,7 @@ export class PostService {
     async fetchSinglePost(
         id: string,
         db: DB,
-        status: number | undefined,
+        status: number | undefined
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {

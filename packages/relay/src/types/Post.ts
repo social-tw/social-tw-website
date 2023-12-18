@@ -12,4 +12,5 @@ export type Post = {
     status: number
     commentCount: number
     votes: any[]
+    _id: string
 }
