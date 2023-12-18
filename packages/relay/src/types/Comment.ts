@@ -2,7 +2,7 @@ export type Comment = {
     commentId: string | undefined
     postId: string
     content: string | undefined
-    publishedAt: number
+    publishedAt: string
     transactionHash: string
     cid: string | undefined
     epoch: number

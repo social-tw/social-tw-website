@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import { ethers } from 'ethers'
-import { SQLiteConnector, PostgresConnector } from 'anondb/node.js'
+import { SQLiteConnector, PostgresConnector, DB } from 'anondb/node.js'
 import { createServer } from 'http'
 
 // libraries
@@ -23,6 +23,7 @@ import {
 } from './config'
 import TransactionManager from './singletons/TransactionManager'
 import { SocketManager } from './singletons/SocketManager'
+import { postService } from './services/PostService'
 
 main().catch((err) => {
     console.log(`Uncaught error: ${err}`)
@@ -30,10 +31,12 @@ main().catch((err) => {
 })
 
 async function main() {
-    var db
+    let db: DB
     if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
         db = await PostgresConnector.create(schema, DB_PATH)
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+
+    await postService.start(db)
 
     const synchronizer = new UnirepSocialSynchronizer(
         {

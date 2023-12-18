@@ -15,6 +15,7 @@ import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 import { VoteAction } from '../src/types'
 import { genEpochKeyProof, randomData } from './utils/genProof'
+import { PostService } from '../src/services/PostService'
 import { io } from 'socket.io-client'
 import { EventType, VoteMsg } from '../src/types/SocketTypes'
 
@@ -29,6 +30,7 @@ describe('POST /vote', function () {
     var upvotePostId: string
     var downvotePostId: string
     var otherPostId: string
+    var pService: PostService
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -42,6 +44,7 @@ describe('POST /vote', function () {
             TransactionManager,
             server,
             synchronizer,
+            postService,
         } = await startServer(unirep, app)
 
         // start socket client
@@ -50,6 +53,7 @@ describe('POST /vote', function () {
         anondb = db
         express = server
         sync = synchronizer
+        pService = postService
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -81,9 +85,9 @@ describe('POST /vote', function () {
             )
         )
         await sync.waitForSync()
-
+        await pService.updateOrder(anondb)
         // get the post ids
-        const response = await fetch(`${HTTP_SERVER}/api/post`)
+        const response = await fetch(`${HTTP_SERVER}/api/post?page=1`)
         expect(response.status).equal(200)
         const posts = await response.json()
         expect(posts.length).equal(3)
