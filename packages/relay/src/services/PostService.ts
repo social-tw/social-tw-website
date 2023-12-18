@@ -117,6 +117,7 @@ export class PostService {
             const sq = db as SQLiteConnector
             this.cache = await sq.db.all(statement)
         }
+        console.log('cache', this.cache)
     }
 
     // returns the LOAD_POST_COUNT posts of the given page
@@ -128,10 +129,11 @@ export class PostService {
         query: string | undefined,
         epks: string[] | undefined,
         page: number,
-        db: DB,
+        db: DB
     ): Promise<Post[] | null> {
         if (!query) {
             let posts: Post[]
+            if (!page) page = 0
             const start = (page - 1) * LOAD_POST_COUNT
             if (this.cache.length == 0) {
                 // anondb doesn't have offset property to
@@ -171,7 +173,7 @@ export class PostService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB,
+        db: DB
     ): Promise<Post[]> {
         return db.findMany('Post', {
             where: {
@@ -190,12 +192,12 @@ export class PostService {
         proof: SnarkProof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia,
+        helia: Helia
     ): Promise<string> {
         const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // post content
@@ -228,7 +230,7 @@ export class PostService {
     async fetchSinglePost(
         id: string,
         db: DB,
-        status: number | undefined,
+        status: number | undefined
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {

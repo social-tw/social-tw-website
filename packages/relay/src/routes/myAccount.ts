@@ -14,15 +14,15 @@ export default (app: Express, db: DB) => {
             epks: string[],
             sortKey: 'publishedAt' | 'voteSum',
             direction: 'asc' | 'desc',
-            db: DB,
-        ) => Promise<any[]>,
+            db: DB
+        ) => Promise<any[]>
     ) => {
         const epks = req.query.epks as string | undefined
         const parsedEpks = epks?.split('_') || []
         if (parsedEpks.length === 0) {
             throw new InternalError(
                 'epks must be specified and should be a non-empty string',
-                400,
+                400
             )
         }
 
@@ -30,7 +30,7 @@ export default (app: Express, db: DB) => {
         if (sortKey !== 'publishedAt' && sortKey !== 'voteSum') {
             throw new InternalError(
                 "sortKey must be 'publishedAt' | 'voteSum'",
-                400,
+                400
             )
         }
 
@@ -49,9 +49,9 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                postService.fetchMyAccountPosts,
+                postService.fetchMyAccountPosts
             )
-        }),
+        })
     )
 
     app.get(
@@ -60,9 +60,9 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                commentService.fetchMyAccountComments,
+                commentService.fetchMyAccountComments
             )
-        }),
+        })
     )
 
     app.get(
@@ -71,8 +71,8 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                voteService.fetchMyAccountVotes,
+                voteService.fetchMyAccountVotes
             )
-        }),
+        })
     )
 }
