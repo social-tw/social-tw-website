@@ -23,7 +23,6 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
-import { socket } from './socket'
 
 import './styles/main.css'
 

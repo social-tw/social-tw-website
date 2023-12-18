@@ -93,73 +93,39 @@ export default function ({
         </div>
     )
 
-    const handleUpvote = async () => {
-        let action
-        let success = false
+    const handleVote = async (voteType: VoteAction) => {
+        let action: VoteAction;
+        let success = false;
 
-        if (voteState === 'upvote') {
-            action = VoteAction.CANCEL_UPVOTE
-            success = await create(id, action)
-
-            if (success) {
-                setUpvotes((prev) => prev - 1)
-                setVoteState(null)
-            }
+        if (isMine && finalAction === voteType) {
+            action = voteType === VoteAction.UPVOTE ? VoteAction.CANCEL_UPVOTE : VoteAction.CANCEL_DOWNVOTE;
         } else {
-            if (voteState === 'downvote') {
-                action = VoteAction.CANCEL_DOWNVOTE
-                success = await create(id, action)
-
-                if (success) {
-                    setDownvotes((prev) => prev - 1)
+            if (isMine && finalAction !== voteType) {
+                const cancelAction = voteType === VoteAction.UPVOTE ? VoteAction.CANCEL_DOWNVOTE : VoteAction.CANCEL_UPVOTE;
+                await create(id, cancelAction);
+                if (cancelAction === VoteAction.CANCEL_UPVOTE) {
+                    setUpvotes((prev) => prev - 1);
+                } else {
+                    setDownvotes((prev) => prev - 1);
                 }
             }
-            setShow(true)
-            setImgType('upvote')
-            action = VoteAction.UPVOTE
-            success = await create(id, action)
-
-            if (success) {
-                setUpvotes((prev) => prev + 1)
-                setVoteState('upvote')
-            }
-            setShow(false)
+            // 然后进行新的投票
+            action = voteType;
+            setShow(true);
+            setImgType(voteType === VoteAction.UPVOTE ? 'upvote' : 'downvote');
         }
-    }
+        success = await create(id, action);
 
-    const handleDownvote = async () => {
-        let action
-        let success = false
-
-        if (voteState === 'downvote') {
-            action = VoteAction.CANCEL_DOWNVOTE
-            success = await create(id, action)
-
-            if (success) {
-                setDownvotes((prev) => prev - 1)
-                setVoteState(null)
+        if (success) {
+            if (action === VoteAction.UPVOTE || action === VoteAction.CANCEL_UPVOTE) {
+                setUpvotes((prev) => action === VoteAction.UPVOTE ? prev + 1 : prev - 1);
+            } else {
+                setDownvotes((prev) => action === VoteAction.DOWNVOTE ? prev + 1 : prev - 1);
             }
-        } else {
-            if (voteState === 'upvote') {
-                action = VoteAction.CANCEL_UPVOTE
-                success = await create(id, action)
-
-                if (success) {
-                    setUpvotes((prev) => prev - 1)
-                }
-            }
-            setShow(true)
-            setImgType('downvote')
-            action = VoteAction.DOWNVOTE
-            success = await create(id, action)
-
-            if (success) {
-                setDownvotes((prev) => prev + 1)
-                setVoteState('downvote')
-            }
-            setShow(false)
+            setVoteState(action === voteType ? voteType : null);
+            setShow(false);
         }
-    }
+    };
 
     useVoteEvents((msg: VoteMsg) => {
         if (id !== msg.postId) return
@@ -197,7 +163,7 @@ export default function ({
                 <footer className="flex items-center gap-4">
                     <div
                         className={`flex items-center gap-1`}
-                        onClick={handleUpvote}
+                        onClick={() => handleVote(VoteAction.UPVOTE)}
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
@@ -219,7 +185,7 @@ export default function ({
                     </div>
                     <div
                         className={`flex items-center gap-1`}
-                        onClick={handleDownvote}
+                        onClick={() => handleVote(VoteAction.DOWNVOTE)}
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
