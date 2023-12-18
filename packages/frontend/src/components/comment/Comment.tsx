@@ -16,7 +16,7 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { CommentInfo, CommentStatus } from '../../types'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
-import useDeleteComment from '@/hooks/useDeleteComments'
+import useDeleteComment from '@/hooks/useDeleteComment'
 
 interface CommentProps extends CommentInfo {
     onCloseAnimation?: () => void

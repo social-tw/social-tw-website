@@ -7,7 +7,7 @@ import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import useCreateComment from '@/hooks/useCreateComment'
-import useDeleteComment from '@/hooks/useDeleteComments'
+import useDeleteComment from '@/hooks/useDeleteComment'
 import { removeActionByCommentId } from '@/contexts/Actions'
 
 dayjs.extend(relativeTime)

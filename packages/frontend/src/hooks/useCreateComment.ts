@@ -1,6 +1,5 @@
 import {
     ActionType,
-    CommentData,
     addAction,
     failActionById,
     succeedActionById,
@@ -66,7 +65,6 @@ export default function useCreateComment() {
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            // TODO: fix the commentId redirection. Discuss with backend
             succeedActionById(actionId, { transactionHash: transaction })
         } catch (error) {
             console.error(error)
