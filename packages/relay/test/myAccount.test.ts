@@ -44,7 +44,7 @@ describe.only('My Account Page', function () {
 
     it('should fetch posts', async function () {
         const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts?epks=${postEpochKey}`,
+            `${HTTP_SERVER}/api/my-account/posts?epks=${postEpochKey}`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -55,7 +55,7 @@ describe.only('My Account Page', function () {
 
     it('should fail if epks is empty', async function () {
         const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts`,
+            `${HTTP_SERVER}/api/my-account/posts`
         ).then((r) => {
             expect(r.status).equal(400)
         })
@@ -63,7 +63,7 @@ describe.only('My Account Page', function () {
 
     it('should fail if sortKey is not allowed', async function () {
         const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts?sortKey=foo`,
+            `${HTTP_SERVER}/api/my-account/posts?sortKey=foo`
         ).then((r) => {
             expect(r.status).equal(400)
         })
@@ -71,7 +71,7 @@ describe.only('My Account Page', function () {
 
     it('should fail if direction is not allowed', async function () {
         const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts?direction=foo`,
+            `${HTTP_SERVER}/api/my-account/posts?direction=foo`
         ).then((r) => {
             expect(r.status).equal(400)
         })
