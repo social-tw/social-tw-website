@@ -84,8 +84,8 @@ describe('Synchronize Comment Test', function () {
         console.log('Close server...')
         express.close()
         await ethers.provider.send('evm_revert', [snapshot])
-        // users[0].userState.sync.stop()
-        // users[1].userState.sync.stop()
+        // users[0].userState.stop()
+        // users[1].userState.stop()
         // sync.stop()
     })
 

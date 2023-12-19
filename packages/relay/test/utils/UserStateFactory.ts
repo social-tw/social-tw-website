@@ -47,7 +47,7 @@ export class UserStateFactory {
     }
 
     async initUserState(userState: UserState) {
-        await userState.sync.start()
+        await userState.start()
         await userState.waitForSync()
     }
 

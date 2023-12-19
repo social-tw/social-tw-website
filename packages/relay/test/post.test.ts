@@ -33,6 +33,7 @@ describe('POST /post', function () {
     let sync: UnirepSocialSynchronizer
     let sqlite: SQLiteConnector
     let pService: PostService
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -69,6 +70,8 @@ describe('POST /post', function () {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -177,6 +180,7 @@ describe('POST /post', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 0,
+            chainId,
             attesterId,
             data,
         })
@@ -210,7 +214,13 @@ describe('POST /post', function () {
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
         const id = userState.id
-        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        const leaf = genStateTreeLeaf(
+            id.secret,
+            attesterId,
+            epoch,
+            data,
+            chainId
+        )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
             id,
@@ -218,6 +228,7 @@ describe('POST /post', function () {
             leafIndex: 0,
             epoch,
             nonce: 0,
+            chainId,
             attesterId,
             data,
         })
