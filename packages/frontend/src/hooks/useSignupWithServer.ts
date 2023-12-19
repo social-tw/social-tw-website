@@ -1,4 +1,4 @@
-import { SocialUserstate } from '../contexts/Userstate'
+import SocialUserstate from '../contexts/Userstate'
 import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import { SignupStatus } from '../contexts/User'
 
