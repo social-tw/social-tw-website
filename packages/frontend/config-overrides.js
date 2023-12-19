@@ -14,6 +14,7 @@ module.exports = {
         config.moduleNameMapper = {
             ...config.moduleNameMapper,
             '^@/(.*)$': '<rootDir>/src/$1',
+            '\\.css$': '<rootDir>/__mocks__/styleMock.js',
             
         }
         config.setupFilesAfterEnv = [

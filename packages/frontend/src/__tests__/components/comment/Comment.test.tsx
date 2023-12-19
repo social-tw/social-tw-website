@@ -22,8 +22,7 @@ jest.mock('@/contexts/Actions', () => ({
 }))
 
 jest.mock('@/hooks/useCreateComment')
-
-jest.mock('@/hooks/useDeleteComments')
+jest.mock('@/hooks/useDeleteComment')
 
 const mockedUseCreateComment = useCreateComment as jest.MockedFunction<typeof useCreateComment>
 const mockedUseDeleteComment = useDeleteComment as jest.MockedFunction<typeof useDeleteComment>
