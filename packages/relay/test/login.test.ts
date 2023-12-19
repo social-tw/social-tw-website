@@ -176,7 +176,7 @@ describe('LOGIN /login', function () {
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
-            .query({
+            .send({
                 publicSignals: publicSignals,
                 proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,

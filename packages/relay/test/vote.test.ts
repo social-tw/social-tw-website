@@ -19,19 +19,19 @@ import { PostService } from '../src/services/PostService'
 import { io } from 'socket.io-client'
 import { EventType, VoteMsg } from '../src/types/SocketTypes'
 
-let socketClient: any
 describe('POST /vote', function () {
-    var snapshot: any
-    var anondb: DB
-    var express: Server
-    var userStateFactory: UserStateFactory
-    var userState: UserState
-    var sync: UnirepSocialSynchronizer
-    var upvotePostId: string
-    var downvotePostId: string
-    var otherPostId: string
-    var pService: PostService
-    var chainId: number
+    let socketClient: any
+    let snapshot: any
+    let anondb: DB
+    let express: Server
+    let userStateFactory: UserStateFactory
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let upvotePostId: string
+    let downvotePostId: string
+    let otherPostId: string
+    let pService: PostService
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])

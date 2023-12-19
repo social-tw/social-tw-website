@@ -45,6 +45,7 @@
         "react-lines-ellipsis": "^0.15.3",
         "react-scripts": "^5.0.1",
         "react-twitter-login": "^1.5.0",
+        "dotenv-webpack": "^8.0.1",
         "socket.io-client": "^4.7.2"
     },
     "devDependencies": {

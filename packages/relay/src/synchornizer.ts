@@ -27,6 +27,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             prover: Prover
             provider: ethers.providers.Provider
             unirepAddress: string
+            genesisBlock?: number
         },
         unirepSocialContract: ethers.Contract
     ) {
@@ -190,8 +191,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     }
 
     // overwrite handleEpochEnded to delete all epochKeyAction when the epoch ended
-    async handleEpochEnded({ event, db, decodedData }: EventHandlerArgs) {
-        super.handleEpochEnded({ event, db, decodedData })
+    async handleEpochEnded({
+        event,
+        db,
+        decodedData,
+    }: EventHandlerArgs): Promise<true | undefined> {
+        const result = super.handleEpochEnded({ event, db, decodedData })
+        if (!result) return
         const epoch = Number(decodedData.epoch)
 
         const rows = await this.db.count('EpochKeyAction', {
@@ -199,13 +205,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
 
         // if there's no data in EpochKeyAction then do nothing
-        if (rows == 0) return
+        if (rows == 0) return result
 
         db.delete('EpochKeyAction', {
             where: {
                 epoch: epoch,
             },
         })
-        return true
+        return result
     }
 }

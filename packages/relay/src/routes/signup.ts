@@ -22,6 +22,7 @@ export default (
             )
             res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {
+            console.error(error)
             if (
                 error instanceof Error &&
                 error.message.includes('The user has already signed up.')

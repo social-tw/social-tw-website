@@ -8,7 +8,7 @@ import { deployContracts, startServer } from './environment'
 import { Server } from 'http'
 import { addActionCount } from '../src/utils/TransactionHelper'
 
-describe.only('My Account Page', function () {
+describe('My Account Page', function () {
     let snapshot: any
     let express: Server
     let postEpochKey = 'post-epoch-key'
