@@ -31,6 +31,7 @@ describe('POST /vote', function () {
     var downvotePostId: string
     var otherPostId: string
     var pService: PostService
+    var chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -101,6 +102,8 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
         otherPostId = otherPost._id
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -169,7 +172,7 @@ describe('POST /vote', function () {
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed when vote again with the same type', async function () {
@@ -203,7 +206,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid vote action')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed when vote again with different type', async function () {
@@ -237,7 +240,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid vote action')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should cancel vote for post', async function () {
@@ -270,7 +273,7 @@ describe('POST /vote', function () {
         await verifyPostVote(downvotePostId, 0, 0)
 
         // TODO: need to setup response otherwise won't get anything from res
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
@@ -304,7 +307,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid vote action')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed with wrong epoch', async function () {
@@ -325,6 +328,7 @@ describe('POST /vote', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 0,
+            chainId,
             attesterId,
             data,
         })
@@ -340,7 +344,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid Epoch')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed with wrong proof', async function () {
@@ -361,7 +365,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid proof')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should vote failed with invalid post', async function () {
@@ -380,7 +384,7 @@ describe('POST /vote', function () {
             expect(res.error).equal('Invalid postId')
         })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('should emit vote event on upvote', async () => {

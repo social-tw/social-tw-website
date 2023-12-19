@@ -13,7 +13,7 @@ export class CommentService {
     async fetchComments(
         epks: string | undefined,
         postId: string,
-        db: DB,
+        db: DB
     ): Promise<Comment[]> {
         // TODO check condition below
         // FIXME: if epks or postID not exist?
@@ -35,7 +35,7 @@ export class CommentService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB,
+        db: DB
     ): Promise<Post[]> {
         return db.findMany('Comment', {
             where: {
@@ -54,12 +54,12 @@ export class CommentService {
         proof: SnarkProof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia,
+        helia: Helia
     ) {
         const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // store content into helia ipfs node with json plain
@@ -96,7 +96,7 @@ export class CommentService {
         publicSignals: (bigint | string)[],
         proof: SnarkProof,
         synchronizer: UnirepSocialSynchronizer,
-        db: DB,
+        db: DB
     ) {
         const comment: Comment = await db.findOne('Comment', {
             where: {
@@ -111,7 +111,7 @@ export class CommentService {
         const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         const txnHash = await epochKeyService.callContract('editComment', [

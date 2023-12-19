@@ -9,14 +9,13 @@ export class VoteService {
     ): Promise<any[]> {
         return db.findMany('Vote', {
             where: {
-                epochKey: epks
+                epochKey: epks,
             },
             orderBy: {
-                [sortKey]: direction
-            }
+                [sortKey]: direction,
+            },
         })
     }
-
 }
 
 export const voteService = new VoteService()

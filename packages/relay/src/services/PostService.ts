@@ -128,7 +128,7 @@ export class PostService {
         query: string | undefined,
         epks: string[] | undefined,
         page: number,
-        db: DB,
+        db: DB
     ): Promise<Post[] | null> {
         if (!query) {
             let posts: Post[]
@@ -171,7 +171,7 @@ export class PostService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB,
+        db: DB
     ): Promise<Post[]> {
         return db.findMany('Post', {
             where: {
@@ -190,12 +190,12 @@ export class PostService {
         proof: SnarkProof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia,
+        helia: Helia
     ): Promise<string> {
         const epochKeyProof = await epochKeyService.getAndVerifyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // post content
@@ -228,7 +228,7 @@ export class PostService {
     async fetchSinglePost(
         id: string,
         db: DB,
-        status: number | undefined,
+        status: number | undefined
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {

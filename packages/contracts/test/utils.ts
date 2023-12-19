@@ -54,7 +54,7 @@ export async function genUserState(id, app) {
         attesterId,
         id,
     })
-    await userState.sync.start()
+    await userState.start()
     await userState.waitForSync()
     return userState
 }
@@ -65,6 +65,7 @@ export async function genEpochKeyProof(config: {
     leafIndex: number
     epoch: number
     nonce: number
+    chainId: number
     attesterId: number | bigint
     data?: bigint[]
     sigData?: bigint
@@ -76,6 +77,7 @@ export async function genEpochKeyProof(config: {
         leafIndex,
         epoch,
         nonce,
+        chainId,
         attesterId,
         data: _data,
         sigData,
@@ -90,12 +92,13 @@ export async function genEpochKeyProof(config: {
     const _proof = tree.createProof(leafIndex)
     const circuitInputs = {
         state_tree_elements: _proof.siblings,
-        state_tree_indexes: _proof.pathIndices,
+        state_tree_indices: _proof.pathIndices,
         identity_secret: id.secret,
         data,
         sig_data: sigData ?? BigInt(0),
         nonce,
         epoch,
+        chain_id: chainId,
         attester_id: attesterId,
         reveal_nonce: revealNonce ?? 0,
     }
@@ -118,10 +121,11 @@ export async function genEpochKeyLiteProof(config: {
     epoch: number
     nonce: number
     attesterId: number | bigint
+    chainId: number
     sigData?: bigint
     revealNonce?: number
 }) {
-    const { id, epoch, nonce, attesterId, sigData, revealNonce } =
+    const { id, epoch, nonce, attesterId, chainId, sigData, revealNonce } =
         Object.assign(
             {
                 data: [],
@@ -132,6 +136,7 @@ export async function genEpochKeyLiteProof(config: {
         identity_secret: id.secret,
         reveal_nonce: revealNonce ?? 0,
         attester_id: attesterId,
+        chain_id: chainId,
         epoch,
         nonce,
         sig_data: sigData ?? BigInt(0),

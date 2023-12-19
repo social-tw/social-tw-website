@@ -123,7 +123,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             id: new Identity(storedSignature),
         })
 
-        await userStateInstance.sync.start()
+        await userStateInstance.start()
         await userStateInstance.waitForSync()
 
         setUserState(userStateInstance)
@@ -295,6 +295,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         async (data: { [key: number]: string | number }) => {
             if (!userState) throw new Error('user state not initialized')
             const epoch = await userState.sync.loadCurrentEpoch()
+            const chainId = userState.chainId
             const stateTree = await userState.sync.genStateTree(epoch)
             const index = await userState.latestStateTreeLeafIndex(epoch)
             const stateTreeProof = stateTree.createProof(index)
@@ -307,10 +308,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const attesterId = userState.sync.attesterId
             const circuitInputs = stringifyBigInts({
                 identity_secret: userState.id.secret,
-                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_indices: stateTreeProof.pathIndices,
                 state_tree_elements: stateTreeProof.siblings,
                 data: provableData,
                 epoch: epoch,
+                chain_id: chainId,
                 attester_id: attesterId,
                 value: values,
             })
