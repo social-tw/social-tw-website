@@ -187,7 +187,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(500)
             })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, user sign up with wallet', async function () {
@@ -224,7 +224,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, sign up with the same commitment', async function () {
@@ -255,7 +255,7 @@ describe('LOGIN /login', function () {
             )
         ).to.be.rejectedWith(Error)
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, sign up with different attesterId', async function () {
@@ -292,7 +292,7 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(500)
             })
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, user sign up with server', async function () {
@@ -326,7 +326,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, handle duplicate signup', async function () {
@@ -357,7 +357,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(400)
             })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/login, registered user with own wallet', async function () {
