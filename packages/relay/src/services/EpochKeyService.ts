@@ -51,7 +51,8 @@ class EpochKeyService {
     async getAndVerifyLiteProof(
         publicSignals: (bigint | string)[],
         proof: SnarkProof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
+        originalEpochKey: String
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
@@ -59,14 +60,8 @@ class EpochKeyService {
             synchronizer.prover
         )
 
-        // get current epoch and unirep contract
-        const epoch = await synchronizer.loadCurrentEpoch()
-
-        // check if epoch is valid
-        const isEpochvalid =
-            epochKeyLiteProof.epoch.toString() === epoch.toString()
-        if (!isEpochvalid) {
-            throw new InternalError('Invalid Epoch', 400)
+        if (originalEpochKey != epochKeyLiteProof.epochKey.toString()) {
+            throw new InternalError('Invalid epoch key', 400)
         }
 
         const isProofValid = await epochKeyLiteProof.verify()

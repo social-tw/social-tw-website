@@ -228,12 +228,6 @@ contract UnirepApp {
         
         EpochKeyLiteVerifierHelper.EpochKeySignals memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
-        // check the epoch != current epoch (ppl can only post in current aepoch)
-        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
-        if (signals.epoch != epoch) {
-            revert InvalidEpoch();
-        }
-
         if (commentId >= postCommentIndex[postId]) {
             revert InvalidCommentId(commentId);
         }

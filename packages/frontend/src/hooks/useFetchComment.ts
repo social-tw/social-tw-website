@@ -12,28 +12,34 @@ import checkCommentIsMine from '@/utils/checkCommentIsMine'
 
 const demoComments = [
     {
-        id: '100',
+        commentId: '100',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '台灣der小巷就是讚啦！',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
     },
     {
-        id: '101',
+        commentId: '101',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '請問這是哪裡？',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
     },
     {
-        id: '102',
+        commentId: '102',
         postId: '0',
+        epoch: 100,
         epochKey: 'epochKey-2',
         content: '這裡的芋圓推推推！',
+        transactionHash: "test-trans",
         publishedAt: Date.now(),
         status: CommentStatus.Success,
         isMine: false,
@@ -79,30 +85,33 @@ export default function useFetchComment(postId?: string) {
     }, [comments, failedActions, pendingActions])
 
     useEffect(() => {
-        async function loadComments() {
+        const loadComments = async () => {
             if (!postId) return
-
+    
             const comments = await fetchCommentsByPostId(postId)
-
+            console.log(comments)
+    
             const successfulComments = comments.map((comment) => {
                 const isMine = userState
                     ? checkCommentIsMine(comment, userState)
                     : false
-
+    
                 return {
-                    id: comment.commentId,
-                    postId,
+                    postId: postId,
+                    commentId: comment.commentId,
+                    epoch: comment.epoch,
                     epochKey: comment.epochKey,
                     content: comment.content,
                     publishedAt: comment.publishedAt,
+                    transactionHash: comment.transactionHash,
                     status: CommentStatus.Success,
                     isMine: isMine,
                 }
             })
-
+    
             setComments([...successfulComments, ...demoComments])
         }
-
+            
         loadComments()
     }, [userState])
 
@@ -110,5 +119,3 @@ export default function useFetchComment(postId?: string) {
         data: allComments,
     }
 }
-
-//TODO: animation states and delete block styles

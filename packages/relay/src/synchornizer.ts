@@ -100,6 +100,19 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
+        // If comment not exist and check content is empty or not
+        //     if empty : insert comment with status = 2 (deleted)
+        //     if not empty : insert comment with status = 1 (success)
+        // If comment exist with status 2(deleted), update comment id only
+        // if comment exist with status 0(init), update comment id and status = 1 (success)
+        const updateStatus = existingComment
+            ? existingComment.status == 2
+                ? 2
+                : 1
+            : content
+            ? 1
+            : 2
+
         // Use upsert to either create a new comment or update an existing one
         db.upsert('Comment', {
             where: { transactionHash },
@@ -110,16 +123,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 content,
                 epoch,
                 epochKey,
-                status: 1,
+                status: updateStatus,
             },
             update: {
                 commentId,
-                status: 1,
+                status: updateStatus,
             },
         })
 
         // If the comment didn't exist before, increment the commentCount of the post
-        if (!existingComment) {
+        if (!existingComment && updateStatus == 1) {
             const commentCount = await this.db.count('Comment', {
                 AND: [{ postId }, { status: 1 }],
             })

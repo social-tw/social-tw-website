@@ -16,32 +16,57 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { CommentInfo, CommentStatus } from '../../types'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
+import useDeleteComment from '@/hooks/useDeleteComments'
+
+interface CommentProps extends CommentInfo {
+    onCloseAnimation?: () => void
+    onOpenAnimation?: () => void
+    isLast?: boolean
+}
 
 export default function Comment({
-    id,
+    isLast,
+    commentId,
     postId,
+    epoch,
     epochKey = '',
     content = '',
+    transactionHash = '',
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-}: CommentInfo) {
-    const [isDeleting, setIsDeleting] = useState(false)
+    onCloseAnimation = () => {},
+    onOpenAnimation = () => {},
+}: CommentProps) {
+    const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
 
-    const { create: createCommnet } = useCreateComment()
+    const { create: createCommnet, genProof: genCommentProof } =
+        useCreateComment()
+    const {
+        remove: deleteComment,
+        genProof: genDeleteProof,
+        isDeleted: isDeleted,
+    } = useDeleteComment()
 
     const onRepublish = async () => {
-        removeActionByCommentId(id)
-        await createCommnet(postId, content)
+        removeActionByCommentId(commentId)
+        onOpenAnimation()
+        const { proof, epoch } = await genCommentProof(postId, content)
+        onCloseAnimation()
+        await createCommnet(proof, postId, content, epoch)
     }
 
-    const onDelete = () => {
-        setIsDeleting(false)
+    const onDelete = async () => {
+        setIsDeletingDialogOpen(false)
+        onOpenAnimation()
+        const proof = await genDeleteProof(epoch, transactionHash)
+        onCloseAnimation()
+        await deleteComment(proof, epoch, transactionHash)
     }
 
     const onCancelDelete = () => {
-        setIsDeleting(false)
+        setIsDeletingDialogOpen(false)
     }
 
     const onCancelReport = () => {
@@ -61,7 +86,7 @@ export default function Comment({
                   icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
                   onClick: () => {
                       console.log('delete comment')
-                      setIsDeleting(true)
+                      setIsDeletingDialogOpen(true)
                   },
               },
           ]
@@ -76,13 +101,18 @@ export default function Comment({
               },
           ]
 
+    if (isDeleted) return null
+
     return (
         <>
             <article
-                id={id}
+                id={commentId}
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
-                    status !== CommentStatus.Success && 'opacity-30'
+                    status !== CommentStatus.Success && 'opacity-30',
+                    !isLast &&
+                        status === CommentStatus.Success &&
+                        'border-b border-neutral-600'
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
@@ -146,9 +176,11 @@ export default function Comment({
                 ))}
             </ControlledMenu>
             <CommentDeleteDialog
-                open={isDeleting}
+                open={isDeletingDialogOpen}
                 onClose={onCancelDelete}
-                onConfirm={onDelete}
+                onConfirm={() => onDelete()}
+                commentId={commentId}
+                epoch={epoch}
             />
             <CommentReportDialog
                 isOpen={isReporting}

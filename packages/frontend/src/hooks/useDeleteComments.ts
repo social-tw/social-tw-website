@@ -1,17 +1,17 @@
 import {
     ActionType,
-    CommentData,
     addAction,
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
+import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
 import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../config'
+import { useState } from 'react'
 
-async function publishComment(data: string) {
+async function deleteComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
             'content-type': 'application/json',
         },
@@ -21,10 +21,11 @@ async function publishComment(data: string) {
     return await response.json()
 }
 
-export default function useCreateComment() {
+export default function useDeleteComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
+    const [isDeleted, setIsDeleted] = useState(false)
 
-    const genProof = async (postId: string, content: string) => {
+    const genProof = async (epoch: number, transactionHash: string) => {
         if (!userState) throw new Error('user state not initialized')
 
         const latestTransitionedEpoch =
@@ -34,40 +35,33 @@ export default function useCreateComment() {
             await stateTransition()
         }
 
-        // TODO: What is nonce doing and how it should be set
-        const epochKeyProof = await userState.genEpochKeyProof()
-
-        const proof = stringifyBigInts({
-            content,
-            postId,
-            publicSignals: epochKeyProof.publicSignals,
-            proof: epochKeyProof.proof,
+        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            epoch,
         })
 
-        return { 
-            proof,
-            epoch: latestTransitionedEpoch
-        }
+        const proof = stringifyBigInts({
+            transactionHash,
+            publicSignals: EpochKeyLiteProof.publicSignals,
+            proof: EpochKeyLiteProof.proof,
+        })
+
+        return proof
     }
 
-    const create = async (proof: string, postId: string, content: string, epoch: number) => {
+    const remove = async (proof: string, epoch: number, transactionHash: string) => {
         if (!userState) throw new Error('user state not initialized')
-        const commentData = {
-            commentId: 'notGetYet',
-            postId: postId,
-            content: content,
+        const actionId = addAction(ActionType.DeleteComment, {
             epoch,
-            transactionHash: ""
-        }
-        const actionId = addAction(ActionType.Comment, commentData)
+            transactionHash,
+        })
 
         try {
-            const { transaction } = await publishComment(proof)
+            const { transaction } = await deleteComment(proof)
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
-            // TODO: fix the commentId redirection. Discuss with backend
-            succeedActionById(actionId, { transactionHash: transaction })
+            succeedActionById(actionId)
+            setIsDeleted(true)
         } catch (error) {
             console.error(error)
             failActionById(actionId)
@@ -76,6 +70,7 @@ export default function useCreateComment() {
 
     return {
         genProof,
-        create,
+        remove,
+        isDeleted,
     }
 }

@@ -62,9 +62,9 @@ export default (
 
         .delete(
             errorHandler(async (req, res) => {
-                const { commentId, publicSignals, proof } = req.body
+                const { transactionHash, publicSignals, proof } = req.body
                 const hash = await commentService.deleteComment(
-                    commentId.toString(),
+                    transactionHash.toString(),
                     publicSignals,
                     proof,
                     synchronizer,

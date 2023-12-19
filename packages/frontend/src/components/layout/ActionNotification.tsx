@@ -4,6 +4,7 @@ import CloseIcon from '@/assets/close.svg'
 import PostIcon from '@/assets/post.svg'
 import {
     ActionStatus,
+    ActionType,
     latestActionSelector,
     pendingCountSelector,
     useActionStore,
@@ -36,9 +37,14 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-white">
                         {actionTypeLabel}存取交易成功!
                     </span>
-                    <Link className="text-xs text-secondary" to={actionLink}>
-                        前往查看{actionTypeLabel}
-                    </Link>
+                    {action.type !== ActionType.DeleteComment && (
+                        <Link
+                            className="text-xs text-secondary"
+                            to={actionLink}
+                        >
+                            前往查看{actionTypeLabel}
+                        </Link>
+                    )}
                 </div>
             )
         }

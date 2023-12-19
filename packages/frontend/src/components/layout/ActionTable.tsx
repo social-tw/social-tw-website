@@ -19,16 +19,18 @@ export function getActionTypeLabel(type: ActionType) {
     const typeLabels = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
+        [ActionType.DeleteComment]: '刪除留言',
     }
     return typeLabels[type]
 }
 
 export function getActionLink(action: Action) {
+    // TODO: check the comment link to redirect
     if (action.type === ActionType.Post) {
         return `/posts/${action.data.id}`
     }
     if (action.type === ActionType.Comment) {
-        return `/posts/${action.data.postId}#${action.data.id}`
+        return `/posts/${action.data.postId}#${action.data.commentId}`
     }
     return '#'
 }

@@ -47,8 +47,8 @@ const CommentPublishTransition: React.FC<TransactionModalProps> = ({
                         </div>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2 text-lg tracking-wide text-white">
-                        <h4>您的留言正在發布中，</h4>
-                        <h4>請留意留上方資訊並確認存取狀態</h4>
+                        <h4>您的留言正在處理中，</h4>
+                        <h4>請留意資訊並確認存取狀態</h4>
                     </div>
                 </div>
             </div>
