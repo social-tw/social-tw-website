@@ -48,9 +48,9 @@ export default function ({
     const [downvotes, setDownvotes] = useState(downCount)
     // TODO: Need get vote state from backend or calucate from ecpochKey
     // 'upvote', 'downvote', or null
-    const [voteState, setVoteState] = useState<'upvote' | 'downvote' | null>(
-        null,
-    )
+    const [voteState, setVoteState] = useState<
+        VoteAction.UPVOTE | VoteAction.DOWNVOTE | null
+    >(null)
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
@@ -94,38 +94,54 @@ export default function ({
     )
 
     const handleVote = async (voteType: VoteAction) => {
-        let action: VoteAction;
-        let success = false;
+        let action: VoteAction
+        let success = false
 
         if (isMine && finalAction === voteType) {
-            action = voteType === VoteAction.UPVOTE ? VoteAction.CANCEL_UPVOTE : VoteAction.CANCEL_DOWNVOTE;
+            action =
+                voteType === VoteAction.UPVOTE
+                    ? VoteAction.CANCEL_UPVOTE
+                    : VoteAction.CANCEL_DOWNVOTE
         } else {
             if (isMine && finalAction !== voteType) {
-                const cancelAction = voteType === VoteAction.UPVOTE ? VoteAction.CANCEL_DOWNVOTE : VoteAction.CANCEL_UPVOTE;
-                await create(id, cancelAction);
+                const cancelAction =
+                    voteType === VoteAction.UPVOTE
+                        ? VoteAction.CANCEL_DOWNVOTE
+                        : VoteAction.CANCEL_UPVOTE
+                await create(id, cancelAction)
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    setUpvotes((prev) => prev - 1);
+                    setUpvotes((prev) => prev - 1)
                 } else {
-                    setDownvotes((prev) => prev - 1);
+                    setDownvotes((prev) => prev - 1)
                 }
             }
-            // 然后进行新的投票
-            action = voteType;
-            setShow(true);
-            setImgType(voteType === VoteAction.UPVOTE ? 'upvote' : 'downvote');
+            action = voteType
+            setShow(true)
+            setImgType(voteType === VoteAction.UPVOTE ? 'upvote' : 'downvote')
         }
-        success = await create(id, action);
+        success = await create(id, action)
 
         if (success) {
-            if (action === VoteAction.UPVOTE || action === VoteAction.CANCEL_UPVOTE) {
-                setUpvotes((prev) => action === VoteAction.UPVOTE ? prev + 1 : prev - 1);
+            if (
+                action === VoteAction.UPVOTE ||
+                action === VoteAction.CANCEL_UPVOTE
+            ) {
+                setUpvotes((prev) =>
+                    action === VoteAction.UPVOTE ? prev + 1 : prev - 1,
+                )
             } else {
-                setDownvotes((prev) => action === VoteAction.DOWNVOTE ? prev + 1 : prev - 1);
+                setDownvotes((prev) =>
+                    action === VoteAction.DOWNVOTE ? prev + 1 : prev - 1,
+                )
             }
-            setVoteState(action === voteType ? voteType : null);
-            setShow(false);
+            setVoteState(
+                action === VoteAction.UPVOTE
+                    ? VoteAction.UPVOTE
+                    : VoteAction.DOWNVOTE,
+            )
+            setShow(false)
         }
-    };
+    }
 
     useVoteEvents((msg: VoteMsg) => {
         if (id !== msg.postId) return
