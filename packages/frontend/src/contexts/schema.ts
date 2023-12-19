@@ -1,35 +1,27 @@
 import { TableData } from 'anondb'
-import { nanoid } from 'nanoid'
 
 const _schema = [
     {
-        name: 'Userstate',
+        name: 'UserState',
         indexes: [{keys: ['attesterId']}],
         rows: [
-            ['attesterId', 'String'],
-            ['latestTransitionedEpoch', 'Int'],
-            ['latestTransitionedIndex','Int'],
             {
-                name: 'provableData',
-                type: 'Object',
-                relation: {
-                  1: 'Int',
-                  2: 'Int',
-                  3: 'Int',
-                  4: 'Int',
-                  5: 'Int'
-                }
+                name: 'attesterId',
+                type: 'String',
             },
             {
-                name: 'latestData',
+                name: 'latestTransitionedEpoch',
+                type: 'Int',
+                default: 0,
+            },
+            {
+                name: 'latestTransitionedIndex',
+                type: 'Int',
+                defulat: 0,
+            },
+            {
+                name: 'data',
                 type: 'Object',
-                relation: {
-                  1: 'Int',
-                  2: 'Int',
-                  3: 'Int',
-                  4: 'Int',
-                  5: 'Int'
-                }
             },
         ]
     }
@@ -38,12 +30,5 @@ const _schema = [
 export const schema = _schema.map((obj) => ({
     primaryKey: '_id',
     ...obj,
-    rows: [
-        ...obj.rows,
-        {
-            name: '_id',
-            type: 'String',
-            default: () => nanoid(),
-        },
-    ],
+    rows: [...obj.rows],
 })) as TableData[]
