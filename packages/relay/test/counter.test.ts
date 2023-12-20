@@ -26,7 +26,7 @@ describe('GET /counter', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const contracts = await deployContracts(100000)
+        const contracts = await deployContracts(1000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(contracts.unirep, contracts.app)
@@ -116,7 +116,7 @@ describe('GET /counter', function () {
 
         // add epoch time to make sure this epoch ended
         await ethers.provider.send('evm_increaseTime', [
-            epochRemainingTime + 100000,
+            epochRemainingTime + 1000,
         ])
 
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())

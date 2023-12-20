@@ -39,7 +39,7 @@ describe('LOGIN /login', function () {
         // open promise testing
         chai.use(chaiAsPromise.default)
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const {
             db,
