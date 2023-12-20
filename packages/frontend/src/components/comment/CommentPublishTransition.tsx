@@ -42,6 +42,7 @@ const CommentPublishTransition: React.FC<TransactionModalProps> = ({
                                     custom={i}
                                     variants={variants}
                                     animate="animate"
+                                    aria-label='dot'
                                 ></motion.span>
                             ))}
                         </div>

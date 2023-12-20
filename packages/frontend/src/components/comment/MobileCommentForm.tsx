@@ -12,17 +12,11 @@ export default function MobileCommentForm({
     isOpen = false,
     onCancel = () => {},
     onSubmit = () => {},
-    onSubmitCancel = () => {},
-    isSubmitCancellable = true,
-    isSubmitCancelled = false,
     disabled = false,
 }: {
     isOpen: boolean
     onCancel?: () => void
     onSubmit?: (values: CommentValues) => void
-    onSubmitCancel?: () => void
-    isSubmitCancellable?: boolean
-    isSubmitCancelled?: boolean
     disabled?: boolean
 }) {
     const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
@@ -32,13 +26,6 @@ export default function MobileCommentForm({
     })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
-
-    const isPending = !isSubmitCancelled && isSubmitting
-
-    const _onCancel = () => {
-        reset({ content: '' })
-        onCancel()
-    }
 
     useEffect(() => {
         if (isSubmitSuccessful) {
@@ -60,20 +47,20 @@ export default function MobileCommentForm({
                     </div>
                     <button
                         className="btn btn-sm btn-ghost"
-                        title="cancel a post"
+                        title="cancel a comment"
                         type="button"
                         disabled={disabled}
-                        onClick={_onCancel}
+                        onClick={onCancel}
                     >
                         取消
                     </button>
                     <button
                         className="btn btn-sm btn-secondary"
-                        title="submit a post"
+                        title="submit a comment"
                         type="submit"
-                        disabled={disabled || !isValid || isPending}
+                        disabled={disabled || !isValid || isSubmitting}
                     >
-                        {isPending ? '發佈中...' : '發佈留言'}
+                        {isSubmitting ? '發佈中...' : '發佈留言'}
                     </button>
                 </section>
                 <section>
@@ -83,7 +70,7 @@ export default function MobileCommentForm({
                         rules={{ required: true }}
                         render={({ field }) => (
                             <RichTextEditor
-                                ariaLabel="post editor"
+                                ariaLabel="comment editor"
                                 onValueChange={field.onChange}
                                 value={field.value}
                                 namespace={field.name}

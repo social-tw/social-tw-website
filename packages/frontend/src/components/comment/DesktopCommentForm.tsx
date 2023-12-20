@@ -9,9 +9,6 @@ interface DesktopCommentFormProps {
     isOpen: boolean
     onCancel?: () => void
     onSubmit?: (values: CommentValues) => void
-    onSubmitCancel?: () => void
-    isSubmitCancellable?: boolean
-    isSubmitCancelled?: boolean
     disabled?: boolean
 }
 
@@ -19,9 +16,6 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
     isOpen = false,
     onCancel = () => {},
     onSubmit = () => {},
-    onSubmitCancel = () => {},
-    isSubmitCancellable = true,
-    isSubmitCancelled = false,
     disabled = false,
 }) => {
     const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
@@ -31,13 +25,6 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
     })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
-
-    const isPending = !isSubmitCancelled && isSubmitting
-
-    const _onCancel = () => {
-        reset({ content: '' })
-        onCancel()
-    }
 
     useEffect(() => {
         if (isSubmitSuccessful) {
@@ -53,6 +40,7 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
                         className="absolute top-3 right-3 cursor-pointer text-[#051532]"
                         size={30}
                         onClick={onCancel}
+                        title='cancel a comment'
                     />
                     <form
                         className="flex flex-col items-center justify-center gap-8"
@@ -82,9 +70,9 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
                         <section className="w-[285px]">
                             <button
                                 className="w-full h-14 rounded-lg bg-[#52ACBC]/90 text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]"
-                                title="submit a post"
+                                title="submit a comment"
                                 type="submit"
-                                disabled={disabled || !isValid || isPending}
+                                disabled={disabled || !isValid || isSubmitting}
                             >
                                 發佈留言
                             </button>

@@ -87,9 +87,8 @@ export default function useFetchComment(postId?: string) {
     useEffect(() => {
         const loadComments = async () => {
             if (!postId) return
-    
+
             const comments = await fetchCommentsByPostId(postId)
-            console.log(comments)
     
             const successfulComments = comments.map((comment) => {
                 const isMine = userState
@@ -108,6 +107,8 @@ export default function useFetchComment(postId?: string) {
                     isMine: isMine,
                 }
             })
+
+            console.log(successfulComments)
     
             setComments([...successfulComments, ...demoComments])
         }
