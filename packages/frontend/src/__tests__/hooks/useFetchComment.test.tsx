@@ -1,5 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks'
-import useFetchComment from '@/hooks/useFetchComment'
+import useFetchComment from "@/hooks/useFetchComment";
+import { renderHook, waitFor } from "@testing-library/react";
 
 const mockUserState = {
     getEpochKeys: jest.fn().mockReturnValue(['epochKey-1', 'epochKey-2', 'epochKey-3'])
@@ -43,30 +43,31 @@ afterEach(() => {
 
 describe('useFetchComment', () => {
     it('fetches comments successfully when postId is provided', async () => {
-        const { result, waitForNextUpdate } = renderHook(() => useFetchComment('test-post-id'))
+        const { result, rerender } = renderHook(() => useFetchComment('test-post-id'))
 
-        await waitForNextUpdate()
+        await waitFor(() => {
+            // Expectations about the fetch call
+            expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('test-post-id'))
 
-        // Expectations about the fetch call
-        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('test-post-id'))
+            const expectedComment = {
+                postId: 'test-post-id',
+                commentId: '1',
+                epoch: 9999,
+                epochKey: 'epochKey-1',
+                content: 'Comment content 1',
+                publishedAt: expect.any(Number),
+                transactionHash: 'txHash-1',
+                status: 'success',
+                isMine: false,
+            }
 
-        const expectedComment = {
-            postId: 'test-post-id',
-            commentId: '1',
-            epoch: 9999,
-            epochKey: 'epochKey-1',
-            content: 'Comment content 1',
-            publishedAt: expect.any(Number), 
-            transactionHash: 'txHash-1',
-            status: 'success',
-            isMine: false,
-        }
+            expect(result.current.data).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(expectedComment)
+                ])
+            )
+        })
 
-        expect(result.current.data).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining(expectedComment)
-            ])
-        )
     })
 
     it('does not fetch comments when postId is not provided', async () => {

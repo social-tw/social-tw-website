@@ -1,6 +1,8 @@
-import { renderHook, act } from '@testing-library/react-hooks'
-import useCreateComment from '@/hooks/useCreateComment'
-import { ActionType, addAction, failActionById, succeedActionById } from '@/contexts/Actions'
+import {
+    ActionType, addAction, failActionById, succeedActionById
+} from "@/contexts/Actions";
+import useCreateComment from "@/hooks/useCreateComment";
+import { act, renderHook } from "@testing-library/react";
 
 jest.mock('@/contexts/User', () => ({
     useUser: () => ({
@@ -27,17 +29,17 @@ jest.mock('@/contexts/Actions', () => ({
     addAction: jest.fn(),
     failActionById: jest.fn(),
     succeedActionById: jest.fn(),
-    ActionType: { Comment: 'comment' } 
+    ActionType: { Comment: 'comment' }
 }))
 
 beforeEach(() => {
     jest.clearAllMocks()
-    jest.mocked(addAction).mockReturnValue('mock_action_id') 
+    jest.mocked(addAction).mockReturnValue('mock_action_id')
     global.fetch = jest.fn()
 })
 
 afterEach(() => {
-    jest.restoreAllMocks() 
+    jest.restoreAllMocks()
 })
 
 describe('useCreateComment', () => {

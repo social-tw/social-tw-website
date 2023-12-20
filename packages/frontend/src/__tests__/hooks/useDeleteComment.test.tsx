@@ -1,6 +1,8 @@
-import { renderHook, act } from '@testing-library/react-hooks'
-import useDeleteComment from '@/hooks/useDeleteComment'
-import { addAction, failActionById, succeedActionById, ActionType } from '@/contexts/Actions'
+import {
+    ActionType, addAction, failActionById, succeedActionById
+} from "@/contexts/Actions";
+import useDeleteComment from "@/hooks/useDeleteComment";
+import { act, renderHook } from "@testing-library/react";
 
 jest.mock('@/contexts/User', () => ({
     useUser: () => ({
@@ -46,7 +48,7 @@ describe('useDeleteComment', () => {
 
         const epoch = 9999
         const transactionHash = 'mock_transaction_hash'
-        
+
         let proof
 
         await act(async () => {
