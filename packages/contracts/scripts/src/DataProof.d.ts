@@ -1,0 +1,24 @@
+import { SnarkProof } from '@unirep/utils'
+import { BigNumberish } from '@ethersproject/bignumber'
+import { BaseProof, Prover } from '@unirep/circuits'
+/**
+ * The data proof structure that helps to query the public signals
+ */
+export declare class DataProof extends BaseProof {
+    readonly idx: {
+        stateTreeRoot: number
+        value: number[]
+    }
+    stateTreeRoot: BigNumberish
+    value: BigNumberish[]
+    /**
+     * @param _publicSignals The public signals of the data proof that can be verified by the prover
+     * @param _proof The proof that can be verified by the prover
+     * @param prover The prover that can verify the public signals and the proof
+     */
+    constructor(
+        _publicSignals: (string | bigint)[],
+        _proof: SnarkProof,
+        prover?: Prover
+    )
+}
