@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import upvoteImage from '../../../assets/upvote.png'
 import downvoteImage from '../../../assets/downvote.png'
+import { VoteAction } from '../../../types/VoteAction'
 
 interface LikeAnimationProps {
     isLiked: boolean
-    imgType: string
+    imgType: VoteAction
 }
 
 enum Images {
@@ -15,7 +16,7 @@ enum Images {
 const LikeAnimation = ({ isLiked, imgType }: LikeAnimationProps) => {
     let image
 
-    if (imgType === 'upvote') {
+    if (imgType === VoteAction.UPVOTE) {
         image = Images.UPVOTE
     } else {
         image = Images.DOWNVOTE

@@ -55,7 +55,9 @@ export default function ({
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
     const [show, setShow] = useState(false)
-    const [imgType, setImgType] = useState<'upvote' | 'downvote'>('upvote')
+    const [imgType, setImgType] = useState<
+        VoteAction.UPVOTE | VoteAction.DOWNVOTE
+    >(VoteAction.UPVOTE)
 
     const postInfo = (
         <div className="space-y-3">
@@ -117,7 +119,11 @@ export default function ({
             }
             action = voteType
             setShow(true)
-            setImgType(voteType === VoteAction.UPVOTE ? 'upvote' : 'downvote')
+            setImgType(
+                voteType === VoteAction.UPVOTE
+                    ? VoteAction.UPVOTE
+                    : VoteAction.DOWNVOTE,
+            )
         }
         success = await create(id, action)
 
