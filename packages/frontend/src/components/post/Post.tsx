@@ -58,6 +58,7 @@ export default function ({
     const [imgType, setImgType] = useState<
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
+    const [isAction, setIsAction] = useState(finalAction)
 
     const postInfo = (
         <div className="space-y-3">
@@ -135,18 +136,20 @@ export default function ({
                 setUpvotes((prev) =>
                     action === VoteAction.UPVOTE ? prev + 1 : prev - 1,
                 )
+                setIsAction(action === VoteAction.UPVOTE ? action : null)
             } else {
                 setDownvotes((prev) =>
                     action === VoteAction.DOWNVOTE ? prev + 1 : prev - 1,
                 )
+                setIsAction(action === VoteAction.DOWNVOTE ? action : null)
             }
             setVoteState(
                 action === VoteAction.UPVOTE
                     ? VoteAction.UPVOTE
                     : VoteAction.DOWNVOTE,
             )
-            setShow(false)
         }
+        setShow(false)
     }
 
     useVoteEvents((msg: VoteMsg) => {
@@ -190,7 +193,7 @@ export default function ({
                     >
                         <div
                             className={`${
-                                isMine && finalAction === VoteAction.UPVOTE
+                                isMine && isAction === VoteAction.UPVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
@@ -212,7 +215,7 @@ export default function ({
                     >
                         <div
                             className={`${
-                                isMine && finalAction === VoteAction.DOWNVOTE
+                                isMine && isAction === VoteAction.DOWNVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
