@@ -1,7 +1,7 @@
-import { nanoid } from 'nanoid'
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
+import { nanoid } from "nanoid";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 export enum ActionType {
     Post = 'post',
@@ -183,6 +183,7 @@ export function removeActionById(id: string) {
         delete state.entities[id]
         const index = state.list.findIndex((itemId) => itemId === id)
         if (index !== -1) state.list.splice(index, 1)
+        if (state.latestId === id) state.latestId = undefined
     })
 }
 
