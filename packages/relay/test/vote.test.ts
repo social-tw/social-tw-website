@@ -109,6 +109,7 @@ describe('POST /vote', function () {
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
         socketClient.disconnect()
+        userState.stop()
         express.close()
     })
 
@@ -171,8 +172,6 @@ describe('POST /vote', function () {
 
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
-
-        userState.stop()
     })
 
     it('should vote failed when vote again with the same type', async function () {
@@ -205,8 +204,6 @@ describe('POST /vote', function () {
         await downvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.stop()
     })
 
     it('should vote failed when vote again with different type', async function () {
@@ -239,8 +236,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.stop()
     })
 
     it('should cancel vote for post', async function () {
@@ -273,7 +268,6 @@ describe('POST /vote', function () {
         await verifyPostVote(downvotePostId, 0, 0)
 
         // TODO: need to setup response otherwise won't get anything from res
-        userState.stop()
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
@@ -306,8 +300,6 @@ describe('POST /vote', function () {
         await downvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.stop()
     })
 
     it('should vote failed with wrong epoch', async function () {
@@ -343,8 +335,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid Epoch')
         })
-
-        userState.stop()
     })
 
     it('should vote failed with wrong proof', async function () {
@@ -364,8 +354,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid proof')
         })
-
-        userState.stop()
     })
 
     it('should vote failed with invalid post', async function () {
@@ -383,8 +371,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid postId')
         })
-
-        userState.stop()
     })
 
     it('should emit vote event on upvote', async () => {

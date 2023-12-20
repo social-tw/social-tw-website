@@ -65,18 +65,15 @@ describe('Synchronize Comment Test', function () {
                 wallet
             )
 
+            await userState.waitForSync()
+            let hasSignUp = await userState.hasSignedUp()
+            expect(hasSignUp).equal(true)
+
             users.push({
                 hashUserId: initUser.hashUserId,
                 wallet: wallet,
                 userState: userState,
             })
-        }
-
-        // Ensure users are signed up
-        for (let i = 0; i < 2; i++) {
-            await users[i].userState.waitForSync()
-            let hasSignUp = await users[i].userState.hasSignedUp()
-            expect(hasSignUp).equal(true)
         }
     })
 
@@ -84,9 +81,8 @@ describe('Synchronize Comment Test', function () {
         console.log('Close server...')
         express.close()
         await ethers.provider.send('evm_revert', [snapshot])
-        // users[0].userState.stop()
-        // users[1].userState.stop()
-        // sync.stop()
+        users[0].userState.stop()
+        users[1].userState.stop()
     })
 
     describe('Synchronize Comment', async function () {

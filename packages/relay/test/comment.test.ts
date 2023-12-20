@@ -81,6 +81,7 @@ describe('COMMENT /comment', function () {
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        userState.stop()
         express.close()
     })
 
