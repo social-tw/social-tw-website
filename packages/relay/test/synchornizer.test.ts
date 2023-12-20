@@ -22,7 +22,7 @@ describe('Synchronize Comment Test', function () {
         wallet: any
         userState: UserState
     }[] = []
-    const EPOCH_LENGTH = 300
+    const EPOCH_LENGTH = 100000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
