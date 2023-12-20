@@ -196,7 +196,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         db,
         decodedData,
     }: EventHandlerArgs): Promise<true | undefined> {
-        const result = super.handleEpochEnded({ event, db, decodedData })
+        const result = await super.handleEpochEnded({ event, db, decodedData })
         if (!result) return
         const epoch = Number(decodedData.epoch)
 
