@@ -35,7 +35,7 @@ describe('COMMENT /comment', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
@@ -81,6 +81,7 @@ describe('COMMENT /comment', function () {
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        userState.stop()
         express.close()
     })
 

@@ -2,6 +2,5 @@
 .github
 .DS_Store
 .env
-node_modules
 playwright-report
 test-result

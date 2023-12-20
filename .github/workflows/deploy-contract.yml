@@ -1,0 +1,50 @@
+name: Manual-Deploy Contract
+
+on:
+    workflow_dispatch:
+        branches: ['dev', 'prod']
+        env:
+            type: string
+            required: true
+
+    workflow_call:
+        env:
+            type: string
+            required: true
+
+# get repo vars before running jobs
+env:
+    GH_PAT: ${{ secrets.GH_PAT }}
+
+jobs:
+    contract:
+        runs-on: ubuntu-22.04
+        environment: ${{ inputs.env }}
+        steps:
+            - name: Install node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Install and build packages
+              run: yarn && yarn contracts build
+
+            - name: Deploy contracts
+              run: |
+                  yarn contracts deploy:${{ inputs.env }}
+              env:
+                  ETH_PROVIDER_URL: ${{ vars.ETH_PROVIDER_URL }}
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+            - name: Export Config to GitHub Envs
+              run: gh variable set -f ./packages/relay/.env -e ${{ inputs.env }} --repo $GITHUB_REPOSITORY
+              env:
+                  GITHUB_TOKEN: ${{ env.GH_PAT }}
+
+            # - name: add tag to record version
+            #   run: |
+            #       git tag v${{ inputs.version }}
+            #       git push origin refs/tags/v${{ inputs.version }} -f

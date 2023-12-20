@@ -18,6 +18,7 @@ import {
     DB_PATH,
     APP_ADDRESS,
     APP_ABI,
+    GENESIS_BLOCK,
     IS_IN_TEST,
     CLIENT_URL,
 } from './config'
@@ -26,7 +27,7 @@ import { SocketManager } from './singletons/SocketManager'
 import { postService } from './services/PostService'
 
 main().catch((err) => {
-    console.log(`Uncaught error: ${err}`)
+    console.error(`Uncaught error: ${err}`)
     process.exit(1)
 })
 
@@ -45,6 +46,7 @@ async function main() {
             prover: prover,
             provider: provider,
             unirepAddress: UNIREP_ADDRESS,
+            genesisBlock: parseInt(GENESIS_BLOCK),
         },
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
