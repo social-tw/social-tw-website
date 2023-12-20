@@ -1,9 +1,9 @@
-import clsx from 'clsx'
-import { useEffect, useMemo, useState } from 'react'
-import Countdown from 'react-countdown'
-import EpochIcon from '@/assets/epoch.svg'
-import { countByTimeRangeSelector, useActionStore } from '@/contexts/Actions'
-import useEpoch from '@/hooks/useEpoch'
+import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
+import Countdown from "react-countdown";
+import EpochImg from "@/assets/epoch.png";
+import { countByTimeRangeSelector, useActionStore } from "@/contexts/Actions";
+import useEpoch from "@/hooks/useEpoch";
 
 export default function EpochInfo() {
     const { epochLength, remainingTime, epoch } = useEpoch()
@@ -41,7 +41,11 @@ export default function EpochInfo() {
 
     return (
         <div className="flex items-stretch gap-3">
-            <EpochIcon className="w-14 h-14 basis-14 shrink-0" />
+            <img
+                className="w-14 h-14 basis-14 shrink-0"
+                src={EpochImg}
+                alt='epoch'
+            />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
                     <div>
