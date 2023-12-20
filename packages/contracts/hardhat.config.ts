@@ -10,7 +10,7 @@ tdly.setup({ automaticVerifications: true })
 const { TENDERLY_ACCESS_KEY, TENDERLY_PROJECT_SLUG } = process.env
 const DEVNET_RPC_URL = process.env.DEVNET_RPC_URL ?? ''
 const DEFAULT_PRIVATE_KEY =
-    '0x0f70e777f814334daa4456ac32b9a1fdca75ae07f70c2e6cef92679bad06c88b'
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
 export default {
     defaultNetwork: 'local',
