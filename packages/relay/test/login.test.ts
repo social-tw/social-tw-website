@@ -96,7 +96,7 @@ describe('LOGIN /login', function () {
                 grant_type: 'authorization_code',
                 client_id: TWITTER_CLIENT_ID,
                 redirect_uri: /^.*$/,
-                code_verifier: /^.*$/
+                code_verifier: /^.*$/,
             })
             .matchHeader('content-type', 'application/x-www-form-urlencoded')
             .matchHeader('authorization', `Basic ${token}`)
