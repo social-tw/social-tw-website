@@ -31,10 +31,6 @@ export default {
             url: process.env.ETH_PROVIDER_URL ?? '',
             accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
         },
-        arb: {
-            url: process.env.ETH_PROVIDER_URL ?? '',
-            accounts: [process.env.PRIVATE_KEY ?? DEFAULT_PRIVATE_KEY],
-        },
         tenderly: {
             url: DEVNET_RPC_URL,
             chainId: 137,
