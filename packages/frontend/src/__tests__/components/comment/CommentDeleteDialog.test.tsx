@@ -15,16 +15,28 @@ describe('CommentDeleteDialog', () => {
 
     it('calls onClose when the dialog is closed', () => {
         const onCloseMock = jest.fn()
-        render(<CommentDeleteDialog open={true} onClose={onCloseMock} commentId="123" />)
-        
+        render(
+            <CommentDeleteDialog
+                open={true}
+                onClose={onCloseMock}
+                commentId="123"
+            />
+        )
+
         fireEvent.click(screen.getByLabelText('close'))
         expect(onCloseMock).toHaveBeenCalled()
     })
 
     it('calls onConfirm when the confirm button is clicked', () => {
         const onConfirmMock = jest.fn()
-        render(<CommentDeleteDialog open={true} onConfirm={onConfirmMock} commentId="123" />)
-        
+        render(
+            <CommentDeleteDialog
+                open={true}
+                onConfirm={onConfirmMock}
+                commentId="123"
+            />
+        )
+
         fireEvent.click(screen.getByText(/確認刪除/))
         expect(onConfirmMock).toHaveBeenCalled()
     })

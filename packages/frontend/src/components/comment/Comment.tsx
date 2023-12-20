@@ -35,8 +35,8 @@ export default function Comment({
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-    onCloseAnimation = () => { },
-    onOpenAnimation = () => { },
+    onCloseAnimation = () => {},
+    onOpenAnimation = () => {},
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
@@ -81,25 +81,25 @@ export default function Comment({
 
     const menu = isMine
         ? [
-            {
-                label: '刪除留言',
-                icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                onClick: () => {
-                    console.log('delete comment')
-                    setIsDeletingDialogOpen(true)
-                },
-            },
-        ]
+              {
+                  label: '刪除留言',
+                  icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+                  onClick: () => {
+                      console.log('delete comment')
+                      setIsDeletingDialogOpen(true)
+                  },
+              },
+          ]
         : [
-            {
-                label: '檢舉留言',
-                icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-                onClick: () => {
-                    console.log('reporting comment')
-                    setIsReporting(true)
-                },
-            },
-        ]
+              {
+                  label: '檢舉留言',
+                  icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+                  onClick: () => {
+                      console.log('reporting comment')
+                      setIsReporting(true)
+                  },
+              },
+          ]
 
     if (isDeleted) return null
 
@@ -111,8 +111,8 @@ export default function Comment({
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30',
                     !isLast &&
-                    status === CommentStatus.Success &&
-                    'border-b border-neutral-600'
+                        status === CommentStatus.Success &&
+                        'border-b border-neutral-600'
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
@@ -127,7 +127,7 @@ export default function Comment({
                     <div>
                         {status !== CommentStatus.Failure && (
                             <button
-                                aria-label='more'
+                                aria-label="more"
                                 className="btn btn-circle btn-sm btn-ghost"
                                 ref={menuButtonRef}
                                 {...anchorProps}

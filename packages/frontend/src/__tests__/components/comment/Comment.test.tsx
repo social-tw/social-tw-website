@@ -3,7 +3,12 @@ import Comment from '@/components/comment/Comment'
 import '@testing-library/jest-dom'
 import { CommentStatus } from '@/types'
 import { UserProvider } from '@/contexts/User'
-import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
+import {
+    ReactElement,
+    JSXElementConstructor,
+    ReactFragment,
+    ReactPortal,
+} from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import useCreateComment from '@/hooks/useCreateComment'
@@ -24,8 +29,12 @@ jest.mock('@/contexts/Actions', () => ({
 jest.mock('@/hooks/useCreateComment')
 jest.mock('@/hooks/useDeleteComment')
 
-const mockedUseCreateComment = useCreateComment as jest.MockedFunction<typeof useCreateComment>
-const mockedUseDeleteComment = useDeleteComment as jest.MockedFunction<typeof useDeleteComment>
+const mockedUseCreateComment = useCreateComment as jest.MockedFunction<
+    typeof useCreateComment
+>
+const mockedUseDeleteComment = useDeleteComment as jest.MockedFunction<
+    typeof useDeleteComment
+>
 
 describe('Comment', () => {
     const mockCommentInfo = {
@@ -46,29 +55,46 @@ describe('Comment', () => {
 
     beforeEach(() => {
         mockedUseCreateComment.mockReturnValue({
-            genProof: jest.fn().mockImplementation(() => Promise.resolve({
-                proof: mockProof,
-                epoch: mockEpoch
-            })),
-            create: jest.fn().mockImplementation(() => Promise.resolve({
-                transaction: mockTransaction,
-            })),
+            genProof: jest.fn().mockImplementation(() =>
+                Promise.resolve({
+                    proof: mockProof,
+                    epoch: mockEpoch,
+                })
+            ),
+            create: jest.fn().mockImplementation(() =>
+                Promise.resolve({
+                    transaction: mockTransaction,
+                })
+            ),
         })
 
         mockedUseDeleteComment.mockReturnValue({
-            genProof: jest.fn().mockImplementation(() => Promise.resolve({
-                proof: mockProof,
-                epoch: mockEpoch
-            })),
-            remove: jest.fn().mockImplementation(() => Promise.resolve({
-                transaction: mockTransaction,
-            })),
-            isDeleted: false
+            genProof: jest.fn().mockImplementation(() =>
+                Promise.resolve({
+                    proof: mockProof,
+                    epoch: mockEpoch,
+                })
+            ),
+            remove: jest.fn().mockImplementation(() =>
+                Promise.resolve({
+                    transaction: mockTransaction,
+                })
+            ),
+            isDeleted: false,
         })
     })
-    
 
-    const renderWithProvider = (component: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined) => {
+    const renderWithProvider = (
+        component:
+            | string
+            | number
+            | boolean
+            | ReactElement<any, string | JSXElementConstructor<any>>
+            | ReactFragment
+            | ReactPortal
+            | null
+            | undefined
+    ) => {
         return render(<UserProvider>{component}</UserProvider>)
     }
 
@@ -78,22 +104,27 @@ describe('Comment', () => {
     })
 
     it('opens report dialog on report action', () => {
-        renderWithProvider(<Comment {...{ ...mockCommentInfo, isMine: false }} />)
+        renderWithProvider(
+            <Comment {...{ ...mockCommentInfo, isMine: false }} />
+        )
         fireEvent.click(screen.getByRole('button', { name: /more/i }))
         fireEvent.click(screen.getByText(/檢舉留言/i))
         expect(screen.getByText(/確認檢舉/i)).toBeInTheDocument()
     })
 
-    it('opens delete dialog and calls onDelete function', async() => {
+    it('opens delete dialog and calls onDelete function', async () => {
         const mockOnOpenAnimation = jest.fn()
         const mockOnCloseAnimation = jest.fn()
 
-        renderWithProvider(<Comment {...{ 
-            ...mockCommentInfo,  
-            onOpenAnimation: mockOnOpenAnimation, 
-            onCloseAnimation: mockOnCloseAnimation
-            }} 
-        />)
+        renderWithProvider(
+            <Comment
+                {...{
+                    ...mockCommentInfo,
+                    onOpenAnimation: mockOnOpenAnimation,
+                    onCloseAnimation: mockOnCloseAnimation,
+                }}
+            />
+        )
         fireEvent.click(screen.getByRole('button', { name: /more/i }))
         fireEvent.click(screen.getByText(/刪除留言/i))
         fireEvent.click(screen.getByText(/確認刪除/i))
@@ -108,19 +139,24 @@ describe('Comment', () => {
         const mockOnOpenAnimation = jest.fn()
         const mockOnCloseAnimation = jest.fn()
 
-        renderWithProvider(<Comment {...{ 
-            ...mockCommentInfo, 
-            status: CommentStatus.Failure, 
-            onOpenAnimation: mockOnOpenAnimation, 
-            onCloseAnimation: mockOnCloseAnimation
-            }} 
-        />)
+        renderWithProvider(
+            <Comment
+                {...{
+                    ...mockCommentInfo,
+                    status: CommentStatus.Failure,
+                    onOpenAnimation: mockOnOpenAnimation,
+                    onCloseAnimation: mockOnCloseAnimation,
+                }}
+            />
+        )
 
         const republishButton = screen.getByText(/再次發佈這則留言/i)
         fireEvent.click(republishButton)
 
         await act(async () => {
-            expect(removeActionByCommentId).toHaveBeenCalledWith(mockCommentInfo.commentId)
+            expect(removeActionByCommentId).toHaveBeenCalledWith(
+                mockCommentInfo.commentId
+            )
             expect(mockOnOpenAnimation).toHaveBeenCalled()
             expect(mockOnOpenAnimation).toHaveBeenCalled()
         })

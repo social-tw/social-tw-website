@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import CloseIcon from "@/assets/close.svg";
-import PostIcon from "@/assets/post.svg";
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import CloseIcon from '@/assets/close.svg'
+import PostIcon from '@/assets/post.svg'
 import {
-    ActionStatus, ActionType, latestActionSelector, pendingCountSelector,
-    useActionStore
-} from "@/contexts/Actions";
-import { Dialog } from "@headlessui/react";
-import ActionTable, { getActionLink, getActionTypeLabel } from "./ActionTable";
+    ActionStatus,
+    ActionType,
+    latestActionSelector,
+    pendingCountSelector,
+    useActionStore,
+} from '@/contexts/Actions'
+import { Dialog } from '@headlessui/react'
+import ActionTable, { getActionLink, getActionTypeLabel } from './ActionTable'
 
 import type { Action } from '@/contexts/Actions'
 

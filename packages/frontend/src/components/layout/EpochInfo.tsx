@@ -1,9 +1,9 @@
-import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
-import Countdown from "react-countdown";
-import EpochIcon from "@/assets/epoch.svg";
-import { countByTimeRangeSelector, useActionStore } from "@/contexts/Actions";
-import useEpoch from "@/hooks/useEpoch";
+import clsx from 'clsx'
+import { useEffect, useMemo, useState } from 'react'
+import Countdown from 'react-countdown'
+import EpochIcon from '@/assets/epoch.svg'
+import { countByTimeRangeSelector, useActionStore } from '@/contexts/Actions'
+import useEpoch from '@/hooks/useEpoch'
 
 export default function EpochInfo() {
     const { epochLength, remainingTime, epoch } = useEpoch()
@@ -67,7 +67,10 @@ export default function EpochInfo() {
                             )}
                         </span>
                     </div>
-                    <div className="flex flex-1 gap-2" data-testid="action-counter">
+                    <div
+                        className="flex flex-1 gap-2"
+                        data-testid="action-counter"
+                    >
                         {new Array(7).fill(0).map((_, index) => (
                             <div
                                 key={index}

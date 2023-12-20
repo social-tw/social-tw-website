@@ -40,7 +40,7 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
                         className="absolute top-3 right-3 cursor-pointer text-[#051532]"
                         size={30}
                         onClick={onCancel}
-                        title='cancel a comment'
+                        title="cancel a comment"
                     />
                     <form
                         className="flex flex-col items-center justify-center gap-8"

@@ -43,20 +43,25 @@ export default function useCreateComment() {
             proof: epochKeyProof.proof,
         })
 
-        return { 
+        return {
             proof,
-            epoch: latestTransitionedEpoch
+            epoch: latestTransitionedEpoch,
         }
     }
 
-    const create = async (proof: string, postId: string, content: string, epoch: number) => {
+    const create = async (
+        proof: string,
+        postId: string,
+        content: string,
+        epoch: number
+    ) => {
         if (!userState) throw new Error('user state not initialized')
         const commentData = {
             commentId: 'notGetYet',
             postId: postId,
             content: content,
             epoch,
-            transactionHash: ""
+            transactionHash: '',
         }
         const actionId = addAction(ActionType.Comment, commentData)
 

@@ -1,5 +1,5 @@
 module.exports = {
-  process() {
-    return 'module.exports = "div";';
-  },
-};
+    process() {
+        return 'module.exports = "div";'
+    },
+}
