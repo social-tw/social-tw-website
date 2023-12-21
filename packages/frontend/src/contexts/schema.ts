@@ -3,7 +3,7 @@ import { TableData } from 'anondb'
 const _schema = [
     {
         name: 'UserState',
-        indexes: [{keys: ['attesterId']}],
+        indexes: [{ keys: ['attesterId'] }],
         rows: [
             {
                 name: 'attesterId',
@@ -23,8 +23,8 @@ const _schema = [
                 name: 'data',
                 type: 'Object',
             },
-        ]
-    }
+        ],
+    },
 ]
 
 export const schema = _schema.map((obj) => ({

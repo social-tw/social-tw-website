@@ -7,7 +7,7 @@ export default {
     verifyProof: async (
         circuitName: string | Circuit,
         publicSignals: typeof PublicSignals,
-        proof: typeof Groth16Proof
+        proof: typeof Groth16Proof,
     ) => {
         const url = new URL(`/build/${circuitName}.vkey.json`, KEY_SERVER)
         const vkey = await fetch(url.toString()).then((r) => r.json())
