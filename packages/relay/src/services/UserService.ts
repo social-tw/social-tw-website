@@ -1,5 +1,5 @@
 import { SignupProof } from '@unirep/circuits'
-import { SnarkProof } from '@unirep/utils'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import TransactionManager from '../singletons/TransactionManager'
 import { APP_ADDRESS, TWITTER_USER_URL } from '../config'
@@ -81,7 +81,7 @@ export class UserService {
 
     async signup(
         publicSignals: string[],
-        proof: SnarkProof,
+        proof: typeof Groth16Proof,
         hashUserId: string,
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer

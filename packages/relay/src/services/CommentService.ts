@@ -1,5 +1,5 @@
 import { DB } from 'anondb'
-import { SnarkProof } from '@unirep/utils'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { addActionCount } from '../utils/TransactionHelper'
@@ -51,7 +51,7 @@ export class CommentService {
         postId: string,
         content: string,
         publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        proof: typeof Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
@@ -94,7 +94,7 @@ export class CommentService {
     async deleteComment(
         commentId: string,
         publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        proof: typeof Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
     ) {
