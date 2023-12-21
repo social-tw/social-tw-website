@@ -1,6 +1,6 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
+import { UserState } from './Userstate'
 import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {

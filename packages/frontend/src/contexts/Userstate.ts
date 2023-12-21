@@ -278,7 +278,8 @@ export default class UserState {
     ): Promise<number> {
         const _attesterId = toDecString(attesterId)
         const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
-        const latestTransitionedEpoch = await this.latestTransitionedEpoch(
+        const latestTransitionedEpoch = 
+            await this.latestTransitionedEpoch(
             _attesterId,
         )
 
@@ -424,8 +425,6 @@ export default class UserState {
                 data: parsedData,
             },
         })
-
-        console.log('User db updated successfully.')
     }
 
     public getData = async (
