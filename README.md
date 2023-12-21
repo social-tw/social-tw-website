@@ -74,21 +74,21 @@ yarn build
 yarn contracts hardhat node
 ```
 
-### 2.3 Deploy smart contracts
+### 2.3 Set up Twitter API Key
+
+```shell
+cp packages/relay/.env.example packages/relay/.env
+```
+
+Then fill in your Twitter API Key in `packages/relay/.env`
+
+### 2.4 Deploy smart contracts
 
 in new terminal window, from root:
 
 ```shell
 yarn contracts deploy
 ```
-
-### 2.4 Set up Twitter API Key
-
-```shell
-cp packages/relay/.env_example packages/relay/.env
-```
-
-Then fill in your Twitter API Key in `packages/relay/.env`
 
 ### 2.5 Start a relayer (backend)
 
