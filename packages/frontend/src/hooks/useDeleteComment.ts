@@ -48,7 +48,11 @@ export default function useDeleteComment() {
         return proof
     }
 
-    const remove = async (proof: string, epoch: number, transactionHash: string) => {
+    const remove = async (
+        proof: string,
+        epoch: number,
+        transactionHash: string
+    ) => {
         if (!userState) throw new Error('user state not initialized')
         const actionId = addAction(ActionType.DeleteComment, {
             epoch,

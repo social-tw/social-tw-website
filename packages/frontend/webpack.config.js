@@ -38,8 +38,8 @@ module.exports = (env) => ({
             constants: false,
         },
         alias: {
-            '@': path.resolve(__dirname, 'src/')
-        }
+            '@': path.resolve(__dirname, 'src/'),
+        },
     },
     module: {
         rules: [

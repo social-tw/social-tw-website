@@ -186,6 +186,7 @@ export function removeActionById(id: string) {
         delete state.entities[id]
         const index = state.list.findIndex((itemId) => itemId === id)
         if (index !== -1) state.list.splice(index, 1)
+        if (state.latestId === id) state.latestId = undefined
     })
 }
 

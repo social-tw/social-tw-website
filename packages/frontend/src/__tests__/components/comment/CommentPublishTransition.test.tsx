@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import CommentPublishTransition from '@/components/comment/CommentPublishTransition' 
+import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
 
 describe('CommentPublishTransition', () => {
     it('renders when open', () => {
@@ -19,7 +19,11 @@ describe('CommentPublishTransition', () => {
         render(<CommentPublishTransition isOpen={false} />)
 
         expect(screen.queryByAltText('Comment')).not.toBeInTheDocument()
-        expect(screen.queryByText('您的留言正在處理中，')).not.toBeInTheDocument()
-        expect(screen.queryByText('請留意資訊並確認存取狀態')).not.toBeInTheDocument()
+        expect(
+            screen.queryByText('您的留言正在處理中，')
+        ).not.toBeInTheDocument()
+        expect(
+            screen.queryByText('請留意資訊並確認存取狀態')
+        ).not.toBeInTheDocument()
     })
 })

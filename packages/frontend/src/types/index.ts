@@ -13,7 +13,7 @@ export interface CommnetDataFromApi {
     epochKey: string
     epoch: number
     content: string
-    transactionHash: string,
+    transactionHash: string
     publishedAt: number | string
 }
 

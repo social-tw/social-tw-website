@@ -16,7 +16,7 @@
         "test:e2e": "sh ./scripts/start-test-environment.sh && yarn test:playwright",
         "test": "CI=true yarn test:dom",
         "test:dom": "react-app-rewired test",
-        "test:domwatch": "react-scripts test --watchAll --coverage"
+        "test:domwatch": "react-app-rewired test --watchAll --coverage"
     },
     "dependencies": {
         "@cloudflare/kv-asset-handler": "^0.2.0",
@@ -25,7 +25,6 @@
         "@lexical/react": "^0.11.1",
         "@szhsin/react-menu": "^4.1.0",
         "@tanstack/react-table": "^8.10.7",
-        "@testing-library/react-hooks": "^8.0.1",
         "@testing-library/user-event": "^14.5.1",
         "@uidotdev/usehooks": "^2.1.0",
         "@unirep-app/circuits": "1.0.0",

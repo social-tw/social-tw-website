@@ -16,23 +16,25 @@ describe('MobileCommentForm', () => {
 
     it('calls onSubmit with the entered text', async () => {
         const mockOnSubmit = jest.fn()
-    
+
         await act(async () => {
             render(<MobileCommentForm isOpen={true} onSubmit={mockOnSubmit} />)
         })
-    
+
         const input = screen.getByLabelText('comment editor')
         await act(async () => {
             await userEvent.type(input, 'Test comment')
         })
-    
-        const submitButton = screen.getByTitle('submit a comment') as HTMLButtonElement
+
+        const submitButton = screen.getByTitle(
+            'submit a comment'
+        ) as HTMLButtonElement
         userEvent.click(submitButton)
 
         // TODO: Have act issue. can't run the below code
         // expect(mockOnSubmit).toHaveBeenCalledWith({ content: 'Test comment' })
     })
-    
+
     // Test for canceling the form
     it('calls onCancel when cancel button is clicked', () => {
         const mockOnCancel = jest.fn()

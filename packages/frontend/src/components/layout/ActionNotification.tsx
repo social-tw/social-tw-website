@@ -84,6 +84,7 @@ export default function ActionNotification() {
                 {statusLabel}
                 <button
                     className="px-1.5 py-px text-xs border text-primary border-primary leading-none"
+                    data-testid="action-count-button"
                     onClick={() => setIsOpen(true)}
                 >
                     {pendingCount}
@@ -96,7 +97,10 @@ export default function ActionNotification() {
             >
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-full p-4">
-                        <Dialog.Panel className="relative w-full h-80 max-w-md overflow-hidden rounded-xl bg-black/90 px-7 pt-14 pb-7 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                        <Dialog.Panel
+                            className="relative w-full h-80 max-w-md overflow-hidden rounded-xl bg-black/90 px-7 pt-14 pb-7 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                            data-testid="actions-dialog"
+                        >
                             <button
                                 className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
                                 type="submit"
