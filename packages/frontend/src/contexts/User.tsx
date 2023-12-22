@@ -1,9 +1,8 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
 import { UserState } from './Userstate'
-// import { UserState } from '@unirep/core'
 import { schema } from './schema'
-import { IndexedDBConnector, MemoryConnector } from 'anondb/web'
+import { IndexedDBConnector } from 'anondb/web'
 import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {

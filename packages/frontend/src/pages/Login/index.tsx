@@ -66,8 +66,6 @@ function useHandleTwitterCallback() {
         }
         function main() {
             if (isValidParams()) {
-                console.log('isValid')
-                console.log(hashUserId)
                 LocalStorageHelper.setHashUserId(hashUserId!)
                 LocalStorageHelper.setSignature(signMsg!)
                 LocalStorageHelper.setAccessToken(accessToken!)

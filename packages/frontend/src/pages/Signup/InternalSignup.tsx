@@ -31,7 +31,6 @@ export function InternalSignup() {
     const signUpWithWallet = useSignupWithWallet()
     const signUpWithServer = useSignupWithServer()
     const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
-    console.log("hashUserid in Internal,",hashUserId)
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
 
