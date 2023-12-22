@@ -24,6 +24,7 @@ export default (
             if (isNaN(page) || page < 1) {
                 return res.status(400).json({ error: 'Invalid page number' })
             }
+
             const posts = await postService.fetchPosts(query, epks, page, db)
             res.json(posts)
         })

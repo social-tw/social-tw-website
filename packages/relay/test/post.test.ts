@@ -38,7 +38,7 @@ describe('POST /post', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const { db, prover, provider, synchronizer, server, postService } =
             await startServer(unirep, app)
