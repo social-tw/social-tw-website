@@ -60,11 +60,14 @@ function useHandleTwitterCallback() {
         function isValidStatus(status: string | null) {
             return status && ['1', '2', '3'].includes(status)
         }
+        
         function isValidParams() {
             return isValidStatus(status) && hashUserId && accessToken && signMsg
         }
         function main() {
             if (isValidParams()) {
+                console.log('isValid')
+                console.log(hashUserId)
                 LocalStorageHelper.setHashUserId(hashUserId!)
                 LocalStorageHelper.setSignature(signMsg!)
                 LocalStorageHelper.setAccessToken(accessToken!)

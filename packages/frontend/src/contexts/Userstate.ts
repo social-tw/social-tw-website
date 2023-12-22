@@ -110,8 +110,7 @@ export default class UserState {
 
     constructor(config: {
         synchronizer?: Synchronizer
-        userdb?: DB
-        syncdb?: DB
+        db?: DB
         attesterId: bigint | bigint[]
         unirepAddress?: string
         provider?: ethers.providers.Provider
@@ -125,8 +124,6 @@ export default class UserState {
             unirepAddress,
             provider,
             prover,
-            syncdb,
-            userdb,
         } = config
         if (!id) {
             throw new Error(
@@ -139,7 +136,7 @@ export default class UserState {
             )
         }
 
-        const db = userdb ?? new MemoryConnector(constructSchema(schema))
+        const db = config.db ?? new MemoryConnector(constructSchema(schema))
 
         if (synchronizer) {
             this._sync = synchronizer
@@ -150,7 +147,7 @@ export default class UserState {
                 )
             }
             this._sync = new Synchronizer({
-                db: syncdb,
+                db,
                 attesterId,
                 provider,
                 unirepAddress,
@@ -197,7 +194,7 @@ export default class UserState {
     ): Promise<boolean> {
         this._checkSync()
         this.sync.checkAttesterId(attesterId)
-        const signup = await this.sync.db.findOne('UserSignUp', {
+        const signup = await this.db.findOne('UserSignUp', {
             where: {
                 commitment: this.commitment.toString(),
                 attesterId: toDecString(attesterId),
@@ -213,34 +210,34 @@ export default class UserState {
      * @returns The latest epoch where a user performed a user state transition.
      */
     async latestTransitionedEpoch(
-        attesterId: bigint | string = this.sync.attesterId,
+        attesterId: bigint | string = this.sync.attesterId
     ): Promise<number> {
         this._checkSync()
         const _attesterId = toDecString(attesterId)
         this.sync.checkAttesterId(attesterId)
-        const foundData = await this.db.findOne('UserState', {
-            where: {
-                attesterId: _attesterId,
-            },
-        })
-
-        let recordEpoch = foundData?.latestTransitionedEpoch ?? 0
-        if (!foundData) {
-            const signup = await this.sync.db.findOne('UserSignUp', {
+        let savedData: any = undefined
+        try {
+            savedData = await this.db.findOne('UserState', {
+                where: {
+                    attesterId: _attesterId,
+                },
+            })
+        } catch (_) {}
+        let earlistEpoch = savedData?.latestTransitionedEpoch ?? 0
+        if (!savedData) {
+            const signup = await this.db.findOne('UserSignUp', {
                 where: {
                     commitment: this.commitment.toString(),
                     attesterId: _attesterId,
                 },
             })
-            if (!signup) {
-                throw new Error('user has not signed up')
-            }
-            recordEpoch = signup.epoch
+            if (!signup)
+                throw new Error('@unirep/core:UserState user is not signed up')
+            earlistEpoch = signup.epoch
         }
 
-        //add check if usted elsewhere
         const currentEpoch = await this.sync.loadCurrentEpoch(_attesterId)
-        for (let x = currentEpoch; x >= recordEpoch; x--) {
+        for (let x = currentEpoch; x >= earlistEpoch; x--) {
             const nullifiers = [
                 0,
                 this.sync.settings.numEpochKeyNoncePerEpoch,
@@ -250,10 +247,10 @@ export default class UserState {
                     _attesterId,
                     x,
                     v,
-                    this.chainId,
-                ).toString(),
+                    this.chainId
+                ).toString()
             )
-            const n = await this.sync.db.findOne('Nullifier', {
+            const n = await this.db.findOne('Nullifier', {
                 where: {
                     nullifier: nullifiers,
                 },
@@ -262,7 +259,7 @@ export default class UserState {
                 return n.epoch
             }
         }
-        return recordEpoch
+        return earlistEpoch
     }
 
     //updated
@@ -278,16 +275,19 @@ export default class UserState {
     ): Promise<number> {
         const _attesterId = toDecString(attesterId)
         const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
-        const latestTransitionedEpoch = 
-            await this.latestTransitionedEpoch(
+        const latestTransitionedEpoch = await this.latestTransitionedEpoch(
             _attesterId,
         )
 
-        const foundData = await this.db.findOne('UserState', {
-            where: {
-                attesterId: _attesterId,
-            },
-        })
+        let foundData: any = undefined
+        try {
+            foundData = await this.db.findOne('UserState', {
+                where: {
+                    attesterId: _attesterId,
+                },
+            })
+        } catch (e) {}
+
         if (foundData?.latestTransitionedEpoch === currentEpoch) {
             return foundData.latestTransitionedIndex
         }
@@ -309,7 +309,7 @@ export default class UserState {
             data,
             this.chainId,
         )
-        const foundLeaf = await this.sync.db.findOne('StateTreeLeaf', {
+        const foundLeaf = await this.db.findOne('StateTreeLeaf', {
             where: {
                 epoch: currentEpoch,
                 hash: leaf.toString(),
@@ -394,7 +394,7 @@ export default class UserState {
             data,
             this.chainId,
         )
-        const foundLeaf = await this.sync.db.findOne('StateTreeLeaf', {
+        const foundLeaf = await this.db.findOne('StateTreeLeaf', {
             where: {
                 epoch: latestTransitionedEpoch,
                 hash: leaf.toString(),
@@ -436,11 +436,15 @@ export default class UserState {
             toEpoch ?? (await this.latestTransitionedEpoch(_attesterId))
         const data = new Array(this.sync.settings.fieldCount).fill(BigInt(0))
 
-        const foundData = await this.db.findOne('UserState', {
-            where: {
-                attesterId: _attesterId,
-            },
-        })
+        let foundData: any = undefined
+        try {
+            foundData = await this.db.findOne('UserState', {
+                where: {
+                    attesterId: _attesterId,
+                },
+            })
+        } catch (e) {}
+
         if (foundData) {
             data.map((_, i) => BigInt(foundData.data[`${i}`]))
         }
@@ -449,7 +453,7 @@ export default class UserState {
         }
 
         const orClauses = [] as any[]
-        const signup = await this.sync.db.findOne('UserSignUp', {
+        const signup = await this.db.findOne('UserSignUp', {
             where: {
                 commitment: this.commitment.toString(),
                 attesterId: _attesterId,
@@ -477,7 +481,7 @@ export default class UserState {
                 ),
             )
         }
-        const sortedNullifiers = await this.sync.db.findMany('Nullifier', {
+        const sortedNullifiers = await this.db.findMany('Nullifier', {
             where: {
                 attesterId: _attesterId,
                 nullifier: allNullifiers,
@@ -519,7 +523,7 @@ export default class UserState {
             latestTransitionedEpoch = x
         }
         if (orClauses.length === 0) return data
-        const attestations = await this.sync.db.findMany('Attestation', {
+        const attestations = await this.db.findMany('Attestation', {
             where: {
                 OR: orClauses,
                 attesterId: _attesterId,
@@ -586,7 +590,7 @@ export default class UserState {
         this.sync.checkAttesterId(_attesterId)
         const data = Array(this.sync.settings.fieldCount).fill(BigInt(0))
         if (typeof epoch !== 'number') throw new Error('epoch must be number')
-        const attestations = await this.sync.db.findMany('Attestation', {
+        const attestations = await this.db.findMany('Attestation', {
             where: {
                 epoch,
                 epochKey: epochKey.toString(),
@@ -657,7 +661,7 @@ export default class UserState {
         attesterId: bigint | string,
     ) => {
         this._checkSync()
-        const attestations = await this.sync.db.findMany('Attestation', {
+        const attestations = await this.db.findMany('Attestation', {
             where: {
                 epoch,
                 attesterId: toDecString(attesterId),
@@ -724,7 +728,7 @@ export default class UserState {
             )
         const historyTree = await this.sync.genHistoryTree(attesterId)
         const leafHash = poseidon2([stateTree.root, epochTree.root])
-        const leaf = await this.sync.db.findOne('HistoryTreeLeaf', {
+        const leaf = await this.db.findOne('HistoryTreeLeaf', {
             where: {
                 attesterId,
                 leaf: leafHash.toString(),
@@ -736,7 +740,7 @@ export default class UserState {
         } else {
             // the epoch hasn't been ended onchain yet
             // add the leaf offchain to make the proof
-            const leafCount = await this.sync.db.count('HistoryTreeLeaf', {
+            const leafCount = await this.db.count('HistoryTreeLeaf', {
                 attesterId,
             })
             historyTree.insert(leafHash)
@@ -1039,3 +1043,6 @@ export default class UserState {
 }
 
 export { UserState }
+
+
+
