@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import Comment from '@/components/comment/Comment'
+import CommentNotifications from '@/components/comment/CommentNotification'
 import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
 import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
 import MobileCommentForm, {
@@ -150,6 +151,7 @@ export default function PostDetail() {
                     onCancel={() => setIsOpenCommnet(false)}
                 />
             )}
+            <CommentNotifications postId={post.id} />
             <AuthErrorDialog isOpen={isError} buttonText="返回註冊/登入頁" />
             <CommentPublishTransition isOpen={isPublishing} />
         </>

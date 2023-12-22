@@ -6,8 +6,8 @@ import {
     pendingCommentActionsSelector,
     useActionStore,
 } from '@/contexts/Actions'
-import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 import { useUser } from '@/contexts/User'
+import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 
 const demoComments = [

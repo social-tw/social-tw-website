@@ -142,7 +142,7 @@ export default function Comment({
             {status === CommentStatus.Failure && (
                 <div className="mb-6">
                     <button
-                        className="btn btn-sm btn-outline btn-primary border-2 h-10"
+                        className="h-10 border-2 btn btn-sm btn-outline btn-primary"
                         onClick={onRepublish}
                     >
                         再次發佈這則留言

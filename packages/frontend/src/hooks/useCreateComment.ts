@@ -4,9 +4,9 @@ import {
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
 import { stringifyBigInts } from '@unirep/utils'
+import { SERVER } from '../config'
 
 async function publishComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
