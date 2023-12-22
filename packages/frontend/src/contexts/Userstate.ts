@@ -210,7 +210,7 @@ export default class UserState {
      * @returns The latest epoch where a user performed a user state transition.
      */
     async latestTransitionedEpoch(
-        attesterId: bigint | string = this.sync.attesterId
+        attesterId: bigint | string = this.sync.attesterId,
     ): Promise<number> {
         this._checkSync()
         const _attesterId = toDecString(attesterId)
@@ -247,8 +247,8 @@ export default class UserState {
                     _attesterId,
                     x,
                     v,
-                    this.chainId
-                ).toString()
+                    this.chainId,
+                ).toString(),
             )
             const n = await this.db.findOne('Nullifier', {
                 where: {
@@ -1043,6 +1043,3 @@ export default class UserState {
 }
 
 export { UserState }
-
-
-

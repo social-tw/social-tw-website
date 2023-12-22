@@ -1,9 +1,9 @@
 import { TableData } from 'anondb'
-import {schema as syncSchema} from '@unirep/core'
+import { schema as syncSchema } from '@unirep/core'
 
 const _schema = [
     ...syncSchema,
-    {    
+    {
         name: 'UserState',
         indexes: [{ keys: ['attesterId'] }],
         rows: [

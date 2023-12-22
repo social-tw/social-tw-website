@@ -60,7 +60,7 @@ function useHandleTwitterCallback() {
         function isValidStatus(status: string | null) {
             return status && ['1', '2', '3'].includes(status)
         }
-        
+
         function isValidParams() {
             return isValidStatus(status) && hashUserId && accessToken && signMsg
         }
