@@ -48,9 +48,6 @@ describe('POST /vote', function () {
             postService,
         } = await startServer(unirep, app)
 
-        // start socket client
-        socketClient = io('http://localhost:3000')
-
         anondb = db
         express = server
         sync = synchronizer
@@ -102,6 +99,19 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
         otherPostId = otherPost._id
+
+        // start socket client
+        socketClient = io('http://localhost:3000')
+
+        // check socket message
+        socketClient.on(EventType.VOTE, (data: VoteMsg) => {
+            if (data.vote == VoteAction.UPVOTE) {
+                expect(data.postId).equal(upvotePostId)
+            } else if (data.vote == VoteAction.DOWNVOTE) {
+                expect(data.postId).equal(downvotePostId)
+            }
+            expect(data.epoch).equal(1)
+        })
 
         chainId = await unirep.chainid()
     })
@@ -162,13 +172,6 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(downvoteResponse.status).equal(201)
-
-        // check socket message
-        socketClient.on(EventType.VOTE, (data: VoteMsg) => {
-            expect(data.postId).equal(downvotePostId)
-            expect(data.epoch).equal(1)
-            expect(data.vote).equal(VoteAction.DOWNVOTE)
-        })
 
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
@@ -370,20 +373,6 @@ describe('POST /vote', function () {
         expect(upvoteResponse.status).equal(400)
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid postId')
-        })
-    })
-
-    it('should emit vote event on upvote', async () => {
-        socketClient.emit(EventType.VOTE, {
-            postId: upvotePostId,
-            epoch: 1,
-            vote: VoteAction.UPVOTE,
-        })
-
-        socketClient.on(EventType.VOTE, (data) => {
-            expect(data.postId).equal(upvotePostId)
-            expect(data.epoch).equal(1)
-            expect(data.vote).equal(VoteAction.UPVOTE)
         })
     })
 })
