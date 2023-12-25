@@ -64,7 +64,6 @@ export default class UserState {
     private _sync: Synchronizer
     private _chainId: number
     private _db: DB
-    private initDataComplete = false
 
     /**
      * The [Semaphore](https://semaphore.pse.dev/) identity commitment of the user.
@@ -446,10 +445,9 @@ export default class UserState {
         } catch (e) {}
 
         if (foundData) {
-            data.map((_, i) => BigInt(foundData.data[`${i}`]))
-        }
-        if (_toEpoch === foundData?.latestTransitionedEpoch) {
-            return data
+            for (let i = 0; i < data.length; i++) {
+                data[i] = BigInt(foundData.data[`${i}`])
+            }
         }
 
         const orClauses = [] as any[]
@@ -468,7 +466,7 @@ export default class UserState {
         const transitionedEpoch =
             foundData?.latestTransitionedEpoch ?? signup?.epoch
         const allNullifiers = [] as any
-        for (let x = transitionedEpoch; x <= _toEpoch; x++) {
+        for (let x = signup?.epoch; x <= _toEpoch; x++) {
             allNullifiers.push(
                 ...[0, this.sync.settings.numEpochKeyNoncePerEpoch].map((v) =>
                     genEpochKey(
@@ -532,7 +530,7 @@ export default class UserState {
                 index: 'asc',
             },
         })
-        let transitionedData = data
+        let transitionedData = [...data]
         for (const a of attestations) {
             const { fieldIndex } = a
             let currentNonce = BigInt(-1)
@@ -546,8 +544,8 @@ export default class UserState {
                 }
             }
             const { epoch } = a
-            if (epoch <= latestTransitionedEpoch) {
-                transitionedData = data
+            if (epoch < latestTransitionedEpoch) {
+                transitionedData = [...data]
             }
         }
         if (latestTransitionedEpoch !== signup?.epoch) {
@@ -622,10 +620,14 @@ export default class UserState {
      * @param epochKeyNonce The input epoch key nonce to be checked.
      */
     private _checkEpkNonce = (epochKeyNonce: number) => {
-        if (epochKeyNonce >= this.sync.settings.numEpochKeyNoncePerEpoch)
+        if (
+            epochKeyNonce >= this.sync.settings.numEpochKeyNoncePerEpoch ||
+            epochKeyNonce < 0
+        ) {
             throw new Error(
-                `@unirep/core:UserState: epochKeyNonce (${epochKeyNonce}) must be less than max epoch nonce`,
+                `@unirep/core:UserState: epochKeyNonce (${epochKeyNonce}) must be less than max epoch nonce and not negative`
             )
+        }
     }
 
     /**
