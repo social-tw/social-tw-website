@@ -415,7 +415,7 @@ export default class UserState {
             create: {
                 attesterId: _attesterId,
                 latestTransitionedEpoch,
-                latestStateTreeLeafIndex: foundLeaf.index,
+                latestTransitionedIndex: foundLeaf.index,
                 data: parsedData,
             },
             update: {
@@ -625,7 +625,7 @@ export default class UserState {
             epochKeyNonce < 0
         ) {
             throw new Error(
-                `@unirep/core:UserState: epochKeyNonce (${epochKeyNonce}) must be less than max epoch nonce and not negative`
+                `@unirep/core:UserState: epochKeyNonce (${epochKeyNonce}) must be less than max epoch nonce and not negative`,
             )
         }
     }
