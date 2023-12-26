@@ -80,7 +80,7 @@ export class UserService {
     }
 
     async signup(
-        publicSignals: string[],
+        publicSignals: PublicSignals,
         proof: Groth16Proof,
         hashUserId: string,
         fromServer: boolean,

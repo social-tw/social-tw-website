@@ -9,7 +9,7 @@ import { InternalError } from '../types/InternalError'
 
 class EpochKeyService {
     async getAndVerifyProof(
-        publicSignals: (bigint | string)[],
+        publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyProof> {
@@ -49,7 +49,7 @@ class EpochKeyService {
     }
 
     async getAndVerifyLiteProof(
-        publicSignals: (bigint | string)[],
+        publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {

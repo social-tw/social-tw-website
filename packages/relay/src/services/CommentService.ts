@@ -50,7 +50,7 @@ export class CommentService {
     async leaveComment(
         postId: string,
         content: string,
-        publicSignals: (bigint | string)[],
+        publicSignals: PublicSignals,
         proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
@@ -93,7 +93,7 @@ export class CommentService {
 
     async deleteComment(
         commentId: string,
-        publicSignals: (bigint | string)[],
+        publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
