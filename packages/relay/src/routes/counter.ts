@@ -51,6 +51,7 @@ async function fetchActions(req, res, db: DB) {
 
         res.json({ counter: counter })
     } catch (error: any) {
+        console.error(error)
         res.status(500).json({ error })
     }
 }

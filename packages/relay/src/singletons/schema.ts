@@ -115,6 +115,15 @@ const _schema = [
                 default: () => (+new Date()).toString(),
             },
             ['postId', 'String'],
+            {
+                name: 'post',
+                type: 'Object',
+                relation: {
+                    localField: 'postId',
+                    foreignField: '_id',
+                    foreignTable: 'Post',
+                },
+            },
             ['epochKey', 'String'],
             ['epoch', 'Int'],
             {

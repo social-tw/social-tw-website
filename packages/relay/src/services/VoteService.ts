@@ -14,6 +14,9 @@ export class VoteService {
             orderBy: {
                 [sortKey]: direction,
             },
+            include: {
+                post: true,
+            },
         })
     }
 }

@@ -1,6 +1,6 @@
 # This is the custom image for running build-and-test.yml
 
-FROM ubuntu:22.04
+FROM node:18-buster
 
 ENV DEBIAN_FRONTEND=noninteractive
 
