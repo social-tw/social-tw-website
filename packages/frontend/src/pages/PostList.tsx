@@ -75,7 +75,6 @@ export default function PostList() {
                 throw new Error('No internet connection')
             }
             const response = await fetch(`${SERVER}/api/post`)
-            // Check if the response was successful
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
@@ -91,17 +90,18 @@ export default function PostList() {
                     isMine = voteCheck.isMine
                     finalAction = voteCheck.finalAction
                 }
+                post.isMine = isMine
+                post.finalAction = finalAction
                 return {
                     ...post,
-                    isMine,
-                    finalAction,
                 }
             })
+
             setPosts([...updatedPosts, ...examplePosts])
         } catch (err: any) {
             console.error('Failed to load posts:', err.message)
         }
-    }, [])
+    }, [userState])
 
     useEffect(() => {
         loadPosts()

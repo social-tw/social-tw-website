@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { VoteAction, VoteMsg } from '../../types/VoteAction'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
@@ -43,7 +43,6 @@ export default function ({
 
     const { isLogin } = useUser()
     const { create } = useVotes()
-
     const [upvotes, setUpvotes] = useState(upCount)
     const [downvotes, setDownvotes] = useState(downCount)
     // TODO: Need get vote state from backend or calucate from ecpochKey
@@ -59,7 +58,10 @@ export default function ({
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
-
+    // set isAction when finalAction is changed
+    useEffect(() => {
+        setIsAction(finalAction)
+    }, [finalAction])
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center gap-4">
