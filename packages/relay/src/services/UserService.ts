@@ -81,7 +81,7 @@ export class UserService {
 
     async signup(
         publicSignals: string[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         hashUserId: string,
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer

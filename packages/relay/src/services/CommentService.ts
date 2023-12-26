@@ -51,7 +51,7 @@ export class CommentService {
         postId: string,
         content: string,
         publicSignals: (bigint | string)[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
@@ -94,7 +94,7 @@ export class CommentService {
     async deleteComment(
         commentId: string,
         publicSignals: (bigint | string)[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
     ) {

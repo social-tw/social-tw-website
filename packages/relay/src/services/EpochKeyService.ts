@@ -10,7 +10,7 @@ import { InternalError } from '../types/InternalError'
 class EpochKeyService {
     async getAndVerifyProof(
         publicSignals: (bigint | string)[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
@@ -50,7 +50,7 @@ class EpochKeyService {
 
     async getAndVerifyLiteProof(
         publicSignals: (bigint | string)[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(

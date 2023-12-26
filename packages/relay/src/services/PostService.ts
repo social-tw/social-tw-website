@@ -187,7 +187,7 @@ export class PostService {
     async createPost(
         content: string,
         publicSignals: (bigint | string)[],
-        proof: typeof Groth16Proof,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
