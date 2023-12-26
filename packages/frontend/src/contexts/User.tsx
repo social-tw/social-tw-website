@@ -337,6 +337,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     )
 
     const logout = () => {
+        userState?.stop()
+        // FIXME: db might be blocked
+        indexedDB.deleteDatabase('anondb')
         setHasSignedUp(false)
         setUserState(undefined)
         setSignature('')

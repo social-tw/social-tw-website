@@ -6,6 +6,7 @@ const _schema = [
     {
         name: 'UserState',
         indexes: [{ keys: ['attesterId'] }],
+        primaryKey: 'attesterId',
         rows: [
             {
                 name: 'attesterId',
@@ -30,7 +31,6 @@ const _schema = [
 ]
 
 export const schema = _schema.map((obj) => ({
-    primaryKey: '_id',
     ...obj,
     rows: [...obj.rows],
 })) as TableData[]
