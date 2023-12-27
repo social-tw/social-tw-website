@@ -1,6 +1,8 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
+import { UserState } from './Userstate'
+import { schema } from './schema'
+import { IndexedDBConnector } from 'anondb/web'
 import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
@@ -115,12 +117,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
         setProvider(provider)
 
+        const db = await IndexedDBConnector.create(schema)
         const userStateInstance = new UserState({
             provider,
             prover,
             unirepAddress: relayConfig.UNIREP_ADDRESS,
             attesterId: BigInt(relayConfig.APP_ADDRESS),
             id: new Identity(storedSignature),
+            db,
         })
 
         await userStateInstance.start()
@@ -333,6 +337,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     )
 
     const logout = () => {
+        userState?.stop()
+        // FIXME: db might be blocked
+        indexedDB.deleteDatabase('anondb')
         setHasSignedUp(false)
         setUserState(undefined)
         setSignature('')
