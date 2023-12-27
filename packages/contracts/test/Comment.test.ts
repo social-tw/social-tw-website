@@ -1,16 +1,19 @@
-import { expect } from "chai";
+import { expect } from 'chai'
 //@ts-ignore
-import { ethers } from "hardhat";
-import { describe } from "node:test";
-import { CircuitConfig } from "@unirep/circuits";
-import { genStateTreeLeaf, IncrementalMerkleTree } from "@unirep/utils";
-import { deployApp } from "../scripts/utils";
-import { Unirep, UnirepApp } from "../typechain-types";
-import { IdentityObject } from "./types";
+import { ethers } from 'hardhat'
+import { describe } from 'node:test'
+import { CircuitConfig } from '@unirep/circuits'
+import { genStateTreeLeaf, IncrementalMerkleTree } from '@unirep/utils'
+import { deployApp } from '../scripts/utils'
+import { Unirep, UnirepApp } from '../typechain-types'
+import { IdentityObject } from './types'
 import {
-  createMultipleUserIdentity, genEpochKeyLiteProof, genEpochKeyProof,
-  genUserState, randomData
-} from "./utils";
+    createMultipleUserIdentity,
+    genEpochKeyLiteProof,
+    genEpochKeyProof,
+    genUserState,
+    randomData,
+} from './utils'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
