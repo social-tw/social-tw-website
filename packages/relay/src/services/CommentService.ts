@@ -7,6 +7,7 @@ import { ipfsService } from './IpfsService'
 import { epochKeyService } from './EpochKeyService'
 import { InternalError } from '../types/InternalError'
 import { Comment } from '../types/Comment'
+import { Post } from '../types/Post'
 
 export class CommentService {
     async fetchComments(postId: string, db: DB): Promise<Comment[]> {
@@ -23,6 +24,22 @@ export class CommentService {
         })
 
         return comments
+    }
+
+    async fetchMyAccountComments(
+        epks: string[],
+        sortKey: 'publishedAt' | 'voteSum',
+        direction: 'asc' | 'desc',
+        db: DB
+    ): Promise<Post[]> {
+        return db.findMany('Comment', {
+            where: {
+                epochKey: epks,
+            },
+            orderBy: {
+                [sortKey]: direction,
+            },
+        })
     }
 
     async leaveComment(

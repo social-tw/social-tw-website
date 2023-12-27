@@ -22,7 +22,7 @@ describe('Synchronize Comment Test', function () {
         wallet: any
         userState: UserState
     }[] = []
-    const EPOCH_LENGTH = 300
+    const EPOCH_LENGTH = 1000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -84,9 +84,10 @@ describe('Synchronize Comment Test', function () {
         console.log('Close server...')
         express.close()
         await ethers.provider.send('evm_revert', [snapshot])
-        // users[0].userState.sync.stop()
-        // users[1].userState.sync.stop()
-        // sync.stop()
+        // Ensure users are signed up
+        for (let i = 0; i < 2; i++) {
+            users[i].userState.stop()
+        }
     })
 
     describe('Synchronize Comment', async function () {

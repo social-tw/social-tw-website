@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const webpack = require('webpack')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const Dotenv = require('dotenv-webpack')
 
 module.exports = (env) => ({
     entry: ['./src/index.tsx'],
@@ -12,6 +13,7 @@ module.exports = (env) => ({
     devServer: {
         port: 3000,
         historyApiFallback: true,
+        allowedHosts: 'all',
     },
     optimization: {
         splitChunks: {
@@ -126,8 +128,8 @@ module.exports = (env) => ({
         }),
         new MiniCssExtractPlugin(),
         // new HtmlWebpackInlineSourcePlugin(),
+        new Dotenv({ path: './.env', systemvars: true }),
         new webpack.DefinePlugin({
-            'process.env': {},
             'process.argv': [],
             'process.versions': {},
             'process.versions.node': '"12"',
@@ -139,8 +141,8 @@ module.exports = (env) => ({
             },
             ...(env.CYPRESS
                 ? {
-                      ['process.env.CYPRESS']: 'true',
-                  }
+                    ['process.env.CYPRESS']: 'true',
+                }
                 : {}),
         }),
         new webpack.ProvidePlugin({

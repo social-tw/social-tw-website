@@ -1,37 +1,34 @@
-import { PostgresConnector, SQLiteConnector } from 'anondb/node.js'
-import { ethers } from 'ethers'
-import express from 'express'
-import fs from 'fs'
-import { createServer } from 'http'
+import { DB, PostgresConnector, SQLiteConnector } from "anondb/node.js";
+import { ethers } from "ethers";
+import express from "express";
+import fs from "fs";
+import { createServer } from "http";
 // imported libraries
-import path from 'path'
+import path from "path";
 import {
-    APP_ABI,
-    APP_ADDRESS,
-    CLIENT_URL,
-    DB_PATH,
-    IS_IN_TEST,
-    PRIVATE_KEY,
-    provider,
-    UNIREP_ADDRESS,
-} from './config'
-import prover from './singletons/prover'
-import schema from './singletons/schema'
-import { SocketManager } from './singletons/SocketManager'
-import TransactionManager from './singletons/TransactionManager'
+  APP_ABI, APP_ADDRESS, CLIENT_URL, DB_PATH, GENESIS_BLOCK, IS_IN_TEST,
+  PRIVATE_KEY, provider, UNIREP_ADDRESS
+} from "./config";
+import { postService } from "./services/PostService";
+import prover from "./singletons/prover";
+import schema from "./singletons/schema";
+import { SocketManager } from "./singletons/SocketManager";
+import TransactionManager from "./singletons/TransactionManager";
 // libraries
-import { UnirepSocialSynchronizer } from './synchornizer'
+import { UnirepSocialSynchronizer } from "./synchornizer";
 
 main().catch((err) => {
-    console.log(`Uncaught error: ${err}`)
+    console.error(`Uncaught error: ${err}`)
     process.exit(1)
 })
 
 async function main() {
-    var db
+    let db: DB
     if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
         db = await PostgresConnector.create(schema, DB_PATH)
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
+
+    await postService.start(db)
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -40,6 +37,7 @@ async function main() {
             prover: prover,
             provider: provider,
             unirepAddress: UNIREP_ADDRESS,
+            genesisBlock: parseInt(GENESIS_BLOCK),
         },
         new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
@@ -60,10 +58,6 @@ async function main() {
     app.use((req, res, next) => {
         res.set('access-control-allow-origin', CLIENT_URL)
         res.set('access-control-allow-headers', '*')
-        res.set(
-            'access-control-allow-methods',
-            'GET, POST, PUT, DELETE, OPTIONS'
-        )
         next()
     })
 

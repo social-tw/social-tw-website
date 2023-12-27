@@ -1,29 +1,22 @@
-import fetch from 'node-fetch'
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
-
-import { CircuitConfig } from '@unirep/circuits'
-import { UserState } from '@unirep/core'
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { Server } from "http";
+import fetch from "node-fetch";
+import { io } from "socket.io-client";
+import { CircuitConfig } from "@unirep/circuits";
+import { UserState } from "@unirep/core";
 import {
-    stringifyBigInts,
-    IncrementalMerkleTree,
-    genStateTreeLeaf,
-} from '@unirep/utils'
-
-import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
-
-import { Server } from 'http'
-import { userService } from '../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { genEpochKeyProof, randomData } from './utils/genProof'
-import { signUp } from './utils/signUp'
-import { post } from './utils/post'
-import { Post } from '../src/types/Post'
-import { io } from 'socket.io-client'
-import { Unirep } from '@unirep-app/contracts/typechain-types'
-import TransactionManager from '../src/singletons/TransactionManager'
+  genStateTreeLeaf, IncrementalMerkleTree, stringifyBigInts
+} from "@unirep/utils";
+import { userService } from "../src/services/UserService";
+import { UnirepSocialSynchronizer } from "../src/synchornizer";
+import { Post } from "../src/types/Post";
+import { HTTP_SERVER } from "./configs";
+import { deployContracts, startServer } from "./environment";
+import { genEpochKeyProof, randomData } from "./utils/genProof";
+import { post } from "./utils/post";
+import { signUp } from "./utils/signUp";
+import { UserStateFactory } from "./utils/UserStateFactory";
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -32,19 +25,17 @@ describe('COMMENT /comment', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
-    let unirepContract: Unirep
-    let transactionHash: string
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
         express = server
         sync = synchronizer
-        unirepContract = unirep
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -74,17 +65,18 @@ describe('COMMENT /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        await fetch(`${HTTP_SERVER}/api/post`).then(async (r) => {
+        await fetch(`${HTTP_SERVER}/api/post/0`).then(async (r) => {
             expect(r.status).equal(200)
-            const posts = (await r.json()) as Post[]
-            expect(posts.length).equal(1)
-            expect(posts[0].status).equal(1)
-            return posts[0]
+            const post = (await r.json()) as Post
+            expect(post.status).equal(1)
         })
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        userState.stop()
         express.close()
     })
 
@@ -136,7 +128,6 @@ describe('COMMENT /comment', function () {
             return r.json()
         })
 
-        transactionHash = result.transaction
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
@@ -192,6 +183,7 @@ describe('COMMENT /comment', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })
@@ -226,7 +218,13 @@ describe('COMMENT /comment', function () {
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
         const id = userState.id
-        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        const leaf = genStateTreeLeaf(
+            id.secret,
+            attesterId,
+            epoch,
+            data,
+            chainId
+        )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
             id,
@@ -234,6 +232,7 @@ describe('COMMENT /comment', function () {
             leafIndex: 0,
             epoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })
@@ -261,7 +260,35 @@ describe('COMMENT /comment', function () {
 
     it('delete the comment failed with wrong epoch key', async function () {
         let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 2,
+            nonce: 0,
+        })
+
+        epochKeyProof.publicSignals[0] = BigInt(0)
+
+        // create a comment
+        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            ),
+        }).then((r) => {
+            expect(r.status).equal(400)
+            return r.json()
+        })
+
+        expect(result.error).equal('Invalid proof')
+    })
+
+    it('delete the comment success', async function () {
+        let epochKeyProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
         })
 
         // create a comment
@@ -272,38 +299,7 @@ describe('COMMENT /comment', function () {
             },
             body: JSON.stringify(
                 stringifyBigInts({
-                    commentId: transactionHash,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(result.error).equal('Invalid epoch key')
-    })
-
-    it('delete the comment success', async function () {
-        // epoch update
-        await ethers.provider.send('evm_increaseTime', [20000])
-        await userState.waitForSync()
-        await sync.waitForSync()
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 1,
-            epoch: 0,
-        })
-
-        // delete a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    commentId: transactionHash,
+                    commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })

@@ -19,7 +19,7 @@ export default function useCreatePost() {
                         throw new Error('user state not initialized')
 
                     const latestTransitionedEpoch = await run(
-                        userState.latestTransitionedEpoch()
+                        userState.latestTransitionedEpoch(),
                     )
                     if (
                         userState.sync.calcCurrentEpoch() !==
@@ -32,7 +32,7 @@ export default function useCreatePost() {
                     const epochKeyProof = await run(
                         userState.genEpochKeyProof({
                             nonce,
-                        })
+                        }),
                     )
 
                     setCancellable(false)
@@ -47,7 +47,7 @@ export default function useCreatePost() {
                                 content,
                                 publicSignals: epochKeyProof.publicSignals,
                                 proof: epochKeyProof.proof,
-                            })
+                            }),
                         ),
                     }).then((r) => r.json())
                     await provider.waitForTransaction(data.transaction)
@@ -69,8 +69,8 @@ export default function useCreatePost() {
                     setIsCancellable(true)
                     setIsCancelled(false)
                 },
-            }
-        )
+            },
+        ),
     )
 
     const { task: create, cancel, reset } = cancellableTask.current

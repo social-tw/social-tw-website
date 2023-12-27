@@ -15,22 +15,28 @@ import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 import { VoteAction } from '../src/types'
 import { genEpochKeyProof, randomData } from './utils/genProof'
+import { PostService } from '../src/services/PostService'
+import { io } from 'socket.io-client'
+import { EventType, VoteMsg } from '../src/types/SocketTypes'
 
 describe('POST /vote', function () {
-    var snapshot: any
-    var anondb: DB
-    var express: Server
-    var userStateFactory: UserStateFactory
-    var userState: UserState
-    var sync: UnirepSocialSynchronizer
-    var upvotePostId: string
-    var downvotePostId: string
-    var otherPostId: string
+    let socketClient: any
+    let snapshot: any
+    let anondb: DB
+    let express: Server
+    let userStateFactory: UserStateFactory
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let upvotePostId: string
+    let downvotePostId: string
+    let otherPostId: string
+    let pService: PostService
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const {
             db,
@@ -39,11 +45,16 @@ describe('POST /vote', function () {
             TransactionManager,
             server,
             synchronizer,
+            postService,
         } = await startServer(unirep, app)
+
+        // start socket client
+        socketClient = io('http://localhost:3000')
 
         anondb = db
         express = server
         sync = synchronizer
+        pService = postService
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -75,9 +86,9 @@ describe('POST /vote', function () {
             )
         )
         await sync.waitForSync()
-
+        await pService.updateOrder(anondb)
         // get the post ids
-        const response = await fetch(`${HTTP_SERVER}/api/post`)
+        const response = await fetch(`${HTTP_SERVER}/api/post?page=1`)
         expect(response.status).equal(200)
         const posts = await response.json()
         expect(posts.length).equal(3)
@@ -91,10 +102,14 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost._id
         downvotePostId = downVotePost._id
         otherPostId = otherPost._id
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        socketClient.disconnect()
+        userState.stop()
         express.close()
     })
 
@@ -147,10 +162,16 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(downvoteResponse.status).equal(201)
+
+        // check socket message
+        socketClient.on(EventType.VOTE, (data: VoteMsg) => {
+            expect(data.postId).equal(downvotePostId)
+            expect(data.epoch).equal(1)
+            expect(data.vote).equal(VoteAction.DOWNVOTE)
+        })
+
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
-
-        userState.sync.stop()
     })
 
     it('should vote failed when vote again with the same type', async function () {
@@ -183,8 +204,6 @@ describe('POST /vote', function () {
         await downvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.sync.stop()
     })
 
     it('should vote failed when vote again with different type', async function () {
@@ -217,8 +236,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.sync.stop()
     })
 
     it('should cancel vote for post', async function () {
@@ -251,7 +268,6 @@ describe('POST /vote', function () {
         await verifyPostVote(downvotePostId, 0, 0)
 
         // TODO: need to setup response otherwise won't get anything from res
-        userState.sync.stop()
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
@@ -284,8 +300,6 @@ describe('POST /vote', function () {
         await downvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid vote action')
         })
-
-        userState.sync.stop()
     })
 
     it('should vote failed with wrong epoch', async function () {
@@ -306,6 +320,7 @@ describe('POST /vote', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 0,
+            chainId,
             attesterId,
             data,
         })
@@ -320,8 +335,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid Epoch')
         })
-
-        userState.sync.stop()
     })
 
     it('should vote failed with wrong proof', async function () {
@@ -341,8 +354,6 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid proof')
         })
-
-        userState.sync.stop()
     })
 
     it('should vote failed with invalid post', async function () {
@@ -360,7 +371,19 @@ describe('POST /vote', function () {
         await upvoteResponse.json().then((res) => {
             expect(res.error).equal('Invalid postId')
         })
+    })
 
-        userState.sync.stop()
+    it('should emit vote event on upvote', async () => {
+        socketClient.emit(EventType.VOTE, {
+            postId: upvotePostId,
+            epoch: 1,
+            vote: VoteAction.UPVOTE,
+        })
+
+        socketClient.on(EventType.VOTE, (data) => {
+            expect(data.postId).equal(upvotePostId)
+            expect(data.epoch).equal(1)
+            expect(data.vote).equal(VoteAction.UPVOTE)
+        })
     })
 })

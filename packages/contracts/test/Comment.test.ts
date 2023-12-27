@@ -21,6 +21,7 @@ describe('Comment Test', function () {
     let unirep: Unirep
     let app: UnirepApp
     let users: IdentityObject[]
+    let chainId: number
 
     // for reused proof
     let inputPublicSig: any
@@ -61,6 +62,8 @@ describe('Comment Test', function () {
         const { publicSignals: epochKeySig1, proof: epochKeyProof1 } =
             await userState.genEpochKeyProof()
         await app.post(epochKeySig1, epochKeyProof1, content)
+
+        chainId = await unirep.chainid()
     })
 
     describe('leave comment', async function () {
@@ -83,11 +86,12 @@ describe('Comment Test', function () {
                 leafIndex,
                 epoch: wrongEpoch,
                 nonce: 0,
+                chainId,
                 attesterId,
                 data,
             })
             const postId = 0
-            expect(
+            await expect(
                 app.leaveComment(publicSignals, proof, postId, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
@@ -101,7 +105,13 @@ describe('Comment Test', function () {
             const epoch = await userState.sync.loadCurrentEpoch()
             const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
             const data = randomData()
-            const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+            const leaf = genStateTreeLeaf(
+                id.secret,
+                attesterId,
+                epoch,
+                data,
+                chainId
+            )
             tree.insert(leaf)
             const { publicSignals, proof } = await genEpochKeyProof({
                 id,
@@ -109,6 +119,7 @@ describe('Comment Test', function () {
                 leafIndex: 0,
                 epoch,
                 nonce: 0,
+                chainId,
                 attesterId,
                 data,
             })
@@ -191,6 +202,7 @@ describe('Comment Test', function () {
                 epoch: wrongEpoch,
                 nonce: 0,
                 attesterId,
+                chainId,
             })
             await expect(
                 app.editComment(
@@ -337,7 +349,7 @@ describe('Comment Test', function () {
                 .userStateTransition(publicSignals, proof)
                 .then((tx) => tx.wait())
 
-            userState2.sync.stop()
+            userState2.stop()
         }
 
         it('should update comment in another epoch', async function () {

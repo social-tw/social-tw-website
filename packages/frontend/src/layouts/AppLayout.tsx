@@ -1,26 +1,21 @@
-import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 import {
-    Link,
-    NavLink,
-    Outlet,
-    useLocation,
-    useMatch,
-    useNavigate,
-} from 'react-router-dom'
-import ArrowLeftIcon from '@/assets/arrow-left.svg'
-import BellIcon from '@/assets/bell.svg'
-import HomeIcon from '@/assets/home.svg'
-import Logo from '@/assets/logo.png'
-import PersonCircleIcon from '@/assets/person-circle.svg'
-import SearchIcon from '@/assets/search.svg'
-import StarIcon from '@/assets/star.svg'
-import ActionNotification from '@/components/layout/ActionNotification'
-import EpochInfo from '@/components/layout/EpochInfo'
-import MobileBottomNav from '@/components/layout/MobileBottomNav'
-import AuthErrorDialog from '@/components/login/AuthErrorDialog'
-import { useUser } from '@/contexts/User'
-import { useMediaQuery } from '@uidotdev/usehooks'
+    Link, NavLink, Outlet, useLocation, useMatch, useNavigate
+} from "react-router-dom";
+import ArrowLeftIcon from "@/assets/arrow-left.svg";
+import BellIcon from "@/assets/bell.svg";
+import HomeIcon from "@/assets/home.svg";
+import Logo from "@/assets/logo.png";
+import PersonCircleIcon from "@/assets/person-circle.svg";
+import SearchIcon from "@/assets/search.svg";
+import StarIcon from "@/assets/star.svg";
+import ActionNotification from "@/components/layout/ActionNotification";
+import EpochInfo from "@/components/layout/EpochInfo";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import AuthErrorDialog from "@/components/login/AuthErrorDialog";
+import { useUser } from "@/contexts/User";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -29,15 +24,8 @@ export default function AppLayout() {
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
 
-    let header = ''
-
-    if (location.pathname === '/') {
-        header = 'Home'
-    } else if (location.pathname.startsWith('/posts')) {
-        header = 'Posts'
-    } else if (location.pathname === '/profile') {
-        header = 'Profile 個人檔案'
-    }
+    const headerTextOnDesktop = getDesktopHeaderTextByPath(location.pathname)
+    const headerTextOnMobile = getMobileHeaderTextByPath(location.pathname)
 
     const goBack = () => {
         if (window.history.state && window.history.state.idx > 0) {
@@ -65,6 +53,15 @@ export default function AppLayout() {
     }, [isLogin])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+    const isShowingHeaderLogoOnSmallDevice =
+        location.pathname !== '/profile' &&
+        location.pathname !== '/profile/reputation' &&
+        location.pathname !== '/profile/history'
+    const isShowingGoBackButtonOnDesktop =
+        !matchPath &&
+        location.pathname !== '/profile' &&
+        location.pathname !== '/profile/reputation' &&
+        location.pathname !== '/profile/history'
 
     if (isSmallDevice) {
         return (
@@ -79,9 +76,11 @@ export default function AppLayout() {
                             <ArrowLeftIcon className="w-4 h-4 text-black/90" />
                         </button>
                     )}
-                    <img className="w-8 h-8" src={Logo} alt="brand logo" />
+                    {isShowingHeaderLogoOnSmallDevice && (
+                        <img className="w-8 h-8" src={Logo} alt="brand logo" />
+                    )}
                     <h1 className="text-xl font-black text-white/90">
-                        Unirep Social TW
+                        {headerTextOnMobile}
                     </h1>
                 </header>
                 <section className="px-8 py-4 space-y-3">
@@ -114,9 +113,9 @@ export default function AppLayout() {
                 <section className="flex-1 px-10 pt-20 divide-y divide-neutral-600">
                     <div className="flex gap-5 pb-6">
                         <h2 className="text-2xl font-bold text-secondary">
-                            {header}
+                            {headerTextOnDesktop}
                         </h2>
-                        {!matchPath && location.pathname !== '/profile' && (
+                        {isShowingGoBackButtonOnDesktop && (
                             <button
                                 className="flex items-center justify-center border rounded-lg w-9 h-9 bg-white/90 shadown-base border-stone-200"
                                 onClick={goBack}
@@ -148,7 +147,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/"
@@ -162,7 +161,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/explore"
@@ -178,7 +177,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/nofitication"
@@ -194,7 +193,7 @@ export default function AppLayout() {
                                         'flex items-center gap-8',
                                         isActive
                                             ? 'text-secondary'
-                                            : 'text-white'
+                                            : 'text-white',
                                     )
                                 }
                                 to="/profile"
@@ -213,5 +212,33 @@ export default function AppLayout() {
                 </section>
             </div>
         )
+    }
+}
+
+function getDesktopHeaderTextByPath(path: string): string {
+    if (path === '/') {
+        return 'Home'
+    } else if (path.startsWith('/posts')) {
+        return 'Posts'
+    } else if (path === '/profile') {
+        return 'Profile 我的帳號'
+    } else if (path === '/profile/history') {
+        return 'Profile 我的帳號 > 歷史紀錄'
+    } else if (path === '/profile/reputation') {
+        return 'Profile 我的帳號 > 信譽分數'
+    } else {
+        return ''
+    }
+}
+
+function getMobileHeaderTextByPath(path: string): string {
+    if (path === '/profile') {
+        return '我的帳號'
+    } else if (path === '/profile/history') {
+        return '歷史紀錄'
+    } else if (path === '/profile/reputation') {
+        return '信譽分數'
+    } else {
+        return 'Unirep Social TW'
     }
 }

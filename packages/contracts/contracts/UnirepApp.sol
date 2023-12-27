@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import {Unirep} from '@unirep/contracts/Unirep.sol';
-import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
-import {EpochKeyLiteVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol';
+
+import {Unirep} from "@unirep/contracts/Unirep.sol";
+import {EpochKeyVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
+import {EpochKeyLiteVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
 interface IVerifier {
-    function verifyProof(
-        uint256[5] calldata publicSignals,
-        uint256[8] calldata proof
-    ) external view returns (bool);
+    function verifyProof(uint256[7] calldata publicSignals, uint256[8] calldata proof) external view returns (bool);
 }
 
 contract UnirepApp {
@@ -23,37 +21,24 @@ contract UnirepApp {
     IVerifier internal dataVerifier;
     EpochKeyVerifierHelper internal epkHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
-    
+
     // TODO write the document for the features
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
     mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(uint256 => uint256) public postCommentIndex; // postId -> commentId
-    mapping(uint256 => mapping(uint256 => uint256)) epochKeyCommentMap ; // postId-commentId -> epochKey
+    mapping(uint256 => mapping(uint256 => uint256)) epochKeyCommentMap; // postId-commentId -> epochKey
     mapping(bytes32 => bool) public proofNullifier;
 
     mapping(uint256 => bool) public userRegistry;
 
-    event Post(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed epoch,
-        string content
-    );
+    event Post(uint256 indexed epochKey, uint256 indexed postId, uint256 indexed epoch, string content);
 
     event Comment(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed commentId,
-        uint256 epoch,
-        string content
+        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string content
     );
 
     event UpdatedComment(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed commentId,
-        uint256 epoch,
-        string newContent
+        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string newContent
     );
 
     uint160 immutable attesterId;
@@ -63,17 +48,17 @@ contract UnirepApp {
     error UserHasRegistered(uint256 hashUserId);
     error ProofHasUsed();
     error InvalidAttester();
-    error InvalidStateTreeRoot(uint stateTreeRoot);
+    error InvalidStateTreeRoot(uint256 stateTreeRoot);
     error InvalidEpoch();
     error ArrMismatch();
     error InvalidCommentEpochKey(uint256 epochKey);
     error InvalidCommentId(uint256 commentId);
 
     constructor(
-        Unirep _unirep, 
-        EpochKeyVerifierHelper _epkHelper, 
-        EpochKeyLiteVerifierHelper _epkLiteHelper, 
-        IVerifier _dataVerifier, 
+        Unirep _unirep,
+        EpochKeyVerifierHelper _epkHelper,
+        EpochKeyLiteVerifierHelper _epkLiteHelper,
+        IVerifier _dataVerifier,
         uint48 _epochLength
     ) {
         // set unirep address
@@ -111,11 +96,7 @@ contract UnirepApp {
     }
 
     // post a content in this app
-    function post(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
-        string memory content
-    ) public {
+    function post(uint256[] memory publicSignals, uint256[8] memory proof, string memory content) public {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -132,18 +113,14 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        // check state tree root        
-        if (!unirep.attesterStateTreeRootExists(
-                signals.attesterId, 
-                signals.epoch, 
-                signals.stateTreeRoot
-            )) {
+        // check state tree root
+        if (!unirep.attesterStateTreeRootExists(signals.attesterId, signals.epoch, signals.stateTreeRoot)) {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
         // should check lastly
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
-        
+
         uint256 postId = epochKeyPostIndex[signals.epochKey];
         epochKeyPostIndex[signals.epochKey] = postId + 1;
 
@@ -153,9 +130,9 @@ contract UnirepApp {
     /**
      * Leave a comment under a post
      * @param publicSignals: public signals
-     * @param proof: epockKeyProof from the user 
-     * @param postId: postId where the comment wanna leave  
-     * @param content: comment content 
+     * @param proof: epockKeyProof from the user
+     * @param postId: postId where the comment wanna leave
+     * @param content: comment content
      */
     function leaveComment(
         uint256[] memory publicSignals,
@@ -169,7 +146,7 @@ contract UnirepApp {
             revert ProofHasUsed();
         }
         proofNullifier[nullifier] = true;
-        
+
         EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
@@ -178,12 +155,8 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        // check state tree root        
-        if (!unirep.attesterStateTreeRootExists(
-                signals.attesterId, 
-                signals.epoch, 
-                signals.stateTreeRoot
-            )) {
+        // check state tree root
+        if (!unirep.attesterStateTreeRootExists(signals.attesterId, signals.epoch, signals.stateTreeRoot)) {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
@@ -194,20 +167,14 @@ contract UnirepApp {
         epochKeyCommentMap[postId][commentId] = signals.epochKey;
         postCommentIndex[postId] = commentId + 1;
 
-        emit Comment(
-            signals.epochKey,
-            postId,
-            commentId,
-            signals.epoch,
-            content
-        );
+        emit Comment(signals.epochKey, postId, commentId, signals.epoch, content);
     }
 
     /**
      * Update the content of a specific comment
      * @param publicSignals: public signals
-     * @param proof: epochKeyLiteProof 
-     * @param postId: postId 
+     * @param proof: epochKeyLiteProof
+     * @param postId: postId
      * @param commentId: the commentId user wants to update
      * @param newContent: new content of the comment. if this == "", means removing
      */
@@ -225,8 +192,9 @@ contract UnirepApp {
         }
 
         proofNullifier[nullifier] = true;
-        
-        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
+
+        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals =
+            epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
         if (commentId >= postCommentIndex[postId]) {
             revert InvalidCommentId(commentId);
@@ -239,43 +207,29 @@ contract UnirepApp {
 
         epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        emit UpdatedComment(
-            signals.epochKey,
-            postId,
-            commentId,
-            signals.epoch,
-            newContent
-        );
+        emit UpdatedComment(signals.epochKey, postId, commentId, signals.epoch, newContent);
     }
 
     function submitManyAttestations(
         uint256 epochKey,
         uint48 targetEpoch,
-        uint[] calldata fieldIndices,
-        uint[] calldata vals
+        uint256[] calldata fieldIndices,
+        uint256[] calldata vals
     ) public {
         if (fieldIndices.length != vals.length) {
             revert ArrMismatch();
         }
-        
+
         for (uint8 x = 0; x < fieldIndices.length; x++) {
             unirep.attest(epochKey, targetEpoch, fieldIndices[x], vals[x]);
         }
     }
 
-    function submitAttestation(
-        uint256 epochKey,
-        uint48 targetEpoch,
-        uint256 fieldIndex,
-        uint256 val
-    ) public {
+    function submitAttestation(uint256 epochKey, uint48 targetEpoch, uint256 fieldIndex, uint256 val) public {
         unirep.attest(epochKey, targetEpoch, fieldIndex, val);
     }
 
-    function verifyDataProof(
-        uint256[5] calldata publicSignals,
-        uint256[8] calldata proof
-    ) public view returns (bool) {
+    function verifyDataProof(uint256[7] calldata publicSignals, uint256[8] calldata proof) public view returns (bool) {
         return dataVerifier.verifyProof(publicSignals, proof);
     }
 }

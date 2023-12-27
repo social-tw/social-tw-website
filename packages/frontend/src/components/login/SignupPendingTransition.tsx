@@ -1,10 +1,10 @@
-import './signupPendingTransition.css'
-import clsx from 'clsx'
-import { motion } from 'framer-motion'
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Backdrop from '@/components/common/Backdrop'
-import { SignupStatus } from '@/contexts/User'
+import "./signupPendingTransition.css";
+import clsx from "clsx";
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Backdrop from "@/components/common/Backdrop";
+import { SignupStatus } from "@/contexts/User";
 
 interface SignUpLoadingModal {
     status: SignupStatus
@@ -124,7 +124,6 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
                     status !== 'default' && 'md:pt-12'
-                    // isSmallDevice && 'mt-16'
                 )}
             >
                 {content}

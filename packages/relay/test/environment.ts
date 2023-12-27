@@ -12,7 +12,8 @@ import schema from '../src/singletons/schema'
 import TransactionManager from '../src/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager, socketManager } from '../src/singletons/SocketManager'
+import { SocketManager } from '../src/singletons/SocketManager'
+import { postService } from '../src/services/PostService'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -20,6 +21,8 @@ export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
     return await deployApp(signer, epochLength)
 }
+
+let socketManager: SocketManager
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -76,5 +79,14 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         route(app, synchronizer.db, synchronizer, helia)
     }
 
-    return { db, prover, provider, TransactionManager, synchronizer, server }
+    return {
+        db,
+        prover,
+        provider,
+        TransactionManager,
+        synchronizer,
+        server,
+        postService,
+        socketManager,
+    }
 }

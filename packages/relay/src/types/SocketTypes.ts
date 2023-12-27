@@ -1,12 +1,14 @@
-export enum RoomType {
+import { VoteAction } from './VoteAction'
+
+export enum EventType {
     VOTE = 'VOTE',
     COMMENT = 'COMMENT',
 }
 
 export interface VoteMsg {
     postId: string
-    // TODO: change to VoteAction
-    vote: number
+    epoch: number
+    vote: VoteAction
 }
 
 export interface CommentMsg {

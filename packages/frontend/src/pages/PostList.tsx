@@ -1,15 +1,15 @@
-import clsx from 'clsx'
-import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import Dialog from '@/components/common/Dialog'
-import SignupLoadingModal from '@/components/login/SignupPendingTransition'
-import Post from '@/components/post/Post'
-import PostForm, { PostValues } from '@/components/post/PostForm'
-import { SERVER } from '@/config'
-import { useUser } from '@/contexts/User'
-import useCreatePost from '@/hooks/useCreatePost'
-import { CancelledTaskError } from '@/utils/makeCancellableTask'
-import { useMediaQuery } from '@uidotdev/usehooks'
+import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Dialog from "@/components/common/Dialog";
+import SignupLoadingModal from "@/components/login/SignupPendingTransition";
+import Post from "@/components/post/Post";
+import PostForm, { PostValues } from "@/components/post/PostForm";
+import { SERVER } from "@/config";
+import { useUser } from "@/contexts/User";
+import useCreatePost from "@/hooks/useCreatePost";
+import { CancelledTaskError } from "@/utils/makeCancellableTask";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
 import type { PostInfo } from '@/types'
 
@@ -110,7 +110,7 @@ export default function PostList() {
                 `px-4`,
                 !isSmallDevice && 'divide-y divide-neutral-600',
                 location.pathname === '/login' &&
-                    'max-w-[600px] w-11/12 h-screen my-[200px]'
+                'max-w-[600px] w-11/12 h-screen my-[200px]'
             )}
         >
             {!isSmallDevice && location.pathname !== '/login' && (

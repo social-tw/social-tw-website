@@ -1,8 +1,8 @@
-import { DB } from 'anondb/node'
-import { Express } from 'express'
-import { EPOCHKEYS_AMOUNT } from '../config'
-import { errorHandler } from '../middleware'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import { DB } from "anondb/node";
+import { Express } from "express";
+import { EPOCHKEYS_AMOUNT } from "../config";
+import { errorHandler } from "../middleware";
+import { UnirepSocialSynchronizer } from "../synchornizer";
 
 export default (
     app: Express,
@@ -51,7 +51,7 @@ async function fetchActions(req, res, db: DB) {
 
         res.json({ counter: counter })
     } catch (error: any) {
-        console.log(error)
+        console.error(error)
         res.status(500).json({ error })
     }
 }

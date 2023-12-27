@@ -1,6 +1,8 @@
-import { Navigate } from 'react-router-dom'
-import { useUser } from './User'
 import React from 'react'
+import { Navigate } from 'react-router-dom'
+
+import { PATHS } from '../constants/paths'
+import { useUser } from './User'
 
 type ProtectedRouterProps = {
     children: React.ReactNode
@@ -14,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouterProps> = ({
     if (signupStatus === 'pending' || signupStatus === 'success') {
         return children
     } else if (isLogin !== 'success') {
-        return <Navigate to="/login" />
+        return <Navigate to={PATHS.WELCOME} />
     } else {
         return children
     }
