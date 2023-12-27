@@ -1,5 +1,5 @@
+import { UserState } from '@/contexts/Userstate'
 import { CommnetDataFromApi } from '@/types'
-import { UserState } from '@unirep/core'
 
 const checkCommentIsMine = (
     comment: CommnetDataFromApi,

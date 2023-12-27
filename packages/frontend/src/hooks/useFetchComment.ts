@@ -108,8 +108,6 @@ export default function useFetchComment(postId?: string) {
                 }
             })
 
-            console.log(successfulComments)
-
             setComments([...successfulComments, ...demoComments])
         }
 

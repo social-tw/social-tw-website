@@ -1,12 +1,12 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { errorHandler } from '../middleware'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
-import { InternalError } from '../types/InternalError'
 import { postService } from '../services/PostService'
+import { UnirepSocialSynchronizer } from '../synchornizer'
+import { InternalError } from '../types/InternalError'
 
+import type { Helia } from '@helia/interface'
 export default (
     app: Express,
     db: DB,
@@ -16,12 +16,13 @@ export default (
     app.route('/api/comment')
         .get(
             errorHandler(async (req, res) => {
-                const { postId } = req.query
+                const { epks, postId } = req.query
                 if (!postId) {
                     throw new InternalError('postId is undefined', 400)
                 }
 
                 const comments = await commentService.fetchComments(
+                    epks?.toString(),
                     postId.toString(),
                     db
                 )
@@ -62,9 +63,9 @@ export default (
 
         .delete(
             errorHandler(async (req, res) => {
-                const { transactionHash, publicSignals, proof } = req.body
+                const { commentId, publicSignals, proof } = req.body
                 const hash = await commentService.deleteComment(
-                    transactionHash.toString(),
+                    commentId.toString(),
                     publicSignals,
                     proof,
                     synchronizer,
