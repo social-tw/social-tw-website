@@ -22,7 +22,7 @@ export function useSignupWithWallet() {
             navigate('/')
             await signup(false, userStateInstance, hashUserId, accessToken)
             setSignupStatus('success')
-            setIsLogin('success')
+            setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')
             setErrorCode(error.message)

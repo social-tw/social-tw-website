@@ -49,7 +49,7 @@ export default function EpochInfo() {
                                 <Countdown
                                     date={nextEpochTime}
                                     renderer={(props) =>
-                                        `${props.formatted.minutes}:${props.formatted.seconds}${props}`
+                                        `${props.formatted.minutes}:${props.formatted.seconds}`
                                     }
                                     onComplete={() =>
                                         setNextEpochTime(

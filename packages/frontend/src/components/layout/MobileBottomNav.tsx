@@ -80,7 +80,7 @@ const MobileBottomNav: React.FC<MobileNavbarProps> = ({
                         <NavLink
                             className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
                             title="create a post"
-                            to="/write"
+                            to="/write-post"
                         >
                             <AddIcon className="w-8 h-8 text-secondary" />
                         </NavLink>

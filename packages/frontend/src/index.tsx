@@ -61,7 +61,7 @@ const router = createBrowserRouter([
                 errorElement: <ErrorPage />,
                 children: [
                     {
-                        path: '/',
+                        path: PATHS.HOME,
                         element: (
                             <ProtectedRoute>
                                 <PostList />
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
                         ),
                     },
                     {
-                        path: 'posts/:id',
+                        path: PATHS.VIEW_POST,
                         element: <PostDetail />,
                     },
                     {
@@ -97,7 +97,7 @@ const router = createBrowserRouter([
                 ],
             },
             {
-                path: 'write',
+                path: PATHS.WRITE_POST,
                 element: (
                     <ProtectedRoute>
                         <PostCreate />
