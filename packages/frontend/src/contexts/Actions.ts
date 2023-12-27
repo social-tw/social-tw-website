@@ -67,7 +67,7 @@ function partializeStorage(state: ActionState): ActionState {
 
     return {
         entities: Object.fromEntries(
-            failedIds.map((id) => [id, state.entities[id]])
+            failedIds.map((id) => [id, state.entities[id]]),
         ),
         list: failedIds,
     }
@@ -80,8 +80,8 @@ export const useActionStore = create<ActionState>()(
             name: 'action-storage',
             storage: createJSONStorage(() => localStorage),
             partialize: partializeStorage,
-        }
-    )
+        },
+    ),
 )
 
 export function actionsSelector(state: ActionState) {
@@ -94,7 +94,7 @@ export function latestActionSelector(state: ActionState) {
 
 export function commentActionsSelector(state: ActionState) {
     return Object.values(state.entities).filter(
-        (action) => action.type === ActionType.Comment
+        (action) => action.type === ActionType.Comment,
     )
 }
 
@@ -102,7 +102,7 @@ export function pendingCommentActionsSelector(state: ActionState) {
     return Object.values(state.entities).filter(
         (action) =>
             action.type === ActionType.Comment &&
-            action.status === ActionStatus.Pending
+            action.status === ActionStatus.Pending,
     )
 }
 
@@ -110,13 +110,13 @@ export function failedCommentActionsSelector(state: ActionState) {
     return Object.values(state.entities).filter(
         (action) =>
             action.type === ActionType.Comment &&
-            action.status === ActionStatus.Failure
+            action.status === ActionStatus.Failure,
     )
 }
 
 export function pendingCountSelector(state: ActionState) {
     return Object.values(state.entities).filter(
-        (action) => action.status === ActionStatus.Pending
+        (action) => action.status === ActionStatus.Pending,
     ).length
 }
 
@@ -127,14 +127,14 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
         return Object.values(state.entities).filter(
             (action) =>
                 action.submittedAt > _startTime &&
-                action.submittedAt <= _endTime
+                action.submittedAt <= _endTime,
         ).length
     }
 }
 
 export function createAction(
     type: ActionType,
-    data: PostData | CommentData | DeleteCommentData
+    data: PostData | CommentData | DeleteCommentData,
 ): Action {
     return {
         id: nanoid(),
@@ -147,7 +147,7 @@ export function createAction(
 
 export function addAction(
     type: ActionType,
-    data: PostData | CommentData | DeleteCommentData
+    data: PostData | CommentData | DeleteCommentData,
 ) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {
@@ -161,7 +161,7 @@ export function addAction(
 
 export function succeedActionById(
     id: string,
-    data: Partial<PostData | CommentData> = {}
+    data: Partial<PostData | CommentData> = {},
 ) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Success
@@ -172,7 +172,7 @@ export function succeedActionById(
 
 export function failActionById(
     id: string,
-    data: Partial<PostData | CommentData> = {}
+    data: Partial<PostData | CommentData> = {},
 ) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Failure

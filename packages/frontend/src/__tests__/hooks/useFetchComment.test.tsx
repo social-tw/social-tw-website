@@ -47,13 +47,13 @@ afterEach(() => {
 describe('useFetchComment', () => {
     it('fetches comments successfully when postId is provided', async () => {
         const { result, rerender } = renderHook(() =>
-            useFetchComment('test-post-id')
+            useFetchComment('test-post-id'),
         )
 
         await waitFor(() => {
             // Expectations about the fetch call
             expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('test-post-id')
+                expect.stringContaining('test-post-id'),
             )
 
             const expectedComment = {
@@ -71,7 +71,7 @@ describe('useFetchComment', () => {
             expect(result.current.data).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining(expectedComment),
-                ])
+                ]),
             )
         })
     })

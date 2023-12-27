@@ -1,19 +1,14 @@
-import { render, fireEvent, screen, act } from '@testing-library/react'
-import Comment from '@/components/comment/Comment'
 import '@testing-library/jest-dom'
-import { CommentStatus } from '@/types'
-import { UserProvider } from '@/contexts/User'
-import {
-    ReactElement,
-    JSXElementConstructor,
-    ReactFragment,
-    ReactPortal,
-} from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { ReactNode } from 'react'
+import Comment from '@/components/comment/Comment'
+import { removeActionByCommentId } from '@/contexts/Actions'
+import { UserProvider } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useDeleteComment from '@/hooks/useDeleteComment'
-import { removeActionByCommentId } from '@/contexts/Actions'
+import { CommentStatus } from '@/types'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 
 dayjs.extend(relativeTime)
 
@@ -22,7 +17,9 @@ jest.mock('@uidotdev/usehooks', () => ({
 }))
 
 jest.mock('@/contexts/Actions', () => ({
-    ...jest.requireActual('@/contexts/Actions'), // This imports all the actual other exports
+    ...jest.requireActual<typeof import('@/contexts/Actions')>(
+        '@/contexts/Actions',
+    ), // This imports all the actual other exports
     removeActionByCommentId: jest.fn(), // This provides your mock implementation
 }))
 
@@ -59,12 +56,12 @@ describe('Comment', () => {
                 Promise.resolve({
                     proof: mockProof,
                     epoch: mockEpoch,
-                })
+                }),
             ),
             create: jest.fn().mockImplementation(() =>
                 Promise.resolve({
                     transaction: mockTransaction,
-                })
+                }),
             ),
         })
 
@@ -73,28 +70,18 @@ describe('Comment', () => {
                 Promise.resolve({
                     proof: mockProof,
                     epoch: mockEpoch,
-                })
+                }),
             ),
             remove: jest.fn().mockImplementation(() =>
                 Promise.resolve({
                     transaction: mockTransaction,
-                })
+                }),
             ),
             isDeleted: false,
         })
     })
 
-    const renderWithProvider = (
-        component:
-            | string
-            | number
-            | boolean
-            | ReactElement<any, string | JSXElementConstructor<any>>
-            | ReactFragment
-            | ReactPortal
-            | null
-            | undefined
-    ) => {
+    const renderWithProvider = (component: ReactNode) => {
         return render(<UserProvider>{component}</UserProvider>)
     }
 
@@ -105,7 +92,7 @@ describe('Comment', () => {
 
     it('opens report dialog on report action', () => {
         renderWithProvider(
-            <Comment {...{ ...mockCommentInfo, isMine: false }} />
+            <Comment {...{ ...mockCommentInfo, isMine: false }} />,
         )
         fireEvent.click(screen.getByRole('button', { name: /more/i }))
         fireEvent.click(screen.getByText(/檢舉留言/i))
@@ -123,7 +110,7 @@ describe('Comment', () => {
                     onOpenAnimation: mockOnOpenAnimation,
                     onCloseAnimation: mockOnCloseAnimation,
                 }}
-            />
+            />,
         )
         fireEvent.click(screen.getByRole('button', { name: /more/i }))
         fireEvent.click(screen.getByText(/刪除留言/i))
@@ -147,7 +134,7 @@ describe('Comment', () => {
                     onOpenAnimation: mockOnOpenAnimation,
                     onCloseAnimation: mockOnCloseAnimation,
                 }}
-            />
+            />,
         )
 
         const republishButton = screen.getByText(/再次發佈這則留言/i)
@@ -155,7 +142,7 @@ describe('Comment', () => {
 
         await act(async () => {
             expect(removeActionByCommentId).toHaveBeenCalledWith(
-                mockCommentInfo.commentId
+                mockCommentInfo.commentId,
             )
             expect(mockOnOpenAnimation).toHaveBeenCalled()
             expect(mockOnOpenAnimation).toHaveBeenCalled()

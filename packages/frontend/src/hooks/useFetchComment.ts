@@ -47,7 +47,7 @@ const demoComments = [
 ]
 
 async function fetchCommentsByPostId(
-    postId: string
+    postId: string,
 ): Promise<CommnetDataFromApi[]> {
     const queryParams = new URLSearchParams()
 
@@ -56,7 +56,7 @@ async function fetchCommentsByPostId(
     }
 
     const response = await fetch(
-        `http://localhost:8000/api/comment?${queryParams.toString()}`
+        `http://localhost:8000/api/comment?${queryParams.toString()}`,
     )
 
     if (!response.ok) {

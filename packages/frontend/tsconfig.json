@@ -15,7 +15,7 @@
         "isolatedModules": true,
         "noEmit": false,
         "jsx": "react-jsx",
-        "typeRoots": ["./types", "./node_modules/@types"],
+        "typeRoots": ["./types", "../../node_modules/@types"],
         "useDefineForClassFields": true,
         "outDir": "build",
         "types": ["jest"],

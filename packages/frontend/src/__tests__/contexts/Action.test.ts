@@ -37,16 +37,16 @@ describe('useActionStore', () => {
         expect(result.current.entities[actionId]).toHaveProperty('id')
         expect(result.current.entities[actionId]).toHaveProperty(
             'type',
-            ActionType.Post
+            ActionType.Post,
         )
         expect(result.current.entities[actionId]).toHaveProperty(
             'status',
-            ActionStatus.Pending
+            ActionStatus.Pending,
         )
         expect(result.current.entities[actionId]).toHaveProperty('submittedAt')
         expect(result.current.entities[actionId]).toHaveProperty(
             'data',
-            postData
+            postData,
         )
         expect(result.current.list).toContain(actionId)
         expect(result.current.latestId).toBe(actionId)
@@ -74,16 +74,16 @@ describe('useActionStore', () => {
         expect(result.current.entities[actionId]).toHaveProperty('id')
         expect(result.current.entities[actionId]).toHaveProperty(
             'type',
-            ActionType.Comment
+            ActionType.Comment,
         )
         expect(result.current.entities[actionId]).toHaveProperty(
             'status',
-            ActionStatus.Pending
+            ActionStatus.Pending,
         )
         expect(result.current.entities[actionId]).toHaveProperty('submittedAt')
         expect(result.current.entities[actionId]).toHaveProperty(
             'data',
-            commentData
+            commentData,
         )
         expect(result.current.list).toContain(actionId)
         expect(result.current.latestId).toBe(actionId)
@@ -105,7 +105,7 @@ describe('useActionStore', () => {
 
         expect(result.current.entities[actionId]).toHaveProperty(
             'status',
-            ActionStatus.Success
+            ActionStatus.Success,
         )
     })
 
@@ -125,7 +125,7 @@ describe('useActionStore', () => {
 
         expect(result.current.entities[actionId]).toHaveProperty(
             'status',
-            ActionStatus.Failure
+            ActionStatus.Failure,
         )
     })
 

@@ -78,11 +78,11 @@ describe('useCreateComment', () => {
 
         expect(addAction).toHaveBeenCalledWith(
             ActionType.Comment,
-            expect.any(Object)
+            expect.any(Object),
         )
         expect(global.fetch).toHaveBeenCalledWith(
             expect.stringContaining('/api/comment'),
-            expect.any(Object)
+            expect.any(Object),
         )
         expect(succeedActionById).toHaveBeenCalledWith('mock_action_id', {
             transactionHash: 'mock_transaction',
@@ -91,7 +91,7 @@ describe('useCreateComment', () => {
 
     it('failed creating a comment', async () => {
         ;(global.fetch as jest.Mock).mockRejectedValueOnce(
-            new Error('API call failed')
+            new Error('API call failed'),
         )
 
         const { result } = renderHook(() => useCreateComment())
@@ -107,7 +107,7 @@ describe('useCreateComment', () => {
 
         expect(addAction).toHaveBeenCalledWith(
             ActionType.Comment,
-            expect.any(Object)
+            expect.any(Object),
         )
         expect(failActionById).toHaveBeenCalledWith('mock_action_id')
     })

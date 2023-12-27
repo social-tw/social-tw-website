@@ -83,7 +83,7 @@ const CommentReportModal: React.FC<CommentReportDialogProps> = ({
                             <button
                                 className={clsx(
                                     'w-full h-14 rounded-lg text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%]',
-                                    isValid ? 'bg-primary/90' : 'bg-[#8F8F8F]'
+                                    isValid ? 'bg-primary/90' : 'bg-[#8F8F8F]',
                                 )}
                                 type="submit"
                                 disabled={!isValid || isSubmitting}

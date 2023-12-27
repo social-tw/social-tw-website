@@ -10,7 +10,7 @@ export default function useActionCount() {
     const { epochStartTime, epochEndTime } = useEpoch()
 
     const countOnStore = useActionStore(
-        countByTimeRangeSelector(epochStartTime, epochEndTime)
+        countByTimeRangeSelector(epochStartTime, epochEndTime),
     )
     const [count, setCount] = useState(0)
 
@@ -25,7 +25,7 @@ export default function useActionCount() {
             params.append('epks', epks)
 
             const response = await fetch(
-                `${SERVER}/api/counter?${params.toString()}`
+                `${SERVER}/api/counter?${params.toString()}`,
             )
             const data = await response.json()
 
@@ -37,7 +37,7 @@ export default function useActionCount() {
 
     const totalCount = useMemo(
         () => count + countOnStore,
-        [count, countOnStore]
+        [count, countOnStore],
     )
 
     return totalCount

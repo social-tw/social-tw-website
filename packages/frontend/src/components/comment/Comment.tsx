@@ -112,7 +112,7 @@ export default function Comment({
                     status !== CommentStatus.Success && 'opacity-30',
                     !isLast &&
                         status === CommentStatus.Success &&
-                        'border-b border-neutral-600'
+                        'border-b border-neutral-600',
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
@@ -159,7 +159,7 @@ export default function Comment({
                 viewScroll="auto"
                 menuClassName={clsx(
                     'menu w-screen bg-[#363636] md:w-36 rounded-box max-md:rounded-b-none p-0',
-                    isSmallDevice && 'h-20'
+                    isSmallDevice && 'h-20',
                 )}
                 onClose={() => toggleMenu(false)}
                 transition

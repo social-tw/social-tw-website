@@ -20,7 +20,7 @@ describe('CommentDeleteDialog', () => {
                 open={true}
                 onClose={onCloseMock}
                 commentId="123"
-            />
+            />,
         )
 
         fireEvent.click(screen.getByLabelText('close'))
@@ -34,7 +34,7 @@ describe('CommentDeleteDialog', () => {
                 open={true}
                 onConfirm={onConfirmMock}
                 commentId="123"
-            />
+            />,
         )
 
         fireEvent.click(screen.getByText(/確認刪除/))

@@ -53,7 +53,7 @@ export default function useCreateComment() {
         proof: string,
         postId: string,
         content: string,
-        epoch: number
+        epoch: number,
     ) => {
         if (!userState) throw new Error('user state not initialized')
         const commentData = {
@@ -71,8 +71,7 @@ export default function useCreateComment() {
             await userState.waitForSync()
             await loadData(userState)
             succeedActionById(actionId, { transactionHash: transaction })
-        } catch (error) {
-            console.error(error)
+        } catch {
             failActionById(actionId)
         }
     }

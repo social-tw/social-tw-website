@@ -1,22 +1,24 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import { Server } from "http";
-import fetch from "node-fetch";
-import { io } from "socket.io-client";
-import { CircuitConfig } from "@unirep/circuits";
-import { UserState } from "@unirep/core";
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
+import { Server } from 'http'
+import fetch from 'node-fetch'
+import { io } from 'socket.io-client'
+import { CircuitConfig } from '@unirep/circuits'
+import { UserState } from '@unirep/core'
 import {
-  genStateTreeLeaf, IncrementalMerkleTree, stringifyBigInts
-} from "@unirep/utils";
-import { userService } from "../src/services/UserService";
-import { UnirepSocialSynchronizer } from "../src/synchornizer";
-import { Post } from "../src/types/Post";
-import { HTTP_SERVER } from "./configs";
-import { deployContracts, startServer } from "./environment";
-import { genEpochKeyProof, randomData } from "./utils/genProof";
-import { post } from "./utils/post";
-import { signUp } from "./utils/signUp";
-import { UserStateFactory } from "./utils/UserStateFactory";
+    genStateTreeLeaf,
+    IncrementalMerkleTree,
+    stringifyBigInts,
+} from '@unirep/utils'
+import { userService } from '../src/services/UserService'
+import { UnirepSocialSynchronizer } from '../src/synchornizer'
+import { Post } from '../src/types/Post'
+import { HTTP_SERVER } from './configs'
+import { deployContracts, startServer } from './environment'
+import { genEpochKeyProof, randomData } from './utils/genProof'
+import { post } from './utils/post'
+import { signUp } from './utils/signUp'
+import { UserStateFactory } from './utils/UserStateFactory'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 

@@ -37,7 +37,7 @@ const MobileBottomNav: React.FC<MobileNavbarProps> = ({
                 <div
                     className={clsx(
                         `fixed bottom-0 w-screen`,
-                        signupStatus === 'default' ? 'h-56' : 'h-24'
+                        signupStatus === 'default' ? 'h-56' : 'h-24',
                     )}
                 >
                     <SignUpLoadingModal

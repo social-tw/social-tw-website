@@ -3,7 +3,7 @@ import { UserState } from '@unirep/core'
 
 const checkCommentIsMine = (
     comment: CommnetDataFromApi,
-    userState: UserState
+    userState: UserState,
 ) => {
     if (!userState.getEpochKeys(comment.epoch)) return false
 

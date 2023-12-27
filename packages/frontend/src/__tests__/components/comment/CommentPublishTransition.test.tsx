@@ -20,10 +20,10 @@ describe('CommentPublishTransition', () => {
 
         expect(screen.queryByAltText('Comment')).not.toBeInTheDocument()
         expect(
-            screen.queryByText('您的留言正在處理中，')
+            screen.queryByText('您的留言正在處理中，'),
         ).not.toBeInTheDocument()
         expect(
-            screen.queryByText('請留意資訊並確認存取狀態')
+            screen.queryByText('請留意資訊並確認存取狀態'),
         ).not.toBeInTheDocument()
     })
 })

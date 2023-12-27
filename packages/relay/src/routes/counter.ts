@@ -1,8 +1,8 @@
-import { DB } from "anondb/node";
-import { Express } from "express";
-import { EPOCHKEYS_AMOUNT } from "../config";
-import { errorHandler } from "../middleware";
-import { UnirepSocialSynchronizer } from "../synchornizer";
+import { DB } from 'anondb/node'
+import { Express } from 'express'
+import { EPOCHKEYS_AMOUNT } from '../config'
+import { errorHandler } from '../middleware'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 
 export default (
     app: Express,

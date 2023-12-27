@@ -27,7 +27,7 @@ describe('DesktopCommentForm', () => {
         })
 
         const submitButton = screen.getByTitle(
-            'submit a comment'
+            'submit a comment',
         ) as HTMLButtonElement
         userEvent.click(submitButton)
 

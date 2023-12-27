@@ -141,8 +141,8 @@ module.exports = (env) => ({
             },
             ...(env.CYPRESS
                 ? {
-                    ['process.env.CYPRESS']: 'true',
-                }
+                      ['process.env.CYPRESS']: 'true',
+                  }
                 : {}),
         }),
         new webpack.ProvidePlugin({

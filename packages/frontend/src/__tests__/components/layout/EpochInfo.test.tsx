@@ -8,10 +8,15 @@ jest.mock('@/contexts/User', () => ({
             sync: {
                 calcEpochRemainingTime: jest.fn().mockReturnValue(100),
                 calcCurrentEpoch: jest.fn().mockReturnValue(9999),
+                getEpochKeys: jest.fn().mockReturnValue('epochkey'),
             },
         },
     }),
 }))
+
+jest.mock('@/hooks/useActionCount', () => {
+    return jest.fn().mockReturnValue(4)
+})
 
 describe('EpochInfo', () => {
     it('should display remaining time', () => {
@@ -30,7 +35,7 @@ describe('EpochInfo', () => {
         render(<EpochInfo />)
 
         expect(
-            screen.getByText('目前動作次數(3次內)可確保匿名身份不被洩漏')
+            screen.getByText('目前動作次數(3次內)可確保匿名身份不被洩漏'),
         ).toBeInTheDocument()
     })
 })

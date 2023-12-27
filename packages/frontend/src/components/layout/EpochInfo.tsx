@@ -1,8 +1,10 @@
-import clsx from "clsx";
-import { useEffect, useState } from "react";
-import Countdown from "react-countdown";
-import useActionCount from "@/hooks/useActionCount";
-import useEpoch from "@/hooks/useEpoch";
+/* eslint-disable react/prop-types */
+import clsx from 'clsx'
+import { useEffect, useState } from 'react'
+import Countdown from 'react-countdown'
+import EpochImg from '@/assets/epoch.png'
+import useActionCount from '@/hooks/useActionCount'
+import useEpoch from '@/hooks/useEpoch'
 
 export default function EpochInfo() {
     const { epochLength, remainingTime } = useEpoch()
@@ -31,7 +33,7 @@ export default function EpochInfo() {
             <img
                 className="w-14 h-14 basis-14 shrink-0"
                 src={EpochImg}
-                alt='epoch'
+                alt="epoch"
             />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
@@ -47,11 +49,11 @@ export default function EpochInfo() {
                                 <Countdown
                                     date={nextEpochTime}
                                     renderer={(props) =>
-                                        `${props.formatted.minutes}:${props.formatted.seconds}`
+                                        `${props.formatted.minutes}:${props.formatted.seconds}${props}`
                                     }
                                     onComplete={() =>
                                         setNextEpochTime(
-                                            Date.now() / 1000 + epochLength
+                                            Date.now() / 1000 + epochLength,
                                         )
                                     }
                                 />
@@ -69,7 +71,7 @@ export default function EpochInfo() {
                                     'flex-1',
                                     index < count
                                         ? countColors[index]
-                                        : 'bg-[#d9d9d9]'
+                                        : 'bg-[#d9d9d9]',
                                 )}
                             />
                         ))}

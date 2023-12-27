@@ -1,13 +1,13 @@
+import { useState } from 'react'
 import {
     ActionType,
     addAction,
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import { SERVER } from '../config'
 import { useUser } from '@/contexts/User'
 import { stringifyBigInts } from '@unirep/utils'
-import { useState } from 'react'
+import { SERVER } from '../config'
 
 async function deleteComment(data: string) {
     const response = await fetch(`${SERVER}/api/comment`, {
@@ -51,7 +51,7 @@ export default function useDeleteComment() {
     const remove = async (
         proof: string,
         epoch: number,
-        transactionHash: string
+        transactionHash: string,
     ) => {
         if (!userState) throw new Error('user state not initialized')
         const actionId = addAction(ActionType.DeleteComment, {
@@ -66,8 +66,7 @@ export default function useDeleteComment() {
             await loadData(userState)
             succeedActionById(actionId)
             setIsDeleted(true)
-        } catch (error) {
-            console.error(error)
+        } catch {
             failActionById(actionId)
         }
     }

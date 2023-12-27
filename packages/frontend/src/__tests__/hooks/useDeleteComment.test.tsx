@@ -88,7 +88,7 @@ describe('useDeleteComment', () => {
             expect.objectContaining({
                 method: 'DELETE',
                 body: JSON.stringify(proof),
-            })
+            }),
         )
         expect(succeedActionById).toHaveBeenCalledWith('mock_action_id')
         expect(result.current.isDeleted).toBe(true)
@@ -96,7 +96,7 @@ describe('useDeleteComment', () => {
 
     it('failed deleting a comment', async () => {
         ;(global.fetch as jest.Mock).mockRejectedValueOnce(
-            new Error('API call failed')
+            new Error('API call failed'),
         )
 
         const { result } = renderHook(() => useDeleteComment())
