@@ -17,13 +17,13 @@ import { socketManager } from '../singletons/SocketManager'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.post(
         '/api/vote',
         errorHandler(async (req, res, next) => {
             await Vote(req, res, db, synchronizer)
-        })
+        }),
     )
 }
 
@@ -123,7 +123,7 @@ async function exeuteTxs(
     epochKey: string,
     epoch: number,
     post: any,
-    voteAction: VoteAction
+    voteAction: VoteAction,
 ): Promise<void> {
     const _id = post._id
     let createVote = true
@@ -211,7 +211,7 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // get current epoch and unirep contract

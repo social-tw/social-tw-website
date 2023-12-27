@@ -5,7 +5,7 @@ export async function addActionCount(
     db: DB,
     epochKey: string,
     epoch: number,
-    action: Action
+    action: Action,
 ): Promise<void> {
     await db
         .transaction(async (txDB) => {

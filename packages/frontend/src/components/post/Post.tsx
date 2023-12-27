@@ -6,7 +6,7 @@ import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 
-export default function ({
+export default function Post({
     id = '',
     epochKey,
     content = '',
@@ -27,6 +27,8 @@ export default function ({
     downCount: number
     compact?: boolean
 }) {
+    const isTemp = id.startsWith('temp')
+
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
@@ -71,7 +73,7 @@ export default function ({
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
             <div className="flex-1 p-4 space-y-3">
-                {compact ? (
+                {compact && !isTemp ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
                     postInfo

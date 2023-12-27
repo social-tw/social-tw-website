@@ -37,7 +37,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
             provider: provider,
             unirepAddress: unirep.address,
         },
-        unirepApp
+        unirepApp,
     )
 
     console.log('Starting synchronizer...')

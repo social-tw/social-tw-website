@@ -47,7 +47,7 @@ describe('COMMENT /comment', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -58,7 +58,7 @@ describe('COMMENT /comment', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet
+            wallet,
         )
 
         await userState.waitForSync()
@@ -115,7 +115,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -127,7 +127,7 @@ describe('COMMENT /comment', function () {
 
         // comment on the post
         let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
+            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`,
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -157,7 +157,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -177,7 +177,7 @@ describe('COMMENT /comment', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -203,7 +203,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -227,7 +227,7 @@ describe('COMMENT /comment', function () {
             attesterId,
             epoch,
             data,
-            chainId
+            chainId,
         )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
@@ -252,7 +252,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -280,7 +280,7 @@ describe('COMMENT /comment', function () {
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -308,7 +308,7 @@ describe('COMMENT /comment', function () {
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -334,7 +334,7 @@ describe('COMMENT /comment', function () {
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -346,7 +346,7 @@ describe('COMMENT /comment', function () {
 
         // check comment exist
         let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?postId=0`
+            `${HTTP_SERVER}/api/comment?postId=0`,
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()

@@ -5,7 +5,7 @@ export class VoteService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB
+        db: DB,
     ): Promise<any[]> {
         return db.findMany('Vote', {
             where: {

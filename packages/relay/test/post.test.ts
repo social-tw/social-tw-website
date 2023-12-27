@@ -53,7 +53,7 @@ describe('POST /post', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -64,7 +64,7 @@ describe('POST /post', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet
+            wallet,
         )
 
         await userState.waitForSync()
@@ -98,7 +98,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -109,7 +109,7 @@ describe('POST /post', function () {
         await sync.waitForSync()
 
         let posts: any = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`,
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -122,7 +122,7 @@ describe('POST /post', function () {
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
         posts = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`
+            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`,
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -150,7 +150,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -170,7 +170,7 @@ describe('POST /post', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -195,7 +195,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -219,7 +219,7 @@ describe('POST /post', function () {
             attesterId,
             epoch,
             data,
-            chainId
+            chainId,
         )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
@@ -243,7 +243,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -257,7 +257,7 @@ describe('POST /post', function () {
         // insert 9 mock posts into db
         const mockPosts = postData
         mockPosts.unshift(
-            await sqlite.findOne('Post', { where: { postId: '0' } })
+            await sqlite.findOne('Post', { where: { postId: '0' } }),
         )
         await insertPosts(sqlite)
         // insert random amount of comments into db
@@ -293,7 +293,7 @@ describe('POST /post', function () {
                 expect(prevPost.sorting_score).gte(nextPost.sorting_score)
                 if (prevPost.sorting_score == nextPost.sorting_score) {
                     expect(BigInt(prevPost.publishedAt)).gte(
-                        BigInt(nextPost.publishedAt)
+                        BigInt(nextPost.publishedAt),
                     )
                 }
             } else {
@@ -307,14 +307,14 @@ describe('POST /post', function () {
 
                     if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
                         expect(prevPost.daily_comments).gte(
-                            nextPost.daily_comments
+                            nextPost.daily_comments,
                         )
 
                         if (
                             prevPost.daily_comments == nextPost.daily_comments
                         ) {
                             expect(BigInt(prevPost.publishedAt)).gte(
-                                BigInt(nextPost.publishedAt)
+                                BigInt(nextPost.publishedAt),
                             )
                         }
                     }

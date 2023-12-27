@@ -274,9 +274,8 @@ export default class UserState {
     ): Promise<number> {
         const _attesterId = toDecString(attesterId)
         const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
-        const latestTransitionedEpoch = await this.latestTransitionedEpoch(
-            _attesterId,
-        )
+        const latestTransitionedEpoch =
+            await this.latestTransitionedEpoch(_attesterId)
 
         let foundData: any = undefined
         try {

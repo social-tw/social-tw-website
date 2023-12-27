@@ -11,13 +11,13 @@ class EpochKeyService {
     async getAndVerifyProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // get current epoch and unirep contract
@@ -33,7 +33,7 @@ class EpochKeyService {
         const isStateTreeValid = await synchronizer.stateTreeRootExists(
             epochKeyProof.stateTreeRoot,
             Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId
+            epochKeyProof.attesterId,
         )
         if (!isStateTreeValid) {
             throw new InternalError('Invalid State Tree', 400)
@@ -51,12 +51,12 @@ class EpochKeyService {
     async getAndVerifyLiteProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // get current epoch and unirep contract
@@ -80,16 +80,16 @@ class EpochKeyService {
     // TODO move this to other service?
     async callContract(
         functionSignature: string, // 'leaveComment' for example
-        args: any[]
+        args: any[],
     ): Promise<string> {
         const appContract = new ethers.Contract(APP_ADDRESS, ABI)
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
-            [...args]
+            [...args],
         )
         const hash = await TransactionManager.queueTransaction(
             APP_ADDRESS,
-            calldata
+            calldata,
         )
 
         return hash

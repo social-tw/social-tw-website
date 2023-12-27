@@ -29,7 +29,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             unirepAddress: string
             genesisBlock?: number
         },
-        unirepSocialContract: ethers.Contract
+        unirepSocialContract: ethers.Contract,
     ) {
         tempUnirepSocialContract = unirepSocialContract
         super(config)
@@ -178,7 +178,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
         const fromServer = ethers.utils.defaultAbiCoder.decode(
             ['bool'],
-            event.topics[2]
+            event.topics[2],
         )[0]
         const status = fromServer
             ? UserRegisterStatus.REGISTERER_SERVER
