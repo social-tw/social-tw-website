@@ -1,22 +1,27 @@
 import { DB } from 'anondb'
-import { SnarkProof } from '@unirep/utils'
-import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
-import { addActionCount } from '../utils/TransactionHelper'
-import { ipfsService } from './IpfsService'
-import { epochKeyService } from './EpochKeyService'
-import { InternalError } from '../types/InternalError'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Comment } from '../types/Comment'
+import { InternalError } from '../types/InternalError'
 import { Post } from '../types/Post'
+import { addActionCount } from '../utils/TransactionHelper'
+import { epochKeyService } from './EpochKeyService'
+import { ipfsService } from './IpfsService'
 
 export class CommentService {
-    async fetchComments(postId: string, db: DB): Promise<Comment[]> {
+    async fetchComments(
+        epks: string | undefined,
+        postId: string,
+        db: DB
+    ): Promise<Comment[]> {
         // TODO check condition below
         // FIXME: if epks or postID not exist?
         const comments = await db.findMany('Comment', {
             where: {
                 status: 1,
                 postId: postId,
+                epochKey: epks,
             },
             orderBy: {
                 publishedAt: 'desc',
@@ -45,8 +50,8 @@ export class CommentService {
     async leaveComment(
         postId: string,
         content: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
@@ -87,48 +92,33 @@ export class CommentService {
     }
 
     async deleteComment(
-        transactionHash: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        commentId: string,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
     ) {
         const comment: Comment = await db.findOne('Comment', {
             where: {
-                transactionHash,
+                status: 1,
+                commentId: commentId,
             },
         })
         if (!comment) {
             throw new InternalError('Comment does not exist', 400)
         }
 
-        if (!comment.commentId) {
-            console.log(
-                'comment does not have commentId, update deleted status only '
-            )
-            await db.update('Comment', {
-                where: {
-                    transactionHash,
-                },
-                update: {
-                    status: 2,
-                },
-            })
-            return
-        }
-
         const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
             publicSignals,
             proof,
-            synchronizer,
-            comment.epochKey
+            synchronizer
         )
 
         const txnHash = await epochKeyService.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
             epochKeyLiteProof.proof,
             comment.postId,
-            comment.commentId,
+            commentId,
             '',
         ])
 

@@ -1,3 +1,4 @@
+import { IndexedDBConnector } from 'anondb/web'
 import { ethers } from 'ethers'
 import React, {
     createContext,
@@ -9,7 +10,6 @@ import React, {
 } from 'react'
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
@@ -18,6 +18,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 import { fetchRelayConfig } from '../utils/api'
 import { createProviderByUrl } from '../utils/createProviderByUrl'
 import prover from './Prover'
+import { schema } from './schema'
+import { UserState } from './Userstate'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -115,12 +117,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
         setProvider(provider)
 
+        const db = await IndexedDBConnector.create(schema)
         const userStateInstance = new UserState({
             provider,
             prover,
             unirepAddress: relayConfig.UNIREP_ADDRESS,
             attesterId: BigInt(relayConfig.APP_ADDRESS),
             id: new Identity(storedSignature),
+            db,
         })
 
         await userStateInstance.start()
@@ -333,6 +337,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     )
 
     const logout = () => {
+        userState?.stop()
+        // FIXME: db might be blocked
+        indexedDB.deleteDatabase('anondb')
         setHasSignedUp(false)
         setIsLogin(false)
         setUserState(undefined)

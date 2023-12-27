@@ -1,16 +1,16 @@
-import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import { SnarkProof } from '@unirep/utils'
 import { ethers } from 'ethers'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
+import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
+import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 import { InternalError } from '../types/InternalError'
 
 class EpochKeyService {
     async getAndVerifyProof(
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
@@ -49,10 +49,9 @@ class EpochKeyService {
     }
 
     async getAndVerifyLiteProof(
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
-        synchronizer: UnirepSocialSynchronizer,
-        originalEpochKey: String
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
@@ -60,8 +59,14 @@ class EpochKeyService {
             synchronizer.prover
         )
 
-        if (originalEpochKey != epochKeyLiteProof.epochKey.toString()) {
-            throw new InternalError('Invalid epoch key', 400)
+        // get current epoch and unirep contract
+        const epoch = await synchronizer.loadCurrentEpoch()
+
+        // check if epoch is valid
+        const isEpochvalid =
+            epochKeyLiteProof.epoch.toString() === epoch.toString()
+        if (!isEpochvalid) {
+            throw new InternalError('Invalid Epoch', 400)
         }
 
         const isProofValid = await epochKeyLiteProof.verify()
