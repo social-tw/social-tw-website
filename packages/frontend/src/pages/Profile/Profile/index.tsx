@@ -4,10 +4,12 @@ import { ReputationButton } from './ReputationButton'
 
 const Profile = () => {
     return (
-        <div className="w-full flex flex-col gap-4 md:flex-row md:gap-8">
-            <HistoryButton />
-            <ReputationButton />
-            <LogoutButton />
+        <div>
+            <div className="w-full flex flex-col gap-4 md:flex-row md:gap-8">
+                <HistoryButton />
+                <ReputationButton />
+                <LogoutButton />
+            </div>
         </div>
     )
 }
