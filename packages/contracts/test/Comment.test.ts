@@ -1,19 +1,16 @@
+import { expect } from "chai";
 //@ts-ignore
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
-import { CircuitConfig } from '@unirep/circuits'
-import { IncrementalMerkleTree, genStateTreeLeaf } from '@unirep/utils'
-import { describe } from 'node:test'
-import { deployApp } from '../scripts/utils'
+import { ethers } from "hardhat";
+import { describe } from "node:test";
+import { CircuitConfig } from "@unirep/circuits";
+import { genStateTreeLeaf, IncrementalMerkleTree } from "@unirep/utils";
+import { deployApp } from "../scripts/utils";
+import { Unirep, UnirepApp } from "../typechain-types";
+import { IdentityObject } from "./types";
 import {
-    createMultipleUserIdentity,
-    genEpochKeyProof,
-    genEpochKeyLiteProof,
-    genUserState,
-    randomData,
-} from './utils'
-import { IdentityObject } from './types'
-import { Unirep, UnirepApp } from '../typechain-types'
+  createMultipleUserIdentity, genEpochKeyLiteProof, genEpochKeyProof,
+  genUserState, randomData
+} from "./utils";
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -356,7 +353,7 @@ describe('Comment Test', function () {
             const userState = await genUserState(users[1].id, app)
             userState.waitForSync()
             const { publicSignals, proof } =
-                await userState.genEpochKeyLiteProof({ nonce: 0, epoch: 0 })
+                await userState.genEpochKeyLiteProof()
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
