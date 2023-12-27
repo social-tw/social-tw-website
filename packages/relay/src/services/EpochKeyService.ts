@@ -1,6 +1,6 @@
 import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
 import { UnirepSocialSynchronizer } from '../synchornizer'
-import { SnarkProof } from '@unirep/utils'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { ethers } from 'ethers'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
@@ -9,8 +9,8 @@ import { InternalError } from '../types/InternalError'
 
 class EpochKeyService {
     async getAndVerifyProof(
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
@@ -49,8 +49,8 @@ class EpochKeyService {
     }
 
     async getAndVerifyLiteProof(
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(

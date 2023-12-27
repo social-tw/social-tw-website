@@ -7,7 +7,7 @@ import {
 } from '../config'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
-import { SnarkProof } from '@unirep/utils'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { epochKeyService } from './EpochKeyService'
 import { addActionCount } from '../utils/TransactionHelper'
 import { Post } from '../types/Post'
@@ -210,8 +210,8 @@ export class PostService {
 
     async createPost(
         content: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
