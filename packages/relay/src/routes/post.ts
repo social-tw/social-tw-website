@@ -20,8 +20,12 @@ export default (
                 typeof req.query.epks === 'string'
                     ? req.query.epks.split('_')
                     : undefined
+            const page = req.query.page ? Number(req.query.page) : 1
+            if (isNaN(page) || page < 1) {
+                return res.status(400).json({ error: 'Invalid page number' })
+            }
 
-            const posts = await postService.fetchPosts(query, epks, db)
+            const posts = await postService.fetchPosts(query, epks, page, db)
             res.json(posts)
         })
     )

@@ -1,5 +1,5 @@
 import { DB } from 'anondb'
-import { SnarkProof } from '@unirep/utils'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
 import { addActionCount } from '../utils/TransactionHelper'
@@ -7,6 +7,7 @@ import { ipfsService } from './IpfsService'
 import { epochKeyService } from './EpochKeyService'
 import { InternalError } from '../types/InternalError'
 import { Comment } from '../types/Comment'
+import { Post } from '../types/Post'
 
 export class CommentService {
     async fetchComments(
@@ -30,11 +31,27 @@ export class CommentService {
         return comments
     }
 
+    async fetchMyAccountComments(
+        epks: string[],
+        sortKey: 'publishedAt' | 'voteSum',
+        direction: 'asc' | 'desc',
+        db: DB
+    ): Promise<Post[]> {
+        return db.findMany('Comment', {
+            where: {
+                epochKey: epks,
+            },
+            orderBy: {
+                [sortKey]: direction,
+            },
+        })
+    }
+
     async leaveComment(
         postId: string,
         content: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
@@ -76,8 +93,8 @@ export class CommentService {
 
     async deleteComment(
         commentId: string,
-        publicSignals: (bigint | string)[],
-        proof: SnarkProof,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
     ) {

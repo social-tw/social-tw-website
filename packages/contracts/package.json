@@ -13,7 +13,11 @@
         "abi": "ts-node scripts/abi",
         "hardhat": "hardhat",
         "deploy": "hardhat run scripts/deploy.ts",
-        "test": "hardhat test --network hardhat"
+        "test": "hardhat test --network hardhat",
+        "spawn-devnet": "ts-node ./scripts/spawnDevNet.ts",
+        "deploy:devnet": "yarn run spawn-devnet && hardhat run scripts/deploy.ts --network tenderly",
+        "deploy:dev": "hardhat run scripts/deploy.ts --network dev",
+        "deploy:prod": "hardhat run scripts/deploy.ts --network prod"
     },
     "bugs": {
         "url": "https://github.com/social-tw/social-tw-website/issues"
@@ -23,12 +27,13 @@
         "@nomicfoundation/hardhat-chai-matchers": "1.0.6",
         "@nomiclabs/hardhat-ethers": "^2.2.0",
         "@openzeppelin/contracts": "^4.7.3",
-        "@semaphore-protocol/identity": "^3.6.0",
+        "@tenderly/hardhat-tenderly": "^1.7.7",
         "@typechain/ethers-v5": "^10.2.0",
         "@typechain/hardhat": "^6.1.5",
         "@types/node": "^18.15.11",
         "@unirep-app/circuits": "1.0.0",
-        "@unirep/contracts": "2.0.0-beta-4",
+        "@unirep/contracts": "2.0.0",
+        "envfile": "^6.18.0",
         "hardhat": "^2.17.1",
         "ts-node": "^10.9.1",
         "typechain": "^8.1.1",

@@ -1,7 +1,7 @@
 export type Post = {
     postId: string | undefined
     content: string | undefined
-    publishedAt: number
+    publishedAt: string
     transactionHash: string | undefined
     cid: string | undefined
     epoch: number

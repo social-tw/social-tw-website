@@ -30,11 +30,12 @@ describe('COMMENT /comment', function () {
     let express: Server
     let userState: UserState
     let sync: UnirepSocialSynchronizer
+    let chainId: number
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const { db, prover, provider, synchronizer, server } =
             await startServer(unirep, app)
@@ -69,17 +70,18 @@ describe('COMMENT /comment', function () {
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        await fetch(`${HTTP_SERVER}/api/post`).then(async (r) => {
+        await fetch(`${HTTP_SERVER}/api/post/0`).then(async (r) => {
             expect(r.status).equal(200)
-            const posts = (await r.json()) as Post[]
-            expect(posts.length).equal(1)
-            expect(posts[0].status).equal(1)
-            return posts[0]
+            const post = (await r.json()) as Post
+            expect(post.status).equal(1)
         })
+
+        chainId = await unirep.chainid()
     })
 
     after(async function () {
         await ethers.provider.send('evm_revert', [snapshot])
+        userState.stop()
         express.close()
     })
 
@@ -185,6 +187,7 @@ describe('COMMENT /comment', function () {
             leafIndex,
             epoch: wrongEpoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })
@@ -219,7 +222,13 @@ describe('COMMENT /comment', function () {
         const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
         const data = randomData()
         const id = userState.id
-        const leaf = genStateTreeLeaf(id.secret, attesterId, epoch, data)
+        const leaf = genStateTreeLeaf(
+            id.secret,
+            attesterId,
+            epoch,
+            data,
+            chainId
+        )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
             id,
@@ -227,6 +236,7 @@ describe('COMMENT /comment', function () {
             leafIndex: 0,
             epoch,
             nonce: 2,
+            chainId,
             attesterId,
             data,
         })

@@ -54,6 +54,7 @@ export default (
             )
             res.json({ hash })
         } catch (error: any) {
+            console.error(error)
             res.status(500).json({ error })
         }
     })

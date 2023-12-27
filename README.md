@@ -74,21 +74,21 @@ yarn build
 yarn contracts hardhat node
 ```
 
-### 2.3 Deploy smart contracts
+### 2.3 Set up Twitter API Key
+
+```shell
+cp packages/relay/.env.example packages/relay/.env
+```
+
+Then fill in your Twitter API Key in `packages/relay/.env`
+
+### 2.4 Deploy smart contracts
 
 in new terminal window, from root:
 
 ```shell
 yarn contracts deploy
 ```
-
-### 2.4 Set up Twitter API Key
-
-```shell
-cp packages/relay/.env_example packages/relay/.env
-```
-
-Then fill in your Twitter API Key in `packages/relay/.env`
 
 ### 2.5 Start a relayer (backend)
 
@@ -157,6 +157,24 @@ Ensure that your code is formatted correctly:
 
 ```shell
 yarn lint:check
+```
+
+## 5. Deploy
+
+### 5.1 Deploy frontend locally
+
+```shell
+docker build -t test-frontend:0.1 -f packages/frontend/Dockerfile .
+
+docker run --rm -p 3000:3000 --network="bridge" test-frontend:0.1
+```
+
+### 5.2 Deploy backend locally
+
+```shell
+docker build -t test-relay:0.1 -f packages/relay/Dockerfile .
+
+docker run --network="host" --rm -p 8000:8000 test-relay:0.1
 ```
 
 # Contributing

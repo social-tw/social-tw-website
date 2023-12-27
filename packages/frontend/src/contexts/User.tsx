@@ -1,6 +1,8 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { DataProof } from '@unirep-app/circuits'
-import { UserState } from '@unirep/core'
+import { UserState } from './Userstate'
+import { schema } from './schema'
+import { IndexedDBConnector } from 'anondb/web'
 import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
@@ -115,15 +117,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
         setProvider(provider)
 
+        const db = await IndexedDBConnector.create(schema)
         const userStateInstance = new UserState({
             provider,
             prover,
             unirepAddress: relayConfig.UNIREP_ADDRESS,
             attesterId: BigInt(relayConfig.APP_ADDRESS),
             id: new Identity(storedSignature),
+            db,
         })
 
-        await userStateInstance.sync.start()
+        await userStateInstance.start()
         await userStateInstance.waitForSync()
 
         setUserState(userStateInstance)
@@ -295,6 +299,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         async (data: { [key: number]: string | number }) => {
             if (!userState) throw new Error('user state not initialized')
             const epoch = await userState.sync.loadCurrentEpoch()
+            const chainId = userState.chainId
             const stateTree = await userState.sync.genStateTree(epoch)
             const index = await userState.latestStateTreeLeafIndex(epoch)
             const stateTreeProof = stateTree.createProof(index)
@@ -307,10 +312,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const attesterId = userState.sync.attesterId
             const circuitInputs = stringifyBigInts({
                 identity_secret: userState.id.secret,
-                state_tree_indexes: stateTreeProof.pathIndices,
+                state_tree_indices: stateTreeProof.pathIndices,
                 state_tree_elements: stateTreeProof.siblings,
                 data: provableData,
                 epoch: epoch,
+                chain_id: chainId,
                 attester_id: attesterId,
                 value: values,
             })
@@ -331,6 +337,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     )
 
     const logout = () => {
+        userState?.stop()
+        // FIXME: db might be blocked
+        indexedDB.deleteDatabase('anondb')
         setHasSignedUp(false)
         setUserState(undefined)
         setSignature('')

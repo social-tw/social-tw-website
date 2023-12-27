@@ -35,8 +35,8 @@ const _schema = [
         rows: [
             {
                 name: 'publishedAt',
-                type: 'Int',
-                default: () => +new Date(),
+                type: 'String',
+                default: () => (+new Date()).toString(),
             },
             ['postId', 'String', { optional: true }],
             ['transactionHash', 'String'],
@@ -83,8 +83,8 @@ const _schema = [
         rows: [
             {
                 name: 'publishedAt',
-                type: 'Int',
-                default: () => +new Date(),
+                type: 'String',
+                default: () => (+new Date()).toString(),
             },
             ['commentId', 'String', { optional: true }],
             ['postId', 'String'],
@@ -109,7 +109,21 @@ const _schema = [
         name: 'Vote',
         primaryKey: ['postId', 'epochKey'],
         rows: [
+            {
+                name: 'publishedAt',
+                type: 'String',
+                default: () => (+new Date()).toString(),
+            },
             ['postId', 'String'],
+            {
+                name: 'post',
+                type: 'Object',
+                relation: {
+                    localField: 'postId',
+                    foreignField: '_id',
+                    foreignTable: 'Post',
+                },
+            },
             ['epochKey', 'String'],
             ['epoch', 'Int'],
             {

@@ -39,7 +39,7 @@ describe('LOGIN /login', function () {
         // open promise testing
         chai.use(chaiAsPromise.default)
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(1000)
         // start server
         const {
             db,
@@ -96,6 +96,7 @@ describe('LOGIN /login', function () {
                 grant_type: 'authorization_code',
                 client_id: TWITTER_CLIENT_ID,
                 redirect_uri: /^.*$/,
+                code_verifier: /^.*$/,
             })
             .matchHeader('content-type', 'application/x-www-form-urlencoded')
             .matchHeader('authorization', `Basic ${token}`)
@@ -170,13 +171,12 @@ describe('LOGIN /login', function () {
         const { signupProof, publicSignals } = await userStateFactory.genProof(
             userState
         )
-        signupProof.identityCommitment = wrongCommitment
-
+        publicSignals[0] = wrongCommitment.toString()
         await chai
             .request(`${HTTP_SERVER}`)
             .post('/api/signup')
             .set('content-type', 'application/json')
-            .query({
+            .send({
                 publicSignals: publicSignals,
                 proof: signupProof._snarkProof,
                 hashUserId: user.hashUserId,
@@ -187,7 +187,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(500)
             })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, user sign up with wallet', async function () {
@@ -224,7 +224,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, sign up with the same commitment', async function () {
@@ -255,7 +255,7 @@ describe('LOGIN /login', function () {
             )
         ).to.be.rejectedWith(Error)
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, sign up with different attesterId', async function () {
@@ -292,7 +292,7 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(500)
             })
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, user sign up with server', async function () {
@@ -326,7 +326,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/signup, handle duplicate signup', async function () {
@@ -357,7 +357,7 @@ describe('LOGIN /login', function () {
                 expect(res).to.have.status(400)
             })
 
-        userState.sync.stop()
+        userState.stop()
     })
 
     it('/api/login, registered user with own wallet', async function () {
