@@ -36,19 +36,15 @@ export default function useVotes() {
                 ),
             })
 
-            const data = await response.json()
-
-            await provider.waitForTransaction(data.transaction)
-
             await userState.waitForSync()
 
             await loadData(userState)
 
-            if (data.status === 201) {
+            if (response.status === 201) {
                 console.log('Vote succeeded!')
                 return true
             } else {
-                throw new Error(`Vote failed with status: ${data.status}`)
+                throw new Error(`Vote failed with status: ${response.status}`)
             }
         } catch (error) {
             console.error('Vote failed:', error)

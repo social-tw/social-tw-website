@@ -20,6 +20,7 @@ import checkVoteIsMine from '../utils/checkVoteIsMine'
 const examplePosts = [
     {
         id: 'demo-1',
+        _id: 'demo-1',
         epochKey: 'epochKey-1',
         publishedAt: new Date(),
         content:
@@ -30,6 +31,7 @@ const examplePosts = [
     },
     {
         id: 'demo-2',
+        _id: 'demo-2',
         epochKey: 'epochKey-2',
         publishedAt: new Date(),
         content:
@@ -40,6 +42,7 @@ const examplePosts = [
     },
     {
         id: 'demo-3',
+        _id: 'demo-3',
         epochKey: 'epochKey-3',
         publishedAt: new Date(),
         content:
