@@ -107,12 +107,23 @@ export default function ({
                 voteType === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
+            success = await create(id, action)
+
+            if (success) {
+                if (action === VoteAction.CANCEL_UPVOTE) {
+                    setUpvotes((prev) => prev - 1)
+                    setIsAction(null)
+                } else {
+                    setDownvotes((prev) => prev - 1)
+                    setIsAction(null)
+                }
+            }
         } else {
-            if (isMine && finalAction !== voteType) {
+            if (isMine && finalAction !== null) {
                 const cancelAction =
-                    voteType === VoteAction.UPVOTE
-                        ? VoteAction.CANCEL_DOWNVOTE
-                        : VoteAction.CANCEL_UPVOTE
+                    finalAction === VoteAction.UPVOTE
+                        ? VoteAction.CANCEL_UPVOTE
+                        : VoteAction.CANCEL_DOWNVOTE
                 await create(id, cancelAction)
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
                     setUpvotes((prev) => prev - 1)
@@ -120,37 +131,32 @@ export default function ({
                     setDownvotes((prev) => prev - 1)
                 }
             }
+
+            // 进行新的投票
             action = voteType
+            success = await create(id, action)
             setShow(true)
             setImgType(
                 voteType === VoteAction.UPVOTE
                     ? VoteAction.UPVOTE
                     : VoteAction.DOWNVOTE,
             )
-        }
-        success = await create(id, action)
 
-        if (success) {
-            if (
-                action === VoteAction.UPVOTE ||
-                action === VoteAction.CANCEL_UPVOTE
-            ) {
-                setUpvotes((prev) =>
-                    action === VoteAction.UPVOTE ? prev + 1 : prev - 1,
-                )
-                setIsAction(action === VoteAction.UPVOTE ? action : null)
-            } else {
-                setDownvotes((prev) =>
-                    action === VoteAction.DOWNVOTE ? prev + 1 : prev - 1,
-                )
-                setIsAction(action === VoteAction.DOWNVOTE ? action : null)
+            if (success) {
+                if (action === VoteAction.UPVOTE) {
+                    setUpvotes((prev) => prev + 1)
+                } else {
+                    setDownvotes((prev) => prev + 1)
+                }
+                setIsAction(action)
             }
-            setVoteState(
-                action === VoteAction.UPVOTE
-                    ? VoteAction.UPVOTE
-                    : VoteAction.DOWNVOTE,
-            )
         }
+
+        setVoteState(
+            action === VoteAction.UPVOTE
+                ? VoteAction.UPVOTE
+                : VoteAction.DOWNVOTE,
+        )
         setShow(false)
     }
 
