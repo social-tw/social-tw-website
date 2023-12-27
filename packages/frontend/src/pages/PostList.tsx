@@ -58,7 +58,6 @@ export default function PostList() {
     const { isLogin, signupStatus } = useUser()
     const [posts, setPosts] = useState<PostInfo[]>([])
     const [isShow, setIsShow] = useState(false)
-    const location = useLocation()
     const { userState } = useUser()
 
     useEffect(() => {

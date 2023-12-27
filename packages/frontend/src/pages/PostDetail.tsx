@@ -6,8 +6,8 @@ import Post from '../components/post/Post'
 import { SERVER } from '../config'
 
 import type { PostInfo } from '../types'
-import { useUser } from '../contexts/User'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
+import { useUser } from '../contexts/User'
 
 const demoPost = {
     _id: '1',
