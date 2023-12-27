@@ -1,3 +1,4 @@
+import { UserState } from '@unirep/core'
 import { useEffect } from 'react'
 import { useUser } from '../../../../contexts/User'
 import {
@@ -97,6 +98,7 @@ function VoteTabContent() {
     )
 }
 
+// TODO: decide to use UserState from @unirep/core or from src/contexts/Userstate.ts
 function useInitPostTabContent() {
     const { userState } = useUser()
     const { isHistoryPostsInit, invokeInitHistoryPostsFlow } =
@@ -106,7 +108,7 @@ function useInitPostTabContent() {
         }))
     useEffect(() => {
         if (!isHistoryPostsInit && userState) {
-            invokeInitHistoryPostsFlow(userState)
+            invokeInitHistoryPostsFlow(userState as unknown as UserState)
         }
     }, [isHistoryPostsInit, userState, invokeInitHistoryPostsFlow])
 }
@@ -120,7 +122,7 @@ function useInitCommentTabContent() {
         }))
     useEffect(() => {
         if (!isHistoryCommentsInit && userState) {
-            invokeInitHistoryCommentsFlow(userState)
+            invokeInitHistoryCommentsFlow(userState as unknown as UserState)
         }
     }, [isHistoryCommentsInit, userState, invokeInitHistoryCommentsFlow])
 }
@@ -134,7 +136,7 @@ function useInitVoteTabContent() {
         }))
     useEffect(() => {
         if (!isHistoryVotesInit && userState) {
-            invokeInitHistoryVotesFlow(userState)
+            invokeInitHistoryVotesFlow(userState as unknown as UserState)
         }
     }, [isHistoryVotesInit, userState, invokeInitHistoryVotesFlow])
 }
