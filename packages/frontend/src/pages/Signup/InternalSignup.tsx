@@ -1,18 +1,17 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
 import { clsx } from 'clsx'
 import { motion } from 'framer-motion'
-
 import { useState } from 'react'
 import { GrFormClose } from 'react-icons/gr'
+import { useMediaQuery } from '@uidotdev/usehooks'
 import { BackToWelcomePageButton } from '../../components/Button/BackToWelcomeButton'
 import { GreetingContent } from '../../components/Greeting/GreetingContent'
 import { GreetingContentOnSmallDevice } from '../../components/Greeting/GreetingContentOnSmallDevice'
 import { GreetingLogo } from '../../components/Greeting/GreetingLogo'
 import { GreetingTitle } from '../../components/Greeting/GreetingTitle'
+import AuthErrorDialog from '../../components/login/AuthErrorDialog'
+import AuthNoteDialog from '../../components/login/AuthNoteDialog'
 import LoginButton from '../../components/login/LoginButton'
 import StepInfo from '../../components/login/StepInfo'
-import ErrorModal from '../../components/modal/ErrorModal'
-import NoteModal from '../../components/modal/NoteModal'
 import { useUser } from '../../contexts/User'
 import { useSignupWithServer } from '../../hooks/useSignupWithServer'
 import { useSignupWithWallet } from '../../hooks/useSignupWithWallet'
@@ -35,18 +34,18 @@ export function InternalSignup() {
     const variantAutoScrollY = getVariantAutoScrollY()
 
     return (
-        <div className="flex flex-col h-full items-center">
+        <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
                 <div className="flex flex-col gap-12">
                     {!isSmallDevice && (
-                        <div className="flex items-center flex-col justify-center pt-24">
+                        <div className="flex flex-col items-center justify-center pt-24">
                             <GreetingLogo />
                             <GreetingTitle />
                             <GreetingContent />
                         </div>
                     )}
                     {isSmallDevice && <GreetingContentOnSmallDevice />}
-                    <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                    <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
                         再一步即可完成註冊
                     </p>
                     <motion.div
@@ -107,12 +106,12 @@ export function InternalSignup() {
                     </p>
                 </div>
             </div>
-            <NoteModal
+            <AuthNoteDialog
                 icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <ErrorModal isOpen={errorCode !== ''} />
+            <AuthErrorDialog isOpen={errorCode !== ''} />
         </div>
     )
 }

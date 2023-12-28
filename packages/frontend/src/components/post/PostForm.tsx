@@ -1,8 +1,9 @@
 import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import Modal from '../modal/Modal'
-import RichTextEditor from '../RichTextEditor'
+import Avatar from '@/assets/avatar.png'
+import Backdrop from '@/components/common/Backdrop'
+import RichTextEditor from '@/components/common/RichTextEditor'
 
 export interface PostValues {
     content: string
@@ -15,6 +16,7 @@ export default function PostForm({
     isSubmitCancellable = true,
     isSubmitCancelled = false,
     disabled = false,
+    type = 'post',
 }: {
     onCancel?: () => void
     onSubmit?: (values: PostValues) => void
@@ -22,6 +24,7 @@ export default function PostForm({
     isSubmitCancellable?: boolean
     isSubmitCancelled?: boolean
     disabled?: boolean
+    type?: 'post' | 'comment'
 }) {
     const { handleSubmit, control, reset, getValues, formState } =
         useForm<PostValues>({
@@ -39,6 +42,9 @@ export default function PostForm({
         onCancel()
     }
 
+    const placeholder =
+        type === 'comment' ? '你想留什麼言呢......？' : undefined
+
     useEffect(() => {
         if (isSubmitSuccessful) {
             reset({ content: '' })
@@ -52,6 +58,11 @@ export default function PostForm({
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <section className="flex items-center justify-end gap-1">
+                    {type === 'comment' && (
+                        <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
+                            <img src={Avatar} alt="Avatar" />
+                        </div>
+                    )}
                     <button
                         className="btn btn-sm btn-ghost"
                         title="cancel a post"
@@ -81,9 +92,10 @@ export default function PostForm({
                                 onValueChange={field.onChange}
                                 value={field.value}
                                 namespace={field.name}
+                                placeholder={placeholder}
                                 classes={{
                                     content:
-                                        'min-h-[3rem] overflow-auto text-white text-xl',
+                                        'min-h-[3rem] overflow-auto text-white text-xl tracking-wide',
                                     placeholder: 'text-gray-300 text-xl',
                                 }}
                             />
@@ -91,9 +103,9 @@ export default function PostForm({
                     />
                 </section>
             </form>
-            <Modal
+            <Backdrop
                 isOpen={isPending}
-                postion="absolute"
+                position="absolute"
                 background="bg-gradient-to-t from-black/100 to-white/0"
             >
                 <div className="flex flex-col items-center justify-center h-full gap-4 backdrop-blur-sm">
@@ -111,7 +123,7 @@ export default function PostForm({
                         </p>
                     )}
                 </div>
-            </Modal>
+            </Backdrop>
         </>
     )
 }

@@ -1,10 +1,10 @@
-import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { ethers } from 'ethers'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { APP_ADDRESS, LOAD_POST_COUNT } from '../config'
+import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
+import { APP_ADDRESS } from '../config'
 import TransactionManager from '../singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 import { InternalError } from '../types/InternalError'
 
 class EpochKeyService {
