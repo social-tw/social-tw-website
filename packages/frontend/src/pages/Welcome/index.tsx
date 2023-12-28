@@ -1,11 +1,10 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-
 import { GreetingContent } from '../../components/Greeting/GreetingContent'
 import { GreetingLogo } from '../../components/Greeting/GreetingLogo'
 import { GreetingTitle } from '../../components/Greeting/GreetingTitle'
 import LoginButton from '../../components/login/LoginButton'
-import ScrollingModal from '../../components/modal/ui/ScrollingModal'
+import WelcomeBackgroundList from '../../components/login/WelcomeBackgroundList'
 import { PATHS } from '../../constants/paths'
 import { useUser } from '../../contexts/User'
 import {
@@ -20,10 +19,10 @@ export function Welcome() {
     const variantOpacityZeroToOne = getVariantOpacityZeroToOne()
     const variantAutoScrollY = getVariantAutoScrollY()
     return (
-        <div className="flex flex-col h-full items-center">
+        <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 h-full">
                 <div className="flex flex-col gap-12">
-                    <div className="flex items-center flex-col justify-center pt-24">
+                    <div className="flex flex-col items-center justify-center pt-24">
                         <GreetingLogo />
                         <GreetingTitle />
                         <GreetingContent />
@@ -53,9 +52,12 @@ export function Welcome() {
                     text="2xl"
                 />
             </motion.div>
-            <ScrollingModal method="remove-this" variants={variantAutoScrollY}>
+            <WelcomeBackgroundList
+                method="remove-this"
+                variants={variantAutoScrollY}
+            >
                 <ExamplePostsList />
-            </ScrollingModal>
+            </WelcomeBackgroundList>
         </div>
     )
 }

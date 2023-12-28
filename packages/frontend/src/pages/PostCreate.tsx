@@ -1,21 +1,21 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Dialog from '../components/Dialog'
-import ErrorModal from '../components/modal/ErrorModal'
-import PostForm, { PostValues } from '../components/post/PostForm'
-import { useUser } from '../contexts/User'
-import useCreatePost from '../hooks/useCreatePost'
-import { CancelledTaskError } from '../utils/makeCancellableTask'
+import Dialog from '@/components/common/Dialog'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import PostForm, { PostValues } from '@/components/post/PostForm'
+import { useUser } from '@/contexts/User'
+import useCreatePost from '@/hooks/useCreatePost'
+import { CancelledTaskError } from '@/utils/makeCancellableTask'
 
 export default function PostCreate() {
     const { isLogin } = useUser()
-
-    const errorDialog = useRef<HTMLDialogElement>(null)
 
     const navigate = useNavigate()
 
     const { create, cancel, reset, isCancellable, isCancelled } =
         useCreatePost()
+
+    const [isOpenError, setIsOpenError] = useState(false)
 
     const onSubmit = async (values: PostValues) => {
         try {
@@ -25,13 +25,13 @@ export default function PostCreate() {
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {
-                errorDialog?.current?.showModal()
+                setIsOpenError(true)
             }
         }
     }
 
     if (!isLogin) {
-        return <ErrorModal isOpen={true} />
+        return <AuthErrorDialog isOpen={true} />
     } else {
         return (
             <div className="p-4">
@@ -42,7 +42,10 @@ export default function PostCreate() {
                     isSubmitCancellable={isCancellable}
                     isSubmitCancelled={isCancelled}
                 />
-                <Dialog ref={errorDialog} ariaLabel="post error message">
+                <Dialog
+                    isOpen={isOpenError}
+                    onClose={() => setIsOpenError(false)}
+                >
                     <section className="p-6 md:px-12">
                         <p className="text-base font-medium text-black/90">
                             親愛的用戶：

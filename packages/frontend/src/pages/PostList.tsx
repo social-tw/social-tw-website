@@ -1,8 +1,14 @@
 import clsx from 'clsx'
-import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Dialog from '@/components/common/Dialog'
+import SignupLoadingModal from '@/components/login/SignupPendingTransition'
+import Post from '@/components/post/Post'
+import PostForm, { PostValues } from '@/components/post/PostForm'
+import { SERVER } from '@/config'
+import { useUser } from '@/contexts/User'
+import useCreatePost from '@/hooks/useCreatePost'
+import { CancelledTaskError } from '@/utils/makeCancellableTask'
 import {
     DefaultError,
     InfiniteData,
@@ -11,16 +17,8 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
-import Dialog from '../components/Dialog'
-import SignupLoadingModal from '../components/modal/SignupLoadingModal'
-import Post from '../components/post/Post'
-import PostForm, { PostValues } from '../components/post/PostForm'
-import { SERVER } from '../config'
-import { useUser } from '../contexts/User'
-import useCreatePost from '../hooks/useCreatePost'
-import { CancelledTaskError } from '../utils/makeCancellableTask'
 
-import type { PostInfo } from '../types'
+import type { PostInfo } from '@/types'
 
 const examplePosts = [
     {
@@ -56,7 +54,6 @@ const examplePosts = [
 ]
 
 export default function PostList() {
-    const errorDialog = useRef<HTMLDialogElement>(null)
     const { isLogin, signupStatus } = useUser()
     const [isShow, setIsShow] = useState(false)
 
@@ -124,6 +121,7 @@ export default function PostList() {
     const { create, cancel, reset, isCancellable, isCancelled } =
         useCreatePost()
 
+    const [isOpenError, setIsOpenError] = useState(false)
     const onSubmit = async (values: PostValues) => {
         const previousPostsData = queryClient.getQueryData(['posts'])
 
@@ -152,7 +150,7 @@ export default function PostList() {
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {
-                errorDialog?.current?.showModal()
+                setIsOpenError(true)
             }
 
             queryClient.setQueryData(['post'], previousPostsData)
@@ -162,8 +160,15 @@ export default function PostList() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
-            {!isSmallDevice && (
+        <div
+            className={clsx(
+                `px-4`,
+                !isSmallDevice && 'divide-y divide-neutral-600',
+                location.pathname === '/login' &&
+                    'max-w-[600px] w-11/12 h-screen my-[200px]',
+            )}
+        >
+            {!isSmallDevice && location.pathname !== '/login' && (
                 <section className="relative py-6">
                     {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
@@ -211,7 +216,7 @@ export default function PostList() {
                     className="w-full h-1 bg-transparent"
                 />
             </section>
-            <Dialog ref={errorDialog} ariaLabel="post error message">
+            <Dialog isOpen={isOpenError} onClose={() => setIsOpenError(false)}>
                 <section className="p-6 md:px-12">
                     <p className="text-base font-medium text-black/90">
                         親愛的用戶：

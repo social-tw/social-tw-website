@@ -12,7 +12,7 @@ export default (app: Express) => {
         //const { create } = await import('ipfs-http-client');
         const { create, CID } = (await dynamicImport(
             'kubo-rpc-client',
-            module,
+            module
         )) as typeof import('kubo-rpc-client')
         //const { concat } = await dynamicImport('uint8arrays/concat', module) as typeof import('uint8arrays/concat');
         //const  all  = await dynamicImport('it-all', module) as typeof import('it-all');

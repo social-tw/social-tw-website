@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Unirep} from "@unirep/contracts/Unirep.sol";
-import {EpochKeyVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
-import {EpochKeyLiteVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
+import {Unirep} from '@unirep/contracts/Unirep.sol';
+import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
+import {EpochKeyLiteVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol';
+
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
 interface IVerifier {
-    function verifyProof(uint256[7] calldata publicSignals, uint256[8] calldata proof) external view returns (bool);
+    function verifyProof(
+        uint256[7] calldata publicSignals,
+        uint256[8] calldata proof
+    ) external view returns (bool);
 }
 
 contract UnirepApp {
@@ -31,14 +35,27 @@ contract UnirepApp {
 
     mapping(uint256 => bool) public userRegistry;
 
-    event Post(uint256 indexed epochKey, uint256 indexed postId, uint256 indexed epoch, string content);
+    event Post(
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed epoch,
+        string content
+    );
 
     event Comment(
-        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string content
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed commentId,
+        uint256 epoch,
+        string content
     );
 
     event UpdatedComment(
-        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string newContent
+        uint256 indexed epochKey,
+        uint256 indexed postId,
+        uint256 indexed commentId,
+        uint256 epoch,
+        string newContent
     );
 
     uint160 immutable attesterId;
@@ -96,7 +113,11 @@ contract UnirepApp {
     }
 
     // post a content in this app
-    function post(uint256[] memory publicSignals, uint256[8] memory proof, string memory content) public {
+    function post(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        string memory content
+    ) public {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -105,7 +126,8 @@ contract UnirepApp {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
+            .decodeEpochKeySignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -114,7 +136,13 @@ contract UnirepApp {
         }
 
         // check state tree root
-        if (!unirep.attesterStateTreeRootExists(signals.attesterId, signals.epoch, signals.stateTreeRoot)) {
+        if (
+            !unirep.attesterStateTreeRootExists(
+                signals.attesterId,
+                signals.epoch,
+                signals.stateTreeRoot
+            )
+        ) {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
@@ -147,7 +175,8 @@ contract UnirepApp {
         }
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
+            .decodeEpochKeySignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -156,7 +185,13 @@ contract UnirepApp {
         }
 
         // check state tree root
-        if (!unirep.attesterStateTreeRootExists(signals.attesterId, signals.epoch, signals.stateTreeRoot)) {
+        if (
+            !unirep.attesterStateTreeRootExists(
+                signals.attesterId,
+                signals.epoch,
+                signals.stateTreeRoot
+            )
+        ) {
             revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
@@ -167,7 +202,13 @@ contract UnirepApp {
         epochKeyCommentMap[postId][commentId] = signals.epochKey;
         postCommentIndex[postId] = commentId + 1;
 
-        emit Comment(signals.epochKey, postId, commentId, signals.epoch, content);
+        emit Comment(
+            signals.epochKey,
+            postId,
+            commentId,
+            signals.epoch,
+            content
+        );
     }
 
     /**
@@ -193,8 +234,10 @@ contract UnirepApp {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals =
-            epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
+        EpochKeyLiteVerifierHelper.EpochKeySignals
+            memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(
+                publicSignals
+            );
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -213,7 +256,13 @@ contract UnirepApp {
 
         epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        emit UpdatedComment(signals.epochKey, postId, commentId, signals.epoch, newContent);
+        emit UpdatedComment(
+            signals.epochKey,
+            postId,
+            commentId,
+            signals.epoch,
+            newContent
+        );
     }
 
     function submitManyAttestations(
@@ -231,11 +280,19 @@ contract UnirepApp {
         }
     }
 
-    function submitAttestation(uint256 epochKey, uint48 targetEpoch, uint256 fieldIndex, uint256 val) public {
+    function submitAttestation(
+        uint256 epochKey,
+        uint48 targetEpoch,
+        uint256 fieldIndex,
+        uint256 val
+    ) public {
         unirep.attest(epochKey, targetEpoch, fieldIndex, val);
     }
 
-    function verifyDataProof(uint256[7] calldata publicSignals, uint256[8] calldata proof) public view returns (bool) {
+    function verifyDataProof(
+        uint256[7] calldata publicSignals,
+        uint256[8] calldata proof
+    ) public view returns (bool) {
         return dataVerifier.verifyProof(publicSignals, proof);
     }
 }

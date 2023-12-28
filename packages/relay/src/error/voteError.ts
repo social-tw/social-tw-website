@@ -11,25 +11,25 @@ export class VoteError extends Error {
 export const InvalidEpochError = new VoteError(
     'Invalid Epoch',
     400,
-    'InvalidEpochError',
+    'InvalidEpochError'
 )
 export const InvalidAttesterIdError = new VoteError(
     'Wrong attesterId',
     400,
-    'InvalidAttesterIdError',
+    'InvalidAttesterIdError'
 )
 export const InvalidProofError = new VoteError(
     'Invalid proof',
     400,
-    'InvalidProofError',
+    'InvalidProofError'
 )
 export const InvalidPostIdError = new VoteError(
     'Invalid postId',
     400,
-    'InvalidPostIdError',
+    'InvalidPostIdError'
 )
 export const InvalidVoteActionError = new VoteError(
     'Invalid vote action',
     400,
-    'InvalidVoteActionError',
+    'InvalidVoteActionError'
 )

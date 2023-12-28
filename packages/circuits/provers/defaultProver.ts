@@ -16,18 +16,18 @@ export const defaultProver = {
      */
     genProofAndPublicSignals: async (
         circuitName: string | Circuit,
-        inputs: any,
+        inputs: any
     ): Promise<any> => {
         const circuitWasmPath = path.join(
             __dirname,
             buildPath,
-            `${circuitName}.wasm`,
+            `${circuitName}.wasm`
         )
         const zkeyPath = path.join(__dirname, buildPath, `${circuitName}.zkey`)
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(
             inputs,
             circuitWasmPath,
-            zkeyPath,
+            zkeyPath
         )
 
         return { proof, publicSignals }
@@ -43,7 +43,7 @@ export const defaultProver = {
     verifyProof: async (
         circuitName: string | Circuit,
         publicSignals: snarkjs.PublicSignals,
-        proof: snarkjs.Groth16Proof,
+        proof: snarkjs.Groth16Proof
     ): Promise<boolean> => {
         const vkey = require(path.join(buildPath, `${circuitName}.vkey.json`))
         return snarkjs.groth16.verify(vkey, publicSignals, proof)

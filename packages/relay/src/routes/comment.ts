@@ -1,17 +1,17 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { errorHandler } from '../middleware'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
-import { InternalError } from '../types/InternalError'
 import { postService } from '../services/PostService'
+import { UnirepSocialSynchronizer } from '../synchornizer'
+import { InternalError } from '../types/InternalError'
 
+import type { Helia } from '@helia/interface'
 export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
+    helia: Helia
 ) => {
     app.route('/api/comment')
         .get(
@@ -24,10 +24,10 @@ export default (
                 const comments = await commentService.fetchComments(
                     epks?.toString(),
                     postId.toString(),
-                    db,
+                    db
                 )
                 res.json(comments)
-            }),
+            })
         )
 
         .post(
@@ -40,12 +40,12 @@ export default (
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
                     db,
-                    1,
+                    1
                 )
                 if (!post) {
                     throw new InternalError(
                         'Post does not exist, please try later',
-                        400,
+                        400
                     )
                 }
                 const hash = await commentService.leaveComment(
@@ -55,10 +55,10 @@ export default (
                     proof,
                     db,
                     synchronizer,
-                    helia,
+                    helia
                 )
                 res.json({ transaction: hash })
-            }),
+            })
         )
 
         .delete(
@@ -69,9 +69,9 @@ export default (
                     publicSignals,
                     proof,
                     synchronizer,
-                    db,
+                    db
                 )
                 res.json({ transaction: hash })
-            }),
+            })
         )
 }

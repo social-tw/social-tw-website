@@ -1,6 +1,5 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
-
 import { PATHS } from '../constants/paths'
 import { useUser } from './User'
 
@@ -13,11 +12,9 @@ export const ProtectedRoute: React.FC<ProtectedRouterProps> = ({
 }) => {
     const { isLogin, signupStatus } = useUser()
 
-    if (signupStatus === 'pending' || signupStatus === 'success') {
-        return children
-    } else if (isLogin !== 'success') {
+    if (!isLogin || signupStatus === 'error') {
         return <Navigate to={PATHS.WELCOME} />
-    } else {
-        return children
     }
+
+    return children
 }

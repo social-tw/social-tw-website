@@ -19,7 +19,7 @@ export class UserStateFactory {
         prover: Prover,
         unirepAddress: ethers.Contract,
         attesterId: ethers.Contract,
-        synchronizer: Synchronizer,
+        synchronizer: Synchronizer
     ) {
         this.db = db
         this.provider = provider

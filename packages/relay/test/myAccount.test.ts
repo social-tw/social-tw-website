@@ -56,7 +56,7 @@ describe('My Account Page', function () {
 
     it('should fetch posts', async function () {
         const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts?epks=${postEpochKey}`,
+            `${HTTP_SERVER}/api/my-account/posts?epks=${postEpochKey}`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
@@ -75,7 +75,7 @@ describe('My Account Page', function () {
         await fetch(`${HTTP_SERVER}/api/my-account/posts?sortKey=foo`).then(
             (r) => {
                 expect(r.status).equal(400)
-            },
+            }
         )
     })
 
@@ -83,13 +83,13 @@ describe('My Account Page', function () {
         await fetch(`${HTTP_SERVER}/api/my-account/posts?direction=foo`).then(
             (r) => {
                 expect(r.status).equal(400)
-            },
+            }
         )
     })
 
     it('should fetch votes along with posts', async function () {
         const votes: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/votes?epks=${voteEpochKey}`,
+            `${HTTP_SERVER}/api/my-account/votes?epks=${voteEpochKey}`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()

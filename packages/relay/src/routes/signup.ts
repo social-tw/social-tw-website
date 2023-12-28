@@ -6,7 +6,7 @@ import { userService } from '../services/UserService'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post('/api/signup', async (req, res) => {
         try {
@@ -18,7 +18,7 @@ export default (
                 proof,
                 hashUserId,
                 fromServer,
-                synchronizer,
+                synchronizer
             )
             res.status(200).json({ status: 'success', hash: hash })
         } catch (error) {

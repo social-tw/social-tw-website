@@ -1,6 +1,4 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
-import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import {
     Link,
@@ -10,39 +8,29 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
-import AddIcon from '../assets/add.svg'
-import ArrowLeftIcon from '../assets/arrow-left.svg'
-import BellIcon from '../assets/bell.svg'
-import HomeIcon from '../assets/home.svg'
-import Logo from '../assets/logo.png'
-import PersonCircleIcon from '../assets/person-circle.svg'
-import SearchIcon from '../assets/search.svg'
-import StarIcon from '../assets/star.svg'
-import ErrorModal from '../components/modal/ErrorModal'
-import SignUpLoadingModal from '../components/modal/SignupLoadingModal'
-import { useUser } from '../contexts/User'
+import ArrowLeftIcon from '@/assets/arrow-left.svg'
+import BellIcon from '@/assets/bell.svg'
+import HomeIcon from '@/assets/home.svg'
+import Logo from '@/assets/logo.png'
+import PersonCircleIcon from '@/assets/person-circle.svg'
+import SearchIcon from '@/assets/search.svg'
+import StarIcon from '@/assets/star.svg'
+import ActionNotification from '@/components/layout/ActionNotification'
+import EpochInfo from '@/components/layout/EpochInfo'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import { useUser } from '@/contexts/User'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
     const location = useLocation()
-    const { isLogin, signupStatus } = useUser()
+    const { isLogin, signupStatus, setSignupStatus } = useUser()
     const [isShow, setIsShow] = useState(true)
     const navigate = useNavigate()
 
     const headerTextOnDesktop = getDesktopHeaderTextByPath(location.pathname)
     const headerTextOnMobile = getMobileHeaderTextByPath(location.pathname)
-
-    const navVariants = {
-        start: { y: 100 },
-        end: {
-            y: 0,
-            transition: {
-                delay: 0,
-                duration: 1,
-                ease: 'easeInOut',
-            },
-        },
-    }
 
     const goBack = () => {
         if (window.history.state && window.history.state.idx > 0) {
@@ -53,12 +41,19 @@ export default function AppLayout() {
     }
 
     useEffect(() => {
-        if (isLogin) {
+        if (isLogin && signupStatus === 'success') {
             setTimeout(() => {
+                setSignupStatus('default')
                 setIsShow(false)
             }, 1500)
-        } else {
+            return
+        }
+        if (isLogin && signupStatus === 'default') {
+            setIsShow(false)
+        }
+        if (!isLogin) {
             setIsShow(true)
+            return
         }
     }, [isLogin])
 
@@ -76,7 +71,7 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-8">
-                <ErrorModal isOpen={signupStatus === 'error'} />
+                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -93,77 +88,22 @@ export default function AppLayout() {
                         {headerTextOnMobile}
                     </h1>
                 </header>
-                <main className="max-w-5xl px-4 mx-auto">
+                <section className="px-8 py-4 space-y-3">
+                    <div className="max-w-sm mx-auto">
+                        <EpochInfo />
+                    </div>
+                    <ActionNotification />
+                </section>
+                <main className="max-w-5xl mx-auto">
                     <Outlet />
                 </main>
-                {signupStatus !== 'default' && isShow ? (
-                    <div className="fixed bottom-0 w-screen px-4 h-60">
-                        <SignUpLoadingModal
-                            status={signupStatus}
-                            isOpen={true}
-                            opacity={0}
-                        />
-                    </div>
-                ) : (
-                    <motion.nav
-                        className="
-                            fixed 
-                            bottom-0 
-                            w-screen 
-                            h-20 
-                            px-4 
-                            flex 
-                            items-stretch 
-                            rounded-t-3xl
-                            bg-gradient-to-r 
-                            from-secondary 
-                            to-primary/80 
-                            shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset"
-                        variants={navVariants}
-                        initial="start"
-                        animate="end"
-                    >
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/"
-                        >
-                            <HomeIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/explore"
-                        >
-                            <StarIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <div className="relative flex justify-center flex-1">
-                            <NavLink
-                                className="absolute flex items-center justify-center w-16 h-16 bg-white rounded-full bottom-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
-                                title="create a post"
-                                to="/write"
-                            >
-                                <AddIcon className="w-8 h-8 text-secondary" />
-                            </NavLink>
-                        </div>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/nofitication"
-                        >
-                            <BellIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                        <NavLink
-                            className="flex items-center justify-center flex-1"
-                            to="/profile"
-                        >
-                            <PersonCircleIcon className="text-white w-14 h-14" />
-                        </NavLink>
-                    </motion.nav>
-                )}
+                <MobileBottomNav isShow={isShow} signupStatus={signupStatus} />
             </div>
         )
     } else {
         return (
-            <div className="flex divide-x divide-neutral-600">
-                <ErrorModal isOpen={signupStatus === 'error'} />
+            <div className="flex min-h-screen divide-x divide-neutral-600">
+                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <section className="hidden basis-80 xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
@@ -269,6 +209,10 @@ export default function AppLayout() {
                                 </span>
                             </NavLink>
                         </nav>
+                        <div className="mt-16 space-y-3">
+                            <EpochInfo />
+                            <ActionNotification />
+                        </div>
                     </div>
                 </section>
             </div>

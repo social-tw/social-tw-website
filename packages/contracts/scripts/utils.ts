@@ -15,17 +15,17 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const epkHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
-        Circuit.epochKey,
+        Circuit.epochKey
     )
     const epkLiteHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
-        Circuit.epochKeyLite,
+        Circuit.epochKeyLite
     )
     const _DataProofVerifierF = new ethers.ContractFactory(
         DataProofVerifier.abi,
         DataProofVerifier.bytecode,
-        deployer,
+        deployer
     )
     const DataProofVerifierF = await globalFactory(_DataProofVerifierF)
     const verifier = await DataProofVerifierF.deploy()
@@ -38,13 +38,13 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         epkHelper.address,
         epkLiteHelper.address,
         verifier.address,
-        epochLength,
+        epochLength
     )
 
     await app.deployTransaction.wait()
 
     console.log(
-        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`,
+        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
     )
 
     return { unirep, app }

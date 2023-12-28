@@ -1,26 +1,26 @@
+import { constructSchema, DB } from 'anondb'
+import { MemoryConnector } from 'anondb/web'
 import { ethers } from 'ethers'
-import { DB, constructSchema } from 'anondb'
+import { poseidon2 } from 'poseidon-lite'
 import { Identity } from '@semaphore-protocol/identity'
 import {
-    stringifyBigInts,
-    genEpochKey,
-    genStateTreeLeaf,
-    F,
-    MAX_EPOCH,
-} from '@unirep/utils'
-import { poseidon2 } from 'poseidon-lite'
-import {
     Circuit,
+    EpochKeyLiteProof,
+    EpochKeyProof,
     Prover,
     ReputationProof,
-    EpochKeyProof,
     SignupProof,
     UserStateTransitionProof,
-    EpochKeyLiteProof,
 } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
+import {
+    F,
+    genEpochKey,
+    genStateTreeLeaf,
+    MAX_EPOCH,
+    stringifyBigInts,
+} from '@unirep/utils'
 import { schema } from './schema'
-import { MemoryConnector } from 'anondb/web'
 
 function toDecString(content: bigint | string | number) {
     return BigInt(content).toString()
@@ -274,8 +274,9 @@ export default class UserState {
     ): Promise<number> {
         const _attesterId = toDecString(attesterId)
         const currentEpoch = epoch ?? this.sync.calcCurrentEpoch(_attesterId)
-        const latestTransitionedEpoch =
-            await this.latestTransitionedEpoch(_attesterId)
+        const latestTransitionedEpoch = await this.latestTransitionedEpoch(
+            _attesterId,
+        )
 
         let foundData: any = undefined
         try {
@@ -871,8 +872,8 @@ export default class UserState {
             nonce,
             min_rep: minRep ?? 0,
             max_rep: maxRep ?? 0,
-            prove_min_rep: !!(minRep ?? 0) ? 1 : 0,
-            prove_max_rep: !!(maxRep ?? 0) ? 1 : 0,
+            prove_min_rep: minRep ?? 0 ? 1 : 0,
+            prove_max_rep: maxRep ?? 0 ? 1 : 0,
             prove_zero_rep: proveZeroRep ?? 0,
             sig_data: options.data ?? 0,
             chain_id: this.chainId,

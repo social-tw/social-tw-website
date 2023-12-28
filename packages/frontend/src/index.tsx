@@ -1,7 +1,6 @@
 import './styles/main.css'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -24,7 +23,6 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
-import { socket } from './socket'
 
 dayjs.extend(relativeTime)
 
@@ -64,7 +62,7 @@ const router = createBrowserRouter([
                 errorElement: <ErrorPage />,
                 children: [
                     {
-                        path: '/',
+                        path: PATHS.HOME,
                         element: (
                             <ProtectedRoute>
                                 <PostList />
@@ -72,7 +70,7 @@ const router = createBrowserRouter([
                         ),
                     },
                     {
-                        path: 'posts/:id',
+                        path: PATHS.VIEW_POST,
                         element: <PostDetail />,
                     },
                     {
@@ -100,7 +98,7 @@ const router = createBrowserRouter([
                 ],
             },
             {
-                path: 'write',
+                path: PATHS.WRITE_POST,
                 element: (
                     <ProtectedRoute>
                         <PostCreate />
@@ -114,20 +112,6 @@ const router = createBrowserRouter([
 const queryClient = new QueryClient()
 
 const App = () => {
-    useEffect(() => {
-        socket.on('connect', () => {
-            console.log('Connected to the server!')
-        })
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from the server!')
-        })
-
-        return () => {
-            socket.off('connect')
-            socket.off('disconnect')
-        }
-    }, [])
     return (
         <QueryClientProvider client={queryClient}>
             <UserProvider>

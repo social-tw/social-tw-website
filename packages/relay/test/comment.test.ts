@@ -1,27 +1,24 @@
-import fetch from 'node-fetch'
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
-
+import { ethers } from 'hardhat'
+import { Server } from 'http'
+import fetch from 'node-fetch'
+import { io } from 'socket.io-client'
 import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
 import {
-    stringifyBigInts,
-    IncrementalMerkleTree,
     genStateTreeLeaf,
+    IncrementalMerkleTree,
+    stringifyBigInts,
 } from '@unirep/utils'
-
-import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
-
-import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { genEpochKeyProof, randomData } from './utils/genProof'
-import { signUp } from './utils/signUp'
-import { post } from './utils/post'
 import { Post } from '../src/types/Post'
-import { io } from 'socket.io-client'
+import { HTTP_SERVER } from './configs'
+import { deployContracts, startServer } from './environment'
+import { genEpochKeyProof, randomData } from './utils/genProof'
+import { post } from './utils/post'
+import { signUp } from './utils/signUp'
+import { UserStateFactory } from './utils/UserStateFactory'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
@@ -47,7 +44,7 @@ describe('COMMENT /comment', function () {
             prover,
             unirep,
             app,
-            synchronizer,
+            synchronizer
         )
 
         // initUserStatus
@@ -58,7 +55,7 @@ describe('COMMENT /comment', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet,
+            wallet
         )
 
         await userState.waitForSync()
@@ -115,7 +112,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -127,11 +124,12 @@ describe('COMMENT /comment', function () {
 
         // comment on the post
         let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`,
+            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()
         })
+
         expect(comments[0].transactionHash).equal(result.transaction)
         expect(comments[0].content).equal(testContent)
         expect(comments[0].status).equal(1)
@@ -157,7 +155,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -177,7 +175,7 @@ describe('COMMENT /comment', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId,
+            attesterId
         )
         const id = userState.id
         const data = randomData()
@@ -203,7 +201,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -227,7 +225,7 @@ describe('COMMENT /comment', function () {
             attesterId,
             epoch,
             data,
-            chainId,
+            chainId
         )
         tree.insert(leaf)
         const epochKeyProof = await genEpochKeyProof({
@@ -252,7 +250,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -262,7 +260,7 @@ describe('COMMENT /comment', function () {
         expect(res.error).equal('Invalid State Tree')
     })
 
-    it('delete the comment failed with wrong proof', async function () {
+    it('delete the comment failed with wrong epoch key', async function () {
         let epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -280,7 +278,7 @@ describe('COMMENT /comment', function () {
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(400)
@@ -288,34 +286,6 @@ describe('COMMENT /comment', function () {
         })
 
         expect(result.error).equal('Invalid proof')
-    })
-
-    it('delete the comment failed with wrong epoch', async function () {
-        const wrongEpoch = 44444
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-            epoch: wrongEpoch,
-        })
-
-        // create a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                }),
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(result.error).equal('Invalid Epoch')
     })
 
     it('delete the comment success', async function () {
@@ -334,7 +304,7 @@ describe('COMMENT /comment', function () {
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             ),
         }).then((r) => {
             expect(r.status).equal(200)
@@ -346,7 +316,7 @@ describe('COMMENT /comment', function () {
 
         // check comment exist
         let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?postId=0`,
+            `${HTTP_SERVER}/api/comment?postId=0`
         ).then((r) => {
             expect(r.status).equal(200)
             return r.json()

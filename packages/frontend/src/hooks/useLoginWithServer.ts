@@ -8,7 +8,7 @@ export function useLoginWithServer() {
     const loginWithServer = async () => {
         try {
             await createUserState()
-            setIsLogin('success')
+            setIsLogin(true)
             LocalStorageHelper.removeIsTwitterVerified()
             navigate('/')
         } catch (error: any) {

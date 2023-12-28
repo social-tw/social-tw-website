@@ -1,9 +1,4 @@
-import { Identity } from '@semaphore-protocol/identity'
-import { DataProof } from '@unirep-app/circuits'
-import { UserState } from './Userstate'
-import { schema } from './schema'
 import { IndexedDBConnector } from 'anondb/web'
-import { stringifyBigInts } from '@unirep/utils'
 import { ethers } from 'ethers'
 import React, {
     createContext,
@@ -13,6 +8,9 @@ import React, {
     useMemo,
     useState,
 } from 'react'
+import { Identity } from '@semaphore-protocol/identity'
+import { DataProof } from '@unirep-app/circuits'
+import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
 import useInitUser from '../hooks/useInitUser'
@@ -20,6 +18,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 import { fetchRelayConfig } from '../utils/api'
 import { createProviderByUrl } from '../utils/createProviderByUrl'
 import prover from './Prover'
+import { schema } from './schema'
+import { UserState } from './Userstate'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -29,7 +29,7 @@ export interface UserContextType {
     latestTransitionedEpoch: number
     setLatestTransitionedEpoch: (epoch: number) => void
     isLogin: any
-    setIsLogin: (param: string) => void
+    setIsLogin: (param: boolean) => void
     hasSignedUp: boolean
     setHasSignedUp: (hasSignedUp: boolean) => void
     data: bigint[]
@@ -88,7 +88,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [currentEpoch, setCurrentEpoch] = useState<number>(0)
     const [latestTransitionedEpoch, setLatestTransitionedEpoch] =
         useState<number>(0)
-    const [isLogin, setIsLogin] = useLocalStorage('loginStatus', null)
+    const [isLogin, setIsLogin] = useLocalStorage<boolean>('loginStatus', false)
     const [hasSignedUp, setHasSignedUp] = useState<boolean>(false)
     const [data, setData] = useState<bigint[]>([])
     const [provableData, setProvableData] = useState<bigint[]>([])
@@ -264,7 +264,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (!userState) throw new Error('user state not initialized')
 
             const filteredReqData = Object.entries(reqData)
-                .filter(([_, value]) => value !== '')
+                .filter(([, value]) => value !== '')
                 .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
             if (Object.keys(filteredReqData).length === 0) {
@@ -341,6 +341,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         // FIXME: db might be blocked
         indexedDB.deleteDatabase('anondb')
         setHasSignedUp(false)
+        setIsLogin(false)
         setUserState(undefined)
         setSignature('')
         setHashUserId('')

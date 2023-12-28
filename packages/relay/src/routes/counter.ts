@@ -1,19 +1,19 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { EPOCHKEYS_AMOUNT } from '../config'
 import { errorHandler } from '../middleware'
 import { UnirepSocialSynchronizer } from '../synchornizer'
-import { EPOCHKEYS_AMOUNT } from '../config'
 
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get(
         '/api/counter',
         errorHandler(async (req, res, next) => {
             await fetchActions(req, res, db)
-        }),
+        })
     )
 }
 
@@ -41,12 +41,12 @@ async function fetchActions(req, res, db: DB) {
             },
         })
 
-        if (actions) {
+        if (actions.length) {
             // flapMap the actions to [count1, count2, count3],
             // then reduce array to accumulate each count
             counter = actions
                 .flatMap((action) => action.count)
-                .reduce((acc, count) => acc + count)
+                .reduce((acc, count) => acc + count, 0)
         }
 
         res.json({ counter: counter })
