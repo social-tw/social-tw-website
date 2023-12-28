@@ -1,10 +1,9 @@
 import React from 'react'
 import { GrFormClose } from 'react-icons/gr'
 import { useNavigate } from 'react-router-dom'
-
 import { PATHS } from '../../constants/paths'
 import { useUser } from '../../contexts/User'
-import Modal from './Modal'
+import Backdrop from '../common/Backdrop'
 
 interface LogoutModalProps {
     isOpen: boolean
@@ -23,11 +22,11 @@ export const LogoutModal: React.FC<LogoutModalProps> = ({
         logout()
     }
     return (
-        <Modal isOpen={isOpen} postion="fixed" background={'bg-black/75'}>
+        <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/75'}>
             <div className="flex items-center justify-center w-full h-full p-4">
                 <div className={getBoxStyle()}>
                     <GrFormClose
-                        className="absolute top-4 right-4 cursor-pointer"
+                        className="absolute cursor-pointer top-4 right-4"
                         size={24}
                         onClick={closeModal}
                     />
@@ -58,7 +57,7 @@ export const LogoutModal: React.FC<LogoutModalProps> = ({
                     </div>
                 </div>
             </div>
-        </Modal>
+        </Backdrop>
     )
 }
 
