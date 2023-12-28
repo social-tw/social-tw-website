@@ -1,5 +1,7 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { nanoid } from 'nanoid'
+import { Fragment, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Dialog from '@/components/common/Dialog'
 import SignupLoadingModal from '@/components/login/SignupPendingTransition'
