@@ -1,12 +1,12 @@
+import dayjs from 'dayjs'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Comment from '@/assets/comment.png'
 import Downvote from '@/assets/downvote.png'
 import Upvote from '@/assets/upvote.png'
 import Avatar from '@/components/common/Avatar'
-import formatDate from '@/utils/formatDate'
 
-export default function ({
+export default function Post({
     id = '',
     epochKey,
     content = '',
@@ -29,12 +29,19 @@ export default function ({
     compact?: boolean
     onComment?: () => void
 }) {
+    const isTemp = id.startsWith('temp')
+
+    const publishedTime = dayjs(publishedAt)
+    const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
+        ? publishedTime.format('YYYY/MM/DD')
+        : publishedTime.fromNow()
+
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center gap-4">
                 <Avatar name={epochKey} />
                 <span className="text-xs font-medium tracking-wide text-black/80">
-                    {formatDate(publishedAt)}
+                    {publishedLabel}
                 </span>
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
@@ -55,7 +62,7 @@ export default function ({
     return (
         <article className="flex bg-white/90 rounded-xl shadow-base">
             <div className="flex-1 p-4 space-y-3">
-                {compact ? (
+                {compact && !isTemp ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
                     postInfo
