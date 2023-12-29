@@ -16,7 +16,7 @@ export function useLoginWithWallet() {
             await handleWalletSignMessage(hashUserId)
             await createUserState()
             LocalStorageHelper.removeIsTwitterVerified()
-            setIsLogin('success')
+            setIsLogin(true)
             navigate('/')
         } catch (error: any) {
             setErrorCode(error.message)

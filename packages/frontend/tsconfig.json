@@ -15,9 +15,14 @@
         "isolatedModules": true,
         "noEmit": false,
         "jsx": "react-jsx",
-        "typeRoots": ["./types", "./node_modules/@types"],
+        "typeRoots": ["./types", "../../node_modules/@types"],
         "useDefineForClassFields": true,
-        "outDir": "build"
+        "outDir": "build",
+        "types": ["jest"],
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"]
+        }
     },
     "include": ["src", "../../node_modules/ts-jest/globals.d.ts"],
     "exclude": ["node_modules", "typings", "build/**/*"]

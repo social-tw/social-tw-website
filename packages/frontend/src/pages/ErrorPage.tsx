@@ -4,7 +4,6 @@ type RouteError = Error & { statusText: string }
 
 export default function ErrorPage() {
     const error = useRouteError() as RouteError
-    console.error(error)
 
     return (
         <div className="flex flex-col items-center justify-center w-screen h-screen">

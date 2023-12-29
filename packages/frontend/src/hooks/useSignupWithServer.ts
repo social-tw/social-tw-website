@@ -20,7 +20,7 @@ export function useSignupWithServer() {
             navigate('/')
             await signup(true, userStateInstance, hashUserId, accessToken)
             setSignupStatus('success')
-            setIsLogin('success')
+            setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')
             setErrorCode(error.message)

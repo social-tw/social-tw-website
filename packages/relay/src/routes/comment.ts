@@ -1,12 +1,12 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { errorHandler } from '../middleware'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
-import { InternalError } from '../types/InternalError'
 import { postService } from '../services/PostService'
+import { UnirepSocialSynchronizer } from '../synchornizer'
+import { InternalError } from '../types/InternalError'
 
+import type { Helia } from '@helia/interface'
 export default (
     app: Express,
     db: DB,

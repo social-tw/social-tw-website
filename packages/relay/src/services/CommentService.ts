@@ -1,13 +1,13 @@
 import { DB } from 'anondb'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Helia } from 'helia'
-import { addActionCount } from '../utils/TransactionHelper'
-import { ipfsService } from './IpfsService'
-import { epochKeyService } from './EpochKeyService'
-import { InternalError } from '../types/InternalError'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { UnirepSocialSynchronizer } from '../synchornizer'
 import { Comment } from '../types/Comment'
+import { InternalError } from '../types/InternalError'
 import { Post } from '../types/Post'
+import { addActionCount } from '../utils/TransactionHelper'
+import { epochKeyService } from './EpochKeyService'
+import { ipfsService } from './IpfsService'
 
 export class CommentService {
     async fetchComments(

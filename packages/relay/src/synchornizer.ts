@@ -2,11 +2,11 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { UserRegisterStatus } from './types'
-import schema from './singletons/schema'
-import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
+import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
+import schema from './singletons/schema'
 import { socketManager } from './singletons/SocketManager'
+import { UserRegisterStatus } from './types'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -101,6 +101,19 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
+        // If comment not exist and check content is empty or not
+        //     if empty : insert comment with status = 2 (deleted)
+        //     if not empty : insert comment with status = 1 (success)
+        // If comment exist with status 2(deleted), update comment id only
+        // if comment exist with status 0(init), update comment id and status = 1 (success)
+        const updateStatus = existingComment
+            ? existingComment.status == 2
+                ? 2
+                : 1
+            : content
+            ? 1
+            : 2
+
         // Use upsert to either create a new comment or update an existing one
         db.upsert('Comment', {
             where: { transactionHash },
@@ -111,16 +124,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 content,
                 epoch,
                 epochKey,
-                status: 1,
+                status: updateStatus,
             },
             update: {
                 commentId,
-                status: 1,
+                status: updateStatus,
             },
         })
 
         // If the comment didn't exist before, increment the commentCount of the post
-        if (!existingComment) {
+        if (!existingComment && updateStatus == 1) {
             const commentCount = await this.db.count('Comment', {
                 AND: [{ postId }, { status: 1 }],
             })
@@ -134,6 +147,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         }
 
         socketManager.emitComment({
+            id: commentId,
             postId: postId,
             content: content,
             epochKey: epochKey,

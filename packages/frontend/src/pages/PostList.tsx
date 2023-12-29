@@ -1,21 +1,29 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
-import { useLocation, useNavigate } from 'react-router-dom'
-import Dialog from '../components/Dialog'
-import SignupLoadingModal from '../components/modal/SignupLoadingModal'
-import Post from '../components/post/Post'
-import PostForm, { PostValues } from '../components/post/PostForm'
-import { SERVER } from '../config'
-import { useUser } from '../contexts/User'
-import useCreatePost from '../hooks/useCreatePost'
-import { CancelledTaskError } from '../utils/makeCancellableTask'
+import { nanoid } from 'nanoid'
+import { Fragment, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+import Dialog from '@/components/common/Dialog'
+import SignupLoadingModal from '@/components/login/SignupPendingTransition'
+import Post from '@/components/post/Post'
+import PostForm, { PostValues } from '@/components/post/PostForm'
+import { SERVER } from '@/config'
+import { useUser } from '@/contexts/User'
+import useCreatePost from '@/hooks/useCreatePost'
+import { CancelledTaskError } from '@/utils/makeCancellableTask'
+import {
+    DefaultError,
+    InfiniteData,
+    QueryKey,
+    useInfiniteQuery,
+    useQueryClient,
+} from '@tanstack/react-query'
+import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
 
-import type { PostInfo, Vote } from '../types'
 import { useVoteEvents } from '../hooks/useVotes'
 import { VoteAction, VoteMsg } from '../types/VoteAction'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
+import type { PostInfo } from '@/types'
 
 const examplePosts = [
     {
@@ -54,9 +62,7 @@ const examplePosts = [
 ]
 
 export default function PostList() {
-    const errorDialog = useRef<HTMLDialogElement>(null)
     const { isLogin, signupStatus } = useUser()
-    const [posts, setPosts] = useState<PostInfo[]>([])
     const [isShow, setIsShow] = useState(false)
     const { userState } = useUser()
 
@@ -70,44 +76,66 @@ export default function PostList() {
         }
     }, [isLogin])
 
-    const loadPosts = useCallback(async () => {
-        try {
-            // Check network status
-            if (!navigator.onLine) {
-                throw new Error('No internet connection')
-            }
-            const response = await fetch(`${SERVER}/api/post`)
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
-            }
+    const queryClient = useQueryClient()
 
-            const postsJson = await response.json()
-
-            const updatedPosts = postsJson.map((post: any) => {
+    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<
+        PostInfo[],
+        DefaultError,
+        InfiniteData<PostInfo[]>,
+        QueryKey,
+        number
+    >({
+        queryKey: ['posts'],
+        queryFn: async ({ pageParam }) => {
+            const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
+            const data = await res.json()
+            const posts = data.map((item: any) => {
                 let isMine = false
                 let finalAction = null
-
                 if (userState) {
-                    const voteCheck = checkVoteIsMine(post.votes, userState)
+                    const voteCheck = checkVoteIsMine(item.votes, userState)
                     isMine = voteCheck.isMine
                     finalAction = voteCheck.finalAction
                 }
-                post.isMine = isMine
-                post.finalAction = finalAction
                 return {
-                    ...post,
+                    ...item,
+                    id: item._id,
+                    epochKey: item.epochKey,
+                    content: item.content,
+                    publishedAt: new Date(Number(item.publishedAt)),
+                    commentCount: item.commentCount,
+                    upCount: item.upCount,
+                    downCount: item.downCount,
+                    isMine,
+                    finalAction
                 }
             })
+            return posts
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, allPages, lastPageParam) => {
+            if (lastPage.length === 0) {
+                return undefined
+            }
+            return lastPageParam + 1
+        },
+        placeholderData: {
+            pages: [examplePosts],
+            pageParams: [0],
+        },
+    })
 
-            setPosts([...updatedPosts, ...examplePosts])
-        } catch (err: any) {
-            console.error('Failed to load posts:', err.message)
-        }
-    }, [userState])
+    const [pageBottomRef, entry] = useIntersectionObserver({
+        threshold: 0,
+        root: null,
+        rootMargin: '10%',
+    })
 
     useEffect(() => {
-        loadPosts()
-    }, [loadPosts])
+        if (entry?.isIntersecting && hasNextPage) {
+            fetchNextPage()
+        }
+    }, [entry])
 
     // use Votes event effect
     useVoteEvents((msg: VoteMsg) => {
@@ -145,25 +173,54 @@ export default function PostList() {
     const { create, cancel, reset, isCancellable, isCancelled } =
         useCreatePost()
 
+    const [isOpenError, setIsOpenError] = useState(false)
     const onSubmit = async (values: PostValues) => {
+        const previousPostsData = queryClient.getQueryData(['posts'])
+
         try {
             await create(values.content)
-            await loadPosts()
+
+            const newPost = {
+                id: `temp-${nanoid()}`,
+                epochKey: nanoid(),
+                content: values.content,
+                publishedAt: new Date(),
+                commentCount: 0,
+                upCount: 0,
+                downCount: 0,
+            }
+            queryClient.setQueryData(
+                ['posts'],
+                (old: InfiniteData<PostInfo[]>) => ({
+                    pages: [[newPost], ...old.pages],
+                    pageParams: old.pageParams,
+                }),
+            )
+
             toast('貼文成功送出')
         } catch (err) {
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {
-                errorDialog?.current?.showModal()
+                setIsOpenError(true)
             }
+
+            queryClient.setQueryData(['post'], previousPostsData)
         }
     }
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className={clsx(!isSmallDevice && 'divide-y divide-neutral-600')}>
-            {!isSmallDevice && (
+        <div
+            className={clsx(
+                `px-4`,
+                !isSmallDevice && 'divide-y divide-neutral-600',
+                location.pathname === '/login' &&
+                    'max-w-[600px] w-11/12 h-screen my-[200px]',
+            )}
+        >
+            {!isSmallDevice && location.pathname !== '/login' && (
                 <section className="relative py-6">
                     {signupStatus !== 'default' && isShow && (
                         <SignupLoadingModal
@@ -184,28 +241,36 @@ export default function PostList() {
             )}
             <section className="py-6">
                 <ul className={clsx(isSmallDevice ? 'space-y-3' : 'space-y-6')}>
-                    {posts.map((post) => (
-                        <li
-                            key={post._id}
-                            className="transition-opacity duration-500"
-                        >
-                            <Post
-                                id={post._id}
-                                epochKey={post.epochKey}
-                                content={post.content}
-                                publishedAt={post.publishedAt}
-                                commentCount={post.commentCount}
-                                upCount={post.upCount}
-                                downCount={post.downCount}
-                                compact
-                                isMine={post.isMine}
-                                finalAction={post.finalAction}
-                            />
-                        </li>
+                    {data?.pages.map((group, i) => (
+                        <Fragment key={i}>
+                            {group.map((post) => (
+                                <li
+                                    key={post.id}
+                                    className="transition-opacity duration-500"
+                                >
+                                    <Post
+                                        id={post.id}
+                                        epochKey={post.epochKey}
+                                        content={post.content}
+                                        publishedAt={post.publishedAt}
+                                        commentCount={post.commentCount}
+                                        upCount={post.upCount}
+                                        downCount={post.downCount}
+                                        compact
+                                        isMine={post.isMine}
+                                        finalAction={post.finalAction}
+                                    />
+                                </li>
+                            ))}
+                        </Fragment>
                     ))}
                 </ul>
+                <div
+                    ref={pageBottomRef}
+                    className="w-full h-1 bg-transparent"
+                />
             </section>
-            <Dialog ref={errorDialog} ariaLabel="post error message">
+            <Dialog isOpen={isOpenError} onClose={() => setIsOpenError(false)}>
                 <section className="p-6 md:px-12">
                     <p className="text-base font-medium text-black/90">
                         親愛的用戶：

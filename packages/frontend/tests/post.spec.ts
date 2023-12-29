@@ -19,7 +19,7 @@ test.describe('Create post', () => {
         if (viewportWidth > 768) {
             await page.goto('/')
         } else {
-            await page.goto('/write')
+            await page.goto('/write-post')
         }
     })
 

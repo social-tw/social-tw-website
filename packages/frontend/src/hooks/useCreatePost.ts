@@ -1,12 +1,9 @@
 import { useRef, useState } from 'react'
+import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
 import makeCancellableTask from '../utils/makeCancellableTask'
-
-function randomNonce() {
-    return Math.round(Math.random())
-}
 
 export default function useCreatePost() {
     const { userState, stateTransition, provider, loadData } = useUser()
