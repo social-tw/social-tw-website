@@ -63,7 +63,7 @@ export default function Post({
         <article className="flex bg-white/90 rounded-xl shadow-base">
             <div className="flex-1 p-4 space-y-3">
                 {compact && !isTemp ? (
-                    <Link to={`/posts/${id}`}>{postInfo}</Link>
+                    <Link to={`/post/${id}`}>{postInfo}</Link>
                 ) : (
                     postInfo
                 )}

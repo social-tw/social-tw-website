@@ -12,7 +12,7 @@ export const ProtectedRoute: React.FC<ProtectedRouterProps> = ({
 }) => {
     const { isLogin, signupStatus } = useUser()
 
-    if (!isLogin || signupStatus === 'error') {
+    if ((!isLogin && signupStatus !== 'pending' && signupStatus !== 'success') || signupStatus === 'error') {
         return <Navigate to={PATHS.WELCOME} />
     }
 
