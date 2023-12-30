@@ -8,9 +8,7 @@ const useInitUser = (
     logout: () => void,
 ) => {
     useEffect(() => {
-        console.log(isLogin)
         if (!isLogin) return
-        console.log("run")
         const initUser = async () => {
             try {
                 if (signupStatus === 'pending') {

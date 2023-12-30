@@ -21,7 +21,6 @@ export function useSignupWithServer() {
             await signup(true, userStateInstance, hashUserId, accessToken)
             setSignupStatus('success')
             setIsLogin(true)
-            console.log("User logged in successfully")
         } catch (error: any) {
             setSignupStatus('error')
             setErrorCode(error.message)
