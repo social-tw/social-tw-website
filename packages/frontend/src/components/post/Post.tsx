@@ -5,11 +5,12 @@ import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 import { useEffect, useState } from 'react'
-import { VoteAction, VoteMsg } from '../../types/VoteAction'
+import { VoteAction, VoteMsg } from '@/types'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import Avatar from '@/components/common/Avatar'
+import React from 'react'
 
 export default function Post({
     id = '',
@@ -123,7 +124,6 @@ export default function Post({
                 }
             }
 
-            // 进行新的投票
             action = voteType
             success = await create(id, action)
             setShow(true)

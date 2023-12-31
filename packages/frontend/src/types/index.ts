@@ -1,7 +1,5 @@
-import { VoteAction } from './VoteAction'
-
 export interface PostInfo {
-    _id: string
+    id: string
     epochKey: string
     content: string
     publishedAt: Date

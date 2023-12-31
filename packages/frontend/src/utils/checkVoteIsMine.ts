@@ -1,5 +1,5 @@
 import { Vote } from '../types'
-import { VoteAction } from '../types/VoteAction'
+import { VoteAction } from '../types'
 
 const checkVoteIsMine = (votes: Vote[], userState: any) => {
     let finalAction = null

@@ -1,6 +1,6 @@
 import clsx from 'clsx'
+import React, { Fragment, useEffect, useState } from 'react'
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Dialog from '@/components/common/Dialog'
@@ -21,14 +21,12 @@ import {
 import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
 
 import { useVoteEvents } from '../hooks/useVotes'
-import { VoteAction, VoteMsg } from '../types/VoteAction'
+import { PostInfo, VoteAction, VoteMsg } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
-import type { PostInfo } from '@/types'
 
 const examplePosts = [
     {
         id: 'demo-1',
-        _id: 'demo-1',
         epochKey: 'epochKey-1',
         publishedAt: new Date(),
         content:
@@ -36,10 +34,11 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
     {
         id: 'demo-2',
-        _id: 'demo-2',
         epochKey: 'epochKey-2',
         publishedAt: new Date(),
         content:
@@ -47,10 +46,11 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
     {
         id: 'demo-3',
-        _id: 'demo-3',
         epochKey: 'epochKey-3',
         publishedAt: new Date(),
         content:
@@ -58,6 +58,8 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
 ]
 
@@ -88,15 +90,14 @@ export default function PostList() {
         queryKey: ['posts'],
         queryFn: async ({ pageParam }) => {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
-            const data = await res.json()
-            const posts = data.map((item: any) => {
-                let isMine = false
-                let finalAction = null
-                if (userState) {
-                    const voteCheck = checkVoteIsMine(item.votes, userState)
-                    isMine = voteCheck.isMine
-                    finalAction = voteCheck.finalAction
-                }
+            const jsonData = await res.json()
+            return jsonData.map((item: any) => {
+                const voteCheck = userState
+                    ? checkVoteIsMine(item.votes, userState)
+                    : {
+                          isMine: false,
+                          finalAction: null,
+                      }
                 return {
                     ...item,
                     id: item._id,
@@ -106,23 +107,16 @@ export default function PostList() {
                     commentCount: item.commentCount,
                     upCount: item.upCount,
                     downCount: item.downCount,
-                    isMine,
-                    finalAction
+                    isMine: voteCheck.isMine,
+                    finalAction: voteCheck.finalAction,
                 }
             })
-            return posts
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages, lastPageParam) => {
-            if (lastPage.length === 0) {
-                return undefined
-            }
-            return lastPageParam + 1
+            return lastPage.length === 0 ? undefined : lastPageParam + 1
         },
-        placeholderData: {
-            pages: [examplePosts],
-            pageParams: [0],
-        },
+        placeholderData: { pages: [examplePosts], pageParams: [0] },
     })
 
     const [pageBottomRef, entry] = useIntersectionObserver({
@@ -133,40 +127,52 @@ export default function PostList() {
 
     useEffect(() => {
         if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage()
+            fetchNextPage().then((r) => r)
         }
     }, [entry])
 
-    // use Votes event effect
-    useVoteEvents((msg: VoteMsg) => {
-        setPosts((currentPosts) => {
-            const postIndex = currentPosts.findIndex(
-                (post) => post._id === msg.postId,
-            )
-            if (postIndex > -1) {
-                const newPosts = [...currentPosts]
-                const newPost = { ...newPosts[postIndex] }
+    useVoteEvents(handleVoteEvent)
 
-                switch (msg.vote) {
-                    case VoteAction.UPVOTE:
-                        newPost.upCount += 1
-                        break
-                    case VoteAction.DOWNVOTE:
-                        newPost.downCount += 1
-                        break
-                    case VoteAction.CANCEL_UPVOTE:
-                        newPost.upCount -= 1
-                        break
-                    case VoteAction.CANCEL_DOWNVOTE:
-                        newPost.downCount -= 1
-                        break
+    function handleVoteEvent(msg: VoteMsg) {
+        // Update the query data for 'posts'
+        queryClient.setQueryData<InfiniteData<PostInfo[]>>(
+            ['posts'],
+            (oldData) => {
+                // Iterate over all pages of posts
+                const updatedPages = oldData?.pages.map((page) => {
+                    // Iterate over each post in a page
+                    return page.map((post) => {
+                        // Find the post that matches the postId from the vote message
+                        if (post.id === msg.postId) {
+                            // Update vote counts based on the action in the vote message
+                            switch (msg.vote) {
+                                case VoteAction.UPVOTE:
+                                    post.upCount += 1
+                                    break
+                                case VoteAction.DOWNVOTE:
+                                    post.downCount += 1
+                                    break
+                                case VoteAction.CANCEL_UPVOTE:
+                                    post.upCount -= 1
+                                    break
+                                case VoteAction.CANCEL_DOWNVOTE:
+                                    post.downCount -= 1
+                                    break
+                                // Add any other vote actions if needed
+                            }
+                        }
+                        return post // Return the updated or original post
+                    })
+                })
+
+                // Return the updated data structure expected by React Query
+                return {
+                    pages: updatedPages ?? [],
+                    pageParams: oldData?.pageParams ?? [],
                 }
-                newPosts[postIndex] = newPost
-                return newPosts
-            }
-            return currentPosts
-        })
-    })
+            },
+        )
+    }
 
     const navigate = useNavigate()
 

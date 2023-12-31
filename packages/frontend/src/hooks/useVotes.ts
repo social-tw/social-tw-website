@@ -1,7 +1,7 @@
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import { VoteAction, VoteMsg } from '../types/VoteAction'
+import { VoteAction, VoteMsg } from '../types'
 import { useEffect } from 'react'
 import client from '../socket'
 
@@ -57,9 +57,18 @@ export default function useVotes() {
 
 export const useVoteEvents = (callback: any) => {
     useEffect(() => {
-        const handleVote = (data: VoteMsg) => callback(data)
+        let isMounted = true
+
+        const handleVote = (data: VoteMsg) => {
+            if (isMounted) {
+                callback(data)
+            }
+        }
+
         client.onVoteEvent(handleVote)
 
-        return () => client.onVoteEvent(handleVote)
-    }, [])
+        return () => {
+            isMounted = false
+        }
+    }, [callback])
 }

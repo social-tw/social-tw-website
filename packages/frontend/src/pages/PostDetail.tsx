@@ -14,15 +14,14 @@ import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
 import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
-import { PostInfo } from '@/types'
 import { useMediaQuery } from '@uidotdev/usehooks'
 
 import type { PostInfo } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
-import { useUser } from '../contexts/User'
+import React from 'react'
 
 const demoPost = {
-    _id: '1',
+    id: '1',
     epochKey: 'epochKey-1',
     publishedAt: new Date(),
     content:
@@ -91,8 +90,7 @@ export default function PostDetail() {
                 finalAction = voteCheck.finalAction
             }
             setPost({
-                id: post.postId,
-                _id: post._id,
+                id: post._id,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
@@ -102,6 +100,7 @@ export default function PostDetail() {
                 isMine: isMine,
                 finalAction: finalAction,
             })
+            console.log(post)
         }
         if (id?.includes('demo')) {
             setPost(demoPost)
