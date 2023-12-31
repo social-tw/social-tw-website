@@ -1,15 +1,14 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { useParams } from 'react-router-dom'
-
 import { useState } from 'react'
 import { GrFormClose } from 'react-icons/gr'
+import { useParams } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
 import { BackToWelcomePageButton } from '../../components/Button/BackToWelcomeButton'
 import { GreetingContent } from '../../components/Greeting/GreetingContent'
 import { GreetingLogo } from '../../components/Greeting/GreetingLogo'
 import { GreetingTitle } from '../../components/Greeting/GreetingTitle'
+import AuthErrorDialog from '../../components/login/AuthErrorDialog'
+import AuthNoteDialog from '../../components/login/AuthNoteDialog'
 import LoginButton from '../../components/login/LoginButton'
-import ErrorModal from '../../components/modal/ErrorModal'
-import NoteModal from '../../components/modal/NoteModal'
 import { SIGNUP_METHODS } from '../../constants/signupMethods'
 import { useUser } from '../../contexts/User'
 import { useLoginWithServer } from '../../hooks/useLoginWithServer'
@@ -30,19 +29,19 @@ export function InternalLogin() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className="flex flex-col h-full items-center">
+        <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
                 <div className="flex flex-col gap-12">
                     {!isSmallDevice && (
-                        <div className="flex items-center flex-col justify-center pt-24">
-                            <div className="flex items-center flex-col justify-center pt-24">
+                        <div className="flex flex-col items-center justify-center pt-24">
+                            <div className="flex flex-col items-center justify-center pt-24">
                                 <GreetingLogo />
                                 <GreetingTitle />
                                 <GreetingContent />
                             </div>
                         </div>
                     )}
-                    <p className="text-white font-semibold text-2xl tracking-wider text-center hidden md:block">
+                    <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
                         再一步即可完成登入
                     </p>
                 </div>
@@ -94,12 +93,12 @@ export function InternalLogin() {
                     </p>
                 </div>
             )}
-            <NoteModal
+            <AuthNoteDialog
                 icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <ErrorModal isOpen={errorCode !== ''} />
+            <AuthErrorDialog isOpen={errorCode !== ''} />
         </div>
     )
 }

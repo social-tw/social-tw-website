@@ -1,30 +1,30 @@
+import { DB, PostgresConnector, SQLiteConnector } from 'anondb/node.js'
+import { ethers } from 'ethers'
+import express from 'express'
+import fs from 'fs'
+import { createServer } from 'http'
+
 // imported libraries
 import path from 'path'
-import fs from 'fs'
-import express from 'express'
-import { ethers } from 'ethers'
-import { SQLiteConnector, PostgresConnector, DB } from 'anondb/node.js'
-import { createServer } from 'http'
+import {
+    APP_ABI,
+    APP_ADDRESS,
+    CLIENT_URL,
+    DB_PATH,
+    GENESIS_BLOCK,
+    IS_IN_TEST,
+    PRIVATE_KEY,
+    provider,
+    UNIREP_ADDRESS,
+} from './config'
+import TransactionManager from './services/singletons/TransactionManager'
+import { SocketManager } from './services/singletons/SocketManager'
+import { postService } from './services/PostService'
 
 // libraries
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
 import prover from './services/singletons/prover'
 import schema from './db/schema'
-
-import {
-    provider,
-    PRIVATE_KEY,
-    UNIREP_ADDRESS,
-    DB_PATH,
-    APP_ADDRESS,
-    APP_ABI,
-    GENESIS_BLOCK,
-    IS_IN_TEST,
-    CLIENT_URL,
-} from './config'
-import TransactionManager from './services/singletons/TransactionManager'
-import { SocketManager } from './services/singletons/SocketManager'
-import { postService } from './services/PostService'
 
 main().catch((err) => {
     console.error(`Uncaught error: ${err}`)

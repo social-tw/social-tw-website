@@ -15,7 +15,7 @@ export class CounterService {
             },
         })
 
-        if (actions) {
+        if (actions.length) {
             // flapMap the actions to [count1, count2, count3],
             // then reduce array to accumulate each count
             counter = actions

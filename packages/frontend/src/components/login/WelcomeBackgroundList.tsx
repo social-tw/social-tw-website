@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import React, { useEffect, useRef } from 'react'
 
 interface ScrollingModalProps {
     children: React.ReactNode
@@ -7,7 +7,7 @@ interface ScrollingModalProps {
     variants: any
 }
 
-const ScrollingModal: React.FC<ScrollingModalProps> = ({
+const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
     children,
     method,
     variants,
@@ -56,7 +56,7 @@ const ScrollingModal: React.FC<ScrollingModalProps> = ({
     }, [method])
     return (
         <motion.div
-            className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[59rem] md:pl-4"
+            className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[42rem] md:pl-4"
             variants={variants}
             initial="start"
             animate="end"
@@ -67,4 +67,4 @@ const ScrollingModal: React.FC<ScrollingModalProps> = ({
     )
 }
 
-export default ScrollingModal
+export default WelcomeBackgroundList

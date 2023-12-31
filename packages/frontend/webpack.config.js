@@ -4,6 +4,7 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const webpack = require('webpack')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 
 module.exports = (env) => ({
@@ -25,6 +26,7 @@ module.exports = (env) => ({
         publicPath: '/',
     },
     resolve: {
+        plugins: [new TsconfigPathsPlugin()],
         extensions: ['.*', '.js', '.jsx', '.json', '.scss', '.ts', '.tsx'],
         fallback: {
             path: require.resolve('path-browserify'),
@@ -36,6 +38,9 @@ module.exports = (env) => ({
             fs: false,
             readline: false,
             constants: false,
+        },
+        alias: {
+            '@': path.resolve(__dirname, 'src/'),
         },
     },
     module: {
@@ -86,7 +91,13 @@ module.exports = (env) => ({
             },
             {
                 test: /\.svg$/i,
+                type: 'asset',
+                resourceQuery: /url/, // *.svg?url
+            },
+            {
+                test: /\.svg$/i,
                 issuer: /\.[jt]sx?$/,
+                resourceQuery: { not: [/url/] },
                 use: [
                     {
                         loader: '@svgr/webpack',

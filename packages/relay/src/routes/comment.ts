@@ -4,8 +4,8 @@ import { errorHandler } from '../services/singletons/errorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
-import { InternalError } from '../types/InternalError'
 import { postService } from '../services/PostService'
+import { InternalError } from '../types/InternalError'
 
 export default (
     app: Express,
