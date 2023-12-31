@@ -1,6 +1,6 @@
 import type { Helia } from '@helia/interface'
 
-export class IpfsService {
+export class IpfsHelper {
     // store content into helia ipfs node with json plain
 
     async createIpfsContent(helia: Helia, content: string): Promise<string> {
@@ -11,4 +11,4 @@ export class IpfsService {
     }
 }
 
-export const ipfsService = new IpfsService()
+export default new IpfsHelper()

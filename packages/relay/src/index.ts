@@ -7,9 +7,9 @@ import { SQLiteConnector, PostgresConnector, DB } from 'anondb/node.js'
 import { createServer } from 'http'
 
 // libraries
-import { UnirepSocialSynchronizer } from './synchornizer'
-import prover from './singletons/prover'
-import schema from './singletons/schema'
+import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
+import prover from './services/singletons/prover'
+import schema from './db/schema'
 
 import {
     provider,
@@ -22,8 +22,8 @@ import {
     IS_IN_TEST,
     CLIENT_URL,
 } from './config'
-import TransactionManager from './singletons/TransactionManager'
-import { SocketManager } from './singletons/SocketManager'
+import TransactionManager from './services/singletons/TransactionManager'
+import { SocketManager } from './services/singletons/SocketManager'
 import { postService } from './services/PostService'
 
 main().catch((err) => {

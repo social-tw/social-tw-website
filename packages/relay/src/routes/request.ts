@@ -1,43 +1,36 @@
-import { ethers } from 'ethers'
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import { EpochKeyProof } from '@unirep/circuits'
-import { APP_ADDRESS } from '../config'
-import TransactionManager from '../singletons/TransactionManager'
-import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import TransactionManager from '../services/singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import ProofHelper from '../services/singletons/ProofHelper'
+import { errorHandler } from '../services/singletons/errorHandler'
 
 export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer
 ) => {
-    app.post('/api/request', async (req, res) => {
-        try {
+    app.post(
+        '/api/request',
+        errorHandler(async (req, res) => {
             const { reqData, publicSignals, proof } = req.body
 
-            const epochKeyProof = new EpochKeyProof(
+            const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
                 publicSignals,
                 proof,
-                synchronizer.prover
+                synchronizer
             )
-            const valid = await epochKeyProof.verify()
-            if (!valid) {
-                res.status(400).json({ error: 'Invalid proof' })
-                return
-            }
-            const epoch = await synchronizer.loadCurrentEpoch()
-            const appContract = new ethers.Contract(APP_ADDRESS, ABI)
 
+            const epoch = epochKeyProof.epoch
             const keys = Object.keys(reqData)
-            let calldata: any
+            let hash: any
             if (keys.length === 1) {
-                calldata = appContract.interface.encodeFunctionData(
+                hash = await TransactionManager.callContract(
                     'submitAttestation',
                     [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]]
                 )
             } else if (keys.length > 1) {
-                calldata = appContract.interface.encodeFunctionData(
+                hash = await TransactionManager.callContract(
                     'submitManyAttestations',
                     [
                         epochKeyProof.epochKey,
@@ -48,14 +41,7 @@ export default (
                 )
             }
 
-            const hash = await TransactionManager.queueTransaction(
-                APP_ADDRESS,
-                calldata
-            )
             res.json({ hash })
-        } catch (error: any) {
-            console.error(error)
-            res.status(500).json({ error })
-        }
-    })
+        })
+    )
 }

@@ -1,15 +1,17 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { userService } from '../services/UserService'
+import { errorHandler } from '../services/singletons/errorHandler'
 
 export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer
 ) => {
-    app.post('/api/signup', async (req, res) => {
-        try {
+    app.post(
+        '/api/signup',
+        errorHandler(async (req, res, _) => {
             const { publicSignals, proof, hashUserId, token, fromServer } =
                 req.body
             await userService.verifyHashUserId(db, hashUserId, token)
@@ -21,18 +23,6 @@ export default (
                 synchronizer
             )
             res.status(200).json({ status: 'success', hash: hash })
-        } catch (error) {
-            console.error(error)
-            if (
-                error instanceof Error &&
-                error.message.includes('The user has already signed up.')
-            ) {
-                res.status(400).json({
-                    error: 'The user has already signed up.',
-                })
-            } else {
-                res.status(500).json({ error: 'Internal server error' })
-            }
-        }
-    })
+        })
+    )
 }

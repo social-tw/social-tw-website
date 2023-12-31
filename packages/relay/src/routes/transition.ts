@@ -1,16 +1,19 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { UserStateTransitionProof } from '@unirep/circuits'
-import TransactionManager from '../singletons/TransactionManager'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import TransactionManager from '../services/singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/singletons/errorHandler'
+import { InvalidProofError } from '../types/InternalError'
 
 export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer
 ) => {
-    app.post('/api/transition', async (req, res) => {
-        try {
+    app.post(
+        '/api/transition',
+        errorHandler(async (req, res) => {
             const { publicSignals, proof } = req.body
             const transitionProof = new UserStateTransitionProof(
                 publicSignals,
@@ -19,8 +22,7 @@ export default (
             )
             const valid = await transitionProof.verify()
             if (!valid) {
-                res.status(400).json({ error: 'Invalid proof' })
-                return
+                throw InvalidProofError
             }
 
             const calldata =
@@ -33,9 +35,6 @@ export default (
                 calldata
             )
             res.json({ hash })
-        } catch (error: any) {
-            console.error(error)
-            res.status(500).json({ error })
-        }
-    })
+        })
+    )
 }

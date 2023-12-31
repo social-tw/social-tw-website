@@ -1,6 +1,6 @@
 import { DB } from 'anondb/node'
 import { Express, Request, Response } from 'express'
-import { errorHandler } from '../middleware'
+import { errorHandler } from '../services/singletons/errorHandler'
 import { commentService } from '../services/CommentService'
 import { InternalError } from '../types/InternalError'
 import { postService } from '../services/PostService'

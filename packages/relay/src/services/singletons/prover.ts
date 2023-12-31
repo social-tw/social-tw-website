@@ -3,7 +3,7 @@ import fs from 'fs/promises'
 import { Circuit } from '@unirep/circuits'
 import * as snarkjs from 'snarkjs'
 
-const buildPath = path.join(__dirname, `../../keys`)
+const buildPath = path.join(__dirname, `../../../keys`)
 
 /**
  * The default prover that uses the circuits in default built folder `zksnarkBuild/`

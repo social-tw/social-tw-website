@@ -15,7 +15,7 @@ import { deployContracts, startServer } from './environment'
 
 import { Server } from 'http'
 import { userService } from '../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'
@@ -267,7 +267,7 @@ describe('COMMENT /comment', function () {
             nonce: 0,
         })
 
-        epochKeyProof.publicSignals[0] = BigInt(0)
+        epochKeyProof.publicSignals[1] = BigInt(0)
 
         // create a comment
         const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {

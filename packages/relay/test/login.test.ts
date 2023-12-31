@@ -12,7 +12,7 @@ import { ethers } from 'hardhat'
 import { Server } from 'http'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { DB } from 'anondb'
-import { TransactionManager } from '../src/singletons/TransactionManager'
+import { TransactionManager } from '../src/services/singletons/TransactionManager'
 import { Synchronizer } from '@unirep/core'
 
 chai.use(chaiHttp)
@@ -84,10 +84,6 @@ describe('LOGIN /login', function () {
     })
 
     it('/api/user, init user with wrong code and return error', async function () {
-        // Suppress console.error and restore original console.error
-        const originalConsoleError = console.error
-        console.log = console.error = console.warn = () => {}
-
         // mock with wrong code response
         nock(TWITTER_API, { encodedQueryParams: true })
             .post('/2/oauth2/token')
@@ -124,8 +120,6 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(200)
             })
-
-        console.error = originalConsoleError
     })
 
     it('/api/user, init user', async function () {
@@ -184,7 +178,7 @@ describe('LOGIN /login', function () {
                 fromServer: true,
             })
             .then((res) => {
-                expect(res).to.have.status(500)
+                expect(res).to.have.status(400)
             })
 
         userState.stop()
@@ -290,7 +284,7 @@ describe('LOGIN /login', function () {
                 fromServer: true,
             })
             .then((res) => {
-                expect(res).to.have.status(500)
+                expect(res).to.have.status(400)
             })
         userState.stop()
     })

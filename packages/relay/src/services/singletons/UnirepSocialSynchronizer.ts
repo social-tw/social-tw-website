@@ -2,11 +2,11 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { UserRegisterStatus } from './types'
-import schema from './singletons/schema'
-import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
+import { UserRegisterStatus } from '../../types'
+import schema from '../../db/schema'
+import { ENV, IS_IN_TEST, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
-import { socketManager } from './singletons/SocketManager'
+import { socketManager } from './SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event

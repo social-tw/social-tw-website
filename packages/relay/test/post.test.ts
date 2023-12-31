@@ -15,7 +15,7 @@ import { deployContracts, startServer } from './environment'
 
 import { Server } from 'http'
 import { userService } from '../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { signUp } from './utils/signUp'

@@ -6,13 +6,13 @@ import { SQLiteConnector } from 'anondb/node.js'
 import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import prover from '../src/singletons/prover'
-import schema from '../src/singletons/schema'
-import TransactionManager from '../src/singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import prover from '../src/services/singletons/prover'
+import schema from '../src/db/schema'
+import TransactionManager from '../src/services/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager } from '../src/singletons/SocketManager'
+import { SocketManager } from '../src/services/singletons/SocketManager'
 import { postService } from '../src/services/PostService'
 
 __dirname = path.join(__dirname, '..', 'src')
