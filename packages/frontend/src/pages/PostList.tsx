@@ -100,7 +100,7 @@ export default function PostList() {
                       }
                 return {
                     ...item,
-                    id: item._id,
+                    id: item.postId,
                     epochKey: item.epochKey,
                     content: item.content,
                     publishedAt: new Date(Number(item.publishedAt)),
