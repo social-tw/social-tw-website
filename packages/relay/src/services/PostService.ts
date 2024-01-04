@@ -130,8 +130,8 @@ export class PostService {
         page: number,
         db: DB
     ): Promise<Post[] | null> {
+        let posts: Post[]
         if (!query) {
-            let posts: Post[]
             const start = (page - 1) * LOAD_POST_COUNT
             if (this.cache.length == 0) {
                 // anondb doesn't have offset property to
@@ -153,18 +153,30 @@ export class PostService {
                 // query the posts from the cache with given page
                 posts = this.cache.slice(start, start + LOAD_POST_COUNT)
             }
+        } else {
+            // TODO: check epks is undefined case ?
+            posts = await db.findMany('Post', {
+                where: {
+                    epochKey: epks,
+                },
+                limit: LOAD_POST_COUNT,
+            })
+        }
+
+        if (!posts) {
             return posts
         }
 
-        // TODO: check epks is undefined case ?
-        const posts = await db.findMany('Post', {
-            where: {
-                epochKey: epks,
-            },
-            limit: LOAD_POST_COUNT,
-        })
+        // Fetch votes for each post and add to post object
+        return await Promise.all(
+            posts.map(async (post) => {
+                const votes = await db.findMany('Vote', {
+                    where: { postId: post._id },
+                })
 
-        return posts
+                return { ...post, votes }
+            })
+        )
     }
 
     async fetchMyAccountPosts(
@@ -173,7 +185,8 @@ export class PostService {
         direction: 'asc' | 'desc',
         db: DB
     ): Promise<Post[]> {
-        return db.findMany('Post', {
+        let posts: Post[]
+        posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
             },
@@ -182,6 +195,17 @@ export class PostService {
             },
             limit: LOAD_POST_COUNT,
         })
+
+        // Fetch votes for each post and add to post object
+        return await Promise.all(
+            posts.map(async (post) => {
+                const votes = await db.findMany('Vote', {
+                    where: { postId: post._id },
+                })
+
+                return { ...post, votes }
+            })
+        )
     }
 
     async createPost(
@@ -235,6 +259,17 @@ export class PostService {
                 postId: id,
                 status: status, // could be undefined
             },
+        })
+
+        // Check if the post exists
+        if (!post) {
+            return post // Return null if no post is found
+        }
+
+        // Fetch the votes for the post
+        // Add the vote data to the post object
+        post.votes = await db.findMany('Vote', {
+            where: { postId: id },
         })
 
         return post

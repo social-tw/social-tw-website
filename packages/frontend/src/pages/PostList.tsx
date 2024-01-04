@@ -1,6 +1,6 @@
 import clsx from 'clsx'
+import React, { Fragment, useEffect, useState } from 'react'
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import Dialog from '@/components/common/Dialog'
@@ -20,7 +20,9 @@ import {
 } from '@tanstack/react-query'
 import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
 
-import type { PostInfo } from '@/types'
+import { useVoteEvents } from '../hooks/useVotes'
+import { PostInfo, VoteAction, VoteMsg } from '../types'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 const examplePosts = [
     {
@@ -32,6 +34,8 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
     {
         id: 'demo-2',
@@ -42,6 +46,8 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
     {
         id: 'demo-3',
@@ -52,12 +58,15 @@ const examplePosts = [
         commentCount: 0,
         upCount: 0,
         downCount: 0,
+        isMine: false,
+        finalAction: null,
     },
 ]
 
 export default function PostList() {
     const { isLogin, signupStatus } = useUser()
     const [isShow, setIsShow] = useState(false)
+    const { userState } = useUser()
 
     useEffect(() => {
         if (isLogin) {
@@ -81,29 +90,33 @@ export default function PostList() {
         queryKey: ['posts'],
         queryFn: async ({ pageParam }) => {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
-            const data = await res.json()
-            const posts = data.map((item: any) => ({
-                id: item._id,
-                epochKey: item.epochKey,
-                content: item.content,
-                publishedAt: new Date(Number(item.publishedAt)),
-                commentCount: item.commentCount,
-                upCount: item.upCount,
-                downCount: item.downCount,
-            }))
-            return posts
+            const jsonData = await res.json()
+            return jsonData.map((item: any) => {
+                const voteCheck = userState
+                    ? checkVoteIsMine(item.votes, userState)
+                    : {
+                          isMine: false,
+                          finalAction: null,
+                      }
+                return {
+                    ...item,
+                    id: item.postId,
+                    epochKey: item.epochKey,
+                    content: item.content,
+                    publishedAt: new Date(Number(item.publishedAt)),
+                    commentCount: item.commentCount,
+                    upCount: item.upCount,
+                    downCount: item.downCount,
+                    isMine: voteCheck.isMine,
+                    finalAction: voteCheck.finalAction,
+                }
+            })
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages, lastPageParam) => {
-            if (lastPage.length === 0) {
-                return undefined
-            }
-            return lastPageParam + 1
+            return lastPage.length === 0 ? undefined : lastPageParam + 1
         },
-        placeholderData: {
-            pages: [examplePosts],
-            pageParams: [0],
-        },
+        placeholderData: { pages: [examplePosts], pageParams: [0] },
     })
 
     const [pageBottomRef, entry] = useIntersectionObserver({
@@ -114,9 +127,52 @@ export default function PostList() {
 
     useEffect(() => {
         if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage()
+            fetchNextPage().then((r) => r)
         }
     }, [entry])
+
+    useVoteEvents(handleVoteEvent)
+
+    function handleVoteEvent(msg: VoteMsg) {
+        // Update the query data for 'posts'
+        queryClient.setQueryData<InfiniteData<PostInfo[]>>(
+            ['posts'],
+            (oldData) => {
+                // Iterate over all pages of posts
+                const updatedPages = oldData?.pages.map((page) => {
+                    // Iterate over each post in a page
+                    return page.map((post) => {
+                        // Find the post that matches the postId from the vote message
+                        if (post.id === msg.postId) {
+                            // Update vote counts based on the action in the vote message
+                            switch (msg.vote) {
+                                case VoteAction.UPVOTE:
+                                    post.upCount += 1
+                                    break
+                                case VoteAction.DOWNVOTE:
+                                    post.downCount += 1
+                                    break
+                                case VoteAction.CANCEL_UPVOTE:
+                                    post.upCount -= 1
+                                    break
+                                case VoteAction.CANCEL_DOWNVOTE:
+                                    post.downCount -= 1
+                                    break
+                                // Add any other vote actions if needed
+                            }
+                        }
+                        return post // Return the updated or original post
+                    })
+                })
+
+                // Return the updated data structure expected by React Query
+                return {
+                    pages: updatedPages ?? [],
+                    pageParams: oldData?.pageParams ?? [],
+                }
+            },
+        )
+    }
 
     const navigate = useNavigate()
 
@@ -207,6 +263,8 @@ export default function PostList() {
                                         upCount={post.upCount}
                                         downCount={post.downCount}
                                         compact
+                                        isMine={post.isMine}
+                                        finalAction={post.finalAction}
                                     />
                                 </li>
                             ))}

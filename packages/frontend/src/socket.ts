@@ -5,7 +5,7 @@ import { CommentMsg, EventType, VoteMsg } from './types'
 class SocketClient {
     socket = io(SERVER, {})
 
-    onVoteEvent(callback: any) {
+    onVoteEvent(callback: (data: VoteMsg) => void) {
         this.socket.on(EventType.VOTE, (data: VoteMsg) => {
             callback(data)
         })

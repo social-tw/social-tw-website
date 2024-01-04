@@ -5,6 +5,6 @@ export const PATHS = {
     SIGN_UP: '/signup',
     SIGN_UP_INTERNAL: '/signup/internal',
     HOME: '/',
-    VIEW_POST: '/post/:id',
+    VIEW_POST: '/posts/:id',
     WRITE_POST: '/write-post',
 }

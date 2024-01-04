@@ -14,8 +14,11 @@ import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
 import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
-import { PostInfo } from '@/types'
 import { useMediaQuery } from '@uidotdev/usehooks'
+
+import type { PostInfo } from '../types'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
+import React from 'react'
 
 const demoPost = {
     id: '1',
@@ -26,6 +29,8 @@ const demoPost = {
     commentCount: 0,
     upCount: 0,
     downCount: 0,
+    isMine: false,
+    finalAction: null,
 }
 
 export default function PostDetail() {
@@ -37,6 +42,7 @@ export default function PostDetail() {
         useCreateComment()
 
     const [post, setPost] = useState<PostInfo>()
+    const { userState } = useUser()
     const [isOpenComment, setIsOpenCommnet] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
     const [isError, setIsError] = useState(false)
@@ -76,15 +82,25 @@ export default function PostDetail() {
             const response = await fetch(`${SERVER}/api/post/${id}`)
             const post = await response.json()
 
+            let isMine = false
+            let finalAction = null
+            if (userState) {
+                const voteCheck = checkVoteIsMine(post.votes, userState)
+                isMine = voteCheck.isMine
+                finalAction = voteCheck.finalAction
+            }
             setPost({
-                id: post.postId,
+                id: post._id,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
                 commentCount: post.commentCount,
                 upCount: post.upCount,
                 downCount: post.downCount,
+                isMine: isMine,
+                finalAction: finalAction,
             })
+            console.log(post)
         }
         if (id?.includes('demo')) {
             setPost(demoPost)
@@ -120,6 +136,8 @@ export default function PostDetail() {
                         upCount={post.upCount}
                         downCount={post.downCount}
                         onComment={onWriteComment}
+                        isMine={post.isMine}
+                        finalAction={post.finalAction}
                     />
                 </section>
                 <section>
