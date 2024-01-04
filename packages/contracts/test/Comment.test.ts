@@ -20,7 +20,6 @@ const { STATE_TREE_DEPTH } = CircuitConfig.default
 describe('Comment Test', function () {
     let unirep: Unirep
     let app: UnirepApp
-    let users: IdentityObject[]
     let chainId: number
 
     // for reused proof
@@ -30,10 +29,10 @@ describe('Comment Test', function () {
     // epoch length
     const epochLength = 300
 
-    before(async function () {
-        // generate 2 random hash user ids
-        users = createMultipleUserIdentity(2)
+    // generate 2 random hash user ids
+    const users = createMultipleUserIdentity(2)
 
+    before(async function () {
         // deployment
         const [deployer] = await ethers.getSigners()
         const contracts = await deployApp(deployer, epochLength)
@@ -330,29 +329,30 @@ describe('Comment Test', function () {
             ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
         })
 
-        {
+        it('should update comment in another epoch', async function () {
             // epoch transition
             await ethers.provider.send('evm_increaseTime', [epochLength])
             await ethers.provider.send('evm_mine', [])
-        }
 
-        {
             // user state transition
             const userState2 = await genUserState(users[1].id, app)
             const attesterId = userState2.sync.attesterId
             const toEpoch = await unirep.attesterCurrentEpoch(attesterId)
 
             await userState2.waitForSync()
-            const { publicSignals, proof } =
-                await userState2.genUserStateTransitionProof({ toEpoch })
+            const {
+                publicSignals: userTransitionSignals,
+                proof: userTransitiionProof,
+            } = await userState2.genUserStateTransitionProof({ toEpoch })
             await unirep
-                .userStateTransition(publicSignals, proof)
+                .userStateTransition(
+                    userTransitionSignals,
+                    userTransitiionProof
+                )
                 .then((tx) => tx.wait())
 
             userState2.stop()
-        }
 
-        it('should update comment in another epoch', async function () {
             const userState = await genUserState(users[1].id, app)
             userState.waitForSync()
             const { publicSignals, proof } =
