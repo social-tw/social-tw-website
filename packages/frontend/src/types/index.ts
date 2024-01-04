@@ -6,6 +6,17 @@ export interface PostInfo {
     commentCount: number
     upCount: number
     downCount: number
+    isMine: boolean
+    finalAction: VoteAction | null
+}
+
+export interface Vote {
+    postId: string
+    epoch: number
+    epochKey: string
+    _id: string
+    upVote: boolean
+    downVote: boolean
 }
 
 export interface CommnetDataFromApi {

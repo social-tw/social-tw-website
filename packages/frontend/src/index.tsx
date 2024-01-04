@@ -24,6 +24,9 @@ import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
 
+import './styles/main.css'
+import React from 'react'
+
 dayjs.extend(relativeTime)
 
 const router = createBrowserRouter([
