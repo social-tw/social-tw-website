@@ -108,10 +108,10 @@ export const stopServer = async (
     server: ChaiHttp.Agent
 ) => {
     console.log(`server ${testName} is shutting down`)
-    await ethers.provider.send('evm_revert', [snapshot])
     sync.stop()
     socketManager.close()
     server.close((_) => {
         console.log('server closed', testName)
     })
+    await ethers.provider.send('evm_revert', [snapshot])
 }
