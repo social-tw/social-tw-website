@@ -1,8 +1,7 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { deployContracts, startServer } from './environment'
-import { Server } from 'http'
+import { deployContracts, startServer, stopServer } from './environment'
 import { UserState } from '@unirep/core'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -13,7 +12,7 @@ import { io } from 'socket.io-client'
 
 describe('Synchronize Comment Test', function () {
     let snapshot: any
-    let express: Server
+    let express: ChaiHttp.Agent
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
     let unirepApp: UnirepApp
@@ -22,20 +21,19 @@ describe('Synchronize Comment Test', function () {
         wallet: any
         userState: UserState
     }[] = []
-    const EPOCH_LENGTH = 1000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // Deploy contract
-        const contracts = await deployContracts(EPOCH_LENGTH)
+        const contracts = await deployContracts(100000)
         unirepApp = contracts.app
         unirep = contracts.unirep
 
         // Start server
-        const { db, prover, provider, synchronizer, server } =
+        const { db, prover, provider, synchronizer, chaiServer } =
             await startServer(unirep, unirepApp)
-        express = server
+        express = chaiServer
         sync = synchronizer
 
         const userStateFactory = new UserStateFactory(
@@ -73,21 +71,15 @@ describe('Synchronize Comment Test', function () {
         }
 
         // Ensure users are signed up
-        for (let i = 0; i < 2; i++) {
-            await users[i].userState.waitForSync()
-            let hasSignUp = await users[i].userState.hasSignedUp()
-            expect(hasSignUp).equal(true)
-        }
+        await synchronizer.waitForSync()
+        let hasSignUp_1 = await users[0].userState.hasSignedUp()
+        let hasSignUp_2 = await users[1].userState.hasSignedUp()
+        expect(hasSignUp_1).equal(true)
+        expect(hasSignUp_2).equal(true)
     })
 
     after(async function () {
-        console.log('Close server...')
-        express.close()
-        await ethers.provider.send('evm_revert', [snapshot])
-        // Ensure users are signed up
-        for (let i = 0; i < 2; i++) {
-            users[i].userState.stop()
-        }
+        await stopServer('synchronize', snapshot, sync, express)
     })
 
     describe('Synchronize Comment', async function () {

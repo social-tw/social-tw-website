@@ -12,8 +12,16 @@ import schema from '../src/db/schema'
 import TransactionManager from '../src/services/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager } from '../src/services/singletons/SocketManager'
+import {
+    SocketManager,
+    socketManager,
+} from '../src/services/singletons/SocketManager'
 import { postService } from '../src/services/PostService'
+import { Synchronizer } from '@unirep/core'
+
+import chaiHttp from 'chai-http'
+import chai from 'chai'
+import * as chaiAsPromise from 'chai-as-promised'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -21,8 +29,6 @@ export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
     return await deployApp(signer, epochLength)
 }
-
-let socketManager: SocketManager
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -39,6 +45,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         },
         unirepApp
     )
+    synchronizer.resetDatabase()
 
     console.log('Starting synchronizer...')
     await synchronizer.start()
@@ -54,10 +61,13 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     await TransactionManager.start()
     console.log('Transaction manager started')
 
+    // open the chai testing server
     const app = express()
-    const port = process.env.PORT ?? 8000
+    chai.use(chaiHttp)
+    chai.use(chaiAsPromise.default)
     const server = http.createServer(app)
-    server.listen(port, () => console.log(`Listening on port ${port}`))
+    const chaiServer = chai.request(server).keepOpen()
+
     app.use('*', (req, res, next) => {
         res.set('access-control-allow-origin', '*')
         res.set('access-control-allow-headers', '*')
@@ -85,8 +95,23 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         provider,
         TransactionManager,
         synchronizer,
-        server,
+        chaiServer,
         postService,
         socketManager,
     }
+}
+
+export const stopServer = async (
+    testName: string,
+    snapshot: any,
+    sync: Synchronizer,
+    server: ChaiHttp.Agent
+) => {
+    console.log(`server ${testName} is shutting down`)
+    await ethers.provider.send('evm_revert', [snapshot])
+    sync.stop()
+    socketManager.close()
+    server.close((_) => {
+        console.log('server closed', testName)
+    })
 }

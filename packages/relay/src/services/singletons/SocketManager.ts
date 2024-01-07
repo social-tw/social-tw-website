@@ -32,6 +32,13 @@ export class SocketManager {
     emitComment = (comment: CommentMsg) => {
         this.io.emit(EventType.COMMENT, comment)
     }
+
+    close = () => {
+        this.io.disconnectSockets(true)
+        this.io.close((err) => {
+            console.log('all sockets closed')
+        })
+    }
 }
 
 export let socketManager: SocketManager

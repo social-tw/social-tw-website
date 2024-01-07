@@ -1,21 +1,15 @@
-import chai from 'chai'
-import chaiHttp from 'chai-http'
 import { expect } from 'chai'
-import * as chaiAsPromise from 'chai-as-promised'
 import nock from 'nock'
-import { deployContracts, startServer } from './environment'
+import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
 import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
 import { UserRegisterStatus } from '../src/types'
-import { HTTP_SERVER, CLIENT_URL } from './configs'
+import { CLIENT_URL } from './configs'
 import { ethers } from 'hardhat'
-import { Server } from 'http'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { DB } from 'anondb'
 import { TransactionManager } from '../src/services/singletons/TransactionManager'
 import { Synchronizer } from '@unirep/core'
-
-chai.use(chaiHttp)
 
 const TWITTER_API = 'https://api.twitter.com'
 const mockState = 'state'
@@ -30,16 +24,15 @@ describe('LOGIN /login', function () {
     let snapshot: any
     let anondb: DB
     let tm: TransactionManager
-    let express: Server
-    let synchronizer: Synchronizer
+    let express: ChaiHttp.Agent
+    let sync: Synchronizer
     let userStateFactory: UserStateFactory
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
-        // open promise testing
-        chai.use(chaiAsPromise.default)
+
         // deploy contracts
-        const { unirep, app } = await deployContracts(1000)
+        const { unirep, app } = await deployContracts(100000)
         // start server
         const {
             db,
@@ -47,13 +40,13 @@ describe('LOGIN /login', function () {
             provider,
             TransactionManager,
             synchronizer,
-            server,
+            chaiServer,
         } = await startServer(unirep, app)
 
         anondb = db
         tm = TransactionManager
-        express = server
-        this.synchronizer = synchronizer
+        express = chaiServer
+        sync = synchronizer
         userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -69,18 +62,14 @@ describe('LOGIN /login', function () {
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        express.close()
+        await stopServer('login', snapshot, sync, express)
     })
 
     it('/api/login, return url', async function () {
-        await chai
-            .request(`${HTTP_SERVER}`)
-            .get('/api/login')
-            .then((res) => {
-                expect(res.body.url).to.be.not.null
-                expect(res).to.have.status(200)
-            })
+        await express.get('/api/login').then((res) => {
+            expect(res.body.url).to.be.not.null
+            expect(res).to.have.status(200)
+        })
     })
 
     it('/api/user, init user with wrong code and return error', async function () {
@@ -109,8 +98,7 @@ describe('LOGIN /login', function () {
             })
             .reply(200)
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
@@ -140,8 +128,7 @@ describe('LOGIN /login', function () {
             })
             .reply(200)
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .get('/api/user')
             .set('content-type', 'application/json')
             .query({
@@ -160,14 +147,17 @@ describe('LOGIN /login', function () {
             mockUserId,
             'access-token'
         )
-        const userState = await userStateFactory.createUserState(user)
+        const userState = await userStateFactory.createUserState(
+            user,
+            undefined,
+            false
+        )
         await userStateFactory.initUserState(userState)
         const { signupProof, publicSignals } = await userStateFactory.genProof(
             userState
         )
         publicSignals[0] = wrongCommitment.toString()
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
@@ -193,15 +183,15 @@ describe('LOGIN /login', function () {
         )
         const userState = await userStateFactory.createUserState(
             user,
-            tm.wallet
+            tm.wallet,
+            false
         )
         await userStateFactory.initUserState(userState)
         const { signupProof, publicSignals } = await userStateFactory.genProof(
             userState
         )
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
@@ -218,6 +208,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
+        await sync.waitForSync()
         userState.stop()
     })
 
@@ -232,7 +223,8 @@ describe('LOGIN /login', function () {
 
         const userState = await userStateFactory.createUserState(
             user,
-            tm.wallet
+            tm.wallet,
+            false
         )
         await userStateFactory.initUserState(userState)
         const { publicSignals, signupProof } = await userStateFactory.genProof(
@@ -260,7 +252,11 @@ describe('LOGIN /login', function () {
             'access-token'
         )
 
-        const userState = await userStateFactory.createUserState(user)
+        const userState = await userStateFactory.createUserState(
+            user,
+            undefined,
+            false
+        )
         await userStateFactory.initUserState(userState)
         const { publicSignals, signupProof } = await userStateFactory.genProof(
             userState
@@ -272,8 +268,7 @@ describe('LOGIN /login', function () {
             (BigInt(2) ^ BigInt(160)) * signupProof.epoch
         publicSignals[2] = wrongControl.toString()
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
@@ -296,14 +291,17 @@ describe('LOGIN /login', function () {
             mockUserId2,
             'access-token'
         )
-        const userState = await userStateFactory.createUserState(user)
+        const userState = await userStateFactory.createUserState(
+            user,
+            undefined,
+            false
+        )
         await userStateFactory.initUserState(userState)
         const { signupProof, publicSignals } = await userStateFactory.genProof(
             userState
         )
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({
@@ -320,6 +318,7 @@ describe('LOGIN /login', function () {
             })
 
         await userState.waitForSync()
+        await sync.waitForSync()
         userState.stop()
     })
 
@@ -330,14 +329,17 @@ describe('LOGIN /login', function () {
             mockUserId,
             'access-token'
         )
-        const userState = await userStateFactory.createUserState(user)
+        const userState = await userStateFactory.createUserState(
+            user,
+            undefined,
+            false
+        )
         await userStateFactory.initUserState(userState)
         const { publicSignals, signupProof } = await userStateFactory.genProof(
             userState
         )
 
-        await chai
-            .request(`${HTTP_SERVER}`)
+        await express
             .post('/api/signup')
             .set('content-type', 'application/json')
             .send({

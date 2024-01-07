@@ -1,25 +1,24 @@
-import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { deployContracts, startServer, stopServer } from './environment'
 
-import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
-
-import { Server } from 'http'
 import ActionCountManager from '../src/services/singletons/ActionCountManager'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 
 describe('My Account Page', function () {
     let snapshot: any
-    let express: Server
+    let express: ChaiHttp.Agent
     let postEpochKey = 'post-epoch-key'
     let voteEpochKey = 'vote-epoch-key'
+    let sync: UnirepSocialSynchronizer
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(1000)
+        const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, server } = await startServer(unirep, app)
-        express = server
+        const { db, chaiServer, synchronizer } = await startServer(unirep, app)
+        express = chaiServer
+        sync = synchronizer
         const epoch = 1
 
         // insert mock post
@@ -60,50 +59,42 @@ describe('My Account Page', function () {
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        express.close()
+        await stopServer('myAccount', snapshot, sync, express)
     })
 
     it('should fetch posts', async function () {
-        const posts: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/posts?epks=${postEpochKey}`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        const res = await express.get(
+            `/api/my-account/posts?epks=${postEpochKey}`
+        )
 
-        expect(posts.length).equal(1)
+        expect(res.body.length).equal(1)
     })
 
     it('should fail if epks is empty', async function () {
-        await fetch(`${HTTP_SERVER}/api/my-account/posts`).then((r) => {
-            expect(r.status).equal(400)
+        await express.get(`/api/my-account/posts`).then((r) => {
+            expect(r).to.have.status(400)
         })
     })
 
     it('should fail if sortKey is not allowed', async function () {
-        await fetch(`${HTTP_SERVER}/api/my-account/posts?sortKey=foo`).then(
-            (r) => {
-                expect(r.status).equal(400)
-            }
-        )
+        await express.get(`/api/my-account/posts?sortKey=foo`).then((r) => {
+            expect(r).to.have.status(400)
+        })
     })
 
     it('should fail if direction is not allowed', async function () {
-        await fetch(`${HTTP_SERVER}/api/my-account/posts?direction=foo`).then(
-            (r) => {
-                expect(r.status).equal(400)
-            }
-        )
+        await express.get(`/api/my-account/posts?direction=foo`).then((r) => {
+            expect(r).to.have.status(400)
+        })
     })
 
     it('should fetch votes along with posts', async function () {
-        const votes: any = await fetch(
-            `${HTTP_SERVER}/api/my-account/votes?epks=${voteEpochKey}`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        const votes = await express
+            .get(`/api/my-account/posts?epks=${postEpochKey}`)
+            .then((r) => {
+                expect(r).to.have.status(200)
+                return r.body
+            })
 
         expect(votes.length).equal(1)
         expect(votes[0].post).to.not.be.null

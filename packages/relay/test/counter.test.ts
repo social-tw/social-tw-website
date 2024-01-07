@@ -1,12 +1,9 @@
-import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
 import { UserState } from '@unirep/core'
-import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
+import { deployContracts, startServer, stopServer } from './environment'
 
-import { Server } from 'http'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -18,19 +15,20 @@ import { DB } from 'anondb'
 
 describe('GET /counter', function () {
     let snapshot: any
-    let express: Server
+    let express: ChaiHttp.Agent
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
     let anondb: DB
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
+
         // deploy contracts
-        const contracts = await deployContracts(1000)
+        const contracts = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, server } =
+        const { db, prover, provider, synchronizer, chaiServer } =
             await startServer(contracts.unirep, contracts.app)
-        express = server
+        express = chaiServer
         sync = synchronizer
         unirep = contracts.unirep
         anondb = db
@@ -58,13 +56,11 @@ describe('GET /counter', function () {
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        userState.stop()
-        express.close()
+        await stopServer('counter', snapshot, sync, express)
     })
 
     it('should add the counter number increment after the user posted', async function () {
-        let res = await post(userState)
+        let res = await post(express, userState)
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
@@ -72,16 +68,11 @@ describe('GET /counter', function () {
             .map((epk) => epk.toString())
             .reduce((acc, epk) => `${acc}_${epk}`)
 
-        res = await fetch(`${HTTP_SERVER}/api/counter?epks=${epochKeys}`, {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-            },
-        }).then((r) => {
-            return r.json()
-        })
+        res = await express
+            .get(`/api/counter?epks=${epochKeys}`)
+            .set('content-type', 'application/json')
 
-        expect(res.counter).equal(1)
+        expect(res.body.counter).equal(1)
     })
 
     it('should counter failed if number of epks is not 3', async function () {
@@ -90,20 +81,13 @@ describe('GET /counter', function () {
             userState.getEpochKeys(undefined, 0) as bigint
         ).toString()
 
-        const res: any = await fetch(
-            `${HTTP_SERVER}/api/counter?epks=${epochKeys}`,
-            {
-                method: 'GET',
-                headers: {
-                    'content-type': 'application/json',
-                },
-            }
-        ).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('wrong number of epks')
+        await express
+            .get(`/api/counter?epks=${epochKeys}`)
+            .set('content-type', 'application/json')
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('wrong number of epks')
+            })
     })
 
     // TODO: add vote test & comment test after the apis are done

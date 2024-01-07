@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
@@ -10,10 +9,7 @@ import {
     genStateTreeLeaf,
 } from '@unirep/utils'
 
-import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
-
-import { Server } from 'http'
+import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -28,7 +24,7 @@ const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('POST /post', function () {
     let snapshot: any
-    let express: Server
+    let express: ChaiHttp.Agent
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let sqlite: SQLiteConnector
@@ -38,11 +34,11 @@ describe('POST /post', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(1000)
+        const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, server, postService } =
+        const { db, prover, provider, synchronizer, chaiServer, postService } =
             await startServer(unirep, app)
-        express = server
+        express = chaiServer
         sync = synchronizer
         sqlite = db as SQLiteConnector
         pService = postService
@@ -75,9 +71,7 @@ describe('POST /post', function () {
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        sync.stop()
-        express.close()
+        await stopServer('post', snapshot, sync, express)
     })
 
     it('should create a post', async function () {
@@ -88,32 +82,28 @@ describe('POST /post', function () {
             nonce: 0,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        const res = await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
 
         await ethers.provider.waitForTransaction(res.transaction)
         await sync.waitForSync()
 
-        let posts: any = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        let posts = await express
+            .get(`/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
 
         expect(posts[0].transactionHash).equal(res.transaction)
         expect(posts[0].content).equal(testContent)
@@ -121,12 +111,12 @@ describe('POST /post', function () {
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
-        posts = await fetch(
-            `${HTTP_SERVER}/api/post?query=mocktype&epks=${mockEpk}`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        posts = await express
+            .get(`/api/post?query=mocktype&epks=${mockEpk}`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
 
         expect(posts.length).equal(0)
     })
@@ -140,24 +130,18 @@ describe('POST /post', function () {
 
         epochKeyProof.publicSignals[0] = BigInt(0)
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid proof')
+        await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid proof')
+            })
     })
 
     it('should post failed with wrong epoch', async function () {
@@ -185,24 +169,18 @@ describe('POST /post', function () {
             data,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid Epoch')
+        await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid Epoch')
+            })
     })
 
     it('should post failed with wrong state tree', async function () {
@@ -233,24 +211,18 @@ describe('POST /post', function () {
             data,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid State Tree')
+        await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid State Tree')
+            })
     })
 
     it('should update post order periodically', async function () {
@@ -267,15 +239,9 @@ describe('POST /post', function () {
 
         await pService.updateOrder(sqlite)
 
-        const posts: [] = await fetch(`${HTTP_SERVER}/api/post?page=1`, {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-            },
-        }).then(async (res) => {
-            expect(res.status).equal(200)
-            const data: any = await res.json()
-            return data as []
+        const posts = await express.get(`/api/post?page=1`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
         })
 
         for (let i = 0; i < posts.length - 1; i++) {
