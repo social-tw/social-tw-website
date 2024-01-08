@@ -22,6 +22,7 @@ import { Synchronizer } from '@unirep/core'
 import chaiHttp from 'chai-http'
 import chai from 'chai'
 import * as chaiAsPromise from 'chai-as-promised'
+import { Helia } from '@helia/interface'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -29,6 +30,8 @@ export const deployContracts = async (epochLength: number) => {
     const [signer] = await ethers.getSigners()
     return await deployApp(signer, epochLength)
 }
+
+let helia: Helia
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -53,7 +56,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
 
     console.log('Starting Helia ipfs node...')
     const { createHelia } = await eval("import('helia')")
-    const helia = await createHelia()
+    helia = await createHelia()
     console.log('Helia ipfs node started')
 
     console.log('Starting transaction manager...')
@@ -68,18 +71,11 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     const server = http.createServer(app)
     const chaiServer = chai.request(server).keepOpen()
 
-    app.use('*', (req, res, next) => {
-        res.set('access-control-allow-origin', '*')
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
-
     console.log('Starting socket manager...')
     new SocketManager(server)
     console.log('Socket manager started')
 
     app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
@@ -113,5 +109,6 @@ export const stopServer = async (
     server.close((_) => {
         console.log('server closed', testName)
     })
+    await helia.stop()
     await ethers.provider.send('evm_revert', [snapshot])
 }
