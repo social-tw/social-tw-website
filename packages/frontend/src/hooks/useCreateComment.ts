@@ -43,8 +43,6 @@ export default function useCreateComment() {
             proof: epochKeyProof.proof,
         })
 
-        console.log(typeof proof.postId)
-
         return {
             proof,
             epoch: latestTransitionedEpoch,
@@ -65,8 +63,6 @@ export default function useCreateComment() {
             epoch,
             transactionHash: '',
         }
-
-        console.log(typeof proof)
         const actionId = addAction(ActionType.Comment, commentData)
 
         try {
