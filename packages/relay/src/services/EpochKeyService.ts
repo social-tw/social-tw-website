@@ -82,7 +82,7 @@ class EpochKeyService {
         functionSignature: string, // 'leaveComment' for example
         args: any[]
     ): Promise<string> {
-        const appContract = new ethers.Contut -ract(APP_ADDRESS, ABI)
+        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
             [...args]
