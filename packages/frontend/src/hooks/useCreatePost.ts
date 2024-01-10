@@ -29,7 +29,7 @@ export default function useCreatePost() {
         if (!userState) throw new Error('user state not initialized')
 
         const postData = {
-            id: '',
+            postId: undefined,
             content: content,
         }
         const actionId = addAction(ActionType.Post, postData)
@@ -58,17 +58,21 @@ export default function useCreatePost() {
 
             const { transaction } = await publishPost(proof)
             const receipt = await provider.waitForTransaction(transaction)
-            const id = ethers.BigNumber.from(
+            const postId = ethers.BigNumber.from(
                 receipt.logs[0].topics[2],
             ).toString()
 
             await userState.waitForSync()
             await loadData(userState)
 
-            succeedActionById(actionId, { id, transactionHash: transaction })
+            succeedActionById(actionId, {
+                postId,
+                transactionHash: transaction,
+            })
 
             return {
-                id,
+                transactionHash: transaction,
+                postId,
                 content,
                 epoch: latestTransitionedEpoch,
                 epochKey,

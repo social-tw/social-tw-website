@@ -39,7 +39,7 @@ export default function PostList() {
                           finalAction: null,
                       }
                 return {
-                    id: item._id,
+                    id: item.transactionHash!,
                     postId: item.postId,
                     epochKey: item.epochKey,
                     content: item.content,

@@ -16,7 +16,7 @@ export enum ActionStatus {
 }
 
 export interface PostData {
-    id: string
+    postId?: string
     content: string
 }
 

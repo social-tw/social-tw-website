@@ -31,10 +31,11 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
         try {
             setIsSubmitted(true)
 
-            const { id, epochKey } = await create(content)
+            const { transactionHash, postId, epochKey } = await create(content)
 
             const newPost = {
-                id,
+                id: transactionHash,
+                postId,
                 epochKey,
                 content,
                 publishedAt: new Date(),
@@ -45,7 +46,7 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
             queryClient.setQueryData(
                 ['posts'],
                 (old: InfiniteData<PostInfo[]>) => ({
-                    pages: [[newPost], ...old.pages],
+                    pages: [[newPost, ...old.pages[0]], ...old.pages.slice(1)],
                     pageParams: old.pageParams,
                 }),
             )

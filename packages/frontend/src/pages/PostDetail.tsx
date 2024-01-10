@@ -92,7 +92,7 @@ export default function PostDetail() {
                 postId: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
-                publishedAt: post.publishedAt,
+                publishedAt: new Date(Number(post.publishedAt)),
                 commentCount: post.commentCount,
                 upCount: post.upCount,
                 downCount: post.downCount,
@@ -122,7 +122,7 @@ export default function PostDetail() {
             <div className="px-4">
                 <section className="py-6">
                     <Post
-                        id={post.id}
+                        id={post.postId}
                         epochKey={post.epochKey}
                         content={post.content}
                         publishedAt={post.publishedAt}
