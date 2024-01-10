@@ -133,6 +133,19 @@ describe('Unirep App', function () {
                 .withArgs(publicSignals[0], 0, 0, content)
         })
 
+        it('should post and have the correct postId', async function () {
+            const content = 'Valid Proof'
+            const userState = await genUserState(user.id, app)
+            const { publicSignals, proof } = await userState.genEpochKeyProof()
+
+            inputPublicSig = publicSignals
+            inputProof = proof
+
+            await expect(app.post(publicSignals, proof, content))
+                .to.emit(app, 'Post')
+                .withArgs(publicSignals[0], 1, 0, content)
+        })
+
         it('should fail to post with reused proof', async function () {
             const content = 'Reused Proof'
             await expect(
