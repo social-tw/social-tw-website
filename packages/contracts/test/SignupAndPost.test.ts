@@ -31,7 +31,7 @@ describe('Unirep App', function () {
     let chainId: number
 
     // epoch length
-    const epochLength = 300
+    const epochLength = 100000
 
     before(async function () {
         // generate random hash user id
