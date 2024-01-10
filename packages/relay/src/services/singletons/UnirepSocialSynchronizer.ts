@@ -2,11 +2,11 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
+import { UserRegisterStatus } from '../../types'
+import schema from '../../db/schema'
+import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
-import { ENV, IS_IN_TEST, RESET_DATABASE } from './config'
-import schema from './singletons/schema'
-import { socketManager } from './singletons/SocketManager'
-import { UserRegisterStatus } from './types'
+import { socketManager } from './SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -48,7 +48,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     }
 
     async resetDatabase() {
-        if (RESET_DATABASE != 'true' || ENV == 'product' || IS_IN_TEST) return
+        if (RESET_DATABASE != 'true' || ENV == 'product') return
         console.log('start reset all data in postgres')
         schema.map((obj) => {
             this.db.delete(obj.name, { where: {} })

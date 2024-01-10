@@ -1,8 +1,8 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import crypto from 'crypto'
-import TwitterClient from '../singletons/TwitterClient'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import TwitterClient from '../services/singletons/TwitterClient'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { userService } from '../services/UserService'
 import { CLIENT_URL } from '../config'
 

@@ -2,7 +2,7 @@ import { User } from '../../src/types'
 import { Wallet } from 'ethers'
 import { UserStateFactory } from './UserStateFactory'
 import { UserService } from '../../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../../src/synchornizer'
+import { UnirepSocialSynchronizer } from '../../src/services/singletons/UnirepSocialSynchronizer'
 import { UserState } from '@unirep/core'
 
 export async function signUp(

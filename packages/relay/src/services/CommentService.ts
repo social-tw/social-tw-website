@@ -1,13 +1,14 @@
 import { DB } from 'anondb'
+import { PublicSignals, Groth16Proof } from 'snarkjs'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import { Comment } from '../types/Comment'
+import ActionCountManager from './singletons/ActionCountManager'
+import IpfsHelper from './singletons/IpfsHelper'
+import ProofHelper from './singletons/ProofHelper'
 import { InternalError } from '../types/InternalError'
+import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
-import { addActionCount } from '../utils/TransactionHelper'
-import { epochKeyService } from './EpochKeyService'
-import { ipfsService } from './IpfsService'
+import TransactionManager from './singletons/TransactionManager'
 
 export class CommentService {
     async fetchComments(
@@ -56,15 +57,15 @@ export class CommentService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ) {
-        const epochKeyProof = await epochKeyService.getAndVerifyProof(
+        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
             synchronizer
         )
 
         // store content into helia ipfs node with json plain
-        const cid = await ipfsService.createIpfsContent(helia, content)
-        const txnHash = await epochKeyService.callContract('leaveComment', [
+        const cid = await IpfsHelper.createIpfsContent(helia, content)
+        const txnHash = await TransactionManager.callContract('leaveComment', [
             publicSignals,
             proof,
             postId,
@@ -75,7 +76,7 @@ export class CommentService {
         const epochKey = epochKeyProof.epochKey.toString()
 
         // after post data stored in DB, should add 1 to epoch key counter
-        await addActionCount(db, epochKey, epoch, (txDB) => {
+        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
             txDB.create('Comment', {
                 postId: postId,
                 content: content,
@@ -108,13 +109,14 @@ export class CommentService {
             throw new InternalError('Comment does not exist', 400)
         }
 
-        const epochKeyLiteProof = await epochKeyService.getAndVerifyLiteProof(
-            publicSignals,
-            proof,
-            synchronizer
-        )
+        const epochKeyLiteProof =
+            await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
 
-        const txnHash = await epochKeyService.callContract('editComment', [
+        const txnHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
             epochKeyLiteProof.proof,
             comment.postId,
@@ -125,7 +127,7 @@ export class CommentService {
         const epoch = Number(epochKeyLiteProof.epoch)
         const epochKey = epochKeyLiteProof.epochKey.toString()
 
-        await addActionCount(db, epochKey, epoch, (_) => {
+        await ActionCountManager.addActionCount(db, epochKey, epoch, (_) => {
             return 1
         })
 

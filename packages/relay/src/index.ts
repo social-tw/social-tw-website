@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import express from 'express'
 import fs from 'fs'
 import { createServer } from 'http'
+
 // imported libraries
 import path from 'path'
 import {
@@ -16,13 +17,14 @@ import {
     provider,
     UNIREP_ADDRESS,
 } from './config'
+import TransactionManager from './services/singletons/TransactionManager'
+import { SocketManager } from './services/singletons/SocketManager'
 import { postService } from './services/PostService'
-import prover from './singletons/prover'
-import schema from './singletons/schema'
-import { SocketManager } from './singletons/SocketManager'
-import TransactionManager from './singletons/TransactionManager'
+
 // libraries
-import { UnirepSocialSynchronizer } from './synchornizer'
+import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
+import prover from './services/singletons/prover'
+import schema from './db/schema'
 
 main().catch((err) => {
     console.error(`Uncaught error: ${err}`)

@@ -1,6 +1,6 @@
 import { Contract, ethers } from 'ethers'
 import { DB } from 'anondb/node'
-import { APP_ADDRESS } from '../config'
+import { APP_ADDRESS } from '../../config'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 
 export class TransactionManager {
@@ -227,6 +227,27 @@ export class TransactionManager {
             nonce,
         })
         return ethers.utils.keccak256(signedData)
+    }
+
+    /**
+     * The general method for calling a contract function
+     *
+     * @param functionSignature
+     * @param args
+     * @returns txnHash
+     */
+    async callContract(
+        functionSignature: string, // 'leaveComment' for example
+        args: any[]
+    ): Promise<string> {
+        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
+        const calldata = appContract.interface.encodeFunctionData(
+            functionSignature,
+            [...args]
+        )
+        const hash = await this.queueTransaction(APP_ADDRESS, calldata)
+
+        return hash
     }
 }
 

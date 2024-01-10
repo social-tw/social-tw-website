@@ -1,10 +1,11 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../middleware'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import { errorHandler } from '../services/singletons/errorHandler'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 
 import type { Helia } from '@helia/interface'
 import { postService } from '../services/PostService'
+import { InternalError } from '../types/InternalError'
 
 export default (
     app: Express,
@@ -22,7 +23,7 @@ export default (
                     : undefined
             const page = req.query.page ? Number(req.query.page) : 1
             if (isNaN(page) || page < 1) {
-                return res.status(400).json({ error: 'Invalid page number' })
+                throw new InternalError('Invalid page number', 400)
             }
 
             const posts = await postService.fetchPosts(query, epks, page, db)
@@ -35,7 +36,7 @@ export default (
         errorHandler(async (req, res, next) => {
             const { content, publicSignals, proof } = req.body
             if (!content) {
-                res.status(400).json({ error: 'Could not have empty content' })
+                throw new InternalError('Could not have empty content', 400)
             }
 
             const hash = await postService.createPost(
@@ -56,14 +57,12 @@ export default (
         errorHandler(async (req, res, next) => {
             const id = req.params.id
             if (!id) {
-                console.log('id is undefined')
-                return res.status(400).json({ error: 'id is undefined' })
+                throw new InternalError('id is undefined', 400)
             }
 
             const post = await postService.fetchSinglePost(id, db, undefined)
             if (!post) {
-                console.log(`post is not found: ${id}`)
-                res.status(404).json({ error: `post is not found: ${id}` })
+                throw new InternalError(`post is not found: ${id}`, 400)
             } else {
                 res.json(post)
             }

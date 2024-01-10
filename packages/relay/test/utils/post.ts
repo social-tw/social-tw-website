@@ -1,29 +1,27 @@
 import { UserState } from '@unirep/core'
-import { HTTP_SERVER } from '../configs'
+import { expect } from 'chai'
 import { stringifyBigInts } from '@unirep/utils'
 
-export async function post(userState: UserState): Promise<any> {
+export async function post(
+    server: ChaiHttp.Agent,
+    userState: UserState
+): Promise<any> {
     const testContent = 'test content'
 
     const epochKeyProof = await userState.genEpochKeyProof({
         nonce: 0,
     })
 
-    const res: any = await fetch(`${HTTP_SERVER}/api/post`, {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify(
-            stringifyBigInts({
-                content: testContent,
-                publicSignals: epochKeyProof.publicSignals,
-                proof: epochKeyProof.proof,
-            })
-        ),
-    }).then((r) => {
-        return r.json()
-    })
+    const res = await server
+        .post('/api/post')
+        .set('content-type', 'application/json')
+        .send({
+            content: testContent,
+            publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+            proof: stringifyBigInts(epochKeyProof.proof),
+        })
 
-    return res
+    expect(res).to.have.status(200)
+
+    return res.body
 }

@@ -29,12 +29,18 @@ export class UserStateFactory {
         this.synchronizer = synchronizer
     }
 
-    async createUserState(user: User, wallet?: ethers.Wallet) {
+    async createUserState(
+        user: User,
+        wallet?: ethers.Wallet,
+        requireSync: boolean = true
+    ) {
         let signature = user.signMsg
         if (wallet) {
             signature = await wallet.signMessage(user.hashUserId)
         }
         const identity = new Identity(signature)
+        const sync = requireSync ? this.synchronizer : undefined
+
         return new UserState({
             db: this.db,
             provider: this.provider,
@@ -42,7 +48,7 @@ export class UserStateFactory {
             unirepAddress: this.unirepAddress,
             attesterId: BigInt(this.attesterId),
             id: identity,
-            synchronizer: this.synchronizer,
+            synchronizer: sync,
         })
     }
 

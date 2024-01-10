@@ -1,7 +1,5 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { Server } from 'http'
-import fetch from 'node-fetch'
 import { io } from 'socket.io-client'
 import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
@@ -11,20 +9,20 @@ import {
     stringifyBigInts,
 } from '@unirep/utils'
 import { userService } from '../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { UserStateFactory } from './utils/UserStateFactory'
 import { Post } from '../src/types/Post'
 import { HTTP_SERVER } from './configs'
-import { deployContracts, startServer } from './environment'
+import { deployContracts, startServer, stopServer } from './environment'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
-import { UserStateFactory } from './utils/UserStateFactory'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('COMMENT /comment', function () {
     let snapshot: any
-    let express: Server
+    let express: ChaiHttp.Agent
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let chainId: number
@@ -32,11 +30,11 @@ describe('COMMENT /comment', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(1000)
+        const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, server } =
+        const { db, prover, provider, synchronizer, chaiServer } =
             await startServer(unirep, app)
-        express = server
+        express = chaiServer
         sync = synchronizer
         const userStateFactory = new UserStateFactory(
             db,
@@ -63,19 +61,20 @@ describe('COMMENT /comment', function () {
 
         expect(hasSignedUp).equal(true)
 
-        const result = await post(userState)
+        const result = await post(chaiServer, userState)
         await ethers.provider.waitForTransaction(result.transaction)
         await sync.waitForSync()
 
-        const res = await fetch(`${HTTP_SERVER}/api/post/0`)
-        console.log('post', await res.json())
+        const res = await chaiServer.get('/api/post/0')
+        expect(res).to.have.status(200)
+        const curPost = res.body as Post
+        expect(curPost.status).to.equal(1)
+
         chainId = await unirep.chainid()
     })
 
     after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
-        userState.stop()
-        express.close()
+        await stopServer('comment', snapshot, sync, express)
     })
 
     it('should create a comment', async function () {
@@ -97,38 +96,33 @@ describe('COMMENT /comment', function () {
         })
 
         // create a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
-                stringifyBigInts({
-                    content: testContent,
-                    postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+        const transaction = await express
+            .post('/api/comment')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                postId: 0,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body.transaction
+            })
 
-        await ethers.provider.waitForTransaction(result.transaction)
+        await ethers.provider.waitForTransaction(transaction)
         await sync.waitForSync()
 
         // comment on the post
-        let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?epks=${epochKeyProof.epochKey}&postId=0`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
-
-        expect(comments[0].transactionHash).equal(result.transaction)
-        expect(comments[0].content).equal(testContent)
-        expect(comments[0].status).equal(1)
+        await express
+            .get(`/api/comment?epks=${epochKeyProof.epochKey}&postId=0`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                const comments = res.body
+                expect(comments[0].transactionHash).equal(transaction)
+                expect(comments[0].content).equal(testContent)
+                expect(comments[0].status).equal(1)
+            })
     })
 
     it('should comment failed with wrong proof', async function () {
@@ -140,25 +134,21 @@ describe('COMMENT /comment', function () {
 
         epochKeyProof.publicSignals[0] = BigInt(0)
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
+        await express
+            .post('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid proof')
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid proof')
+            })
     })
 
     it('should comment failed with wrong epoch', async function () {
@@ -186,25 +176,21 @@ describe('COMMENT /comment', function () {
             data,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
+        await express
+            .post('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid Epoch')
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid Epoch')
+            })
     })
 
     it('should comment failed with wrong state tree', async function () {
@@ -235,25 +221,21 @@ describe('COMMENT /comment', function () {
             data,
         })
 
-        const res: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
+        await express
+            .post('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(res.error).equal('Invalid State Tree')
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid State Tree')
+            })
     })
 
     it('delete the comment failed with wrong epoch key', async function () {
@@ -261,27 +243,23 @@ describe('COMMENT /comment', function () {
             nonce: 0,
         })
 
-        epochKeyProof.publicSignals[0] = BigInt(0)
+        epochKeyProof.publicSignals[1] = BigInt(0)
 
-        // create a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
+        // delete a comment
+        await express
+            .delete('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
                 stringifyBigInts({
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(400)
-            return r.json()
-        })
-
-        expect(result.error).equal('Invalid proof')
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid proof')
+            })
     })
 
     it('delete the comment success', async function () {
@@ -290,34 +268,29 @@ describe('COMMENT /comment', function () {
         })
 
         // create a comment
-        const result: any = await fetch(`${HTTP_SERVER}/api/comment`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(
+        const transaction = await express
+            .delete('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
                 stringifyBigInts({
                     commentId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                 })
-            ),
-        }).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
-        })
+            )
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body.transaction
+            })
 
-        await ethers.provider.waitForTransaction(result.transaction)
+        await ethers.provider.waitForTransaction(transaction)
         await sync.waitForSync()
 
         // check comment exist
-        let comments: any = await fetch(
-            `${HTTP_SERVER}/api/comment?postId=0`
-        ).then((r) => {
-            expect(r.status).equal(200)
-            return r.json()
+        await express.get(`/api/comment?postId=0`).then((res) => {
+            expect(res).to.have.status(200)
+            const comments = res.body
+            expect(comments.length).equal(0)
         })
-
-        expect(comments.length).equal(0)
     })
 })

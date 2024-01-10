@@ -1,14 +1,21 @@
 import { SignupProof } from '@unirep/circuits'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { UnirepSocialSynchronizer } from '../synchornizer'
-import TransactionManager from '../singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import TransactionManager from './singletons/TransactionManager'
 import { APP_ADDRESS, TWITTER_USER_URL } from '../config'
-import TwitterClient from '../singletons/TwitterClient'
+import TwitterClient from './singletons/TwitterClient'
 import crypto from 'crypto'
 import { User } from '../types'
 import { DB } from 'anondb/node'
 import { UserRegisterStatus } from '../types'
 import fetch from 'node-fetch'
+import {
+    InvalidHashUserIdError,
+    InvalidProofError,
+    UserAlreadySignedUpError,
+    UserLoginError,
+} from '../types/InternalError'
+import ProofHelper from './singletons/ProofHelper'
 
 const STATE = 'state'
 
@@ -38,8 +45,8 @@ export class UserService {
                 response.token.access_token
             )
         } catch (error) {
-            console.log('error in getting user id', error)
-            throw Error('Error in login')
+            console.error('error in getting user id', error)
+            throw UserLoginError
         }
     }
 
@@ -86,14 +93,14 @@ export class UserService {
         fromServer: boolean,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        // verify attesterId, should be the same as app
         const signupProof = new SignupProof(
             publicSignals,
             proof,
             synchronizer.prover
         )
-        if (synchronizer.attesterId != signupProof.attesterId)
-            throw new Error('Invalid attesterId')
+
+        // verify attesterId, should be the same as app
+        ProofHelper.validateAttesterId(synchronizer, signupProof)
 
         // double confirm the commitment exist or not
         const commitment = signupProof.identityCommitment.toString()
@@ -104,16 +111,15 @@ export class UserService {
                 attesterId,
             },
         })
-        if (isUserExist) throw new Error('The user has already signed up.')
+        if (isUserExist) throw UserAlreadySignedUpError
+
+        await ProofHelper.validateEpoch(synchronizer, signupProof)
 
         const valid = await signupProof.verify()
         if (!valid) {
-            throw new Error('Invalid proof')
+            throw InvalidProofError
         }
-        const currentEpoch = synchronizer.calcCurrentEpoch()
-        if (currentEpoch !== Number(signupProof.epoch)) {
-            throw new Error('Wrong epoch')
-        }
+
         const appContract = TransactionManager.appContract!!
         const calldata = appContract.interface.encodeFunctionData(
             'userSignUp',
@@ -143,7 +149,7 @@ export class UserService {
         })
 
         if (user != null) {
-            throw Error(`The user has already signed up.`)
+            throw UserAlreadySignedUpError
         }
 
         const response: any = await fetch(TWITTER_USER_URL, {
@@ -157,7 +163,7 @@ export class UserService {
             console.error(
                 `AccessToken is invalid or user ${hashUserId} is not matched`
             )
-            throw Error('AccessToken is invalid or wrong userId')
+            throw InvalidHashUserIdError
         }
     }
 }

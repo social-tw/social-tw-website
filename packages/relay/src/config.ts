@@ -30,7 +30,6 @@ export const APP_ABI = ABI
 
 export const DB_PATH = process.env.DB_PATH ?? ':memory:'
 export const ENV = process.env.ENV ?? 'local'
-export const RESET_DATABASE = process.env.RESET_DATABASE ?? 'false'
 
 export const provider = ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(ETH_PROVIDER_URL)
@@ -49,6 +48,9 @@ export const TWITTER_USER_URL =
     process.env.TWITTER_USER_URL ?? 'https://api.twitter.com/2/users/me'
 
 export const IS_IN_TEST = typeof global.it === 'function'
+export const RESET_DATABASE = IS_IN_TEST
+    ? 'true'
+    : process.env.RESET_DATABASE ?? 'false'
 export const TWITTER_CLIENT_ID = IS_IN_TEST
     ? 'test-client-id'
     : process.env.TWITTER_CLIENT_ID

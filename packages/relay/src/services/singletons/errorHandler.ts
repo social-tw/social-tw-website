@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { InternalError } from './types/InternalError'
+import { InternalError } from '../../types/InternalError'
 
 export const errorHandler =
     (func: (req: Request, res: Response, next: NextFunction) => any) =>
@@ -13,7 +13,7 @@ export const errorHandler =
                     error: err.message,
                 })
             } else {
-                console.log('Uncaught error', err)
+                console.error('Uncaught error', err)
                 res.status(500).json({
                     message: 'Uncaught error',
                     info: err.message,
@@ -21,10 +21,3 @@ export const errorHandler =
             }
         }
     }
-
-export function voteErrorHandler(err: any, res: any) {
-    const status = err.status || 500
-    const message = err.message || 'Internal Server Error'
-
-    res.status(status).json({ error: message })
-}

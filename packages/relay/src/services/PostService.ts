@@ -5,14 +5,15 @@ import {
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
-import { UnirepSocialSynchronizer } from '../synchornizer'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { epochKeyService } from './EpochKeyService'
-import { addActionCount } from '../utils/TransactionHelper'
+import ProofHelper from './singletons/ProofHelper'
+import ActionCountManager from './singletons/ActionCountManager'
 import { Post } from '../types/Post'
-import { ipfsService } from './IpfsService'
+import IpfsHelper from './singletons/IpfsHelper'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
+import TransactionManager from './singletons/TransactionManager'
 
 export class PostService {
     // TODO: modify the cache data structure to avoid memory leak
@@ -216,15 +217,15 @@ export class PostService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ): Promise<string> {
-        const epochKeyProof = await epochKeyService.getAndVerifyProof(
+        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
             synchronizer
         )
 
         // post content
-        const cid = await ipfsService.createIpfsContent(helia, content)
-        const txnHash = await epochKeyService.callContract('post', [
+        const cid = await IpfsHelper.createIpfsContent(helia, content)
+        const txnHash = await TransactionManager.callContract('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
             content,
@@ -234,7 +235,7 @@ export class PostService {
         const epochKey = epochKeyProof.epochKey.toString()
 
         // after post data stored in DB, should add 1 to epoch key counter
-        await addActionCount(db, epochKey, epoch, (txDB) => {
+        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
             txDB.create('Post', {
                 content: content,
                 cid: cid.toString(),

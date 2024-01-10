@@ -1,5 +1,9 @@
 import { Client, auth } from 'twitter-api-sdk'
-import { CALLBACK_URL, TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../config'
+import {
+    CALLBACK_URL,
+    TWITTER_CLIENT_ID,
+    TWITTER_CLIENT_KEY,
+} from '../../config'
 
 const authClient = new auth.OAuth2User({
     client_id: TWITTER_CLIENT_ID as string,

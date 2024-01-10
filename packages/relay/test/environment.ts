@@ -6,14 +6,23 @@ import { SQLiteConnector } from 'anondb/node.js'
 import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
-import { UnirepSocialSynchronizer } from '../src/synchornizer'
-import prover from '../src/singletons/prover'
-import schema from '../src/singletons/schema'
-import TransactionManager from '../src/singletons/TransactionManager'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import prover from '../src/services/singletons/prover'
+import schema from '../src/db/schema'
+import TransactionManager from '../src/services/singletons/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
-import { SocketManager } from '../src/singletons/SocketManager'
+import {
+    SocketManager,
+    socketManager,
+} from '../src/services/singletons/SocketManager'
 import { postService } from '../src/services/PostService'
+import { Synchronizer } from '@unirep/core'
+
+import chaiHttp from 'chai-http'
+import chai from 'chai'
+import * as chaiAsPromise from 'chai-as-promised'
+import { Helia } from '@helia/interface'
 
 __dirname = path.join(__dirname, '..', 'src')
 
@@ -22,7 +31,7 @@ export const deployContracts = async (epochLength: number) => {
     return await deployApp(signer, epochLength)
 }
 
-let socketManager: SocketManager
+let helia: Helia
 
 export const startServer = async (unirep: any, unirepApp: any) => {
     const db = await SQLiteConnector.create(schema, ':memory:')
@@ -39,6 +48,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         },
         unirepApp
     )
+    synchronizer.resetDatabase()
 
     console.log('Starting synchronizer...')
     await synchronizer.start()
@@ -46,7 +56,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
 
     console.log('Starting Helia ipfs node...')
     const { createHelia } = await eval("import('helia')")
-    const helia = await createHelia()
+    helia = await createHelia()
     console.log('Helia ipfs node started')
 
     console.log('Starting transaction manager...')
@@ -54,22 +64,18 @@ export const startServer = async (unirep: any, unirepApp: any) => {
     await TransactionManager.start()
     console.log('Transaction manager started')
 
+    // open the chai testing server
     const app = express()
-    const port = process.env.PORT ?? 8000
+    chai.use(chaiHttp)
+    chai.use(chaiAsPromise.default)
     const server = http.createServer(app)
-    server.listen(port, () => console.log(`Listening on port ${port}`))
-    app.use('*', (req, res, next) => {
-        res.set('access-control-allow-origin', '*')
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
+    const chaiServer = chai.request(server).keepOpen()
 
     console.log('Starting socket manager...')
     new SocketManager(server)
     console.log('Socket manager started')
 
     app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
@@ -85,8 +91,24 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         provider,
         TransactionManager,
         synchronizer,
-        server,
+        chaiServer,
         postService,
         socketManager,
     }
+}
+
+export const stopServer = async (
+    testName: string,
+    snapshot: any,
+    sync: Synchronizer,
+    server: ChaiHttp.Agent
+) => {
+    console.log(`server ${testName} is shutting down`)
+    sync.stop()
+    socketManager.close()
+    server.close((_) => {
+        console.log('server closed', testName)
+    })
+    await helia.stop()
+    await ethers.provider.send('evm_revert', [snapshot])
 }
