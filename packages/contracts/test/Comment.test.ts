@@ -26,11 +26,22 @@ describe('Comment Test', function () {
     let inputPublicSig: any
     let inputProof: any
 
+    // snapshot of evm environment
+    let snapshot: any
     // epoch length
     const epochLength = 300
 
     // generate 2 random hash user ids
     const users = createMultipleUserIdentity(2)
+
+    {
+        before(async function () {
+            snapshot = await ethers.provider.send('evm_snapshot', [])
+        })
+        after(async function () {
+            await ethers.provider.send('evm_revert', [snapshot])
+        })
+    }
 
     before(async function () {
         // deployment
@@ -186,7 +197,7 @@ describe('Comment Test', function () {
         })
     })
 
-    describe('edit comment', async function () {
+    describe('edit comment', function () {
         it('should revert editing comment with invalid epoch', async function () {
             const userState = await genUserState(users[1].id, app)
             const id = users[1].id
@@ -356,7 +367,7 @@ describe('Comment Test', function () {
             const userState = await genUserState(users[1].id, app)
             userState.waitForSync()
             const { publicSignals, proof } =
-                await userState.genEpochKeyLiteProof()
+                await userState.genEpochKeyLiteProof({ epoch: 0 })
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
