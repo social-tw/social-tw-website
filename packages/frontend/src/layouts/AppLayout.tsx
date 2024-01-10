@@ -55,7 +55,7 @@ export default function AppLayout() {
             setIsShow(true)
             return
         }
-    }, [isLogin])
+    }, [isLogin, signupStatus])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const isShowingHeaderLogoOnSmallDevice =

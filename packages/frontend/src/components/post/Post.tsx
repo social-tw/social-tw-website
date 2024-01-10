@@ -1,16 +1,15 @@
 import dayjs from 'dayjs'
+import React, { useEffect, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import Avatar from '@/components/common/Avatar'
+import { VoteAction, VoteMsg } from '@/types'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import { useEffect, useState } from 'react'
-import { VoteAction, VoteMsg } from '@/types'
-import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
+import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
-import Avatar from '@/components/common/Avatar'
-import React from 'react'
 
 export default function Post({
     id = '',
@@ -26,9 +25,9 @@ export default function Post({
     finalAction = null,
     onComment = () => {},
 }: {
-    id: string
+    id?: string
     epochKey: string
-    content: string
+    content?: string
     imageUrl?: string
     publishedAt: Date
     commentCount: number

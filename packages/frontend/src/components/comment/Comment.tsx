@@ -5,6 +5,7 @@ import { FiMoreHorizontal } from 'react-icons/fi'
 import Avatar from '@/components/common/Avatar'
 import { removeActionByCommentId } from '@/contexts/Actions'
 import useCreateComment from '@/hooks/useCreateComment'
+import useDeleteComment from '@/hooks/useDeleteComment'
 import formatDate from '@/utils/formatDate'
 import {
     ControlledMenu,
@@ -16,7 +17,6 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { CommentInfo, CommentStatus } from '../../types'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
-import useDeleteComment from '@/hooks/useDeleteComment'
 
 interface CommentProps extends CommentInfo {
     onCloseAnimation?: () => void
@@ -85,7 +85,6 @@ export default function Comment({
                   label: '刪除留言',
                   icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
                   onClick: () => {
-                      console.log('delete comment')
                       setIsDeletingDialogOpen(true)
                   },
               },
@@ -95,7 +94,6 @@ export default function Comment({
                   label: '檢舉留言',
                   icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
                   onClick: () => {
-                      console.log('reporting comment')
                       setIsReporting(true)
                   },
               },

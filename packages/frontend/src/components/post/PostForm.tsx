@@ -1,20 +1,16 @@
-import { clsx } from 'clsx'
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import Avatar from '@/assets/avatar.png'
-import Backdrop from '@/components/common/Backdrop'
-import RichTextEditor from '@/components/common/RichTextEditor'
+import { clsx } from "clsx";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import Avatar from "@/assets/avatar.png";
+import RichTextEditor from "@/components/common/RichTextEditor";
 
 export interface PostValues {
     content: string
 }
 
 export default function PostForm({
-    onCancel = () => {},
-    onSubmit = () => {},
-    onSubmitCancel = () => {},
-    isSubmitCancellable = true,
-    isSubmitCancelled = false,
+    onCancel = () => { },
+    onSubmit = () => { },
     disabled = false,
     type = 'post',
 }: {
@@ -26,16 +22,15 @@ export default function PostForm({
     disabled?: boolean
     type?: 'post' | 'comment'
 }) {
-    const { handleSubmit, control, reset, getValues, formState } =
-        useForm<PostValues>({
-            defaultValues: {
-                content: '',
-            },
-        })
+    const { handleSubmit, control, reset, formState } = useForm<PostValues>({
+        defaultValues: {
+            content: '',
+        },
+    })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
-    const isPending = !isSubmitCancelled && isSubmitting
+    const isPending = isSubmitting
 
     const _onCancel = () => {
         reset({ content: '' })
@@ -103,27 +98,6 @@ export default function PostForm({
                     />
                 </section>
             </form>
-            <Backdrop
-                isOpen={isPending}
-                position="absolute"
-                background="bg-gradient-to-t from-black/100 to-white/0"
-            >
-                <div className="flex flex-col items-center justify-center h-full gap-4 backdrop-blur-sm">
-                    <progress className="w-8/12 h-[12px] rounded-2xl progress bg-[#222222]" />
-                    {isSubmitCancellable ? (
-                        <button
-                            className="btn btn-sm btn-primary"
-                            onClick={onSubmitCancel}
-                        >
-                            取消發布
-                        </button>
-                    ) : (
-                        <p className="text-lg font-semibold tracking-wider text-white">
-                            已無法取消發布
-                        </p>
-                    )}
-                </div>
-            </Backdrop>
         </>
     )
 }

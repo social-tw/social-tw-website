@@ -1,14 +1,14 @@
-import { clsx } from "clsx";
-import { motion } from "framer-motion";
-import React from "react";
-import { NavLink } from "react-router-dom";
-import AddIcon from "@/assets/add.svg";
-import BellIcon from "@/assets/bell.svg";
-import HomeIcon from "@/assets/home.svg";
-import PersonCircleIcon from "@/assets/person-circle.svg";
-import StarIcon from "@/assets/star.svg";
-import SignUpLoadingModal from "@/components/login/SignupPendingTransition";
-import { SignupStatus } from "@/contexts/User";
+import { clsx } from 'clsx'
+import { motion } from 'framer-motion'
+import React from 'react'
+import { NavLink } from 'react-router-dom'
+import AddIcon from '@/assets/add.svg'
+import BellIcon from '@/assets/bell.svg'
+import HomeIcon from '@/assets/home.svg'
+import PersonCircleIcon from '@/assets/person-circle.svg'
+import StarIcon from '@/assets/star.svg'
+import SignUpLoadingModal from '@/components/login/SignupPendingTransition'
+import { SignupStatus } from '@/contexts/User'
 
 interface MobileNavbarProps {
     isShow: boolean

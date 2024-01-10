@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import Comment from '@/components/comment/Comment'
 import CommentNotifications from '@/components/comment/CommentNotification'
@@ -15,11 +15,9 @@ import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 import type { PostInfo } from '../types'
-import checkVoteIsMine from '../utils/checkVoteIsMine'
-import React from 'react'
-
 const demoPost = {
     id: '1',
     epochKey: 'epochKey-1',
@@ -91,6 +89,7 @@ export default function PostDetail() {
             }
             setPost({
                 id: post._id,
+                postId: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
                 publishedAt: post.publishedAt,
@@ -100,13 +99,8 @@ export default function PostDetail() {
                 isMine: isMine,
                 finalAction: finalAction,
             })
-            console.log(post)
         }
-        if (id?.includes('demo')) {
-            setPost(demoPost)
-        } else {
-            loadPost()
-        }
+        loadPost()
     }, [id])
 
     const location = useLocation()
@@ -169,7 +163,7 @@ export default function PostDetail() {
                     onCancel={() => setIsOpenCommnet(false)}
                 />
             )}
-            <CommentNotifications postId={post.id} />
+            <CommentNotifications postId={post.id!} />
             <AuthErrorDialog isOpen={isError} buttonText="返回註冊/登入頁" />
             <CommentPublishTransition isOpen={isPublishing} />
         </>

@@ -1,7 +1,8 @@
 export interface PostInfo {
     id: string
+    postId: string | undefined
     epochKey: string
-    content: string
+    content: string | undefined
     publishedAt: Date
     commentCount: number
     upCount: number
