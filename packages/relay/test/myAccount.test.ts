@@ -31,7 +31,6 @@ describe('My Account Page', function () {
                 epoch: epoch,
                 transactionHash: 'txnHash',
                 _id: '1',
-                status: 0,
             })
             return 1
         })
