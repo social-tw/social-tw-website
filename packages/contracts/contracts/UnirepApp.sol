@@ -26,9 +26,10 @@ contract UnirepApp {
     EpochKeyVerifierHelper internal epkHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
 
+    uint256 private _postId;
+
     // TODO write the document for the features
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
-    mapping(uint256 => uint256) public epochKeyPostIndex;
     mapping(uint256 => uint256) public postCommentIndex; // postId -> commentId
     mapping(uint256 => mapping(uint256 => uint256)) epochKeyCommentMap; // postId-commentId -> epochKey
     mapping(bytes32 => bool) public proofNullifier;
@@ -149,10 +150,9 @@ contract UnirepApp {
         // should check lastly
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        uint256 postId = epochKeyPostIndex[signals.epochKey];
-        epochKeyPostIndex[signals.epochKey] = postId + 1;
+        emit Post(signals.epochKey, _postId, signals.epoch, content);
+        _postId++;
 
-        emit Post(signals.epochKey, postId, signals.epoch, content);
     }
 
     /**
