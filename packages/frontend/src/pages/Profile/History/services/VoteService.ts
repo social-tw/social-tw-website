@@ -51,6 +51,7 @@ export class VoteService {
 
     private parseRelayRawVotesToVotes(relayRawVotes: RelayRawVote[]): Vote[] {
         return relayRawVotes.map((relayRawVote) => {
+            const publishedAt = parseInt(relayRawVote.publishedAt)
             const voteType =
                 relayRawVote.type === RelayRawVoteType.Upvote
                     ? VoteType.Upvote
@@ -58,10 +59,10 @@ export class VoteService {
             return new Vote(
                 relayRawVote._id,
                 relayRawVote.epochKey,
-                relayRawVote.publishedAt,
+                publishedAt,
                 relayRawVote.content,
                 relayRawVote.voteSum,
-                dayjs(relayRawVote.publishedAt).format('YYYY/MM/DD'),
+                dayjs(publishedAt).format('YYYY/MM/DD'),
                 this.genVoteUrlById(relayRawVote._id),
                 voteType,
             )
