@@ -1,12 +1,12 @@
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { motion } from 'framer-motion'
 
-import { BackToWelcomePageButton } from '../../components/Button/BackToWelcomeButton'
-import { TwitterSignupButton } from '../../components/Button/TwitterButton'
-import { GreetingContent } from '../../components/Greeting/GreetingContent'
-import { GreetingContentOnSmallDevice } from '../../components/Greeting/GreetingContentOnSmallDevice'
-import { GreetingLogo } from '../../components/Greeting/GreetingLogo'
-import { GreetingTitle } from '../../components/Greeting/GreetingTitle'
+import { BackToWelcomePageButton } from '../../components/buttons/BackToWelcomeButton'
+import { TwitterSignupButton } from '../../components/buttons/TwitterButton'
+import { GreetingContent } from '../../components/greeting/GreetingContent'
+import { GreetingContentOnSmallDevice } from '../../components/greeting/GreetingContentOnSmallDevice'
+import { GreetingLogo } from '../../components/greeting/GreetingLogo'
+import { GreetingTitle } from '../../components/greeting/GreetingTitle'
 import StepInfo from '../../components/login/StepInfo'
 import { getVariantOpacityZeroToOne } from '../../utils/motionVariants'
 
