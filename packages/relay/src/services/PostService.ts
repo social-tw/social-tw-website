@@ -241,7 +241,6 @@ export class PostService {
                 epochKey: epochKey,
                 epoch: epoch,
                 transactionHash: txnHash,
-                status: 0,
             })
             return 1
         })
@@ -252,12 +251,17 @@ export class PostService {
     async fetchSinglePost(
         id: string,
         db: DB,
-        status: number | undefined
+        status: number
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
-                postId: id,
-                status: status, // could be undefined
+                OR: [
+                    { _id: id, status: status },
+                    {
+                        postId: id,
+                        status: status,
+                    },
+                ],
             },
         })
 

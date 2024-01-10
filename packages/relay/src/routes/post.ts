@@ -52,15 +52,17 @@ export default (
     )
 
     app.get(
-        '/api/post/:id',
+        '/api/post/:id/:status?',
         errorHandler(async (req, res, next) => {
             const id = req.params.id
+            const status = req.params.status ? parseInt(req.params.status) : 0
+
             if (!id) {
                 console.log('id is undefined')
                 return res.status(400).json({ error: 'id is undefined' })
             }
 
-            const post = await postService.fetchSinglePost(id, db, undefined)
+            const post = await postService.fetchSinglePost(id, db, status)
             if (!post) {
                 console.log(`post is not found: ${id}`)
                 res.status(404).json({ error: `post is not found: ${id}` })
