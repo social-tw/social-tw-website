@@ -241,7 +241,7 @@ contract UnirepApp {
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
-        if (signals.epoch != epoch) {
+        if (signals.epoch > epoch) {
             revert InvalidEpoch();
         }
 
