@@ -118,7 +118,7 @@ function verifyVoteAction(voteAction: VoteAction, findVote: any) {
  * @param voteAction the vote action of the user
  */
 // TODO: need to increase / decrease the epochKey counter times
-async function exeuteTxs(
+async function executeTxs(
     db: DB,
     epochKey: string,
     epoch: number,
@@ -242,7 +242,7 @@ async function Vote(req, res, db: DB, synchronizer: UnirepSocialSynchronizer) {
 
         verifyVoteAction(voteAction, findVote)
 
-        await exeuteTxs(db, epochKey, epoch, findPost, voteAction)
+        await executeTxs(db, epochKey, epoch, findPost, voteAction)
 
         res.status(201).json({})
     } catch (error: any) {
