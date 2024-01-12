@@ -2,6 +2,7 @@ import { Contract, ethers } from 'ethers'
 import { DB } from 'anondb/node'
 import { APP_ADDRESS } from '../../config'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
+import { TransactionResult } from '../../types'
 
 export class TransactionManager {
     appContract?: Contract
@@ -145,7 +146,7 @@ export class TransactionManager {
         contract: Contract,
         to: string,
         data: string | any = {}
-    ): Promise<(ethers.utils.LogDescription | null)[]> {
+    ): Promise<TransactionResult> {
         const hash = await this.queueTransaction(to, data)
         const receipt = await this.wallet?.provider.waitForTransaction(hash)
 
@@ -163,7 +164,7 @@ export class TransactionManager {
                     (log: ethers.utils.LogDescription | null) => log !== null
                 )
         }
-        return parsedLogs ?? null
+        return { txHash: hash, logs: parsedLogs }
     }
 
     /**
