@@ -26,7 +26,8 @@ contract UnirepApp {
     EpochKeyVerifierHelper internal epkHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
 
-    uint256 private _postId;
+    // a global variable to store the latest postId
+    uint256 public latestPostId;
 
     // TODO write the document for the features
     mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
@@ -150,8 +151,8 @@ contract UnirepApp {
         // should check lastly
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        emit Post(signals.epochKey, _postId, signals.epoch, content);
-        _postId++;
+        emit Post(signals.epochKey, latestPostId, signals.epoch, content);
+        latestPostId++;
 
     }
 
