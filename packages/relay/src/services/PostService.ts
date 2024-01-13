@@ -257,14 +257,13 @@ export class PostService {
 
         // after post data stored in DB, should add 1 to epoch key counter
         await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.create('Post', {
-                postId: postId,
-                content: content,
-                cid: cid.toString(),
-                epochKey: epochKey,
-                epoch: epoch,
-                transactionHash: txHash,
-                status: 1,
+            txDB.update('Post', {
+                where: {
+                    transactionHash: txHash,
+                },
+                update: {
+                    cid: cid.toString(),
+                },
             })
             return 1
         })
