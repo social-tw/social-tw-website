@@ -257,7 +257,7 @@ export class PostService {
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
-                _id: id,
+                postId: id,
                 status: status, // could be undefined
             },
         })
