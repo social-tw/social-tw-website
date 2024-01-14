@@ -175,7 +175,7 @@ export class PostService {
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
-                    where: { postId: post._id },
+                    where: { postId: post.postId },
                 })
 
                 return { ...post, votes }
@@ -204,7 +204,7 @@ export class PostService {
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
-                    where: { postId: post._id },
+                    where: { postId: post.postId },
                 })
 
                 return { ...post, votes }

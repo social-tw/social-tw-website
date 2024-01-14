@@ -14,9 +14,9 @@ export default (
         '/api/vote',
         errorHandler(async (req, res, _) => {
             //vote for post with _id
-            const { _id, voteAction, publicSignals, proof } = req.body
+            const { postId, voteAction, publicSignals, proof } = req.body
             if (
-                _id == undefined ||
+                postId == undefined ||
                 voteAction == undefined ||
                 publicSignals == undefined ||
                 proof == undefined
@@ -28,7 +28,7 @@ export default (
             }
 
             await voteService.vote(
-                _id,
+                postId,
                 voteAction,
                 publicSignals,
                 proof,
