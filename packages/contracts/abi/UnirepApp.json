@@ -225,17 +225,6 @@
     },
     {
         "inputs": [
-            { "internalType": "uint256", "name": "", "type": "uint256" }
-        ],
-        "name": "epochKeyPostIndex",
-        "outputs": [
-            { "internalType": "uint256", "name": "", "type": "uint256" }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
             { "internalType": "uint256", "name": "", "type": "uint256" },
             { "internalType": "uint256", "name": "", "type": "uint256" }
         ],
@@ -243,6 +232,15 @@
         "outputs": [
             { "internalType": "uint256", "name": "upVote", "type": "uint256" },
             { "internalType": "uint256", "name": "downVote", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "latestPostId",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
         ],
         "stateMutability": "view",
         "type": "function"
