@@ -34,6 +34,7 @@ describe('Comment Test', function () {
     // generate 2 random hash user ids
     const users = createMultipleUserIdentity(2)
 
+    // record and revert of evm enviroment
     {
         before(async function () {
             snapshot = await ethers.provider.send('evm_snapshot', [])

@@ -35,9 +35,18 @@ describe('Unirep App', function () {
     // epoch length
     const epochLength = 100000
 
-    before(async function () {
-        snapshot = await ethers.provider.send('evm_snapshot', [])
+    // record and revert of evm enviroment
+    {
+        before(async function () {
+            snapshot = await ethers.provider.send('evm_snapshot', [])
+        })
 
+        after(async function () {
+            await ethers.provider.send('evm_revert', [snapshot])
+        })
+    }
+
+    before(async function () {
         // generate random hash user id
         user = createRandomUserIdentity()
 
@@ -48,10 +57,6 @@ describe('Unirep App', function () {
         app = contracts.app
 
         chainId = await unirep.chainid()
-    })
-
-    after(async function () {
-        await ethers.provider.send('evm_revert', [snapshot])
     })
 
     describe('user signup', function () {
