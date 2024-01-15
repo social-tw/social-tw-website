@@ -119,9 +119,7 @@ describe('Unirep App', function () {
             // generate a fake proof
             const concoctProof = [...proof]
             const len = concoctProof[0].toString().length
-            concoctProof[0] = BigInt(
-                proof[0].toString().slice(0, len - 1) + BigInt(2)
-            )
+            concoctProof[0] = BigInt(2)
             const content = 'Invalid Proof'
 
             await expect(app.post(publicSignals, concoctProof, content)).to.be
