@@ -29,11 +29,15 @@ describe('Unirep App', function () {
     let inputPublicSig: any
     let inputProof: any
     let chainId: number
+    // snapshot of evm environment
+    let snapshot: any
 
     // epoch length
     const epochLength = 100000
 
     before(async function () {
+        snapshot = await ethers.provider.send('evm_snapshot', [])
+
         // generate random hash user id
         user = createRandomUserIdentity()
 
@@ -44,6 +48,10 @@ describe('Unirep App', function () {
         app = contracts.app
 
         chainId = await unirep.chainid()
+    })
+
+    after(async function () {
+        await ethers.provider.send('evm_revert', [snapshot])
     })
 
     describe('user signup', function () {
@@ -118,6 +126,8 @@ describe('Unirep App', function () {
 
             await expect(app.post(publicSignals, concoctProof, content)).to.be
                 .reverted // revert in epkHelper.verifyAndCheck()
+
+            userState.stop()
         })
 
         it('should post with valid proof', async function () {
@@ -131,6 +141,8 @@ describe('Unirep App', function () {
             await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 0, 0, content)
+
+            userState.stop()
         })
 
         it('should post and have the correct postId', async function () {
@@ -144,6 +156,8 @@ describe('Unirep App', function () {
             await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 1, 0, content)
+
+            userState.stop()
         })
 
         it('should fail to post with reused proof', async function () {
@@ -179,6 +193,8 @@ describe('Unirep App', function () {
             await expect(
                 app.post(publicSignals, proof, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+
+            userState.stop()
         })
 
         it('should fail to post with invalid state tree', async function () {
@@ -210,6 +226,8 @@ describe('Unirep App', function () {
             await expect(
                 app.post(publicSignals, proof, 'Invalid State Tree')
             ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
+
+            userState.stop()
         })
     })
 
