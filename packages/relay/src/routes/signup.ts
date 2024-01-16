@@ -15,14 +15,14 @@ export default (
             const { publicSignals, proof, hashUserId, token, fromServer } =
                 req.body
             await userService.verifyHashUserId(db, hashUserId, token)
-            const hash = await userService.signup(
+            const { txHash } = await userService.signup(
                 publicSignals,
                 proof,
                 hashUserId,
                 fromServer,
                 synchronizer
             )
-            res.status(200).json({ status: 'success', hash: hash })
+            res.status(200).json({ status: 'success', hash: txHash })
         })
     )
 }
