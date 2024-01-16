@@ -2,11 +2,13 @@ import { useEffect } from 'react'
 import { SignupStatus } from '../contexts/User'
 
 const useInitUser = (
+    isLogin: boolean,
     signupStatus: SignupStatus,
     load: () => Promise<void>,
     logout: () => void,
 ) => {
     useEffect(() => {
+        if (!isLogin) return
         const initUser = async () => {
             try {
                 if (signupStatus === 'pending') {
@@ -21,7 +23,7 @@ const useInitUser = (
         }
 
         initUser()
-    }, [signupStatus])
+    }, [signupStatus, isLogin])
 }
 
 export default useInitUser

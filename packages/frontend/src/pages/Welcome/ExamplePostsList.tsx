@@ -28,3 +28,5 @@ export function ExamplePostsList() {
         </div>
     )
 }
+
+// TODO: Real posts should be rendered here
