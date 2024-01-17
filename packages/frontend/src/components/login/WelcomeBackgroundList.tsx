@@ -56,7 +56,7 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
     }, [method])
     return (
         <motion.div
-            className="fixed inset-0 z-30 overflow-scroll flex justify-center items-center pt-[42rem] md:pl-4"
+            className="fixed z-30 overflow-scroll pt-[330px] flex justify-center md:pl-4 w-full h-full"
             variants={variants}
             initial="start"
             animate="end"

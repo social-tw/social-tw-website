@@ -61,7 +61,11 @@ const _schema = [
             },
             // status 0: haven't found the post on-chain
             // status 1: found the post on-chain
-            ['status', 'Int'],
+            {
+                name: 'status',
+                type: 'Int',
+                default: () => 0,
+            },
             {
                 name: 'commentCount',
                 type: 'Int',

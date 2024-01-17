@@ -78,10 +78,6 @@ interface UserProviderProps {
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
-interface UserProviderProps {
-    children: ReactNode
-}
-
 // TODO: Move the methods to a separate file
 // TODO: Remove unnecessary states
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
@@ -112,6 +108,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     const createUserState = async () => {
+        if (userState) return userState
         const storedSignature = localStorage.getItem('signature') ?? ''
         const relayConfig = await fetchRelayConfig()
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
@@ -352,7 +349,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('loginStatus')
     }
 
-    useInitUser(signupStatus, load, logout)
+    useInitUser(isLogin, signupStatus, load, logout)
 
     const value: UserContextType = {
         currentEpoch,

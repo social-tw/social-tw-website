@@ -10,42 +10,6 @@ import { useUser } from '@/contexts/User'
 import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 
-const demoComments = [
-    {
-        commentId: '100',
-        postId: '0',
-        epoch: 100,
-        epochKey: 'epochKey-2',
-        content: '台灣der小巷就是讚啦！',
-        transactionHash: 'test-trans',
-        publishedAt: Date.now(),
-        status: CommentStatus.Success,
-        isMine: false,
-    },
-    {
-        commentId: '101',
-        postId: '0',
-        epoch: 100,
-        epochKey: 'epochKey-2',
-        content: '請問這是哪裡？',
-        transactionHash: 'test-trans',
-        publishedAt: Date.now(),
-        status: CommentStatus.Success,
-        isMine: false,
-    },
-    {
-        commentId: '102',
-        postId: '0',
-        epoch: 100,
-        epochKey: 'epochKey-2',
-        content: '這裡的芋圓推推推！',
-        transactionHash: 'test-trans',
-        publishedAt: Date.now(),
-        status: CommentStatus.Success,
-        isMine: false,
-    },
-]
-
 async function fetchCommentsByPostId(
     postId: string,
 ): Promise<CommnetDataFromApi[]> {
@@ -108,7 +72,7 @@ export default function useFetchComment(postId?: string) {
                 }
             })
 
-            setComments([...successfulComments, ...demoComments])
+            setComments([...successfulComments])
         }
 
         loadComments()
