@@ -1,6 +1,10 @@
-import { Fragment, useEffect } from "react";
+import { nanoid } from "nanoid";
+import { Fragment, useEffect, useMemo } from "react";
 import Post from "@/components/post/Post";
 import { SERVER } from "@/config";
+import {
+    ActionStatus, postActionsSelector, PostData, useActionStore
+} from "@/contexts/Actions";
 import { useUser } from "@/contexts/User";
 import { useVoteEvents } from "@/hooks/useVotes";
 import { PostInfo, PostStatus, VoteAction, VoteMsg } from "@/types";
@@ -63,9 +67,33 @@ export default function PostList() {
 
     useEffect(() => {
         if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage().then((r) => r)
+            fetchNextPage({ cancelRefetch: false }).then((r) => r)
         }
     }, [entry])
+
+    const postActions = useActionStore(postActionsSelector)
+
+    const localPosts = useMemo(() => {
+        return postActions
+            .filter((action) => action.status !== ActionStatus.Failure)
+            .sort((a, b) => a.submittedAt.valueOf() - b.submittedAt.valueOf())
+            .map((action) => {
+                const actionData = action.data as PostData
+                return {
+                    id: actionData?.transactionHash ?? nanoid(),
+                    postId: actionData?.postId,
+                    epochKey: actionData?.epochKey,
+                    content: actionData?.content,
+                    publishedAt: action.submittedAt,
+                    commentCount: 0,
+                    upCount: 0,
+                    downCount: 0,
+                    isMine: true,
+                    finalAction: null,
+                    status: action.status as unknown as PostStatus,
+                }
+            })
+    }, [postActions])
 
     function handleVoteEvent(msg: VoteMsg) {
         // Update the query data for 'posts'
@@ -113,6 +141,26 @@ export default function PostList() {
     return (
         <div>
             <ul className="space-y-3 md:space-y-6">
+                {localPosts.map((post) => (
+                    <li
+                        key={post.id}
+                        className="transition-opacity duration-500"
+                    >
+                        <Post
+                            id={post.postId}
+                            epochKey={post.epochKey}
+                            content={post.content}
+                            publishedAt={post.publishedAt}
+                            commentCount={post.commentCount}
+                            upCount={post.upCount}
+                            downCount={post.downCount}
+                            compact
+                            isMine={post.isMine}
+                            finalAction={post.finalAction}
+                            status={post.status}
+                        />
+                    </li>
+                ))}
                 {data?.pages.map((group, i) => (
                     <Fragment key={i}>
                         {group.map((post) => (

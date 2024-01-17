@@ -36,7 +36,6 @@ export default function AppLayout() {
     }
 
     useEffect(() => {
-        console.log(isLogin)
         if (isLogin && signupStatus === 'success') {
             setTimeout(() => {
                 setSignupStatus('default')

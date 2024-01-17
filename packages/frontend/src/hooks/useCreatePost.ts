@@ -3,6 +3,7 @@ import {
     ActionType,
     addAction,
     failActionById,
+    PostData,
     succeedActionById,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
@@ -28,9 +29,11 @@ export default function useCreatePost() {
     const create = async (content: string) => {
         if (!userState) throw new Error('user state not initialized')
 
-        const postData = {
+        const postData: PostData = {
             postId: undefined,
             content: content,
+            epochKey: undefined,
+            transactionHash: undefined,
         }
         const actionId = addAction(ActionType.Post, postData)
 
@@ -44,11 +47,11 @@ export default function useCreatePost() {
 
             const nonce = randomNonce()
 
-            const epochKey = userState
-                .getEpochKeys(latestTransitionedEpoch, nonce)
-                .toString()
-
-            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+            const epochKeyProof = await userState.genEpochKeyProof({
+                nonce,
+            })
+            const epoch = Number(epochKeyProof.epoch)
+            const epochKey = epochKeyProof.epochKey.toString()
 
             const proof = stringifyBigInts({
                 content,
@@ -67,6 +70,7 @@ export default function useCreatePost() {
 
             succeedActionById(actionId, {
                 postId,
+                epochKey,
                 transactionHash: transaction,
             })
 
@@ -74,7 +78,7 @@ export default function useCreatePost() {
                 transactionHash: transaction,
                 postId,
                 content,
-                epoch: latestTransitionedEpoch,
+                epoch,
                 epochKey,
             }
         } catch (error) {

@@ -1,35 +1,22 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
-import Comment from '@/components/comment/Comment'
-import CommentNotifications from '@/components/comment/CommentNotification'
-import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
-import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
+import React, { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import Comment from "@/components/comment/Comment";
+import CommentNotifications from "@/components/comment/CommentNotification";
+import CommentPublishTransition from "@/components/comment/CommentPublishTransition";
+import DesktopCommentForm from "@/components/comment/DesktopCommentForm";
 import MobileCommentForm, {
-    CommentValues,
-} from '@/components/comment/MobileCommentForm'
-import AuthErrorDialog from '@/components/login/AuthErrorDialog'
-import Post from '@/components/post/Post'
-import { SERVER } from '@/config'
-import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
-import { useUser } from '@/contexts/User'
-import useCreateComment from '@/hooks/useCreateComment'
-import useFetchComment from '@/hooks/useFetchComment'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import checkVoteIsMine from '../utils/checkVoteIsMine'
-
-import type { PostInfo } from '../types'
-const demoPost = {
-    id: '1',
-    epochKey: 'epochKey-1',
-    publishedAt: new Date(),
-    content:
-        '今天真是一個美好的日子！我終於完成了我夢寐以求的目標：跑完全馬拉松！這個挑戰對我來說真的非常艱巨，但我堅持下來了。在這個過程中，我學到了很多關於毅力和奮鬥的價值。我要特別感謝我的家人和朋友對我一直以來的支持和鼓勵。無論你們在生活中面對什麼困難，只要你們相信自己，付出努力，你們一定可以實現自己的目標！今天，我真心覺得自己是最幸運的人。',
-    commentCount: 0,
-    upCount: 0,
-    downCount: 0,
-    isMine: false,
-    finalAction: null,
-}
+    CommentValues
+} from "@/components/comment/MobileCommentForm";
+import AuthErrorDialog from "@/components/login/AuthErrorDialog";
+import Post from "@/components/post/Post";
+import { SERVER } from "@/config";
+import LOGIN_ERROR_MESSAGES from "@/constants/error-messages/loginErrorMessage";
+import { useUser } from "@/contexts/User";
+import useCreateComment from "@/hooks/useCreateComment";
+import useFetchComment from "@/hooks/useFetchComment";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import { PostInfo, PostStatus } from "../types";
+import checkVoteIsMine from "../utils/checkVoteIsMine";
 
 export default function PostDetail() {
     const { id } = useParams()
@@ -98,6 +85,7 @@ export default function PostDetail() {
                 downCount: post.downCount,
                 isMine: isMine,
                 finalAction: finalAction,
+                status: PostStatus.Success,
             })
         }
         loadPost()

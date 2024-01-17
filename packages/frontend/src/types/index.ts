@@ -1,7 +1,15 @@
+export enum PostStatus {
+    Pending = 'pending',
+    Success = 'success',
+    Failure = 'failure',
+    Deleted = 'deleted',
+    Reported = 'reported',
+}
+
 export interface PostInfo {
     id: string
     postId: string | undefined
-    epochKey: string
+    epochKey: string | undefined
     content: string | undefined
     publishedAt: Date
     commentCount: number
@@ -9,6 +17,7 @@ export interface PostInfo {
     downCount: number
     isMine: boolean
     finalAction: VoteAction | null
+    status: PostStatus
 }
 
 export interface Vote {

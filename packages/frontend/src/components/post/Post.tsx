@@ -1,15 +1,16 @@
-import dayjs from 'dayjs'
-import React, { useEffect, useState } from 'react'
-import LinesEllipsis from 'react-lines-ellipsis'
-import { Link } from 'react-router-dom'
-import Avatar from '@/components/common/Avatar'
-import { VoteAction, VoteMsg } from '@/types'
-import Comment from '../../assets/comment.png'
-import Downvote from '../../assets/downvote.png'
-import Upvote from '../../assets/upvote.png'
-import { useUser } from '../../contexts/User'
-import useVotes, { useVoteEvents } from '../../hooks/useVotes'
-import LikeAnimation from '../ui/animations/LikeAnimation'
+import dayjs from "dayjs";
+import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
+import LinesEllipsis from "react-lines-ellipsis";
+import { Link } from "react-router-dom";
+import Avatar from "@/components/common/Avatar";
+import { PostStatus, VoteAction, VoteMsg } from "@/types";
+import Comment from "../../assets/comment.png";
+import Downvote from "../../assets/downvote.png";
+import Upvote from "../../assets/upvote.png";
+import { useUser } from "../../contexts/User";
+import useVotes, { useVoteEvents } from "../../hooks/useVotes";
+import LikeAnimation from "../ui/animations/LikeAnimation";
 
 export default function Post({
     id = '',
@@ -23,10 +24,11 @@ export default function Post({
     compact = false,
     isMine = false,
     finalAction = null,
-    onComment = () => {},
+    status = PostStatus.Success,
+    onComment = () => { },
 }: {
     id?: string
-    epochKey: string
+    epochKey?: string
     content?: string
     imageUrl?: string
     publishedAt: Date
@@ -36,14 +38,16 @@ export default function Post({
     compact?: boolean
     isMine?: boolean
     finalAction?: VoteAction | null
+    status?: PostStatus
     onComment?: () => void
 }) {
-    const isTemp = id.startsWith('temp')
-
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
+
+    const subtitle =
+        status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLogin } = useUser()
     const { create } = useVotes()
@@ -66,12 +70,13 @@ export default function Post({
     useEffect(() => {
         setIsAction(finalAction)
     }, [finalAction])
+
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center gap-4">
-                <Avatar name={epochKey} />
+                <Avatar name={epochKey ?? nanoid()} />
                 <span className="text-xs font-medium tracking-wide text-black/80">
-                    {publishedLabel}
+                    {subtitle}
                 </span>
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
@@ -170,11 +175,11 @@ export default function Post({
     })
 
     return (
-        <article className="flex bg-white/90 rounded-xl shadow-base">
+        <article className="relative flex bg-white/90 rounded-xl shadow-base">
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
-                {compact && !isTemp ? (
-                    <Link to={`/post/${id}`}>{postInfo}</Link>
+                {compact && status === PostStatus.Success ? (
+                    <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
                     postInfo
                 )}
@@ -190,11 +195,10 @@ export default function Post({
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
-                            className={`${
-                                isMine && isAction === VoteAction.UPVOTE
-                                    ? 'border-4 border-white rounded-full'
-                                    : ''
-                            }`}
+                            className={`${isMine && isAction === VoteAction.UPVOTE
+                                ? 'border-4 border-white rounded-full'
+                                : ''
+                                }`}
                         >
                             <img
                                 className="w-5 h-5"
@@ -212,11 +216,10 @@ export default function Post({
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
-                            className={`${
-                                isMine && isAction === VoteAction.DOWNVOTE
-                                    ? 'border-4 border-white rounded-full'
-                                    : ''
-                            }`}
+                            className={`${isMine && isAction === VoteAction.DOWNVOTE
+                                ? 'border-4 border-white rounded-full'
+                                : ''
+                                }`}
                         >
                             <img
                                 className="w-5 h-5"
@@ -247,6 +250,9 @@ export default function Post({
                         alt="image"
                     />
                 </div>
+            )}
+            {status === PostStatus.Pending && (
+                <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-xl" />
             )}
         </article>
     )

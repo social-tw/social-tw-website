@@ -1,17 +1,11 @@
-import dayjs from 'dayjs'
-import { Link } from 'react-router-dom'
+import dayjs from "dayjs";
+import { Link } from "react-router-dom";
 import {
-    actionsSelector,
-    ActionStatus,
-    ActionType,
-    useActionStore,
-} from '@/contexts/Actions'
+    actionsSelector, ActionStatus, ActionType, useActionStore
+} from "@/contexts/Actions";
 import {
-    createColumnHelper,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
+    createColumnHelper, flexRender, getCoreRowModel, useReactTable
+} from "@tanstack/react-table";
 
 import type { Action } from '@/contexts/Actions'
 
@@ -25,9 +19,12 @@ export function getActionTypeLabel(type: ActionType) {
 }
 
 export function getActionLink(action: Action) {
-    // TODO: check the comment link to redirect
     if (action.type === ActionType.Post) {
-        return `/posts/${action.data.postId}`
+        if (action.status === ActionStatus.Success) {
+            return `/posts/${action.data.postId}`
+        } else {
+            return '/posts'
+        }
     }
     if (action.type === ActionType.Comment) {
         return `/posts/${action.data.postId}#${action.data.commentId}`
@@ -107,9 +104,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext(),
-                                          )}
+                                            header.column.columnDef.header,
+                                            header.getContext(),
+                                        )}
                                 </th>
                             ))}
                         </tr>
@@ -140,9 +137,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                              header.column.columnDef.footer,
-                                              header.getContext(),
-                                          )}
+                                            header.column.columnDef.footer,
+                                            header.getContext(),
+                                        )}
                                 </th>
                             ))}
                         </tr>

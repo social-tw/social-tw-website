@@ -18,6 +18,8 @@ export enum ActionStatus {
 export interface PostData {
     postId?: string
     content: string
+    epochKey?: string
+    transactionHash?: string
 }
 
 export interface CommentData {
@@ -39,7 +41,7 @@ export interface BaseAction<Type, Data> {
     id: string
     type: Type
     status: ActionStatus
-    submittedAt: number
+    submittedAt: Date
     data: Data
 }
 
@@ -92,6 +94,12 @@ export function latestActionSelector(state: ActionState) {
     return state.latestId ? state.entities[state.latestId] : undefined
 }
 
+export function postActionsSelector(state: ActionState) {
+    return Object.values(state.entities).filter(
+        (action) => action.type === ActionType.Post,
+    )
+}
+
 export function commentActionsSelector(state: ActionState) {
     return Object.values(state.entities).filter(
         (action) => action.type === ActionType.Comment,
@@ -126,8 +134,8 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
     return function (state: ActionState) {
         return Object.values(state.entities).filter(
             (action) =>
-                action.submittedAt > _startTime &&
-                action.submittedAt <= _endTime,
+                action.submittedAt.valueOf() > _startTime &&
+                action.submittedAt.valueOf() <= _endTime,
         ).length
     }
 }
@@ -140,7 +148,7 @@ export function createAction(
         id: nanoid(),
         type,
         status: ActionStatus.Pending,
-        submittedAt: Date.now(),
+        submittedAt: new Date(),
         data,
     } as Action
 }

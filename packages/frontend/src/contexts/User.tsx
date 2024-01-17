@@ -188,13 +188,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     ) => {
         if (!userState) throw new Error('user state not initialized')
 
-        const latestTransitionedEpoch =
-            await userState.latestTransitionedEpoch()
-
-        if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-            await stateTransition()
-        }
-
         const signupProof = await userState.genUserSignUpProof()
         const publicSignals = signupProof.publicSignals.map((item) =>
             item.toString(),
@@ -218,7 +211,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if (!response.ok) {
             throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
         }
+        const data = await response.json()
 
+        await provider.waitForTransaction(data.hash)
         await userState.waitForSync()
         const hasSignedUpStatus = await userState.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
