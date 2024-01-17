@@ -4,13 +4,16 @@ import {
     DB_PATH,
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
+    APP_ADDRESS,
+    APP_ABI,
 } from '../config'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
+import { ethers } from 'ethers'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import ProofHelper from './singletons/ProofHelper'
 import ActionCountManager from './singletons/ActionCountManager'
-import { Post } from '../types/Post'
+import { PostCreationResult, Post } from '../types/Post'
 import IpfsHelper from './singletons/IpfsHelper'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 import TransactionManager from './singletons/TransactionManager'
@@ -172,7 +175,7 @@ export class PostService {
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
-                    where: { postId: post._id },
+                    where: { postId: post.postId },
                 })
 
                 return { ...post, votes }
@@ -201,7 +204,7 @@ export class PostService {
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
-                    where: { postId: post._id },
+                    where: { postId: post.postId },
                 })
 
                 return { ...post, votes }
@@ -216,7 +219,7 @@ export class PostService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
-    ): Promise<string> {
+    ): Promise<PostCreationResult> {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
@@ -225,29 +228,47 @@ export class PostService {
 
         // post content
         const cid = await IpfsHelper.createIpfsContent(helia, content)
-        const txnHash = await TransactionManager.callContract('post', [
+
+        const appContract = new ethers.Contract(APP_ADDRESS, APP_ABI)
+        const calldata = appContract.interface.encodeFunctionData('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
             content,
         ])
+
+        const { txHash, logs } = await TransactionManager.executeTransaction(
+            appContract,
+            APP_ADDRESS,
+            calldata
+        )
+
+        // FIXME should be latest post id after contract changes
+        const postId = logs
+            .filter(
+                (log): log is ethers.utils.LogDescription =>
+                    log !== null && log.name === 'Post'
+            )
+            .map((log) => log.args.postId)
+            .find((postId) => postId !== undefined)
+            .toString()
 
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
         // after post data stored in DB, should add 1 to epoch key counter
         await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.create('Post', {
-                content: content,
-                cid: cid.toString(),
-                epochKey: epochKey,
-                epoch: epoch,
-                transactionHash: txnHash,
-                status: 0,
+            txDB.update('Post', {
+                where: {
+                    transactionHash: txHash,
+                },
+                update: {
+                    cid: cid.toString(),
+                },
             })
             return 1
         })
 
-        return txnHash
+        return { txHash, postId: postId }
     }
 
     async fetchSinglePost(
