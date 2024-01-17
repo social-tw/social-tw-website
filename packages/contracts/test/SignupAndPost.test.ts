@@ -68,7 +68,7 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('revert when user reuse the same signup proof', async function () {
+        it('revert when user sign up multiple times', async function () {
             const userState = await genUserState(user.id, app)
 
             const { publicSignals, proof } =
