@@ -1,19 +1,15 @@
-import { Fragment, useEffect } from 'react'
-import Post from '@/components/post/Post'
-import { SERVER } from '@/config'
-import { useUser } from '@/contexts/User'
-import { useVoteEvents } from '@/hooks/useVotes'
-import { PostInfo, VoteAction, VoteMsg } from '@/types'
-import { FetchPostsResponse } from '@/types/api'
-import checkVoteIsMine from '@/utils/checkVoteIsMine'
+import { Fragment, useEffect } from "react";
+import Post from "@/components/post/Post";
+import { SERVER } from "@/config";
+import { useUser } from "@/contexts/User";
+import { useVoteEvents } from "@/hooks/useVotes";
+import { PostInfo, PostStatus, VoteAction, VoteMsg } from "@/types";
+import { FetchPostsResponse } from "@/types/api";
+import checkVoteIsMine from "@/utils/checkVoteIsMine";
 import {
-    DefaultError,
-    InfiniteData,
-    QueryKey,
-    useInfiniteQuery,
-    useQueryClient,
-} from '@tanstack/react-query'
-import { useIntersectionObserver } from '@uidotdev/usehooks'
+    DefaultError, InfiniteData, QueryKey, useInfiniteQuery, useQueryClient
+} from "@tanstack/react-query";
+import { useIntersectionObserver } from "@uidotdev/usehooks";
 
 export default function PostList() {
     const { userState } = useUser()
@@ -35,9 +31,9 @@ export default function PostList() {
                 const voteCheck = userState
                     ? checkVoteIsMine(item.votes, userState)
                     : {
-                          isMine: false,
-                          finalAction: null,
-                      }
+                        isMine: false,
+                        finalAction: null,
+                    }
                 return {
                     id: item.transactionHash!,
                     postId: item.postId,
@@ -49,6 +45,7 @@ export default function PostList() {
                     downCount: item.downCount,
                     isMine: voteCheck.isMine,
                     finalAction: voteCheck.finalAction,
+                    status: PostStatus.Success,
                 }
             })
         },
@@ -134,6 +131,7 @@ export default function PostList() {
                                     compact
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
+                                    status={post.status}
                                 />
                             </li>
                         ))}

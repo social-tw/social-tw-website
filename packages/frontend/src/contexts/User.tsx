@@ -1,25 +1,20 @@
-import { IndexedDBConnector } from 'anondb/web'
-import { ethers } from 'ethers'
+import { IndexedDBConnector } from "anondb/web";
+import { ethers } from "ethers";
 import React, {
-    createContext,
-    ReactNode,
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-} from 'react'
-import { Identity } from '@semaphore-protocol/identity'
-import { DataProof } from '@unirep-app/circuits'
-import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../config'
-import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
-import useInitUser from '../hooks/useInitUser'
-import { useLocalStorage } from '../hooks/useLocalStorage'
-import { fetchRelayConfig } from '../utils/api'
-import { createProviderByUrl } from '../utils/createProviderByUrl'
-import prover from './Prover'
-import { schema } from './schema'
-import { UserState } from './Userstate'
+    createContext, ReactNode, useCallback, useContext, useMemo, useState
+} from "react";
+import { Identity } from "@semaphore-protocol/identity";
+import { DataProof } from "@unirep-app/circuits";
+import { stringifyBigInts } from "@unirep/utils";
+import { SERVER } from "../config";
+import ERROR_MESSAGES from "../constants/error-messages/loginErrorMessage";
+import useInitUser from "../hooks/useInitUser";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { fetchRelayConfig } from "../utils/api";
+import { createProviderByUrl } from "../utils/createProviderByUrl";
+import prover from "./Prover";
+import { schema } from "./schema";
+import { UserState } from "./Userstate";
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
@@ -58,7 +53,6 @@ export interface UserContextType {
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
     signup: (
         fromServer: boolean,
-        userStateInstance: UserState,
         hashUserId: string,
         accessToken: string,
     ) => Promise<void>
@@ -187,47 +181,50 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.setItem('signature', signature)
     }
 
-    const signup = useCallback(
-        async (
-            fromServer: boolean,
-            userStateInstance: UserState,
-            hashUserId: string,
-            accessToken: string,
-        ) => {
-            if (!userStateInstance)
-                throw new Error('user state not initialized')
-            const signupProof = await userStateInstance.genUserSignUpProof()
-            const publicSignals = signupProof.publicSignals.map((item) =>
-                item.toString(),
-            )
-            const proof = signupProof.proof.map((item) => item.toString())
+    const signup = async (
+        fromServer: boolean,
+        hashUserId: string,
+        accessToken: string,
+    ) => {
+        if (!userState) throw new Error('user state not initialized')
 
-            const response = await fetch(`${SERVER}/api/signup`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    publicSignals: publicSignals,
-                    proof: proof,
-                    hashUserId: hashUserId,
-                    token: accessToken,
-                    fromServer: fromServer,
-                }),
-            })
+        const latestTransitionedEpoch =
+            await userState.latestTransitionedEpoch()
 
-            if (!response.ok) {
-                throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
-            }
+        if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
+            await stateTransition()
+        }
 
-            await userStateInstance.waitForSync()
-            const hasSignedUpStatus = await userStateInstance.hasSignedUp()
-            setHasSignedUp(hasSignedUpStatus)
-            const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
-            setLatestTransitionedEpoch(latestEpoch)
-        },
-        [SERVER],
-    )
+        const signupProof = await userState.genUserSignUpProof()
+        const publicSignals = signupProof.publicSignals.map((item) =>
+            item.toString(),
+        )
+        const proof = signupProof.proof.map((item) => item.toString())
+
+        const response = await fetch(`${SERVER}/api/signup`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                publicSignals: publicSignals,
+                proof: proof,
+                hashUserId: hashUserId,
+                token: accessToken,
+                fromServer: fromServer,
+            }),
+        })
+
+        if (!response.ok) {
+            throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
+        }
+
+        await userState.waitForSync()
+        const hasSignedUpStatus = await userState.hasSignedUp()
+        setHasSignedUp(hasSignedUpStatus)
+        const latestEpoch = userState.sync.calcCurrentEpoch()
+        setLatestTransitionedEpoch(latestEpoch)
+    }
 
     const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')
@@ -349,7 +346,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('loginStatus')
     }
 
-    useInitUser(isLogin, signupStatus, load, logout)
+    useInitUser(load, logout)
 
     const value: UserContextType = {
         currentEpoch,

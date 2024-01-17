@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
-import PostFailureDialog from '@/components/post/PostFailureDialog'
-import PostForm, { PostValues } from '@/components/post/PostForm'
-import PostPublishTransition from '@/components/post/PostPublishTransition'
-import useCreatePost from '@/hooks/useCreatePost'
-import { PostInfo } from '@/types'
-import { InfiniteData, useQueryClient } from '@tanstack/react-query'
+import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import PostFailureDialog from "@/components/post/PostFailureDialog";
+import PostForm, { PostValues } from "@/components/post/PostForm";
+import PostPublishTransition from "@/components/post/PostPublishTransition";
+import useCreatePost from "@/hooks/useCreatePost";
+import { PostInfo, PostStatus } from "@/types";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 
 interface HomePostFormProps {
     disabled?: boolean
@@ -28,27 +29,50 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
 
         const previousPostsData = queryClient.getQueryData(['posts'])
 
+        const pendingPost = {
+            id: `pending-${nanoid()}`,
+            postId: undefined,
+            epochKey: undefined,
+            content,
+            publishedAt: new Date(),
+            commentCount: 0,
+            upCount: 0,
+            downCount: 0,
+            status: PostStatus.Pending
+        }
         try {
             setIsSubmitted(true)
-
-            const { transactionHash, postId, epochKey } = await create(content)
-
-            const newPost = {
-                id: transactionHash,
-                postId,
-                epochKey,
-                content,
-                publishedAt: new Date(),
-                commentCount: 0,
-                upCount: 0,
-                downCount: 0,
-            }
             queryClient.setQueryData(
                 ['posts'],
                 (old: InfiniteData<PostInfo[]>) => ({
-                    pages: [[newPost, ...old.pages[0]], ...old.pages.slice(1)],
+                    pages: [
+                        [pendingPost, ...old.pages[0]],
+                        ...old.pages.slice(1),
+                    ],
                     pageParams: old.pageParams,
                 }),
+            )
+
+            const { transactionHash, postId, epochKey } = await create(content)
+            const newPost = {
+                ...pendingPost,
+                id: transactionHash,
+                postId,
+                epochKey,
+                status: PostStatus.Success,
+            }
+
+            queryClient.setQueryData(
+                ['posts'],
+                (old: InfiniteData<PostInfo[]>) => {
+                    const firstPage = old.pages[0].filter(
+                        (post) => post.id !== pendingPost.id,
+                    )
+                    return {
+                        pages: [[newPost, ...firstPage], ...old.pages.slice(1)],
+                        pageParams: old.pageParams,
+                    }
+                },
             )
 
             toast('貼文成功送出')
