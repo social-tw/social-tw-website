@@ -76,7 +76,7 @@ export class VoteService {
 
         this.verifyVoteAction(voteAction, findVote)
 
-        await this.exeuteTxs(
+        await this.executeTx(
             db,
             epochKey,
             Number(epochKeyProof.epoch),
@@ -131,7 +131,7 @@ export class VoteService {
      * @param post the post that the user is about to vote
      * @param voteAction the vote action of the user
      */
-    async exeuteTxs(
+    async executeTx(
         db: DB,
         epochKey: string,
         epoch: number,
