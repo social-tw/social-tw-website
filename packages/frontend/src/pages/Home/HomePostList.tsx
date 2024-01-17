@@ -1,19 +1,26 @@
-import { nanoid } from "nanoid";
-import { Fragment, useEffect, useMemo } from "react";
-import Post from "@/components/post/Post";
-import { SERVER } from "@/config";
+import { nanoid } from 'nanoid'
+import { Fragment, useEffect, useMemo } from 'react'
+import Post from '@/components/post/Post'
+import { SERVER } from '@/config'
 import {
-    ActionStatus, postActionsSelector, PostData, useActionStore
-} from "@/contexts/Actions";
-import { useUser } from "@/contexts/User";
-import { useVoteEvents } from "@/hooks/useVotes";
-import { PostInfo, PostStatus, VoteAction, VoteMsg } from "@/types";
-import { FetchPostsResponse } from "@/types/api";
-import checkVoteIsMine from "@/utils/checkVoteIsMine";
+    ActionStatus,
+    postActionsSelector,
+    PostData,
+    useActionStore,
+} from '@/contexts/Actions'
+import { useUser } from '@/contexts/User'
+import { useVoteEvents } from '@/hooks/useVotes'
+import { PostInfo, PostStatus, VoteAction, VoteMsg } from '@/types'
+import { FetchPostsResponse } from '@/types/api'
+import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
-    DefaultError, InfiniteData, QueryKey, useInfiniteQuery, useQueryClient
-} from "@tanstack/react-query";
-import { useIntersectionObserver } from "@uidotdev/usehooks";
+    DefaultError,
+    InfiniteData,
+    QueryKey,
+    useInfiniteQuery,
+    useQueryClient,
+} from '@tanstack/react-query'
+import { useIntersectionObserver } from '@uidotdev/usehooks'
 
 export default function PostList() {
     const { userState } = useUser()
@@ -35,9 +42,9 @@ export default function PostList() {
                 const voteCheck = userState
                     ? checkVoteIsMine(item.votes, userState)
                     : {
-                        isMine: false,
-                        finalAction: null,
-                    }
+                          isMine: false,
+                          finalAction: null,
+                      }
                 return {
                     id: item.transactionHash!,
                     postId: item.postId,

@@ -1,20 +1,25 @@
-import { IndexedDBConnector } from "anondb/web";
-import { ethers } from "ethers";
+import { IndexedDBConnector } from 'anondb/web'
+import { ethers } from 'ethers'
 import React, {
-    createContext, ReactNode, useCallback, useContext, useMemo, useState
-} from "react";
-import { Identity } from "@semaphore-protocol/identity";
-import { DataProof } from "@unirep-app/circuits";
-import { stringifyBigInts } from "@unirep/utils";
-import { SERVER } from "../config";
-import ERROR_MESSAGES from "../constants/error-messages/loginErrorMessage";
-import useInitUser from "../hooks/useInitUser";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import { fetchRelayConfig } from "../utils/api";
-import { createProviderByUrl } from "../utils/createProviderByUrl";
-import prover from "./Prover";
-import { schema } from "./schema";
-import { UserState } from "./Userstate";
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useMemo,
+    useState,
+} from 'react'
+import { Identity } from '@semaphore-protocol/identity'
+import { DataProof } from '@unirep-app/circuits'
+import { stringifyBigInts } from '@unirep/utils'
+import { SERVER } from '../config'
+import ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import useInitUser from '../hooks/useInitUser'
+import { useLocalStorage } from '../hooks/useLocalStorage'
+import { fetchRelayConfig } from '../utils/api'
+import { createProviderByUrl } from '../utils/createProviderByUrl'
+import prover from './Prover'
+import { schema } from './schema'
+import { UserState } from './Userstate'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 

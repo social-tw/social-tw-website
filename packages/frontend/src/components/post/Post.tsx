@@ -1,16 +1,16 @@
-import dayjs from "dayjs";
-import { nanoid } from "nanoid";
-import React, { useEffect, useState } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
-import { Link } from "react-router-dom";
-import Avatar from "@/components/common/Avatar";
-import { PostStatus, VoteAction, VoteMsg } from "@/types";
-import Comment from "../../assets/comment.png";
-import Downvote from "../../assets/downvote.png";
-import Upvote from "../../assets/upvote.png";
-import { useUser } from "../../contexts/User";
-import useVotes, { useVoteEvents } from "../../hooks/useVotes";
-import LikeAnimation from "../ui/animations/LikeAnimation";
+import dayjs from 'dayjs'
+import { nanoid } from 'nanoid'
+import React, { useEffect, useState } from 'react'
+import LinesEllipsis from 'react-lines-ellipsis'
+import { Link } from 'react-router-dom'
+import Avatar from '@/components/common/Avatar'
+import { PostStatus, VoteAction, VoteMsg } from '@/types'
+import Comment from '../../assets/comment.png'
+import Downvote from '../../assets/downvote.png'
+import Upvote from '../../assets/upvote.png'
+import { useUser } from '../../contexts/User'
+import useVotes, { useVoteEvents } from '../../hooks/useVotes'
+import LikeAnimation from '../ui/animations/LikeAnimation'
 
 export default function Post({
     id = '',
@@ -25,7 +25,7 @@ export default function Post({
     isMine = false,
     finalAction = null,
     status = PostStatus.Success,
-    onComment = () => { },
+    onComment = () => {},
 }: {
     id?: string
     epochKey?: string
@@ -195,10 +195,11 @@ export default function Post({
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
-                            className={`${isMine && isAction === VoteAction.UPVOTE
-                                ? 'border-4 border-white rounded-full'
-                                : ''
-                                }`}
+                            className={`${
+                                isMine && isAction === VoteAction.UPVOTE
+                                    ? 'border-4 border-white rounded-full'
+                                    : ''
+                            }`}
                         >
                             <img
                                 className="w-5 h-5"
@@ -216,10 +217,11 @@ export default function Post({
                         style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
                     >
                         <div
-                            className={`${isMine && isAction === VoteAction.DOWNVOTE
-                                ? 'border-4 border-white rounded-full'
-                                : ''
-                                }`}
+                            className={`${
+                                isMine && isAction === VoteAction.DOWNVOTE
+                                    ? 'border-4 border-white rounded-full'
+                                    : ''
+                            }`}
                         >
                             <img
                                 className="w-5 h-5"

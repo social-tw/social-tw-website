@@ -1,22 +1,18 @@
-import { motion } from "framer-motion";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import {
-    BackToWelcomePageButton
-} from "../../components/buttons/BackToWelcomeButton";
-import { TwitterLoginButton } from "../../components/buttons/TwitterButton";
-import { GreetingContent } from "../../components/greeting/GreetingContent";
-import {
-    GreetingContentOnSmallDevice
-} from "../../components/greeting/GreetingContentOnSmallDevice";
-import { GreetingLogo } from "../../components/greeting/GreetingLogo";
-import { GreetingTitle } from "../../components/greeting/GreetingTitle";
-import { PATHS } from "../../constants/paths";
-import { SIGNUP_METHODS } from "../../constants/signupMethods";
-import { LocalStorageHelper } from "../../utils/LocalStorageHelper";
-import { getVariantAutoScrollY } from "../../utils/motionVariants";
+import { motion } from 'framer-motion'
+import { useEffect } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { BackToWelcomePageButton } from '../../components/buttons/BackToWelcomeButton'
+import { TwitterLoginButton } from '../../components/buttons/TwitterButton'
+import { GreetingContent } from '../../components/greeting/GreetingContent'
+import { GreetingContentOnSmallDevice } from '../../components/greeting/GreetingContentOnSmallDevice'
+import { GreetingLogo } from '../../components/greeting/GreetingLogo'
+import { GreetingTitle } from '../../components/greeting/GreetingTitle'
+import { PATHS } from '../../constants/paths'
+import { SIGNUP_METHODS } from '../../constants/signupMethods'
+import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
+import { getVariantAutoScrollY } from '../../utils/motionVariants'
 
 export function Login() {
     // TODO: move handle callback to "twitter/callback" page

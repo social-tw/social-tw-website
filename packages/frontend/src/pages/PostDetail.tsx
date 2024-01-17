@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import Comment from "@/components/comment/Comment";
-import CommentNotifications from "@/components/comment/CommentNotification";
-import CommentPublishTransition from "@/components/comment/CommentPublishTransition";
-import DesktopCommentForm from "@/components/comment/DesktopCommentForm";
+import React, { useEffect, useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
+import Comment from '@/components/comment/Comment'
+import CommentNotifications from '@/components/comment/CommentNotification'
+import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
+import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
 import MobileCommentForm, {
-    CommentValues
-} from "@/components/comment/MobileCommentForm";
-import AuthErrorDialog from "@/components/login/AuthErrorDialog";
-import Post from "@/components/post/Post";
-import { SERVER } from "@/config";
-import LOGIN_ERROR_MESSAGES from "@/constants/error-messages/loginErrorMessage";
-import { useUser } from "@/contexts/User";
-import useCreateComment from "@/hooks/useCreateComment";
-import useFetchComment from "@/hooks/useFetchComment";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import { PostInfo, PostStatus } from "../types";
-import checkVoteIsMine from "../utils/checkVoteIsMine";
+    CommentValues,
+} from '@/components/comment/MobileCommentForm'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import Post from '@/components/post/Post'
+import { SERVER } from '@/config'
+import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
+import { useUser } from '@/contexts/User'
+import useCreateComment from '@/hooks/useCreateComment'
+import useFetchComment from '@/hooks/useFetchComment'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { PostInfo, PostStatus } from '../types'
+import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 export default function PostDetail() {
     const { id } = useParams()

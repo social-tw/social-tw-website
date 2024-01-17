@@ -1,11 +1,17 @@
-import dayjs from "dayjs";
-import { Link } from "react-router-dom";
+import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
 import {
-    actionsSelector, ActionStatus, ActionType, useActionStore
-} from "@/contexts/Actions";
+    actionsSelector,
+    ActionStatus,
+    ActionType,
+    useActionStore,
+} from '@/contexts/Actions'
 import {
-    createColumnHelper, flexRender, getCoreRowModel, useReactTable
-} from "@tanstack/react-table";
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
 
 import type { Action } from '@/contexts/Actions'
 
@@ -104,9 +110,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext(),
-                                        )}
+                                              header.column.columnDef.header,
+                                              header.getContext(),
+                                          )}
                                 </th>
                             ))}
                         </tr>
@@ -137,9 +143,9 @@ export default function ActionTable() {
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                            header.column.columnDef.footer,
-                                            header.getContext(),
-                                        )}
+                                              header.column.columnDef.footer,
+                                              header.getContext(),
+                                          )}
                                 </th>
                             ))}
                         </tr>
