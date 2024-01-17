@@ -32,6 +32,8 @@ describe('ActionNotification', () => {
         const postData = {
             id: 'post-id-1',
             content: 'This is a post',
+            epochKey: undefined,
+            transactionHash: undefined,
         }
 
         render(<ActionNotification />)

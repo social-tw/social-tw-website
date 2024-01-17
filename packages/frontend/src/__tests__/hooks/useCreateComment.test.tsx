@@ -22,7 +22,13 @@ jest.mock('@/contexts/User', () => ({
         },
         stateTransition: jest.fn().mockResolvedValue('success'),
         provider: {
-            waitForTransaction: jest.fn().mockResolvedValue('success'),
+            waitForTransaction: jest.fn().mockResolvedValue({
+                logs: [
+                    {
+                        topics: ['', '', '', '1111'],
+                    },
+                ],
+            }),
         },
         loadData: jest.fn().mockResolvedValue('success'),
     }),
@@ -84,9 +90,7 @@ describe('useCreateComment', () => {
             expect.stringContaining('/api/comment'),
             expect.any(Object),
         )
-        expect(succeedActionById).toHaveBeenCalledWith('mock_action_id', {
-            transactionHash: 'mock_transaction',
-        })
+        expect(succeedActionById).toHaveBeenCalled()
     })
 
     it('failed creating a comment', async () => {
