@@ -11,7 +11,7 @@ export enum SortKeys {
 export interface RelayRawPost {
     _id: string
     epochKey: string
-    publishedAt: number
+    publishedAt: string
     content: string
     voteSum: number
 }
@@ -25,7 +25,7 @@ export type FetchPostsByEpochKeysResponse = RelayRawPost[]
 export interface RelayRawComment {
     _id: string
     epochKey: string
-    publishedAt: number
+    publishedAt: string
     content: string
     voteSum: number
 }
@@ -44,7 +44,7 @@ export enum RelayRawVoteType {
 export interface RelayRawVote {
     _id: string
     epochKey: string
-    publishedAt: number
+    publishedAt: string
     content: string
     voteSum: number
     type: RelayRawVoteType

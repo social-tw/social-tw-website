@@ -51,13 +51,14 @@ export class PostService {
 
     private parseRelayRawPostsToPosts(relayRawPosts: RelayRawPost[]): Post[] {
         return relayRawPosts.map((relaySourcePost) => {
+            const publishedAt = parseInt(relaySourcePost.publishedAt)
             return new Post(
                 relaySourcePost._id,
                 relaySourcePost.epochKey,
-                relaySourcePost.publishedAt,
+                publishedAt,
                 relaySourcePost.content,
                 relaySourcePost.voteSum,
-                dayjs(relaySourcePost.publishedAt).format('YYYY/MM/DD'),
+                dayjs(publishedAt).format('YYYY/MM/DD'),
                 this.genPostUrlById(relaySourcePost._id),
             )
         })
