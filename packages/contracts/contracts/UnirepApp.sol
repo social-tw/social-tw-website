@@ -67,7 +67,6 @@ contract UnirepApp {
     error UserHasRegistered(uint256 hashUserId);
     error ProofHasUsed();
     error InvalidAttester();
-    error InvalidStateTreeRoot(uint256 stateTreeRoot);
     error InvalidEpoch();
     error ArrMismatch();
     error InvalidCommentEpochKey(uint256 epochKey);
@@ -137,17 +136,6 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        // check state tree root
-        if (
-            !unirep.attesterStateTreeRootExists(
-                signals.attesterId,
-                signals.epoch,
-                signals.stateTreeRoot
-            )
-        ) {
-            revert InvalidStateTreeRoot(signals.stateTreeRoot);
-        }
-
         // should check lastly
         epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
@@ -183,17 +171,6 @@ contract UnirepApp {
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
-        }
-
-        // check state tree root
-        if (
-            !unirep.attesterStateTreeRootExists(
-                signals.attesterId,
-                signals.epoch,
-                signals.stateTreeRoot
-            )
-        ) {
-            revert InvalidStateTreeRoot(signals.stateTreeRoot);
         }
 
         // check if the proof is valid

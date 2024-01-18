@@ -193,51 +193,6 @@ describe('COMMENT /comment', function () {
             })
     })
 
-    it('should comment failed with wrong state tree', async function () {
-        const testContent = 'invalid state tree'
-
-        // generating a proof with wrong epoch
-        const attesterId = await userState.sync.attesterId
-        const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
-        const data = randomData()
-        const id = userState.id
-        const leaf = genStateTreeLeaf(
-            id.secret,
-            attesterId,
-            epoch,
-            data,
-            chainId
-        )
-        tree.insert(leaf)
-        const epochKeyProof = await genEpochKeyProof({
-            id,
-            tree,
-            leafIndex: 0,
-            epoch,
-            nonce: 2,
-            chainId,
-            attesterId,
-            data,
-        })
-
-        await express
-            .post('/api/comment')
-            .set('content-type', 'application/json')
-            .send(
-                stringifyBigInts({
-                    content: testContent,
-                    postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            )
-            .then((res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid State Tree')
-            })
-    })
-
     it('delete the comment failed with wrong epoch key', async function () {
         let epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
