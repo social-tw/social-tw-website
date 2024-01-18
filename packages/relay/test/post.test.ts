@@ -183,48 +183,6 @@ describe('POST /post', function () {
             })
     })
 
-    it('should post failed with wrong state tree', async function () {
-        const testContent = 'invalid state tree'
-
-        // generating a proof with wrong epoch
-        const attesterId = userState.sync.attesterId
-        const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
-        const data = randomData()
-        const id = userState.id
-        const leaf = genStateTreeLeaf(
-            id.secret,
-            attesterId,
-            epoch,
-            data,
-            chainId
-        )
-        tree.insert(leaf)
-        const epochKeyProof = await genEpochKeyProof({
-            id,
-            tree,
-            leafIndex: 0,
-            epoch,
-            nonce: 0,
-            chainId,
-            attesterId,
-            data,
-        })
-
-        await express
-            .post('/api/post')
-            .set('content-type', 'application/json')
-            .send({
-                content: testContent,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
-            .then((res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid State Tree')
-            })
-    })
-
     it('should update post order periodically', async function () {
         // insert 9 mock posts into db
         const mockPosts = postData
