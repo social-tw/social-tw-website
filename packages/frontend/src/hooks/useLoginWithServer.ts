@@ -12,7 +12,7 @@ export function useLoginWithServer() {
             LocalStorageHelper.removeIsTwitterVerified()
             navigate('/')
         } catch (error: any) {
-            setErrorCode(error.message)
+            setErrorCode('MISSING_ELEMENT')
         }
     }
     return loginWithServer
