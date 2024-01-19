@@ -208,6 +208,7 @@ describe('COMMENT /comment', function () {
             .send(
                 stringifyBigInts({
                     commentId: 0,
+                    postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
                 })
@@ -230,6 +231,7 @@ describe('COMMENT /comment', function () {
             .send(
                 stringifyBigInts({
                     commentId: 0,
+                    postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
                 })
@@ -252,6 +254,7 @@ describe('COMMENT /comment', function () {
             .send(
                 stringifyBigInts({
                     commentId: 0,
+                    postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
                 })
