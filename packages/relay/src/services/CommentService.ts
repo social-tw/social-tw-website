@@ -115,8 +115,8 @@ export class CommentService {
                 proof,
                 synchronizer
             )
-        
-        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) { 
+
+        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) {
             throw new InternalError('Invalid epoch key', 400)
         }
 
