@@ -193,12 +193,13 @@ describe('COMMENT /comment', function () {
             })
     })
 
-    it('delete the comment failed with wrong epoch key', async function () {
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
+    it('delete the comment failed with wrong proof', async function () {
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
         })
 
-        epochKeyProof.publicSignals[1] = BigInt(0)
+        // invalidate the proof
+        epochKeyLiteProof.publicSignals[1] = BigInt(0)
 
         // delete a comment
         await express
@@ -207,8 +208,8 @@ describe('COMMENT /comment', function () {
             .send(
                 stringifyBigInts({
                     commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
                 })
             )
             .then((res) => {
@@ -217,20 +218,45 @@ describe('COMMENT /comment', function () {
             })
     })
 
-    it('delete the comment success', async function () {
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
+    it('delete the comment failed with wrong epoch key', async function () {
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
 
-        // create a comment
+        // invalidate the epochKey
+        epochKeyLiteProof.epochKey = BigInt(0)
+
+        // delete a comment
+        await express
+            .delete('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    commentId: 0,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid epoch key')
+            })
+    })
+
+    it('delete the comment success', async function () {
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
+        })
+
+        // delete a comment
         const transaction = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
                     commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
                 })
             )
             .then((res) => {
