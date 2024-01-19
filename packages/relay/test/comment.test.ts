@@ -220,11 +220,8 @@ describe('COMMENT /comment', function () {
 
     it('delete the comment failed with wrong epoch key', async function () {
         let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
-            nonce: 1,
+            nonce: 2,
         })
-
-        // invalidate the epochKey
-        epochKeyLiteProof.epochKey = BigInt(0)
 
         // delete a comment
         await express
