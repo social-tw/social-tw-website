@@ -205,6 +205,7 @@ export default function PostList() {
 
             toast('貼文成功送出')
         } catch (err) {
+            console.log(err)
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {

@@ -22,6 +22,7 @@ export default function PostCreate() {
             await create(values.content)
             navigate('/')
         } catch (err) {
+            console.log(err)
             if (err instanceof CancelledTaskError) {
                 reset()
             } else {

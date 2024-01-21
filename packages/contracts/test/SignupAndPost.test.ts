@@ -80,7 +80,7 @@ describe('Unirep App', function () {
             userState.stop()
         })
 
-        it('revert when reuse user signup proof', async function () {
+        it('revert when user uses an invalid signup proof', async function () {
             const user = createRandomUserIdentity()
             const userState = await genUserState(user.id, app)
 
