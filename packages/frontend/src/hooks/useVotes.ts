@@ -28,7 +28,7 @@ export default function useVotes() {
                 },
                 body: JSON.stringify(
                     stringifyBigInts({
-                        _id,
+                        postId: _id,
                         voteAction,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
