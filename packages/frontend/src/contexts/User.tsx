@@ -58,6 +58,7 @@ export interface UserContextType {
     handleWalletSignMessage: (hashUserId: string) => Promise<void>
     signup: (
         fromServer: boolean,
+        userStateInstance: UserState,
         hashUserId: string,
         accessToken: string,
     ) => Promise<void>
@@ -188,12 +189,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     const signup = async (
         fromServer: boolean,
+        userStateInstance: UserState,
         hashUserId: string,
         accessToken: string,
     ) => {
-        if (!userState) throw new Error('user state not initialized')
+        if (!userStateInstance) throw new Error('user state not initialized')
 
-        const signupProof = await userState.genUserSignUpProof()
+        const signupProof = await userStateInstance.genUserSignUpProof()
+
         const publicSignals = signupProof.publicSignals.map((item) =>
             item.toString(),
         )
@@ -219,10 +222,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const data = await response.json()
 
         await provider.waitForTransaction(data.hash)
-        await userState.waitForSync()
-        const hasSignedUpStatus = await userState.hasSignedUp()
+        await userStateInstance.waitForSync()
+        const hasSignedUpStatus = await userStateInstance.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)
-        const latestEpoch = userState.sync.calcCurrentEpoch()
+        const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
         setLatestTransitionedEpoch(latestEpoch)
     }
 
@@ -346,7 +349,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.removeItem('loginStatus')
     }
 
-    useInitUser(load, logout)
+    useInitUser(isLogin, signupStatus, load, logout)
 
     const value: UserContextType = {
         currentEpoch,

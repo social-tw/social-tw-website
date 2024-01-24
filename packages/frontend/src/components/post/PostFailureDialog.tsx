@@ -6,8 +6,8 @@ interface PostFailureDialogProp {
 }
 
 const PostFailureDialog: React.FC<PostFailureDialogProp> = ({
-    isOpen = false,
-    onClose = () => {},
+    isOpen,
+    onClose,
 }) => {
     return (
         <Dialog isOpen={isOpen} onClose={onClose}>

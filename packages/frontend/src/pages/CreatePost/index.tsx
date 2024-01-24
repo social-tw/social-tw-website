@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import PostFailureDialog from '@/components/post/PostFailureDialog'
@@ -7,8 +6,7 @@ import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
 import { useUser } from '@/contexts/User'
 import useCreatePost from '@/hooks/useCreatePost'
-import { PostInfo } from '@/types'
-import { InfiniteData, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 const CreatePost: React.FC = () => {
     const { isLogin } = useUser()
@@ -17,7 +15,7 @@ const CreatePost: React.FC = () => {
 
     const queryClient = useQueryClient()
 
-    const { create } = useCreatePost()
+    const { create: createPost } = useCreatePost()
 
     const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -31,33 +29,15 @@ const CreatePost: React.FC = () => {
         try {
             setIsSubmitted(true)
 
-            const { transactionHash, postId, epochKey } = await create(content)
+            await createPost(content)
 
-            const newPost = {
-                id: transactionHash,
-                postId,
-                epochKey,
-                content,
-                publishedAt: new Date(),
-                commentCount: 0,
-                upCount: 0,
-                downCount: 0,
-            }
-            queryClient.setQueryData(
-                ['posts'],
-                (old: InfiniteData<PostInfo[]>) => ({
-                    pages: [[newPost, ...old.pages[0]], ...old.pages.slice(1)],
-                    pageParams: old.pageParams,
-                }),
-            )
-
-            navigate('/')
-
-            toast('貼文成功送出')
+            queryClient.invalidateQueries({
+                queryKey: ['posts'],
+                refetchType: 'all',
+            })
         } catch (error) {
             setIsSubmitted(false)
             setIsError(true)
-
             queryClient.setQueryData(['post'], previousPostsData)
         }
     }
@@ -67,6 +47,7 @@ const CreatePost: React.FC = () => {
 
         const timer = setTimeout(() => {
             setIsSubmitted(false)
+            navigate('/')
         }, 5000)
 
         return () => {

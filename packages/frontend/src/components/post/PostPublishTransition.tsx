@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import React from 'react'
 import Logo from '@/assets/logo.png'
 import Backdrop from '@/components/common/Backdrop'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 interface TransactionModalProps {
     isOpen: boolean
@@ -21,6 +22,8 @@ const PostPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
             },
         }),
     }
+
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
         <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/70'}>
@@ -53,7 +56,8 @@ const PostPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
                             <br />
                             為維護匿名性，存取發佈的執行會需要些時間。
                             <br />
-                            可留意上方存取進度條以確認存取進度。
+                            可留意{isSmallDevice ? '上方' : '右下方'}
+                            存取進度條以確認存取進度。
                         </p>
                     </div>
                 </div>

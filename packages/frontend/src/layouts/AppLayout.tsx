@@ -94,7 +94,7 @@ export default function AppLayout() {
                     </div>
                     <ActionNotification />
                 </section>
-                <main className="max-w-5xl mx-auto">
+                <main className="max-w-5xl pb-20 mx-auto">
                     <Outlet />
                 </main>
                 <MobileBottomNav isShow={isShow} signupStatus={signupStatus} />
@@ -102,9 +102,9 @@ export default function AppLayout() {
         )
     } else {
         return (
-            <div className="flex min-h-screen divide-x divide-neutral-600">
+            <div className="grid grid-cols-[1fr_20rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
                 <AuthErrorDialog isOpen={signupStatus === 'error'} />
-                <section className="hidden basis-80 xl:block">
+                <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
                             <SearchIcon className="w-5 h-5" />
@@ -115,7 +115,7 @@ export default function AppLayout() {
                         </div>
                     </div>
                 </section>
-                <section className="flex-1 px-10 pt-20 divide-y divide-neutral-600">
+                <section className="max-w-[40rem] px-10 pt-20 divide-y divide-neutral-600">
                     <div className="flex gap-5 pb-6">
                         <h2 className="text-2xl font-bold text-secondary">
                             {headerTextOnDesktop}
@@ -133,7 +133,7 @@ export default function AppLayout() {
                         <Outlet />
                     </main>
                 </section>
-                <section className="basis-80">
+                <section>
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <Link className="flex items-center gap-2 mb-12" to="/">
                             <img

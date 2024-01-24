@@ -16,6 +16,8 @@ describe('ActionNotification', () => {
         const postData = {
             id: 'post-id-1',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         render(<ActionNotification />)
@@ -32,8 +34,8 @@ describe('ActionNotification', () => {
         const postData = {
             id: 'post-id-1',
             content: 'This is a post',
-            epochKey: undefined,
-            transactionHash: undefined,
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         render(<ActionNotification />)

@@ -12,6 +12,7 @@ export enum SortKeys {
 
 export interface RelayRawPost {
     _id: string
+    postId: string
     epochKey: string
     publishedAt: string
     content: string

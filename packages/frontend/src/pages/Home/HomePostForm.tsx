@@ -16,7 +16,7 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
 
     const queryClient = useQueryClient()
 
-    const { create } = useCreatePost()
+    const { create: createPost } = useCreatePost()
 
     const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -30,7 +30,7 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
         try {
             setIsSubmitted(true)
 
-            await create(content)
+            await createPost(content)
 
             queryClient.invalidateQueries({
                 queryKey: ['posts'],
@@ -60,11 +60,7 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
 
     return (
         <>
-            <PostForm
-                disabled={disabled}
-                onCancel={() => navigate('/')}
-                onSubmit={onSubmit}
-            />
+            <PostForm disabled={disabled} onSubmit={onSubmit} />
             <PostPublishTransition isOpen={isSubmitted} />
             <PostFailureDialog
                 isOpen={isError}

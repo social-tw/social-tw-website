@@ -82,13 +82,16 @@ export default function Post({
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
                     <LinesEllipsis
+                        className="break-words whitespace-break-spaces"
                         text={content}
                         maxLine="4"
                         ellipsis="..."
                         component="p"
                     />
                 ) : (
-                    <p>{content}</p>
+                    <p className="break-words whitespace-break-spaces">
+                        {content}
+                    </p>
                 )}
             </section>
         </div>

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useMemo } from 'react'
+import { Fragment, useEffect, useMemo, useRef } from 'react'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
 import {
@@ -66,9 +66,11 @@ export default function PostList() {
         },
     })
 
+    const pageContainerRef = useRef(null)
+
     const [pageBottomRef, entry] = useIntersectionObserver({
         threshold: 0,
-        root: null,
+        root: pageContainerRef.current ?? null,
         rootMargin: '10%',
     })
 
@@ -81,16 +83,17 @@ export default function PostList() {
     const postActions = useActionStore(postActionsSelector)
 
     const localPosts = useMemo(() => {
+        const postIds = (data?.pages ?? []).flat().map((post) => post.postId)
+
         return postActions
             .filter((action) => action.status !== ActionStatus.Failure)
-            .sort((a, b) => a.submittedAt.valueOf() - b.submittedAt.valueOf())
             .map((action) => {
                 const actionData = action.data as PostData
                 return {
                     id: actionData?.transactionHash ?? nanoid(),
                     postId: actionData?.postId,
                     epochKey: actionData?.epochKey,
-                    content: actionData?.content,
+                    content: actionData.content,
                     publishedAt: action.submittedAt,
                     commentCount: 0,
                     upCount: 0,
@@ -100,7 +103,9 @@ export default function PostList() {
                     status: action.status as unknown as PostStatus,
                 }
             })
-    }, [postActions])
+            .filter((post) => !post.postId || !postIds.includes(post.postId))
+            .sort((a, b) => a.publishedAt.valueOf() - b.publishedAt.valueOf())
+    }, [postActions, data])
 
     function handleVoteEvent(msg: VoteMsg) {
         // Update the query data for 'posts'
@@ -146,7 +151,7 @@ export default function PostList() {
     useVoteEvents(handleVoteEvent)
 
     return (
-        <div>
+        <div ref={pageContainerRef}>
             <ul className="space-y-3 md:space-y-6">
                 {localPosts.map((post) => (
                     <li
