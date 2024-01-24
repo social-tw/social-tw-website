@@ -53,13 +53,14 @@ export class CommentService {
         relayRawComments: RelayRawComment[],
     ): Comment[] {
         return relayRawComments.map((relayRawComment) => {
+            const publishedAt = parseInt(relayRawComment.publishedAt)
             return new Comment(
                 relayRawComment._id,
                 relayRawComment.epochKey,
-                relayRawComment.publishedAt,
+                publishedAt,
                 relayRawComment.content,
                 relayRawComment.voteSum,
-                dayjs(relayRawComment.publishedAt).format('YYYY/MM/DD'),
+                dayjs(publishedAt).format('YYYY/MM/DD'),
                 this.genCommentUrlById(relayRawComment._id),
             )
         })

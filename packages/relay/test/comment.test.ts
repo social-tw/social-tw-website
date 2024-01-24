@@ -193,57 +193,13 @@ describe('COMMENT /comment', function () {
             })
     })
 
-    it('should comment failed with wrong state tree', async function () {
-        const testContent = 'invalid state tree'
-
-        // generating a proof with wrong epoch
-        const attesterId = await userState.sync.attesterId
-        const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
-        const data = randomData()
-        const id = userState.id
-        const leaf = genStateTreeLeaf(
-            id.secret,
-            attesterId,
-            epoch,
-            data,
-            chainId
-        )
-        tree.insert(leaf)
-        const epochKeyProof = await genEpochKeyProof({
-            id,
-            tree,
-            leafIndex: 0,
-            epoch,
-            nonce: 2,
-            chainId,
-            attesterId,
-            data,
+    it('delete the comment failed with wrong proof', async function () {
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            nonce: 1,
         })
 
-        await express
-            .post('/api/comment')
-            .set('content-type', 'application/json')
-            .send(
-                stringifyBigInts({
-                    content: testContent,
-                    postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
-                })
-            )
-            .then((res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid State Tree')
-            })
-    })
-
-    it('delete the comment failed with wrong epoch key', async function () {
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
-
-        epochKeyProof.publicSignals[1] = BigInt(0)
+        // invalidate the proof
+        epochKeyLiteProof.publicSignals[1] = BigInt(0)
 
         // delete a comment
         await express
@@ -252,8 +208,9 @@ describe('COMMENT /comment', function () {
             .send(
                 stringifyBigInts({
                     commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    postId: 0,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
                 })
             )
             .then((res) => {
@@ -262,20 +219,44 @@ describe('COMMENT /comment', function () {
             })
     })
 
+    it('delete the comment failed with wrong epoch key', async function () {
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            nonce: 2,
+        })
+
+        // delete a comment
+        await express
+            .delete('/api/comment')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    commentId: 0,
+                    postId: 0,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid epoch key')
+            })
+    })
+
     it('delete the comment success', async function () {
-        let epochKeyProof = await userState.genEpochKeyLiteProof({
+        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
 
-        // create a comment
+        // delete a comment
         const transaction = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
                     commentId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    postId: 0,
+                    publicSignals: epochKeyLiteProof.publicSignals,
+                    proof: epochKeyLiteProof.proof,
                 })
             )
             .then((res) => {

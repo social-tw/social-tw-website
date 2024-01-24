@@ -94,6 +94,7 @@ export class CommentService {
 
     async deleteComment(
         commentId: string,
+        postId: string,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
@@ -103,6 +104,7 @@ export class CommentService {
             where: {
                 status: 1,
                 commentId: commentId,
+                postId: postId,
             },
         })
         if (!comment) {
@@ -115,6 +117,10 @@ export class CommentService {
                 proof,
                 synchronizer
             )
+
+        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) {
+            throw new InternalError('Invalid epoch key', 400)
+        }
 
         const txnHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
