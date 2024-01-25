@@ -1,7 +1,7 @@
-import { render, fireEvent, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import userEvent from '@testing-library/user-event'
 import DesktopCommentForm from '@/components/comment/DesktopCommentForm' // Adjust the import path as needed
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 describe('DesktopCommentForm', () => {
     it('renders when open', () => {
@@ -17,9 +17,7 @@ describe('DesktopCommentForm', () => {
     it('calls onSubmit with the entered text', async () => {
         const mockOnSubmit = jest.fn()
 
-        await act(async () => {
-            render(<DesktopCommentForm isOpen={true} onSubmit={mockOnSubmit} />)
-        })
+        render(<DesktopCommentForm isOpen={true} onSubmit={mockOnSubmit} />)
 
         const input = screen.getByLabelText('comment editor')
         await act(async () => {

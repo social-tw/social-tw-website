@@ -1,16 +1,16 @@
 import dayjs from 'dayjs'
+import { nanoid } from 'nanoid'
+import React, { useEffect, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import Avatar from '@/components/common/Avatar'
+import { PostStatus, VoteAction, VoteMsg } from '@/types'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import { useEffect, useState } from 'react'
-import { VoteAction, VoteMsg } from '@/types'
-import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import { useUser } from '../../contexts/User'
+import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
-import Avatar from '@/components/common/Avatar'
-import React from 'react'
 
 export default function Post({
     id = '',
@@ -24,11 +24,12 @@ export default function Post({
     compact = false,
     isMine = false,
     finalAction = null,
+    status = PostStatus.Success,
     onComment = () => {},
 }: {
-    id: string
-    epochKey: string
-    content: string
+    id?: string
+    epochKey?: string
+    content?: string
     imageUrl?: string
     publishedAt: Date
     commentCount: number
@@ -37,14 +38,16 @@ export default function Post({
     compact?: boolean
     isMine?: boolean
     finalAction?: VoteAction | null
+    status?: PostStatus
     onComment?: () => void
 }) {
-    const isTemp = id.startsWith('temp')
-
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
+
+    const subtitle =
+        status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLogin } = useUser()
     const { create } = useVotes()
@@ -67,24 +70,28 @@ export default function Post({
     useEffect(() => {
         setIsAction(finalAction)
     }, [finalAction])
+
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center gap-4">
-                <Avatar name={epochKey} />
+                <Avatar name={epochKey ?? nanoid()} />
                 <span className="text-xs font-medium tracking-wide text-black/80">
-                    {publishedLabel}
+                    {subtitle}
                 </span>
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
                     <LinesEllipsis
+                        className="break-words whitespace-break-spaces"
                         text={content}
                         maxLine="4"
                         ellipsis="..."
                         component="p"
                     />
                 ) : (
-                    <p>{content}</p>
+                    <p className="break-words whitespace-break-spaces">
+                        {content}
+                    </p>
                 )}
             </section>
         </div>
@@ -171,11 +178,11 @@ export default function Post({
     })
 
     return (
-        <article className="flex bg-white/90 rounded-xl shadow-base">
+        <article className="relative flex bg-white/90 rounded-xl shadow-base">
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
-                {compact && !isTemp ? (
-                    <Link to={`/post/${id}`}>{postInfo}</Link>
+                {compact && status === PostStatus.Success ? (
+                    <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
                     postInfo
                 )}
@@ -248,6 +255,9 @@ export default function Post({
                         alt="image"
                     />
                 </div>
+            )}
+            {status === PostStatus.Pending && (
+                <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-xl" />
             )}
         </article>
     )

@@ -1,8 +1,6 @@
 import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import Avatar from '@/assets/avatar.png'
-import Backdrop from '@/components/common/Backdrop'
 import RichTextEditor from '@/components/common/RichTextEditor'
 
 export interface PostValues {
@@ -12,11 +10,7 @@ export interface PostValues {
 export default function PostForm({
     onCancel = () => {},
     onSubmit = () => {},
-    onSubmitCancel = () => {},
-    isSubmitCancellable = true,
-    isSubmitCancelled = false,
     disabled = false,
-    type = 'post',
 }: {
     onCancel?: () => void
     onSubmit?: (values: PostValues) => void
@@ -24,26 +18,25 @@ export default function PostForm({
     isSubmitCancellable?: boolean
     isSubmitCancelled?: boolean
     disabled?: boolean
-    type?: 'post' | 'comment'
 }) {
-    const { handleSubmit, control, reset, getValues, formState } =
-        useForm<PostValues>({
-            defaultValues: {
-                content: '',
-            },
-        })
+    const { handleSubmit, control, reset, formState } = useForm<PostValues>({
+        defaultValues: {
+            content: '',
+        },
+    })
 
-    const { isValid, isSubmitting, isSubmitSuccessful } = formState
+    const { isValid, isSubmitSuccessful } = formState
 
-    const isPending = !isSubmitCancelled && isSubmitting
+    const _onSubmit = handleSubmit((values) => {
+        const cache = { ...values }
+        reset({ content: '' })
+        onSubmit(cache)
+    })
 
     const _onCancel = () => {
         reset({ content: '' })
         onCancel()
     }
-
-    const placeholder =
-        type === 'comment' ? '你想留什麼言呢......？' : undefined
 
     useEffect(() => {
         if (isSubmitSuccessful) {
@@ -55,14 +48,9 @@ export default function PostForm({
         <>
             <form
                 className={clsx('space-y-6', disabled && 'opacity-20')}
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={_onSubmit}
             >
                 <section className="flex items-center justify-end gap-1">
-                    {type === 'comment' && (
-                        <div className="w-[28px] h-[28px] rounded-full bg-gray-400 border-white border-4 flex items-center justify-center mr-auto">
-                            <img src={Avatar} alt="Avatar" />
-                        </div>
-                    )}
                     <button
                         className="btn btn-sm btn-ghost"
                         title="cancel a post"
@@ -76,9 +64,9 @@ export default function PostForm({
                         className="btn btn-sm btn-secondary"
                         title="submit a post"
                         type="submit"
-                        disabled={disabled || !isValid || isPending}
+                        disabled={disabled || !isValid}
                     >
-                        {isPending ? '發佈中...' : '發佈文章'}
+                        發佈文章
                     </button>
                 </section>
                 <section>
@@ -92,7 +80,7 @@ export default function PostForm({
                                 onValueChange={field.onChange}
                                 value={field.value}
                                 namespace={field.name}
-                                placeholder={placeholder}
+                                placeholder="你想說些什麼呢......？"
                                 classes={{
                                     content:
                                         'min-h-[3rem] overflow-auto text-white text-xl tracking-wide',
@@ -103,27 +91,6 @@ export default function PostForm({
                     />
                 </section>
             </form>
-            <Backdrop
-                isOpen={isPending}
-                position="absolute"
-                background="bg-gradient-to-t from-black/100 to-white/0"
-            >
-                <div className="flex flex-col items-center justify-center h-full gap-4 backdrop-blur-sm">
-                    <progress className="w-8/12 h-[12px] rounded-2xl progress bg-[#222222]" />
-                    {isSubmitCancellable ? (
-                        <button
-                            className="btn btn-sm btn-primary"
-                            onClick={onSubmitCancel}
-                        >
-                            取消發布
-                        </button>
-                    ) : (
-                        <p className="text-lg font-semibold tracking-wider text-white">
-                            已無法取消發布
-                        </p>
-                    )}
-                </div>
-            </Backdrop>
         </>
     )
 }

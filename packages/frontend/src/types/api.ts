@@ -1,3 +1,5 @@
+import { Vote } from './'
+
 export enum Directions {
     Asc = 'asc',
     Desc = 'desc',
@@ -10,11 +12,21 @@ export enum SortKeys {
 
 export interface RelayRawPost {
     _id: string
+    postId: string
     epochKey: string
     publishedAt: string
     content: string
     voteSum: number
+    transactionHash: string | undefined
+    epoch: number
+    upCount: number
+    downCount: number
+    status: number
+    commentCount: number
+    votes: Vote[]
 }
+
+export type FetchPostsResponse = RelayRawPost[]
 
 export interface FetchPostsByEpochKeysParams {
     epochKeys: bigint[]

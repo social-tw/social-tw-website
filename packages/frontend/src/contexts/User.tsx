@@ -187,47 +187,47 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         localStorage.setItem('signature', signature)
     }
 
-    const signup = useCallback(
-        async (
-            fromServer: boolean,
-            userStateInstance: UserState,
-            hashUserId: string,
-            accessToken: string,
-        ) => {
-            if (!userStateInstance)
-                throw new Error('user state not initialized')
-            const signupProof = await userStateInstance.genUserSignUpProof()
-            const publicSignals = signupProof.publicSignals.map((item) =>
-                item.toString(),
-            )
-            const proof = signupProof.proof.map((item) => item.toString())
+    const signup = async (
+        fromServer: boolean,
+        userStateInstance: UserState,
+        hashUserId: string,
+        accessToken: string,
+    ) => {
+        if (!userStateInstance) throw new Error('user state not initialized')
 
-            const response = await fetch(`${SERVER}/api/signup`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    publicSignals: publicSignals,
-                    proof: proof,
-                    hashUserId: hashUserId,
-                    token: accessToken,
-                    fromServer: fromServer,
-                }),
-            })
+        const signupProof = await userStateInstance.genUserSignUpProof()
 
-            if (!response.ok) {
-                throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
-            }
+        const publicSignals = signupProof.publicSignals.map((item) =>
+            item.toString(),
+        )
+        const proof = signupProof.proof.map((item) => item.toString())
 
-            await userStateInstance.waitForSync()
-            const hasSignedUpStatus = await userStateInstance.hasSignedUp()
-            setHasSignedUp(hasSignedUpStatus)
-            const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
-            setLatestTransitionedEpoch(latestEpoch)
-        },
-        [SERVER],
-    )
+        const response = await fetch(`${SERVER}/api/signup`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                publicSignals: publicSignals,
+                proof: proof,
+                hashUserId: hashUserId,
+                token: accessToken,
+                fromServer: fromServer,
+            }),
+        })
+
+        if (!response.ok) {
+            throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
+        }
+        const data = await response.json()
+
+        await provider.waitForTransaction(data.hash)
+        await userStateInstance.waitForSync()
+        const hasSignedUpStatus = await userStateInstance.hasSignedUp()
+        setHasSignedUp(hasSignedUpStatus)
+        const latestEpoch = userStateInstance.sync.calcCurrentEpoch()
+        setLatestTransitionedEpoch(latestEpoch)
+    }
 
     const stateTransition = async () => {
         if (!userState) throw new Error('user state not initialized')

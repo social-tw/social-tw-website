@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import Comment from '@/components/comment/Comment'
 import CommentNotifications from '@/components/comment/CommentNotification'
@@ -15,23 +15,8 @@ import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
 import { useMediaQuery } from '@uidotdev/usehooks'
-
-import type { PostInfo } from '../types'
+import { PostInfo, PostStatus } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
-import React from 'react'
-
-const demoPost = {
-    id: '1',
-    epochKey: 'epochKey-1',
-    publishedAt: new Date(),
-    content:
-        '今天真是一個美好的日子！我終於完成了我夢寐以求的目標：跑完全馬拉松！這個挑戰對我來說真的非常艱巨，但我堅持下來了。在這個過程中，我學到了很多關於毅力和奮鬥的價值。我要特別感謝我的家人和朋友對我一直以來的支持和鼓勵。無論你們在生活中面對什麼困難，只要你們相信自己，付出努力，你們一定可以實現自己的目標！今天，我真心覺得自己是最幸運的人。',
-    commentCount: 0,
-    upCount: 0,
-    downCount: 0,
-    isMine: false,
-    finalAction: null,
-}
 
 export default function PostDetail() {
     const { id } = useParams()
@@ -91,22 +76,19 @@ export default function PostDetail() {
             }
             setPost({
                 id: post._id,
+                postId: post.postId,
                 epochKey: post.epochKey,
                 content: post.content,
-                publishedAt: post.publishedAt,
+                publishedAt: new Date(Number(post.publishedAt)),
                 commentCount: post.commentCount,
                 upCount: post.upCount,
                 downCount: post.downCount,
                 isMine: isMine,
                 finalAction: finalAction,
+                status: PostStatus.Success,
             })
-            console.log(post)
         }
-        if (id?.includes('demo')) {
-            setPost(demoPost)
-        } else {
-            loadPost()
-        }
+        loadPost()
     }, [id])
 
     const location = useLocation()
@@ -128,7 +110,7 @@ export default function PostDetail() {
             <div className="px-4">
                 <section className="py-6">
                     <Post
-                        id={post.id}
+                        id={post.postId}
                         epochKey={post.epochKey}
                         content={post.content}
                         publishedAt={post.publishedAt}
@@ -169,7 +151,7 @@ export default function PostDetail() {
                     onCancel={() => setIsOpenCommnet(false)}
                 />
             )}
-            <CommentNotifications postId={post.id} />
+            <CommentNotifications postId={post.id!} />
             <AuthErrorDialog isOpen={isError} buttonText="返回註冊/登入頁" />
             <CommentPublishTransition isOpen={isPublishing} />
         </>
