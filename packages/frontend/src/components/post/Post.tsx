@@ -240,11 +240,13 @@ export default function Post({
                         className="flex items-center gap-1"
                         onClick={onComment}
                     >
-                        <img 
-                            className="w-5 h-5" 
-                            src={Comment} 
+                        <img
+                            className="w-5 h-5"
+                            src={Comment}
                             alt="comment"
-                            style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
+                            style={{
+                                cursor: isLogin ? 'pointer' : 'not-allowed',
+                            }}
                         />
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}
