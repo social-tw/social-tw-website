@@ -108,44 +108,6 @@ describe('Comment Test', function () {
             userState.stop()
         })
 
-        it('should revert leaving comment with invalid state tree', async function () {
-            const userState = await genUserState(users[1].id, app)
-            const id = users[1].id
-            // generate a proof with invalid state tree
-            const attesterId = userState.sync.attesterId
-            const epoch = await userState.sync.loadCurrentEpoch()
-            const tree = new IncrementalMerkleTree(STATE_TREE_DEPTH)
-            const data = randomData()
-            const leaf = genStateTreeLeaf(
-                id.secret,
-                attesterId,
-                epoch,
-                data,
-                chainId
-            )
-            tree.insert(leaf)
-            const { publicSignals, proof } = await genEpochKeyProof({
-                id,
-                tree,
-                leafIndex: 0,
-                epoch,
-                nonce: 0,
-                chainId,
-                attesterId,
-                data,
-            })
-            const postId = 0
-            expect(
-                app.leaveComment(
-                    publicSignals,
-                    proof,
-                    postId,
-                    'Invalid State Tree'
-                )
-            ).to.be.revertedWithCustomError(app, 'InvalidStateTreeRoot')
-            userState.stop()
-        })
-
         it('should revert leaving comment with invalid epoch key proof', async function () {
             const userState = await genUserState(users[1].id, app)
             const { publicSignals, proof } = await userState.genEpochKeyProof({

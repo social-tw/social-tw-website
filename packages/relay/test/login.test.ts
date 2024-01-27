@@ -1,15 +1,15 @@
+import { DB } from 'anondb'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import nock from 'nock'
-import { deployContracts, startServer, stopServer } from './environment'
-import { userService } from '../src/services/UserService'
+import { Synchronizer } from '@unirep/core'
 import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
+import { TransactionManager } from '../src/services/singletons/TransactionManager'
+import { userService } from '../src/services/UserService'
 import { UserRegisterStatus } from '../src/types'
 import { CLIENT_URL } from './configs'
-import { ethers } from 'hardhat'
+import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { DB } from 'anondb'
-import { TransactionManager } from '../src/services/singletons/TransactionManager'
-import { Synchronizer } from '@unirep/core'
 
 const TWITTER_API = 'https://api.twitter.com'
 const mockState = 'state'
@@ -92,7 +92,7 @@ describe('LOGIN /login', function () {
             })
 
         nock(`${CLIENT_URL}`)
-            .get('/')
+            .get('/login')
             .query({
                 error: 'apiError',
             })

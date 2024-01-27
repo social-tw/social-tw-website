@@ -95,9 +95,9 @@ describe('POST /vote', function () {
         expect(upVotePost.status).equal(1)
         expect(downVotePost.status).equal(1)
         expect(otherPost.status).equal(1)
-        upvotePostId = upVotePost._id
-        downvotePostId = downVotePost._id
-        otherPostId = otherPost._id
+        upvotePostId = upVotePost.postId
+        downvotePostId = downVotePost.postId
+        otherPostId = otherPost.postId
 
         chainId = await unirep.chainid()
     })
@@ -112,7 +112,7 @@ describe('POST /vote', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
-                    _id: postId,
+                    postId: postId,
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
@@ -122,7 +122,7 @@ describe('POST /vote', function () {
 
     async function verifyPostVote(postId, expectedUpCount, expectedDownCount) {
         const post = await anondb.findOne('Post', {
-            where: { _id: postId },
+            where: { postId: postId },
         })
 
         expect(post).to.exist

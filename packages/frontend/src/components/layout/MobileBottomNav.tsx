@@ -49,17 +49,15 @@ const MobileBottomNav: React.FC<MobileNavbarProps> = ({
             ) : (
                 <motion.nav
                     className="
-                            fixed 
-                            bottom-0 
-                            w-screen 
-                            h-20 
-                            flex 
-                            items-stretch 
-                            rounded-t-3xl
-                            bg-gradient-to-r 
-                            from-secondary 
-                            to-primary/80 
-                            shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset"
+                        fixed 
+                        bottom-0 
+                        w-screen 
+                        h-20 
+                        flex 
+                        items-stretch 
+                        rounded-t-3xl
+                        bg-secondary/90
+                        shadow-[0_0_20px_0_rgba(0,0,0,0.6)_inset"
                     variants={navVariants}
                     initial="start"
                     animate="end"

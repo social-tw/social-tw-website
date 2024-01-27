@@ -42,7 +42,7 @@ export class VoteService {
      * @returns
      */
     async vote(
-        _id: string,
+        postId: string,
         voteAction: VoteAction,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
@@ -59,7 +59,7 @@ export class VoteService {
         // find post which is voted
         const findPost = await db.findOne('Post', {
             where: {
-                _id: _id,
+                postId: postId,
             },
         })
         if (!findPost) {
@@ -69,14 +69,14 @@ export class VoteService {
         const epochKey = epochKeyProof.epochKey.toString()
         const findVote = await db.findOne('Vote', {
             where: {
-                postId: _id,
+                postId: postId,
                 epochKey: epochKey,
             },
         })
 
         this.verifyVoteAction(voteAction, findVote)
 
-        await this.exeuteTxs(
+        await this.executeTx(
             db,
             epochKey,
             Number(epochKeyProof.epoch),
@@ -131,18 +131,18 @@ export class VoteService {
      * @param post the post that the user is about to vote
      * @param voteAction the vote action of the user
      */
-    async exeuteTxs(
+    async executeTx(
         db: DB,
         epochKey: string,
         epoch: number,
         post: any,
         voteAction: VoteAction
     ): Promise<void> {
-        const _id = post._id
+        const postId = post.postId
         let createVote = true
 
         const voteCreateStatement = {
-            postId: _id,
+            postId: postId,
             epochKey: epochKey,
             epoch: epoch,
             upVote: false,
@@ -151,7 +151,7 @@ export class VoteService {
 
         const voteDeleteStatement = {
             where: {
-                postId: _id,
+                postId: postId,
                 epochKey: epochKey,
             },
         }
@@ -159,7 +159,7 @@ export class VoteService {
         // only modify the upCount and downCount
         const postStatement = {
             where: {
-                _id: _id,
+                postId: postId,
             },
             update: {
                 upCount: post.upCount,
@@ -200,7 +200,7 @@ export class VoteService {
             txDB.update('Post', postStatement)
 
             socketManager.emitVote({
-                postId: _id,
+                postId: postId,
                 epoch: epoch,
                 vote: voteAction,
             })

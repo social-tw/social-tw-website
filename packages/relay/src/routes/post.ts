@@ -39,7 +39,7 @@ export default (
                 throw new InternalError('Could not have empty content', 400)
             }
 
-            const hash = await postService.createPost(
+            const { txHash, postId } = await postService.createPost(
                 content,
                 publicSignals,
                 proof,
@@ -48,7 +48,7 @@ export default (
                 helia
             )
 
-            res.json({ transaction: hash })
+            res.json({ transaction: txHash, postId })
         })
     )
 

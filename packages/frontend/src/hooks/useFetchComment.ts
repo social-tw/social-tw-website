@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import {
     commentActionsSelector,
     CommentData,
-    failedCommentActionsSelector,
-    pendingCommentActionsSelector,
     useActionStore,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
@@ -24,7 +22,7 @@ async function fetchCommentsByPostId(
     )
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${await response.json()}`)
     }
 
     return await response.json()
@@ -35,18 +33,16 @@ export default function useFetchComment(postId?: string) {
     const { userState } = useUser()
 
     const commentActions = useActionStore(commentActionsSelector)
-    const failedActions = useActionStore(failedCommentActionsSelector)
-    const pendingActions = useActionStore(pendingCommentActionsSelector)
 
     const allComments = useMemo(() => {
         const localComments: CommentInfo[] = commentActions.map((action) => ({
             ...(action.data as CommentData),
-            publishedAt: action.submittedAt,
+            publishedAt: action.submittedAt.valueOf(),
             status: action.status as unknown as CommentStatus,
             isMine: true,
         }))
         return [...comments, ...localComments]
-    }, [comments, failedActions, pendingActions])
+    }, [comments])
 
     useEffect(() => {
         const loadComments = async () => {

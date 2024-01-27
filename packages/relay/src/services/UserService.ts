@@ -131,14 +131,13 @@ export class UserService {
             ]
         )
 
-        const parsedLogs = await TransactionManager.executeTransaction(
+        const { logs, txHash } = await TransactionManager.executeTransaction(
             appContract,
             APP_ADDRESS,
             calldata
         )
 
-        //FIXME: This should return hash
-        return ''
+        return { logs, txHash }
     }
 
     async verifyHashUserId(db: DB, hashUserId: string, accessToken: string) {

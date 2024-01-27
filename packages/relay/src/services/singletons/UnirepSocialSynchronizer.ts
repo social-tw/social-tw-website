@@ -62,25 +62,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const epoch = Number(event.topics[3])
         const content = decodedData.content
 
-        db.upsert('Post', {
-            where: {
-                transactionHash,
-            },
-            update: {
-                status: 1,
-                postId,
-            },
-            create: {
-                postId,
-                epochKey,
-                epoch,
-                transactionHash,
-                status: 1,
-                content,
-                upCount: 0,
-                downCount: 0,
-                commentCount: 0,
-            },
+        db.create('Post', {
+            postId,
+            epochKey,
+            epoch,
+            transactionHash,
+            status: 1,
+            content,
+            upCount: 0,
+            downCount: 0,
+            commentCount: 0,
         })
 
         return true
