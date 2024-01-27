@@ -28,7 +28,7 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
             const childBottom = childTop + child.clientHeight
             const middle = containerHeight / 2
 
-            const centerZoneHeight = 100
+            const centerZoneHeight = 200
             const centerTop = middle - centerZoneHeight / 2 + 100
             const centerBottom = middle + centerZoneHeight / 2 - 50
 
