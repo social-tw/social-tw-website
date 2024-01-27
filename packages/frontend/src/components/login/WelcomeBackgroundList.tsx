@@ -24,17 +24,20 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
         const scrollPosition = container.scrollTop
 
         children.forEach((child) => {
-            const childTop = child.offsetTop - scrollPosition + 50
-            const childBottom = childTop + child.clientHeight - 50
+            const childTop = child.offsetTop - scrollPosition
+            const childBottom = childTop + child.clientHeight
+            const middle = containerHeight / 2
 
-            const middle = (containerHeight - child.clientHeight + 200) / 2
+            const centerZoneHeight = 50
+            const centerTop = middle - centerZoneHeight / 2
+            const centerBottom = middle + centerZoneHeight / 2
 
-            if (childTop <= middle && childBottom >= middle) {
+            if (childTop < centerBottom && childBottom > centerTop) {
                 child.style.opacity = '1'
-            } else if (childBottom < middle) {
-                child.style.opacity = '0.1'
-            } else {
-                child.style.opacity = '0.3'
+            } else if (childBottom < middle) { 
+                child.style.opacity = '0.1' 
+            } else { 
+                child.style.opacity = '0.3' 
             }
         })
     }
@@ -56,7 +59,7 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
     }, [method])
     return (
         <motion.div
-            className="fixed z-30 overflow-scroll pt-[330px] flex justify-center md:pl-4 w-full h-full"
+            className="fixed z-30 overflow-scroll pt-[250px] flex justify-center md:pl-4 w-full h-full"
             variants={variants}
             initial="start"
             animate="end"
