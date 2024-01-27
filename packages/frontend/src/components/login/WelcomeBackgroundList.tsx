@@ -30,14 +30,14 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
 
             const centerZoneHeight = 100
             const centerTop = middle - centerZoneHeight / 2 + 100
-            const centerBottom = middle + centerZoneHeight / 2 -50
+            const centerBottom = middle + centerZoneHeight / 2 - 50
 
             if (childTop < centerBottom && childBottom > centerTop) {
                 child.style.opacity = '1'
-            } else if (childBottom < middle) { 
-                child.style.opacity = '0.1' 
-            } else { 
-                child.style.opacity = '0.3' 
+            } else if (childBottom < middle) {
+                child.style.opacity = '0.1'
+            } else {
+                child.style.opacity = '0.3'
             }
         })
     }
