@@ -2,7 +2,7 @@ name: Manual-Relay-Deploy
 
 on:
     workflow_dispatch:
-        branches: ['dev', 'prod', 'fix_cd_env_settings']
+        branches: ['dev', 'prod']
         inputs:
             version:
                 type: string
