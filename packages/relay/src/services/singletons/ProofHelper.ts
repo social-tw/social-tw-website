@@ -82,7 +82,6 @@ class ProofHelper {
     async validateEpoch(synchronizer: Synchronizer, proof: any) {
         // get current epoch and unirep contract
         const epoch = await synchronizer.loadCurrentEpoch()
-        console.info(proof.epoch.toString(), epoch.toString())
         if (!(proof.epoch.toString() === epoch.toString())) {
             throw InvalidEpochError
         }
@@ -96,7 +95,6 @@ class ProofHelper {
      * @throws InvalidAttesterIdError if the attester id is invalid
      */
     validateAttesterId(synchronizer: Synchronizer, proof: any) {
-        console.info(synchronizer.attesterId, proof.attesterId)
         if (!(synchronizer.attesterId === proof.attesterId)) {
             throw InvalidAttesterIdError
         }
