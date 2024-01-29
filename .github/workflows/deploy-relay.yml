@@ -81,6 +81,7 @@ jobs:
                       SERVER=${{ vars.SERVER }}
                       TWITTER_CLIENT_ID=${{ env.TWITTER_CLIENT_ID }}
                       TWITTER_CLIENT_KEY=${{ env.TWITTER_CLIENT_KEY }}
+                      RESET_DATABASE=${{ vars.RESET_DATABASE }}
             - name: Allow public access
               id: unauthenticated
               run: gcloud run services add-iam-policy-binding ${{ vars.BACKEND_SERVICE }} --region=${{ env.REGION }} --member="allUsers" --role="roles/run.invoker"
