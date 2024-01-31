@@ -32,9 +32,9 @@ export interface CommentData {
 }
 
 export interface DeleteCommentData {
-    commentId?: string
+    postId: string
+    commentId: string
     epoch: number
-    transactionHash: string
 }
 
 export interface BaseAction<Type, Data> {

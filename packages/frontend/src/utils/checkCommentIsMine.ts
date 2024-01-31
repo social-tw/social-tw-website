@@ -1,7 +1,10 @@
 import { UserState } from '@/contexts/Userstate'
 import { RelayRawComment } from '@/types/api'
 
-const checkCommentIsMine = (comment: RelayRawComment, userState: UserState) => {
+const checkCommentIsMine = (
+    comment: Pick<RelayRawComment, 'epoch' | 'epochKey'>,
+    userState: UserState,
+) => {
     if (!userState.getEpochKeys(comment.epoch)) return false
 
     const epochKeys = userState.getEpochKeys(comment.epoch).toString()

@@ -1,67 +1,52 @@
-import clsx from "clsx";
-import { nanoid } from "nanoid";
-import { useRef, useState } from "react";
-import { FaBan, FaTrashCan } from "react-icons/fa6";
-import { FiMoreHorizontal } from "react-icons/fi";
-import Avatar from "@/components/common/Avatar";
-import useDeleteComment from "@/hooks/useDeleteComment";
-import formatDate from "@/utils/formatDate";
+import clsx from 'clsx'
+import { nanoid } from 'nanoid'
+import { useRef, useState } from 'react'
+import { FaBan, FaTrashCan } from 'react-icons/fa6'
+import { FiMoreHorizontal } from 'react-icons/fi'
+import Avatar from '@/components/common/Avatar'
+import formatDate from '@/utils/formatDate'
 import {
-    ControlledMenu, MenuItem, useClick, useMenuState
-} from "@szhsin/react-menu";
-import { useMediaQuery } from "@uidotdev/usehooks";
-import { CommentStatus } from "../../types";
-import CommentDeleteDialog from "./CommentDeleteDialog";
-import CommentReportDialog from "./CommentReportDialog";
+    ControlledMenu,
+    MenuItem,
+    useClick,
+    useMenuState,
+} from '@szhsin/react-menu'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { CommentStatus } from '../../types'
+import CommentDeleteDialog from './CommentDeleteDialog'
+import CommentReportDialog from './CommentReportDialog'
 
 interface CommentProps {
     commentId?: string
-    epoch?: number
     epochKey?: string
     content: string
-    transactionHash?: string
     publishedAt: Date
     status: CommentStatus
     isMine: boolean
     onRepublish?: () => void
-    onCloseAnimation?: () => void
-    onOpenAnimation?: () => void
-    isLast?: boolean
+    onDelete?: () => void
 }
 
 export default function Comment({
-    isLast,
     commentId,
-    epoch = 0,
     epochKey = nanoid(),
     content = '',
-    transactionHash = '',
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-    onCloseAnimation = () => { },
-    onOpenAnimation = () => { },
-    onRepublish = () => { },
+    onRepublish = () => {},
+    onDelete = () => {},
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
-
-    const {
-        remove: deleteComment,
-        genProof: genDeleteProof,
-        isDeleted: isDeleted,
-    } = useDeleteComment()
 
     const _onRepublish = async () => {
         onRepublish()
     }
 
-    const onDelete = async () => {
+    const _onDelete = async () => {
         setIsDeletingDialogOpen(false)
-        onOpenAnimation()
-        const proof = await genDeleteProof(epoch, transactionHash)
-        onCloseAnimation()
-        await deleteComment(proof, epoch, transactionHash)
+        onDelete()
     }
 
     const onCancelDelete = () => {
@@ -80,25 +65,23 @@ export default function Comment({
 
     const menu = isMine
         ? [
-            {
-                label: '刪除留言',
-                icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                onClick: () => {
-                    setIsDeletingDialogOpen(true)
-                },
-            },
-        ]
+              {
+                  label: '刪除留言',
+                  icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+                  onClick: () => {
+                      setIsDeletingDialogOpen(true)
+                  },
+              },
+          ]
         : [
-            {
-                label: '檢舉留言',
-                icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-                onClick: () => {
-                    setIsReporting(true)
-                },
-            },
-        ]
-
-    if (isDeleted) return null
+              {
+                  label: '檢舉留言',
+                  icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+                  onClick: () => {
+                      setIsReporting(true)
+                  },
+              },
+          ]
 
     return (
         <>
@@ -173,7 +156,7 @@ export default function Comment({
             <CommentDeleteDialog
                 open={isDeletingDialogOpen}
                 onClose={onCancelDelete}
-                onConfirm={() => onDelete()}
+                onConfirm={() => _onDelete()}
             />
             <CommentReportDialog
                 isOpen={isReporting}

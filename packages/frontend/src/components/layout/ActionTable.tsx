@@ -32,7 +32,10 @@ export function getActionLink(action: Action) {
             return '/posts'
         }
     }
-    if (action.type === ActionType.Comment) {
+    if (
+        action.type === ActionType.Comment ||
+        action.type === ActionType.DeleteComment
+    ) {
         return `/posts/${action.data.postId}#${action.data.commentId}`
     }
     return '#'

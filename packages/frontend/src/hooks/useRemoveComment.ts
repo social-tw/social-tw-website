@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
     ActionType,
     addAction,
@@ -21,59 +20,49 @@ async function deleteComment(data: string) {
     return await response.json()
 }
 
-export default function useDeleteComment() {
+export default function useRemoveComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
-    const [isDeleted, setIsDeleted] = useState(false)
 
-    const genProof = async (epoch: number, transactionHash: string) => {
+    const remove = async (postId: string, commentId: string, epoch: number) => {
         if (!userState) throw new Error('user state not initialized')
 
-        const latestTransitionedEpoch =
-            await userState.latestTransitionedEpoch()
-
-        if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-            await stateTransition()
-        }
-
-        const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
-            epoch,
-        })
-
-        const proof = stringifyBigInts({
-            transactionHash,
-            publicSignals: EpochKeyLiteProof.publicSignals,
-            proof: EpochKeyLiteProof.proof,
-        })
-
-        return proof
-    }
-
-    const remove = async (
-        proof: string,
-        epoch: number,
-        transactionHash: string,
-    ) => {
-        if (!userState) throw new Error('user state not initialized')
         const actionId = addAction(ActionType.DeleteComment, {
+            postId,
+            commentId,
             epoch,
-            transactionHash,
         })
 
         try {
+            const latestTransitionedEpoch =
+                await userState.latestTransitionedEpoch()
+
+            if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
+                await stateTransition()
+            }
+
+            const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
+                epoch,
+            })
+
+            const proof = stringifyBigInts({
+                postId,
+                commentId,
+                publicSignals: EpochKeyLiteProof.publicSignals,
+                proof: EpochKeyLiteProof.proof,
+            })
+
             const { transaction } = await deleteComment(proof)
             await provider.waitForTransaction(transaction)
             await userState.waitForSync()
             await loadData(userState)
+
             succeedActionById(actionId)
-            setIsDeleted(true)
         } catch {
             failActionById(actionId)
         }
     }
 
     return {
-        genProof,
         remove,
-        isDeleted,
     }
 }
