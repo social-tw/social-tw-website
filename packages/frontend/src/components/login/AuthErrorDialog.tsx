@@ -19,7 +19,7 @@ const AuthErrorDialog: React.FC<ErrorModalProps> = ({
     const navigate = useNavigate()
     const handleClick = () => {
         setSignupStatus('default')
-        navigate('/login')
+        navigate('/welcome')
         setErrorCode('')
     }
 
