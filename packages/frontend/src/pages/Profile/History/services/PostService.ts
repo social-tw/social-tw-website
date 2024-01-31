@@ -1,6 +1,5 @@
-import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
-
+import { UserState } from '@unirep/core'
 import { RelayRawPost } from '../../../../types/api'
 import { fetchPostsByEpochKeys } from '../../../../utils/api'
 import { Post } from '../DTO/Post'

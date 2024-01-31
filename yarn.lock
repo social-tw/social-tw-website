@@ -4458,18 +4458,6 @@
     lodash.merge "^4.6.2"
     postcss-selector-parser "6.0.10"
 
-"@tanstack/react-table@^8.10.7":
-  version "8.11.2"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.11.2.tgz#e584dbac8eb3ccce1facfe383863ac35c0ff1bb5"
-  integrity sha512-ztLg2OpM3HZIWzkQYjQER1inZuhbt79fBwZxc9bPXzsvqY+7RYI3dCZLw3CynYd9s4YltdrTbmSyh4xQSHexDQ==
-  dependencies:
-    "@tanstack/table-core" "8.11.2"
-
-"@tanstack/table-core@8.11.2":
-  version "8.11.2"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.11.2.tgz#34c00547dca178a1409b7f5385704f8b435e23ab"
-  integrity sha512-rR0VEQOtr0ARLvaNLaSQnt2BVwOp0OavOUA0LcZ3N45tLYXc4sXruNv8kJ7R7+5W1CrzGha217tzjBG83CpoMQ==
-
 "@tanstack/query-core@5.14.2":
   version "5.14.2"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.14.2.tgz#ef0c1a93e142d5cce90b0ac2d0333a88fc0fbb95"
@@ -4481,6 +4469,18 @@
   integrity sha512-hWLuZ2Hg9HzmHJ3VtWzhvK+sTxPz+rIIujYUxzapPoU9PPXe7NCm8k8EaKpm+Sc65FM7Dljfk/Ov9yYMhwg9vw==
   dependencies:
     "@tanstack/query-core" "5.14.2"
+
+"@tanstack/react-table@^8.10.7":
+  version "8.11.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.11.2.tgz#e584dbac8eb3ccce1facfe383863ac35c0ff1bb5"
+  integrity sha512-ztLg2OpM3HZIWzkQYjQER1inZuhbt79fBwZxc9bPXzsvqY+7RYI3dCZLw3CynYd9s4YltdrTbmSyh4xQSHexDQ==
+  dependencies:
+    "@tanstack/table-core" "8.11.2"
+
+"@tanstack/table-core@8.11.2":
+  version "8.11.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.11.2.tgz#34c00547dca178a1409b7f5385704f8b435e23ab"
+  integrity sha512-rR0VEQOtr0ARLvaNLaSQnt2BVwOp0OavOUA0LcZ3N45tLYXc4sXruNv8kJ7R7+5W1CrzGha217tzjBG83CpoMQ==
 
 "@tenderly/hardhat-tenderly@^1.7.7":
   version "1.8.0"
@@ -9153,7 +9153,7 @@ ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.1:
     ethjs-util "0.1.6"
     rlp "^2.2.3"
 
-ethers@5.7.2, ethers@^5.7.0, ethers@^5.7.1:
+ethers@5.7.2, ethers@^5.7.0, ethers@^5.7.1, ethers@^5.7.2:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==

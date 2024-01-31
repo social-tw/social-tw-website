@@ -63,9 +63,10 @@ export default (
 
         .delete(
             errorHandler(async (req, res) => {
-                const { commentId, publicSignals, proof } = req.body
+                const { commentId, postId, publicSignals, proof } = req.body
                 const hash = await commentService.deleteComment(
                     commentId.toString(),
+                    postId.toString(),
                     publicSignals,
                     proof,
                     synchronizer,

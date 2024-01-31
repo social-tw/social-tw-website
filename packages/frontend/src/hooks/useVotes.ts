@@ -28,14 +28,13 @@ export default function useVotes() {
                 },
                 body: JSON.stringify(
                     stringifyBigInts({
-                        _id,
+                        postId: _id,
                         voteAction,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
                     }),
                 ),
             })
-
             await userState.waitForSync()
 
             await loadData(userState)
@@ -44,7 +43,9 @@ export default function useVotes() {
                 console.log('Vote succeeded!')
                 return true
             } else {
-                throw new Error(`Vote failed with status: ${response.status}`)
+                throw new Error(
+                    `Vote failed with status: ${await response.json()}`,
+                )
             }
         } catch (error) {
             console.error('Vote failed:', error)

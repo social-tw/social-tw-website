@@ -23,6 +23,8 @@ describe('useActionStore', () => {
         const postData = {
             id: 'post-id-1',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         const { result } = renderHook(() => useActionStore())
@@ -93,6 +95,8 @@ describe('useActionStore', () => {
         const postData = {
             id: 'post-id-2',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         const { result } = renderHook(() => useActionStore())
@@ -113,6 +117,8 @@ describe('useActionStore', () => {
         const postData = {
             id: 'post-id-3',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         const { result } = renderHook(() => useActionStore())
@@ -133,6 +139,8 @@ describe('useActionStore', () => {
         const postData = {
             id: 'post-id-4',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         const { result } = renderHook(() => useActionStore())

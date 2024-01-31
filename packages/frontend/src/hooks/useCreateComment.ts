@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import {
     ActionType,
     addAction,
@@ -67,10 +68,16 @@ export default function useCreateComment() {
 
         try {
             const { transaction } = await publishComment(proof)
-            await provider.waitForTransaction(transaction)
+            const receipt = await provider.waitForTransaction(transaction)
+            const commentId = ethers.BigNumber.from(
+                receipt.logs[0].topics[3],
+            ).toString()
             await userState.waitForSync()
             await loadData(userState)
-            succeedActionById(actionId, { transactionHash: transaction })
+            succeedActionById(actionId, {
+                commentId,
+                transactionHash: transaction,
+            })
         } catch {
             failActionById(actionId)
         }

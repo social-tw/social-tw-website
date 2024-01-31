@@ -16,6 +16,7 @@ export function useSignupWithServer() {
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
             const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
             const userStateInstance = await createUserState()
+
             setSignupStatus('pending')
             navigate('/')
             await signup(true, userStateInstance, hashUserId, accessToken)
