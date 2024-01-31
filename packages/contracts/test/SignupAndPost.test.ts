@@ -29,9 +29,22 @@ describe('Unirep App', function () {
     let inputPublicSig: any
     let inputProof: any
     let chainId: number
+    // snapshot of evm environment
+    let snapshot: any
 
     // epoch length
     const epochLength = 100000
+
+    // record and revert of evm enviroment
+    {
+        before(async function () {
+            snapshot = await ethers.provider.send('evm_snapshot', [])
+        })
+
+        after(async function () {
+            await ethers.provider.send('evm_revert', [snapshot])
+        })
+    }
 
     before(async function () {
         // generate random hash user id
@@ -111,13 +124,13 @@ describe('Unirep App', function () {
             // generate a fake proof
             const concoctProof = [...proof]
             const len = concoctProof[0].toString().length
-            concoctProof[0] = BigInt(
-                proof[0].toString().slice(0, len - 1) + BigInt(2)
-            )
+            concoctProof[0] = BigInt(2)
             const content = 'Invalid Proof'
 
             await expect(app.post(publicSignals, concoctProof, content)).to.be
                 .reverted // revert in epkHelper.verifyAndCheck()
+
+            userState.stop()
         })
 
         it('should post with valid proof', async function () {
@@ -131,6 +144,8 @@ describe('Unirep App', function () {
             await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 0, 0, content)
+
+            userState.stop()
         })
 
         it('should post and have the correct postId', async function () {
@@ -144,6 +159,8 @@ describe('Unirep App', function () {
             await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
                 .withArgs(publicSignals[0], 1, 0, content)
+
+            userState.stop()
         })
 
         it('should fail to post with reused proof', async function () {
@@ -179,6 +196,8 @@ describe('Unirep App', function () {
             await expect(
                 app.post(publicSignals, proof, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+
+            userState.stop()
         })
     })
 
