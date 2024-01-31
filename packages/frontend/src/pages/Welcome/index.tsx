@@ -22,7 +22,7 @@ export function Welcome() {
         <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 h-full">
                 <div className="flex flex-col gap-12">
-                    <div className="flex flex-col items-center justify-center pt-24">
+                    <div className="flex flex-col items-center justify-center md:pt-24 pt-8">
                         <GreetingLogo />
                         <GreetingTitle />
                         <GreetingContent />

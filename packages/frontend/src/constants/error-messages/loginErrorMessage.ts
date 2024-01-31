@@ -33,7 +33,7 @@ const LOGIN_ERROR_MESSAGES: Record<string, { code: string; message: string }> =
         ACTION_WITHOUT_LOGIN: {
             code: 'ACTION_WITHOUT_LOGIN',
             message:
-                '親愛的用戶：您還沒登入 / 註冊唷，請先登入 / 註冊再執行此動作，感謝您！',
+                '您還沒登入 / 註冊唷，請先登入 / 註冊再執行此動作，感謝您！',
         },
     }
 
