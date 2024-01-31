@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { SERVER } from '@/config'
 import {
     commentActionsSelector,
     CommentData,
@@ -18,7 +19,7 @@ async function fetchCommentsByPostId(
     }
 
     const response = await fetch(
-        `http://localhost:8000/api/comment?${queryParams.toString()}`,
+        `${SERVER}/api/comment?${queryParams.toString()}`,
     )
 
     if (!response.ok) {
