@@ -25,7 +25,7 @@ export function useSignupWithWallet() {
             setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')
-            setErrorCode('SIGNUP_FAILED')
+            setErrorCode('WALLET_ISSUE')
         }
     }
     return signUpWithWallet
