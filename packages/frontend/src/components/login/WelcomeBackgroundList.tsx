@@ -27,10 +27,12 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
         const topAreaHeight = isSmallDevice ? 268 : 332
         const bottomAreaHeight = isSmallDevice ? 216 : 296
         const scrollPosition = container.scrollTop
-        const middle = (containerHeight - topAreaHeight - bottomAreaHeight) / 2 + topAreaHeight
+        const middle =
+            (containerHeight - topAreaHeight - bottomAreaHeight) / 2 +
+            topAreaHeight
         const centerZoneHeight = 20
-        const centerTop = middle - centerZoneHeight / 2 
-        const centerBottom = middle + centerZoneHeight / 2 
+        const centerTop = middle - centerZoneHeight / 2
+        const centerBottom = middle + centerZoneHeight / 2
 
         children.forEach((child) => {
             const childTop = child.offsetTop - scrollPosition
