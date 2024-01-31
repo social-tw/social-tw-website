@@ -66,6 +66,10 @@ export default function Post({
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
+    // ignore next event
+    const [ignoreNextEvent, setIgnoreNextEvent] = useState(false)
+    const [isMineState, setIsMineState] = useState(isMine)
+
     // set isAction when finalAction is changed
     useEffect(() => {
         setIsAction(finalAction)
@@ -101,65 +105,60 @@ export default function Post({
         let action: VoteAction
         let success = false
 
-        if (isMine && finalAction === voteType) {
-            action =
-                voteType === VoteAction.UPVOTE
+        // if exist vote, cancel vote
+        if (isMineState && finalAction !== null && finalAction !== voteType) {
+            const cancelAction =
+                finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
-            success = await create(id, action)
+
+            setIgnoreNextEvent(true)
+            success = await create(id, cancelAction)
 
             if (success) {
-                if (action === VoteAction.CANCEL_UPVOTE) {
-                    setUpvotes((prev) => prev - 1)
-                    setIsAction(null)
-                } else {
-                    setDownvotes((prev) => prev - 1)
-                    setIsAction(null)
-                }
-            }
-        } else {
-            if (isMine && finalAction !== null) {
-                const cancelAction =
-                    finalAction === VoteAction.UPVOTE
-                        ? VoteAction.CANCEL_UPVOTE
-                        : VoteAction.CANCEL_DOWNVOTE
-                await create(id, cancelAction)
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    setUpvotes((prev) => prev - 1)
+                    setLocalUpCount((prev) => prev - 1)
                 } else {
-                    setDownvotes((prev) => prev - 1)
+                    setLocalDownCount((prev) => prev - 1)
                 }
-            }
-
-            action = voteType
-            success = await create(id, action)
-            setShow(true)
-            setImgType(
-                voteType === VoteAction.UPVOTE
-                    ? VoteAction.UPVOTE
-                    : VoteAction.DOWNVOTE,
-            )
-
-            if (success) {
-                if (action === VoteAction.UPVOTE) {
-                    setUpvotes((prev) => prev + 1)
-                } else {
-                    setDownvotes((prev) => prev + 1)
-                }
-                setIsAction(action)
+                // 等待一定時間後再執行新的投票
+                setTimeout(() => setIgnoreNextEvent(false), 500)
             }
         }
 
-        setVoteState(
-            action === VoteAction.UPVOTE
-                ? VoteAction.UPVOTE
-                : VoteAction.DOWNVOTE,
-        )
-        setShow(false)
+        // if not exist vote, create vote
+        if (!isMineState || finalAction !== voteType) {
+            action = voteType
+            setIgnoreNextEvent(true)
+            success = await create(id, action)
+
+            if (success) {
+                setShow(true)
+                setImgType(
+                    voteType === VoteAction.UPVOTE
+                        ? VoteAction.UPVOTE
+                        : VoteAction.DOWNVOTE,
+                )
+
+                if (action === VoteAction.UPVOTE) {
+                    setLocalUpCount((prev) => prev + 1)
+                    setVoteState(VoteAction.UPVOTE)
+                } else {
+                    setLocalDownCount((prev) => prev + 1)
+                    setVoteState(VoteAction.DOWNVOTE)
+                }
+                setIsAction(action)
+                // set isMineState to true
+                setIsMineState(true)
+            }
+            setTimeout(() => setIgnoreNextEvent(false), 500)
+        }
+
+        setTimeout(() => setShow(false), 500)
     }
 
     useVoteEvents((msg: VoteMsg) => {
-        if (id !== msg.postId) return
+        if (id !== msg.postId || ignoreNextEvent) return
 
         switch (msg.vote) {
             case VoteAction.UPVOTE:
@@ -199,7 +198,7 @@ export default function Post({
                     >
                         <div
                             className={`${
-                                isMine && isAction === VoteAction.UPVOTE
+                                isMineState && isAction === VoteAction.UPVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
@@ -221,7 +220,7 @@ export default function Post({
                     >
                         <div
                             className={`${
-                                isMine && isAction === VoteAction.DOWNVOTE
+                                isMineState && isAction === VoteAction.DOWNVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
