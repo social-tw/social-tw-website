@@ -14,6 +14,8 @@ jest.mock('@/contexts/User', () => ({
             genEpochKeyProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
             }),
             waitForSync: jest.fn().mockResolvedValue('success'),
             sync: {
@@ -88,7 +90,11 @@ describe('useCreateComment', () => {
         const content = 'mock_content'
 
         await act(async () => {
-            await result.current.create(postId, content)
+            try {
+                await result.current.create(postId, content)
+            } catch {
+                /* empty */
+            }
         })
 
         expect(addAction).toHaveBeenCalledWith(

@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom'
+
 import CommentDeleteDialog from '@/components/comment/CommentDeleteDialog'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 describe('CommentDeleteDialog', () => {
     it('renders when open is true', () => {
@@ -13,19 +15,21 @@ describe('CommentDeleteDialog', () => {
         expect(screen.queryByText(/確定要刪除這則留言嗎？/)).toBeNull()
     })
 
-    it('calls onClose when the dialog is closed', () => {
+    it('calls onClose when the dialog is closed', async () => {
         const onCloseMock = jest.fn()
         render(<CommentDeleteDialog open={true} onClose={onCloseMock} />)
 
-        fireEvent.click(screen.getByLabelText('close'))
+        await userEvent.click(screen.getByLabelText('close'))
+
         expect(onCloseMock).toHaveBeenCalled()
     })
 
-    it('calls onConfirm when the confirm button is clicked', () => {
+    it('calls onConfirm when the confirm button is clicked', async () => {
         const onConfirmMock = jest.fn()
         render(<CommentDeleteDialog open={true} onConfirm={onConfirmMock} />)
 
-        fireEvent.click(screen.getByText(/確認刪除/))
+        await userEvent.click(screen.getByText(/確認刪除/))
+
         expect(onConfirmMock).toHaveBeenCalled()
     })
 })
