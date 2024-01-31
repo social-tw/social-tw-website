@@ -41,7 +41,7 @@ describe('Comment', () => {
         epochKey: 'epochKey-1',
         content: 'Test comment content',
         transactionHash: 'hash-1',
-        publishedAt: Date.now(),
+        publishedAt: new Date(),
         status: CommentStatus.Success,
         isMine: true,
     }
@@ -52,12 +52,6 @@ describe('Comment', () => {
 
     beforeEach(() => {
         mockedUseCreateComment.mockReturnValue({
-            genProof: jest.fn().mockImplementation(() =>
-                Promise.resolve({
-                    proof: mockProof,
-                    epoch: mockEpoch,
-                }),
-            ),
             create: jest.fn().mockImplementation(() =>
                 Promise.resolve({
                     transaction: mockTransaction,

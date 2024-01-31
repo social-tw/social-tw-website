@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
 import { Fragment, useEffect, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
 import {
@@ -107,6 +108,12 @@ export default function PostList() {
             .sort((a, b) => a.publishedAt.valueOf() - b.publishedAt.valueOf())
     }, [postActions, data])
 
+    const navigate = useNavigate()
+
+    function gotoCommentsByPostId(postId: string) {
+        navigate(`/posts/${postId}/#comments`)
+    }
+
     function handleVoteEvent(msg: VoteMsg) {
         // Update the query data for 'posts'
         queryClient.setQueryData<InfiniteData<PostInfo[]>>(
@@ -192,6 +199,10 @@ export default function PostList() {
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
                                     status={post.status}
+                                    onComment={() => {
+                                        if (!post.postId) return
+                                        gotoCommentsByPostId(post.postId)
+                                    }}
                                 />
                             </li>
                         ))}

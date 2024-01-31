@@ -52,20 +52,6 @@ afterEach(() => {
 })
 
 describe('useCreateComment', () => {
-    it('successfully generates proof', async () => {
-        const { result } = renderHook(() => useCreateComment())
-        const postId = 'testPostId'
-        const content = 'testContent'
-
-        let proofResult
-        await act(async () => {
-            proofResult = await result.current.genProof(postId, content)
-        })
-
-        expect(proofResult).toHaveProperty('proof')
-        expect(proofResult).toHaveProperty('epoch', 9999)
-    })
-
     it('successfully creates a comment', async () => {
         ;(global.fetch as jest.Mock).mockResolvedValueOnce({
             json: () => Promise.resolve({ transaction: 'mock_transaction' }),
@@ -73,13 +59,11 @@ describe('useCreateComment', () => {
 
         const { result } = renderHook(() => useCreateComment())
 
-        const proof = 'mock_proof'
         const postId = 'mock_postId'
         const content = 'mock_content'
-        const epoch = 9999
 
         await act(async () => {
-            await result.current.create(proof, postId, content, epoch)
+            await result.current.create(postId, content)
         })
 
         expect(addAction).toHaveBeenCalledWith(
@@ -100,13 +84,11 @@ describe('useCreateComment', () => {
 
         const { result } = renderHook(() => useCreateComment())
 
-        const proof = 'mock_proof'
         const postId = 'mock_postId'
         const content = 'mock_content'
-        const epoch = 9999
 
         await act(async () => {
-            await result.current.create(proof, postId, content, epoch)
+            await result.current.create(postId, content)
         })
 
         expect(addAction).toHaveBeenCalledWith(

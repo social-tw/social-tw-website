@@ -1,24 +1,29 @@
-import clsx from 'clsx'
-import { useRef, useState } from 'react'
-import { FaBan, FaTrashCan } from 'react-icons/fa6'
-import { FiMoreHorizontal } from 'react-icons/fi'
-import Avatar from '@/components/common/Avatar'
-import { removeActionByCommentId } from '@/contexts/Actions'
-import useCreateComment from '@/hooks/useCreateComment'
-import useDeleteComment from '@/hooks/useDeleteComment'
-import formatDate from '@/utils/formatDate'
+import clsx from "clsx";
+import { nanoid } from "nanoid";
+import { useRef, useState } from "react";
+import { FaBan, FaTrashCan } from "react-icons/fa6";
+import { FiMoreHorizontal } from "react-icons/fi";
+import Avatar from "@/components/common/Avatar";
+import useDeleteComment from "@/hooks/useDeleteComment";
+import formatDate from "@/utils/formatDate";
 import {
-    ControlledMenu,
-    MenuItem,
-    useClick,
-    useMenuState,
-} from '@szhsin/react-menu'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { CommentInfo, CommentStatus } from '../../types'
-import CommentDeleteDialog from './CommentDeleteDialog'
-import CommentReportDialog from './CommentReportDialog'
+    ControlledMenu, MenuItem, useClick, useMenuState
+} from "@szhsin/react-menu";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import { CommentStatus } from "../../types";
+import CommentDeleteDialog from "./CommentDeleteDialog";
+import CommentReportDialog from "./CommentReportDialog";
 
-interface CommentProps extends CommentInfo {
+interface CommentProps {
+    commentId?: string
+    epoch?: number
+    epochKey?: string
+    content: string
+    transactionHash?: string
+    publishedAt: Date
+    status: CommentStatus
+    isMine: boolean
+    onRepublish?: () => void
     onCloseAnimation?: () => void
     onOpenAnimation?: () => void
     isLast?: boolean
@@ -27,34 +32,28 @@ interface CommentProps extends CommentInfo {
 export default function Comment({
     isLast,
     commentId,
-    postId,
-    epoch,
-    epochKey = '',
+    epoch = 0,
+    epochKey = nanoid(),
     content = '',
     transactionHash = '',
     publishedAt,
     status = CommentStatus.Success,
     isMine = true,
-    onCloseAnimation = () => {},
-    onOpenAnimation = () => {},
+    onCloseAnimation = () => { },
+    onOpenAnimation = () => { },
+    onRepublish = () => { },
 }: CommentProps) {
     const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
     const [isReporting, setIsReporting] = useState(false)
 
-    const { create: createCommnet, genProof: genCommentProof } =
-        useCreateComment()
     const {
         remove: deleteComment,
         genProof: genDeleteProof,
         isDeleted: isDeleted,
     } = useDeleteComment()
 
-    const onRepublish = async () => {
-        removeActionByCommentId(commentId)
-        onOpenAnimation()
-        const { proof, epoch } = await genCommentProof(postId, content)
-        onCloseAnimation()
-        await createCommnet(proof, postId, content, epoch)
+    const _onRepublish = async () => {
+        onRepublish()
     }
 
     const onDelete = async () => {
@@ -81,23 +80,23 @@ export default function Comment({
 
     const menu = isMine
         ? [
-              {
-                  label: '刪除留言',
-                  icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                  onClick: () => {
-                      setIsDeletingDialogOpen(true)
-                  },
-              },
-          ]
+            {
+                label: '刪除留言',
+                icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+                onClick: () => {
+                    setIsDeletingDialogOpen(true)
+                },
+            },
+        ]
         : [
-              {
-                  label: '檢舉留言',
-                  icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-                  onClick: () => {
-                      setIsReporting(true)
-                  },
-              },
-          ]
+            {
+                label: '檢舉留言',
+                icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+                onClick: () => {
+                    setIsReporting(true)
+                },
+            },
+        ]
 
     if (isDeleted) return null
 
@@ -108,9 +107,6 @@ export default function Comment({
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30',
-                    !isLast &&
-                        status === CommentStatus.Success &&
-                        'border-b border-neutral-600',
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
@@ -141,7 +137,7 @@ export default function Comment({
                 <div className="mb-6">
                     <button
                         className="h-10 border-2 btn btn-sm btn-outline btn-primary"
-                        onClick={onRepublish}
+                        onClick={_onRepublish}
                     >
                         再次發佈這則留言
                     </button>
@@ -178,8 +174,6 @@ export default function Comment({
                 open={isDeletingDialogOpen}
                 onClose={onCancelDelete}
                 onConfirm={() => onDelete()}
-                commentId={commentId}
-                epoch={epoch}
             />
             <CommentReportDialog
                 isOpen={isReporting}

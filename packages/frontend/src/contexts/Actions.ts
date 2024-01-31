@@ -23,12 +23,12 @@ export interface PostData {
 }
 
 export interface CommentData {
-    commentId: string
+    commentId?: string
     postId: string
     content: string
     epochKey?: string
-    epoch: number
-    transactionHash: string
+    epoch?: number
+    transactionHash?: string
 }
 
 export interface DeleteCommentData {

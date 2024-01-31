@@ -1,10 +1,7 @@
 import { UserState } from '@/contexts/Userstate'
-import { CommnetDataFromApi } from '@/types'
+import { RelayRawComment } from '@/types/api'
 
-const checkCommentIsMine = (
-    comment: CommnetDataFromApi,
-    userState: UserState,
-) => {
+const checkCommentIsMine = (comment: RelayRawComment, userState: UserState) => {
     if (!userState.getEpochKeys(comment.epoch)) return false
 
     const epochKeys = userState.getEpochKeys(comment.epoch).toString()

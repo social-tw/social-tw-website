@@ -36,9 +36,15 @@ export type FetchPostsByEpochKeysResponse = RelayRawPost[]
 
 export interface RelayRawComment {
     _id: string
+    postId: string
+    commentId: string | undefined
+    cid: string | undefined
     epochKey: string
+    epoch: number
+    content: string | undefined
     publishedAt: string
-    content: string
+    transactionHash: string
+    status: number
     voteSum: number
 }
 

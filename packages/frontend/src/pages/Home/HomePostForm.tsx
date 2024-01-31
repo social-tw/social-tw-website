@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
@@ -12,8 +11,6 @@ interface HomePostFormProps {
 }
 
 const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
-    const navigate = useNavigate()
-
     const queryClient = useQueryClient()
 
     const { create: createPost } = useCreatePost()

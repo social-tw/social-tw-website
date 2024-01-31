@@ -236,15 +236,16 @@ export default function Post({
                             {localDownCount}
                         </span>
                     </div>
-                    <div
-                        className="flex items-center gap-1"
+                    <button
+                        className="flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                        disabled={!onComment}
                         onClick={onComment}
                     >
                         <img className="w-5 h-5" src={Comment} alt="comment" />
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}
                         </span>
-                    </div>
+                    </button>
                 </footer>
             </div>
             {compact && imageUrl && (
