@@ -11,6 +11,7 @@ import Upvote from '../../assets/upvote.png'
 import { useUser } from '../../contexts/User'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
+import useStore from '../../store/usePostStore'
 
 export default function Post({
     id = '',
@@ -49,7 +50,7 @@ export default function Post({
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
-    const { isLogin } = useUser()
+    const { isLogin, userState } = useUser()
     const { create } = useVotes()
     const [upvotes, setUpvotes] = useState(upCount)
     const [downvotes, setDownvotes] = useState(downCount)
@@ -69,6 +70,7 @@ export default function Post({
     // ignore next event
     const [ignoreNextEvent, setIgnoreNextEvent] = useState(false)
     const [isMineState, setIsMineState] = useState(isMine)
+    const updateVoteCount = useStore((state) => state.updateVoteCount)
 
     // set isAction when finalAction is changed
     useEffect(() => {
@@ -104,6 +106,8 @@ export default function Post({
     const handleVote = async (voteType: VoteAction) => {
         let action: VoteAction
         let success = false
+        let newUpCount = upCount
+        let newDownCount = downCount
 
         // if exist vote, cancel vote
         if (isMineState && finalAction !== null && finalAction !== voteType) {
@@ -111,14 +115,17 @@ export default function Post({
                 finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
-
             setIgnoreNextEvent(true)
+
+            console.log('cancel vote', finalAction, cancelAction)
             success = await create(id, cancelAction)
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
+                    newUpCount -= 1
                     setLocalUpCount((prev) => prev - 1)
                 } else {
+                    newDownCount -= 1
                     setLocalDownCount((prev) => prev - 1)
                 }
                 // 等待一定時間後再執行新的投票
@@ -141,15 +148,18 @@ export default function Post({
                 )
 
                 if (action === VoteAction.UPVOTE) {
+                    newUpCount += 1
                     setLocalUpCount((prev) => prev + 1)
                     setVoteState(VoteAction.UPVOTE)
                 } else {
+                    newDownCount += 1
                     setLocalDownCount((prev) => prev + 1)
                     setVoteState(VoteAction.DOWNVOTE)
                 }
                 setIsAction(action)
                 // set isMineState to true
                 setIsMineState(true)
+                updateVoteCount(id, newUpCount, newDownCount)
             }
             setTimeout(() => setIgnoreNextEvent(false), 500)
         }
