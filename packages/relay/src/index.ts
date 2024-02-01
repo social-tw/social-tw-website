@@ -25,6 +25,7 @@ import { postService } from './services/PostService'
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
 import prover from './services/singletons/prover'
 import schema from './db/schema'
+import cors from 'cors'
 
 main().catch((err) => {
     console.error(`Uncaught error: ${err}`)
@@ -42,11 +43,11 @@ async function main() {
     const app = express()
 
     // setting cors
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
+    app.use(
+        cors({
+            origin: CLIENT_URL,
+        })
+    )
 
     const httpServer = createServer(app)
     new SocketManager(httpServer)
