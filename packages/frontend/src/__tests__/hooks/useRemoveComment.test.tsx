@@ -48,6 +48,7 @@ afterEach(() => {
 describe('useRemoveComment', () => {
     it('successfully deletes a comment', async () => {
         ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: true,
             json: () => Promise.resolve({ transaction: 'mock_transaction' }),
         })
         const { result } = renderHook(() => useRemoveComment())
