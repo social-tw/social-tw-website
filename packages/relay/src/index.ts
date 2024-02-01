@@ -39,6 +39,24 @@ async function main() {
 
     await postService.start(db)
 
+    const app = express()
+
+    // setting cors
+    app.use((req, res, next) => {
+        res.set('access-control-allow-origin', CLIENT_URL)
+        res.set('access-control-allow-headers', '*')
+        next()
+    })
+
+    const httpServer = createServer(app)
+    new SocketManager(httpServer)
+    const port = process.env.PORT ?? 8000
+
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
+
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
+
     const synchronizer = new UnirepSocialSynchronizer(
         {
             db: db,
@@ -60,24 +78,6 @@ async function main() {
 
     TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
-
-    const app = express()
-
-    // setting cors
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
-
-    const httpServer = createServer(app)
-    new SocketManager(httpServer)
-    const port = process.env.PORT ?? 8000
-
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
-
-    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')

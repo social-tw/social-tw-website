@@ -41,6 +41,10 @@ const CommentForm: React.FC<CommentFormProps> = ({
                 queryKey: ['comments', postId],
             })
 
+            await queryClient.invalidateQueries({
+                queryKey: ['post', postId],
+            })
+
             toast('留言成功送出')
         } catch (error) {
             setIsSubmitting(false)

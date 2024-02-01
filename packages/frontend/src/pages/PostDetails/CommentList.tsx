@@ -15,7 +15,7 @@ import useRemoveComment from '@/hooks/useRemoveComment'
 import { CommentStatus } from '@/types'
 import { RelayRawComment } from '@/types/api'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 interface CommentListProps {
     postId: string
@@ -23,6 +23,8 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = ({ postId }) => {
     const { userState } = useUser()
+
+    const queryClient = useQueryClient()
 
     const { data, refetch } = useQuery({
         queryKey: ['comments', postId],
@@ -108,6 +110,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                                 comment.epoch,
                             )
                             await refetch()
+                            await queryClient.invalidateQueries({
+                                queryKey: ['post', postId],
+                            })
                         }}
                     />
                 </li>
@@ -125,6 +130,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                             removeActionById(comment.actionId)
                             await createCommnet(comment.postId, comment.content)
                             await refetch()
+                            await queryClient.invalidateQueries({
+                                queryKey: ['post', postId],
+                            })
                         }}
                         onDelete={() => {
                             removeActionById(comment.actionId)

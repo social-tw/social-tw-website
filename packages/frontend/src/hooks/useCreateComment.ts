@@ -10,16 +10,20 @@ import randomNonce from '@/utils/randomNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 
-async function publishComment(data: string) {
+async function publishComment(values: unknown) {
     const response = await fetch(`${SERVER}/api/comment`, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(values),
     })
+    const data = await response.json()
 
-    return await response.json()
+    if (!response.ok) {
+        throw Error(data.error)
+    }
+    return data
 }
 
 export default function useCreateComment() {
