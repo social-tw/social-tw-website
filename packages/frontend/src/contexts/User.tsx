@@ -116,7 +116,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const createUserState = async () => {
         if (userState)
             return {
-                userStateInstance: userState
+                userStateInstance: userState,
             }
         const storedSignature = localStorage.getItem('signature') ?? ''
         const relayConfig = await fetchRelayConfig()
