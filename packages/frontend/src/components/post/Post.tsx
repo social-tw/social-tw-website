@@ -128,7 +128,7 @@ export default function Post({
                     newDownCount -= 1
                     setLocalDownCount((prev) => prev - 1)
                 }
-                // 等待一定時間後再執行新的投票
+                // wait for 500ms to set isMineState to false
                 setTimeout(() => setIgnoreNextEvent(false), 500)
             }
         }

@@ -88,7 +88,7 @@ export default function PostDetail() {
         }
 
         loadPost()
-    }, [id])
+    }, [id, userState])
 
     const location = useLocation()
 
