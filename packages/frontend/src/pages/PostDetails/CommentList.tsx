@@ -16,6 +16,7 @@ import { CommentStatus } from '@/types'
 import { RelayRawComment } from '@/types/api'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import useEpoch from '@/hooks/useEpoch'
 
 interface CommentListProps {
     postId: string
@@ -23,6 +24,8 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = ({ postId }) => {
     const { userState } = useUser()
+
+    const { epoch } = useEpoch()
 
     const queryClient = useQueryClient()
 
@@ -41,7 +44,6 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                     publishedAt: new Date(Number(comment.publishedAt)),
                     transactionHash: comment.transactionHash,
                     status: CommentStatus.Success,
-                    isMine: false,
                 }))
         },
     })
@@ -52,9 +54,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                 ? checkCommentIsMine(item, userState)
                 : false
 
-            return { ...item, isMine }
+            const canDelete = isMine && item.epoch === epoch
+            const canReport = !isMine
+
+            return { ...item, canDelete, canReport }
         })
-    }, [data, userState])
+    }, [data, userState, epoch])
 
     const commentActions = useActionStore(commentActionsSelector)
 
@@ -73,7 +78,8 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                     transactionHash: data.transactionHash,
                     publishedAt: action.submittedAt,
                     status: action.status as unknown as CommentStatus,
-                    isMine: true,
+                    canDelete: action.status === ActionStatus.Failure,
+                    canReport: false,
                 }
             })
     }, [commentActions])
@@ -102,7 +108,8 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                         content={comment.content}
                         publishedAt={comment.publishedAt}
                         status={comment.status}
-                        isMine={comment.isMine}
+                        canDelete={comment.canDelete}
+                        canReport={comment.canReport}
                         onDelete={async () => {
                             await removeComment(
                                 comment.postId,
@@ -125,7 +132,8 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                         content={comment.content}
                         publishedAt={comment.publishedAt}
                         status={comment.status}
-                        isMine={comment.isMine}
+                        canDelete={comment.canDelete}
+                        canReport={comment.canReport}
                         onRepublish={async () => {
                             removeActionById(comment.actionId)
                             await createCommnet(comment.postId, comment.content)

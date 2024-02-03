@@ -43,7 +43,8 @@ describe('Comment', () => {
         transactionHash: 'hash-1',
         publishedAt: new Date(),
         status: CommentStatus.Success,
-        isMine: true,
+        canDelete: true,
+        canReport: true,
     }
 
     const mockTransaction = 'mockTransaction'
@@ -76,9 +77,7 @@ describe('Comment', () => {
     })
 
     it('opens report dialog on report action', async () => {
-        renderWithProvider(
-            <Comment {...{ ...mockCommentInfo, isMine: false }} />,
-        )
+        renderWithProvider(<Comment {...mockCommentInfo} />)
 
         await userEvent.click(screen.getByRole('button', { name: /more/i }))
         await userEvent.click(screen.getByText(/檢舉留言/i))

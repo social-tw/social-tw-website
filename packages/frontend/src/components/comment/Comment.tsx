@@ -22,7 +22,8 @@ interface CommentProps {
     content: string
     publishedAt: Date
     status: CommentStatus
-    isMine: boolean
+    canDelete: boolean
+    canReport: boolean
     onRepublish?: () => void
     onDelete?: () => void
 }
@@ -33,7 +34,8 @@ export default function Comment({
     content = '',
     publishedAt,
     status = CommentStatus.Success,
-    isMine = true,
+    canDelete = true,
+    canReport = true,
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
@@ -63,25 +65,32 @@ export default function Comment({
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
-    const menu = isMine
-        ? [
-              {
-                  label: '刪除留言',
-                  icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                  onClick: () => {
-                      setIsDeletingDialogOpen(true)
+    const menuItems = [
+        ...(canDelete
+            ? [
+                  {
+                      label: '刪除留言',
+                      icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+                      onClick: () => {
+                          setIsDeletingDialogOpen(true)
+                      },
                   },
-              },
-          ]
-        : [
-              {
-                  label: '檢舉留言',
-                  icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-                  onClick: () => {
-                      setIsReporting(true)
+              ]
+            : []),
+        ...(canReport
+            ? [
+                  {
+                      label: '檢舉留言',
+                      icon: (
+                          <FaBan size={isSmallDevice ? 22 : 14} className="" />
+                      ),
+                      onClick: () => {
+                          setIsReporting(true)
+                      },
                   },
-              },
-          ]
+              ]
+            : []),
+    ]
 
     return (
         <>
@@ -102,16 +111,17 @@ export default function Comment({
                         </span>
                     </div>
                     <div>
-                        {status !== CommentStatus.Failure && (
-                            <button
-                                aria-label="more"
-                                className="btn btn-circle btn-sm btn-ghost"
-                                ref={menuButtonRef}
-                                {...anchorProps}
-                            >
-                                <FiMoreHorizontal size={24} />
-                            </button>
-                        )}
+                        {status !== CommentStatus.Failure &&
+                            menuItems.length > 0 && (
+                                <button
+                                    aria-label="more"
+                                    className="btn btn-circle btn-sm btn-ghost"
+                                    ref={menuButtonRef}
+                                    {...anchorProps}
+                                >
+                                    <FiMoreHorizontal size={24} />
+                                </button>
+                            )}
                     </div>
                 </header>
                 <p className="text-sm font-medium text-white">{content}</p>
@@ -142,7 +152,7 @@ export default function Comment({
                 transition
                 portal
             >
-                {menu.map((item, i) => (
+                {menuItems.map((item, i) => (
                     <MenuItem key={i} onClick={item.onClick}>
                         <div className="font-medium text-white max-md:p-6 md:flex md:justify-center">
                             {item.icon}
