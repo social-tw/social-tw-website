@@ -45,17 +45,42 @@ export const createCommentSlice: StateCommentSlice = (set, get) => ({
             state.comments.data = sortedComments
         })
     },
+    invokeFetchHistoryCommentsFlow: async (userState: UserState) => {
+        const isInit = get().comments.isInit
+        if (!isInit) {
+            await get().invokeInitHistoryCommentsFlow(userState)
+        } else {
+            await get().invokeRefetchHistoryCommentsFlow(userState)
+        }
+    },
+    invokeRefetchHistoryCommentsFlow: async (userState: UserState) => {
+        try {
+            set((state) => {
+                state.comments.isFetching = true
+            })
+            const activeFilter = get().comments.activeFilter
+            const sortedComments = await _fetchHistoryCommentsAndSorted(
+                userState,
+                activeFilter,
+            )
+            set((state) => {
+                state.comments.data = sortedComments
+            })
+        } finally {
+            set((state) => {
+                state.comments.isFetching = false
+            })
+        }
+    },
     invokeInitHistoryCommentsFlow: async (userState: UserState) => {
         try {
             set((state) => {
                 state.comments.isFetching = true
             })
-            const commentService = new CommentService()
-            const comments =
-                await commentService.fetchCommentHistoryByUserState(userState)
-            const sortedComments = commentService.sortComments(
-                comments,
-                get().comments.activeFilter,
+            const activeFilter = get().comments.activeFilter
+            const sortedComments = await _fetchHistoryCommentsAndSorted(
+                userState,
+                activeFilter,
             )
             set((state) => {
                 state.comments.data = sortedComments
@@ -70,3 +95,14 @@ export const createCommentSlice: StateCommentSlice = (set, get) => ({
         }
     },
 })
+
+async function _fetchHistoryCommentsAndSorted(
+    userState: UserState,
+    activeFilter: ActiveFilter,
+) {
+    const commentService = new CommentService()
+    const comments =
+        await commentService.fetchCommentHistoryByUserState(userState)
+    const sortedComments = commentService.sortComments(comments, activeFilter)
+    return sortedComments
+}

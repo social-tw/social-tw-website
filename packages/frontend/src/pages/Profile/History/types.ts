@@ -86,6 +86,8 @@ interface CommentSlice {
     setCommentActiveFilterToDateAsc: () => void
     setCommentActiveFilterToDateDesc: () => void
     setCommentActiveFilterToPopularityAsc: () => void
+    invokeFetchHistoryCommentsFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryCommentsFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryCommentsFlow: (userState: UserState) => Promise<void>
 }
 

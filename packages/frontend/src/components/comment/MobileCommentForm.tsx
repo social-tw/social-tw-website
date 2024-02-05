@@ -1,8 +1,11 @@
+import Avatar from '@/assets/avatar.png'
+import RichTextEditor from '@/components/common/RichTextEditor'
+import { useUser } from '@/contexts/User'
+import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
+import { UserState } from '@unirep/core'
 import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import Avatar from '@/assets/avatar.png'
-import RichTextEditor from '@/components/common/RichTextEditor'
 
 export interface CommentValues {
     content: string
@@ -27,8 +30,14 @@ export default function MobileCommentForm({
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
+    const { userState } = useUser()
+    const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryCommentsFlow,
+    )
+
     useEffect(() => {
         if (isSubmitSuccessful) {
+            invokeFetchHistoryCommentsFlow(userState as unknown as UserState)
             reset({ content: '' })
         }
     }, [isSubmitSuccessful, reset])
