@@ -71,6 +71,8 @@ interface PostSlice {
     setPostActiveFilterToDateAsc: () => void
     setPostActiveFilterToDateDesc: () => void
     setPostActiveFilterToPopularityAsc: () => void
+    invokeFetchHistoryPostsFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryPostsFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryPostsFlow: (userState: UserState) => Promise<void>
 }
 
