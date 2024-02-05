@@ -1,8 +1,5 @@
 import Backdrop from '@/components/common/Backdrop'
 import RichTextEditor from '@/components/common/RichTextEditor'
-import { useUser } from '@/contexts/User'
-import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
-import { UserState } from '@unirep/core'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { GrFormClose } from 'react-icons/gr'
@@ -29,14 +26,8 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
-    const { userState } = useUser()
-    const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
-        (state) => state.invokeFetchHistoryCommentsFlow,
-    )
-
     useEffect(() => {
         if (isSubmitSuccessful) {
-            invokeFetchHistoryCommentsFlow(userState as unknown as UserState)
             reset({ content: '' })
         }
     }, [isSubmitSuccessful, reset])
