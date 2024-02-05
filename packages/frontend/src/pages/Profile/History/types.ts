@@ -98,5 +98,7 @@ interface VoteSlice {
     }
     setVoteActiveFilterToDateAsc: () => void
     setVoteActiveFilterToDateDesc: () => void
+    invokeFetchHistoryVotesFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryVotesFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryVotesFlow: (userState: UserState) => Promise<void>
 }
