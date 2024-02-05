@@ -1,9 +1,10 @@
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 
-import { RelayRawVote, RelayRawVoteType } from '../../../../types/api'
+import { RelayRawVote } from '../../../../types/api'
 import { fetchVotesByEpochKeys } from '../../../../utils/api'
 import { Vote } from '../DTO/Vote'
+import { ErrorUnsupportedVoteType } from '../errors/ErrorUnsupportedVoteType'
 import { ActiveFilter, VoteType } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
 
@@ -52,10 +53,7 @@ export class VoteService {
     private parseRelayRawVotesToVotes(relayRawVotes: RelayRawVote[]): Vote[] {
         return relayRawVotes.map((relayRawVote) => {
             const publishedAt = parseInt(relayRawVote.publishedAt)
-            const voteType =
-                relayRawVote.type === RelayRawVoteType.Upvote
-                    ? VoteType.Upvote
-                    : VoteType.Downvote
+            const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)
             return new Vote(
                 relayRawVote._id,
                 relayRawVote.epochKey,
@@ -72,5 +70,15 @@ export class VoteService {
     // TODO: confirm url
     private genVoteUrlById(id: string): string {
         return `/votes/${id}`
+    }
+
+    private getVoteTypeByRelayRawVote(relayRawVote: RelayRawVote): VoteType {
+        if (relayRawVote.upVote === 1) {
+            return VoteType.Upvote
+        } else if (relayRawVote.downVote === 1) {
+            return VoteType.Downvote
+        } else {
+            throw new ErrorUnsupportedVoteType()
+        }
     }
 }
