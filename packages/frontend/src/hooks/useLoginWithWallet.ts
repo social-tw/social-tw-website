@@ -19,7 +19,7 @@ export function useLoginWithWallet() {
             setIsLogin(true)
             navigate('/')
         } catch (error: any) {
-            setErrorCode(error.message)
+            setErrorCode('MISSING_ELEMENT')
         }
     }
 
