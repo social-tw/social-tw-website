@@ -74,8 +74,9 @@ export default function Post({
 
     // set isAction when finalAction is changed
     useEffect(() => {
+        setIsMineState(isMine)
         setIsAction(finalAction)
-    }, [finalAction])
+    }, [isMine, finalAction])
 
     const postInfo = (
         <div className="space-y-3">
@@ -108,6 +109,8 @@ export default function Post({
         let success = false
         let newUpCount = upCount
         let newDownCount = downCount
+        if (ignoreNextEvent) return
+        setIgnoreNextEvent(true)
 
         // if exist vote, cancel vote
         if (isMineState && finalAction !== null && finalAction !== voteType) {
@@ -122,10 +125,10 @@ export default function Post({
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    newUpCount -= 1
+                    // newUpCount -= 1
                     setLocalUpCount((prev) => prev - 1)
                 } else {
-                    newDownCount -= 1
+                    // newDownCount -= 1
                     setLocalDownCount((prev) => prev - 1)
                 }
                 // wait for 500ms to set isMineState to false
@@ -148,13 +151,13 @@ export default function Post({
                 )
 
                 if (action === VoteAction.UPVOTE) {
-                    newUpCount += 1
+                    // newUpCount += 1
                     setLocalUpCount((prev) => prev + 1)
-                    setVoteState(VoteAction.UPVOTE)
+                    // setVoteState(VoteAction.UPVOTE)
                 } else {
-                    newDownCount += 1
+                    // newDownCount += 1
                     setLocalDownCount((prev) => prev + 1)
-                    setVoteState(VoteAction.DOWNVOTE)
+                    // setVoteState(VoteAction.DOWNVOTE)
                 }
                 setIsAction(action)
                 // set isMineState to true
