@@ -114,18 +114,15 @@ export default function Post({
         let newUpCount = upCount
         let newDownCount = downCount
         let newIsMine = true
-        let newFinalAction = voteType
+        const newFinalAction = voteType
         if (ignoreNextEvent) return
-        setIgnoreNextEvent(true)
 
         // if exist vote, cancel vote
-        if (voteState.isMine && voteState.finalAction === voteType) {
-            newIsMine = false
+        if (voteState.isMine) {
             const cancelAction =
                 voteState.finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
-            setIgnoreNextEvent(true)
 
             console.log('cancel vote', voteState.finalAction, cancelAction)
             success = await create(id, cancelAction)
@@ -136,8 +133,7 @@ export default function Post({
                 } else {
                     newDownCount -= 1
                 }
-                // wait for 500ms to set isMineState to false
-                setTimeout(() => setIgnoreNextEvent(false), 500)
+                newIsMine = false
             }
         }
 
@@ -162,16 +158,15 @@ export default function Post({
                     newDownCount += 1
                 }
                 setIsAction(action)
-                // set isMineState to true
-                setIsMineState(true)
                 updateVoteCount(id, newUpCount, newDownCount)
+                newIsMine = true
+                setIsAction(newFinalAction)
             }
-            newIsMine = true
             setTimeout(() => setIgnoreNextEvent(false), 500)
         }
         setIsMineState(newIsMine)
-        setIsAction(newFinalAction)
         updateVote(id, newUpCount, newDownCount, newIsMine, newFinalAction)
+        setIgnoreNextEvent(false)
         setTimeout(() => setShow(false), 500)
     }
 
