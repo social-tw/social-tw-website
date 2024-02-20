@@ -4,15 +4,16 @@ import React, { useEffect, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Avatar from '@/components/common/Avatar'
-import { PostStatus, VoteAction, VoteMsg } from '@/types'
+import { PostStatus, VoteAction } from '@/types'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 import { useUser } from '../../contexts/User'
-import useVotes, { useVoteEvents } from '../../hooks/useVotes'
+import useVotes from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
 import useVoteStore from '../../store/useVoteStore'
+import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 
 export default function Post({
     id = '',
@@ -74,6 +75,7 @@ export default function Post({
     const [ignoreNextEvent, setIgnoreNextEvent] = useState(false)
     const [isMineState, setIsMineState] = useState(isMine)
     const updateVoteCount = useStore((state) => state.updateVoteCount)
+    const [isError, setIsError] = useState(false)
 
     // set isAction when finalAction is changed
     useEffect(() => {
@@ -111,14 +113,15 @@ export default function Post({
         console.log(voteState, voteType)
         let action: VoteAction
         let success = false
-        let newUpCount = upCount
-        let newDownCount = downCount
+        let newUpCount = voteState.upCount
+        let newDownCount = voteState.downCount
         let newIsMine = true
         const newFinalAction = voteType
         if (ignoreNextEvent) return
 
         // if exist vote, cancel vote
         if (voteState.isMine) {
+            setIgnoreNextEvent(true)
             const cancelAction =
                 voteState.finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
@@ -134,6 +137,11 @@ export default function Post({
                     newDownCount -= 1
                 }
                 newIsMine = false
+                updateVoteCount(id, newUpCount, newDownCount)
+            } else {
+                setIsError(true)
+                setIgnoreNextEvent(false)
+                return
             }
         }
 
@@ -161,6 +169,10 @@ export default function Post({
                 updateVoteCount(id, newUpCount, newDownCount)
                 newIsMine = true
                 setIsAction(newFinalAction)
+            } else {
+                setIsError(true)
+                setIgnoreNextEvent(false)
+                return
             }
             setTimeout(() => setIgnoreNextEvent(false), 500)
         }
@@ -278,6 +290,10 @@ export default function Post({
             {status === PostStatus.Pending && (
                 <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-xl" />
             )}
+            <VoteFailureDialog
+                isOpen={isError}
+                onClose={() => setIsError(false)}
+            />
         </article>
     )
 }
