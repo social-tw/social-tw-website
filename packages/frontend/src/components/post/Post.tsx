@@ -12,6 +12,7 @@ import { useUser } from '../../contexts/User'
 import useVotes, { useVoteEvents } from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
+import useVoteStore from '../../store/useVoteStore'
 
 export default function Post({
     id = '',
@@ -50,15 +51,17 @@ export default function Post({
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
-    const { isLogin, userState } = useUser()
+    const { isLogin } = useUser()
     const { create } = useVotes()
-    const [upvotes, setUpvotes] = useState(upCount)
-    const [downvotes, setDownvotes] = useState(downCount)
-    // TODO: Need get vote state from backend or calucate from ecpochKey
     // 'upvote', 'downvote', or null
-    const [voteState, setVoteState] = useState<
-        VoteAction.UPVOTE | VoteAction.DOWNVOTE | null
-    >(null)
+    const { votes, updateVote } = useVoteStore()
+    const voteState = votes[id] || {
+        upCount: upCount,
+        downCount: downCount,
+        isMine: isMine,
+        finalAction: finalAction,
+    }
+
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
@@ -109,6 +112,8 @@ export default function Post({
         let success = false
         let newUpCount = upCount
         let newDownCount = downCount
+        const newIsMine = true
+        const newFinalAction = voteType
         if (ignoreNextEvent) return
         setIgnoreNextEvent(true)
 
@@ -125,11 +130,9 @@ export default function Post({
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    // newUpCount -= 1
-                    setLocalUpCount((prev) => prev - 1)
+                    newUpCount -= 1
                 } else {
-                    // newDownCount -= 1
-                    setLocalDownCount((prev) => prev - 1)
+                    newDownCount -= 1
                 }
                 // wait for 500ms to set isMineState to false
                 setTimeout(() => setIgnoreNextEvent(false), 500)
@@ -151,13 +154,9 @@ export default function Post({
                 )
 
                 if (action === VoteAction.UPVOTE) {
-                    // newUpCount += 1
-                    setLocalUpCount((prev) => prev + 1)
-                    // setVoteState(VoteAction.UPVOTE)
+                    newUpCount += 1
                 } else {
-                    // newDownCount += 1
-                    setLocalDownCount((prev) => prev + 1)
-                    // setVoteState(VoteAction.DOWNVOTE)
+                    newDownCount += 1
                 }
                 setIsAction(action)
                 // set isMineState to true
@@ -166,28 +165,30 @@ export default function Post({
             }
             setTimeout(() => setIgnoreNextEvent(false), 500)
         }
-
+        setIsMineState(newIsMine)
+        setIsAction(newFinalAction)
+        updateVote(id, newUpCount, newDownCount, newIsMine, newFinalAction)
         setTimeout(() => setShow(false), 500)
     }
 
-    useVoteEvents((msg: VoteMsg) => {
-        if (id !== msg.postId || ignoreNextEvent) return
-
-        switch (msg.vote) {
-            case VoteAction.UPVOTE:
-                setLocalUpCount((prev) => prev + 1)
-                break
-            case VoteAction.DOWNVOTE:
-                setLocalDownCount((prev) => prev + 1)
-                break
-            case VoteAction.CANCEL_UPVOTE:
-                setLocalUpCount((prev) => prev - 1)
-                break
-            case VoteAction.CANCEL_DOWNVOTE:
-                setLocalDownCount((prev) => prev - 1)
-                break
+    useEffect(() => {
+        const voteState = votes[id] || {
+            upCount: upCount,
+            downCount: downCount,
+            isMine: isMine,
+            finalAction: finalAction,
         }
-    })
+
+        setLocalUpCount(voteState.upCount)
+        setLocalDownCount(voteState.downCount)
+    }, [votes, id, isMine, finalAction])
+
+    useEffect(() => {
+        setLocalUpCount(voteState.upCount)
+        setLocalDownCount(voteState.downCount)
+        setIsMineState(voteState.isMine)
+        setIsAction(voteState.finalAction)
+    }, [voteState])
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
