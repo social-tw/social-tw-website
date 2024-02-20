@@ -108,24 +108,26 @@ export default function Post({
     )
 
     const handleVote = async (voteType: VoteAction) => {
+        console.log(voteState, voteType)
         let action: VoteAction
         let success = false
         let newUpCount = upCount
         let newDownCount = downCount
-        const newIsMine = true
-        const newFinalAction = voteType
+        let newIsMine = true
+        let newFinalAction = voteType
         if (ignoreNextEvent) return
         setIgnoreNextEvent(true)
 
         // if exist vote, cancel vote
-        if (isMineState && finalAction !== null && finalAction !== voteType) {
+        if (voteState.isMine && voteState.finalAction === voteType) {
+            newIsMine = false
             const cancelAction =
-                finalAction === VoteAction.UPVOTE
+                voteState.finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
             setIgnoreNextEvent(true)
 
-            console.log('cancel vote', finalAction, cancelAction)
+            console.log('cancel vote', voteState.finalAction, cancelAction)
             success = await create(id, cancelAction)
 
             if (success) {
@@ -140,7 +142,8 @@ export default function Post({
         }
 
         // if not exist vote, create vote
-        if (!isMineState || finalAction !== voteType) {
+        if (!voteState.isMine || voteState.finalAction !== voteType) {
+            console.log('vote:', voteType)
             action = voteType
             setIgnoreNextEvent(true)
             success = await create(id, action)
@@ -163,6 +166,7 @@ export default function Post({
                 setIsMineState(true)
                 updateVoteCount(id, newUpCount, newDownCount)
             }
+            newIsMine = true
             setTimeout(() => setIgnoreNextEvent(false), 500)
         }
         setIsMineState(newIsMine)
@@ -181,7 +185,7 @@ export default function Post({
 
         setLocalUpCount(voteState.upCount)
         setLocalDownCount(voteState.downCount)
-    }, [votes, id, isMine, finalAction])
+    }, [votes, id, isMine, finalAction, upCount, downCount])
 
     useEffect(() => {
         setLocalUpCount(voteState.upCount)
