@@ -49,18 +49,14 @@ export interface FetchCommentsByEpochKeysParams {
 
 export type FetchCommentsByEpochKeysResponse = RelayRawComment[]
 
-export enum RelayRawVoteType {
-    Upvote = 'Upvote',
-    Downvote = 'Downvote',
-}
-
 export interface RelayRawVote {
     postId: string
     epochKey: string
     publishedAt: string
     content: string
     voteSum: number
-    type: RelayRawVoteType
+    upVote: number
+    downVote: number
 }
 
 export interface FetchVotesByEpochKeysParams {

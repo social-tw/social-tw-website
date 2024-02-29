@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
 import useCreatePost from '@/hooks/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
+import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+
+import { useUser } from '@/contexts/User'
+import { UserState } from '@unirep/core'
+import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
 
 interface HomePostFormProps {
     disabled?: boolean
 }
 
 const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
-    const navigate = useNavigate()
+    const { userState } = useUser()
+    const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryPostsFlow,
+    )
 
     const queryClient = useQueryClient()
 
@@ -36,6 +42,8 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
                 queryKey: ['posts'],
                 refetchType: 'all',
             })
+
+            await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
 
             toast('貼文成功送出')
         } catch (error) {

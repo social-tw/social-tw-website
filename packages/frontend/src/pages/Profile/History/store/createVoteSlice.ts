@@ -33,25 +33,47 @@ export const createVoteSlice: StateVoteSlice = (set, get) => ({
             state.votes.data = sortedVotes
         })
     },
+    invokeFetchHistoryVotesFlow: async (userState: UserState) => {
+        const isInit = get().votes.isInit
+        if (!isInit) {
+            await get().invokeInitHistoryVotesFlow(userState)
+        } else {
+            await get().invokeRefetchHistoryVotesFlow(userState)
+        }
+    },
+    invokeRefetchHistoryVotesFlow: async (userState: UserState) => {
+        try {
+            set((state) => {
+                state.votes.isFetching = true
+            })
+            const activeFilter = get().votes.activeFilter
+            const sortedVotes = await _fetchHistoryVotesAndSorted(
+                userState,
+                activeFilter,
+            )
+            set((state) => {
+                state.votes.data = sortedVotes
+            })
+        } finally {
+            set((state) => {
+                state.votes.isFetching = false
+            })
+        }
+    },
     invokeInitHistoryVotesFlow: async (userState: UserState) => {
         try {
             set((state) => {
                 state.votes.isFetching = true
             })
-            const voteService = new VoteService()
-            const votes = await voteService.fetchVoteHistoryByUserState(
+            const activeFilter = get().votes.activeFilter
+            const sortedVotes = await _fetchHistoryVotesAndSorted(
                 userState,
-            )
-            const sortedVotes = voteService.sortVotes(
-                votes,
-                get().votes.activeFilter,
+                activeFilter,
             )
             set((state) => {
                 state.votes.data = sortedVotes
                 state.votes.isInit = true
             })
-        } catch (err) {
-            console.error('Init History Votes Error:', err)
         } finally {
             set((state) => {
                 state.votes.isFetching = false
@@ -59,3 +81,13 @@ export const createVoteSlice: StateVoteSlice = (set, get) => ({
         }
     },
 })
+
+async function _fetchHistoryVotesAndSorted(
+    userState: UserState,
+    activeFilter: Exclude<ActiveFilter, ActiveFilter.PopularityAsc>,
+) {
+    const voteService = new VoteService()
+    const votes = await voteService.fetchVoteHistoryByUserState(userState)
+    const sortedVotes = voteService.sortVotes(votes, activeFilter)
+    return sortedVotes
+}
