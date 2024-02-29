@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
@@ -7,9 +5,16 @@ import PostPublishTransition from '@/components/post/PostPublishTransition'
 import { useUser } from '@/contexts/User'
 import useCreatePost from '@/hooks/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
+import { UserState } from '@unirep/core'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
 
 const CreatePost: React.FC = () => {
-    const { isLogin } = useUser()
+    const { isLogin, userState } = useUser()
+    const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryPostsFlow,
+    )
 
     const navigate = useNavigate()
 
@@ -35,6 +40,8 @@ const CreatePost: React.FC = () => {
                 queryKey: ['posts'],
                 refetchType: 'all',
             })
+
+            await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
         } catch (error) {
             setIsSubmitted(false)
             setIsError(true)

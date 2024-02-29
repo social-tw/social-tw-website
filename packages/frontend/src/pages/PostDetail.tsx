@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
 import Comment from '@/components/comment/Comment'
 import CommentNotifications from '@/components/comment/CommentNotification'
 import CommentPublishTransition from '@/components/comment/CommentPublishTransition'
@@ -15,8 +13,12 @@ import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import { UserState } from '@unirep/core'
+import { useEffect, useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 import { PostInfo, PostStatus } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
+import { useProfileHistoryStore } from './Profile/History/store/useProfileHistoryStore'
 
 export default function PostDetail() {
     const { id } = useParams()
@@ -24,6 +26,9 @@ export default function PostDetail() {
     const { data: comments } = useFetchComment(id)
     const { create: createCommnet, genProof: genCommentProof } =
         useCreateComment()
+    const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryCommentsFlow,
+    )
 
     const [post, setPost] = useState<PostInfo>()
     const [isOpenComment, setIsOpenCommnet] = useState(false)
@@ -48,7 +53,7 @@ export default function PostDetail() {
     }
 
     const onSubmitComment = async (values: CommentValues) => {
-        if (!id) return
+        if (!id || !userState) return
 
         const { content } = values
 
@@ -58,6 +63,7 @@ export default function PostDetail() {
         const { proof, epoch } = await genCommentProof(id, content)
         onCloseAnimation()
         await createCommnet(proof, id, content, epoch)
+        await invokeFetchHistoryCommentsFlow(userState as unknown as UserState)
     }
 
     useEffect(() => {

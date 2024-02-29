@@ -1,8 +1,8 @@
+import Avatar from '@/assets/avatar.png'
+import RichTextEditor from '@/components/common/RichTextEditor'
 import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import Avatar from '@/assets/avatar.png'
-import RichTextEditor from '@/components/common/RichTextEditor'
 
 export interface CommentValues {
     content: string

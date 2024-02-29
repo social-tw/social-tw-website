@@ -1,12 +1,17 @@
+import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
+import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
+import { useEffect } from 'react'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import { VoteAction, VoteMsg } from '../types'
-import { useEffect } from 'react'
 import client from '../socket'
+import { VoteAction, VoteMsg } from '../types'
 
 export default function useVotes() {
-    const { userState, provider, loadData } = useUser()
+    const { userState, loadData } = useUser()
+    const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryVotesFlow,
+    )
 
     const randomNonce = () => Math.round(Math.random())
 
@@ -38,6 +43,8 @@ export default function useVotes() {
             await userState.waitForSync()
 
             await loadData(userState)
+
+            await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 
             if (response.status === 201) {
                 console.log('Vote succeeded!')
