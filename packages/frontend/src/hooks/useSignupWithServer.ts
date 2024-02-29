@@ -15,11 +15,18 @@ export function useSignupWithServer() {
         try {
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
             const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
-            const userStateInstance = await createUserState()
+            const { userStateInstance, providerInstance } =
+                await createUserState()
 
             setSignupStatus('pending')
             navigate('/')
-            await signup(true, userStateInstance, hashUserId, accessToken)
+            await signup(
+                true,
+                userStateInstance,
+                hashUserId,
+                accessToken,
+                providerInstance,
+            )
             setSignupStatus('success')
             setIsLogin(true)
         } catch (error: any) {

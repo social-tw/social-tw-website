@@ -23,6 +23,11 @@ import { UserState } from './Userstate'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 
+interface UserStateResult {
+    userStateInstance: UserState
+    providerInstance?: ethers.providers.JsonRpcProvider
+}
+
 export interface UserContextType {
     currentEpoch: number
     setCurrentEpoch: (epoch: number) => void
@@ -61,6 +66,7 @@ export interface UserContextType {
         userStateInstance: UserState,
         hashUserId: string,
         accessToken: string,
+        providerInstance?: ethers.providers.JsonRpcProvider,
     ) => Promise<void>
     stateTransition: () => Promise<void>
     requestData: (
@@ -69,7 +75,7 @@ export interface UserContextType {
     ) => Promise<void>
     proveData: (data: { [key: number]: string | number }) => Promise<any>
     logout: () => void
-    createUserState: () => Promise<UserState>
+    createUserState: () => Promise<UserStateResult>
 }
 
 interface UserProviderProps {
@@ -99,7 +105,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     >('')
 
     const load = async () => {
-        const userStateInstance = await createUserState()
+        const { userStateInstance } = await createUserState()
         if (!userStateInstance) throw new Error('No user state instance')
         await checkSignupStatus(userStateInstance)
         await loadData(userStateInstance)
@@ -108,7 +114,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     const createUserState = async () => {
-        if (userState) return userState
+        if (userState)
+            return {
+                userStateInstance: userState,
+            }
         const storedSignature = localStorage.getItem('signature') ?? ''
         const relayConfig = await fetchRelayConfig()
         const provider = createProviderByUrl(relayConfig.ETH_PROVIDER_URL)
@@ -128,7 +137,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         await userStateInstance.waitForSync()
 
         setUserState(userStateInstance)
-        return userStateInstance
+
+        return {
+            userStateInstance,
+            providerInstance: provider,
+        }
     }
 
     const checkSignupStatus = useCallback(
@@ -192,8 +205,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         userStateInstance: UserState,
         hashUserId: string,
         accessToken: string,
+        providerInstance?: ethers.providers.JsonRpcProvider,
     ) => {
         if (!userStateInstance) throw new Error('user state not initialized')
+        if (!providerInstance) throw new Error('provider instance not exists')
 
         const signupProof = await userStateInstance.genUserSignUpProof()
 
@@ -219,9 +234,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if (!response.ok) {
             throw new Error(ERROR_MESSAGES.SIGNUP_FAILED.code)
         }
+
         const data = await response.json()
 
-        await provider.waitForTransaction(data.hash)
+        await providerInstance.waitForTransaction(data.hash)
+
         await userStateInstance.waitForSync()
         const hasSignedUpStatus = await userStateInstance.hasSignedUp()
         setHasSignedUp(hasSignedUpStatus)

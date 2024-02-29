@@ -23,7 +23,6 @@ import { useProfileHistoryStore } from './Profile/History/store/useProfileHistor
 export default function PostDetail() {
     const { id } = useParams()
     const { isLogin, setErrorCode, userState } = useUser()
-
     const { data: comments } = useFetchComment(id)
     const { create: createCommnet, genProof: genCommentProof } =
         useCreateComment()
@@ -93,8 +92,9 @@ export default function PostDetail() {
                 status: PostStatus.Success,
             })
         }
+
         loadPost()
-    }, [id])
+    }, [id, userState])
 
     const location = useLocation()
 
