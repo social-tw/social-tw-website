@@ -20,14 +20,12 @@ import checkVoteIsMine from '../utils/checkVoteIsMine'
 
 export default function PostDetail() {
     const { id } = useParams()
-    const { isLogin, setErrorCode } = useUser()
-
+    const { isLogin, setErrorCode, userState } = useUser()
     const { data: comments } = useFetchComment(id)
     const { create: createCommnet, genProof: genCommentProof } =
         useCreateComment()
 
     const [post, setPost] = useState<PostInfo>()
-    const { userState } = useUser()
     const [isOpenComment, setIsOpenCommnet] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
     const [isError, setIsError] = useState(false)
@@ -88,8 +86,9 @@ export default function PostDetail() {
                 status: PostStatus.Success,
             })
         }
+
         loadPost()
-    }, [id])
+    }, [id, userState])
 
     const location = useLocation()
 
