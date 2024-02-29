@@ -55,7 +55,7 @@ export enum RelayRawVoteType {
 }
 
 export interface RelayRawVote {
-    _id: string
+    postId: string
     epochKey: string
     publishedAt: string
     content: string

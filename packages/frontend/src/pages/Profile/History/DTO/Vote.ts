@@ -2,7 +2,6 @@ import { VoteType } from '../types'
 
 export class Vote {
     constructor(
-        public id: string,
         public epochKey: string,
         public publishedAt: number,
         public content: string,
