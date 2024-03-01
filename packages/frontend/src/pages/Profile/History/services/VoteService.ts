@@ -55,21 +55,19 @@ export class VoteService {
             const publishedAt = parseInt(relayRawVote.publishedAt)
             const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)
             return new Vote(
-                relayRawVote._id,
                 relayRawVote.epochKey,
                 publishedAt,
                 relayRawVote.content,
                 relayRawVote.voteSum,
                 dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genVoteUrlById(relayRawVote._id),
+                this.genVoteUrlByPostId(relayRawVote.postId),
                 voteType,
             )
         })
     }
 
-    // TODO: confirm url
-    private genVoteUrlById(id: string): string {
-        return `/votes/${id}`
+    private genVoteUrlByPostId(postId: string): string {
+        return `/posts/${postId}`
     }
 
     private getVoteTypeByRelayRawVote(relayRawVote: RelayRawVote): VoteType {

@@ -35,7 +35,8 @@ export interface FetchPostsByEpochKeysParams {
 export type FetchPostsByEpochKeysResponse = RelayRawPost[]
 
 export interface RelayRawComment {
-    _id: string
+    commentId: string
+    postId: string
     epochKey: string
     publishedAt: string
     content: string
@@ -49,7 +50,7 @@ export interface FetchCommentsByEpochKeysParams {
 export type FetchCommentsByEpochKeysResponse = RelayRawComment[]
 
 export interface RelayRawVote {
-    _id: string
+    postId: string
     epochKey: string
     publishedAt: string
     content: string
