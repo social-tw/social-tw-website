@@ -13,6 +13,7 @@ import { SIGNUP_METHODS } from '../../constants/signupMethods'
 import { useUser } from '../../contexts/User'
 import { useLoginWithServer } from '../../hooks/useLoginWithServer'
 import { useLoginWithWallet } from '../../hooks/useLoginWithWallet'
+import MobileGreetingTitle from '@/components/greeting/MobileGreetingTitle'
 
 enum NoteStatus {
     Close = 'close',
@@ -31,8 +32,10 @@ export function InternalLogin() {
     return (
         <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
-                <div className="flex flex-col gap-12">
-                    {!isSmallDevice && (
+                {isSmallDevice ? (
+                    <MobileGreetingTitle />
+                ) : (
+                    <div className="flex flex-col gap-12">
                         <div className="flex flex-col items-center justify-center pt-24">
                             <div className="flex flex-col items-center justify-center pt-24">
                                 <GreetingLogo />
@@ -40,15 +43,15 @@ export function InternalLogin() {
                                 <GreetingContent />
                             </div>
                         </div>
-                    )}
-                    <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
-                        再一步即可完成登入
-                    </p>
-                </div>
+                        <p className="text-2xl font-semibold tracking-wider text-center text-white">
+                            再一步即可完成登入
+                        </p>
+                    </div>
+                )}
                 <BackToWelcomePageButton />
             </div>
             {selectedSignupMethod === SIGNUP_METHODS.METAMASK && (
-                <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
+                <div className="w-11/12 md:w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     <p className="text-white tracking-wide text-[15px] mb-5 px-2">
                         您當時註冊時選擇為「錢包註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
                         Twitter 帳號註冊
@@ -71,7 +74,7 @@ export function InternalLogin() {
                 </div>
             )}
             {selectedSignupMethod === SIGNUP_METHODS.SERVER && (
-                <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
+                <div className="w-11/12 md:w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     <p className="text-white tracking-wide text-[15px] mb-5 px-2">
                         您當時註冊時選擇為「直接註冊」，因此這步驟請使用此方式登入。若需要更改登入方式，請返回上一頁使用其他
                         Twitter 帳號註冊

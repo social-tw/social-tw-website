@@ -11,7 +11,7 @@ import {
     getVariantAutoScrollY,
     getVariantOpacityZeroToOne,
 } from '../../utils/motionVariants'
-import { ExamplePostsList } from './ExamplePostsList'
+import PostList from '../Home/HomePostList'
 
 export function Welcome() {
     const navigate = useNavigate()
@@ -22,7 +22,7 @@ export function Welcome() {
         <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 h-full">
                 <div className="flex flex-col gap-12">
-                    <div className="flex flex-col items-center justify-center pt-24">
+                    <div className="flex flex-col items-center justify-center md:pt-24 pt-8">
                         <GreetingLogo />
                         <GreetingTitle />
                         <GreetingContent />
@@ -56,7 +56,9 @@ export function Welcome() {
                 method="remove-this"
                 variants={variantAutoScrollY}
             >
-                <ExamplePostsList />
+                <div className="max-w-[600px] w-11/12">
+                    <PostList />
+                </div>
             </WelcomeBackgroundList>
         </div>
     )

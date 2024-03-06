@@ -10,6 +10,11 @@ jest.mock('@uidotdev/usehooks', () => ({
     useIsFirstRender: jest.fn().mockReturnValue(false),
 }))
 
+jest.mock('../../pages/Home/HomePostList', () => ({
+    __esModule: true,
+    default: () => <div>Mocked PostList</div>,
+}))
+
 test('Welcome should render', () => {
     render(
         <MemoryRouter>
