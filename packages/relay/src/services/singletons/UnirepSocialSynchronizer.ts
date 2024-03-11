@@ -123,19 +123,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        // If the comment didn't exist before, increment the commentCount of the post
-        if (!existingComment && updateStatus == 1) {
-            const commentCount = await this.db.count('Comment', {
-                AND: [{ postId }, { status: 1 }],
-            })
+        const commentCount = await this.db.count('Comment', {
+            AND: [{ postId }, { status: 1 }],
+        })
 
-            db.update('Post', {
-                where: { postId },
-                update: {
-                    commentCount: commentCount + 1,
-                },
-            })
-        }
+        db.update('Post', {
+            where: { postId },
+            update: {
+                commentCount: commentCount + 1,
+            },
+        })
 
         socketManager.emitComment({
             id: commentId,

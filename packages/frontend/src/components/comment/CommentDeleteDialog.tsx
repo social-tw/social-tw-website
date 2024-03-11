@@ -8,8 +8,6 @@ export default function CommentDeleteDialog({
     open?: boolean
     onClose?: () => void
     onConfirm?: () => void
-    commentId: string
-    epoch?: number
 }) {
     return (
         <Dialog isOpen={open} onClose={onClose}>

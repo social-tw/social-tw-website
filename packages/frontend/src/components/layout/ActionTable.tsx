@@ -29,10 +29,13 @@ export function getActionLink(action: Action) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
-            return '/posts'
+            return '/'
         }
     }
-    if (action.type === ActionType.Comment) {
+    if (
+        action.type === ActionType.Comment ||
+        action.type === ActionType.DeleteComment
+    ) {
         return `/posts/${action.data.postId}#${action.data.commentId}`
     }
     return '#'

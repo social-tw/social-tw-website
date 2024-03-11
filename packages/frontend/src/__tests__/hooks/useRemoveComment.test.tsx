@@ -4,7 +4,7 @@ import {
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import useDeleteComment from '@/hooks/useDeleteComment'
+import useRemoveComment from '@/hooks/useRemoveComment'
 import { act, renderHook } from '@testing-library/react'
 
 jest.mock('@/contexts/User', () => ({
@@ -45,53 +45,33 @@ afterEach(() => {
     jest.restoreAllMocks() // Restore all mocks to their original state
 })
 
-describe('useDeleteComment', () => {
-    it('successfully generates proof', async () => {
-        const { result } = renderHook(() => useDeleteComment())
-
-        const epoch = 9999
-        const transactionHash = 'mock_transaction_hash'
-
-        let proof
-
-        await act(async () => {
-            proof = await result.current.genProof(epoch, transactionHash)
-        })
-
-        expect(proof).toStrictEqual({
-            transactionHash,
-            publicSignals: 'mocked_signals',
-            proof: 'mocked_proof',
-        })
-    })
-
+describe('useRemoveComment', () => {
     it('successfully deletes a comment', async () => {
         ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: true,
             json: () => Promise.resolve({ transaction: 'mock_transaction' }),
         })
-        const { result } = renderHook(() => useDeleteComment())
+        const { result } = renderHook(() => useRemoveComment())
 
-        const proof = 'mock_proof'
+        const postId = '1'
+        const commentId = '2'
         const epoch = 9999
-        const transactionHash = 'mock_transaction_hash'
+        const nonce = 1
 
         await act(async () => {
-            await result.current.remove(proof, epoch, transactionHash)
+            await result.current.remove(postId, commentId, epoch, nonce)
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {
+            postId,
+            commentId,
             epoch,
-            transactionHash,
         })
         expect(global.fetch).toHaveBeenCalledWith(
             expect.stringContaining('/api/comment'),
-            expect.objectContaining({
-                method: 'DELETE',
-                body: JSON.stringify(proof),
-            }),
+            expect.any(Object),
         )
         expect(succeedActionById).toHaveBeenCalledWith('mock_action_id')
-        expect(result.current.isDeleted).toBe(true)
     })
 
     it('failed deleting a comment', async () => {
@@ -99,19 +79,21 @@ describe('useDeleteComment', () => {
             new Error('API call failed'),
         )
 
-        const { result } = renderHook(() => useDeleteComment())
+        const { result } = renderHook(() => useRemoveComment())
 
-        const proof = 'mock_proof'
+        const postId = '1'
+        const commentId = '2'
         const epoch = 9999
-        const transactionHash = 'mock_transaction_hash'
+        const nonce = 1
 
         await act(async () => {
-            await result.current.remove(proof, epoch, transactionHash)
+            await result.current.remove(postId, commentId, epoch, nonce)
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {
+            postId,
+            commentId,
             epoch,
-            transactionHash,
         })
         expect(failActionById).toHaveBeenCalledWith('mock_action_id')
     })

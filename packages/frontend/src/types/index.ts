@@ -50,8 +50,8 @@ export interface CommentInfo {
     commentId: string
     postId: string
     epoch: number
-    epochKey?: string
-    content: string
+    epochKey: string | undefined
+    content: string | undefined
     transactionHash: string
     publishedAt: number | string
     status: CommentStatus

@@ -38,8 +38,11 @@ export interface RelayRawComment {
     commentId: string
     postId: string
     epochKey: string
+    epoch: number
+    content: string | undefined
     publishedAt: string
-    content: string
+    transactionHash: string
+    status: number
     voteSum: number
 }
 

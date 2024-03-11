@@ -1,6 +1,5 @@
-import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
-
+import { UserState } from '@unirep/core'
 import { RelayRawComment } from '../../../../types/api'
 import { fetchCommentsByEpochKeys } from '../../../../utils/api'
 import { Comment } from '../DTO/Comment'
@@ -59,7 +58,7 @@ export class CommentService {
                 relayRawComment.postId,
                 relayRawComment.epochKey,
                 publishedAt,
-                relayRawComment.content,
+                relayRawComment.content ?? '',
                 relayRawComment.voteSum,
                 dayjs(publishedAt).format('YYYY/MM/DD'),
                 this.genCommentUrlById(

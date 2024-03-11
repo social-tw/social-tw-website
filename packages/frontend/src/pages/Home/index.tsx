@@ -26,7 +26,7 @@ export default function Home() {
     }, [isLogin])
 
     return (
-        <div className="px-4">
+        <div>
             <section className="relative hidden py-6 border-b border-neutral-600 md:block">
                 <HomePostForm disabled={isSignupLoading} />
                 {isSignupLoading && (
