@@ -17,6 +17,7 @@ import { RelayRawComment } from '@/types/api'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import useEpoch from '@/hooks/useEpoch'
+import getNonceFromEpochKey from '@/utils/getNonceFromEpochKey'
 
 interface CommentListProps {
     postId: string
@@ -98,6 +99,22 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
 
     const { remove: removeComment } = useRemoveComment()
 
+    const onDelete = async (
+        postId: string,
+        commentId: string,
+        epoch: number,
+        epochKey: string,
+    ) => {
+        const nonce = getNonceFromEpochKey(epoch, epochKey, userState!)
+        if (!nonce) return
+
+        await removeComment(postId, commentId, epoch, nonce)
+        await refetch()
+        await queryClient.invalidateQueries({
+            queryKey: ['post', postId],
+        })
+    }
+
     return (
         <ul className="divide-y divide-neutral-600">
             {comments.map((comment) => (
@@ -111,15 +128,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                         canDelete={comment.canDelete}
                         canReport={comment.canReport}
                         onDelete={async () => {
-                            await removeComment(
+                            await onDelete(
                                 comment.postId,
                                 comment.commentId,
                                 comment.epoch,
+                                comment.epochKey,
                             )
-                            await refetch()
-                            await queryClient.invalidateQueries({
-                                queryKey: ['post', postId],
-                            })
                         }}
                     />
                 </li>

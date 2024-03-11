@@ -56,9 +56,10 @@ describe('useRemoveComment', () => {
         const postId = '1'
         const commentId = '2'
         const epoch = 9999
+        const nonce = 1
 
         await act(async () => {
-            await result.current.remove(postId, commentId, epoch)
+            await result.current.remove(postId, commentId, epoch, nonce)
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {
@@ -83,9 +84,10 @@ describe('useRemoveComment', () => {
         const postId = '1'
         const commentId = '2'
         const epoch = 9999
+        const nonce = 1
 
         await act(async () => {
-            await result.current.remove(postId, commentId, epoch)
+            await result.current.remove(postId, commentId, epoch, nonce)
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {

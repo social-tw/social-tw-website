@@ -23,7 +23,12 @@ async function deleteComment(data: string) {
 export default function useRemoveComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
 
-    const remove = async (postId: string, commentId: string, epoch: number) => {
+    const remove = async (
+        postId: string,
+        commentId: string,
+        epoch: number,
+        nonce: number,
+    ) => {
         if (!userState) throw new Error('user state not initialized')
 
         const actionId = addAction(ActionType.DeleteComment, {
@@ -42,6 +47,7 @@ export default function useRemoveComment() {
 
             const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
                 epoch,
+                nonce,
             })
 
             const proof = stringifyBigInts({

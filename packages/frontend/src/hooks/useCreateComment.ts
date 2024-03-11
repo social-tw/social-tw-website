@@ -42,17 +42,18 @@ export default function useCreateComment() {
         const actionId = addAction(ActionType.Comment, commentData)
 
         try {
-            const latestTransitionedEpoch =
-                await userState.latestTransitionedEpoch()
+            // const latestTransitionedEpoch =
+            //     await userState.latestTransitionedEpoch()
 
-            if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-                await stateTransition()
-            }
+            // if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
+            // }
+            await stateTransition()
 
             const nonce = randomNonce()
 
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })
             const epoch = Number(epochKeyProof.epoch)
+            console.log(epoch)
             const epochKey = epochKeyProof.epochKey.toString()
 
             const proof = stringifyBigInts({
