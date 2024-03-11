@@ -4,13 +4,16 @@ import React, { useEffect, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Avatar from '@/components/common/Avatar'
-import { PostStatus, VoteAction, VoteMsg } from '@/types'
+import { PostStatus, VoteAction } from '@/types'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
 import { useUser } from '../../contexts/User'
-import useVotes, { useVoteEvents } from '../../hooks/useVotes'
+import useVotes from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
+import useStore from '../../store/usePostStore'
+import useVoteStore from '../../store/useVoteStore'
+import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 
 export default function Post({
     id = '',
@@ -51,13 +54,15 @@ export default function Post({
 
     const { isLogin } = useUser()
     const { create } = useVotes()
-    const [upvotes, setUpvotes] = useState(upCount)
-    const [downvotes, setDownvotes] = useState(downCount)
-    // TODO: Need get vote state from backend or calucate from ecpochKey
     // 'upvote', 'downvote', or null
-    const [voteState, setVoteState] = useState<
-        VoteAction.UPVOTE | VoteAction.DOWNVOTE | null
-    >(null)
+    const { votes, updateVote } = useVoteStore()
+    const voteState = votes[id] || {
+        upCount: upCount,
+        downCount: downCount,
+        isMine: isMine,
+        finalAction: finalAction,
+    }
+
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
@@ -66,10 +71,17 @@ export default function Post({
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
+    // ignore next event
+    const [ignoreNextEvent, setIgnoreNextEvent] = useState(false)
+    const [isMineState, setIsMineState] = useState(isMine)
+    const updateVoteCount = useStore((state) => state.updateVoteCount)
+    const [isError, setIsError] = useState(false)
+
     // set isAction when finalAction is changed
     useEffect(() => {
+        setIsMineState(isMine)
         setIsAction(finalAction)
-    }, [finalAction])
+    }, [isMine, finalAction])
 
     const postInfo = (
         <div className="space-y-3">
@@ -98,84 +110,96 @@ export default function Post({
     )
 
     const handleVote = async (voteType: VoteAction) => {
+        console.log(voteState, voteType)
         let action: VoteAction
         let success = false
+        let newUpCount = voteState.upCount
+        let newDownCount = voteState.downCount
+        let newIsMine = true
+        const newFinalAction = voteType
+        if (ignoreNextEvent) return
 
-        if (isMine && finalAction === voteType) {
-            action =
-                voteType === VoteAction.UPVOTE
+        // if exist vote, cancel vote
+        if (voteState.isMine) {
+            setIgnoreNextEvent(true)
+            const cancelAction =
+                voteState.finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
-            success = await create(id, action)
+
+            console.log('cancel vote', voteState.finalAction, cancelAction)
+            success = await create(id, cancelAction)
 
             if (success) {
-                if (action === VoteAction.CANCEL_UPVOTE) {
-                    setUpvotes((prev) => prev - 1)
-                    setIsAction(null)
-                } else {
-                    setDownvotes((prev) => prev - 1)
-                    setIsAction(null)
-                }
-            }
-        } else {
-            if (isMine && finalAction !== null) {
-                const cancelAction =
-                    finalAction === VoteAction.UPVOTE
-                        ? VoteAction.CANCEL_UPVOTE
-                        : VoteAction.CANCEL_DOWNVOTE
-                await create(id, cancelAction)
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    setUpvotes((prev) => prev - 1)
+                    newUpCount -= 1
                 } else {
-                    setDownvotes((prev) => prev - 1)
+                    newDownCount -= 1
                 }
+                newIsMine = false
+                updateVoteCount(id, newUpCount, newDownCount)
+            } else {
+                setIsError(true)
+                setIgnoreNextEvent(false)
+                return
             }
+        }
 
+        // if not exist vote, create vote
+        if (!voteState.isMine || voteState.finalAction !== voteType) {
+            console.log('vote:', voteType)
             action = voteType
+            setIgnoreNextEvent(true)
             success = await create(id, action)
-            setShow(true)
-            setImgType(
-                voteType === VoteAction.UPVOTE
-                    ? VoteAction.UPVOTE
-                    : VoteAction.DOWNVOTE,
-            )
 
             if (success) {
+                setShow(true)
+                setImgType(
+                    voteType === VoteAction.UPVOTE
+                        ? VoteAction.UPVOTE
+                        : VoteAction.DOWNVOTE,
+                )
+
                 if (action === VoteAction.UPVOTE) {
-                    setUpvotes((prev) => prev + 1)
+                    newUpCount += 1
                 } else {
-                    setDownvotes((prev) => prev + 1)
+                    newDownCount += 1
                 }
                 setIsAction(action)
+                updateVoteCount(id, newUpCount, newDownCount)
+                newIsMine = true
+                setIsAction(newFinalAction)
+            } else {
+                setIsError(true)
+                setIgnoreNextEvent(false)
+                return
             }
+            setTimeout(() => setIgnoreNextEvent(false), 500)
         }
-
-        setVoteState(
-            action === VoteAction.UPVOTE
-                ? VoteAction.UPVOTE
-                : VoteAction.DOWNVOTE,
-        )
-        setShow(false)
+        setIsMineState(newIsMine)
+        updateVote(id, newUpCount, newDownCount, newIsMine, newFinalAction)
+        setIgnoreNextEvent(false)
+        setTimeout(() => setShow(false), 500)
     }
 
-    useVoteEvents((msg: VoteMsg) => {
-        if (id !== msg.postId) return
-
-        switch (msg.vote) {
-            case VoteAction.UPVOTE:
-                setLocalUpCount((prev) => prev + 1)
-                break
-            case VoteAction.DOWNVOTE:
-                setLocalDownCount((prev) => prev + 1)
-                break
-            case VoteAction.CANCEL_UPVOTE:
-                setLocalUpCount((prev) => prev - 1)
-                break
-            case VoteAction.CANCEL_DOWNVOTE:
-                setLocalDownCount((prev) => prev - 1)
-                break
+    useEffect(() => {
+        const voteState = votes[id] || {
+            upCount: upCount,
+            downCount: downCount,
+            isMine: isMine,
+            finalAction: finalAction,
         }
-    })
+
+        setLocalUpCount(voteState.upCount)
+        setLocalDownCount(voteState.downCount)
+    }, [votes, id, isMine, finalAction, upCount, downCount])
+
+    useEffect(() => {
+        setLocalUpCount(voteState.upCount)
+        setLocalDownCount(voteState.downCount)
+        setIsMineState(voteState.isMine)
+        setIsAction(voteState.finalAction)
+    }, [voteState])
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
@@ -199,7 +223,7 @@ export default function Post({
                     >
                         <div
                             className={`${
-                                isMine && isAction === VoteAction.UPVOTE
+                                isMineState && isAction === VoteAction.UPVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
@@ -221,7 +245,7 @@ export default function Post({
                     >
                         <div
                             className={`${
-                                isMine && isAction === VoteAction.DOWNVOTE
+                                isMineState && isAction === VoteAction.DOWNVOTE
                                     ? 'border-4 border-white rounded-full'
                                     : ''
                             }`}
@@ -267,6 +291,10 @@ export default function Post({
             {status === PostStatus.Pending && (
                 <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-xl" />
             )}
+            <VoteFailureDialog
+                isOpen={isError}
+                onClose={() => setIsError(false)}
+            />
         </article>
     )
 }

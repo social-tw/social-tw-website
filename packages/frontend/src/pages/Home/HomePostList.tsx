@@ -79,7 +79,7 @@ export default function PostList() {
         if (entry?.isIntersecting && hasNextPage) {
             fetchNextPage({ cancelRefetch: false }).then((r) => r)
         }
-    }, [entry])
+    }, [entry, userState])
 
     const postActions = useActionStore(postActionsSelector)
 

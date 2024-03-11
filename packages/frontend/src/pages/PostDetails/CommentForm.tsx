@@ -8,6 +8,9 @@ import MobileCommentForm, {
 import useCreateComment from '@/hooks/useCreateComment'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
+import { useUser } from '@/contexts/User'
+import { UserState } from '@unirep/core'
 
 interface CommentFormProps {
     postId: string
@@ -20,6 +23,12 @@ const CommentForm: React.FC<CommentFormProps> = ({
     isOpen = false,
     onClose = () => {},
 }) => {
+    const { userState } = useUser()
+
+    const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryCommentsFlow,
+    )
+
     const queryClient = useQueryClient()
 
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -27,11 +36,11 @@ const CommentForm: React.FC<CommentFormProps> = ({
     const { create: createCommnet } = useCreateComment()
 
     const onSubmit = async (values: CommentValues) => {
-        if (!postId) return
-
-        const { content } = values
-
         try {
+            if (!postId || !userState) return
+
+            const { content } = values
+
             setIsSubmitting(true)
             onClose()
 
@@ -44,6 +53,10 @@ const CommentForm: React.FC<CommentFormProps> = ({
             await queryClient.invalidateQueries({
                 queryKey: ['post', postId],
             })
+
+            await invokeFetchHistoryCommentsFlow(
+                userState as unknown as UserState,
+            )
 
             toast('留言成功送出')
         } catch (error) {
