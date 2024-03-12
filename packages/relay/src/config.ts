@@ -41,11 +41,8 @@ export const CALLBACK_URL = process.env.SERVER
     : 'http://localhost:8000/api/user'
 
 // twitter related settings
-export const TWITTER_ACCESS_TOKEN_URL =
-    process.env.TWITTER_ACCESS_TOKEN_URL ??
-    'https://api.twitter.com/2/oauth2/token'
-export const TWITTER_USER_URL =
-    process.env.TWITTER_USER_URL ?? 'https://api.twitter.com/2/users/me'
+export const TWITTER_ACCESS_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token'
+export const TWITTER_USER_URL = 'https://api.twitter.com/2/users/me'
 
 export const IS_IN_TEST = typeof global.it === 'function'
 export const RESET_DATABASE = IS_IN_TEST

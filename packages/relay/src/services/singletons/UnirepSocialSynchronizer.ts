@@ -48,7 +48,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     }
 
     async resetDatabase() {
-        if (RESET_DATABASE != 'true' || ENV == 'product') return
+        if (RESET_DATABASE != 'true' || ENV == 'prod') return
         console.log('start reset all data in postgres')
         schema.map((obj) => {
             this.db.delete(obj.name, { where: {} })
