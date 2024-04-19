@@ -71,6 +71,8 @@ interface PostSlice {
     setPostActiveFilterToDateAsc: () => void
     setPostActiveFilterToDateDesc: () => void
     setPostActiveFilterToPopularityAsc: () => void
+    invokeFetchHistoryPostsFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryPostsFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryPostsFlow: (userState: UserState) => Promise<void>
 }
 
@@ -84,6 +86,8 @@ interface CommentSlice {
     setCommentActiveFilterToDateAsc: () => void
     setCommentActiveFilterToDateDesc: () => void
     setCommentActiveFilterToPopularityAsc: () => void
+    invokeFetchHistoryCommentsFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryCommentsFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryCommentsFlow: (userState: UserState) => Promise<void>
 }
 
@@ -96,5 +100,7 @@ interface VoteSlice {
     }
     setVoteActiveFilterToDateAsc: () => void
     setVoteActiveFilterToDateDesc: () => void
+    invokeFetchHistoryVotesFlow: (userState: UserState) => Promise<void>
+    invokeRefetchHistoryVotesFlow: (userState: UserState) => Promise<void>
     invokeInitHistoryVotesFlow: (userState: UserState) => Promise<void>
 }

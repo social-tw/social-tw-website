@@ -17,15 +17,23 @@ export function useSignupWithWallet() {
             const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
             await handleWalletSignMessage(hashUserId)
-            const userStateInstance = await createUserState()
+            const { userStateInstance, providerInstance } =
+                await createUserState()
+
             setSignupStatus('pending')
             navigate('/')
-            await signup(false, userStateInstance, hashUserId, accessToken)
+            await signup(
+                false,
+                userStateInstance,
+                hashUserId,
+                accessToken,
+                providerInstance,
+            )
             setSignupStatus('success')
             setIsLogin(true)
         } catch (error: any) {
             setSignupStatus('error')
-            setErrorCode(error.message)
+            setErrorCode('WALLET_ISSUE')
         }
     }
     return signUpWithWallet
