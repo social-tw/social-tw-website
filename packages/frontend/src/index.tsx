@@ -10,12 +10,12 @@ import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
+import CreatePost from './pages/CreatePost'
 import ErrorPage from './pages/ErrorPage'
+import Home from './pages/Home'
 import { Login } from './pages/Login'
 import { InternalLogin } from './pages/Login/InternalLogin'
-import PostCreate from './pages/PostCreate'
 import PostDetail from './pages/PostDetail'
-import PostList from './pages/PostList'
 import { History } from './pages/Profile/History'
 import Profile from './pages/Profile/Profile'
 import ProfileLayout from './pages/Profile/ProfileLayout'
@@ -23,9 +23,6 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
-
-import './styles/main.css'
-import React from 'react'
 
 dayjs.extend(relativeTime)
 
@@ -68,7 +65,7 @@ const router = createBrowserRouter([
                         path: PATHS.HOME,
                         element: (
                             <ProtectedRoute>
-                                <PostList />
+                                <Home />
                             </ProtectedRoute>
                         ),
                     },
@@ -104,7 +101,7 @@ const router = createBrowserRouter([
                 path: PATHS.WRITE_POST,
                 element: (
                     <ProtectedRoute>
-                        <PostCreate />
+                        <CreatePost />
                     </ProtectedRoute>
                 ),
             },

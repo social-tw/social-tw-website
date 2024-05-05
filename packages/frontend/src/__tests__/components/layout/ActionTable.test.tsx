@@ -10,6 +10,8 @@ describe('ActionTable', () => {
         const postData = {
             id: 'post-id-1',
             content: 'This is a post',
+            epochKey: 'epochKey',
+            transactionHash: 'hash',
         }
 
         act(() => {

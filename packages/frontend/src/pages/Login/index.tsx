@@ -1,8 +1,8 @@
-import { useMediaQuery } from '@uidotdev/usehooks'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
+import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-
+import { useMediaQuery } from '@uidotdev/usehooks'
 import { BackToWelcomePageButton } from '../../components/buttons/BackToWelcomeButton'
 import { TwitterLoginButton } from '../../components/buttons/TwitterButton'
 import { GreetingContent } from '../../components/greeting/GreetingContent'
@@ -20,11 +20,11 @@ export function Login() {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
     return (
-        <div className="flex flex-col h-full items-center">
+        <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
                 <div className="flex flex-col gap-12">
                     {!isSmallDevice && (
-                        <div className="flex items-center flex-col justify-center pt-24">
+                        <div className="flex flex-col items-center justify-center pt-24">
                             <GreetingLogo />
                             <GreetingTitle />
                             <GreetingContent />
@@ -55,8 +55,12 @@ function useHandleTwitterCallback() {
     const accessToken = searchParams.get('token')
     const status = searchParams.get('status')
     const signMsg = searchParams.get('signMsg')
+    const error = searchParams.get('error')
 
     useEffect(() => {
+        function isError() {
+            return !!error
+        }
         function isValidStatus(status: string | null) {
             return status && ['1', '2', '3'].includes(status)
         }
@@ -65,7 +69,10 @@ function useHandleTwitterCallback() {
             return isValidStatus(status) && hashUserId && accessToken && signMsg
         }
         function main() {
-            if (isValidParams()) {
+            if (isError()) {
+                toast(error)
+                navigate(PATHS.WELCOME)
+            } else if (isValidParams()) {
                 LocalStorageHelper.setHashUserId(hashUserId!)
                 LocalStorageHelper.setSignature(signMsg!)
                 LocalStorageHelper.setAccessToken(accessToken!)

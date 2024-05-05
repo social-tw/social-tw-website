@@ -1,14 +1,20 @@
+import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
+import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
+import { useEffect } from 'react'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import { VoteAction, VoteMsg } from '../types'
-import { useEffect } from 'react'
 import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import useActionCount from './useActionCount'
+import { VoteAction, VoteMsg } from '../types'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()
+
+    const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryVotesFlow,
+    )
 
     const actionCount = useActionCount()
 
@@ -30,7 +36,7 @@ export default function useVotes() {
                 },
                 body: JSON.stringify(
                     stringifyBigInts({
-                        _id,
+                        postId: _id,
                         voteAction,
                         publicSignals: epochKeyProof.publicSignals,
                         proof: epochKeyProof.proof,
@@ -40,6 +46,8 @@ export default function useVotes() {
             await userState.waitForSync()
 
             await loadData(userState)
+
+            await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 
             if (response.status === 201) {
                 console.log('Vote succeeded!')
