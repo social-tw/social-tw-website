@@ -1,12 +1,15 @@
 import { useRef, useState } from 'react'
-import randomNonce from '@/utils/randomNonce'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
 import makeCancellableTask from '../utils/makeCancellableTask'
+import useActionCount from '@/hooks/useActionCount'
 
 export default function useCreatePost() {
     const { userState, stateTransition, provider, loadData } = useUser()
+
+    const actionCount = useActionCount()
 
     const [isCancellable, setIsCancellable] = useState(true)
     const [isCancelled, setIsCancelled] = useState(false)
@@ -28,7 +31,8 @@ export default function useCreatePost() {
                         await run(stateTransition())
                     }
 
-                    const nonce = randomNonce()
+                    const nonce = getEpochKeyNonce(actionCount)
+
                     const epochKeyProof = await run(
                         userState.genEpochKeyProof({
                             nonce,
