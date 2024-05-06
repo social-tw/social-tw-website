@@ -14,18 +14,11 @@ import { Post } from '../types/Post'
 import TransactionManager from './singletons/TransactionManager'
 
 export class CommentService {
-    async fetchComments(
-        epks: string | undefined,
-        postId: string,
-        db: DB
-    ): Promise<Comment[]> {
-        // TODO check condition below
-        // FIXME: if epks or postID not exist?
+    async fetchComments(postId: string, db: DB): Promise<Comment[]> {
         const comments = await db.findMany('Comment', {
             where: {
                 status: 1,
                 postId: postId,
-                epochKey: epks,
             },
             orderBy: {
                 publishedAt: 'desc',
