@@ -114,15 +114,13 @@ describe('COMMENT /comment', function () {
         await sync.waitForSync()
 
         // comment on the post
-        await express
-            .get(`/api/comment?epks=${epochKeyProof.epochKey}&postId=0`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                const comments = res.body
-                expect(comments[0].transactionHash).equal(transaction)
-                expect(comments[0].content).equal(testContent)
-                expect(comments[0].status).equal(1)
-            })
+        await express.get(`/api/comment?postId=0`).then((res) => {
+            expect(res).to.have.status(200)
+            const comments = res.body
+            expect(comments[0].transactionHash).equal(transaction)
+            expect(comments[0].content).equal(testContent)
+            expect(comments[0].status).equal(1)
+        })
     })
 
     it('should comment failed with wrong proof', async function () {
