@@ -70,6 +70,7 @@ export default function PostDetail() {
         async function loadPost() {
             const response = await fetch(`${SERVER}/api/post/${id}`)
             const post = await response.json()
+            console.log(post)
 
             let isMine = false
             let finalAction = null

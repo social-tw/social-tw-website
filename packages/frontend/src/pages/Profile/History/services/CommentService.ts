@@ -15,6 +15,7 @@ export class CommentService {
             chunkSize,
             fetchCommentsByEpochKeys,
         )
+        console.log(batchedRawComments)
         return batchedRawComments
             .map(this.parseRelayRawCommentsToComments.bind(this))
             .flat(2)

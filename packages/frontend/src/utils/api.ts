@@ -55,3 +55,90 @@ export async function fetchVotesByEpochKeys({
     )
     return res.json()
 }
+
+
+// [
+//     {
+//         "publishedAt": "1715165708743",
+//         "commentId": "0",
+//         "postId": "0",
+//         "cid": null,
+//         "transactionHash": "0xe5cf8ce6c1d580e533f00adb18a1396c35df41040b667d827486041f0cb75678",
+//         "content": "testComment",
+//         "epoch": 11,
+//         "epochKey": "4190232842562691558271772029942358365612045623747838572139953061824266783536",
+//         "status": 1,
+//         "_id": "ynhUbSFveCk9864LYj528"
+//     }
+// ]
+
+// [
+//     {
+//         "publishedAt": "1715165708743",
+//         "commentId": "0",
+//         "postId": "0",
+//         "cid": null,
+//         "transactionHash": "0xe5cf8ce6c1d580e533f00adb18a1396c35df41040b667d827486041f0cb75678",
+//         "content": "testComment",
+//         "epoch": 11,
+//         "epochKey": "4190232842562691558271772029942358365612045623747838572139953061824266783536",
+//         "status": 1,
+//         "_id": "ynhUbSFveCk9864LYj528"
+//     }
+// ]
+
+// [
+//     {
+//         "publishedAt": "1715165706503",
+//         "postId": "0",
+//         "transactionHash": "0xdd2d0eea1f54f3e5d4e53571c5b38a4cecc9d4a9b2e4a43250822c09bf7f031e",
+//         "content": "test1",
+//         "cid": null,
+//         "epoch": 0,
+//         "epochKey": "13404125503094648691427898094848951247764763170087434203954306073161909619754",
+//         "upCount": 1,
+//         "downCount": 0,
+//         "voteSum": 0,
+//         "status": 1,
+//         "commentCount": 1,
+//         "_id": "EE8ZrOxY86t3INGXe0MxU",
+//         "votes": [
+//             {
+//                 "publishedAt": "1715167474122",
+//                 "postId": "0",
+//                 "epochKey": "9219596159119527157909670125758557090902271128001400800689269294614464115612",
+//                 "epoch": 11,
+//                 "upVote": 1,
+//                 "downVote": 0,
+//                 "_id": "kIUxJCgqi-MMfFSXiMTDa"
+//             }
+//         ]
+//     }
+// ]
+
+// {
+//     "publishedAt": "1715165706503",
+//     "postId": "0",
+//     "transactionHash": "0xdd2d0eea1f54f3e5d4e53571c5b38a4cecc9d4a9b2e4a43250822c09bf7f031e",
+//     "content": "test1",
+//     "cid": null,
+//     "epoch": 0,
+//     "epochKey": "13404125503094648691427898094848951247764763170087434203954306073161909619754",
+//     "upCount": 1,
+//     "downCount": 0,
+//     "voteSum": 0,
+//     "status": 1,
+//     "commentCount": 1,
+//     "_id": "EE8ZrOxY86t3INGXe0MxU",
+//     "votes": [
+//         {
+//             "publishedAt": "1715167474122",
+//             "postId": "0",
+//             "epochKey": "9219596159119527157909670125758557090902271128001400800689269294614464115612",
+//             "epoch": 11,
+//             "upVote": 1,
+//             "downVote": 0,
+//             "_id": "kIUxJCgqi-MMfFSXiMTDa"
+//         }
+//     ]
+// }

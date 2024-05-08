@@ -39,5 +39,6 @@ export async function fetchAllByEpochKeysInBatches<T, U>(
             fetchCall({ epochKeys: epochKeyChunk, ...restFetchCallParams }),
         ),
     )
+    console.log(batchedRawPosts)
     return batchedRawPosts
 }

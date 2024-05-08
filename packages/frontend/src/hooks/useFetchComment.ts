@@ -50,6 +50,7 @@ export default function useFetchComment(postId?: string) {
             if (!postId) return
 
             const comments = await fetchCommentsByPostId(postId)
+            console.log(comments)
 
             const successfulComments = comments.map((comment) => {
                 const isMine = userState

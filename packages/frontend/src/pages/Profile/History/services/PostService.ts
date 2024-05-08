@@ -14,6 +14,7 @@ export class PostService {
             chunkSize,
             fetchPostsByEpochKeys,
         )
+        
         return batchedRawPosts
             .map(this.parseRelayRawPostsToPosts.bind(this))
             .flat(2)

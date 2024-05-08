@@ -73,7 +73,7 @@ export function TabContentBody({
             {isInit && data.length === 0 && <div>NO DATA</div>}
             {isInit && data.length > 0 && (
                 <AutoSizer>
-                    {({ height, width }) => {
+                    {({ height, width }:  { height: number, width: number }) => {
                         const rowHeight = 35
                         const rowCount = data.length
                         const columnCount = data[0].length
