@@ -43,6 +43,7 @@ export const InvalidPageError = new InternalError(
     'Invalid Page: page is undefined',
     400
 )
+export const EmptyPostError = new InternalError('Could not have empty content', 400)
 
 // comment related error
 export const CommentNotExistError = new InternalError('Comment does not exist', 400)
