@@ -16,9 +16,9 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { PostInfo, PostStatus } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
 import { useProfileHistoryStore } from './Profile/History/store/useProfileHistoryStore'
+import { PostInfo, PostStatus } from '@/types/Post'
 
 export default function PostDetail() {
     const { id } = useParams()

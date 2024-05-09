@@ -1,5 +1,5 @@
+import { VoteAction } from '@/types/Vote'
 import { create } from 'zustand'
-import { VoteAction } from '@/types'
 
 type VoteState = {
     votes: Record<

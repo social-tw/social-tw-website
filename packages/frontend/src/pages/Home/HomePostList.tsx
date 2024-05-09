@@ -10,7 +10,6 @@ import {
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
 import { useVoteEvents } from '@/hooks/useVotes'
-import { PostInfo, PostStatus, VoteAction, VoteMsg } from '@/types'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -21,6 +20,8 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
+import { PostInfo, PostStatus } from '@/types/Post'
+import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function PostList() {
     const { userState } = useUser()

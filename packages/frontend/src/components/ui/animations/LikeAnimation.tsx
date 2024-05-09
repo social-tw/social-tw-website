@@ -1,8 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import upvoteImage from '../../../assets/upvote.png'
 import downvoteImage from '../../../assets/downvote.png'
-import { VoteAction } from '../../../types'
-import React from 'react'
+import { VoteAction } from '@/types/Vote'
 
 interface LikeAnimationProps {
     isLiked: boolean

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Avatar from '@/components/common/Avatar'
-import { PostStatus, VoteAction } from '@/types'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
@@ -14,6 +13,8 @@ import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
 import useVoteStore from '../../store/useVoteStore'
 import VoteFailureDialog from '@/components/post/VoteFailureDialog'
+import { PostStatus } from '@/types/Post'
+import { VoteAction } from '@/types/Vote'
 
 export default function Post({
     id = '',

@@ -79,7 +79,6 @@ export function getCommentHeaderData(): HeaderCellData[] {
 export function getVoteHeaderData(): HeaderCellData[] {
     return [
         { label: 'Date' },
-        { label: 'Content' },
         { label: 'Type' },
         { label: 'Epoch Key' },
         { label: 'Link' },

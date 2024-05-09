@@ -7,8 +7,8 @@ import { removeActionByCommentId } from '@/contexts/Actions'
 import { UserProvider } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useDeleteComment from '@/hooks/useDeleteComment'
-import { CommentStatus } from '@/types'
 import { act, fireEvent, render, screen } from '@testing-library/react'
+import { CommentStatus } from '@/types/Comments'
 
 dayjs.extend(relativeTime)
 

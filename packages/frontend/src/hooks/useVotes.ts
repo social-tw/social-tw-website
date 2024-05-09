@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
 import client from '../socket'
-import { VoteAction, VoteMsg } from '../types'
+import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()

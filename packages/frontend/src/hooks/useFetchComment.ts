@@ -6,12 +6,12 @@ import {
     useActionStore,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
-import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
+import { CommentInfo, CommentStatus, RelayRawComment } from '@/types/Comments'
 
 async function fetchCommentsByPostId(
     postId: string,
-): Promise<CommnetDataFromApi[]> {
+): Promise<RelayRawComment[]> {
     const queryParams = new URLSearchParams()
 
     if (postId) {
