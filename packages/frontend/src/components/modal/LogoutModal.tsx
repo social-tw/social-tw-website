@@ -10,10 +10,7 @@ interface LogoutModalProps {
     closeModal: () => void
 }
 
-export default function LogoutModal({
-    isOpen,
-    closeModal,
-}: LogoutModalProps) {
+export default function LogoutModal({ isOpen, closeModal }: LogoutModalProps) {
     const { logout, signupStatus } = useUser()
     const isPending = signupStatus === 'pending'
     const navigate = useNavigate()

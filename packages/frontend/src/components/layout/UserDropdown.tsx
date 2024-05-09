@@ -2,7 +2,7 @@ import React from 'react'
 import { VscAccount } from 'react-icons/vsc'
 import { useUser } from '@/contexts/User'
 
-export default function UserDropdown()  {
+export default function UserDropdown() {
     const { logout } = useUser()
 
     const handleLogout = (event: React.MouseEvent) => {

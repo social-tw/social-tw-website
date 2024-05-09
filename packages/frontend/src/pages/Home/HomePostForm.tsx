@@ -14,9 +14,7 @@ interface HomePostFormProps {
     disabled?: boolean
 }
 
-export default function HomePostForm({ 
-    disabled = false 
-}: HomePostFormProps) {
+export default function HomePostForm({ disabled = false }: HomePostFormProps) {
     const { userState } = useUser()
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,
@@ -79,5 +77,3 @@ export default function HomePostForm({
         </>
     )
 }
-
-

@@ -68,5 +68,3 @@ export default function LoginButton({
         </button>
     )
 }
-
-

@@ -18,7 +18,7 @@ import {
     getVoteHeaderData,
 } from './TabContentHeader'
 
-export default function TabContent()  {
+export default function TabContent() {
     const { isPostActive, isCommentActive, isVoteActive } =
         useProfileHistoryActiveTab()
     return (

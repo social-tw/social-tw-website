@@ -10,7 +10,7 @@ interface CommentNotificationsProps {
 }
 
 export default function CommentNotifications({
-    postId
+    postId,
 }: CommentNotificationsProps) {
     const { list, removeAt } = useCommentEvents(postId)
 
@@ -58,4 +58,3 @@ export default function CommentNotifications({
         </div>
     )
 }
-

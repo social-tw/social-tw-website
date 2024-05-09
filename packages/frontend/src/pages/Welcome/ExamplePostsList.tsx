@@ -29,5 +29,3 @@ export function ExamplePostsList() {
         </div>
     )
 }
-
-

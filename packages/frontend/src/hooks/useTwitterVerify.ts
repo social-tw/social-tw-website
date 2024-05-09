@@ -15,5 +15,3 @@ export default function useTwitterVerify(SERVER: string, method: string) {
 
     return handleTwitterVerify
 }
-
-

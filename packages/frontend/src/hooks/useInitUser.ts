@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { SignupStatus } from '@/contexts/User'
 
-export default function useInitUser (
+export default function useInitUser(
     isLogin: boolean,
     signupStatus: SignupStatus,
     load: () => Promise<void>,
@@ -25,5 +25,3 @@ export default function useInitUser (
         initUser()
     }, [])
 }
-
-

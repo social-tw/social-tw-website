@@ -103,5 +103,3 @@ export default function StepInfo({ hashUserId }: StepInfoProps) {
         </>
     )
 }
-
-

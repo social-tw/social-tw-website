@@ -30,5 +30,3 @@ export default function BaseLayout() {
         </motion.div>
     )
 }
-
-

@@ -8,8 +8,8 @@ interface TransactionModalProps {
     isOpen: boolean
 }
 
-export default function PostPublishTransition({ 
-    isOpen 
+export default function PostPublishTransition({
+    isOpen,
 }: TransactionModalProps) {
     const items = [1, 2, 3]
     const variants = {
@@ -67,5 +67,3 @@ export default function PostPublishTransition({
         </Backdrop>
     )
 }
-
-

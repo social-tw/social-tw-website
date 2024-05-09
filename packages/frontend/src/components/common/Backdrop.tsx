@@ -9,7 +9,7 @@ interface BackdropProps {
     position: 'absolute' | 'fixed'
 }
 
-export default function Backdrop ({
+export default function Backdrop({
     isOpen,
     background,
     children,
@@ -74,4 +74,4 @@ export default function Backdrop ({
     )
 }
 
- Backdrop
+Backdrop

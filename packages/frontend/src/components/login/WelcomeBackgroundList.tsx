@@ -66,5 +66,3 @@ export default function WelcomeBackgroundList({
         </motion.div>
     )
 }
-
-
