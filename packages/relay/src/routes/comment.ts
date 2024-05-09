@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { InternalError } from '../types/InternalError'
+import { InvalidPostIdError, EmptyCommentError, PostNotExistError } from '../types/InternalError'
 
 export default (
     app: Express,
@@ -18,7 +18,7 @@ export default (
             errorHandler(async (req, res) => {
                 const { epks, postId } = req.query
                 if (!postId) {
-                    throw new InternalError('postId is undefined', 400)
+                    throw InvalidPostIdError
                 }
 
                 const comments = await commentService.fetchComments(
@@ -34,7 +34,7 @@ export default (
             errorHandler(async (req, res) => {
                 const { content, postId, publicSignals, proof } = req.body
                 if (!content) {
-                    throw new InternalError('Could not have empty content', 400)
+                    throw EmptyCommentError
                 }
 
                 const post = await postService.fetchSinglePost(
@@ -43,10 +43,7 @@ export default (
                     1
                 )
                 if (!post) {
-                    throw new InternalError(
-                        'Post does not exist, please try later',
-                        400
-                    )
+                    throw PostNotExistError
                 }
                 const hash = await commentService.leaveComment(
                     postId.toString(),
