@@ -27,6 +27,7 @@ export const InvalidStateTreeError = new InternalError(
     'Invalid State Tree',
     400
 )
+export const WrongEpochKeyNumberError = new InternalError('Wrong number of epoch keys', 400)
 
 // vote/post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
@@ -43,3 +44,4 @@ export const InvalidPageError = new InternalError(
 // comment related error
 export const CommentNotExistError = new InternalError('Comment does not exist', 400)
 export const EmptyCommentError = new InternalError('Could not have empty content', 400)
+
