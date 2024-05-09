@@ -28,6 +28,9 @@ export const InvalidStateTreeError = new InternalError(
     400
 )
 export const WrongEpochKeyNumberError = new InternalError('Wrong number of epoch keys', 400)
+export const UnspecifiedEpochKeyError = new InternalError('Epoch keys must be specified and should be a non-empty string', 400)
+export const InvalidSortKeyError = new InternalError('sortKey must be "publishedAt" | "voteSum"', 400)
+export const InvalidDirectionError = new InternalError('direction must be "asc" | "desc"', 400)
 
 // vote/post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
