@@ -19,7 +19,8 @@ export const UserAlreadySignedUpError = new InternalError(
 export const UserLoginError = new InternalError('Error in login', 400)
 
 // general error
-export const InvalidEpochError = new InternalError('Invalid Epoch', 400)
+export const InvalidEpochError = new InternalError('Invalid epoch', 400)
+export const InvalidEpochKeyError = new InternalError('Invalid epoch key', 400)
 export const InvalidAttesterIdError = new InternalError('Wrong attesterId', 400)
 export const InvalidProofError = new InternalError('Invalid proof', 400)
 export const InvalidStateTreeError = new InternalError(
@@ -33,11 +34,10 @@ export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
     400
 )
-export const InvalidEpochKeyError = new InternalError(
-    'Invalid Epoch Key: epks is undefined',
-    400
-)
 export const InvalidPageError = new InternalError(
     'Invalid Page: page is undefined',
     400
 )
+
+// comment related error
+export const NoCommentError = new InternalError('Comment does not exist', 400)

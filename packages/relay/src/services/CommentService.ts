@@ -5,7 +5,7 @@ import { Helia } from 'helia'
 import ActionCountManager from './singletons/ActionCountManager'
 import IpfsHelper from './singletons/IpfsHelper'
 import ProofHelper from './singletons/ProofHelper'
-import { InternalError } from '../types/InternalError'
+import { NoCommentError, InvalidEpochKeyError } from '../types/InternalError'
 import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
 import TransactionManager from './singletons/TransactionManager'
@@ -108,7 +108,7 @@ export class CommentService {
             },
         })
         if (!comment) {
-            throw new InternalError('Comment does not exist', 400)
+            throw NoCommentError
         }
 
         const epochKeyLiteProof =
@@ -119,7 +119,7 @@ export class CommentService {
             )
 
         if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) {
-            throw new InternalError('Invalid epoch key', 400)
+            throw InvalidEpochKeyError
         }
 
         const txnHash = await TransactionManager.callContract('editComment', [
