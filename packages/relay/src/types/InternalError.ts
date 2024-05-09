@@ -44,6 +44,7 @@ export const InvalidPageError = new InternalError(
     400
 )
 export const EmptyPostError = new InternalError('Could not have empty content', 400)
+export const InvalidPublicSignalError = new InternalError('Invalid public signal', 400)
 
 // comment related error
 export const CommentNotExistError = new InternalError('Comment does not exist', 400)
