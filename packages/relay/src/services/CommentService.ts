@@ -5,7 +5,10 @@ import { Helia } from 'helia'
 import ActionCountManager from './singletons/ActionCountManager'
 import IpfsHelper from './singletons/IpfsHelper'
 import ProofHelper from './singletons/ProofHelper'
-import { CommentNotExistError, InvalidEpochKeyError } from '../types/InternalError'
+import {
+    CommentNotExistError,
+    InvalidEpochKeyError,
+} from '../types/InternalError'
 import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
 import TransactionManager from './singletons/TransactionManager'

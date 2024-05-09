@@ -27,26 +27,46 @@ export const InvalidStateTreeError = new InternalError(
     'Invalid State Tree',
     400
 )
-export const WrongEpochKeyNumberError = new InternalError('Wrong number of epoch keys', 400)
-export const UnspecifiedEpochKeyError = new InternalError('Epoch keys must be specified and should be a non-empty string', 400)
-export const InvalidSortKeyError = new InternalError('sortKey must be "publishedAt" | "voteSum"', 400)
-export const InvalidDirectionError = new InternalError('direction must be "asc" | "desc"', 400)
+export const WrongEpochKeyNumberError = new InternalError(
+    'Wrong number of epoch keys',
+    400
+)
+export const UnspecifiedEpochKeyError = new InternalError(
+    'Epoch keys must be specified and should be a non-empty string',
+    400
+)
+export const InvalidSortKeyError = new InternalError(
+    'sortKey must be "publishedAt" | "voteSum"',
+    400
+)
+export const InvalidDirectionError = new InternalError(
+    'direction must be "asc" | "desc"',
+    400
+)
 
 // vote/post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
-export const PostNotExistError = new InternalError('Post does not exist, please try later', 400)
+export const PostNotExistError = new InternalError(
+    'Post does not exist, please try later',
+    400
+)
 export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
     400
 )
 export const InvalidPageError = new InternalError(
-    'Invalid Page: page is undefined',
+    'Invalid page: page is undefined',
     400
 )
 export const EmptyPostError = new InternalError('Could not have empty content', 400)
 export const InvalidPublicSignalError = new InternalError('Invalid public signal', 400)
 
 // comment related error
-export const CommentNotExistError = new InternalError('Comment does not exist', 400)
-export const EmptyCommentError = new InternalError('Could not have empty content', 400)
-
+export const CommentNotExistError = new InternalError(
+    'Comment does not exist',
+    400
+)
+export const EmptyCommentError = new InternalError(
+    'Could not have empty content',
+    400
+)
