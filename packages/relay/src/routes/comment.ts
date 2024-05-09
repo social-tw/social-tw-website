@@ -5,10 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import {
-    InvalidPostIdError,
-    EmptyCommentError
-} from '../types/InternalError'
+import { InvalidPostIdError, EmptyCommentError } from '../types/InternalError'
 
 export default (
     app: Express,
