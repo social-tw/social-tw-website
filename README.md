@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/social-tw/social-tw-website/6cae1ef115864d3301a2d216a07f553058f31327/packages/frontend/src/assets/logo.svg"
         height="130"><h1 align="center">Unirep Social Taiwan</h1>
 </p>
-v
+
 <p align="center">
     <a href="https://github.com/social-tw/social-tw-website">
         <img src="https://img.shields.io/badge/project-social tw website-blue.svg?style=flat-square">
