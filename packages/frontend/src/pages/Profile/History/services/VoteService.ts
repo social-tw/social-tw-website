@@ -49,7 +49,9 @@ export class VoteService {
         return votes.sort((a, b) => a.publishedAt - b.publishedAt)
     }
 
-    private parseRelayRawVotesToVotes(relayRawVotes: RelayRawVote[]): VoteHistoryMetaData[] {
+    private parseRelayRawVotesToVotes(
+        relayRawVotes: RelayRawVote[],
+    ): VoteHistoryMetaData[] {
         return relayRawVotes.map((relayRawVote) => {
             const publishedAt = parseInt(relayRawVote.publishedAt)
             const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)

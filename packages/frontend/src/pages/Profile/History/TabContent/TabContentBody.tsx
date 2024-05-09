@@ -73,7 +73,7 @@ export function TabContentBody({
             {isInit && data.length === 0 && <div>NO DATA</div>}
             {isInit && data.length > 0 && (
                 <AutoSizer>
-                    {({ height, width }:  { height: number, width: number }) => {
+                    {({ height, width }: { height: number; width: number }) => {
                         const rowHeight = 35
                         const rowCount = data.length
                         const columnCount = data[0].length
@@ -153,7 +153,9 @@ function BodyCellImg({ src, alt }: CellImgProps) {
     return <img className="w-5 h-5" src={src} alt={alt} />
 }
 
-export function parsePostsToBodyData(posts: PostHistoryMetaData[]): BodyCellData[][] {
+export function parsePostsToBodyData(
+    posts: PostHistoryMetaData[],
+): BodyCellData[][] {
     return posts.map((post) => {
         return [
             { type: BodyCellType.Text, content: post.date },
@@ -164,7 +166,9 @@ export function parsePostsToBodyData(posts: PostHistoryMetaData[]): BodyCellData
     })
 }
 
-export function parseCommentsToBodyData(comments: CommentHistoryMetaData[]): BodyCellData[][] {
+export function parseCommentsToBodyData(
+    comments: CommentHistoryMetaData[],
+): BodyCellData[][] {
     return comments.map((comment) => {
         return [
             { type: BodyCellType.Text, content: comment.date },
@@ -175,7 +179,9 @@ export function parseCommentsToBodyData(comments: CommentHistoryMetaData[]): Bod
     })
 }
 
-export function parseVotesToBodyData(votes: VoteHistoryMetaData[]): BodyCellData[][] {
+export function parseVotesToBodyData(
+    votes: VoteHistoryMetaData[],
+): BodyCellData[][] {
     const voteService = new VoteService()
     return votes.map((vote) => {
         const imgSrc = voteService.isUpvote(vote) ? Upvote : Downvote

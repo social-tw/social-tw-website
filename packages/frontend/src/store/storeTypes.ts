@@ -1,4 +1,4 @@
-import { PostInfo } from "@/types/Post"
+import { PostInfo } from '@/types/Post'
 
 export interface StoreState {
     posts: PostInfo[]

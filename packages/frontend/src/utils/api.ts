@@ -20,9 +20,7 @@ export async function fetchLogin() {
     return res.json()
 }
 
-export async function fetchComments() {
-    
-}
+export async function fetchComments() {}
 
 export async function fetchPostsByEpochKeys({
     epochKeys,

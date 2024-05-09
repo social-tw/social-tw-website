@@ -18,7 +18,7 @@ export function TabContentHeader({ data }: TabContentHeaderProps) {
     return (
         <div className={`py-2`}>
             <AutoSizer disableHeight>
-                {({ width }:  { width: number }) => {
+                {({ width }: { width: number }) => {
                     const rowHeight = 35
                     const columnCount = data.length
                     const columnWidth = Math.floor(width / columnCount)

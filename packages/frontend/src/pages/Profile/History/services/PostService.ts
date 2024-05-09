@@ -47,7 +47,9 @@ export class PostService {
         return posts.sort((a, b) => b.voteSum - a.voteSum)
     }
 
-    private parseRelayRawPostsToPosts(relayRawPosts: RelayRawPost[]): PostHistoryMetaData[] {
+    private parseRelayRawPostsToPosts(
+        relayRawPosts: RelayRawPost[],
+    ): PostHistoryMetaData[] {
         return relayRawPosts.map((relaySourcePost) => {
             const publishedAt = parseInt(relaySourcePost.publishedAt)
             return new PostHistoryMetaData(

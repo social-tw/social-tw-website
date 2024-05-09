@@ -1,11 +1,7 @@
 import React from 'react'
 
 const ModifiedPostPage = () => {
-  return (
-    <div>
-      
-    </div>
-  )
+    return <div></div>
 }
 
 export default ModifiedPostPage

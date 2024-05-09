@@ -19,7 +19,10 @@ export class CommentService {
             .flat(2)
     }
 
-    sortComments(comments: CommentHistoryMetaData[], activeFilter: ActiveFilter) {
+    sortComments(
+        comments: CommentHistoryMetaData[],
+        activeFilter: ActiveFilter,
+    ) {
         switch (activeFilter) {
             case ActiveFilter.DateAsc: {
                 return this.sortCommentsByDateAsc(comments)
