@@ -2,7 +2,7 @@ import React from 'react'
 import { VscAccount } from 'react-icons/vsc'
 import { useUser } from '@/contexts/User'
 
-const UserDropdown: React.FC = () => {
+export default function UserDropdown()  {
     const { logout } = useUser()
 
     const handleLogout = (event: React.MouseEvent) => {
@@ -26,5 +26,3 @@ const UserDropdown: React.FC = () => {
         </div>
     )
 }
-
-export default UserDropdown

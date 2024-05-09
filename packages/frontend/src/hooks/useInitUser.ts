@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { SignupStatus } from '@/contexts/User'
 
-const useInitUser = (
+export default function useInitUser (
     isLogin: boolean,
     signupStatus: SignupStatus,
     load: () => Promise<void>,
     logout: () => void,
-) => {
+) {
     useEffect(() => {
         const initUser = async () => {
             if (!isLogin) return
@@ -26,4 +26,4 @@ const useInitUser = (
     }, [])
 }
 
-export default useInitUser
+

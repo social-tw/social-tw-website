@@ -7,11 +7,11 @@ interface ScrollingModalProps {
     variants: any
 }
 
-const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
+export default function WelcomeBackgroundList({
     children,
     method,
     variants,
-}) => {
+}: ScrollingModalProps) {
     const postListRef = useRef<HTMLDivElement>(null)
     const handleScroll = () => {
         const container = postListRef.current
@@ -67,4 +67,4 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
     )
 }
 
-export default WelcomeBackgroundList
+

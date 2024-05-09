@@ -5,10 +5,10 @@ interface PostFailureDialogProp {
     onClose: () => void
 }
 
-const PostFailureDialog: React.FC<PostFailureDialogProp> = ({
+export default function PostFailureDialog({
     isOpen,
     onClose,
-}) => {
+}: PostFailureDialogProp) {
     return (
         <Dialog isOpen={isOpen} onClose={onClose}>
             <section className="p-6 md:px-12">
@@ -35,4 +35,4 @@ const PostFailureDialog: React.FC<PostFailureDialogProp> = ({
     )
 }
 
-export default PostFailureDialog
+

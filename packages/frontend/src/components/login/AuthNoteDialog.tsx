@@ -8,11 +8,11 @@ interface NoteModallProps {
     onClose: () => void
 }
 
-const AuthNoteDialog: React.FC<NoteModallProps> = ({
+export default function AuthNoteDialog({
     noteStatus,
     icon: Icon,
     onClose,
-}) => {
+}: NoteModallProps) {
     let content
 
     switch (noteStatus) {
@@ -71,4 +71,4 @@ const AuthNoteDialog: React.FC<NoteModallProps> = ({
     )
 }
 
-export default AuthNoteDialog
+

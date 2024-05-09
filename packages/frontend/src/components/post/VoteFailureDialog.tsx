@@ -5,10 +5,10 @@ interface VoteFailureDialogProp {
     onClose: () => void
 }
 
-const VoteFailureDialog: React.FC<VoteFailureDialogProp> = ({
+export default function VoteFailureDialog({
     isOpen,
     onClose,
-}) => {
+}: VoteFailureDialogProp) {
     return (
         <Dialog isOpen={isOpen} onClose={onClose}>
             <section className="p-6 md:px-12">
@@ -35,4 +35,4 @@ const VoteFailureDialog: React.FC<VoteFailureDialogProp> = ({
     )
 }
 
-export default VoteFailureDialog
+

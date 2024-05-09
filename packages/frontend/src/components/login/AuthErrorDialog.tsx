@@ -10,10 +10,10 @@ interface ErrorModalProps {
     buttonText?: string
 }
 
-const AuthErrorDialog: React.FC<ErrorModalProps> = ({
+export default function AuthErrorDialog({
     isOpen,
     buttonText = '返回註冊頁重新嘗試',
-}) => {
+}: ErrorModalProps) {
     const { setSignupStatus, errorCode, setErrorCode } = useUser()
     const { message } = useErrorMessage(errorCode)
     const navigate = useNavigate()
@@ -48,4 +48,4 @@ const AuthErrorDialog: React.FC<ErrorModalProps> = ({
     )
 }
 
-export default AuthErrorDialog
+

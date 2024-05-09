@@ -13,10 +13,10 @@ interface SignUpLoadingModal {
     onClose?: () => void
 }
 
-const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
+export default function SignUpLoadingModal({
     status,
     isOpen,
-}) => {
+}: SignUpLoadingModal) {
     const [pendingText, setPendingText] =
         useState('努力註冊中，先來看看文章吧！')
     const navigate = useNavigate()
@@ -132,4 +132,4 @@ const SignUpLoadingModal: React.FC<SignUpLoadingModal> = ({
     )
 }
 
-export default SignUpLoadingModal
+

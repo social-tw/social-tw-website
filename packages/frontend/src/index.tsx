@@ -111,7 +111,7 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient()
 
-const App = () => {
+export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <UserProvider>
@@ -120,8 +120,6 @@ const App = () => {
         </QueryClientProvider>
     )
 }
-
-export default App
 
 const rootElement = document.getElementById('root')
 if (rootElement) {

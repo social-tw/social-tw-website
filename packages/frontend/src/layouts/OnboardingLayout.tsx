@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Outlet } from 'react-router-dom'
 
-const BaseLayout = () => {
+export default function BaseLayout() {
     const gradients = [
         'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
         'linear-gradient(150deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -31,4 +31,4 @@ const BaseLayout = () => {
     )
 }
 
-export default BaseLayout
+

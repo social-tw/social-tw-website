@@ -5,7 +5,7 @@ interface StepInfoProps {
     hashUserId: string | null
 }
 
-const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
+export default function StepInfo({ hashUserId }: StepInfoProps) {
     return (
         <>
             <div
@@ -104,4 +104,4 @@ const StepInfo: React.FC<StepInfoProps> = ({ hashUserId }) => {
     )
 }
 
-export default StepInfo
+
