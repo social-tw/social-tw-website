@@ -46,10 +46,6 @@ export const InvalidDirectionError = new InternalError(
 
 // vote/post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
-export const PostNotExistError = new InternalError(
-    'Post does not exist, please try later',
-    400
-)
 export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
     400

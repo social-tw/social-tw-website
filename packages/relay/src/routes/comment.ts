@@ -7,8 +7,7 @@ import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import {
     InvalidPostIdError,
-    EmptyCommentError,
-    PostNotExistError,
+    EmptyCommentError
 } from '../types/InternalError'
 
 export default (
@@ -47,7 +46,7 @@ export default (
                     1
                 )
                 if (!post) {
-                    throw PostNotExistError
+                    throw InvalidPostIdError
                 }
                 const hash = await commentService.leaveComment(
                     postId.toString(),

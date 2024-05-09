@@ -7,7 +7,6 @@ import type { Helia } from '@helia/interface'
 import { postService } from '../services/PostService'
 import {
     InvalidPostIdError,
-    PostNotExistError,
     EmptyPostError,
     InvalidEpochKeyError,
     InvalidPageError,
@@ -71,7 +70,7 @@ export default (
 
             const post = await postService.fetchSinglePost(id, db, undefined)
             if (!post) {
-                throw PostNotExistError
+                throw InvalidPostIdError
             } else {
                 res.json(post)
             }
