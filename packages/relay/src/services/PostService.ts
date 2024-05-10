@@ -268,10 +268,7 @@ export class PostService {
         return { txHash, postId: postId }
     }
 
-    async fetchSinglePost(
-        id: string,
-        db: DB
-    ): Promise<Post | null> {
+    async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,
