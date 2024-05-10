@@ -1,12 +1,9 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
 import {
-    stringifyBigInts,
-    IncrementalMerkleTree,
-    genStateTreeLeaf,
+    stringifyBigInts
 } from '@unirep/utils'
 
 import { deployContracts, startServer, stopServer } from './environment'
@@ -19,8 +16,6 @@ import { SQLiteConnector } from 'anondb/node'
 import { postData } from './mocks/posts'
 import { PostService } from '../src/services/PostService'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
-
-const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('POST /post', function () {
     let snapshot: any
