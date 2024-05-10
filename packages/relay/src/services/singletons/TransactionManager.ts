@@ -246,12 +246,14 @@ export class TransactionManager {
         functionSignature: string, // 'leaveComment' for example
         args: any[]
     ): Promise<string> {
-        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
+        if (!this.appContract) throw new Error('Not initialized')
+        const appContract = this.appContract
+
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
             [...args]
         )
-        const hash = await this.queueTransaction(APP_ADDRESS, calldata)
+        const hash = await this.queueTransaction(appContract.address, calldata)
 
         return hash
     }

@@ -2,7 +2,7 @@ import { SignupProof } from '@unirep/circuits'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import TransactionManager from './singletons/TransactionManager'
-import { APP_ADDRESS, TWITTER_USER_URL } from '../config'
+import { TWITTER_USER_URL } from '../config'
 import TwitterClient from './singletons/TwitterClient'
 import crypto from 'crypto'
 import { User } from '../types'
@@ -120,24 +120,23 @@ export class UserService {
             throw InvalidProofError
         }
 
-        const appContract = TransactionManager.appContract!!
-        const calldata = appContract.interface.encodeFunctionData(
-            'userSignUp',
-            [
-                signupProof.publicSignals,
-                signupProof.proof,
-                hashUserId,
-                fromServer,
-            ]
-        )
+        // create user into db
+        const status = fromServer
+            ? UserRegisterStatus.REGISTERER_SERVER
+            : UserRegisterStatus.REGISTERER
+        await synchronizer.db.create('SignUp', {
+            hashUserId: hashUserId,
+            status: status,
+        })
 
-        const { logs, txHash } = await TransactionManager.executeTransaction(
-            appContract,
-            APP_ADDRESS,
-            calldata
-        )
+        const txHash = await TransactionManager.callContract('userSignUp', [
+            signupProof.publicSignals,
+            signupProof.proof,
+            hashUserId,
+            fromServer,
+        ])
 
-        return { logs, txHash }
+        return txHash
     }
 
     async verifyHashUserId(db: DB, hashUserId: string, accessToken: string) {
