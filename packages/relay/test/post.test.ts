@@ -99,7 +99,7 @@ describe('POST /post', function () {
         await sync.waitForSync()
 
         let posts = await express
-            .get(`/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`)
+            .get(`/api/post?epks=${epochKeyProof.epochKey}`)
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -111,12 +111,10 @@ describe('POST /post', function () {
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
-        posts = await express
-            .get(`/api/post?query=mocktype&epks=${mockEpk}`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                return res.body
-            })
+        posts = await express.get(`/api/post?epks=${mockEpk}`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
         expect(posts.length).equal(0)
     })
