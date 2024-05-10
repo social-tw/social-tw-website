@@ -8,7 +8,7 @@ import MobileCommentForm, {
 import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
-import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
+import ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
 import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useFetchComment from '@/hooks/useFetchComment'
@@ -46,7 +46,7 @@ export default function PostDetail() {
     const onWriteComment = () => {
         if (!isLogin) {
             setIsError(true)
-            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+            setErrorCode(ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
             return
         }
         setIsOpenCommnet((prev) => !prev)
