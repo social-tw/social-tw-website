@@ -2,9 +2,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
 import { UserState } from '@unirep/core'
-import {
-    stringifyBigInts
-} from '@unirep/utils'
+import { stringifyBigInts } from '@unirep/utils'
 
 import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
