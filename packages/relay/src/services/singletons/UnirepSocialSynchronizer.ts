@@ -57,21 +57,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
-        const epochKey = toDecString(event.topics[1])
         const postId = toDecString(event.topics[2])
-        const epoch = Number(event.topics[3])
-        const content = decodedData.content
 
-        db.create('Post', {
-            postId,
-            epochKey,
-            epoch,
-            transactionHash,
-            status: 1,
-            content,
-            upCount: 0,
-            downCount: 0,
-            commentCount: 0,
+        db.update('Post', {
+            where: { transactionHash },
+            update: {
+                postId,
+            },
         })
 
         return true
@@ -173,23 +165,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
 
         return true
-    }
-
-    // once user signup, save the hash user id into db
-    async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
-        const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
-        const fromServer = ethers.utils.defaultAbiCoder.decode(
-            ['bool'],
-            event.topics[2]
-        )[0]
-        const status = fromServer
-            ? UserRegisterStatus.REGISTERER_SERVER
-            : UserRegisterStatus.REGISTERER
-
-        db.create('SignUp', {
-            hashUserId: hashUserId,
-            status: status,
-        })
     }
 
     // overwrite handleEpochEnded to delete all epochKeyAction when the epoch ended
