@@ -33,3 +33,11 @@ export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
     400
 )
+export const InvalidEpochKeyError = new InternalError(
+    'Invalid Epoch Key: epks is undefined',
+    400
+)
+export const InvalidPageError = new InternalError(
+    'Invalid Page: page is undefined',
+    400
+)

@@ -1,13 +1,8 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
-import {
-    stringifyBigInts,
-    IncrementalMerkleTree,
-    genStateTreeLeaf,
-} from '@unirep/utils'
+import { stringifyBigInts } from '@unirep/utils'
 
 import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
@@ -19,8 +14,6 @@ import { SQLiteConnector } from 'anondb/node'
 import { postData } from './mocks/posts'
 import { PostService } from '../src/services/PostService'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
-
-const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('POST /post', function () {
     let snapshot: any
@@ -99,7 +92,7 @@ describe('POST /post', function () {
         await sync.waitForSync()
 
         let posts = await express
-            .get(`/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`)
+            .get(`/api/post?epks=${epochKeyProof.epochKey}`)
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -111,12 +104,10 @@ describe('POST /post', function () {
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
-        posts = await express
-            .get(`/api/post?query=mocktype&epks=${mockEpk}`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                return res.body
-            })
+        posts = await express.get(`/api/post?epks=${mockEpk}`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
         expect(posts.length).equal(0)
     })
