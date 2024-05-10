@@ -71,7 +71,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: PATHS.VIEW_POST,
-                        element: <PostDetail />,
+                        element: (
+                            <ProtectedRoute>
+                                <PostDetail />
+                            </ProtectedRoute>
+                        ),
                     },
                     {
                         path: 'profile',
@@ -83,15 +87,27 @@ const router = createBrowserRouter([
                         children: [
                             {
                                 path: '',
-                                element: <Profile />,
+                                element: (
+                                    <ProtectedRoute>
+                                        <Profile />,
+                                    </ProtectedRoute>
+                                ),
                             },
                             {
                                 path: 'reputation',
-                                element: <Reputation />,
+                                element: (
+                                    <ProtectedRoute>
+                                        <Reputation />
+                                    </ProtectedRoute>
+                                ),
                             },
                             {
                                 path: 'history',
-                                element: <History />,
+                                element: (
+                                    <ProtectedRoute>
+                                        <History />
+                                    </ProtectedRoute>
+                                ),
                             },
                         ],
                     },
