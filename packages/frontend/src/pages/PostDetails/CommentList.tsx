@@ -67,6 +67,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
     const localComments = useMemo(() => {
         return commentActions
             .filter((action) => action.status !== ActionStatus.Success)
+            .filter((action) => (action.data as CommentData).postId === postId)
             .map((action) => {
                 const data = action.data as CommentData
                 return {
@@ -83,7 +84,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                     canReport: false,
                 }
             })
-    }, [commentActions])
+    }, [commentActions, postId])
 
     const location = useLocation()
 
