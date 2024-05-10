@@ -5,7 +5,11 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 
 import type { Helia } from '@helia/interface'
 import { postService } from '../services/PostService'
-import { InternalError } from '../types/InternalError'
+import {
+    InternalError,
+    InvalidEpochKeyError,
+    InvalidPageError,
+} from '../types/InternalError'
 
 export default (
     app: Express,
@@ -16,17 +20,20 @@ export default (
     app.get(
         '/api/post',
         errorHandler(async (req, res, next) => {
-            const query = req.query.query?.toString()
             const epks =
                 typeof req.query.epks === 'string'
                     ? req.query.epks.split('_')
                     : undefined
             const page = req.query.page ? Number(req.query.page) : 1
+            if (!epks && !page) {
+                if (!epks) throw InvalidEpochKeyError
+                if (!page) throw InvalidPageError
+            }
             if (isNaN(page) || page < 1) {
                 throw new InternalError('Invalid page number', 400)
             }
 
-            const posts = await postService.fetchPosts(query, epks, page, db)
+            const posts = await postService.fetchPosts(epks, page, db)
             res.json(posts)
         })
     )
