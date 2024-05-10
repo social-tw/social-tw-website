@@ -68,7 +68,7 @@ export default (
                 throw InvalidPostIdError
             }
 
-            const post = await postService.fetchSinglePost(id, db, undefined)
+            const post = await postService.fetchSinglePost(id, db)
             if (!post) {
                 throw InvalidPostIdError
             } else {
