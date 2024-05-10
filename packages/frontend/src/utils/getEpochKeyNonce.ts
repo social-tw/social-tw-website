@@ -12,8 +12,12 @@ export function randomNonce() {
 }
 
 export function getEpochKeyNonce(actionCount?: number) {
-    if (actionCount && actionCount <= NUM_EPOCH_KEY_NONCE_PER_EPOCH) {
-        return actionCount - 1
+    if (actionCount === undefined) return 0
+    if (
+        actionCount !== undefined &&
+        actionCount < NUM_EPOCH_KEY_NONCE_PER_EPOCH
+    ) {
+        return actionCount
     }
 
     return Math.floor(Math.random() * NUM_EPOCH_KEY_NONCE_PER_EPOCH)
