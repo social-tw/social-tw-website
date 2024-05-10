@@ -12,6 +12,7 @@ import {
     getVariantOpacityZeroToOne,
 } from '../../utils/motionVariants'
 import PostList from '../Home/HomePostList'
+import ExamplePostList from './ExamplePostsList'
 
 export function Welcome() {
     const navigate = useNavigate()
@@ -57,7 +58,7 @@ export function Welcome() {
                 variants={variantAutoScrollY}
             >
                 <div className="max-w-[600px] w-11/12">
-                    <PostList />
+                    <ExamplePostList />
                 </div>
             </WelcomeBackgroundList>
         </div>
