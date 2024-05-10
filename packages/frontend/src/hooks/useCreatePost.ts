@@ -7,7 +7,8 @@ import {
     succeedActionById,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
-import randomNonce from '@/utils/randomNonce'
+import useActionCount from '@/hooks/useActionCount'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 
@@ -31,6 +32,8 @@ async function publishPost(values: string) {
 export default function useCreatePost() {
     const { userState, stateTransition, provider, loadData } = useUser()
 
+    const actionCount = useActionCount()
+
     const create = async (content: string) => {
         if (!userState) throw new Error('user state not initialized')
 
@@ -50,11 +53,12 @@ export default function useCreatePost() {
                 await stateTransition()
             }
 
-            const nonce = randomNonce()
+            const nonce = getEpochKeyNonce(actionCount)
 
             const epochKeyProof = await userState.genEpochKeyProof({
                 nonce,
             })
+
             const epoch = Number(epochKeyProof.epoch)
             const epochKey = epochKeyProof.epochKey.toString()
 
