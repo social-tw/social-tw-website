@@ -6,9 +6,10 @@ import {
     succeedActionById,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
-import randomNonce from '@/utils/randomNonce'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
+import useActionCount from './useActionCount'
 
 async function publishComment(values: unknown) {
     const response = await fetch(`${SERVER}/api/comment`, {
@@ -28,6 +29,8 @@ async function publishComment(values: unknown) {
 
 export default function useCreateComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
+
+    const actionCount = useActionCount()
 
     const create = async (postId: string, content: string) => {
         if (!userState) throw new Error('user state not initialized')
@@ -49,7 +52,7 @@ export default function useCreateComment() {
                 await stateTransition()
             }
 
-            const nonce = randomNonce()
+            const nonce = getEpochKeyNonce(actionCount)
 
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })
             const epoch = Number(epochKeyProof.epoch)
@@ -88,7 +91,6 @@ export default function useCreateComment() {
                 epochKey,
             }
         } catch (error) {
-            console.log(error)
             failActionById(actionId)
             throw error
         }

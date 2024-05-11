@@ -43,6 +43,8 @@ jest.mock('@/contexts/Actions', () => ({
     ActionType: { Comment: 'comment' },
 }))
 
+jest.mock('@/hooks/useActionCount', () => jest.fn().mockReturnValue(1))
+
 beforeEach(() => {
     jest.clearAllMocks()
     jest.mocked(addAction).mockReturnValue('mock_action_id')
