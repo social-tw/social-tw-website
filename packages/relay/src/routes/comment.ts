@@ -23,14 +23,10 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    db,
-                    1
+                    db
                 )
                 if (!post) {
-                    throw new InternalError(
-                        'Post does not exist, please try later',
-                        400
-                    )
+                    throw InvalidPostIdError
                 }
 
                 const comments = await commentService.fetchComments(
