@@ -2,7 +2,6 @@ import { DB } from 'anondb'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import ActionCountManager from './singletons/ActionCountManager'
 import IpfsHelper from './singletons/IpfsHelper'
 import ProofHelper from './singletons/ProofHelper'
 import {
@@ -71,18 +70,15 @@ export class CommentService {
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
-        // after post data stored in DB, should add 1 to epoch key counter
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.create('Comment', {
-                postId: postId,
-                content: content,
-                cid: cid,
-                epochKey: epochKey,
-                epoch: epoch,
-                transactionHash: txnHash,
-                status: 0,
-            })
-            return 1
+        // save comment into db
+        await db.create('Comment', {
+            postId: postId,
+            content: content,
+            cid: cid,
+            epochKey: epochKey,
+            epoch: epoch,
+            transactionHash: txnHash,
+            status: 0,
         })
 
         return txnHash
@@ -125,13 +121,6 @@ export class CommentService {
             commentId,
             '',
         ])
-
-        const epoch = Number(epochKeyLiteProof.epoch)
-        const epochKey = epochKeyLiteProof.epochKey.toString()
-
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (_) => {
-            return 1
-        })
 
         return txnHash
     }

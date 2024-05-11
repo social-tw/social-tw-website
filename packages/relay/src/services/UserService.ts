@@ -120,13 +120,11 @@ export class UserService {
             throw InvalidProofError
         }
 
-        // create user into db
-        const status = fromServer
-            ? UserRegisterStatus.REGISTERER_SERVER
-            : UserRegisterStatus.REGISTERER
+        // save user into db, status is NOT_REGISTER because
+        // the data is not on-chain
         await synchronizer.db.create('SignUp', {
             hashUserId: hashUserId,
-            status: status,
+            status: UserRegisterStatus.NOT_REGISTER,
         })
 
         const txHash = await TransactionManager.callContract('userSignUp', [

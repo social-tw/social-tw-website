@@ -9,7 +9,6 @@ import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import ProofHelper from './singletons/ProofHelper'
-import ActionCountManager from './singletons/ActionCountManager'
 import { Post } from '../types/Post'
 import IpfsHelper from './singletons/IpfsHelper'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
@@ -72,6 +71,7 @@ export class PostService {
                 c.daily_comments AS daily_comments
             FROM
                 Post AS p
+            WHERE p.status = 1
             LEFT JOIN (
                 SELECT
                     postId,
@@ -236,20 +236,16 @@ export class PostService {
         const epochKey = epochKeyProof.epochKey.toString()
 
         // after post data stored in DB, should add 1 to epoch key counter
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.create('Post', {
-                epochKey: epochKey,
-                epoch: epoch,
-                transactionHash: txHash,
-                status: 0,
-                content,
-                upCount: 0,
-                downCount: 0,
-                commentCount: 0,
-                cid: cid,
-            })
-
-            return 1
+        await db.create('Post', {
+            epochKey: epochKey,
+            epoch: epoch,
+            transactionHash: txHash,
+            status: 0,
+            content,
+            upCount: 0,
+            downCount: 0,
+            commentCount: 0,
+            cid: cid,
         })
 
         return txHash
