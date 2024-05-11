@@ -39,8 +39,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    db,
-                    1
+                    db
                 )
                 if (!post) {
                     throw InvalidPostIdError
