@@ -2,11 +2,12 @@ import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { UserRegisterStatus } from '../../types'
 import schema from '../../db/schema'
 import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
 import { socketManager } from './SocketManager'
+import ActionCountManager from './ActionCountManager'
+import { UserRegisterStatus } from '../../types'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -55,9 +56,41 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
     }
 
+    // if server restarts, synchronizer will fetch all events from smart contract,
+    // however, action counts are only valid on the current epoch, so synchronizer
+    // only updates action count if the epoch is the same with smart contract
+    async updateActionCount(epochKey: string, epoch: number) {
+        const currentEpoch = this.calcCurrentEpoch()
+        if (currentEpoch == epoch) {
+            // update action counter
+            await ActionCountManager.addActionCount(this.db, epochKey, epoch, (_) => {
+                return 1
+            })
+        } 
+    }
+
+    // once user signup, save the hash user id into db
+    async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
+        const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
+        const fromServer = ethers.utils.defaultAbiCoder.decode(
+            ['bool'],
+            event.topics[2]
+        )[0]
+        const status = fromServer
+            ? UserRegisterStatus.REGISTERER_SERVER
+            : UserRegisterStatus.REGISTERER
+
+        db.update('SignUp', {
+            where: { hashUserId },
+            update: { status },
+        })
+    }
+
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
+        const epochKey = toDecString(event.topics[1])
         const postId = toDecString(event.topics[2])
+        const epoch = Number(decodedData.epoch)
 
         db.update('Post', {
             where: { transactionHash },
@@ -65,6 +98,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 postId,
             },
         })
+
+        await this.updateActionCount(epochKey, epoch)
 
         return true
     }
@@ -126,6 +161,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
+        await this.updateActionCount(epochKey, epoch)
+
         socketManager.emitComment({
             id: commentId,
             postId: postId,
@@ -138,8 +175,10 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     }
 
     async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
+        const epochKey = toDecString(event.topics[1])
         const postId = toDecString(event.topics[2])
         const commentId = toDecString(event.topics[3])
+        const epoch = Number(decodedData.epoch)
         const newContent = decodedData.newContent
 
         db.update('Comment', {
@@ -163,6 +202,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 commentCount: commentCount - 1,
             },
         })
+
+        await this.updateActionCount(epochKey, epoch)
 
         return true
     }
