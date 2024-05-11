@@ -6,7 +6,8 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import type { Helia } from '@helia/interface'
 import { postService } from '../services/PostService'
 import {
-    InternalError,
+    InvalidPostIdError,
+    EmptyPostError,
     InvalidEpochKeyError,
     InvalidPageError,
 } from '../types/InternalError'
@@ -30,7 +31,7 @@ export default (
                 if (!page) throw InvalidPageError
             }
             if (isNaN(page) || page < 1) {
-                throw new InternalError('Invalid page number', 400)
+                throw InvalidPageError
             }
 
             const posts = await postService.fetchPosts(epks, page, db)
@@ -43,7 +44,7 @@ export default (
         errorHandler(async (req, res, next) => {
             const { content, publicSignals, proof } = req.body
             if (!content) {
-                throw new InternalError('Could not have empty content', 400)
+                throw EmptyPostError
             }
 
             const { txHash, postId } = await postService.createPost(
@@ -64,12 +65,12 @@ export default (
         errorHandler(async (req, res, next) => {
             const id = req.params.id
             if (!id) {
-                throw new InternalError('id is undefined', 400)
+                throw InvalidPostIdError
             }
 
             const post = await postService.fetchSinglePost(id, db, undefined)
             if (!post) {
-                throw new InternalError(`post is not found: ${id}`, 400)
+                throw InvalidPostIdError
             } else {
                 res.json(post)
             }
