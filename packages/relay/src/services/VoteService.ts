@@ -73,7 +73,7 @@ export class VoteService {
                 epochKey: epochKey,
             },
         })
-
+        console.log('findVote', findVote)
         this.verifyVoteAction(voteAction, findVote)
 
         await this.executeTx(
