@@ -39,13 +39,3 @@ const ERROR_MESSAGES: Record<string, { code: string; message: string }> = {
 }
 
 export default ERROR_MESSAGES
-
-export class CustomError extends Error {
-    code: string
-    constructor(type: keyof typeof ERROR_MESSAGES) {
-        super(ERROR_MESSAGES[type].message)
-        this.name = 'CustomError'
-        this.code = ERROR_MESSAGES[type].code
-        Error.captureStackTrace(this, this.constructor)
-    }
-}
