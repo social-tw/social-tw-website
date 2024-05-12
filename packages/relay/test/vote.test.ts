@@ -316,7 +316,7 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Invalid Epoch')
+        expect(upvoteResponse.body.error).equal('Invalid epoch')
     })
 
     it('should vote failed with wrong proof', async function () {

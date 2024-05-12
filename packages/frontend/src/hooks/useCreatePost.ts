@@ -12,16 +12,21 @@ import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 
-async function publishPost(data: string) {
+async function publishPost(values: string) {
     const response = await fetch(`${SERVER}/api/post`, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(values),
     })
 
-    return await response.json()
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(data.error)
+    }
+    return data
 }
 
 export default function useCreatePost() {

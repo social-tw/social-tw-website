@@ -3,7 +3,7 @@ import { Express } from 'express'
 import { errorHandler } from '../services/singletons/errorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { EPOCHKEYS_AMOUNT } from '../config'
-import { InternalError } from '../types/InternalError'
+import { WrongEpochKeyNumberError } from '../types/InternalError'
 import { counterService } from '../services/CounterService'
 
 export default (
@@ -20,7 +20,7 @@ export default (
                     : undefined
             // each user has 3 epoch keys during the epoch
             if (!epks || epks.length != EPOCHKEYS_AMOUNT) {
-                throw new InternalError('wrong number of epks', 400)
+                throw WrongEpochKeyNumberError
             }
 
             const counter = await counterService.fetchActions(epks, db)

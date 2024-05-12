@@ -240,7 +240,6 @@ export class PostService {
             calldata
         )
 
-        // FIXME should be latest post id after contract changes
         const postId = logs
             .filter(
                 (log): log is ethers.utils.LogDescription =>
@@ -269,15 +268,11 @@ export class PostService {
         return { txHash, postId: postId }
     }
 
-    async fetchSinglePost(
-        id: string,
-        db: DB,
-        status: number | undefined
-    ): Promise<Post | null> {
+    async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,
-                status: status, // could be undefined
+                status: 1,
             },
         })
 
