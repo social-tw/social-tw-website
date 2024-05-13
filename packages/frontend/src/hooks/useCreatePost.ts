@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     ActionType,
     addAction,
@@ -6,82 +7,57 @@ import {
     PostData,
     succeedActionById,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
 import useActionCount from '@/hooks/useActionCount'
+import useWeb3Provider, {
+    getGuaranteedWeb3Provider,
+} from '@/hooks/useWeb3Provider'
+import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
+import useUserStateTransition from '@/hooks/useUserStateTransition'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
-import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../config'
-
-async function publishPost(values: string) {
-    const response = await fetch(`${SERVER}/api/post`, {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify(values),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-        throw Error(data.error)
-    }
-    return data
-}
+import { relayCreatePost } from '@/utils/api'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 
 export default function useCreatePost() {
-    const { userState, stateTransition, provider, loadData } = useUser()
+    const queryClient = useQueryClient()
+
+    const provider = useWeb3Provider()
+
+    const { userState } = useUserState()
+
+    const { stateTransition } = useUserStateTransition()
 
     const actionCount = useActionCount()
 
-    const create = async (content: string) => {
-        if (!userState) throw new Error('user state not initialized')
+    const {
+        isPending,
+        error,
+        reset,
+        mutateAsync: createPost,
+    } = useMutation({
+        mutationKey: [MutationKeys.CreatePost],
+        mutationFn: async ({ content }: { content: string }) => {
+            const _provider = getGuaranteedWeb3Provider(provider)
+            const _userState = getGuaranteedUserState(userState)
 
-        const postData: PostData = {
-            postId: undefined,
-            content: content,
-            epochKey: undefined,
-            transactionHash: undefined,
-        }
-        const actionId = addAction(ActionType.Post, postData)
-
-        try {
-            const latestTransitionedEpoch =
-                await userState.latestTransitionedEpoch()
-
-            if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-                await stateTransition()
-            }
+            await stateTransition()
 
             const nonce = getEpochKeyNonce(actionCount)
 
-            const epochKeyProof = await userState.genEpochKeyProof({
+            const proof = await _userState.genEpochKeyProof({
                 nonce,
             })
 
-            const epoch = Number(epochKeyProof.epoch)
-            const epochKey = epochKeyProof.epochKey.toString()
+            const epoch = Number(proof.epoch)
+            const epochKey = proof.epochKey.toString()
 
-            const proof = stringifyBigInts({
-                content,
-                publicSignals: epochKeyProof.publicSignals,
-                proof: epochKeyProof.proof,
-            })
+            const { txHash } = await relayCreatePost(proof, content)
 
-            const { txHash } = await publishPost(proof)
-            const receipt = await provider.waitForTransaction(txHash)
+            const receipt = await _provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(
                 receipt.logs[0].topics[2],
             ).toString()
 
-            await userState.waitForSync()
-            await loadData(userState)
-
-            succeedActionById(actionId, {
-                postId,
-                epochKey,
-                transactionHash: txHash,
-            })
+            await _userState.waitForSync()
 
             return {
                 transactionHash: txHash,
@@ -90,13 +66,43 @@ export default function useCreatePost() {
                 epoch,
                 epochKey,
             }
-        } catch (error) {
-            failActionById(actionId)
-            throw error
-        }
-    }
+        },
+        onMutate: (variables) => {
+            const postData: PostData = {
+                postId: undefined,
+                content: variables.content,
+                epochKey: undefined,
+                transactionHash: undefined,
+            }
+            const actionId = addAction(ActionType.Post, postData)
+            return { actionId }
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.actionId) {
+                failActionById(context.actionId)
+            }
+        },
+        onSuccess: (data, _variables, context) => {
+            succeedActionById(context.actionId, {
+                postId: data.postId,
+                epochKey: data.epochKey,
+                transactionHash: data.transactionHash,
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.ManyPosts],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.SinglePost, data.postId],
+            })
+        },
+    })
 
     return {
-        create,
+        isPending,
+        error,
+        reset,
+        createPost,
     }
 }

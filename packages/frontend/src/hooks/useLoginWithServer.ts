@@ -1,19 +1,26 @@
-import { useNavigate } from 'react-router-dom'
-import { useUser } from '../contexts/User'
 import { LocalStorageHelper } from '../utils/LocalStorageHelper'
+import { useMutation } from '@tanstack/react-query'
+import useLogin from './useLogin'
+import { MutationKeys } from '@/constants/queryKeys'
 
 export function useLoginWithServer() {
-    const navigate = useNavigate()
-    const { createUserState, setIsLogin, setErrorCode } = useUser()
-    const loginWithServer = async () => {
-        try {
-            await createUserState()
-            setIsLogin(true)
-            LocalStorageHelper.removeIsTwitterVerified()
-            navigate('/')
-        } catch (error: any) {
-            setErrorCode('MISSING_ELEMENT')
-        }
+    const { login: baseLogin } = useLogin()
+
+    const {
+        isPending,
+        error,
+        mutateAsync: login,
+    } = useMutation({
+        mutationKey: [MutationKeys.LoginWithServer],
+        mutationFn: async () => {
+            const signMsg = LocalStorageHelper.getGuaranteedSignMsg()
+            await baseLogin({ signature: signMsg })
+        },
+    })
+
+    return {
+        isPending,
+        error,
+        login,
     }
-    return loginWithServer
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useUser } from '../contexts/User'
+import useUserState from './useUserState'
 
 const epochLength = 300
 
@@ -19,7 +19,7 @@ export default function useEpoch() {
         [epoch, epochLength, remainingTime],
     )
 
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     useEffect(() => {
         if (!userState) return

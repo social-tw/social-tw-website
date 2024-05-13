@@ -5,7 +5,6 @@ import { GreetingLogo } from '../../components/greeting/GreetingLogo'
 import { GreetingTitle } from '../../components/greeting/GreetingTitle'
 import LoginButton from '../../components/login/LoginButton'
 import { PATHS } from '../../constants/paths'
-import { useUser } from '../../contexts/User'
 import {
     getVariantAutoScrollY,
     getVariantOpacityZeroToOne,
@@ -15,7 +14,6 @@ import WelcomeBackgroundList from '@/components/login/WelcomeBackgroundList'
 
 export function Welcome() {
     const navigate = useNavigate()
-    const { signupStatus } = useUser()
     const variantOpacityZeroToOne = getVariantOpacityZeroToOne()
     const variantAutoScrollY = getVariantAutoScrollY()
     return (
@@ -36,7 +34,6 @@ export function Welcome() {
                 animate="visible"
             >
                 <LoginButton
-                    isLoading={signupStatus === 'pending'}
                     onClick={() => navigate(PATHS.LOGIN)}
                     title="立即登入"
                     subTitle="歡迎提供你的獨到見解！"
@@ -44,7 +41,6 @@ export function Welcome() {
                     text="2xl"
                 />
                 <LoginButton
-                    isLoading={signupStatus === 'pending'}
                     onClick={() => navigate(PATHS.SIGN_UP)}
                     title="立即註冊"
                     subTitle="只要兩步驟，即可安全匿名分享你的想法！"

@@ -1,38 +1,44 @@
 import { useNavigate } from 'react-router-dom'
-import { useUser } from '../contexts/User'
 import { LocalStorageHelper } from '../utils/LocalStorageHelper'
+import useSignup from './useSignup'
+import { useMutation } from '@tanstack/react-query'
+import { MutationKeys } from '@/constants/queryKeys'
+import { useLoginWithServer } from './useLoginWithServer'
 
 export function useSignupWithServer() {
     const navigate = useNavigate()
+
+    const { signup: baseSignup } = useSignup()
+
+    const { login } = useLoginWithServer()
+
     const {
-        signup,
-        setIsLogin,
-        createUserState,
-        setErrorCode,
-        setSignupStatus,
-    } = useUser()
-    const signupWithServer = async () => {
-        try {
+        isPending,
+        error,
+        mutateAsync: signup,
+    } = useMutation({
+        mutationKey: [MutationKeys.SignupWithServer],
+        mutationFn: async () => {
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
             const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
-            const { userStateInstance, providerInstance } =
-                await createUserState()
 
-            setSignupStatus('pending')
+            await login()
+            setTimeout(() => {
+                baseSignup({
+                    hashUserId,
+                    accessToken,
+                    fromServer: true,
+                })
+            }, 0)
+        },
+        onMutate: () => {
             navigate('/')
-            await signup(
-                true,
-                userStateInstance,
-                hashUserId,
-                accessToken,
-                providerInstance,
-            )
-            setSignupStatus('success')
-            setIsLogin(true)
-        } catch (error: any) {
-            setSignupStatus('error')
-            setErrorCode('SIGNUP_FAILED')
-        }
+        },
+    })
+
+    return {
+        isPending,
+        error,
+        signup,
     }
-    return signupWithServer
 }

@@ -2,7 +2,6 @@ import { expect } from '@jest/globals'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { UserProvider } from '../../contexts/User'
 import { Welcome } from '../../pages/Welcome'
 
 jest.mock('@uidotdev/usehooks', () => ({
@@ -23,14 +22,12 @@ jest.mock('../../pages/Welcome/ExamplePostsList', () => ({
 test('Welcome should render', () => {
     render(
         <MemoryRouter>
-            <UserProvider>
-                <Welcome />
-            </UserProvider>
+            <Welcome />
         </MemoryRouter>,
     )
-    // @ts-ignore
+    // @ts-expect-error The property `toBeInTheDocument` should exist
     expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
-    // @ts-ignore
+    // @ts-expect-error The property `toBeInTheDocument` should exist
     expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
 
     // ... Add more tests as needed ...

@@ -1,4 +1,3 @@
-import { clsx } from 'clsx'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
@@ -7,18 +6,14 @@ import BellIcon from '@/assets/bell.svg'
 import HomeIcon from '@/assets/home.svg'
 import PersonCircleIcon from '@/assets/person-circle.svg'
 import StarIcon from '@/assets/star.svg'
-import SignUpLoadingModal from '@/components/login/SignupPendingTransition'
-import { SignupStatus } from '@/contexts/User'
+import SignupPendingTransition from '@/components/login/SignupPendingTransition'
+import { useIsMutating } from '@tanstack/react-query'
+import { MutationKeys } from '@/constants/queryKeys'
 
-interface MobileNavbarProps {
-    isShow: boolean
-    signupStatus: SignupStatus
-}
+export default function MobileBottomNav() {
+    const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
+    const isSigningUp = signingUpCount > 0
 
-export default function MobileBottomNav({
-    isShow,
-    signupStatus,
-}: MobileNavbarProps) {
     const navVariants = {
         start: { y: 100 },
         end: {
@@ -33,18 +28,9 @@ export default function MobileBottomNav({
 
     return (
         <>
-            {isShow ? (
-                <div
-                    className={clsx(
-                        `fixed bottom-0 w-screen`,
-                        signupStatus === 'default' ? 'h-56' : 'h-24',
-                    )}
-                >
-                    <SignUpLoadingModal
-                        status={signupStatus}
-                        isOpen={true}
-                        opacity={0}
-                    />
+            {isSigningUp ? (
+                <div className="fixed bottom-0 w-screen h-24">
+                    <SignupPendingTransition />
                 </div>
             ) : (
                 <motion.nav
@@ -70,7 +56,7 @@ export default function MobileBottomNav({
                     </NavLink>
                     <NavLink
                         className="flex items-center justify-center flex-1"
-                        to="/explore"
+                        to="/"
                     >
                         <StarIcon className="text-white w-14 h-14" />
                     </NavLink>
@@ -85,7 +71,7 @@ export default function MobileBottomNav({
                     </div>
                     <NavLink
                         className="flex items-center justify-center flex-1"
-                        to="/nofitication"
+                        to="/"
                     >
                         <BellIcon className="text-white w-14 h-14" />
                     </NavLink>

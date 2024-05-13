@@ -3,14 +3,14 @@ import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { useEffect } from 'react'
 import { SERVER } from '../config'
-import { useUser } from '../contexts/User'
 import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import useActionCount from './useActionCount'
 import { VoteAction, VoteMsg } from '@/types/Vote'
+import useUserState from './useUserState'
 
 export default function useVotes() {
-    const { userState, loadData } = useUser()
+    const { userState } = useUserState()
 
     const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryVotesFlow,
@@ -44,8 +44,6 @@ export default function useVotes() {
                 ),
             })
             await userState.waitForSync()
-
-            await loadData(userState)
 
             await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 

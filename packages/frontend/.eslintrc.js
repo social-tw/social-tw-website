@@ -30,5 +30,17 @@ module.exports = {
         'prettier/prettier': 'error',
         'react/react-in-jsx-scope': 'off',
         'no-console': ['error', { allow: ['warn', 'error'] }],
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                args: 'all',
+                argsIgnorePattern: '^_',
+                caughtErrors: 'all',
+                caughtErrorsIgnorePattern: '^_',
+                destructuredArrayIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                ignoreRestSiblings: true,
+            },
+        ],
     },
 }

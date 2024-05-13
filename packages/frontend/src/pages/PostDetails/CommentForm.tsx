@@ -5,11 +5,10 @@ import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
 import MobileCommentForm, {
     CommentValues,
 } from '@/components/comment/MobileCommentForm'
+import useUserState from '@/hooks/useUserState'
 import useCreateComment from '@/hooks/useCreateComment'
-import { useQueryClient } from '@tanstack/react-query'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
-import { useUser } from '@/contexts/User'
 import { UserState } from '@unirep/core'
 
 interface CommentFormProps {
@@ -23,35 +22,26 @@ const CommentForm: React.FC<CommentFormProps> = ({
     isOpen = false,
     onClose = () => {},
 }) => {
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryCommentsFlow,
     )
 
-    const queryClient = useQueryClient()
-
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const { create: createCommnet } = useCreateComment()
+    const { isPending, createComment } = useCreateComment()
 
     const onSubmit = async (values: CommentValues) => {
         try {
             if (!postId || !userState) return
+            onClose()
 
             const { content } = values
 
-            setIsSubmitting(true)
-            onClose()
-
-            await createCommnet(postId, content)
-
-            await queryClient.invalidateQueries({
-                queryKey: ['comments', postId],
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: ['post', postId],
+            await createComment({
+                postId,
+                content,
             })
 
             await invokeFetchHistoryCommentsFlow(
@@ -59,22 +49,26 @@ const CommentForm: React.FC<CommentFormProps> = ({
             )
 
             toast('留言成功送出')
-        } catch (error) {
+        } catch {
             setIsSubmitting(false)
         }
     }
 
     useEffect(() => {
-        if (!isSubmitting) return
+        if (isPending) {
+            setIsSubmitting(true)
 
-        const timer = setTimeout(() => {
+            const timer = setTimeout(() => {
+                setIsSubmitting(false)
+            }, 5000)
+
+            return () => {
+                clearTimeout(timer)
+            }
+        } else {
             setIsSubmitting(false)
-        }, 5000)
-
-        return () => {
-            clearTimeout(timer)
         }
-    }, [isSubmitting])
+    }, [isPending])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 

@@ -1,15 +1,13 @@
 import useEpoch from '@/hooks/useEpoch'
 import { renderHook, waitFor } from '@testing-library/react'
 
-jest.mock('@/contexts/User', () => ({
-    useUser: () => ({
-        userState: {
-            sync: {
-                calcEpochRemainingTime: jest.fn().mockReturnValue(100),
-                calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-            },
+jest.mock('@/hooks/useUserState', () => ({
+    userState: {
+        sync: {
+            calcEpochRemainingTime: jest.fn().mockReturnValue(100),
+            calcCurrentEpoch: jest.fn().mockReturnValue(9999),
         },
-    }),
+    },
 }))
 
 describe('useEpoch', () => {

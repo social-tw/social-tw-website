@@ -5,8 +5,6 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PATHS } from './constants/paths'
-import { ProtectedRoute } from './contexts/ProtectedRoute'
-import { UserProvider } from './contexts/User'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
@@ -24,6 +22,7 @@ import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
 import PostDetails from './pages/PostDetails'
 import TwitterCallback from './pages/Login/TwitterCallback'
+import ProtectedRoute from './components/ProtectedRoute'
 
 dayjs.extend(relativeTime)
 
@@ -59,7 +58,11 @@ const router = createBrowserRouter([
         ],
     },
     {
-        element: <BaseLayout />,
+        element: (
+            <ProtectedRoute>
+                <BaseLayout />
+            </ProtectedRoute>
+        ),
         errorElement: <ErrorPage />,
         children: [
             {
@@ -68,11 +71,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: PATHS.HOME,
-                        element: (
-                            <ProtectedRoute>
-                                <Home />
-                            </ProtectedRoute>
-                        ),
+                        element: <Home />,
                     },
                     {
                         path: PATHS.VIEW_POST,
@@ -84,11 +83,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'profile',
-                        element: (
-                            <ProtectedRoute>
-                                <ProfileLayout />
-                            </ProtectedRoute>
-                        ),
+                        element: <ProfileLayout />,
                         children: [
                             {
                                 path: '',
@@ -120,11 +115,7 @@ const router = createBrowserRouter([
             },
             {
                 path: PATHS.WRITE_POST,
-                element: (
-                    <ProtectedRoute>
-                        <CreatePost />
-                    </ProtectedRoute>
-                ),
+                element: <CreatePost />,
             },
         ],
     },
@@ -135,9 +126,7 @@ const queryClient = new QueryClient()
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <UserProvider>
-                <RouterProvider router={router} />
-            </UserProvider>
+            <RouterProvider router={router} />
         </QueryClientProvider>
     )
 }

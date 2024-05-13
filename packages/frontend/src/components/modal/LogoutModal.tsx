@@ -1,9 +1,7 @@
 import React from 'react'
 import { GrFormClose } from 'react-icons/gr'
-import { useNavigate } from 'react-router-dom'
-import { PATHS } from '../../constants/paths'
-import { useUser } from '../../contexts/User'
 import Backdrop from '../common/Backdrop'
+import useLogout from '@/hooks/useLogout'
 
 interface LogoutModalProps {
     isOpen: boolean
@@ -11,13 +9,8 @@ interface LogoutModalProps {
 }
 
 export default function LogoutModal({ isOpen, closeModal }: LogoutModalProps) {
-    const { logout, signupStatus } = useUser()
-    const isPending = signupStatus === 'pending'
-    const navigate = useNavigate()
-    const handleClick = () => {
-        navigate(PATHS.WELCOME, { replace: true, state: {} })
-        logout()
-    }
+    const { isPending, logout } = useLogout()
+
     return (
         <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/75'}>
             <div className="flex items-center justify-center w-full h-full p-4">
@@ -40,7 +33,7 @@ export default function LogoutModal({ isOpen, closeModal }: LogoutModalProps) {
                     <div className="grid grid-cols-2 gap-8">
                         <button
                             className="w-full py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg"
-                            onClick={handleClick}
+                            onClick={() => logout()}
                             disabled={isPending}
                         >
                             確認登出

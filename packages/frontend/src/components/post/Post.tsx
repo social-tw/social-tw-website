@@ -7,7 +7,6 @@ import Avatar from '@/components/common/Avatar'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import { useUser } from '../../contexts/User'
 import useVotes from '../../hooks/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
@@ -15,6 +14,7 @@ import useVoteStore from '../../store/useVoteStore'
 import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import useIsLogin from '@/hooks/useIsLogin'
 
 export default function Post({
     id = '',
@@ -53,7 +53,8 @@ export default function Post({
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
-    const { isLogin } = useUser()
+    const { isLoggedIn } = useIsLogin()
+
     const { create } = useVotes()
     // 'upvote', 'downvote', or null
     const { votes, updateVote } = useVoteStore()
@@ -217,7 +218,7 @@ export default function Post({
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.UPVOTE)}
-                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
+                        style={{ cursor: isLoggedIn ? 'pointer' : 'not-allowed' }}
                     >
                         <div
                             className={`${
@@ -239,7 +240,7 @@ export default function Post({
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.DOWNVOTE)}
-                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
+                        style={{ cursor: isLoggedIn ? 'pointer' : 'not-allowed' }}
                     >
                         <div
                             className={`${
@@ -268,7 +269,7 @@ export default function Post({
                             src={Comment}
                             alt="comment"
                             style={{
-                                cursor: isLogin ? 'pointer' : 'not-allowed',
+                                cursor: isLoggedIn ? 'pointer' : 'not-allowed',
                             }}
                         />
                         <span className="text-xs font-medium tracking-wide text-black/80">

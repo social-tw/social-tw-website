@@ -5,7 +5,7 @@ import { IconType } from 'react-icons'
 interface LoginButtonProps {
     icon?: IconType
     iconSize?: number
-    isLoading: boolean
+    isLoading?: boolean
     onClick?: () => void
     title: string
     subTitle?: string
@@ -17,7 +17,7 @@ interface LoginButtonProps {
 export default function LoginButton({
     icon: Icon,
     onClick,
-    isLoading,
+    isLoading = false,
     title,
     subTitle,
     color,

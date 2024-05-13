@@ -7,32 +7,41 @@ import {
 import useRemoveComment from '@/hooks/useRemoveComment'
 import { act, renderHook } from '@testing-library/react'
 
-jest.mock('@/contexts/User', () => ({
-    useUser: () => ({
-        userState: {
-            latestTransitionedEpoch: jest.fn().mockResolvedValue(9999),
-            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
-                publicSignals: 'mocked_signals',
-                proof: 'mocked_proof',
-            }),
-            waitForSync: jest.fn().mockResolvedValue('success'),
-            sync: {
-                calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-            },
-        },
-        stateTransition: jest.fn().mockResolvedValue('success'),
-        provider: {
-            waitForTransaction: jest.fn().mockResolvedValue('success'),
-        },
-        loadData: jest.fn().mockResolvedValue('success'),
-    }),
-}))
-
 jest.mock('@/contexts/Actions', () => ({
     addAction: jest.fn(),
     failActionById: jest.fn(),
     succeedActionById: jest.fn(),
     ActionType: { DeleteComment: 'deleteComment' },
+}))
+
+jest.mock('@/hooks/useWeb3Provider', () => ({
+    waitForTransaction: jest.fn().mockResolvedValue({
+        logs: [
+            {
+                topics: ['', '', '', '1111'],
+            },
+        ],
+    }),
+}))
+
+jest.mock('@/hooks/useUserState', () => ({
+    userState: {
+        latestTransitionedEpoch: jest.fn().mockResolvedValue(9999),
+        genEpochKeyProof: jest.fn().mockResolvedValue({
+            publicSignals: 'mocked_signals',
+            proof: 'mocked_proof',
+            epoch: 0,
+            epochKey: 'mocked_epockKey',
+        }),
+        waitForSync: jest.fn().mockResolvedValue('success'),
+        sync: {
+            calcCurrentEpoch: jest.fn().mockReturnValue(9999),
+        },
+    },
+}))
+
+jest.mock('@/hooks/useUserStateTransition', () => ({
+    stateTransition: jest.fn().mockResolvedValue('success'),
 }))
 
 beforeEach(() => {
@@ -59,7 +68,12 @@ describe('useRemoveComment', () => {
         const nonce = 1
 
         await act(async () => {
-            await result.current.remove(postId, commentId, epoch, nonce)
+            await result.current.removeComment({
+                postId,
+                commentId,
+                epoch,
+                nonce,
+            })
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {
@@ -87,7 +101,12 @@ describe('useRemoveComment', () => {
         const nonce = 1
 
         await act(async () => {
-            await result.current.remove(postId, commentId, epoch, nonce)
+            await result.current.removeComment({
+                postId,
+                commentId,
+                epoch,
+                nonce,
+            })
         })
 
         expect(addAction).toHaveBeenCalledWith(ActionType.DeleteComment, {

@@ -2,16 +2,14 @@ import '@testing-library/jest-dom'
 import EpochInfo from '@/components/layout/EpochInfo'
 import { render, screen } from '@testing-library/react'
 
-jest.mock('@/contexts/User', () => ({
-    useUser: () => ({
-        userState: {
-            sync: {
-                calcEpochRemainingTime: jest.fn().mockReturnValue(100),
-                calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-                getEpochKeys: jest.fn().mockReturnValue('epochkey'),
-            },
+jest.mock('@/hooks/useUserState', () => ({
+    userState: {
+        sync: {
+            calcEpochRemainingTime: jest.fn().mockReturnValue(100),
+            calcCurrentEpoch: jest.fn().mockReturnValue(9999),
+            getEpochKeys: jest.fn().mockReturnValue('epochkey'),
         },
-    }),
+    },
 }))
 
 jest.mock('@/hooks/useActionCount', () => {
