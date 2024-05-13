@@ -13,7 +13,7 @@ interface CyanButtonProps {
     text: string
 }
 
-export const CyanButton: React.FC<CyanButtonProps> = ({
+export function CyanButton({
     icon: Icon,
     onClick,
     isLoading,
@@ -22,7 +22,7 @@ export const CyanButton: React.FC<CyanButtonProps> = ({
     start,
     text,
     iconSize,
-}) => {
+}: CyanButtonProps) {
     return (
         <button
             type="button"

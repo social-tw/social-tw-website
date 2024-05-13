@@ -12,12 +12,12 @@ interface DesktopCommentFormProps {
     disabled?: boolean
 }
 
-const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
+export default function DesktopCommentForm({
     isOpen = false,
     onCancel = () => {},
     onSubmit = () => {},
     disabled = false,
-}) => {
+}: DesktopCommentFormProps) {
     const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
         defaultValues: {
             content: '',
@@ -83,5 +83,3 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
         </Backdrop>
     )
 }
-
-export default DesktopCommentForm

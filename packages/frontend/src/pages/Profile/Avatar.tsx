@@ -1,6 +1,6 @@
 import AvatarIcon from '../../assets/avatar.png'
 
-export const Avatar = () => {
+export default function Avatar() {
     return (
         <div className="flex items-center gap-4">
             <div
