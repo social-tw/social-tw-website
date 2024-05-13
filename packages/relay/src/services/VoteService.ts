@@ -73,7 +73,7 @@ export class VoteService {
                 epochKey: epochKey,
             },
         })
-
+        console.log('findVote', findVote)
         this.verifyVoteAction(voteAction, findVote)
 
         await this.executeTx(
@@ -187,24 +187,24 @@ export class VoteService {
                 break
         }
 
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            let actionCount
-            if (createVote) {
-                txDB.create('Vote', voteCreateStatement)
-                actionCount = 1
-            } else {
-                txDB.delete('Vote', voteDeleteStatement)
-                // epk cancel the action, decrease 1 count
-                actionCount = -1
-            }
-            txDB.update('Post', postStatement)
+        let actionCount: number
+        if (createVote) {
+            await db.create('Vote', voteCreateStatement)
+            actionCount = 1
+        } else {
+            await db.delete('Vote', voteDeleteStatement)
+            // epk cancel the action, decrease 1 count
+            actionCount = -1
+        }
+        await db.update('Post', postStatement)
 
-            socketManager.emitVote({
-                postId: postId,
-                epoch: epoch,
-                vote: voteAction,
-            })
+        socketManager.emitVote({
+            postId: postId,
+            epoch: epoch,
+            vote: voteAction,
+        })
 
+        await ActionCountManager.addActionCount(db, epochKey, epoch, (_) => {
             return actionCount
         })
     }
