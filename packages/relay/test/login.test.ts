@@ -191,7 +191,6 @@ describe('LOGIN /login', function () {
             userState
         )
 
-        // TODO: wait txhash
         await express
             .post('/api/signup')
             .set('content-type', 'application/json')
@@ -206,6 +205,7 @@ describe('LOGIN /login', function () {
                 expect(res.body.status).to.equal('success')
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
+                ethers.provider.waitForTransaction(res.body.hash)
             })
 
         await userState.waitForSync()
@@ -302,7 +302,6 @@ describe('LOGIN /login', function () {
             userState
         )
 
-        // TODO: wait txhash
         await express
             .post('/api/signup')
             .set('content-type', 'application/json')
@@ -317,6 +316,7 @@ describe('LOGIN /login', function () {
                 expect(res.body.status).to.equal('success')
                 expect(res.body.hash).to.be.not.null
                 expect(res).to.have.status(200)
+                ethers.provider.waitForTransaction(res.body.hash)
             })
 
         await userState.waitForSync()

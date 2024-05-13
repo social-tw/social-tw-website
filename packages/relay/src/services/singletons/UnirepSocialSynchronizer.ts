@@ -7,6 +7,7 @@ import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
 import { socketManager } from './SocketManager'
 import { UserRegisterStatus } from '../../types'
+import ActionCountManager from './ActionCountManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -58,48 +59,14 @@ export class UnirepSocialSynchronizer extends Synchronizer {
     // If server restarts, synchronizer will fetch all events from the smart contract.
     // However, action counts are only valid on the current epoch, so synchronizer
     // only updates action count if the epoch is the same with smart contract
-    async updateActionCount(txDB: TransactionDB, epochKey: string, epoch: number) {
-        // TODO: consider to remove action count manager
+    async updateActionCount(db: DB, epochKey: string, epoch: number) {
         const currentEpoch = this.calcCurrentEpoch()
         if (currentEpoch == epoch) {
-            // update action counter
-            const actionCount = 1
-
-            const counter = await this.db.findOne('EpochKeyAction', {
-                where: {
-                    epochKey: epochKey,
-                },
-            })
-
-            const count = counter
-                ? counter.count + actionCount
-                : actionCount
-
-            if (count == 0) {
-                txDB.delete('EpochKeyAction', {
-                    where: {
-                        epochKey: epochKey,
-                    },
-                })
-            } else {
-                txDB.upsert('EpochKeyAction', {
-                    where: {
-                        epochKey: epochKey,
-                    },
-                    create: {
-                        epochKey: epochKey,
-                        epoch: epoch,
-                        count: count,
-                    },
-                    update: {
-                        count: count,
-                    },
-                })
-            }
+            ActionCountManager.addActionCount(db, epochKey, epoch, 1)
         }
     }
 
-    // once user signup, save the hash user id into db
+    // After the user is on-chain, update the signup status
     async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
         const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
         const fromServer = ethers.utils.defaultAbiCoder.decode(
@@ -116,6 +83,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
     }
 
+    // After the post is on-chain, update the post id and status
     async handlePost({ event, db, decodedData }: EventHandlerArgs) {
         const transactionHash = event.transactionHash
         const epochKey = toDecString(event.topics[1])
@@ -130,7 +98,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        await this.updateActionCount(db, epochKey, epoch)
+        await this.updateActionCount(this.db, epochKey, epoch)
 
         return true
     }
@@ -192,7 +160,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        await this.updateActionCount(db, epochKey, epoch)
+        await this.updateActionCount(this.db, epochKey, epoch)
 
         socketManager.emitComment({
             id: commentId,
@@ -205,6 +173,9 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         return true
     }
 
+    // for now updated comment only for delete comment use,
+    // after updated comment on-chain, update the comment status
+    // and update the comment count of post
     async handleUpdatedComment({ event, db, decodedData }: EventHandlerArgs) {
         const epochKey = toDecString(event.topics[1])
         const postId = toDecString(event.topics[2])
@@ -234,7 +205,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        await this.updateActionCount(db, epochKey, epoch)
+        await this.updateActionCount(this.db, epochKey, epoch)
 
         return true
     }

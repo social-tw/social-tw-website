@@ -22,40 +22,36 @@ describe('My Account Page', function () {
         const epoch = 1
 
         // insert mock post
+        await db.create('Post', {
+            content: 'content',
+            cid: 'cid',
+            epochKey: postEpochKey,
+            epoch: epoch,
+            transactionHash: 'txnHash',
+            _id: '1',
+            postId: '0',
+            status: 1,
+        })
         await ActionCountManager.addActionCount(
             db,
             postEpochKey,
             epoch,
-            (txDB) => {
-                txDB.create('Post', {
-                    content: 'content',
-                    cid: 'cid',
-                    epochKey: postEpochKey,
-                    epoch: epoch,
-                    transactionHash: 'txnHash',
-                    _id: '1',
-                    postId: '0',
-                    status: 1,
-                })
-                return 1
-            }
+            1
         )
 
         // insert mock vote
+        await db.create('Vote', {
+            epochKey: voteEpochKey,
+            epoch: epoch,
+            postId: '1',
+            _id: '1',
+            upVote: true,
+        })
         await ActionCountManager.addActionCount(
             db,
             voteEpochKey,
             epoch,
-            (txDB) => {
-                txDB.create('Vote', {
-                    epochKey: voteEpochKey,
-                    epoch: epoch,
-                    postId: '1',
-                    _id: '1',
-                    upVote: true,
-                })
-                return 1
-            }
+            1
         )
     })
 
