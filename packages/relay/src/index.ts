@@ -25,6 +25,7 @@ import { postService } from './services/PostService'
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
 import prover from './services/singletons/prover'
 import schema from './db/schema'
+import cors from 'cors'
 
 main().catch((err) => {
     console.error(`Uncaught error: ${err}`)
@@ -38,6 +39,24 @@ async function main() {
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
 
     await postService.start(db)
+
+    const app = express()
+
+    // setting cors
+    app.use(
+        cors({
+            origin: CLIENT_URL,
+        })
+    )
+
+    const httpServer = createServer(app)
+    new SocketManager(httpServer)
+    const port = process.env.PORT ?? 8000
+
+    app.use(express.json())
+    app.use('/build', express.static(path.join(__dirname, '../keys')))
+
+    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     const synchronizer = new UnirepSocialSynchronizer(
         {
@@ -60,24 +79,6 @@ async function main() {
 
     TransactionManager.configure(PRIVATE_KEY, provider, synchronizer.db)
     await TransactionManager.start()
-
-    const app = express()
-
-    // setting cors
-    app.use((req, res, next) => {
-        res.set('access-control-allow-origin', CLIENT_URL)
-        res.set('access-control-allow-headers', '*')
-        next()
-    })
-
-    const httpServer = createServer(app)
-    new SocketManager(httpServer)
-    const port = process.env.PORT ?? 8000
-
-    app.use(express.json())
-    app.use('/build', express.static(path.join(__dirname, '../keys')))
-
-    httpServer.listen(port, () => console.log(`Listening on port ${port}`))
 
     // import all non-index files from this folder
     const routeDir = path.join(__dirname, 'routes')
