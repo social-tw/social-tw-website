@@ -32,12 +32,7 @@ describe('My Account Page', function () {
             postId: '0',
             status: 1,
         })
-        await ActionCountManager.addActionCount(
-            db,
-            postEpochKey,
-            epoch,
-            1
-        )
+        await ActionCountManager.addActionCount(db, postEpochKey, epoch, 1)
 
         // insert mock vote
         await db.create('Vote', {
@@ -47,12 +42,7 @@ describe('My Account Page', function () {
             _id: '1',
             upVote: true,
         })
-        await ActionCountManager.addActionCount(
-            db,
-            voteEpochKey,
-            epoch,
-            1
-        )
+        await ActionCountManager.addActionCount(db, voteEpochKey, epoch, 1)
     })
 
     after(async function () {

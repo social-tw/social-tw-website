@@ -7,23 +7,21 @@ export class ActionCountManager {
         db: DB,
         epochKey: string,
         epoch: number,
-        actionCount: number,
+        actionCount: number
     ): Promise<void> {
         const counter = await db.findOne('EpochKeyAction', {
             where: {
                 epochKey: epochKey,
-            }
+            },
         })
 
-        const count = counter
-            ? counter.count + actionCount
-            : actionCount
+        const count = counter ? counter.count + actionCount : actionCount
 
         if (count == 0) {
             await db.delete('EpochKeyAction', {
                 where: {
                     epochKey: epochKey,
-                }
+                },
             })
         } else {
             await db.upsert('EpochKeyAction', {
