@@ -189,7 +189,7 @@ describe('COMMENT /comment', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid Epoch')
+                expect(res.body.error).equal('Invalid epoch')
             })
     })
 

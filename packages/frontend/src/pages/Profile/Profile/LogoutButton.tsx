@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { RiLogoutBoxRLine } from 'react-icons/ri'
 import LoginButton from '../../../components/login/LoginButton'
-import { LogoutModal } from '../../../components/modal/LogoutModal'
+import LogoutModal from '@/components/modal/LogoutModal'
 
-export const LogoutButton = () => {
+export default function LogoutButton() {
     const [isOpen, setIsOpen] = useState(false)
     return (
         <>

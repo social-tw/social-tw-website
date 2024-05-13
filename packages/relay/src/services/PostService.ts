@@ -129,13 +129,12 @@ export class PostService {
     // end = page + LOAD_POST_COUNT ... end index
     // slice(page, end) ... the end element will be excluded
     async fetchPosts(
-        query: string | undefined,
         epks: string[] | undefined,
         page: number,
         db: DB
     ): Promise<Post[] | null> {
         let posts: Post[]
-        if (!query) {
+        if (!epks) {
             const start = (page - 1) * LOAD_POST_COUNT
             if (this.cache.length == 0) {
                 // anondb doesn't have offset property to
@@ -158,7 +157,6 @@ export class PostService {
                 posts = this.cache.slice(start, start + LOAD_POST_COUNT)
             }
         } else {
-            // TODO: check epks is undefined case ?
             posts = await db.findMany('Post', {
                 where: {
                     epochKey: epks,
@@ -242,7 +240,6 @@ export class PostService {
             calldata
         )
 
-        // FIXME should be latest post id after contract changes
         const postId = logs
             .filter(
                 (log): log is ethers.utils.LogDescription =>
@@ -271,15 +268,11 @@ export class PostService {
         return { txHash, postId: postId }
     }
 
-    async fetchSinglePost(
-        id: string,
-        db: DB,
-        status: number | undefined
-    ): Promise<Post | null> {
+    async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,
-                status: status, // could be undefined
+                status: 1,
             },
         })
 
