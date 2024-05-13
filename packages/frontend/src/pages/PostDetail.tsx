@@ -19,6 +19,7 @@ import { useLocation, useParams } from 'react-router-dom'
 import { PostInfo, PostStatus } from '../types'
 import checkVoteIsMine from '../utils/checkVoteIsMine'
 import { useProfileHistoryStore } from './Profile/History/store/useProfileHistoryStore'
+import useFetchSinglePost from '@/hooks/useFetchSinglePost'
 
 export default function PostDetail() {
     const { id } = useParams()
@@ -30,7 +31,8 @@ export default function PostDetail() {
         (state) => state.invokeFetchHistoryCommentsFlow,
     )
 
-    const [post, setPost] = useState<PostInfo>()
+    // const [post, setPost] = useState<PostInfo>()
+    const { data: post, isLoading, error} = useFetchSinglePost(id)
     const [isOpenComment, setIsOpenCommnet] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
     const [isError, setIsError] = useState(false)
@@ -66,35 +68,35 @@ export default function PostDetail() {
         await invokeFetchHistoryCommentsFlow(userState as unknown as UserState)
     }
 
-    useEffect(() => {
-        async function loadPost() {
-            const response = await fetch(`${SERVER}/api/post/${id}`)
-            const post = await response.json()
+    // useEffect(() => {
+    //     async function loadPost() {
+    //         const response = await fetch(`${SERVER}/api/post/${id}`)
+    //         const post = await response.json()
 
-            let isMine = false
-            let finalAction = null
-            if (userState) {
-                const voteCheck = checkVoteIsMine(post.votes, userState)
-                isMine = voteCheck.isMine
-                finalAction = voteCheck.finalAction
-            }
-            setPost({
-                id: post._id,
-                postId: post.postId,
-                epochKey: post.epochKey,
-                content: post.content,
-                publishedAt: new Date(Number(post.publishedAt)),
-                commentCount: post.commentCount,
-                upCount: post.upCount,
-                downCount: post.downCount,
-                isMine: isMine,
-                finalAction: finalAction,
-                status: PostStatus.Success,
-            })
-        }
+    //         let isMine = false
+    //         let finalAction = null
+    //         if (userState) {
+    //             const voteCheck = checkVoteIsMine(post.votes, userState)
+    //             isMine = voteCheck.isMine
+    //             finalAction = voteCheck.finalAction
+    //         }
+    //         setPost({
+    //             id: post._id,
+    //             postId: post.postId,
+    //             epochKey: post.epochKey,
+    //             content: post.content,
+    //             publishedAt: new Date(Number(post.publishedAt)),
+    //             commentCount: post.commentCount,
+    //             upCount: post.upCount,
+    //             downCount: post.downCount,
+    //             isMine: isMine,
+    //             finalAction: finalAction,
+    //             status: PostStatus.Success,
+    //         })
+    //     }
 
-        loadPost()
-    }, [id, userState])
+    //     loadPost()
+    // }, [id, userState])
 
     const location = useLocation()
 

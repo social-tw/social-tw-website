@@ -7,6 +7,7 @@ import {
     FetchPostsByEpochKeysResponse,
     FetchVotesByEpochKeysParams,
     FetchVotesByEpochKeysResponse,
+    RelayRawPost,
     SortKeys,
 } from '../types/api'
 
@@ -17,6 +18,11 @@ export async function fetchRelayConfig() {
 
 export async function fetchLogin() {
     const res = await fetch(`${SERVER}/api/login`)
+    return res.json()
+}
+
+export async function fetchSinglePost(postId: string): Promise<RelayRawPost> {
+    const res = await fetch(`${SERVER}/api/post/${postId}`)
     return res.json()
 }
 

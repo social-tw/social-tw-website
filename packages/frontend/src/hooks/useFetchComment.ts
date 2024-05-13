@@ -8,6 +8,7 @@ import {
 import { useUser } from '@/contexts/User'
 import { CommentInfo, CommentStatus, CommnetDataFromApi } from '@/types'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
+import { useQuery } from '@tanstack/react-query'
 
 async function fetchCommentsByPostId(
     postId: string,
@@ -30,10 +31,13 @@ async function fetchCommentsByPostId(
 }
 
 export default function useFetchComment(postId?: string) {
-    const [comments, setComments] = useState<CommentInfo[]>([])
     const { userState } = useUser()
-
     const commentActions = useActionStore(commentActionsSelector)
+    const { data: fetchedComments, isLoading, error } = useQuery({
+        queryKey: ['comments', postId],
+        queryFn: () => postId ? fetchCommentsByPostId(postId) : Promise.reject(new Error("postId is undefined")),
+        enabled: !!postId, 
+    });
 
     const allComments = useMemo(() => {
         const localComments: CommentInfo[] = commentActions.map((action) => ({
@@ -42,40 +46,28 @@ export default function useFetchComment(postId?: string) {
             status: action.status as unknown as CommentStatus,
             isMine: true,
         }))
-        return [...comments, ...localComments]
-    }, [comments])
+        
+        const apiComments: CommentInfo[] = fetchedComments?.map((comment) => {
+            const isMine = userState ? checkCommentIsMine(comment, userState) : false;
+            return {
+                postId: postId ?? "defaultId",
+                commentId: comment.commentId,
+                epoch: comment.epoch,
+                epochKey: comment.epochKey,
+                content: comment.content,
+                publishedAt: comment.publishedAt,
+                transactionHash: comment.transactionHash,
+                status: CommentStatus.Success,
+                isMine: isMine,
+            };
+        }) || [];
 
-    useEffect(() => {
-        const loadComments = async () => {
-            if (!postId) return
-
-            const comments = await fetchCommentsByPostId(postId)
-
-            const successfulComments = comments.map((comment) => {
-                const isMine = userState
-                    ? checkCommentIsMine(comment, userState)
-                    : false
-
-                return {
-                    postId: postId,
-                    commentId: comment.commentId,
-                    epoch: comment.epoch,
-                    epochKey: comment.epochKey,
-                    content: comment.content,
-                    publishedAt: comment.publishedAt,
-                    transactionHash: comment.transactionHash,
-                    status: CommentStatus.Success,
-                    isMine: isMine,
-                }
-            })
-
-            setComments([...successfulComments])
-        }
-
-        loadComments()
-    }, [userState])
+        return [...apiComments, ...localComments]
+    }, [commentActions, fetchedComments, userState])
 
     return {
         data: allComments,
+        isLoading,
+        error,
     }
 }
