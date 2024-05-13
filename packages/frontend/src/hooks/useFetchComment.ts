@@ -33,11 +33,18 @@ async function fetchCommentsByPostId(
 export default function useFetchComment(postId?: string) {
     const { userState } = useUser()
     const commentActions = useActionStore(commentActionsSelector)
-    const { data: fetchedComments, isLoading, error } = useQuery({
+    const {
+        data: fetchedComments,
+        isLoading,
+        error,
+    } = useQuery({
         queryKey: ['comments', postId],
-        queryFn: () => postId ? fetchCommentsByPostId(postId) : Promise.reject(new Error("postId is undefined")),
-        enabled: !!postId, 
-    });
+        queryFn: () =>
+            postId
+                ? fetchCommentsByPostId(postId)
+                : Promise.reject(new Error('postId is undefined')),
+        enabled: !!postId,
+    })
 
     const allComments = useMemo(() => {
         const localComments: CommentInfo[] = commentActions.map((action) => ({
@@ -46,21 +53,24 @@ export default function useFetchComment(postId?: string) {
             status: action.status as unknown as CommentStatus,
             isMine: true,
         }))
-        
-        const apiComments: CommentInfo[] = fetchedComments?.map((comment) => {
-            const isMine = userState ? checkCommentIsMine(comment, userState) : false;
-            return {
-                postId: postId ?? "defaultId",
-                commentId: comment.commentId,
-                epoch: comment.epoch,
-                epochKey: comment.epochKey,
-                content: comment.content,
-                publishedAt: comment.publishedAt,
-                transactionHash: comment.transactionHash,
-                status: CommentStatus.Success,
-                isMine: isMine,
-            };
-        }) || [];
+
+        const apiComments: CommentInfo[] =
+            fetchedComments?.map((comment) => {
+                const isMine = userState
+                    ? checkCommentIsMine(comment, userState)
+                    : false
+                return {
+                    postId: postId ?? 'defaultId',
+                    commentId: comment.commentId,
+                    epoch: comment.epoch,
+                    epochKey: comment.epochKey,
+                    content: comment.content,
+                    publishedAt: comment.publishedAt,
+                    transactionHash: comment.transactionHash,
+                    status: CommentStatus.Success,
+                    isMine: isMine,
+                }
+            }) || []
 
         return [...apiComments, ...localComments]
     }, [commentActions, fetchedComments, userState])

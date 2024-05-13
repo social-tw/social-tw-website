@@ -32,7 +32,7 @@ export default function PostDetail() {
     )
 
     // const [post, setPost] = useState<PostInfo>()
-    const { data: post, isLoading, error} = useFetchSinglePost(id)
+    const { data: post, isLoading, error } = useFetchSinglePost(id)
     const [isOpenComment, setIsOpenCommnet] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
     const [isError, setIsError] = useState(false)
