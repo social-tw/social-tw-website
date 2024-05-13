@@ -270,7 +270,7 @@ describe('POST /post', function () {
         const offChainPost = await sqlite.findOne('Post', {
             where: {
                 transactionHash: transaction,
-            }
+            },
         })
 
         expect(offChainPost.status).equal(0)

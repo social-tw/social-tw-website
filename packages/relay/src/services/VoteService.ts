@@ -204,7 +204,12 @@ export class VoteService {
             vote: voteAction,
         })
 
-        await ActionCountManager.addActionCount(db, epochKey, epoch, actionCount)
+        await ActionCountManager.addActionCount(
+            db,
+            epochKey,
+            epoch,
+            actionCount
+        )
     }
 }
 
