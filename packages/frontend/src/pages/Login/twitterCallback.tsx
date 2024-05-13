@@ -1,8 +1,8 @@
-import { PATHS } from "@/constants/paths"
-import { SIGNUP_METHODS } from "@/constants/signupMethods"
-import { LocalStorageHelper } from "@/utils/LocalStorageHelper"
-import { useEffect } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { PATHS } from '@/constants/paths'
+import { SIGNUP_METHODS } from '@/constants/signupMethods'
+import { LocalStorageHelper } from '@/utils/LocalStorageHelper'
+import { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export default function TwitterCallback() {
     useHandleTwitterCallback()
@@ -51,4 +51,3 @@ function useHandleTwitterCallback() {
         main()
     }, [])
 }
-
