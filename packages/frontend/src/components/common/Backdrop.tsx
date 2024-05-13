@@ -9,12 +9,12 @@ interface BackdropProps {
     position: 'absolute' | 'fixed'
 }
 
-const Backdrop: React.FC<BackdropProps> = ({
+export default function Backdrop({
     isOpen,
     background,
     children,
     position,
-}) => {
+}: BackdropProps) {
     const modalVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -74,4 +74,4 @@ const Backdrop: React.FC<BackdropProps> = ({
     )
 }
 
-export default Backdrop
+Backdrop

@@ -12,10 +12,10 @@ interface ReportFormValues {
     content: string
 }
 
-const CommentReportModal: React.FC<CommentReportDialogProps> = ({
+export default function CommentReportModal({
     isOpen = false,
     onClose = () => {},
-}) => {
+}: CommentReportDialogProps) {
     const { control, handleSubmit, reset, formState } =
         useForm<ReportFormValues>({
             defaultValues: {
@@ -97,5 +97,3 @@ const CommentReportModal: React.FC<CommentReportDialogProps> = ({
         </Dialog>
     )
 }
-
-export default CommentReportModal

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { PATHS } from '../../constants/paths'
 
-export function BackToWelcomePageButton() {
+export default function BackToWelcomePageButton() {
     const navigate = useNavigate()
     return (
         <div
