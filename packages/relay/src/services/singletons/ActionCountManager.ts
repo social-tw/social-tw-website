@@ -1,50 +1,45 @@
-import { DB, TransactionDB } from 'anondb'
-import { Action } from '../../types'
+import { DB } from 'anondb'
 
 export class ActionCountManager {
+    // cancel the transaction to send operations
+    // somehow it will cause error, the data will not be flushed into db immediately
     async addActionCount(
         db: DB,
         epochKey: string,
         epoch: number,
-        action: Action
+        actionCount: number,
     ): Promise<void> {
-        await db
-            .transaction(async (txDB) => {
-                const actionCount = action(txDB)
+        const counter = await db.findOne('EpochKeyAction', {
+            where: {
+                epochKey: epochKey,
+            }
+        })
 
-                const counter = await db.findOne('EpochKeyAction', {
-                    where: {
-                        epochKey: epochKey,
-                    },
-                })
+        const count = counter
+            ? counter.count + actionCount
+            : actionCount
 
-                const count = counter
-                    ? counter.count + actionCount
-                    : actionCount
-
-                if (count == 0) {
-                    txDB.delete('EpochKeyAction', {
-                        where: {
-                            epochKey: epochKey,
-                        },
-                    })
-                } else {
-                    txDB.upsert('EpochKeyAction', {
-                        where: {
-                            epochKey: epochKey,
-                        },
-                        create: {
-                            epochKey: epochKey,
-                            epoch: epoch,
-                            count: count,
-                        },
-                        update: {
-                            count: count,
-                        },
-                    })
+        if (count == 0) {
+            await db.delete('EpochKeyAction', {
+                where: {
+                    epochKey: epochKey,
                 }
             })
-            .catch(() => console.log('action reverted'))
+        } else {
+            await db.upsert('EpochKeyAction', {
+                where: {
+                    epochKey: epochKey,
+                },
+                create: {
+                    epochKey: epochKey,
+                    epoch: epoch,
+                    count: count,
+                },
+                update: {
+                    count: count,
+                },
+            })
+        }
     }
 }
 
