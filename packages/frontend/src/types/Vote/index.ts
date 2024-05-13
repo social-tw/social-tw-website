@@ -16,11 +16,11 @@ export interface VoteMsg {
 
 // For fromat in profile/history
 export interface VoteHistoryMetaData {
-    epochKey: string,
-    publishedAt: number,
-    date: string,
-    url: string,
-    type: VoteType,
+    epochKey: string
+    publishedAt: number
+    date: string
+    url: string
+    type: VoteType
 }
 
 export interface RelayRawVote {

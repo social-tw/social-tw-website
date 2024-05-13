@@ -16,8 +16,8 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import checkVoteIsMine from '../utils/checkVoteIsMine'
-import { useProfileHistoryStore } from './Profile/History/store/useProfileHistoryStore'
+import checkVoteIsMine from '../../utils/checkVoteIsMine'
+import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
 import { PostInfo, PostStatus } from '@/types/Post'
 
 export default function PostDetail() {
@@ -70,7 +70,6 @@ export default function PostDetail() {
         async function loadPost() {
             const response = await fetch(`${SERVER}/api/post/${id}`)
             const post = await response.json()
-            console.log(post)
 
             let isMine = false
             let finalAction = null

@@ -43,14 +43,14 @@ export interface CommentMsg {
 
 // For fromat in profile/history
 export interface CommentHistoryMetaData {
-    id: string,
-    postId: string,
-    epochKey: string,
-    publishedAt: number,
-    content: string,
-    voteSum: number,
-    date: string,
-    url: string,
+    id: string
+    postId: string
+    epochKey: string
+    publishedAt: number
+    content: string
+    voteSum: number
+    date: string
+    url: string
 }
 
 export interface RelayRawComment {
