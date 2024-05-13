@@ -1,27 +1,27 @@
-import { useNavigate } from 'react-router-dom'
-import { useUser } from '../contexts/User'
-import { LocalStorageHelper } from '../utils/LocalStorageHelper'
+import { useMutation } from '@tanstack/react-query'
+import useLogin from '@/hooks/useLogin'
+import { LocalStorageHelper } from '@/utils/LocalStorageHelper'
+import { EthereumHelper } from '@/utils/EthereumHelper'
 
 export function useLoginWithWallet() {
-    const navigate = useNavigate()
-    const {
-        handleWalletSignMessage,
-        setIsLogin,
-        createUserState,
-        setErrorCode,
-    } = useUser()
-    const loginWithWallet = async () => {
-        try {
-            const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
-            await handleWalletSignMessage(hashUserId)
-            await createUserState()
-            LocalStorageHelper.removeIsTwitterVerified()
-            setIsLogin(true)
-            navigate('/')
-        } catch (error: any) {
-            setErrorCode('MISSING_ELEMENT')
-        }
-    }
+    const { login: baseLogin } = useLogin()
 
-    return loginWithWallet
+    const {
+        isPending,
+        error,
+        mutateAsync: login,
+    } = useMutation({
+        mutationFn: async () => {
+            const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
+            const signature =
+                await EthereumHelper.signUserIdWithWallet(hashUserId)
+            await baseLogin(signature)
+        },
+    })
+
+    return {
+        isPending,
+        error,
+        login,
+    }
 }

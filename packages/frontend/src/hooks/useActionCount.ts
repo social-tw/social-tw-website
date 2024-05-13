@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { SERVER } from '@/config'
 import { countByTimeRangeSelector, useActionStore } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
 import useEpoch from './useEpoch'
+import useUserState from './useUserState'
 
 export default function useActionCount() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     const { epochStartTime, epochEndTime } = useEpoch()
 

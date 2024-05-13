@@ -1,9 +1,7 @@
 import '@testing-library/jest-dom'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { ReactNode } from 'react'
 import Comment from '@/components/comment/Comment'
-import { UserProvider } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useRemoveComment from '@/hooks/useRemoveComment'
 import { CommentStatus } from '@/types/Comments'
@@ -51,7 +49,9 @@ describe('Comment', () => {
 
     beforeEach(() => {
         mockedUseCreateComment.mockReturnValue({
-            create: jest.fn().mockImplementation(() =>
+            isPending: false,
+            error: null,
+            createComment: jest.fn().mockImplementation(() =>
                 Promise.resolve({
                     transaction: mockTransaction,
                 }),
@@ -59,7 +59,9 @@ describe('Comment', () => {
         })
 
         mockedUseRemoveComment.mockReturnValue({
-            remove: jest.fn().mockImplementation(() =>
+            isPending: false,
+            error: null,
+            removeComment: jest.fn().mockImplementation(() =>
                 Promise.resolve({
                     transaction: mockTransaction,
                 }),
@@ -67,17 +69,13 @@ describe('Comment', () => {
         })
     })
 
-    const renderWithProvider = (component: ReactNode) => {
-        return render(<UserProvider>{component}</UserProvider>)
-    }
-
     it('renders successfully', () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
+        render(<Comment {...mockCommentInfo} />)
         expect(screen.getByText(mockCommentInfo.content)).toBeInTheDocument()
     })
 
     it('opens report dialog on report action', async () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
+        render(<Comment {...mockCommentInfo} />)
 
         await userEvent.click(screen.getByRole('button', { name: /more/i }))
         await userEvent.click(screen.getByText(/檢舉留言/i))
@@ -86,7 +84,7 @@ describe('Comment', () => {
     })
 
     it('opens delete dialog and calls onDelete function', async () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
+        render(<Comment {...mockCommentInfo} />)
 
         await userEvent.click(screen.getByRole('button', { name: /more/i }))
         await userEvent.click(screen.getByText(/刪除留言/i))
@@ -94,9 +92,7 @@ describe('Comment', () => {
     })
 
     it('calls republish function on republish button click', async () => {
-        renderWithProvider(
-            <Comment {...mockCommentInfo} status={CommentStatus.Failure} />,
-        )
+        render(<Comment {...mockCommentInfo} status={CommentStatus.Failure} />)
 
         const republishButton = screen.getByText(/再次發佈這則留言/i)
         await userEvent.click(republishButton)

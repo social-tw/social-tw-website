@@ -9,7 +9,6 @@ import {
     PostData,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
 import { useVoteEvents } from '@/hooks/useVotes'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
@@ -23,9 +22,11 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
+import useUserState from '@/hooks/useUserState'
+import { QueryKeys } from '@/constants/queryKeys'
 
 export default function PostList() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     const queryClient = useQueryClient()
 
@@ -36,7 +37,7 @@ export default function PostList() {
         QueryKey,
         number
     >({
-        queryKey: ['posts'],
+        queryKey: [QueryKeys.ManyPosts],
         queryFn: async ({ pageParam }) => {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
             const jsonData = (await res.json()) as FetchPostsResponse
@@ -63,7 +64,7 @@ export default function PostList() {
             })
         },
         initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages, lastPageParam) => {
+        getNextPageParam: (lastPage, _allPages, lastPageParam) => {
             return lastPage.length === 0 ? undefined : lastPageParam + 1
         },
     })
@@ -159,7 +160,7 @@ export default function PostList() {
     useVoteEvents(handleVoteEvent)
 
     return (
-        <div ref={pageContainerRef}>
+        <div className="px-4" ref={pageContainerRef}>
             <ul className="space-y-3 md:space-y-6">
                 {localPosts.map((post) => (
                     <li

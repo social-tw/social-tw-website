@@ -4,71 +4,89 @@ import {
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
-import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../config'
-
-async function deleteComment(data: string) {
-    const response = await fetch(`${SERVER}/api/comment`, {
-        method: 'DELETE',
-        headers: {
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-
-    return await response.json()
-}
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
+import { relayRemoveComment } from '@/utils/api'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import useWeb3Provider, {
+    getGuaranteedWeb3Provider,
+} from '@/hooks/useWeb3Provider'
+import useUserStateTransition from '@/hooks/useUserStateTransition'
 
 export default function useRemoveComment() {
-    const { userState, stateTransition, provider, loadData } = useUser()
+    const queryClient = useQueryClient()
 
-    const remove = async (
-        postId: string,
-        commentId: string,
-        epoch: number,
-        nonce: number,
-    ) => {
-        if (!userState) throw new Error('user state not initialized')
+    const provider = useWeb3Provider()
 
-        const actionId = addAction(ActionType.DeleteComment, {
+    const { userState } = useUserState()
+
+    const { stateTransition } = useUserStateTransition()
+
+    const {
+        isPending,
+        error,
+        mutateAsync: removeComment,
+    } = useMutation({
+        mutationKey: [MutationKeys.RemoveComment],
+        mutationFn: async ({
             postId,
             commentId,
             epoch,
-        })
+            nonce,
+        }: {
+            postId: string
+            commentId: string
+            epoch: number
+            nonce: number
+        }) => {
+            const _provider = getGuaranteedWeb3Provider(provider)
+            const _userState = getGuaranteedUserState(userState)
 
-        try {
-            const latestTransitionedEpoch =
-                await userState.latestTransitionedEpoch()
+            await stateTransition()
 
-            if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-                await stateTransition()
-            }
-
-            const EpochKeyLiteProof = await userState.genEpochKeyLiteProof({
+            const proof = await _userState.genEpochKeyLiteProof({
                 epoch,
                 nonce,
             })
 
-            const proof = stringifyBigInts({
+            const { txHash } = await relayRemoveComment(
+                proof,
                 postId,
                 commentId,
-                publicSignals: EpochKeyLiteProof.publicSignals,
-                proof: EpochKeyLiteProof.proof,
+            )
+            await _provider.waitForTransaction(txHash)
+            await _userState.waitForSync()
+        },
+        onMutate: (variables) => {
+            const actionId = addAction(ActionType.DeleteComment, {
+                postId: variables.postId,
+                commentId: variables.commentId,
+                epoch: variables.epoch,
             })
 
-            const { txHash } = await deleteComment(proof)
-            await provider.waitForTransaction(txHash)
-            await userState.waitForSync()
-            await loadData(userState)
+            return { actionId }
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.actionId) {
+                failActionById(context.actionId)
+            }
+        },
+        onSuccess: (_data, variables, context) => {
+            succeedActionById(context.actionId)
 
-            succeedActionById(actionId)
-        } catch {
-            failActionById(actionId)
-        }
-    }
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.ManyComments, variables.postId],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.SinglePost, variables.postId],
+            })
+        },
+    })
 
     return {
-        remove,
+        isPending,
+        error,
+        removeComment,
     }
 }

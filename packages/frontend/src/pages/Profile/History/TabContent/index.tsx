@@ -1,6 +1,5 @@
 import { UserState } from '@unirep/core'
 import { useEffect } from 'react'
-import { useUser } from '../../../../contexts/User'
 import {
     useProfileHistoryActiveTab,
     useProfileHistoryStore,
@@ -17,6 +16,7 @@ import {
     getPostHeaderData,
     getVoteHeaderData,
 } from './TabContentHeader'
+import useUserState from '@/hooks/useUserState'
 
 export default function TabContent() {
     const { isPostActive, isCommentActive, isVoteActive } =
@@ -100,7 +100,7 @@ function VoteTabContent() {
 
 // TODO: decide to use UserState from @unirep/core or from src/contexts/Userstate.ts
 function useInitPostTabContent() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
     const { isHistoryPostsInit, invokeInitHistoryPostsFlow } =
         useProfileHistoryStore((state) => ({
             isHistoryPostsInit: state.posts.isInit,
@@ -114,7 +114,7 @@ function useInitPostTabContent() {
 }
 
 function useInitCommentTabContent() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
     const { isHistoryCommentsInit, invokeInitHistoryCommentsFlow } =
         useProfileHistoryStore((state) => ({
             isHistoryCommentsInit: state.comments.isInit,
@@ -128,7 +128,7 @@ function useInitCommentTabContent() {
 }
 
 function useInitVoteTabContent() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
     const { isHistoryVotesInit, invokeInitHistoryVotesFlow } =
         useProfileHistoryStore((state) => ({
             isHistoryVotesInit: state.votes.isInit,

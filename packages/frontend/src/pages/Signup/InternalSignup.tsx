@@ -12,7 +12,6 @@ import AuthErrorDialog from '../../components/login/AuthErrorDialog'
 import AuthNoteDialog from '../../components/login/AuthNoteDialog'
 import LoginButton from '../../components/login/LoginButton'
 import StepInfo from '../../components/login/StepInfo'
-import { useUser } from '../../contexts/User'
 import { useSignupWithServer } from '../../hooks/useSignupWithServer'
 import { useSignupWithWallet } from '../../hooks/useSignupWithWallet'
 import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
@@ -26,9 +25,21 @@ enum NoteStatus {
 
 export function InternalSignup() {
     const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
-    const { signupStatus, errorCode } = useUser()
-    const signUpWithWallet = useSignupWithWallet()
-    const signUpWithServer = useSignupWithServer()
+
+    const {
+        isPending: isWalletSignupPending,
+        error: walletSignupError,
+        signup: walletSignup,
+    } = useSignupWithWallet()
+    const {
+        isPending: isServerSignupPending,
+        error: serverSignupError,
+        signup: serverSignup,
+    } = useSignupWithServer()
+
+    const isPending = isWalletSignupPending || isServerSignupPending
+    const error = walletSignupError || serverSignupError
+
     const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
@@ -71,8 +82,8 @@ export function InternalSignup() {
             >
                 <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     <LoginButton
-                        isLoading={signupStatus === 'pending'}
-                        onClick={signUpWithWallet}
+                        isLoading={isPending}
+                        onClick={walletSignup}
                         title={'錢包註冊'}
                         subTitle={'使用 MetaMask 錢包進行註冊'}
                         color="#2F9CAF"
@@ -88,8 +99,8 @@ export function InternalSignup() {
                 </div>
                 <div className="w-full flex flex-col justify-center items-center gap-2 max-w-[500px]">
                     <LoginButton
-                        isLoading={signupStatus === 'pending'}
-                        onClick={signUpWithServer}
+                        isLoading={isPending}
+                        onClick={serverSignup}
                         title={'直接註冊'}
                         subTitle={
                             '沒有錢包嗎? 沒關係! 可以直接使用 Server 註冊'
@@ -111,7 +122,7 @@ export function InternalSignup() {
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <AuthErrorDialog isOpen={errorCode !== ''} />
+            <AuthErrorDialog isOpen={!!error} message={error?.message} />
         </div>
     )
 }

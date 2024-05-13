@@ -7,40 +7,41 @@ import {
 import useCreateComment from '@/hooks/useCreateComment'
 import { act, renderHook } from '@testing-library/react'
 
-jest.mock('@/contexts/User', () => ({
-    useUser: () => ({
-        userState: {
-            latestTransitionedEpoch: jest.fn().mockResolvedValue(9999),
-            genEpochKeyProof: jest.fn().mockResolvedValue({
-                publicSignals: 'mocked_signals',
-                proof: 'mocked_proof',
-                epoch: 0,
-                epochKey: 'mocked_epockKey',
-            }),
-            waitForSync: jest.fn().mockResolvedValue('success'),
-            sync: {
-                calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-            },
-        },
-        stateTransition: jest.fn().mockResolvedValue('success'),
-        provider: {
-            waitForTransaction: jest.fn().mockResolvedValue({
-                logs: [
-                    {
-                        topics: ['', '', '', '1111'],
-                    },
-                ],
-            }),
-        },
-        loadData: jest.fn().mockResolvedValue('success'),
-    }),
-}))
-
 jest.mock('@/contexts/Actions', () => ({
     addAction: jest.fn(),
     failActionById: jest.fn(),
     succeedActionById: jest.fn(),
     ActionType: { Comment: 'comment' },
+}))
+
+jest.mock('@/hooks/useWeb3Provider', () => ({
+    waitForTransaction: jest.fn().mockResolvedValue({
+        logs: [
+            {
+                topics: ['', '', '', '1111'],
+            },
+        ],
+    }),
+}))
+
+jest.mock('@/hooks/useUserState', () => ({
+    userState: {
+        latestTransitionedEpoch: jest.fn().mockResolvedValue(9999),
+        genEpochKeyProof: jest.fn().mockResolvedValue({
+            publicSignals: 'mocked_signals',
+            proof: 'mocked_proof',
+            epoch: 0,
+            epochKey: 'mocked_epockKey',
+        }),
+        waitForSync: jest.fn().mockResolvedValue('success'),
+        sync: {
+            calcCurrentEpoch: jest.fn().mockReturnValue(9999),
+        },
+    },
+}))
+
+jest.mock('@/hooks/useUserStateTransition', () => ({
+    stateTransition: jest.fn().mockResolvedValue('success'),
 }))
 
 jest.mock('@/hooks/useActionCount', () => jest.fn().mockReturnValue(1))
@@ -68,7 +69,7 @@ describe('useCreateComment', () => {
         const content = 'mock_content'
 
         await act(async () => {
-            await result.current.create(postId, content)
+            await result.current.createComment({ postId, content })
         })
 
         expect(addAction).toHaveBeenCalledWith(
@@ -94,7 +95,7 @@ describe('useCreateComment', () => {
 
         await act(async () => {
             try {
-                await result.current.create(postId, content)
+                await result.current.createComment({ postId, content })
             } catch {
                 /* empty */
             }

@@ -15,7 +15,7 @@ export default {
     },
     genProofAndPublicSignals: async (
         circuitName: string | Circuit,
-        inputs: any,
+        inputs: unknown,
     ) => {
         const wasmUrl = new URL(`${circuitName}.wasm`, KEY_SERVER)
 
@@ -38,7 +38,7 @@ export default {
      * @param name Name of the circuit, which can be chosen from `Circuit`
      * @returns vkey of the circuit
      */
-    getVKey: async (name: string | Circuit) => {
-        // return require(path.join(buildPath, `${name}.vkey.json`))
+    getVKey: async (_name: string | Circuit) => {
+        // return require(path.join(buildPath, `$_{name}.vkey.json`))
     },
 }

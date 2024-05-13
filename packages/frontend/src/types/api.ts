@@ -12,6 +12,12 @@ export enum SortKeys {
     VoteSum = 'voteSum',
 }
 
+export interface FetchRelayConfigResponse {
+    UNIREP_ADDRESS: string
+    APP_ADDRESS: string
+    ETH_PROVIDER_URL: string
+}
+
 export type FetchPostsResponse = RelayRawPost[]
 
 export interface FetchPostsByEpochKeysParams {
@@ -31,3 +37,28 @@ export interface FetchVotesByEpochKeysParams {
 }
 
 export type FetchVotesByEpochKeysResponse = RelayRawVote[]
+
+export interface RelayUserStateTransitionResponse {
+    txHash: string
+}
+
+export interface RelayRequestDataResponse {
+    txHash: string
+}
+
+export interface RelaySignUpResponse {
+    status: 'success'
+    txHash: string
+}
+
+export interface RelayCreatePostResponse {
+    txHash: string
+}
+
+export interface RelayCreateCommentResponse {
+    txHash: string
+}
+
+export interface RelayRemoveCommentResponse {
+    txHash: string
+}

@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
 import {
     Link,
     NavLink,
@@ -18,15 +17,13 @@ import StarIcon from '@/assets/star.svg'
 import ActionNotification from '@/components/layout/ActionNotification'
 import EpochInfo from '@/components/layout/EpochInfo'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
-import AuthErrorDialog from '@/components/login/AuthErrorDialog'
-import { useUser } from '@/contexts/User'
 import { useMediaQuery } from '@uidotdev/usehooks'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
+
     const location = useLocation()
-    const { isLogin, signupStatus, setSignupStatus } = useUser()
-    const [isShow, setIsShow] = useState(true)
+
     const navigate = useNavigate()
 
     const headerTextOnDesktop = getDesktopHeaderTextByPath(location.pathname)
@@ -39,23 +36,6 @@ export default function AppLayout() {
             navigate('/')
         }
     }
-
-    useEffect(() => {
-        if (isLogin && signupStatus === 'success') {
-            setTimeout(() => {
-                setSignupStatus('default')
-                setIsShow(false)
-            }, 1500)
-            return
-        }
-        if (isLogin && signupStatus === 'default') {
-            setIsShow(false)
-        }
-        if (!isLogin) {
-            setIsShow(true)
-            return
-        }
-    }, [isLogin, signupStatus])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const isShowingHeaderLogoOnSmallDevice =
@@ -71,7 +51,6 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-8">
-                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -97,13 +76,12 @@ export default function AppLayout() {
                 <main className="max-w-5xl pb-20 mx-auto">
                     <Outlet />
                 </main>
-                <MobileBottomNav isShow={isShow} signupStatus={signupStatus} />
+                <MobileBottomNav />
             </div>
         )
     } else {
         return (
-            <div className="grid grid-cols-[1fr_24rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
-                <AuthErrorDialog isOpen={signupStatus === 'error'} />
+            <div className="grid grid-cols-[1fr_20rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
@@ -169,7 +147,7 @@ export default function AppLayout() {
                                             : 'text-white',
                                     )
                                 }
-                                to="/explore"
+                                to="/"
                             >
                                 <StarIcon className="w-14 h-14" />
                                 <span className="text-xl font-bold ">
@@ -185,7 +163,7 @@ export default function AppLayout() {
                                             : 'text-white',
                                     )
                                 }
-                                to="/nofitication"
+                                to="/"
                             >
                                 <BellIcon className="w-14 h-14" />
                                 <span className="text-xl font-bold ">
