@@ -50,7 +50,6 @@ export default function useVotes() {
             await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 
             if (response.status === 201) {
-                console.log('Vote succeeded!')
                 return true
             } else {
                 throw new Error(
@@ -58,7 +57,6 @@ export default function useVotes() {
                 )
             }
         } catch (error) {
-            console.error('Vote failed:', error)
             return false
         }
     }
