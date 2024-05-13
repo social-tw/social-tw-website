@@ -6,7 +6,6 @@ import schema from '../../db/schema'
 import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
 import { socketManager } from './SocketManager'
-import ActionCountManager from './ActionCountManager'
 import { UserRegisterStatus } from '../../types'
 
 type EventHandlerArgs = {
@@ -56,17 +55,48 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
     }
 
-    // if server restarts, synchronizer will fetch all events from smart contract,
-    // however, action counts are only valid on the current epoch, so synchronizer
+    // If server restarts, synchronizer will fetch all events from the smart contract.
+    // However, action counts are only valid on the current epoch, so synchronizer
     // only updates action count if the epoch is the same with smart contract
-    async updateActionCount(epochKey: string, epoch: number) {
+    async updateActionCount(txDB: TransactionDB, epochKey: string, epoch: number) {
+        // TODO: consider to remove action count manager
         const currentEpoch = this.calcCurrentEpoch()
         if (currentEpoch == epoch) {
             // update action counter
-            await ActionCountManager.addActionCount(this.db, epochKey, epoch, (_) => {
-                return 1
+            const actionCount = 1
+
+            const counter = await this.db.findOne('EpochKeyAction', {
+                where: {
+                    epochKey: epochKey,
+                },
             })
-        } 
+
+            const count = counter
+                ? counter.count + actionCount
+                : actionCount
+
+            if (count == 0) {
+                txDB.delete('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                })
+            } else {
+                txDB.upsert('EpochKeyAction', {
+                    where: {
+                        epochKey: epochKey,
+                    },
+                    create: {
+                        epochKey: epochKey,
+                        epoch: epoch,
+                        count: count,
+                    },
+                    update: {
+                        count: count,
+                    },
+                })
+            }
+        }
     }
 
     // once user signup, save the hash user id into db
@@ -96,10 +126,11 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             where: { transactionHash },
             update: {
                 postId,
+                status: 1,
             },
         })
 
-        await this.updateActionCount(epochKey, epoch)
+        await this.updateActionCount(db, epochKey, epoch)
 
         return true
     }
@@ -161,7 +192,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        await this.updateActionCount(epochKey, epoch)
+        await this.updateActionCount(db, epochKey, epoch)
 
         socketManager.emitComment({
             id: commentId,
@@ -203,7 +234,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
         })
 
-        await this.updateActionCount(epochKey, epoch)
+        await this.updateActionCount(db, epochKey, epoch)
 
         return true
     }
