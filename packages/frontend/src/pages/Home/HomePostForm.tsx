@@ -14,7 +14,7 @@ interface HomePostFormProps {
     disabled?: boolean
 }
 
-const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
+export default function HomePostForm({ disabled = false }: HomePostFormProps) {
     const { userState } = useUser()
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,
@@ -77,5 +77,3 @@ const HomePostForm: React.FC<HomePostFormProps> = ({ disabled = false }) => {
         </>
     )
 }
-
-export default HomePostForm
