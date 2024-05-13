@@ -29,8 +29,6 @@ contract UnirepApp {
     // a global variable to store the latest postId
     uint256 public latestPostId;
 
-    // TODO write the document for the features
-    mapping(uint256 => mapping(uint256 => postVote)) public epochKeyPostVoteMap;
     mapping(uint256 => uint256) public postCommentIndex; // postId -> commentId
     mapping(uint256 => mapping(uint256 => uint256)) epochKeyCommentMap; // postId-commentId -> epochKey
     mapping(bytes32 => bool) public proofNullifier;
@@ -96,7 +94,13 @@ contract UnirepApp {
         unirep.attesterSignUp(_epochLength);
     }
 
-    // sign up users in this app
+    /** 
+     * Sign up users in this app
+     * @param publicSignals: public signals
+     * @param proof: UserSignUpProof
+     * @param hashUserId: hash of the userId
+     * @param fromServer: if the user sign up from the server
+     */
     function userSignUp(
         uint256[] calldata publicSignals,
         uint256[8] calldata proof,
@@ -113,7 +117,12 @@ contract UnirepApp {
         emit UserSignUp(hashUserId, fromServer);
     }
 
-    // post a content in this app
+    /**
+     * Post a content in this app
+     * @param publicSignals: public signals
+     * @param proof: epockKeyProof from the user
+     * @param content: content of this post
+     */ 
     function post(
         uint256[] memory publicSignals,
         uint256[8] memory proof,

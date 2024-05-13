@@ -86,7 +86,7 @@ describe('GET /counter', function () {
             .set('content-type', 'application/json')
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('wrong number of epks')
+                expect(res.body.error).equal('Wrong number of epoch keys')
             })
     })
 
