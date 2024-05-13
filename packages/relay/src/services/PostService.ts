@@ -71,7 +71,6 @@ export class PostService {
                 c.daily_comments AS daily_comments
             FROM
                 Post AS p
-            WHERE p.status = 1
             LEFT JOIN (
                 SELECT
                     postId,
@@ -95,6 +94,7 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
+            WHERE p.status = 1
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0

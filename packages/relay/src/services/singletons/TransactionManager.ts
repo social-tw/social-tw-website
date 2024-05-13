@@ -246,7 +246,7 @@ export class TransactionManager {
         functionSignature: string, // 'leaveComment' for example
         args: any[]
     ): Promise<string> {
-        if (!this.appContract) throw new Error('Not initialized')
+        if (!this.appContract) throw UninitializedError
         const appContract = this.appContract
 
         const calldata = appContract.interface.encodeFunctionData(

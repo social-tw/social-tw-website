@@ -1,4 +1,4 @@
-import { DB } from 'anondb'
+import { DB, TransactionDB } from 'anondb'
 import { Action } from '../../types'
 
 export class ActionCountManager {
