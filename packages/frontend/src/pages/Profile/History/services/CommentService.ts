@@ -56,19 +56,19 @@ export class CommentService {
     ): CommentHistoryMetaData[] {
         return relayRawComments.map((relayRawComment) => {
             const publishedAt = parseInt(relayRawComment.publishedAt)
-            return new CommentHistoryMetaData(
-                relayRawComment.commentId,
-                relayRawComment.postId,
-                relayRawComment.epochKey,
-                publishedAt,
-                relayRawComment.content,
-                relayRawComment.voteSum,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genCommentUrlById(
+            return {
+                id: relayRawComment.commentId,
+                postId: relayRawComment.postId,
+                epochKey: relayRawComment.epochKey,
+                publishedAt: publishedAt,
+                content: relayRawComment.content,
+                voteSum: relayRawComment.voteSum,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genCommentUrlById(
                     relayRawComment.postId,
                     relayRawComment.commentId,
                 ),
-            )
+            }
         })
     }
 

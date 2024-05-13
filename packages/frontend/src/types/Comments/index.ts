@@ -42,17 +42,15 @@ export interface CommentMsg {
 }
 
 // For fromat in profile/history
-export class CommentHistoryMetaData {
-    constructor(
-        public id: string,
-        public postId: string,
-        public epochKey: string,
-        public publishedAt: number,
-        public content: string,
-        public voteSum: number,
-        public date: string,
-        public url: string,
-    ) {}
+export interface CommentHistoryMetaData {
+    id: string,
+    postId: string,
+    epochKey: string,
+    publishedAt: number,
+    content: string,
+    voteSum: number,
+    date: string,
+    url: string,
 }
 
 export interface RelayRawComment {

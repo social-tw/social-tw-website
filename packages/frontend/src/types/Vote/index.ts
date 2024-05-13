@@ -15,15 +15,12 @@ export interface VoteMsg {
 }
 
 // For fromat in profile/history
-export class VoteHistoryMetaData {
-    constructor(
-        public epochKey: string,
-        public publishedAt: number,
-        // public content: string,
-        public date: string,
-        public url: string,
-        public type: VoteType,
-    ) {}
+export interface VoteHistoryMetaData {
+    epochKey: string,
+    publishedAt: number,
+    date: string,
+    url: string,
+    type: VoteType,
 }
 
 export interface RelayRawVote {

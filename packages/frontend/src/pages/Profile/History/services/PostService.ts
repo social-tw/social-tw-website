@@ -52,15 +52,15 @@ export class PostService {
     ): PostHistoryMetaData[] {
         return relayRawPosts.map((relaySourcePost) => {
             const publishedAt = parseInt(relaySourcePost.publishedAt)
-            return new PostHistoryMetaData(
-                relaySourcePost.postId,
-                relaySourcePost.epochKey,
-                publishedAt,
-                relaySourcePost.content,
-                relaySourcePost.voteSum,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genPostUrlById(relaySourcePost.postId),
-            )
+            return {
+                id: relaySourcePost.postId,
+                epochKey: relaySourcePost.epochKey,
+                publishedAt: publishedAt,
+                content: relaySourcePost.content,
+                voteSum: relaySourcePost.voteSum,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genPostUrlById(relaySourcePost.postId),
+            }
         })
     }
 

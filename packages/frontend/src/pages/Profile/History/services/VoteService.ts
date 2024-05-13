@@ -55,13 +55,13 @@ export class VoteService {
         return relayRawVotes.map((relayRawVote) => {
             const publishedAt = parseInt(relayRawVote.publishedAt)
             const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)
-            return new VoteHistoryMetaData(
-                relayRawVote.epochKey,
-                publishedAt,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genVoteUrlByPostId(relayRawVote.postId),
-                voteType,
-            )
+            return {
+                epochKey: relayRawVote.epochKey,
+                publishedAt: publishedAt,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genVoteUrlByPostId(relayRawVote.postId),
+                type: voteType,
+            }
         })
     }
 

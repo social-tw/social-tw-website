@@ -24,16 +24,15 @@ export interface PostInfo {
 }
 
 // For fromat in profile/history
-export class PostHistoryMetaData {
-    constructor(
-        public id: string,
-        public epochKey: string,
-        public publishedAt: number,
-        public content: string,
-        public voteSum: number,
-        public date: string,
-        public url: string,
-    ) {}
+export interface PostHistoryMetaData {
+    id: string,
+    epochKey: string,
+    publishedAt: number,
+    content: string,
+    voteSum: number,
+    date: string,
+    url: string,
+
 }
 
 export interface RelayRawPost {
