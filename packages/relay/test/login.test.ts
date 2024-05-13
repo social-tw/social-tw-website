@@ -191,6 +191,7 @@ describe('LOGIN /login', function () {
             userState
         )
 
+        // TODO: wait txhash
         await express
             .post('/api/signup')
             .set('content-type', 'application/json')
@@ -301,6 +302,7 @@ describe('LOGIN /login', function () {
             userState
         )
 
+        // TODO: wait txhash
         await express
             .post('/api/signup')
             .set('content-type', 'application/json')
