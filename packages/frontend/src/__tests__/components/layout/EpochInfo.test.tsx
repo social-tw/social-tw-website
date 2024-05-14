@@ -2,19 +2,19 @@ import '@testing-library/jest-dom'
 import EpochInfo from '@/components/layout/EpochInfo'
 import { render, screen } from '@testing-library/react'
 
-jest.mock('@/hooks/useUserState', () => ({
-    userState: {
-        sync: {
-            calcEpochRemainingTime: jest.fn().mockReturnValue(100),
-            calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-            getEpochKeys: jest.fn().mockReturnValue('epochkey'),
-        },
-    },
+jest.mock('@/hooks/useEpoch', () => ({
+    useEpoch: () => ({
+        epochLength: 300,
+        epoch: 1,
+        epochStartTime: 0,
+        epochEndTime: 300,
+        remainingTime: 150,
+    }),
 }))
 
-jest.mock('@/hooks/useActionCount', () => {
-    return jest.fn().mockReturnValue(4)
-})
+jest.mock('@/hooks/useActionCount', () => ({
+    useActionCount: () => 1,
+}))
 
 describe('EpochInfo', () => {
     it('should display remaining time', () => {

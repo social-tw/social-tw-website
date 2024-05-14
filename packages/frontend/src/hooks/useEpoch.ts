@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import useUserState from './useUserState'
+import { useUserState } from './useUserState'
 
 const epochLength = 300
 
-export default function useEpoch() {
+export function useEpoch() {
     const [epoch, setEpoch] = useState<number>()
     const [remainingTime, setRemainingTime] = useState<number>()
 

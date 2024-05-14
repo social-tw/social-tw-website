@@ -4,7 +4,7 @@ import { stringifyBigInts } from '@unirep/utils'
 
 export async function post(
     server: ChaiHttp.Agent,
-    userState: UserState
+    userState: UserState,
 ): Promise<any> {
     const testContent = 'test content'
 

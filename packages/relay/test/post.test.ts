@@ -45,7 +45,7 @@ describe('POST /post', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -56,7 +56,7 @@ describe('POST /post', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet
+            wallet,
         )
 
         await userState.waitForSync()
@@ -147,179 +147,179 @@ describe('POST /post', function () {
         expect(posts.length).equal(0)
     })
 
-    // it('should post failed with wrong proof', async function () {
-    //     const testContent = 'test content'
+    it('should post failed with wrong proof', async function () {
+        const testContent = 'test content'
 
-    //     var epochKeyProof = await userState.genEpochKeyProof({
-    //         nonce: 0,
-    //     })
+        var epochKeyProof = await userState.genEpochKeyProof({
+            nonce: 0,
+        })
 
-    //     epochKeyProof.publicSignals[0] = BigInt(0)
+        epochKeyProof.publicSignals[0] = BigInt(0)
 
-    //     await express
-    //         .post('/api/post')
-    //         .set('content-type', 'application/json')
-    //         .send({
-    //             content: testContent,
-    //             publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-    //             proof: stringifyBigInts(epochKeyProof.proof),
-    //         })
-    //         .then((res) => {
-    //             expect(res).to.have.status(400)
-    //             expect(res.body.error).equal('Invalid proof')
-    //         })
-    // })
+        await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid proof')
+            })
+    })
 
-    // it('should post failed with wrong epoch', async function () {
-    //     const testContent = 'invalid epoch'
+    it('should post failed with wrong epoch', async function () {
+        const testContent = 'invalid epoch'
 
-    //     // generating a proof with wrong epoch
-    //     const wrongEpoch = 44444
-    //     const attesterId = userState.sync.attesterId
-    //     const epoch = await userState.latestTransitionedEpoch(attesterId)
-    //     const tree = await userState.sync.genStateTree(epoch, attesterId)
-    //     const leafIndex = await userState.latestStateTreeLeafIndex(
-    //         epoch,
-    //         attesterId
-    //     )
-    //     const id = userState.id
-    //     const data = randomData()
-    //     const epochKeyProof = await genEpochKeyProof({
-    //         id,
-    //         tree,
-    //         leafIndex,
-    //         epoch: wrongEpoch,
-    //         nonce: 0,
-    //         chainId,
-    //         attesterId,
-    //         data,
-    //     })
+        // generating a proof with wrong epoch
+        const wrongEpoch = 44444
+        const attesterId = userState.sync.attesterId
+        const epoch = await userState.latestTransitionedEpoch(attesterId)
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId,
+        )
+        const id = userState.id
+        const data = randomData()
+        const epochKeyProof = await genEpochKeyProof({
+            id,
+            tree,
+            leafIndex,
+            epoch: wrongEpoch,
+            nonce: 0,
+            chainId,
+            attesterId,
+            data,
+        })
 
-    //     await express
-    //         .post('/api/post')
-    //         .set('content-type', 'application/json')
-    //         .send({
-    //             content: testContent,
-    //             publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-    //             proof: stringifyBigInts(epochKeyProof.proof),
-    //         })
-    //         .then((res) => {
-    //             expect(res).to.have.status(400)
-    //             expect(res.body.error).equal('Invalid epoch')
-    //         })
-    // })
+        await express
+            .post('/api/post')
+            .set('content-type', 'application/json')
+            .send({
+                content: testContent,
+                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
+                proof: stringifyBigInts(epochKeyProof.proof),
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).equal('Invalid epoch')
+            })
+    })
 
-    // it('should update post order periodically', async function () {
-    //     // insert 9 mock posts into db
-    //     const mockPosts = postData
-    //     mockPosts.unshift(
-    //         await sqlite.findOne('Post', { where: { postId: '0' } })
-    //     )
-    //     await insertPosts(sqlite)
-    //     // insert random amount of comments into db
-    //     await insertComments(sqlite)
-    //     // insert random amount of votes into db
-    //     await insertVotes(sqlite)
+    it('should update post order periodically', async function () {
+        // insert 9 mock posts into db
+        const mockPosts = postData
+        mockPosts.unshift(
+            await sqlite.findOne('Post', { where: { postId: '0' } }),
+        )
+        await insertPosts(sqlite)
+        // insert random amount of comments into db
+        await insertComments(sqlite)
+        // insert random amount of votes into db
+        await insertVotes(sqlite)
 
-    //     await pService.updateOrder(sqlite)
+        await pService.updateOrder(sqlite)
 
-    //     const posts = await express.get(`/api/post?page=1`).then((res) => {
-    //         expect(res).to.have.status(200)
-    //         return res.body
-    //     })
+        const posts = await express.get(`/api/post?page=1`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
-    //     for (let i = 0; i < posts.length - 1; i++) {
-    //         // postId 0 ~ 4: published <= 2 days
-    //         // postId 5 ~ 9: published > 2 days
-    //         if (i == 4) {
-    //             continue
-    //         }
+        for (let i = 0; i < posts.length - 1; i++) {
+            // postId 0 ~ 4: published <= 2 days
+            // postId 5 ~ 9: published > 2 days
+            if (i == 4) {
+                continue
+            }
 
-    //         const prevPost: any = posts[i]
-    //         const nextPost: any = posts[i + 1]
-    //         if (i < 5) {
-    //             // 1. sorting score prevPost >= nextPost
-    //             // 2. sorting score eq, publishedAt prevPost >= nextPost
-    //             expect(prevPost.sorting_score).gte(nextPost.sorting_score)
-    //             if (prevPost.sorting_score == nextPost.sorting_score) {
-    //                 expect(BigInt(prevPost.publishedAt)).gte(
-    //                     BigInt(nextPost.publishedAt)
-    //                 )
-    //             }
-    //         } else {
-    //             // 1. sorting score prevPost >= nextPost
-    //             // 2. sorting score eq, daily_upvotes prevPost >= nextPost
-    //             // 3. daily_upvotes eq, daily_comments prevPost >= nextPost
-    //             // 4. daily_comments eq, publishedAt prevPost > nextPost
-    //             expect(prevPost.sorting_score).gte(nextPost.sorting_score)
-    //             if (prevPost.sorting_score == nextPost.sorting_score) {
-    //                 expect(prevPost.daily_upvotes).gte(nextPost.daily_upvotes)
+            const prevPost: any = posts[i]
+            const nextPost: any = posts[i + 1]
+            if (i < 5) {
+                // 1. sorting score prevPost >= nextPost
+                // 2. sorting score eq, publishedAt prevPost >= nextPost
+                expect(prevPost.sorting_score).gte(nextPost.sorting_score)
+                if (prevPost.sorting_score == nextPost.sorting_score) {
+                    expect(BigInt(prevPost.publishedAt)).gte(
+                        BigInt(nextPost.publishedAt),
+                    )
+                }
+            } else {
+                // 1. sorting score prevPost >= nextPost
+                // 2. sorting score eq, daily_upvotes prevPost >= nextPost
+                // 3. daily_upvotes eq, daily_comments prevPost >= nextPost
+                // 4. daily_comments eq, publishedAt prevPost > nextPost
+                expect(prevPost.sorting_score).gte(nextPost.sorting_score)
+                if (prevPost.sorting_score == nextPost.sorting_score) {
+                    expect(prevPost.daily_upvotes).gte(nextPost.daily_upvotes)
 
-    //                 if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
-    //                     expect(prevPost.daily_comments).gte(
-    //                         nextPost.daily_comments
-    //                     )
+                    if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
+                        expect(prevPost.daily_comments).gte(
+                            nextPost.daily_comments,
+                        )
 
-    //                     if (
-    //                         prevPost.daily_comments == nextPost.daily_comments
-    //                     ) {
-    //                         expect(BigInt(prevPost.publishedAt)).gte(
-    //                             BigInt(nextPost.publishedAt)
-    //                         )
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // })
+                        if (
+                            prevPost.daily_comments == nextPost.daily_comments
+                        ) {
+                            expect(BigInt(prevPost.publishedAt)).gte(
+                                BigInt(nextPost.publishedAt),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    })
 
-    // it('should fetch posts which are already on-chain', async function () {
-    //     // send a post
-    //     const { txHash } = await post(express, userState)
-    //     // update the cache, the amount of posts is still 10
-    //     // since the above post is not on-chain yet
-    //     await pService.updateOrder(sqlite)
+    it('should fetch posts which are already on-chain', async function () {
+        // send a post
+        const { txHash } = await post(express, userState)
+        // update the cache, the amount of posts is still 10
+        // since the above post is not on-chain yet
+        await pService.updateOrder(sqlite)
 
-    //     // one page will have 10 posts
-    //     let posts = await express.get(`/api/post?page=1`).then((res) => {
-    //         expect(res).to.have.status(200)
-    //         return res.body
-    //     })
+        // one page will have 10 posts
+        let posts = await express.get(`/api/post?page=1`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
-    //     // every post is on-chain so the status must be 1
-    //     for (let i = 0; i < post.length; i++) {
-    //         const post = posts[i]
-    //         expect(post.status).equal(1)
-    //     }
+        // every post is on-chain so the status must be 1
+        for (let i = 0; i < post.length; i++) {
+            const post = posts[i]
+            expect(post.status).equal(1)
+        }
 
-    //     // second page will be empty
-    //     posts = await express.get(`/api/post?page=2`).then((res) => {
-    //         expect(res).to.have.status(200)
-    //         return res.body
-    //     })
+        // second page will be empty
+        posts = await express.get(`/api/post?page=2`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
-    //     expect(posts.length).equal(0)
+        expect(posts.length).equal(0)
 
-    //     // check the post is off-chain so the status must be 0
-    //     const offChainPost = await sqlite.findOne('Post', {
-    //         where: {
-    //             transactionHash: txHash,
-    //         },
-    //     })
+        // check the post is off-chain so the status must be 0
+        const offChainPost = await sqlite.findOne('Post', {
+            where: {
+                transactionHash: txHash,
+            },
+        })
 
-    //     expect(offChainPost.status).equal(0)
-    // })
+        expect(offChainPost.status).equal(0)
+    })
 
-    // it('should fetch post failed with incorrect input', async function () {
-    //     // page number shouldn't be negative
-    //     await express.get(`/api/post?page=-1`).then((res) => {
-    //         expect(res).to.have.status(400)
-    //         expect(res.body.error).equal('Invalid page: page is undefined')
-    //     })
-    //     // page number shouldn't be non-integer
-    //     await express.get(`/api/post?page=0.1`).then((res) => {
-    //         expect(res).to.have.status(400)
-    //         expect(res.body.error).equal('Invalid page: page is undefined')
-    //     })
-    // })
+    it('should fetch post failed with incorrect input', async function () {
+        // page number shouldn't be negative
+        await express.get(`/api/post?page=-1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+        // page number shouldn't be non-integer
+        await express.get(`/api/post?page=0.1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+    })
 })

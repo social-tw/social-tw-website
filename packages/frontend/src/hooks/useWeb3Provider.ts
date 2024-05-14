@@ -1,17 +1,22 @@
 import { createProviderByUrl } from '@/utils/createProviderByUrl'
 import useRelayConfig from './useRelayConfig'
 
-export default function useWeb3Provider() {
+export function useWeb3Provider() {
     const config = useRelayConfig()
 
-    return config ? createProviderByUrl(config.ETH_PROVIDER_URL) : undefined
-}
+    const provider = config
+        ? createProviderByUrl(config.ETH_PROVIDER_URL)
+        : undefined
 
-export function getGuaranteedWeb3Provider(
-    provider?: ReturnType<typeof createProviderByUrl>,
-) {
-    if (!provider) {
-        throw new Error('web3 provider not initialized')
+    const getGuaranteedProvider = () => {
+        if (!provider) {
+            throw new Error('web3 provider not initialized')
+        }
+        return provider
     }
-    return provider
+
+    return {
+        provider,
+        getGuaranteedProvider,
+    }
 }

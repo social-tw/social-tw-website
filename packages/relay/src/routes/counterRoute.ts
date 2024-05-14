@@ -9,7 +9,7 @@ import { counterService } from '../services/CounterService'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.get(
         '/api/counter',

@@ -24,6 +24,10 @@
             "@/*": ["src/*"]
         }
     },
-    "include": ["src", "../../node_modules/ts-jest/globals.d.ts"],
+    "include": [
+        "src",
+        "../../node_modules/ts-jest/globals.d.ts",
+        "../../__tests_temp__"
+    ],
     "exclude": ["node_modules", "typings", "build/**/*"]
 }

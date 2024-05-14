@@ -13,13 +13,13 @@ class ProofHelper {
     async getAndVerifyEpochKeyProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // check if attester id is valid
@@ -32,7 +32,7 @@ class ProofHelper {
         const isStateTreeValid = await synchronizer.stateTreeRootExists(
             epochKeyProof.stateTreeRoot,
             Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId
+            epochKeyProof.attesterId,
         )
         if (!isStateTreeValid) {
             throw InvalidStateTreeError
@@ -50,12 +50,12 @@ class ProofHelper {
     async getAndVerifyEpochKeyLiteProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // check if attester id is valid

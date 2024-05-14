@@ -22,7 +22,7 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
-import useUserState from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import { QueryKeys } from '@/constants/queryKeys'
 
 export default function PostList() {

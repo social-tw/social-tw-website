@@ -5,7 +5,7 @@ import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
 import MobileCommentForm, {
     CommentValues,
 } from '@/components/comment/MobileCommentForm'
-import useUserState from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import useCreateComment from '@/hooks/useCreateComment'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'

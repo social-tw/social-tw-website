@@ -7,7 +7,7 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.post(
         '/api/signup',
@@ -20,7 +20,7 @@ export default (
                 proof,
                 hashUserId,
                 fromServer,
-                synchronizer
+                synchronizer,
             )
             res.status(200).json({ status: 'success', txHash })
         })

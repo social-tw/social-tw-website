@@ -9,8 +9,8 @@ import {
     removeActionById,
     useActionStore,
 } from '@/contexts/Actions'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
-import useEpoch from '@/hooks/useEpoch'
+import { useUserState } from '@/hooks/useUserState'
+import { useEpoch } from '@/hooks/useEpoch'
 import useCreateComment from '@/hooks/useCreateComment'
 import useRemoveComment from '@/hooks/useRemoveComment'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
@@ -24,7 +24,7 @@ interface CommentListProps {
 }
 
 const CommentList: React.FC<CommentListProps> = ({ postId }) => {
-    const { userState } = useUserState()
+    const { userState, getGuaranteedUserState } = useUserState()
 
     const { epoch } = useEpoch()
 
@@ -104,7 +104,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
         epoch: number,
         epochKey: string,
     ) => {
-        const _userState = getGuaranteedUserState(userState)
+        const _userState = getGuaranteedUserState()
         const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
         if (!nonce) return
 

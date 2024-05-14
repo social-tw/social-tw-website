@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
 import useIsLogin from '@/hooks/useIsLogin'
-import useUserState from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import { PATHS } from '@/constants/paths'
 
 export default function CreatePost() {

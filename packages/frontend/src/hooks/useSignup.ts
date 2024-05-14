@@ -1,16 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { relaySignUp } from '@/utils/api'
-import useUserState, { getGuaranteedUserState } from './useUserState'
-import useWeb3Provider, { getGuaranteedWeb3Provider } from './useWeb3Provider'
+import { useUserState } from './useUserState'
+import { useWeb3Provider } from './useWeb3Provider'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { SignupFailedError } from '@/utils/errors'
 
 export default function useSignup() {
     const queryClient = useQueryClient()
 
-    const provider = useWeb3Provider()
+    const { getGuaranteedProvider } = useWeb3Provider()
 
-    const { userState } = useUserState()
+    const { userState, getGuaranteedUserState } = useUserState()
 
     const { data: hasSignedUp } = useQuery({
         queryKey: [QueryKeys.HasSignedUp],
@@ -38,10 +38,10 @@ export default function useSignup() {
             try {
                 if (hasSignedUp) return
 
-                const _provider = getGuaranteedWeb3Provider(provider)
-                const _userState = getGuaranteedUserState(userState)
+                const provider = getGuaranteedProvider()
+                const userState = getGuaranteedUserState()
 
-                const proof = await _userState.genUserSignUpProof()
+                const proof = await userState.genUserSignUpProof()
 
                 const data = await relaySignUp(
                     proof,
@@ -50,8 +50,8 @@ export default function useSignup() {
                     fromServer,
                 )
 
-                await _provider.waitForTransaction(data.hash)
-                await _userState.waitForSync()
+                await provider.waitForTransaction(data.hash)
+                await userState.waitForSync()
 
                 return data
             } catch {

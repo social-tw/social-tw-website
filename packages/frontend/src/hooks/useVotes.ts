@@ -5,9 +5,9 @@ import { useEffect } from 'react'
 import { SERVER } from '../config'
 import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
-import useActionCount from './useActionCount'
 import { VoteAction, VoteMsg } from '@/types/Vote'
-import useUserState from './useUserState'
+import { useActionCount } from './useActionCount'
+import { useUserState } from './useUserState'
 
 export default function useVotes() {
     const { userState } = useUserState()

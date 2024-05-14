@@ -1,13 +1,7 @@
-import { expect } from '@jest/globals'
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import { Welcome } from '../../pages/Welcome'
-
-jest.mock('@uidotdev/usehooks', () => ({
-    useMediaQuery: jest.fn().mockReturnValue(true),
-    useIsFirstRender: jest.fn().mockReturnValue(false),
-}))
+import { render, waitFor, screen } from '@testing-library/react'
+import { Welcome } from '@/pages/Welcome'
+import { wrapper } from '@/utils/test-helpers'
 
 jest.mock('../../pages/Home/HomePostList', () => ({
     __esModule: true,
@@ -20,15 +14,10 @@ jest.mock('../../pages/Welcome/ExamplePostsList', () => ({
 }))
 
 test('Welcome should render', () => {
-    render(
-        <MemoryRouter>
-            <Welcome />
-        </MemoryRouter>,
-    )
-    // @ts-expect-error The property `toBeInTheDocument` should exist
-    expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
-    // @ts-expect-error The property `toBeInTheDocument` should exist
-    expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
-
-    // ... Add more tests as needed ...
+    render(<Welcome />, { wrapper })
+    waitFor(() => {
+        expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
+        expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
+        // ... Add more tests as needed ...
+    })
 })
