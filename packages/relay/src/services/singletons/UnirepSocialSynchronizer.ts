@@ -227,9 +227,10 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         // if there's no data in EpochKeyAction then do nothing
         if (rows == 0) return result
 
+        // make sure all data whose epochs are before the current ended one is deleted as well
         db.delete('EpochKeyAction', {
             where: {
-                epoch: epoch,
+                epoch: { lte: epoch },
             },
         })
         return result

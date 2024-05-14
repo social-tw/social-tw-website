@@ -32,8 +32,6 @@ export class PostService {
     }
 
     async updateOrder(db: DB): Promise<void> {
-        // TODO: fetch posts whose status are 1
-
         //      if user just posted, get the first ten result from db
         //      pop last one and insert new post to the first element
 
@@ -52,7 +50,8 @@ export class PostService {
         //      1. use CASE to cal scores by different groups (posts <= 2 days | posts > 2 days)
         //      2. use Join to cal daily upVotes & downVotes for the posts
         //      3. use Join to cal daily comments for the posts
-        //      4. order by
+        //      4. filter posts whose are already on-chain (status = 1)
+        //      5. order by
         //         a. CASE posts <= 2 days = 0 | posts > 2 days first = 1
         //         b. sorting_score
         //         c. CASE posts <= 2 days = 0 | posts > 2 days daily_upvotes DESC
@@ -235,7 +234,7 @@ export class PostService {
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
-        // after post data stored in DB, should add 1 to epoch key counter
+        // save post into db
         await db.create('Post', {
             epochKey: epochKey,
             epoch: epoch,
