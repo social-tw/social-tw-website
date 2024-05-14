@@ -98,8 +98,6 @@
         "jest-svg-transformer": "^1.0.0",
         "jest-transform-stub": "^2.0.0",
         "mini-css-extract-plugin": "^2.6.1",
-        "mobx": "^6.6.2",
-        "nock": "^13.5.4",
         "os-browserify": "^0.3.0",
         "path-browserify": "^1.0.1",
         "postcss": "^8.4.24",
