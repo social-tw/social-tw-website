@@ -38,7 +38,7 @@ describe('GET /counter', function () {
             prover,
             unirep,
             contracts.app,
-            synchronizer,
+            synchronizer
         )
 
         // initUserStatus
@@ -47,7 +47,7 @@ describe('GET /counter', function () {
             initUser,
             userStateFactory,
             userService,
-            synchronizer,
+            synchronizer
         )
 
         await userState.waitForSync()

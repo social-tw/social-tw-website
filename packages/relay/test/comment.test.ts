@@ -38,7 +38,7 @@ describe('COMMENT /comment', function () {
             prover,
             unirep,
             app,
-            synchronizer,
+            synchronizer
         )
 
         // initUserStatus
@@ -49,7 +49,7 @@ describe('COMMENT /comment', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet,
+            wallet
         )
 
         await userState.waitForSync()
@@ -165,7 +165,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -182,7 +182,7 @@ describe('COMMENT /comment', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId,
+            attesterId
         )
         const id = userState.id
         const data = randomData()
@@ -206,7 +206,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -232,7 +232,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -255,7 +255,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -278,7 +278,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(200)

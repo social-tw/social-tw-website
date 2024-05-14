@@ -15,7 +15,7 @@ export const randomData = () => [
         .map(
             () =>
                 poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** BigInt(253),
+                BigInt(2) ** BigInt(253)
         ),
 ]
 
@@ -46,7 +46,7 @@ export async function genEpochKeyProof(config: {
         {
             data: [],
         },
-        config,
+        config
     )
     const data = [..._data, ...Array(FIELD_COUNT - _data.length).fill(0)]
     const _proof = tree.createProof(leafIndex)
@@ -64,13 +64,13 @@ export async function genEpochKeyProof(config: {
     }
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKey,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }

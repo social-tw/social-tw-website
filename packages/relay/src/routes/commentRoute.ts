@@ -11,7 +11,7 @@ export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
+    helia: Helia
 ) => {
     app.route('/api/comment')
         .get(
@@ -31,10 +31,10 @@ export default (
 
                 const comments = await commentService.fetchComments(
                     postId.toString(),
-                    db,
+                    db
                 )
                 res.json(comments)
-            }),
+            })
         )
 
         .post(
@@ -58,7 +58,7 @@ export default (
                     proof,
                     db,
                     synchronizer,
-                    helia,
+                    helia
                 )
                 res.json({ txHash })
             })
@@ -73,7 +73,7 @@ export default (
                     publicSignals,
                     proof,
                     synchronizer,
-                    db,
+                    db
                 )
                 res.json({ txHash })
             })

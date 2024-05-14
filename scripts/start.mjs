@@ -24,8 +24,8 @@ for (;;) {
 // deploy a Unirep contract and the attester contract
 await new Promise((rs, rj) =>
     exec('yarn contracts deploy', (err) =>
-        err ? rj(err) : rs(console.log('Contract has been deployed')),
-    ),
+        err ? rj(err) : rs(console.log('Contract has been deployed'))
+    )
 )
 
 // start relay
