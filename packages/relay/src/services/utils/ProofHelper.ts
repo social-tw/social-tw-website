@@ -83,8 +83,6 @@ class ProofHelper {
         // get current epoch and unirep contract
         const epoch = await synchronizer.loadCurrentEpoch()
         if (!(proof.epoch.toString() === epoch.toString())) {
-            console.log(proof.epoch.toString())
-            console.log(epoch.toString())
             throw InvalidEpochError
         }
     }
