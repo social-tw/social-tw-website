@@ -12,7 +12,7 @@ const code_challenge = crypto.randomUUID()
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get('/api/login', async (_, res) => {
         const url = TwitterClient.authClient.generateAuthURL({
@@ -29,7 +29,7 @@ export default (
             const user = await userService.login(
                 state as string,
                 code as string,
-                db,
+                db
             )
             var redirectUrl = `${CLIENT_URL}/twitter/callback?code=${user.hashUserId}&status=${user.status}&token=${user.token}&signMsg=${user.signMsg}`
 

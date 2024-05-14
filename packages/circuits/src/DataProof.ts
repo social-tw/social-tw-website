@@ -21,7 +21,7 @@ export class DataProof extends BaseProof {
     constructor(
         _publicSignals: PublicSignals,
         _proof: Groth16Proof,
-        prover?: Prover,
+        prover?: Prover
     ) {
         super(_publicSignals, _proof, prover)
         this.stateTreeRoot = _publicSignals[this.idx.stateTreeRoot]

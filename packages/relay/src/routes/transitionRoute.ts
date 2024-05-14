@@ -9,7 +9,7 @@ import { InvalidProofError } from '../types/InternalError'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/transition',
@@ -18,7 +18,7 @@ export default (
             const transitionProof = new UserStateTransitionProof(
                 publicSignals,
                 proof,
-                synchronizer.prover,
+                synchronizer.prover
             )
             const valid = await transitionProof.verify()
             if (!valid) {
@@ -28,11 +28,11 @@ export default (
             const calldata =
                 synchronizer.unirepContract.interface.encodeFunctionData(
                     'userStateTransition',
-                    [transitionProof.publicSignals, transitionProof.proof],
+                    [transitionProof.publicSignals, transitionProof.proof]
                 )
             const txHash = await TransactionManager.queueTransaction(
                 synchronizer.unirepContract.address,
-                calldata,
+                calldata
             )
             res.json({ txHash })
         })

@@ -10,11 +10,11 @@ export class InternalError extends Error {
 // user related error
 export const InvalidHashUserIdError = new InternalError(
     'Invalid hashUserId',
-    400,
+    400
 )
 export const UserAlreadySignedUpError = new InternalError(
     'The user has already signed up.',
-    400,
+    400
 )
 export const UserLoginError = new InternalError('Error in login', 400)
 
@@ -33,7 +33,7 @@ export const InvalidAttesterIdError = new InternalError('Wrong attesterId', 400)
 export const InvalidProofError = new InternalError('Invalid proof', 400)
 export const InvalidStateTreeError = new InternalError(
     'Invalid State Tree',
-    400,
+    400
 )
 export const InvalidPublicSignalError = new InternalError(
     'Invalid public signal',
@@ -54,7 +54,7 @@ export const InvalidDirectionError = new InternalError(
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
 export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
-    400,
+    400
 )
 export const InvalidPageError = new InternalError(
     'Invalid page: page is undefined',
