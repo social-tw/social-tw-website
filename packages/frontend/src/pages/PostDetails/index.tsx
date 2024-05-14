@@ -9,7 +9,7 @@ import CommentForm from './CommentForm'
 import CommentList from './CommentList'
 import { PostStatus } from '@/types/Post'
 import { fetchSinglePost } from '@/utils/api'
-import useUserState from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import useIsLogin from '@/hooks/useIsLogin'
 import { QueryKeys } from '@/constants/queryKeys'
 

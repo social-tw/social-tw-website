@@ -6,12 +6,10 @@ import {
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import useActionCount from '@/hooks/useActionCount'
-import useWeb3Provider, {
-    getGuaranteedWeb3Provider,
-} from '@/hooks/useWeb3Provider'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
-import useUserStateTransition from '@/hooks/useUserStateTransition'
+import { useActionCount } from '@/hooks/useActionCount'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { relayCreateComment } from '@/utils/api'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
@@ -19,9 +17,9 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 export default function useCreateComment() {
     const queryClient = useQueryClient()
 
-    const provider = useWeb3Provider()
+    const { getGuaranteedProvider } = useWeb3Provider()
 
-    const { userState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
     const { stateTransition } = useUserStateTransition()
 
@@ -40,13 +38,13 @@ export default function useCreateComment() {
             postId: string
             content: string
         }) => {
-            const _provider = getGuaranteedWeb3Provider(provider)
-            const _userState = getGuaranteedUserState(userState)
+            const provider = getGuaranteedProvider()
+            const userState = getGuaranteedUserState()
 
             await stateTransition()
 
             const nonce = getEpochKeyNonce(actionCount)
-            const epochKeyProof = await _userState.genEpochKeyProof({ nonce })
+            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
             const epoch = Number(epochKeyProof.epoch)
             const epochKey = epochKeyProof.epochKey.toString()
@@ -57,13 +55,13 @@ export default function useCreateComment() {
                 content,
             )
 
-            const receipt = await _provider.waitForTransaction(txHash)
+            const receipt = await provider.waitForTransaction(txHash)
 
             const commentId = ethers.BigNumber.from(
                 receipt.logs[0].topics[3],
             ).toString()
 
-            await _userState.waitForSync()
+            await userState.waitForSync()
 
             return {
                 transactionHash: txHash,

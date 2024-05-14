@@ -5,20 +5,18 @@ import {
     succeedActionById,
 } from '@/contexts/Actions'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import { relayRemoveComment } from '@/utils/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import useWeb3Provider, {
-    getGuaranteedWeb3Provider,
-} from '@/hooks/useWeb3Provider'
-import useUserStateTransition from '@/hooks/useUserStateTransition'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition'
 
 export default function useRemoveComment() {
     const queryClient = useQueryClient()
 
-    const provider = useWeb3Provider()
+    const { getGuaranteedProvider } = useWeb3Provider()
 
-    const { userState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
     const { stateTransition } = useUserStateTransition()
 
@@ -39,12 +37,12 @@ export default function useRemoveComment() {
             epoch: number
             nonce: number
         }) => {
-            const _provider = getGuaranteedWeb3Provider(provider)
-            const _userState = getGuaranteedUserState(userState)
+            const provider = getGuaranteedProvider()
+            const userState = getGuaranteedUserState()
 
             await stateTransition()
 
-            const proof = await _userState.genEpochKeyLiteProof({
+            const proof = await userState.genEpochKeyLiteProof({
                 epoch,
                 nonce,
             })
@@ -54,8 +52,8 @@ export default function useRemoveComment() {
                 postId,
                 commentId,
             )
-            await _provider.waitForTransaction(txHash)
-            await _userState.waitForSync()
+            await provider.waitForTransaction(txHash)
+            await userState.waitForSync()
         },
         onMutate: (variables) => {
             const actionId = addAction(ActionType.DeleteComment, {

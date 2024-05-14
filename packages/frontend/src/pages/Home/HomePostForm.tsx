@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { UserState } from '@unirep/core'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
-import useUserState from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 
 interface HomePostFormProps {
     disabled?: boolean

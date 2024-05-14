@@ -218,7 +218,9 @@ export default function Post({
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.UPVOTE)}
-                        style={{ cursor: isLoggedIn ? 'pointer' : 'not-allowed' }}
+                        style={{
+                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
+                        }}
                     >
                         <div
                             className={`${
@@ -240,7 +242,9 @@ export default function Post({
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.DOWNVOTE)}
-                        style={{ cursor: isLoggedIn ? 'pointer' : 'not-allowed' }}
+                        style={{
+                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
+                        }}
                     >
                         <div
                             className={`${

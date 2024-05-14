@@ -7,12 +7,10 @@ import {
     PostData,
     succeedActionById,
 } from '@/contexts/Actions'
-import useActionCount from '@/hooks/useActionCount'
-import useWeb3Provider, {
-    getGuaranteedWeb3Provider,
-} from '@/hooks/useWeb3Provider'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
-import useUserStateTransition from '@/hooks/useUserStateTransition'
+import { useActionCount } from '@/hooks/useActionCount'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { relayCreatePost } from '@/utils/api'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
@@ -20,9 +18,9 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 export default function useCreatePost() {
     const queryClient = useQueryClient()
 
-    const provider = useWeb3Provider()
+    const { getGuaranteedProvider } = useWeb3Provider()
 
-    const { userState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
     const { stateTransition } = useUserStateTransition()
 
@@ -36,14 +34,14 @@ export default function useCreatePost() {
     } = useMutation({
         mutationKey: [MutationKeys.CreatePost],
         mutationFn: async ({ content }: { content: string }) => {
-            const _provider = getGuaranteedWeb3Provider(provider)
-            const _userState = getGuaranteedUserState(userState)
+            const provider = getGuaranteedProvider()
+            const userState = getGuaranteedUserState()
 
             await stateTransition()
 
             const nonce = getEpochKeyNonce(actionCount)
 
-            const proof = await _userState.genEpochKeyProof({
+            const proof = await userState.genEpochKeyProof({
                 nonce,
             })
 
@@ -52,12 +50,12 @@ export default function useCreatePost() {
 
             const { txHash } = await relayCreatePost(proof, content)
 
-            const receipt = await _provider.waitForTransaction(txHash)
+            const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(
                 receipt.logs[0].topics[2],
             ).toString()
 
-            await _userState.waitForSync()
+            await userState.waitForSync()
 
             return {
                 transactionHash: txHash,

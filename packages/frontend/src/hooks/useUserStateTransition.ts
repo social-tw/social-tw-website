@@ -1,10 +1,10 @@
 import { MutationKeys } from '@/constants/queryKeys'
 import { useMutation } from '@tanstack/react-query'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import { relayUserStateTransition } from '@/utils/api'
 
-export default function useUserStateTransition() {
-    const { userState } = useUserState()
+export function useUserStateTransition() {
+    const { getGuaranteedUserState } = useUserState()
 
     const {
         isPending,
@@ -13,21 +13,21 @@ export default function useUserStateTransition() {
     } = useMutation({
         mutationKey: [MutationKeys.UserStateTransition],
         mutationFn: async () => {
-            const _userState = getGuaranteedUserState(userState)
+            const userState = getGuaranteedUserState()
 
             const latestTransitionedEpoch =
-                await _userState.latestTransitionedEpoch()
-            const currentEpoch = _userState.sync.calcCurrentEpoch()
+                await userState.latestTransitionedEpoch()
+            const currentEpoch = userState.sync.calcCurrentEpoch()
 
             if (currentEpoch === latestTransitionedEpoch) {
                 return
             }
 
-            await _userState.waitForSync()
-            const proof = await _userState.genUserStateTransitionProof()
+            await userState.waitForSync()
+            const proof = await userState.genUserStateTransitionProof()
             const data = await relayUserStateTransition(proof)
-            await _userState.sync.provider.waitForTransaction(data.hash)
-            await _userState.waitForSync()
+            await userState.sync.provider.waitForTransaction(data.hash)
+            await userState.waitForSync()
 
             return data
         },

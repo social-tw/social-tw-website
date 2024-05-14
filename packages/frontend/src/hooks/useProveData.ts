@@ -1,27 +1,27 @@
 import { DataProof } from '@unirep-app/circuits'
 import { stringifyBigInts } from '@unirep/utils'
-import useUserState, { getGuaranteedUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState'
 import prover from '@/utils/prover'
 
 export default function useProveData() {
-    const { userState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
     const proveData = async (data: { [key: number]: string | number }) => {
-        const _userState = getGuaranteedUserState(userState)
-        const epoch = await _userState.sync.loadCurrentEpoch()
-        const chainId = _userState.chainId
-        const stateTree = await _userState.sync.genStateTree(epoch)
-        const index = await _userState.latestStateTreeLeafIndex(epoch)
+        const userState = getGuaranteedUserState()
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const chainId = userState.chainId
+        const stateTree = await userState.sync.genStateTree(epoch)
+        const index = await userState.latestStateTreeLeafIndex(epoch)
         const stateTreeProof = stateTree.createProof(index)
-        const provableData = await _userState.getProvableData()
-        const sumFieldCount = _userState.sync.settings.sumFieldCount
+        const provableData = await userState.getProvableData()
+        const sumFieldCount = userState.sync.settings.sumFieldCount
         const values = Array(sumFieldCount).fill(0)
         for (const [key, value] of Object.entries(data)) {
             values[Number(key)] = value
         }
-        const attesterId = _userState.sync.attesterId
+        const attesterId = userState.sync.attesterId
         const circuitInputs = stringifyBigInts({
-            identity_secret: _userState.id.secret,
+            identity_secret: userState.id.secret,
             state_tree_indices: stateTreeProof.pathIndices,
             state_tree_elements: stateTreeProof.siblings,
             data: provableData,

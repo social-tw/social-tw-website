@@ -30,7 +30,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             unirepAddress: string
             genesisBlock?: number
         },
-        unirepSocialContract: ethers.Contract
+        unirepSocialContract: ethers.Contract,
     ) {
         tempUnirepSocialContract = unirepSocialContract
         super(config)
@@ -128,8 +128,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 ? 2
                 : 1
             : content
-            ? 1
-            : 2
+              ? 1
+              : 2
 
         // Use upsert to either create a new comment or update an existing one
         db.upsert('Comment', {
