@@ -275,4 +275,17 @@ describe('POST /post', function () {
 
         expect(offChainPost.status).equal(0)
     })
+
+    it('should fetch post failed with incorrect input', async function () {
+        // page number shouldn't be negative
+        await express.get(`/api/post?page=-1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+        // page number shouldn't be non-integer
+        await express.get(`/api/post?page=0.1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+    })
 })
