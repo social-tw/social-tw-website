@@ -66,8 +66,8 @@ export default function useCreateComment() {
                 proof: epochKeyProof.proof,
             })
 
-            const { transaction } = await publishComment(proof)
-            const receipt = await provider.waitForTransaction(transaction)
+            const { txHash } = await publishComment(proof)
+            const receipt = await provider.waitForTransaction(txHash)
             const commentId = ethers.BigNumber.from(
                 receipt.logs[0].topics[3],
             ).toString()
@@ -79,11 +79,11 @@ export default function useCreateComment() {
                 commentId,
                 epoch,
                 epochKey,
-                transactionHash: transaction,
+                transactionHash: txHash,
             })
 
             return {
-                transactionHash: transaction,
+                transactionHash: txHash,
                 postId,
                 commentId,
                 content,

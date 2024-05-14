@@ -237,7 +237,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         const data = await response.json()
 
-        await providerInstance.waitForTransaction(data.hash)
+        await providerInstance.waitForTransaction(data.txHash)
 
         await userStateInstance.waitForSync()
         const hasSignedUpStatus = await userStateInstance.hasSignedUp()
@@ -263,7 +263,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 }),
             ),
         }).then((r) => r.json())
-        await provider.waitForTransaction(data.hash)
+        await provider.waitForTransaction(data.txHash)
         await userState.waitForSync()
         await loadData(userState)
         const latestTransitionEpoch = await userState.latestTransitionedEpoch()
@@ -302,7 +302,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 ),
             })
             const data = await response.json()
-            await provider.waitForTransaction(data.hash)
+            await provider.waitForTransaction(data.txHash)
             await userState.waitForSync()
             await loadData(userState)
         },
