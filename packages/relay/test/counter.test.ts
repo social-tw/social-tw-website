@@ -61,7 +61,7 @@ describe('GET /counter', function () {
 
     it('should add the counter number increment after the user posted', async function () {
         let res = await post(express, userState)
-        await ethers.provider.waitForTransaction(res.transaction)
+        await ethers.provider.waitForTransaction(res.txHash)
         await sync.waitForSync()
 
         const epochKeys = (userState.getEpochKeys() as bigint[])

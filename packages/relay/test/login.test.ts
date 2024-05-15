@@ -203,9 +203,9 @@ describe('LOGIN /login', function () {
             })
             .then((res) => {
                 expect(res.body.status).to.equal('success')
-                expect(res.body.hash).to.be.not.null
+                expect(res.body.txHash).to.be.not.null
                 expect(res).to.have.status(200)
-                return res.body.hash
+                return res.body.txHash
             })
         await ethers.provider.waitForTransaction(txHash)
 
@@ -315,9 +315,9 @@ describe('LOGIN /login', function () {
             })
             .then((res) => {
                 expect(res.body.status).to.equal('success')
-                expect(res.body.hash).to.be.not.null
+                expect(res.body.txHash).to.be.not.null
                 expect(res).to.have.status(200)
-                return res.body.hash
+                return res.body.txHash
             })
         await ethers.provider.waitForTransaction(txHash)
 

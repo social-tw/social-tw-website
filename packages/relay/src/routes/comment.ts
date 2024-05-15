@@ -51,7 +51,7 @@ export default (
                 if (!post) {
                     throw InvalidPostIdError
                 }
-                const hash = await commentService.leaveComment(
+                const txHash = await commentService.leaveComment(
                     postId.toString(),
                     content,
                     publicSignals,
@@ -60,14 +60,14 @@ export default (
                     synchronizer,
                     helia
                 )
-                res.json({ transaction: hash })
+                res.json({ txHash })
             })
         )
 
         .delete(
             errorHandler(async (req, res) => {
                 const { commentId, postId, publicSignals, proof } = req.body
-                const hash = await commentService.deleteComment(
+                const txHash = await commentService.deleteComment(
                     commentId.toString(),
                     postId.toString(),
                     publicSignals,
@@ -75,7 +75,7 @@ export default (
                     synchronizer,
                     db
                 )
-                res.json({ transaction: hash })
+                res.json({ txHash })
             })
         )
 }

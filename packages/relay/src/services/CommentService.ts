@@ -60,7 +60,7 @@ export class CommentService {
 
         // store content into helia ipfs node with json plain
         const cid = await IpfsHelper.createIpfsContent(helia, content)
-        const txnHash = await TransactionManager.callContract('leaveComment', [
+        const txHash = await TransactionManager.callContract('leaveComment', [
             publicSignals,
             proof,
             postId,
@@ -77,11 +77,11 @@ export class CommentService {
             cid: cid,
             epochKey: epochKey,
             epoch: epoch,
-            transactionHash: txnHash,
+            transactionHash: txHash,
             status: 0,
         })
 
-        return txnHash
+        return txHash
     }
 
     async deleteComment(
@@ -114,7 +114,7 @@ export class CommentService {
             throw InvalidEpochKeyError
         }
 
-        const txnHash = await TransactionManager.callContract('editComment', [
+        const txHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
             epochKeyLiteProof.proof,
             comment.postId,
@@ -122,7 +122,7 @@ export class CommentService {
             '',
         ])
 
-        return txnHash
+        return txHash
     }
 }
 
