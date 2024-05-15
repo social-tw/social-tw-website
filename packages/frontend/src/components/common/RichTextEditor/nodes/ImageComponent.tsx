@@ -1,9 +1,9 @@
 import type {
-    GridSelection,
     LexicalEditor,
     NodeKey,
     NodeSelection,
     RangeSelection,
+    GridSelection,
 } from 'lexical'
 
 import './ImageNode.css'
@@ -23,7 +23,7 @@ import {
 } from 'lexical'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
-import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext'
+// import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
@@ -72,7 +72,6 @@ function LazyImage({
 }): JSX.Element {
     useSuspenseImage(src)
     return (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
             className={className || undefined}
             src={src}
@@ -116,7 +115,7 @@ export default function ImageComponent({
     const [isSelected, setSelected, clearSelection] =
         useLexicalNodeSelection(nodeKey)
     const [isResizing, setIsResizing] = useState<boolean>(false)
-    const { isCollabActive } = useCollaborationContext()
+    // const { isCollabActive } = useCollaborationContext()
     const [editor] = useLexicalComposerContext()
     const [selection, setSelection] = useState<
         RangeSelection | NodeSelection | GridSelection | null

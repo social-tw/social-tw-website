@@ -55,7 +55,7 @@ export default function CreatePost() {
         } else {
             setIsSubmitting(false)
         }
-    }, [isPending])
+    }, [isPending, navigate])
 
     if (!isLoggedIn) {
         return (

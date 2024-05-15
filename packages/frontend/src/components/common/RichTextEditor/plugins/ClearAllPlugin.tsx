@@ -15,6 +15,6 @@ export default function ClearAllPlugin({
             editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
             editor.focus()
         }
-    }, [value, isFirstRender])
+    }, [value, isFirstRender, editor])
     return null
 }
