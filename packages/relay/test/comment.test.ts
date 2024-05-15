@@ -3,11 +3,7 @@ import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
 import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
-import {
-    genStateTreeLeaf,
-    IncrementalMerkleTree,
-    stringifyBigInts,
-} from '@unirep/utils'
+import { stringifyBigInts } from '@unirep/utils'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -17,8 +13,6 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
-
-const { STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('COMMENT /comment', function () {
     let snapshot: any
