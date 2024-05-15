@@ -148,7 +148,7 @@ describe('COMMENT /comment', function () {
 
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = await userState.sync.attesterId
+        const attesterId = userState.sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
