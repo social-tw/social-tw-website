@@ -16,17 +16,17 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     const { isLoggedIn, isLoggingIn } = useIsLogin()
 
     useEffect(() => {
-        if (isFirstRender) {
+        if (isFirstRender || isLoggingIn) {
             return
         }
         if (!isLoggedIn) {
             navigate(PATHS.WELCOME)
         }
-    }, [isLoggedIn])
+    }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
     if (isLoggingIn) {
         return null
     }
 
-    return children
+    return <>{children}</>
 }

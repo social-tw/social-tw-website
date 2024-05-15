@@ -12,11 +12,11 @@ export function useEpoch() {
             epoch && remainingTime
                 ? Date.now() / 1000 - (epochLength - remainingTime)
                 : 0,
-        [epoch, epochLength, remainingTime],
+        [epoch, remainingTime],
     )
     const epochEndTime = useMemo(
         () => (epoch && remainingTime ? Date.now() / 1000 + remainingTime : 0),
-        [epoch, epochLength, remainingTime],
+        [epoch, remainingTime],
     )
 
     const { userState } = useUserState()

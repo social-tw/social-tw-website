@@ -8,6 +8,11 @@ import { MutationKeys } from '@/constants/queryKeys'
 import { useIsMutating, useMutationState } from '@tanstack/react-query'
 import useIsLogin from '@/hooks/useIsLogin'
 
+const textsAndTimes: { text: string; time: number }[] = [
+    { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
+    { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
+]
+
 export default function SignUpLoadingModal() {
     const navigate = useNavigate()
 
@@ -46,11 +51,6 @@ export default function SignUpLoadingModal() {
 
     const [pendingText, setPendingText] =
         useState('努力註冊中，先來看看文章吧！')
-
-    const textsAndTimes: { text: string; time: number }[] = [
-        { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
-        { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
-    ]
 
     const opacityVarients = {
         visible: { opacity: 1 },

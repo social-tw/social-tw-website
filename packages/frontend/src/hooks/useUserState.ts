@@ -14,7 +14,7 @@ import { createProviderByUrl } from '@/utils/createProviderByUrl'
 const db = new MemoryConnector(constructSchema(schema))
 
 export function useUserState() {
-    const config = useRelayConfig()
+    const { isPending: isConfigPending, data: config } = useRelayConfig()
 
     const [signature] = useLocalStorage<string | null>(
         LOCAL_STORAGE.SIGNATURE,
@@ -57,7 +57,7 @@ export function useUserState() {
     }
 
     return {
-        isPending,
+        isPending: isPending || isConfigPending,
         userState,
         getGuaranteedUserState,
     }

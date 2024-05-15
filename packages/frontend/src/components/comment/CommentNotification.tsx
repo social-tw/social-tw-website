@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import CloseIcon from '@/assets/close.svg'
-import PostIcon from '@/assets/post.svg'
+import { ReactComponent as CloseIcon } from '@/assets/close.svg'
+import { ReactComponent as PostIcon } from '@/assets/post.svg'
 import useCommentEvents from '@/hooks/useCommentEvents'
 import { CommentMsg } from '@/types/Comments'
 

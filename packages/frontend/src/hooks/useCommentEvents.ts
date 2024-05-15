@@ -17,7 +17,7 @@ export default function useCommentEvents(postId: string) {
         return () => {
             unsubscribe()
         }
-    }, [])
+    }, [postId, push])
 
     return {
         list,

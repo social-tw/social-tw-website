@@ -73,5 +73,3 @@ export default function Backdrop({
         </>
     )
 }
-
-Backdrop

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Avatar from '@/components/common/Avatar'
@@ -58,12 +58,16 @@ export default function Post({
     const { create } = useVotes()
     // 'upvote', 'downvote', or null
     const { votes, updateVote } = useVoteStore()
-    const voteState = votes[id] || {
-        upCount: upCount,
-        downCount: downCount,
-        isMine: isMine,
-        finalAction: finalAction,
-    }
+    const voteState = useMemo(() => {
+        return (
+            votes[id] || {
+                upCount: upCount,
+                downCount: downCount,
+                isMine: isMine,
+                finalAction: finalAction,
+            }
+        )
+    }, [downCount, finalAction, id, isMine, upCount, votes])
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -211,7 +215,7 @@ export default function Post({
                 )}
                 {!compact && imageUrl && (
                     <section className="hidden rounded-xl shadow-base">
-                        <img className="w-full" src={imageUrl} alt="image" />
+                        <img className="w-full" src={imageUrl} alt={content} />
                     </section>
                 )}
                 <footer className="flex items-center gap-4">
@@ -287,7 +291,7 @@ export default function Post({
                     <img
                         className="object-cover w-full h-full"
                         src={imageUrl}
-                        alt="image"
+                        alt={content}
                     />
                 </div>
             )}

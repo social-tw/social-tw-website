@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import CloseIcon from '@/assets/close.svg'
+import { ReactComponent as CloseIcon } from '@/assets/close.svg'
 import { Dialog as HeadlessDialog } from '@headlessui/react'
 import Backdrop from './Backdrop'
 

@@ -1,12 +1,16 @@
 import { createProviderByUrl } from '@/utils/createProviderByUrl'
 import useRelayConfig from './useRelayConfig'
+import { useMemo } from 'react'
 
 export function useWeb3Provider() {
-    const config = useRelayConfig()
+    const { data: config } = useRelayConfig()
 
-    const provider = config
-        ? createProviderByUrl(config.ETH_PROVIDER_URL)
-        : undefined
+    const provider = useMemo(() => 
+        config
+            ? createProviderByUrl(config.ETH_PROVIDER_URL)
+            : undefined,
+        [config]
+    )
 
     const getGuaranteedProvider = () => {
         if (!provider) {

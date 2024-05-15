@@ -12,10 +12,10 @@ import {
     $getSelection,
     $isRangeSelection,
     FORMAT_TEXT_COMMAND,
-    GridSelection,
     LexicalEditor,
     NodeSelection,
     RangeSelection,
+    GridSelection,
     SELECTION_CHANGE_COMMAND,
 } from 'lexical'
 import {
@@ -78,10 +78,6 @@ const blockTypeToBlockName = {
     paragraph: 'Normal',
     quote: 'Quote',
     ul: 'Bulleted List',
-}
-
-function Divider() {
-    return <div className="divider" />
 }
 
 function positionEditorElement(editor: HTMLDivElement, rect: DOMRect | null) {

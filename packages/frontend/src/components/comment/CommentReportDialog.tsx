@@ -16,12 +16,11 @@ export default function CommentReportModal({
     isOpen = false,
     onClose = () => {},
 }: CommentReportDialogProps) {
-    const { control, handleSubmit, reset, formState } =
-        useForm<ReportFormValues>({
-            defaultValues: {
-                content: '',
-            },
-        })
+    const { control, handleSubmit, formState } = useForm<ReportFormValues>({
+        defaultValues: {
+            content: '',
+        },
+    })
 
     const { isValid, isSubmitting, isSubmitSuccessful } = formState
 
