@@ -16,13 +16,20 @@ export default (
     app.route('/api/comment')
         .get(
             errorHandler(async (req, res) => {
-                const { epks, postId } = req.query
+                const { postId } = req.query
                 if (!postId) {
                     throw InvalidPostIdError
                 }
 
+                const post = await postService.fetchSinglePost(
+                    postId.toString(),
+                    db
+                )
+                if (!post) {
+                    throw InvalidPostIdError
+                }
+
                 const comments = await commentService.fetchComments(
-                    epks?.toString(),
                     postId.toString(),
                     db
                 )

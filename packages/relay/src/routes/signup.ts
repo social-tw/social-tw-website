@@ -15,7 +15,7 @@ export default (
             const { publicSignals, proof, hashUserId, token, fromServer } =
                 req.body
             await userService.verifyHashUserId(db, hashUserId, token)
-            const { txHash } = await userService.signup(
+            const txHash = await userService.signup(
                 publicSignals,
                 proof,
                 hashUserId,

@@ -4,16 +4,12 @@ import {
     DB_PATH,
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
-    APP_ADDRESS,
-    APP_ABI,
 } from '../config'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import { ethers } from 'ethers'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import ProofHelper from './singletons/ProofHelper'
-import ActionCountManager from './singletons/ActionCountManager'
-import { PostCreationResult, Post } from '../types/Post'
+import { Post } from '../types/Post'
 import IpfsHelper from './singletons/IpfsHelper'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 import TransactionManager from './singletons/TransactionManager'
@@ -54,7 +50,8 @@ export class PostService {
         //      1. use CASE to cal scores by different groups (posts <= 2 days | posts > 2 days)
         //      2. use Join to cal daily upVotes & downVotes for the posts
         //      3. use Join to cal daily comments for the posts
-        //      4. order by
+        //      4. filter posts whose are already on-chain (status = 1)
+        //      5. order by
         //         a. CASE posts <= 2 days = 0 | posts > 2 days first = 1
         //         b. sorting_score
         //         c. CASE posts <= 2 days = 0 | posts > 2 days daily_upvotes DESC
@@ -96,6 +93,7 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
+            WHERE p.status = 1
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
@@ -217,7 +215,7 @@ export class PostService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
-    ): Promise<PostCreationResult> {
+    ): Promise<string> {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
@@ -227,45 +225,29 @@ export class PostService {
         // post content
         const cid = await IpfsHelper.createIpfsContent(helia, content)
 
-        const appContract = new ethers.Contract(APP_ADDRESS, APP_ABI)
-        const calldata = appContract.interface.encodeFunctionData('post', [
+        const txHash = await TransactionManager.callContract('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
             content,
         ])
 
-        const { txHash, logs } = await TransactionManager.executeTransaction(
-            appContract,
-            APP_ADDRESS,
-            calldata
-        )
-
-        const postId = logs
-            .filter(
-                (log): log is ethers.utils.LogDescription =>
-                    log !== null && log.name === 'Post'
-            )
-            .map((log) => log.args.postId)
-            .find((postId) => postId !== undefined)
-            .toString()
-
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
-        // after post data stored in DB, should add 1 to epoch key counter
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            txDB.update('Post', {
-                where: {
-                    transactionHash: txHash,
-                },
-                update: {
-                    cid: cid.toString(),
-                },
-            })
-            return 1
+        // save post into db
+        await db.create('Post', {
+            epochKey: epochKey,
+            epoch: epoch,
+            transactionHash: txHash,
+            status: 0,
+            content,
+            upCount: 0,
+            downCount: 0,
+            commentCount: 0,
+            cid: cid,
         })
 
-        return { txHash, postId: postId }
+        return txHash
     }
 
     async fetchSinglePost(id: string, db: DB): Promise<Post | null> {

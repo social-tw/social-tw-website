@@ -47,7 +47,7 @@ export default (
                 throw EmptyPostError
             }
 
-            const { txHash, postId } = await postService.createPost(
+            const txHash = await postService.createPost(
                 content,
                 publicSignals,
                 proof,
@@ -56,7 +56,7 @@ export default (
                 helia
             )
 
-            res.json({ transaction: txHash, postId })
+            res.json({ transaction: txHash })
         })
     )
 

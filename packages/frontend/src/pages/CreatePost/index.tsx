@@ -6,11 +6,11 @@ import { useUser } from '@/contexts/User'
 import useCreatePost from '@/hooks/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserState } from '@unirep/core'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
 
-const CreatePost: React.FC = () => {
+export default function CreatePost() {
     const { isLogin, userState } = useUser()
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,
@@ -77,5 +77,3 @@ const CreatePost: React.FC = () => {
         </div>
     )
 }
-
-export default CreatePost

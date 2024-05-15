@@ -2,7 +2,7 @@ import { RiShieldStarLine } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
 import { CyanButton } from '../../../components/buttons/CyanButton'
 
-export const ReputationButton = () => {
+export default function ReputationButton() {
     const navigate = useNavigate()
     const handleLogout = () => {
         navigate('/profile/reputation')

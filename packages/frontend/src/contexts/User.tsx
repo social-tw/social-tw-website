@@ -14,12 +14,12 @@ import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 import ERROR_MESSAGES from '../constants/error-messages/errorMessage'
 import useInitUser from '../hooks/useInitUser'
-import { useLocalStorage } from '../hooks/useLocalStorage'
 import { fetchRelayConfig } from '../utils/api'
 import { createProviderByUrl } from '../utils/createProviderByUrl'
 import prover from './Prover'
 import { schema } from './schema'
 import { UserState } from './Userstate'
+import useLocalStorage from '@/hooks/useLocalStorage'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
 

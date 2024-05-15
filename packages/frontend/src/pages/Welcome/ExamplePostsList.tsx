@@ -1,6 +1,7 @@
 import Post from '../../components/post/Post'
 import { MOCK_POSTS } from '../../constants/mockPosts'
 
+// TODO: This is no more used in latest verstion
 export function ExamplePostsList() {
     return (
         <div className="divide-y divide-neutral-600 max-w-[600px] w-11/12">
@@ -28,5 +29,3 @@ export function ExamplePostsList() {
         </div>
     )
 }
-
-// TODO: Real posts should be rendered here
