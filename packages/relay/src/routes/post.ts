@@ -56,7 +56,7 @@ export default (
                 helia
             )
 
-            res.json({ transaction: txHash })
+            res.json({ txHash })
         })
     )
 

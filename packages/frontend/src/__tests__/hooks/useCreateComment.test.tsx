@@ -59,7 +59,7 @@ describe('useCreateComment', () => {
     it('successfully creates a comment', async () => {
         ;(global.fetch as jest.Mock).mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve({ transaction: 'mock_transaction' }),
+            json: () => Promise.resolve({ txHash: 'mock_transaction' }),
         })
 
         const { result } = renderHook(() => useCreateComment())

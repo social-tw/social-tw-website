@@ -77,7 +77,7 @@ describe('POST /vote', function () {
         const postResponses = await Promise.all(postPromises)
         await Promise.all(
             postResponses.map((res) =>
-                ethers.provider.waitForTransaction(res.transaction)
+                ethers.provider.waitForTransaction(res.txHash)
             )
         )
         await sync.waitForSync()

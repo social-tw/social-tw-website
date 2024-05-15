@@ -87,7 +87,7 @@ describe('Synchronize Comment Test', function () {
         before(async function () {
             const userState = users[0].userState
             const result = await post(express, userState)
-            await ethers.provider.waitForTransaction(result.transaction)
+            await ethers.provider.waitForTransaction(result.txHash)
             await sync.waitForSync()
 
             // check db if the post is synchronized

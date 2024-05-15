@@ -25,7 +25,7 @@ export default (
 
             const counter = await counterService.fetchActions(epks, db)
 
-            res.json({ counter: counter })
+            res.json({ counter })
         })
     )
 }

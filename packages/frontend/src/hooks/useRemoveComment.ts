@@ -57,8 +57,8 @@ export default function useRemoveComment() {
                 proof: EpochKeyLiteProof.proof,
             })
 
-            const { transaction } = await deleteComment(proof)
-            await provider.waitForTransaction(transaction)
+            const { txHash } = await deleteComment(proof)
+            await provider.waitForTransaction(txHash)
             await userState.waitForSync()
             await loadData(userState)
 

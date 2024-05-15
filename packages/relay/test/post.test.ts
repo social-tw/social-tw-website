@@ -89,7 +89,7 @@ describe('POST /post', function () {
                 return res.body
             })
 
-        await ethers.provider.waitForTransaction(res.transaction)
+        await ethers.provider.waitForTransaction(res.txHash)
         await sync.waitForSync()
 
         let posts = await express
@@ -99,7 +99,7 @@ describe('POST /post', function () {
                 return res.body
             })
 
-        expect(posts[0].transactionHash).equal(res.transaction)
+        expect(posts[0].transactionHash).equal(res.txHash)
         expect(posts[0].content).equal(testContent)
         expect(posts[0].status).equal(1)
 
@@ -241,7 +241,7 @@ describe('POST /post', function () {
 
     it('should fetch posts which are already on-chain', async function () {
         // send a post
-        const { transaction } = await post(express, userState)
+        const { txHash } = await post(express, userState)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
         await pService.updateOrder(sqlite)
@@ -269,10 +269,23 @@ describe('POST /post', function () {
         // check the post is off-chain so the status must be 0
         const offChainPost = await sqlite.findOne('Post', {
             where: {
-                transactionHash: transaction,
+                transactionHash: txHash,
             },
         })
 
         expect(offChainPost.status).equal(0)
+    })
+
+    it('should fetch post failed with incorrect input', async function () {
+        // page number shouldn't be negative
+        await express.get(`/api/post?page=-1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+        // page number shouldn't be non-integer
+        await express.get(`/api/post?page=0.1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
     })
 })

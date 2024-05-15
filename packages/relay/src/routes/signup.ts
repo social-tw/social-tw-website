@@ -22,7 +22,7 @@ export default (
                 fromServer,
                 synchronizer
             )
-            res.status(200).json({ status: 'success', hash: txHash })
+            res.status(200).json({ status: 'success', txHash })
         })
     )
 }

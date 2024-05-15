@@ -62,7 +62,7 @@ describe('COMMENT /comment', function () {
         expect(hasSignedUp).equal(true)
 
         const result = await post(chaiServer, userState)
-        await ethers.provider.waitForTransaction(result.transaction)
+        await ethers.provider.waitForTransaction(result.txHash)
         await sync.waitForSync()
 
         const res = await chaiServer.get('/api/post/0')
@@ -96,7 +96,7 @@ describe('COMMENT /comment', function () {
         })
 
         // create a comment
-        const transaction = await express
+        const txHash = await express
             .post('/api/comment')
             .set('content-type', 'application/json')
             .send({
@@ -107,17 +107,17 @@ describe('COMMENT /comment', function () {
             })
             .then((res) => {
                 expect(res).to.have.status(200)
-                return res.body.transaction
+                return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(transaction)
+        await ethers.provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
         // comment on the post
         await express.get(`/api/comment?postId=0`).then((res) => {
             expect(res).to.have.status(200)
             const comments = res.body
-            expect(comments[0].transactionHash).equal(transaction)
+            expect(comments[0].transactionHash).equal(txHash)
             expect(comments[0].content).equal(testContent)
             expect(comments[0].status).equal(1)
         })
@@ -246,7 +246,7 @@ describe('COMMENT /comment', function () {
         })
 
         // delete a comment
-        const transaction = await express
+        const txHash = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
             .send(
@@ -259,10 +259,10 @@ describe('COMMENT /comment', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(200)
-                return res.body.transaction
+                return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(transaction)
+        await ethers.provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
         // check comment exist
