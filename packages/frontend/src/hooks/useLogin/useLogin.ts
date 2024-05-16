@@ -5,7 +5,7 @@ import { LoginUnknownError } from '@/utils/errors'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 
-export default function useLogin() {
+export function useLogin() {
     const navigate = useNavigate()
 
     const {
