@@ -38,6 +38,10 @@ export interface FetchVotesByEpochKeysParams {
 
 export type FetchVotesByEpochKeysResponse = RelayRawVote[]
 
+export interface FetchCounterResponse {
+    counter: number
+}
+
 export interface RelayUserStateTransitionResponse {
     txHash: string
 }
