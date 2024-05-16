@@ -4,9 +4,9 @@ import dayjs from 'dayjs'
 import { RelayRawVote } from '../../../../types/api'
 import { fetchVotesByEpochKeys } from '../../../../utils/api'
 import { Vote } from '../DTO/Vote'
-import { ErrorUnsupportedVoteType } from '../errors/ErrorUnsupportedVoteType'
 import { ActiveFilter, VoteType } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
+import ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
 
 export class VoteService {
     async fetchVoteHistoryByUserState(userState: UserState) {
@@ -76,7 +76,7 @@ export class VoteService {
         } else if (relayRawVote.downVote === 1) {
             return VoteType.Downvote
         } else {
-            throw new ErrorUnsupportedVoteType()
+            throw new Error(ERROR_MESSAGES.UNSUPPORTED_VOTE_TYPE.code)
         }
     }
 }
