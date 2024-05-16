@@ -5,15 +5,18 @@ import { useEffect } from 'react'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
 import client from '../socket'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
+import useActionCount from './useActionCount'
 import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()
+
     const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryVotesFlow,
     )
 
-    const randomNonce = () => Math.round(Math.random())
+    const actionCount = useActionCount()
 
     const create = async (
         _id: string,
@@ -22,7 +25,7 @@ export default function useVotes() {
         try {
             if (!userState) throw new Error('User state not initialized')
 
-            const nonce = randomNonce()
+            const nonce = getEpochKeyNonce(actionCount)
 
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
@@ -47,7 +50,6 @@ export default function useVotes() {
             await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 
             if (response.status === 201) {
-                console.log('Vote succeeded!')
                 return true
             } else {
                 throw new Error(
@@ -55,7 +57,6 @@ export default function useVotes() {
                 )
             }
         } catch (error) {
-            console.error('Vote failed:', error)
             return false
         }
     }
@@ -63,7 +64,7 @@ export default function useVotes() {
     return { create }
 }
 
-export const useVoteEvents = (callback: any) => {
+export const useVoteEvents = (callback: (data: VoteMsg) => void) => {
     useEffect(() => {
         let isMounted = true
 

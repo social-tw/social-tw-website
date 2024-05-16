@@ -9,9 +9,9 @@ interface CommentNotificationsProps {
     postId: string
 }
 
-const CommentNotifications: React.FC<CommentNotificationsProps> = (props) => {
-    const { postId } = props
-
+export default function CommentNotifications({
+    postId,
+}: CommentNotificationsProps) {
     const { list, removeAt } = useCommentEvents(postId)
 
     const renderNotification = (item: CommentMsg, index: number) => {
@@ -58,5 +58,3 @@ const CommentNotifications: React.FC<CommentNotificationsProps> = (props) => {
         </div>
     )
 }
-
-export default CommentNotifications

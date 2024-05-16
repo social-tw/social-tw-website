@@ -23,18 +23,18 @@ export interface PostData {
 }
 
 export interface CommentData {
-    commentId: string
+    commentId?: string
     postId: string
     content: string
     epochKey?: string
-    epoch: number
-    transactionHash: string
+    epoch?: number
+    transactionHash?: string
 }
 
 export interface DeleteCommentData {
-    commentId?: string
+    postId: string
+    commentId: string
     epoch: number
-    transactionHash: string
 }
 
 export interface BaseAction<Type, Data> {
@@ -132,11 +132,13 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
     const _startTime = startTime * 1000
     const _endTime = endTime * 1000
     return function (state: ActionState) {
-        return Object.values(state.entities).filter(
-            (action) =>
-                action.submittedAt.valueOf() > _startTime &&
-                action.submittedAt.valueOf() <= _endTime,
-        ).length
+        return Object.values(state.entities)
+            .filter((action) => action.status !== ActionStatus.Failure)
+            .filter(
+                (action) =>
+                    action.submittedAt.valueOf() > _startTime &&
+                    action.submittedAt.valueOf() <= _endTime,
+            ).length
     }
 }
 

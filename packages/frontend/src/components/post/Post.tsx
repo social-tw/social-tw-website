@@ -111,7 +111,6 @@ export default function Post({
     )
 
     const handleVote = async (voteType: VoteAction) => {
-        console.log(voteState, voteType)
         let action: VoteAction
         let success = false
         let newUpCount = voteState.upCount
@@ -128,7 +127,6 @@ export default function Post({
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
 
-            console.log('cancel vote', voteState.finalAction, cancelAction)
             success = await create(id, cancelAction)
 
             if (success) {
@@ -148,7 +146,6 @@ export default function Post({
 
         // if not exist vote, create vote
         if (!voteState.isMine || voteState.finalAction !== voteType) {
-            console.log('vote:', voteType)
             action = voteType
             setIgnoreNextEvent(true)
             success = await create(id, action)
@@ -261,8 +258,9 @@ export default function Post({
                             {localDownCount}
                         </span>
                     </div>
-                    <div
-                        className="flex items-center gap-1"
+                    <button
+                        className="flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                        disabled={!onComment}
                         onClick={onComment}
                     >
                         <img
@@ -276,7 +274,7 @@ export default function Post({
                         <span className="text-xs font-medium tracking-wide text-black/80">
                             {commentCount}
                         </span>
-                    </div>
+                    </button>
                 </footer>
             </div>
             {compact && imageUrl && (

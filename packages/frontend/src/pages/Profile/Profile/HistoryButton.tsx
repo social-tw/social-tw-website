@@ -2,7 +2,7 @@ import { RiHourglassFill } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
 import { CyanButton } from '../../../components/buttons/CyanButton'
 
-export const HistoryButton = () => {
+export default function HistoryButton() {
     const navigate = useNavigate()
     const handleLogout = () => {
         navigate('/profile/history')

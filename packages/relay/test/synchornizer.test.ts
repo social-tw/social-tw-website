@@ -9,6 +9,7 @@ import { userService } from '../src/services/UserService'
 import { signUp } from './utils/signUp'
 import { HTTP_SERVER } from './configs'
 import { io } from 'socket.io-client'
+import { post } from './utils/post'
 
 describe('Synchronize Comment Test', function () {
     let snapshot: any
@@ -84,19 +85,9 @@ describe('Synchronize Comment Test', function () {
 
     describe('Synchronize Comment', async function () {
         before(async function () {
-            // User 0 post a thread
-            const postContent = "I'm a post"
-
             const userState = users[0].userState
-            const epoch = await sync.loadCurrentEpoch()
-            const { publicSignals, proof } = await userState.genEpochKeyProof({
-                epoch,
-            })
-
-            await expect(unirepApp.post(publicSignals, proof, postContent))
-                .to.emit(unirepApp, 'Post')
-                .withArgs(publicSignals[0], 0, 0, postContent)
-
+            const result = await post(express, userState)
+            await ethers.provider.waitForTransaction(result.txHash)
             await sync.waitForSync()
 
             // check db if the post is synchronized

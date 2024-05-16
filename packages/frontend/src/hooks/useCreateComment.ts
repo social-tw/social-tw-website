@@ -6,85 +6,97 @@ import {
     succeedActionById,
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
+import useActionCount from './useActionCount'
 
-async function publishComment(data: string) {
+async function publishComment(values: unknown) {
     const response = await fetch(`${SERVER}/api/comment`, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(values),
     })
+    const data = await response.json()
 
-    return await response.json()
+    if (!response.ok) {
+        throw Error(data.error)
+    }
+    return data
 }
 
 export default function useCreateComment() {
     const { userState, stateTransition, provider, loadData } = useUser()
 
-    const genProof = async (postId: string, content: string) => {
+    const actionCount = useActionCount()
+
+    const create = async (postId: string, content: string) => {
         if (!userState) throw new Error('user state not initialized')
 
-        const latestTransitionedEpoch =
-            await userState.latestTransitionedEpoch()
-
-        if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
-            await stateTransition()
-        }
-
-        // TODO: What is nonce doing and how it should be set
-        const epochKeyProof = await userState.genEpochKeyProof()
-
-        const proof = stringifyBigInts({
-            content,
-            postId,
-            publicSignals: epochKeyProof.publicSignals,
-            proof: epochKeyProof.proof,
-        })
-
-        return {
-            proof,
-            epoch: latestTransitionedEpoch,
-        }
-    }
-
-    const create = async (
-        proof: string,
-        postId: string,
-        content: string,
-        epoch: number,
-    ) => {
-        if (!userState) throw new Error('user state not initialized')
         const commentData = {
-            commentId: 'notGetYet',
+            commentId: undefined,
             postId: postId,
             content: content,
-            epoch,
-            transactionHash: '',
+            epoch: undefined,
+            transactionHash: undefined,
         }
         const actionId = addAction(ActionType.Comment, commentData)
 
         try {
-            const { transaction } = await publishComment(proof)
-            const receipt = await provider.waitForTransaction(transaction)
+            const latestTransitionedEpoch =
+                await userState.latestTransitionedEpoch()
+
+            if (userState.sync.calcCurrentEpoch() !== latestTransitionedEpoch) {
+                await stateTransition()
+            }
+
+            const nonce = getEpochKeyNonce(actionCount)
+
+            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+            const epoch = Number(epochKeyProof.epoch)
+
+            const epochKey = epochKeyProof.epochKey.toString()
+
+            const proof = stringifyBigInts({
+                content,
+                postId,
+                publicSignals: epochKeyProof.publicSignals,
+                proof: epochKeyProof.proof,
+            })
+
+            const { txHash } = await publishComment(proof)
+            const receipt = await provider.waitForTransaction(txHash)
             const commentId = ethers.BigNumber.from(
                 receipt.logs[0].topics[3],
             ).toString()
+
             await userState.waitForSync()
             await loadData(userState)
+
             succeedActionById(actionId, {
                 commentId,
-                transactionHash: transaction,
+                epoch,
+                epochKey,
+                transactionHash: txHash,
             })
-        } catch {
+
+            return {
+                transactionHash: txHash,
+                postId,
+                commentId,
+                content,
+                epoch,
+                epochKey,
+            }
+        } catch (error) {
             failActionById(actionId)
+            throw error
         }
     }
 
     return {
-        genProof,
         create,
     }
 }

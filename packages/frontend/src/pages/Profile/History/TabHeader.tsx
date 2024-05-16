@@ -9,7 +9,7 @@ interface TabButtonProps {
     isActive: boolean
 }
 
-export const TabHeader = () => {
+export default function TabHeader() {
     return (
         <div className="flex gap-4">
             <PostTabButton />

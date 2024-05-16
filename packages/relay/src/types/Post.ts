@@ -1,8 +1,3 @@
-export interface PostCreationResult {
-    postId: string
-    txHash: string
-}
-
 export type Post = {
     postId: string | undefined
     content: string | undefined

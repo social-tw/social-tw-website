@@ -30,11 +30,11 @@ export default (
                     'userStateTransition',
                     [transitionProof.publicSignals, transitionProof.proof]
                 )
-            const hash = await TransactionManager.queueTransaction(
+            const txHash = await TransactionManager.queueTransaction(
                 synchronizer.unirepContract.address,
                 calldata
             )
-            res.json({ hash })
+            res.json({ txHash })
         })
     )
 }

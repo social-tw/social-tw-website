@@ -7,9 +7,9 @@ interface TransactionModalProps {
     isOpen: boolean
 }
 
-const CommentPublishTransition: React.FC<TransactionModalProps> = ({
+export default function CommentPublishTransition({
     isOpen,
-}) => {
+}: TransactionModalProps) {
     const items = [1, 2, 3]
     const variants = {
         animate: (i: number) => ({
@@ -56,5 +56,3 @@ const CommentPublishTransition: React.FC<TransactionModalProps> = ({
         </Backdrop>
     )
 }
-
-export default CommentPublishTransition
