@@ -1,6 +1,6 @@
-import { LocalStorageHelper } from '../utils/LocalStorageHelper'
+import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
 import { useMutation } from '@tanstack/react-query'
-import useLogin from './useLogin'
+import { useLogin } from '../useLogin/useLogin'
 import { MutationKeys } from '@/constants/queryKeys'
 
 export function useLoginWithServer() {
