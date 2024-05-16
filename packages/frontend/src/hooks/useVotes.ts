@@ -1,14 +1,22 @@
+import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
+import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
+import { useEffect } from 'react'
 import { SERVER } from '../config'
 import { useUser } from '../contexts/User'
-import { VoteAction, VoteMsg } from '../types'
-import { useEffect } from 'react'
 import client from '../socket'
+import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
+import useActionCount from './useActionCount'
+import { VoteAction, VoteMsg } from '../types'
 
 export default function useVotes() {
-    const { userState, provider, loadData } = useUser()
+    const { userState, loadData } = useUser()
 
-    const randomNonce = () => Math.round(Math.random())
+    const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
+        (state) => state.invokeFetchHistoryVotesFlow,
+    )
+
+    const actionCount = useActionCount()
 
     const create = async (
         _id: string,
@@ -17,7 +25,7 @@ export default function useVotes() {
         try {
             if (!userState) throw new Error('User state not initialized')
 
-            const nonce = randomNonce()
+            const nonce = getEpochKeyNonce(actionCount)
 
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
@@ -39,8 +47,9 @@ export default function useVotes() {
 
             await loadData(userState)
 
+            await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
+
             if (response.status === 201) {
-                console.log('Vote succeeded!')
                 return true
             } else {
                 throw new Error(
@@ -48,7 +57,6 @@ export default function useVotes() {
                 )
             }
         } catch (error) {
-            console.error('Vote failed:', error)
             return false
         }
     }
@@ -56,7 +64,7 @@ export default function useVotes() {
     return { create }
 }
 
-export const useVoteEvents = (callback: any) => {
+export const useVoteEvents = (callback: (data: VoteMsg) => void) => {
     useEffect(() => {
         let isMounted = true
 

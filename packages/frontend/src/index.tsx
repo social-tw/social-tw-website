@@ -15,7 +15,7 @@ import ErrorPage from './pages/ErrorPage'
 import Home from './pages/Home'
 import { Login } from './pages/Login'
 import { InternalLogin } from './pages/Login/InternalLogin'
-import PostDetail from './pages/PostDetail'
+import PostDetails from './pages/PostDetails'
 import { History } from './pages/Profile/History'
 import Profile from './pages/Profile/Profile'
 import ProfileLayout from './pages/Profile/ProfileLayout'
@@ -73,7 +73,7 @@ const router = createBrowserRouter([
                         path: PATHS.VIEW_POST,
                         element: (
                             <ProtectedRoute>
-                                <PostDetail />
+                                <PostDetails />
                             </ProtectedRoute>
                         ),
                     },
@@ -127,7 +127,7 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient()
 
-const App = () => {
+export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <UserProvider>
@@ -136,8 +136,6 @@ const App = () => {
         </QueryClientProvider>
     )
 }
-
-export default App
 
 const rootElement = document.getElementById('root')
 if (rootElement) {

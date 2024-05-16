@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { InternalError } from '../types/InternalError'
+import { InvalidPostIdError, EmptyCommentError } from '../types/InternalError'
 
 export default (
     app: Express,
@@ -16,13 +16,20 @@ export default (
     app.route('/api/comment')
         .get(
             errorHandler(async (req, res) => {
-                const { epks, postId } = req.query
+                const { postId } = req.query
                 if (!postId) {
-                    throw new InternalError('postId is undefined', 400)
+                    throw InvalidPostIdError
+                }
+
+                const post = await postService.fetchSinglePost(
+                    postId.toString(),
+                    db
+                )
+                if (!post) {
+                    throw InvalidPostIdError
                 }
 
                 const comments = await commentService.fetchComments(
-                    epks?.toString(),
                     postId.toString(),
                     db
                 )
@@ -34,21 +41,17 @@ export default (
             errorHandler(async (req, res) => {
                 const { content, postId, publicSignals, proof } = req.body
                 if (!content) {
-                    throw new InternalError('Could not have empty content', 400)
+                    throw EmptyCommentError
                 }
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    db,
-                    1
+                    db
                 )
                 if (!post) {
-                    throw new InternalError(
-                        'Post does not exist, please try later',
-                        400
-                    )
+                    throw InvalidPostIdError
                 }
-                const hash = await commentService.leaveComment(
+                const txHash = await commentService.leaveComment(
                     postId.toString(),
                     content,
                     publicSignals,
@@ -57,14 +60,14 @@ export default (
                     synchronizer,
                     helia
                 )
-                res.json({ transaction: hash })
+                res.json({ txHash })
             })
         )
 
         .delete(
             errorHandler(async (req, res) => {
                 const { commentId, postId, publicSignals, proof } = req.body
-                const hash = await commentService.deleteComment(
+                const txHash = await commentService.deleteComment(
                     commentId.toString(),
                     postId.toString(),
                     publicSignals,
@@ -72,7 +75,7 @@ export default (
                     synchronizer,
                     db
                 )
-                res.json({ transaction: hash })
+                res.json({ txHash })
             })
         )
 }

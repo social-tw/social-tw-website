@@ -8,11 +8,11 @@ interface ScrollingModalProps {
     variants: any
 }
 
-const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
+export default function WelcomeBackgroundList ({
     children,
     method,
     variants,
-}) => {
+}: ScrollingModalProps) {
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const postListRef = useRef<HTMLDivElement>(null)
 
@@ -75,5 +75,3 @@ const WelcomeBackgroundList: React.FC<ScrollingModalProps> = ({
         </motion.div>
     )
 }
-
-export default WelcomeBackgroundList

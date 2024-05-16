@@ -1,5 +1,5 @@
-import dayjs from 'dayjs'
 import { UserState } from '@unirep/core'
+import dayjs from 'dayjs'
 import { RelayRawPost } from '../../../../types/api'
 import { fetchPostsByEpochKeys } from '../../../../utils/api'
 import { Post } from '../DTO/Post'
@@ -52,13 +52,13 @@ export class PostService {
         return relayRawPosts.map((relaySourcePost) => {
             const publishedAt = parseInt(relaySourcePost.publishedAt)
             return new Post(
-                relaySourcePost._id,
+                relaySourcePost.postId,
                 relaySourcePost.epochKey,
                 publishedAt,
                 relaySourcePost.content,
                 relaySourcePost.voteSum,
                 dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genPostUrlById(relaySourcePost._id),
+                this.genPostUrlById(relaySourcePost.postId),
             )
         })
     }

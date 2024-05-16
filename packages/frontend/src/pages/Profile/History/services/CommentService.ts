@@ -1,6 +1,5 @@
-import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
-
+import { UserState } from '@unirep/core'
 import { RelayRawComment } from '../../../../types/api'
 import { fetchCommentsByEpochKeys } from '../../../../utils/api'
 import { Comment } from '../DTO/Comment'
@@ -55,19 +54,22 @@ export class CommentService {
         return relayRawComments.map((relayRawComment) => {
             const publishedAt = parseInt(relayRawComment.publishedAt)
             return new Comment(
-                relayRawComment._id,
+                relayRawComment.commentId,
+                relayRawComment.postId,
                 relayRawComment.epochKey,
                 publishedAt,
-                relayRawComment.content,
+                relayRawComment.content ?? '',
                 relayRawComment.voteSum,
                 dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genCommentUrlById(relayRawComment._id),
+                this.genCommentUrlById(
+                    relayRawComment.postId,
+                    relayRawComment.commentId,
+                ),
             )
         })
     }
 
-    // TODO: confirm url
-    private genCommentUrlById(id: string): string {
-        return `/comments/${id}`
+    private genCommentUrlById(postId: string, commentId: string): string {
+        return `/posts/${postId}#${commentId}`
     }
 }

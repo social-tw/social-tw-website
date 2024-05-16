@@ -45,25 +45,47 @@ export const createPostSlice: StatePostSlice = (set, get) => ({
             state.posts.data = sortedPosts
         })
     },
+    invokeFetchHistoryPostsFlow: async (userState: UserState) => {
+        const isInit = get().posts.isInit
+        if (!isInit) {
+            await get().invokeInitHistoryPostsFlow(userState)
+        } else {
+            await get().invokeRefetchHistoryPostsFlow(userState)
+        }
+    },
+    invokeRefetchHistoryPostsFlow: async (userState: UserState) => {
+        try {
+            set((state) => {
+                state.posts.isFetching = true
+            })
+            const activeFilter = get().posts.activeFilter
+            const sortedPosts = await _fetchHistoryPostsAndSorted(
+                userState,
+                activeFilter,
+            )
+            set((state) => {
+                state.posts.data = sortedPosts
+            })
+        } finally {
+            set((state) => {
+                state.posts.isFetching = false
+            })
+        }
+    },
     invokeInitHistoryPostsFlow: async (userState: UserState) => {
         try {
             set((state) => {
                 state.posts.isFetching = true
             })
-            const postService = new PostService()
-            const posts = await postService.fetchPostHistoryByUserState(
+            const activeFilter = get().posts.activeFilter
+            const sortedPosts = await _fetchHistoryPostsAndSorted(
                 userState,
-            )
-            const sortedPosts = postService.sortPosts(
-                posts,
-                get().posts.activeFilter,
+                activeFilter,
             )
             set((state) => {
                 state.posts.data = sortedPosts
                 state.posts.isInit = true
             })
-        } catch (err) {
-            console.error('Init History Posts Error:', err)
         } finally {
             set((state) => {
                 state.posts.isFetching = false
@@ -71,3 +93,13 @@ export const createPostSlice: StatePostSlice = (set, get) => ({
         }
     },
 })
+
+async function _fetchHistoryPostsAndSorted(
+    userState: UserState,
+    activeFilter: ActiveFilter,
+) {
+    const postService = new PostService()
+    const posts = await postService.fetchPostHistoryByUserState(userState)
+    const sortedPosts = postService.sortPosts(posts, activeFilter)
+    return sortedPosts
+}

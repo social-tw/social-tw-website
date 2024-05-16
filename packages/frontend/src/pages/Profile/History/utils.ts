@@ -6,7 +6,7 @@ export function getEpochKeyChunks(
     chunkSize: number,
 ): bigint[][] {
     const epochKeys = []
-    for (let i = 0; i < currentEpoch; i++) {
+    for (let i = 0; i <= currentEpoch; i++) {
         const epochKeysOfCertainEpoch = userState.getEpochKeys(i)
         Array.isArray(epochKeysOfCertainEpoch)
             ? epochKeys.push(...epochKeysOfCertainEpoch)

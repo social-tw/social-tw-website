@@ -12,7 +12,7 @@ interface FilterButtonProps {
     isActive: boolean
 }
 
-export const TabFilter = () => {
+export default function TabFilter() {
     const { isPostActive, isCommentActive, isVoteActive } =
         useProfileHistoryActiveTab()
     return (

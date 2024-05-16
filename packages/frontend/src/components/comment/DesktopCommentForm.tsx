@@ -1,8 +1,8 @@
+import Backdrop from '@/components/common/Backdrop'
+import RichTextEditor from '@/components/common/RichTextEditor'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { GrFormClose } from 'react-icons/gr'
-import Backdrop from '@/components/common/Backdrop'
-import RichTextEditor from '@/components/common/RichTextEditor'
 import { CommentValues } from './MobileCommentForm'
 
 interface DesktopCommentFormProps {
@@ -12,12 +12,12 @@ interface DesktopCommentFormProps {
     disabled?: boolean
 }
 
-const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
+export default function DesktopCommentForm({
     isOpen = false,
     onCancel = () => {},
     onSubmit = () => {},
     disabled = false,
-}) => {
+}: DesktopCommentFormProps) {
     const { handleSubmit, control, reset, formState } = useForm<CommentValues>({
         defaultValues: {
             content: '',
@@ -83,5 +83,3 @@ const DesktopCommentForm: React.FC<DesktopCommentFormProps> = ({
         </Backdrop>
     )
 }
-
-export default DesktopCommentForm

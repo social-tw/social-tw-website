@@ -1,11 +1,12 @@
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 
-import { RelayRawVote, RelayRawVoteType } from '../../../../types/api'
+import { RelayRawVote } from '../../../../types/api'
 import { fetchVotesByEpochKeys } from '../../../../utils/api'
 import { Vote } from '../DTO/Vote'
 import { ActiveFilter, VoteType } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
+import ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
 
 export class VoteService {
     async fetchVoteHistoryByUserState(userState: UserState) {
@@ -52,25 +53,30 @@ export class VoteService {
     private parseRelayRawVotesToVotes(relayRawVotes: RelayRawVote[]): Vote[] {
         return relayRawVotes.map((relayRawVote) => {
             const publishedAt = parseInt(relayRawVote.publishedAt)
-            const voteType =
-                relayRawVote.type === RelayRawVoteType.Upvote
-                    ? VoteType.Upvote
-                    : VoteType.Downvote
+            const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)
             return new Vote(
-                relayRawVote._id,
                 relayRawVote.epochKey,
                 publishedAt,
                 relayRawVote.content,
                 relayRawVote.voteSum,
                 dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genVoteUrlById(relayRawVote._id),
+                this.genVoteUrlByPostId(relayRawVote.postId),
                 voteType,
             )
         })
     }
 
-    // TODO: confirm url
-    private genVoteUrlById(id: string): string {
-        return `/votes/${id}`
+    private genVoteUrlByPostId(postId: string): string {
+        return `/posts/${postId}`
+    }
+
+    private getVoteTypeByRelayRawVote(relayRawVote: RelayRawVote): VoteType {
+        if (relayRawVote.upVote === 1) {
+            return VoteType.Upvote
+        } else if (relayRawVote.downVote === 1) {
+            return VoteType.Downvote
+        } else {
+            throw new Error(ERROR_MESSAGES.UNSUPPORTED_VOTE_TYPE.code)
+        }
     }
 }

@@ -10,7 +10,7 @@ interface TwitterButtonProps {
     handleClick: () => void
 }
 
-export function TwitterButton({
+export default function TwitterButton({
     title,
     isLoading,
     handleClick,

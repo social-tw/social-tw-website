@@ -4,15 +4,14 @@ import { GreetingContent } from '../../components/greeting/GreetingContent'
 import { GreetingLogo } from '../../components/greeting/GreetingLogo'
 import { GreetingTitle } from '../../components/greeting/GreetingTitle'
 import LoginButton from '../../components/login/LoginButton'
-import WelcomeBackgroundList from '../../components/login/WelcomeBackgroundList'
 import { PATHS } from '../../constants/paths'
 import { useUser } from '../../contexts/User'
 import {
     getVariantAutoScrollY,
     getVariantOpacityZeroToOne,
 } from '../../utils/motionVariants'
-import PostList from '../Home/HomePostList'
 import ExamplePostList from './ExamplePostsList'
+import WelcomeBackgroundList from '@/components/login/WelcomeBackgroundList'
 
 export function Welcome() {
     const navigate = useNavigate()

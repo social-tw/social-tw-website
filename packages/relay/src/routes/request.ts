@@ -23,14 +23,14 @@ export default (
 
             const epoch = epochKeyProof.epoch
             const keys = Object.keys(reqData)
-            let hash: any
+            let txHash: any
             if (keys.length === 1) {
-                hash = await TransactionManager.callContract(
+                txHash = await TransactionManager.callContract(
                     'submitAttestation',
                     [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]]
                 )
             } else if (keys.length > 1) {
-                hash = await TransactionManager.callContract(
+                txHash = await TransactionManager.callContract(
                     'submitManyAttestations',
                     [
                         epochKeyProof.epochKey,
@@ -41,7 +41,7 @@ export default (
                 )
             }
 
-            res.json({ hash })
+            res.json({ txHash })
         })
     )
 }
