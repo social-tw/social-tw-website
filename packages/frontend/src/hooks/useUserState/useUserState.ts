@@ -8,7 +8,7 @@ import { schema } from '@/utils/schema'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { useLocalStorage } from '@uidotdev/usehooks'
-import { LOCAL_STORAGE } from '@/utils/LocalStorageHelper'
+import { LOCAL_STORAGE, LocalStorageHelper } from '@/utils/LocalStorageHelper'
 import { createProviderByUrl } from '@/utils/createProviderByUrl'
 
 const db = new MemoryConnector(constructSchema(schema))
@@ -29,13 +29,18 @@ export function useUserState() {
         isPending,
         isSuccess,
         data: userState,
+        refetch
     } = useQuery({
         queryKey: [QueryKeys.UserState, config, signature],
         queryFn: async () => {
             if (userState) {
                 userState.stop()
             }
-            if (!config || !signature) {
+            let _signature = signature
+            if (!_signature) {
+                _signature = LocalStorageHelper.getGuaranteedSignature()
+            }
+            if (!config || !_signature) {
                 return null
             }
             try {
@@ -47,7 +52,7 @@ export function useUserState() {
                     provider,
                     unirepAddress: config.UNIREP_ADDRESS,
                     attesterId: BigInt(config.APP_ADDRESS),
-                    id: new Identity(signature),
+                    id: new Identity(_signature),
                 })
 
                 await _userState.start()
@@ -60,11 +65,17 @@ export function useUserState() {
         },
     })
 
-    const getGuaranteedUserState = () => {
-        if (!userState) {
+    const getGuaranteedUserState = async () => {
+        if (userState) {
+            return userState
+            
+        }
+        const result = await refetch()
+
+        if (result.isError) {
             throw new Error('user state not initialized')
         }
-        return userState
+        return result.data as UserState
     }
 
     return {

@@ -10,7 +10,7 @@ import CommentList from './CommentList'
 import { PostStatus } from '@/types/Post'
 import { fetchSinglePost } from '@/utils/api'
 import { useUserState } from '@/hooks/useUserState/useUserState'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 import { QueryKeys } from '@/constants/queryKeys'
 
 const PostDetails: React.FC = () => {
@@ -24,7 +24,7 @@ const PostDetails: React.FC = () => {
 
     const { userState } = useUserState()
 
-    const { isLoggedIn } = useIsLogin()
+    const { isLoggedIn } = useAuthStatus()
 
     const { data } = useQuery({
         queryKey: [QueryKeys.SinglePost, id],

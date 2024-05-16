@@ -32,7 +32,7 @@ export function useVotes() {
             id: string
             voteAction: VoteAction
         }) => {
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             const nonce = getEpochKeyNonce(actionCount)
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })

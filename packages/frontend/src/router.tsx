@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, redirect } from 'react-router-dom'
 import { PATHS } from './constants/paths'
 import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
@@ -96,6 +96,18 @@ const router = createBrowserRouter([
             },
         ],
     },
+    {
+        path: '/explore',
+        loader: () => {
+            return redirect(PATHS.HOME)
+        }
+    },
+    {
+        path: '/notification',
+        loader: () => {
+            return redirect(PATHS.HOME)
+        }
+    }
 ])
 
 export default router

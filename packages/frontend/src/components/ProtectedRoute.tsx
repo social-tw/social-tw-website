@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 import { PATHS } from '@/constants/paths'
 import { useIsFirstRender } from '@uidotdev/usehooks'
 
@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
 
     const navigate = useNavigate()
 
-    const { isLoggedIn, isLoggingIn } = useIsLogin()
+    const { isLoggedIn, isLoggingIn } = useAuthStatus()
 
     useEffect(() => {
         if (isFirstRender || isLoggingIn) {

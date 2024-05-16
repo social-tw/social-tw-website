@@ -23,7 +23,7 @@ export function useRequestData() {
             epkNonce: number
         }) => {
             const provider = getGuaranteedProvider()
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             const filteredReqData = Object.entries(reqData)
                 .filter(([, value]) => value !== '')

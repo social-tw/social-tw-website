@@ -15,7 +15,7 @@ export function useActionCount() {
     )
 
     const { data: count } = useQuery({
-        queryKey: [QueryKeys.Counter, userState],
+        queryKey: [QueryKeys.Counter, userState?.id.toString()],
         queryFn: async () => {
             if (!userState) return 0
 

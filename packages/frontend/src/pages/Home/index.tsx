@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import SignupLoadingTransition from '@/components/login/SignupPendingTransition'
 import HomePostForm from './HomePostForm'
 import HomePostList from './HomePostList'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 import { useIsMutating } from '@tanstack/react-query'
 import { MutationKeys } from '@/constants/queryKeys'
 
 export default function Home() {
-    const { isLoggedIn } = useIsLogin()
+    const { isLoggedIn } = useAuthStatus()
 
     const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
     const isPending = signingUpCount > 0

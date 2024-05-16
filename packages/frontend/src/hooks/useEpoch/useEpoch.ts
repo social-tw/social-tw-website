@@ -13,7 +13,7 @@ export function useEpoch() {
         data: currentEpoch,
         refetch: refetchCurrentEpoch,
     } = useQuery({
-        queryKey: [QueryKeys.CurrentEpoch, userState],
+        queryKey: [QueryKeys.CurrentEpoch, userState?.id.toString()],
         queryFn: async () => {
             if (!userState) {
                 return null
@@ -27,7 +27,7 @@ export function useEpoch() {
         data: remainingTime,
         refetch: refetchRemainingTime,
     } = useQuery({
-        queryKey: [QueryKeys.EpochRemainingTime, userState],
+        queryKey: [QueryKeys.EpochRemainingTime, userState?.id.toString()],
         queryFn: async () => {
             if (!userState) {
                 return null

@@ -35,7 +35,7 @@ export function useCreatePost() {
         mutationKey: [MutationKeys.CreatePost],
         mutationFn: async ({ content }: { content: string }) => {
             const provider = getGuaranteedProvider()
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             await stateTransition()
 

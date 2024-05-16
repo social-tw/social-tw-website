@@ -12,7 +12,7 @@ export function useSignupWithServer() {
     const {
         isPending,
         error,
-        mutateAsync: signup,
+        mutate: signup,
     } = useMutation({
         mutationKey: [MutationKeys.SignupWithServer],
         mutationFn: async () => {

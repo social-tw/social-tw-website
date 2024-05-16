@@ -16,7 +16,7 @@ export function useSignupWithWallet() {
     const {
         isPending,
         error,
-        mutateAsync: signup,
+        mutate: signup,
     } = useMutation({
         mutationKey: [MutationKeys.SignupWithWallet],
         mutationFn: async () => {

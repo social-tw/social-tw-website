@@ -18,6 +18,7 @@ import ActionNotification from '@/components/layout/ActionNotification'
 import EpochInfo from '@/components/layout/EpochInfo'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import ErrorDialog from './ErrorDialog'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -77,6 +78,7 @@ export default function AppLayout() {
                     <Outlet />
                 </main>
                 <MobileBottomNav />
+                <ErrorDialog />
             </div>
         )
     } else {
@@ -147,7 +149,7 @@ export default function AppLayout() {
                                             : 'text-white',
                                     )
                                 }
-                                to="/"
+                                to="/explore"
                             >
                                 <StarIcon className="w-14 h-14" />
                                 <span className="text-xl font-bold ">
@@ -163,7 +165,7 @@ export default function AppLayout() {
                                             : 'text-white',
                                     )
                                 }
-                                to="/"
+                                to="/notification"
                             >
                                 <BellIcon className="w-14 h-14" />
                                 <span className="text-xl font-bold ">
@@ -193,6 +195,7 @@ export default function AppLayout() {
                         </div>
                     </div>
                 </section>
+                <ErrorDialog />
             </div>
         )
     }
