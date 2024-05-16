@@ -30,7 +30,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const { isPending, createComment } = useCreateComment()
+    const { isPending, createComment, reset } = useCreateComment()
 
     const onSubmit = async (values: CommentValues) => {
         try {
@@ -60,13 +60,12 @@ const CommentForm: React.FC<CommentFormProps> = ({
 
             const timer = setTimeout(() => {
                 setIsSubmitting(false)
+                reset()
             }, 5000)
 
             return () => {
                 clearTimeout(timer)
             }
-        } else {
-            setIsSubmitting(false)
         }
     }, [isPending])
 

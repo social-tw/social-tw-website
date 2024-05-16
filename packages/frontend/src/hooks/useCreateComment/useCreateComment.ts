@@ -28,6 +28,7 @@ export function useCreateComment() {
     const {
         isPending,
         error,
+        reset,
         mutateAsync: createComment,
     } = useMutation({
         mutationKey: [MutationKeys.CreateComment],
@@ -109,6 +110,7 @@ export function useCreateComment() {
     return {
         isPending,
         error,
+        reset,
         createComment,
     }
 }
