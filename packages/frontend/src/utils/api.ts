@@ -23,6 +23,7 @@ import {
     RelayRemoveCommentResponse,
     RelayCreatePostResponse,
     RelayRequestDataResponse,
+    FetchCounterResponse,
 } from '../types/api'
 import { RelayRawPost } from '@/types/Post'
 
@@ -83,6 +84,17 @@ export async function fetchVotesByEpochKeys({
     const sortKey = SortKeys.PublishedAt
     const response = await fetch(
         `${SERVER}/api/my-account/votes?epks=${epks}&direction=${direction}&sortKey=${sortKey}`,
+    )
+    return response.json()
+}
+
+export async function fetchCounter(epochKeys: string): Promise<FetchCounterResponse> {
+    const params = new URLSearchParams()
+    const epks = epochKeys.replaceAll(',', '_')
+    params.append('epks', epks)
+
+    const response = await fetch(
+        `${SERVER}/api/counter?${params.toString()}`,
     )
     return response.json()
 }

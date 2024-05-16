@@ -1,6 +1,9 @@
 export enum QueryKeys {
     UserState = 'user_state',
     HasSignedUp = 'has_signed_up',
+    CurrentEpoch = 'current_epoch',
+    EpochRemainingTime = 'epoch_remaining_time',
+    Counter = 'counter',
     ManyPosts = 'many_posts',
     SinglePost = 'single_post',
     ManyComments = 'many_comments',
