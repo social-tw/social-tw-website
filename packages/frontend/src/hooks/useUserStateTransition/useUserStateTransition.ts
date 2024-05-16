@@ -4,7 +4,7 @@ import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
 import { useUserState } from '@/hooks/useUserState/useUserState'
 import { relayUserStateTransition } from '@/utils/api'
 
-export default function useUserStateTransition() {
+export function useUserStateTransition() {
     const { getGuaranteedProvider } = useWeb3Provider()
     const { getGuaranteedUserState } = useUserState()
 

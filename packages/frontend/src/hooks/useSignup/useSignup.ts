@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { relaySignUp } from '@/utils/api'
-import { useUserState } from './useUserState'
-import { useWeb3Provider } from './useWeb3Provider'
+import { useUserState } from '../useUserState/useUserState'
+import { useWeb3Provider } from '../useWeb3Provider/useWeb3Provider'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { SignupFailedError } from '@/utils/errors'
 
-export default function useSignup() {
+export function useSignup() {
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
