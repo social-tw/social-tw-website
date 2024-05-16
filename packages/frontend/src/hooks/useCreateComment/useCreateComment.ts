@@ -17,7 +17,7 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 export function useCreateComment() {
     const queryClient = useQueryClient()
 
-    const { provider, getGuaranteedProvider } = useWeb3Provider()
+    const { getGuaranteedProvider } = useWeb3Provider()
 
     const { getGuaranteedUserState } = useUserState()
 
@@ -28,7 +28,6 @@ export function useCreateComment() {
     const {
         isPending,
         error,
-        // mutate: createComment,
         mutateAsync: createComment,
     } = useMutation({
         mutationKey: [MutationKeys.CreateComment],
@@ -108,10 +107,8 @@ export function useCreateComment() {
     })
 
     return {
-        provider,
         isPending,
         error,
         createComment,
-        // createCommentAsync,
     }
 }
