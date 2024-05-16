@@ -135,7 +135,7 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
 
 function BodyCellText({ content }: CellTextProps) {
     return (
-        <div className={`text-ellipsis overflow-hidden whitespace-nowrap`}>
+        <div className={`text-ellipsis overflow-hidden whitespace-nowrap text-white`}>
             {content}
         </div>
     )

@@ -48,6 +48,7 @@ export function TabContentHeader({ data }: TabContentHeaderProps) {
 function HeaderCell({ data, style }: HeaderCellProps) {
     return (
         <div
+            className="text-gray-400"
             style={{
                 ...style,
                 display: 'flex',
