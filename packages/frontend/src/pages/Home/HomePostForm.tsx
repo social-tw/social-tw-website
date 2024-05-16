@@ -1,13 +1,13 @@
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
-import useCreatePost from '@/hooks/useCreatePost'
+import { useCreatePost } from '@/hooks/useCreatePost/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { UserState } from '@unirep/core'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
-import { useUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 
 interface HomePostFormProps {
     disabled?: boolean

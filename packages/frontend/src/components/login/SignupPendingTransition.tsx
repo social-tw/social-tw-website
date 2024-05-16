@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import Backdrop from '@/components/common/Backdrop'
 import { MutationKeys } from '@/constants/queryKeys'
 import { useIsMutating, useMutationState } from '@tanstack/react-query'
-import useIsLogin from '@/hooks/useIsLogin'
+import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
 
 const textsAndTimes: { text: string; time: number }[] = [
     { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },

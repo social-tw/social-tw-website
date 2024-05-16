@@ -26,6 +26,7 @@ import {
     FetchCounterResponse,
 } from '../types/api'
 import { RelayRawPost } from '@/types/Post'
+import { VoteAction } from '@/types/Vote'
 
 export async function fetchRelayConfig(): Promise<FetchRelayConfigResponse> {
     const response = await fetch(`${SERVER}/api/config`)
@@ -250,6 +251,34 @@ export async function relayRemoveComment(
 
     if (!response.ok) {
         throw Error(data.error)
+    }
+    return data
+}
+
+export async function relayVote(
+    proof: EpochKeyProof,
+    id: string,
+    voteAction: VoteAction,
+) {
+    const response = await fetch(`${SERVER}/api/vote`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            stringifyBigInts({
+                postId: id,
+                voteAction,
+                publicSignals: proof.publicSignals,
+                proof: proof.proof,
+            }),
+        ),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(`Vote failed with status: ${data}`)
     }
     return data
 }

@@ -11,8 +11,8 @@ import AuthNoteDialog from '@/components/login/AuthNoteDialog'
 import LoginButton from '@/components/login/LoginButton'
 import BackToWelcomePageButton from '@/components/buttons/BackToWelcomeButton'
 import { SIGNUP_METHODS } from '@/constants/signupMethods'
-import { useLoginWithServer } from '@/hooks/useLoginWithServer'
-import { useLoginWithWallet } from '@/hooks/useLoginWithWallet'
+import { useLoginWithServer } from '@/hooks/useLoginWithServer/useLoginWithServer'
+import { useLoginWithWallet } from '@/hooks/useLoginWithWallet/useLoginWithWallet'
 
 enum NoteStatus {
     Close = 'close',

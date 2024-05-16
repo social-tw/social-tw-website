@@ -16,7 +16,7 @@ import {
     getPostHeaderData,
     getVoteHeaderData,
 } from './TabContentHeader'
-import { useUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 
 export default function TabContent() {
     const { isPostActive, isCommentActive, isVoteActive } =

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useIsLogin from '@/hooks/useIsLogin'
+import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
 import { PATHS } from '@/constants/paths'
 import { useIsFirstRender } from '@uidotdev/usehooks'
 

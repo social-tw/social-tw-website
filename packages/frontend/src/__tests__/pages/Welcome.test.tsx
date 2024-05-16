@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, waitFor, screen } from '@testing-library/react'
 import { Welcome } from '@/pages/Welcome'
-import { wrapper } from '@/utils/test-helpers'
+import { wrapper } from '@/utils/test-helpers/wrapper'
 
 jest.mock('../../pages/Home/HomePostList', () => ({
     __esModule: true,
@@ -18,6 +18,5 @@ test('Welcome should render', () => {
     waitFor(() => {
         expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
         expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
-        // ... Add more tests as needed ...
     })
 })

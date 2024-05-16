@@ -9,7 +9,7 @@ import {
     PostData,
     useActionStore,
 } from '@/contexts/Actions'
-import { useVoteEvents } from '@/hooks/useVotes'
+import { useVoteEvents } from '@/hooks/useVoteEvents/useVoteEvents'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -22,7 +22,7 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
-import { useUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 import { QueryKeys } from '@/constants/queryKeys'
 
 export default function PostList() {

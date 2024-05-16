@@ -3,5 +3,10 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 global.setImmediate = global.setImmediate || ((fn: () => void, ...args: unknown[]) => global.setTimeout(fn, 0, ...args));
+
