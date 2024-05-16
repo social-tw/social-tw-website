@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import useLogin from '@/hooks/useLogin'
+import { useLogin } from '@/hooks/useLogin/useLogin'
 import { LocalStorageHelper } from '@/utils/LocalStorageHelper'
 import { EthereumHelper } from '@/utils/EthereumHelper'
 
