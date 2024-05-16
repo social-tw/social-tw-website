@@ -1,9 +1,11 @@
 import { MutationKeys } from '@/constants/queryKeys'
 import { useMutation } from '@tanstack/react-query'
-import { useUserState } from '@/hooks/useUserState'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 import { relayUserStateTransition } from '@/utils/api'
 
-export function useUserStateTransition() {
+export default function useUserStateTransition() {
+    const { getGuaranteedProvider } = useWeb3Provider()
     const { getGuaranteedUserState } = useUserState()
 
     const {
@@ -13,6 +15,7 @@ export function useUserStateTransition() {
     } = useMutation({
         mutationKey: [MutationKeys.UserStateTransition],
         mutationFn: async () => {
+            const provider = getGuaranteedProvider()
             const userState = getGuaranteedUserState()
 
             const latestTransitionedEpoch =
@@ -26,7 +29,7 @@ export function useUserStateTransition() {
             await userState.waitForSync()
             const proof = await userState.genUserStateTransitionProof()
             const data = await relayUserStateTransition(proof)
-            await userState.sync.provider.waitForTransaction(data.hash)
+            await provider.waitForTransaction(data.hash)
             await userState.waitForSync()
 
             return data
