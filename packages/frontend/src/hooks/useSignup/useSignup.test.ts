@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useSignup } from "./useSignup"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useSignup } from './useSignup'
 import { SERVER } from '@/config'
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -36,14 +36,16 @@ describe('useSignup', () => {
     })
 
     it('should signup', async () => {
-        const expectation = nock(SERVER).post('/api/signup').reply(200, { status: 'success', hash: '0xhash'})
+        const expectation = nock(SERVER)
+            .post('/api/signup')
+            .reply(200, { status: 'success', hash: '0xhash' })
         const { result } = renderHook(useSignup, { wrapper })
 
         await act(async () => {
             await result.current.signup({
                 hashUserId: '100',
                 accessToken: 'token',
-                fromServer: true
+                fromServer: true,
             })
         })
 

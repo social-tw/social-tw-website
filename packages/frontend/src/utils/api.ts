@@ -89,14 +89,14 @@ export async function fetchVotesByEpochKeys({
     return response.json()
 }
 
-export async function fetchCounter(epochKeys: string): Promise<FetchCounterResponse> {
+export async function fetchCounter(
+    epochKeys: string,
+): Promise<FetchCounterResponse> {
     const params = new URLSearchParams()
     const epks = epochKeys.replaceAll(',', '_')
     params.append('epks', epks)
 
-    const response = await fetch(
-        `${SERVER}/api/counter?${params.toString()}`,
-    )
+    const response = await fetch(`${SERVER}/api/counter?${params.toString()}`)
     return response.json()
 }
 

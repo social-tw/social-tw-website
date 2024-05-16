@@ -27,7 +27,7 @@ const config: CracoConfig = {
                 url: 'http://localhost:8000',
             }
             jestConfig.moduleNameMapper = {
-                '@/(.*)$': '<rootDir>/src/$1'
+                '@/(.*)$': '<rootDir>/src/$1',
             }
             jestConfig.transformIgnorePatterns = [
                 'node_modules/(?!@uidotdev/usehooks|nanoid/)',

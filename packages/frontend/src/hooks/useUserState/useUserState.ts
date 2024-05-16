@@ -14,14 +14,22 @@ import { createProviderByUrl } from '@/utils/createProviderByUrl'
 const db = new MemoryConnector(constructSchema(schema))
 
 export function useUserState() {
-    const { isPending: isConfigPending, isSuccess: isConfigSuccess, data: config } = useRelayConfig()
+    const {
+        isPending: isConfigPending,
+        isSuccess: isConfigSuccess,
+        data: config,
+    } = useRelayConfig()
 
     const [signature] = useLocalStorage<string | null>(
         LOCAL_STORAGE.SIGNATURE,
         null,
     )
 
-    const { isPending, isSuccess, data: userState } = useQuery({
+    const {
+        isPending,
+        isSuccess,
+        data: userState,
+    } = useQuery({
         queryKey: [QueryKeys.UserState, config, signature],
         queryFn: async () => {
             if (userState) {
@@ -32,7 +40,7 @@ export function useUserState() {
             }
             try {
                 const provider = createProviderByUrl(config.ETH_PROVIDER_URL)
-    
+
                 const _userState = new UserState({
                     db,
                     prover,
@@ -41,10 +49,10 @@ export function useUserState() {
                     attesterId: BigInt(config.APP_ADDRESS),
                     id: new Identity(signature),
                 })
-    
+
                 await _userState.start()
                 await _userState.waitForSync()
-    
+
                 return _userState
             } catch (error) {
                 console.log(error)

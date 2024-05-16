@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useCreatePost } from "./useCreatePost"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useCreatePost } from './useCreatePost'
 import { SERVER } from '@/config'
 import * as actionLib from '@/contexts/Actions'
 
@@ -22,7 +22,9 @@ jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
 jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
-            getEpochKeys: jest.fn().mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
+            getEpochKeys: jest
+                .fn()
+                .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
                 calcEpochRemainingTime: jest.fn().mockReturnValue(120),
@@ -50,25 +52,27 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
-
 describe('useCreatePost', () => {
     afterAll(() => {
         nock.restore()
         jest.clearAllMocks()
     })
-    
+
     it('succeed to create a post', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
-            .post('/api/transition').reply(200, { hash: '0xhash'})
-            .post('/api/post').reply(200, { hash: '0xhash'})
-        
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 1 })
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
+            .post('/api/post')
+            .reply(200, { hash: '0xhash' })
+
         const succeedActionById = jest.spyOn(actionLib, 'succeedActionById')
-        
+
         const { result } = renderHook(useCreatePost, { wrapper })
 
         const post = {
-            content: 'mock-content'
+            content: 'mock-content',
         }
         await act(async () => {
             await result.current.createPost(post)
@@ -80,16 +84,19 @@ describe('useCreatePost', () => {
 
     it('fail to create a post', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
-            .post('/api/transition').reply(200, { hash: '0xhash'})
-            .post('/api/post').reply(400, { error: 'error' })
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 1 })
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
+            .post('/api/post')
+            .reply(400, { error: 'error' })
 
         const failActionById = jest.spyOn(actionLib, 'failActionById')
 
         const { result } = renderHook(() => useCreatePost(), { wrapper })
 
         const post = {
-            content: 'mock-content'
+            content: 'mock-content',
         }
 
         await act(async () => {

@@ -1,10 +1,10 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useSignupWithServer } from "./useSignupWithServer"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useSignupWithServer } from './useSignupWithServer'
 import { SERVER } from '@/config'
 
-jest.spyOn(Storage.prototype, 'removeItem');
+jest.spyOn(Storage.prototype, 'removeItem')
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
     useWeb3Provider: () => ({
@@ -38,10 +38,12 @@ describe('useSignupWithServer', () => {
     })
 
     it('should signup using hashUserId and token in localStorage', async () => {
-        const expectation = nock(SERVER).post('/api/signup').reply(200, { status: 'success', hash: '0xhash'})
-        localStorage.setItem('hashUserId', '\"100\"')
-        localStorage.setItem('token', '\"token\"')
-        localStorage.setItem('signMsg', '\"0xsignature\"')
+        const expectation = nock(SERVER)
+            .post('/api/signup')
+            .reply(200, { status: 'success', hash: '0xhash' })
+        localStorage.setItem('hashUserId', '"100"')
+        localStorage.setItem('token', '"token"')
+        localStorage.setItem('signMsg', '"0xsignature"')
         const { result } = renderHook(useSignupWithServer, { wrapper })
 
         await act(async () => {

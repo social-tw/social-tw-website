@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useUserStateTransition } from "./useUserStateTransition"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useUserStateTransition } from './useUserStateTransition'
 import { SERVER } from '@/config'
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -43,7 +43,9 @@ describe('useUserStateTransition', () => {
     })
 
     it('should execute state transition for user', async () => {
-        const expectation = nock(SERVER).post('/api/transition').reply(200, { hash: '0xhash'})
+        const expectation = nock(SERVER)
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
         const { result } = renderHook(useUserStateTransition, { wrapper })
 
         await act(async () => {
