@@ -23,16 +23,15 @@ const config: CracoConfig = {
     },
     jest: {
         configure: (jestConfig, { env, paths, resolve, rootDir }) => {
-            jestConfig.roots = [`${rootDir}/test/`]
-            jestConfig.testMatch = [
-                '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',
-                '<rootDir>/**/*.{spec,test}.{js,jsx,ts,tsx}',
-            ]
-            jestConfig.setupFilesAfterEnv = ['<rootDir>/test/setupTests.ts']
             jestConfig.testEnvironmentOptions = {
                 url: 'http://localhost:8000',
             }
-            console.log(jestConfig)
+            jestConfig.moduleNameMapper = {
+                '@/(.*)$': '<rootDir>/src/$1'
+            }
+            jestConfig.transformIgnorePatterns = [
+                'node_modules/(?!@uidotdev/usehooks|nanoid/)',
+            ]
             return jestConfig
         },
     },
