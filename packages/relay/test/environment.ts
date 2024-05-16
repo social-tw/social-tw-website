@@ -7,7 +7,7 @@ import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import prover from '../src/services/singletons/prover'
+import prover from '../src/services/singletons/Prover'
 import schema from '../src/db/schema'
 import TransactionManager from '../src/services/singletons/TransactionManager'
 import http from 'http'

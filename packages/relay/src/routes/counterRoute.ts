@@ -1,6 +1,6 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/singletons/ErrorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { EPOCHKEYS_AMOUNT } from '../config'
 import { WrongEpochKeyNumberError } from '../types/InternalError'

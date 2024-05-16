@@ -3,7 +3,7 @@ import { DB } from 'anondb/node'
 import TransactionManager from '../services/singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import ProofHelper from '../services/singletons/ProofHelper'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/singletons/ErrorHandler'
 
 export default (
     app: Express,

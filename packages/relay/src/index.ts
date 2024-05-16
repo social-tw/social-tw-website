@@ -23,7 +23,7 @@ import { postService } from './services/PostService'
 
 // libraries
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
-import prover from './services/singletons/prover'
+import prover from './services/singletons/Prover'
 import schema from './db/schema'
 import cors from 'cors'
 

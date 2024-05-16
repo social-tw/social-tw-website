@@ -3,7 +3,7 @@ import { DB } from 'anondb/node'
 import { UserStateTransitionProof } from '@unirep/circuits'
 import TransactionManager from '../services/singletons/TransactionManager'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/singletons/ErrorHandler'
 import { InvalidProofError } from '../types/InternalError'
 
 export default (
