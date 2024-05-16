@@ -1,9 +1,9 @@
 import { DataProof } from '@unirep-app/circuits'
 import { stringifyBigInts } from '@unirep/utils'
-import { useUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 import prover from '@/utils/prover'
 
-export default function useProveData() {
+export function useProveData() {
     const { getGuaranteedUserState } = useUserState()
 
     const proveData = async (data: { [key: number]: string | number }) => {
