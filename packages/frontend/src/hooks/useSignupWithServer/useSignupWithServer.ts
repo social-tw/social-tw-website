@@ -1,13 +1,10 @@
-import { useNavigate } from 'react-router-dom'
-import { LocalStorageHelper } from '../utils/LocalStorageHelper'
-import useSignup from './useSignup'
+import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
+import { useSignup } from '../useSignup/useSignup'
 import { useMutation } from '@tanstack/react-query'
 import { MutationKeys } from '@/constants/queryKeys'
-import { useLoginWithServer } from './useLoginWithServer'
+import { useLoginWithServer } from '../useLoginWithServer/useLoginWithServer'
 
 export function useSignupWithServer() {
-    const navigate = useNavigate()
-
     const { signup: baseSignup } = useSignup()
 
     const { login } = useLoginWithServer()
@@ -22,17 +19,14 @@ export function useSignupWithServer() {
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
             const accessToken = LocalStorageHelper.getGuaranteedAccessToken()
 
-            await login()
-            setTimeout(() => {
-                baseSignup({
-                    hashUserId,
-                    accessToken,
-                    fromServer: true,
-                })
-            }, 0)
+            await baseSignup({
+                hashUserId,
+                accessToken,
+                fromServer: true,
+            })
         },
-        onMutate: () => {
-            navigate('/')
+        onMutate: async () => {
+            await login()
         },
     })
 
