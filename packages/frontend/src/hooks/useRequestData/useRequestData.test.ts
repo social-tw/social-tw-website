@@ -42,7 +42,7 @@ describe('useRequestData', () => {
         jest.clearAllMocks()
     })
 
-    it('should execute state transition for user', async () => {
+    it('should request data', async () => {
         const expectation = nock(SERVER).post('/api/request').reply(200, { hash: '0xhash'})
         const { result } = renderHook(useRequestData, { wrapper })
 
