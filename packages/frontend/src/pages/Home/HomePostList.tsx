@@ -22,7 +22,7 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
-import { handleVoteEvent } from '@/hooks/useVoteEvents' // 导入共享函数
+import { handleVoteEvent } from '@/hooks/useVoteEvents' //using shared function
 
 export default function PostList() {
     const { userState } = useUser()
