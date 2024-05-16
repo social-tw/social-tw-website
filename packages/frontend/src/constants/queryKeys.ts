@@ -23,4 +23,5 @@ export enum MutationKeys {
     CreatePost = 'create_post',
     CreateComment = 'create_comment',
     RemoveComment = 'remove_comment',
+    Vote = 'vote',
 }
