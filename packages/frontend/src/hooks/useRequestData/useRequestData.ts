@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import { useUserState } from '@/hooks/useUserState'
-import { useWeb3Provider } from '@/hooks/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
 import { relayRequestData } from '@/utils/api'
 import { MutationKeys } from '@/constants/queryKeys'
 
-export default function useRequestData() {
+export function useRequestData() {
     const { getGuaranteedProvider } = useWeb3Provider()
 
     const { getGuaranteedUserState } = useUserState()
