@@ -4,7 +4,7 @@ import { MutationKeys } from '@/constants/queryKeys'
 import { useNavigate } from 'react-router-dom'
 import { PATHS } from '@/constants/paths'
 
-export default function useLogout() {
+export function useLogout() {
     const navigate = useNavigate()
 
     const {
