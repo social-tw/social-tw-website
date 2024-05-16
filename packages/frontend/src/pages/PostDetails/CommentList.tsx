@@ -9,10 +9,10 @@ import {
     removeActionById,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUserState } from '@/hooks/useUserState'
-import { useEpoch } from '@/hooks/useEpoch'
-import useCreateComment from '@/hooks/useCreateComment'
-import useRemoveComment from '@/hooks/useRemoveComment'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useEpoch } from '@/hooks/useEpoch/useEpoch'
+import { useCreateComment } from '@/hooks/useCreateComment/useCreateComment'
+import { useRemoveComment } from '@/hooks/useRemoveComment/useRemoveComment'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 import getNonceFromEpochKey from '@/utils/getNonceFromEpochKey'
 import { CommentStatus } from '@/types/Comments'
@@ -26,7 +26,7 @@ interface CommentListProps {
 const CommentList: React.FC<CommentListProps> = ({ postId }) => {
     const { userState, getGuaranteedUserState } = useUserState()
 
-    const { epoch } = useEpoch()
+    const { currentEpoch } = useEpoch()
 
     const { data } = useQuery({
         queryKey: [QueryKeys.ManyComments, postId],
@@ -53,12 +53,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                 ? checkCommentIsMine(item, userState)
                 : false
 
-            const canDelete = isMine && item.epoch === epoch
+            const canDelete = isMine && item.epoch === currentEpoch
             const canReport = !isMine
 
             return { ...item, canDelete, canReport }
         })
-    }, [data, userState, epoch])
+    }, [data, userState, currentEpoch])
 
     const commentActions = useActionStore(commentActionsSelector)
 

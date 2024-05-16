@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ReactComponent as CloseIcon } from '@/assets/close.svg'
 import { ReactComponent as PostIcon } from '@/assets/post.svg'
-import useCommentEvents from '@/hooks/useCommentEvents'
+import { useCommentEvents } from '@/hooks/useCommentEvents/useCommentEvents'
 import { CommentMsg } from '@/types/Comments'
 
 interface CommentNotificationsProps {

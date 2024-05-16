@@ -1,17 +1,21 @@
 import '@testing-library/jest-dom'
 import MobileCommentForm from '@/components/comment/MobileCommentForm'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 describe('MobileCommentForm', () => {
-    it('renders when open', () => {
+    it('renders when open', async () => {
         render(<MobileCommentForm isOpen={true} />)
-        expect(screen.getByLabelText('comment editor')).toBeInTheDocument()
+        await waitFor(() => {
+            expect(screen.getByLabelText('comment editor')).toBeInTheDocument()
+        })
     })
 
-    it('does not render when not open', () => {
+    it('does not render when not open', async () => {
         render(<MobileCommentForm isOpen={false} />)
-        expect(screen.queryByLabelText('comment editor')).toBeNull()
+        await waitFor(() => {
+            expect(screen.queryByLabelText('comment editor')).toBeNull()
+        })
     })
 
     it('calls onSubmit with the entered text', async () => {

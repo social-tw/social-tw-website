@@ -7,14 +7,14 @@ import Avatar from '@/components/common/Avatar'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import useVotes from '../../hooks/useVotes'
+import { useVotes } from '../../hooks/useVotes/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
 import useVoteStore from '../../store/useVoteStore'
 import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
-import useIsLogin from '@/hooks/useIsLogin'
+import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
 
 export default function Post({
     id = '',
@@ -55,7 +55,7 @@ export default function Post({
 
     const { isLoggedIn } = useIsLogin()
 
-    const { create } = useVotes()
+    const { createVote } = useVotes()
     // 'upvote', 'downvote', or null
     const { votes, updateVote } = useVoteStore()
     const voteState = useMemo(() => {
@@ -132,7 +132,7 @@ export default function Post({
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
 
-            success = await create(id, cancelAction)
+            success = await createVote({ id, voteAction: cancelAction })
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
@@ -153,7 +153,7 @@ export default function Post({
         if (!voteState.isMine || voteState.finalAction !== voteType) {
             action = voteType
             setIgnoreNextEvent(true)
-            success = await create(id, action)
+            success = await createVote({ id, voteAction: action })
 
             if (success) {
                 setShow(true)

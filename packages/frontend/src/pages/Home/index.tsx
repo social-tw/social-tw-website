@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SignupLoadingTransition from '@/components/login/SignupPendingTransition'
 import HomePostForm from './HomePostForm'
 import HomePostList from './HomePostList'
-import useIsLogin from '@/hooks/useIsLogin'
+import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
 import { useIsMutating } from '@tanstack/react-query'
 import { MutationKeys } from '@/constants/queryKeys'
 
