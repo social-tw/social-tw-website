@@ -6,18 +6,18 @@ import {
     failActionById,
     succeedActionById,
 } from '@/contexts/Actions'
-import { useActionCount } from '@/hooks/useActionCount'
-import { useWeb3Provider } from '@/hooks/useWeb3Provider'
-import { useUserState } from '@/hooks/useUserState'
-import { useUserStateTransition } from '@/hooks/useUserStateTransition'
+import { useActionCount } from '@/hooks/useActionCount/useActionCount'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition/useUserStateTransition'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { relayCreateComment } from '@/utils/api'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 
-export default function useCreateComment() {
+export function useCreateComment() {
     const queryClient = useQueryClient()
 
-    const { getGuaranteedProvider } = useWeb3Provider()
+    const { provider, getGuaranteedProvider } = useWeb3Provider()
 
     const { getGuaranteedUserState } = useUserState()
 
@@ -28,6 +28,7 @@ export default function useCreateComment() {
     const {
         isPending,
         error,
+        // mutate: createComment,
         mutateAsync: createComment,
     } = useMutation({
         mutationKey: [MutationKeys.CreateComment],
@@ -107,8 +108,10 @@ export default function useCreateComment() {
     })
 
     return {
+        provider,
         isPending,
         error,
         createComment,
+        // createCommentAsync,
     }
 }
