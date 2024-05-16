@@ -44,4 +44,3 @@ Break down the progress of the PR for everyone to see what else you intend to in
 -   [ ] All new and existing tests pass
 -   [ ] I have updated the documentation (if applicable)
 -   [ ] My changes do not introduce new security vulnerabilities
--   [ ] Run `yarn lint:fix`
