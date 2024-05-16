@@ -51,7 +51,7 @@ export default function HomePostForm({ disabled = false }: HomePostFormProps) {
                 clearTimeout(timer)
             }
         }
-    }, [isPending])
+    }, [isPending, reset])
 
     return (
         <>

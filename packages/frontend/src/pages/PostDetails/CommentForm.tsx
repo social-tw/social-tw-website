@@ -67,7 +67,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
                 clearTimeout(timer)
             }
         }
-    }, [isPending])
+    }, [isPending, reset])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
