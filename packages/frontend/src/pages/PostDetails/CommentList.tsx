@@ -12,12 +12,11 @@ import {
 import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useRemoveComment from '@/hooks/useRemoveComment'
-import { CommentStatus } from '@/types'
-import { RelayRawComment } from '@/types/api'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import useEpoch from '@/hooks/useEpoch'
 import getNonceFromEpochKey from '@/utils/getNonceFromEpochKey'
+import { CommentStatus, RelayRawComment } from '@/types/Comments'
 
 interface CommentListProps {
     postId: string

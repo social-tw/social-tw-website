@@ -1,13 +1,11 @@
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 
-import { fetchVotesByEpochKeys } from '../../../../utils/api'
-
-import { ErrorUnsupportedVoteType } from '../errors/ErrorUnsupportedVoteType'
 import { ActiveFilter, VoteType } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
 import { RelayRawVote, VoteHistoryMetaData } from '@/types/Vote'
 import ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
+import { fetchVotesByEpochKeys } from '@/utils/api'
 
 export class VoteService {
     async fetchVoteHistoryByUserState(userState: UserState) {

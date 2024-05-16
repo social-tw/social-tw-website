@@ -1,11 +1,11 @@
 
-import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
+import { UserState } from '@unirep/core'
 
-import { fetchCommentsByEpochKeys } from '../../../../utils/api'
 import { ActiveFilter } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
 import { CommentHistoryMetaData, RelayRawComment } from '@/types/Comments'
+import { fetchCommentsByEpochKeys } from '@/utils/api'
 
 export class CommentService {
     async fetchCommentHistoryByUserState(userState: UserState) {

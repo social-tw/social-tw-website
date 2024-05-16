@@ -15,7 +15,6 @@ import ErrorPage from './pages/ErrorPage'
 import Home from './pages/Home'
 import { Login } from './pages/Login'
 import { InternalLogin } from './pages/Login/InternalLogin'
-import PostDetail from './pages/Post/PostDetail'
 import { History } from './pages/Profile/History'
 import Profile from './pages/Profile/Profile'
 import ProfileLayout from './pages/Profile/ProfileLayout'
@@ -23,6 +22,7 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
+import PostDetails from './pages/PostDetails'
 
 dayjs.extend(relativeTime)
 
@@ -71,7 +71,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: PATHS.VIEW_POST,
-                        element: <PostDetail />,
+                        element: <PostDetails />,
                     },
                     {
                         path: 'profile',
