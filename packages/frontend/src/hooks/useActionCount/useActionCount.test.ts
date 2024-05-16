@@ -20,7 +20,7 @@ describe('useActionCount', () => {
     it('should get action count', async () => {
         const expectation = nock(SERVER)
             .get('/api/counter?epks=epochKey-1_epochKey-2')
-            .reply(200, { transaction: '0xtransaction'})
+            .reply(200, { counter: 5 })
         
         const { result } = renderHook(useActionCount, { wrapper })
 
