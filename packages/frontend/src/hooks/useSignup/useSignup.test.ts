@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
 import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useUserStateTransition } from "./useUserStateTransition"
+import { useSignup } from "./useSignup"
 import { SERVER } from '@/config'
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -22,14 +22,7 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         getGuaranteedUserState: () => ({
             waitForSync: jest.fn(),
-            latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
-            genEpochKeyProof: jest.fn().mockResolvedValue({
-                publicSignals: 'mocked_signals',
-                proof: 'mocked_proof',
-                epoch: 0,
-                epochKey: 'mocked_epockKey',
-            }),
-            genUserStateTransitionProof: jest.fn().mockResolvedValue({
+            genUserSignUpProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,
@@ -42,18 +35,22 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
-describe('useUserStateTransition', () => {
+describe('useSignup', () => {
     afterEach(() => {
         nock.restore()
         jest.clearAllMocks()
     })
 
-    it('should execute state transition for user', async () => {
-        const expectation = nock(SERVER).post('/api/transition').reply(200, { hash: '0xhash'})
-        const { result } = renderHook(useUserStateTransition, { wrapper })
+    it('should signup', async () => {
+        const expectation = nock(SERVER).post('/api/signup').reply(200, { status: 'success', hash: '0xhash'})
+        const { result } = renderHook(useSignup, { wrapper })
 
         await act(async () => {
-            await result.current.stateTransition()
+            await result.current.signup({
+                hashUserId: '100',
+                accessToken: 'token',
+                fromServer: true
+            })
         })
 
         expect(result.current.error).toBeFalsy()
