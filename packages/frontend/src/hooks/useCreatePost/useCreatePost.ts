@@ -7,15 +7,15 @@ import {
     PostData,
     succeedActionById,
 } from '@/contexts/Actions'
-import { useActionCount } from '@/hooks/useActionCount'
-import { useWeb3Provider } from '@/hooks/useWeb3Provider'
-import { useUserState } from '@/hooks/useUserState'
-import { useUserStateTransition } from '@/hooks/useUserStateTransition'
+import { useActionCount } from '@/hooks/useActionCount/useActionCount'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition/useUserStateTransition'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { relayCreatePost } from '@/utils/api'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 
-export default function useCreatePost() {
+export function useCreatePost() {
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
