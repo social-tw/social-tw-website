@@ -1,7 +1,6 @@
-import { Vote } from '../types'
-import { VoteAction } from '../types'
+import { RelayRawVote, VoteAction } from '@/types/Vote'
 
-const checkVoteIsMine = (votes: Vote[], userState: any) => {
+const checkVoteIsMine = (votes: RelayRawVote[], userState: any) => {
     let finalAction = null
     let isMine = false
     if (!userState) throw new Error('User state not initialized')

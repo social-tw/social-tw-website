@@ -1,5 +1,5 @@
 import { UserState } from '@/contexts/Userstate'
-import { RelayRawComment } from '@/types/api'
+import { RelayRawComment } from '@/types/Comments'
 
 const checkCommentIsMine = (
     comment: Pick<RelayRawComment, 'epoch' | 'epochKey'>,

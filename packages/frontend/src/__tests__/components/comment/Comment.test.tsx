@@ -6,9 +6,9 @@ import Comment from '@/components/comment/Comment'
 import { UserProvider } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useRemoveComment from '@/hooks/useRemoveComment'
-import { CommentStatus } from '@/types'
-import { render, screen } from '@testing-library/react'
+import { CommentStatus } from '@/types/Comments'
 import userEvent from '@testing-library/user-event'
+import { render, screen } from '@testing-library/react'
 
 dayjs.extend(relativeTime)
 
