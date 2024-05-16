@@ -8,7 +8,7 @@ interface ScrollingModalProps {
     variants: any
 }
 
-export default function WelcomeBackgroundList ({
+export default function WelcomeBackgroundList({
     children,
     method,
     variants,

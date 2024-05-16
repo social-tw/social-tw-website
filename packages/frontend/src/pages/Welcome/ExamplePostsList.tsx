@@ -42,9 +42,9 @@ export default function ExamplePostList() {
                 const voteCheck = userState
                     ? checkVoteIsMine(item.votes, userState)
                     : {
-                        isMine: false,
-                        finalAction: null,
-                    }
+                          isMine: false,
+                          finalAction: null,
+                      }
                 return {
                     id: item.transactionHash!,
                     postId: item.postId,
@@ -158,9 +158,9 @@ export default function ExamplePostList() {
                         key={post.id}
                         className="transition-opacity duration-500"
                     >
-                        <div className='relative'>
-                            <div className='absolute inset-0 z-50'></div>
-                            <div className='relative'>
+                        <div className="relative">
+                            <div className="absolute inset-0 z-50"></div>
+                            <div className="relative">
                                 <Post
                                     id={post.postId}
                                     epochKey={post.epochKey}
@@ -185,9 +185,9 @@ export default function ExamplePostList() {
                                 key={post.id}
                                 className="transition-opacity duration-500"
                             >
-                                <div className='relative'>
-                                    <div className='absolute inset-0 z-50'></div>
-                                    <div className='relative'>
+                                <div className="relative">
+                                    <div className="absolute inset-0 z-50"></div>
+                                    <div className="relative">
                                         <Post
                                             id={post.postId}
                                             epochKey={post.epochKey}
