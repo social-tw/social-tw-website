@@ -1,6 +1,6 @@
-import { useUserState } from './useUserState'
+import { useUserState } from '../useUserState/useUserState'
 
-export default function useIsLogin() {
+export function useIsLogin() {
     const { isPending, userState } = useUserState()
 
     return {
