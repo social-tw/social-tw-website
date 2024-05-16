@@ -14,7 +14,7 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
 }))
 
 describe('useEpoch', () => {
-    it('should return isLoggedIn and isLoggingIn', async () => {        
+    it('should get epoch time information', async () => {        
         const { result } = renderHook(useEpoch, { wrapper })
         
         await waitFor(() => {

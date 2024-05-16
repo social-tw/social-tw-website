@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
 import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useCreateComment } from "./useCreateComment"
+import { useRemoveComment } from "./useRemoveComment"
 import { SERVER } from '@/config'
 import * as actionLib from '@/contexts/Actions'
 
@@ -31,13 +31,19 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
         getGuaranteedUserState: () => ({
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
+            genUserStateTransitionProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
             genEpochKeyProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,
                 epochKey: 'mocked_epockKey',
             }),
-            genUserStateTransitionProof: jest.fn().mockResolvedValue({
+            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,
@@ -51,7 +57,7 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
 }))
 
 
-describe('useCreateComment', () => {
+describe('useRemoveComment', () => {
     afterAll(() => {
         nock.restore()
         jest.clearAllMocks()
@@ -59,20 +65,22 @@ describe('useCreateComment', () => {
     
     it('succeed to create a comment', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
             .post('/api/transition').reply(200, { hash: '0xhash'})
-            .post('/api/comment').reply(200, { hash: '0xhash'})
+            .delete('/api/comment').reply(200, { hash: '0xhash'})
         
         const succeedActionById = jest.spyOn(actionLib, 'succeedActionById')
         
-        const { result } = renderHook(useCreateComment, { wrapper })
+        const { result } = renderHook(useRemoveComment, { wrapper })
 
         const comment = {
-            postId: 'mock-post-id',
-            content: 'mock-content'
+            postId: '2',
+            commentId: '1',
+            epoch: 999,
+            nonce: 2,
         }
+
         await act(async () => {
-            await result.current.createComment(comment)
+            await result.current.removeComment(comment)
         })
 
         expect(succeedActionById).toHaveBeenCalled()
@@ -81,21 +89,22 @@ describe('useCreateComment', () => {
 
     it('fail to create a comment', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
             .post('/api/transition').reply(200, { hash: '0xhash'})
-            .post('/api/comment').reply(400, { error: 'error' })
+            .delete('/api/comment').reply(400, { error: 'error' })
 
         const failActionById = jest.spyOn(actionLib, 'failActionById')
 
-        const { result } = renderHook(() => useCreateComment(), { wrapper })
+        const { result } = renderHook(() => useRemoveComment(), { wrapper })
 
         const comment = {
-            postId: 'mock-post-id',
-            content: 'mock-content'
+            postId: '2',
+            commentId: '1',
+            epoch: 999,
+            nonce: 2,
         }
 
         await act(async () => {
-            await result.current.createComment(comment).catch(() => null)
+            await result.current.removeComment(comment).catch(() => null)
         })
 
         expect(failActionById).toHaveBeenCalled()

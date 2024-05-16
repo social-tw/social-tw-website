@@ -5,13 +5,13 @@ import {
     succeedActionById,
 } from '@/contexts/Actions'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { useUserState } from '@/hooks/useUserState'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 import { relayRemoveComment } from '@/utils/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useWeb3Provider } from '@/hooks/useWeb3Provider'
-import { useUserStateTransition } from '@/hooks/useUserStateTransition'
+import { useWeb3Provider } from '@/hooks/useWeb3Provider/useWeb3Provider'
+import { useUserStateTransition } from '@/hooks/useUserStateTransition/useUserStateTransition'
 
-export default function useRemoveComment() {
+export function useRemoveComment() {
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
