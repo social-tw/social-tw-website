@@ -1,14 +1,20 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
 import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useRemoveComment } from "./useRemoveComment"
+import { useCreatePost } from "./useCreatePost"
 import { SERVER } from '@/config'
 import * as actionLib from '@/contexts/Actions'
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
     useWeb3Provider: () => ({
         getGuaranteedProvider: () => ({
-            waitForTransaction: jest.fn(),
+            waitForTransaction: jest.fn().mockResolvedValue({
+                logs: [
+                    {
+                        topics: ['', '', '1111', ''],
+                    },
+                ],
+            }),
         }),
     }),
 }))
@@ -25,19 +31,13 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
         getGuaranteedUserState: () => ({
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
-            genUserStateTransitionProof: jest.fn().mockResolvedValue({
-                publicSignals: 'mocked_signals',
-                proof: 'mocked_proof',
-                epoch: 0,
-                epochKey: 'mocked_epockKey',
-            }),
             genEpochKeyProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,
                 epochKey: 'mocked_epockKey',
             }),
-            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
+            genUserStateTransitionProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,
@@ -51,54 +51,49 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
 }))
 
 
-describe('useRemoveComment', () => {
+describe('useCreatePost', () => {
     afterAll(() => {
         nock.restore()
         jest.clearAllMocks()
     })
     
-    it('succeed to create a comment', async () => {
+    it('succeed to create a post', async () => {
         const expectation = nock(SERVER)
+            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
             .post('/api/transition').reply(200, { hash: '0xhash'})
-            .delete('/api/comment').reply(200, { hash: '0xhash'})
+            .post('/api/post').reply(200, { hash: '0xhash'})
         
         const succeedActionById = jest.spyOn(actionLib, 'succeedActionById')
         
-        const { result } = renderHook(useRemoveComment, { wrapper })
+        const { result } = renderHook(useCreatePost, { wrapper })
 
-        const comment = {
-            postId: '2',
-            commentId: '1',
-            epoch: 999,
-            nonce: 2,
+        const post = {
+            content: 'mock-content'
         }
-
         await act(async () => {
-            await result.current.removeComment(comment)
+            await result.current.createPost(post)
         })
 
         expect(succeedActionById).toHaveBeenCalled()
         expectation.done()
     })
 
-    it('fail to create a comment', async () => {
+    it('fail to create a post', async () => {
         const expectation = nock(SERVER)
+            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
             .post('/api/transition').reply(200, { hash: '0xhash'})
-            .delete('/api/comment').reply(400, { error: 'error' })
+            .post('/api/post').reply(400, { error: 'error' })
 
         const failActionById = jest.spyOn(actionLib, 'failActionById')
 
-        const { result } = renderHook(() => useRemoveComment(), { wrapper })
+        const { result } = renderHook(() => useCreatePost(), { wrapper })
 
-        const comment = {
-            postId: '2',
-            commentId: '1',
-            epoch: 999,
-            nonce: 2,
+        const post = {
+            content: 'mock-content'
         }
 
         await act(async () => {
-            await result.current.removeComment(comment).catch(() => null)
+            await result.current.createPost(post).catch(() => null)
         })
 
         expect(failActionById).toHaveBeenCalled()

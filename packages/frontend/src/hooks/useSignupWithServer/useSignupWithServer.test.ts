@@ -9,13 +9,7 @@ jest.spyOn(Storage.prototype, 'removeItem');
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
     useWeb3Provider: () => ({
         getGuaranteedProvider: () => ({
-            waitForTransaction: jest.fn().mockResolvedValue({
-                logs: [
-                    {
-                        topics: ['', '', '', '1111'],
-                    },
-                ],
-            }),
+            waitForTransaction: jest.fn(),
         }),
     }),
 }))
