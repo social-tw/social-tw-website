@@ -25,7 +25,7 @@ export default function PostForm({
         },
     })
 
-    const { isValid, isSubmitSuccessful } = formState
+    const { isSubmitSuccessful } = formState
 
     const _onSubmit = handleSubmit((values) => {
         const cache = { ...values }

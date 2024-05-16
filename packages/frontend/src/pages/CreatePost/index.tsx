@@ -52,8 +52,6 @@ export default function CreatePost() {
             return () => {
                 clearTimeout(timer)
             }
-        } else {
-            setIsSubmitting(false)
         }
     }, [isPending, navigate])
 
