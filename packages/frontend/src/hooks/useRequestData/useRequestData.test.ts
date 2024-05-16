@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useRequestData } from "./useRequestData"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useRequestData } from './useRequestData'
 import { SERVER } from '@/config'
 
 jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -37,17 +37,19 @@ describe('useRequestData', () => {
     })
 
     it('should request data', async () => {
-        const expectation = nock(SERVER).post('/api/request').reply(200, { hash: '0xhash'})
+        const expectation = nock(SERVER)
+            .post('/api/request')
+            .reply(200, { hash: '0xhash' })
         const { result } = renderHook(useRequestData, { wrapper })
 
         await act(async () => {
             await result.current.requestData({
-              reqData: {
-                0: 'zero',
-                1: 'one',
-                2: 'two',
-              },
-              epkNonce: 1,
+                reqData: {
+                    0: 'zero',
+                    1: 'one',
+                    2: 'two',
+                },
+                epkNonce: 1,
             })
         })
 

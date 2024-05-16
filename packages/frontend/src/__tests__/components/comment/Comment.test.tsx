@@ -4,7 +4,6 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 
-
 jest.mock('@uidotdev/usehooks', () => ({
     useMediaQuery: jest.fn().mockReturnValue(false),
 }))
@@ -27,7 +26,9 @@ describe('Comment', () => {
         render(<Comment {...mockCommentInfo} />, { wrapper })
 
         await waitFor(() => {
-            expect(screen.getByText(mockCommentInfo.content)).toBeInTheDocument()
+            expect(
+                screen.getByText(mockCommentInfo.content),
+            ).toBeInTheDocument()
         })
     })
 
@@ -51,7 +52,10 @@ describe('Comment', () => {
     })
 
     it('calls republish function on republish button click', async () => {
-        render(<Comment {...mockCommentInfo} status={CommentStatus.Failure} />, { wrapper })
+        render(
+            <Comment {...mockCommentInfo} status={CommentStatus.Failure} />,
+            { wrapper },
+        )
 
         const republishButton = screen.getByText(/再次發佈這則留言/i)
         await userEvent.click(republishButton)

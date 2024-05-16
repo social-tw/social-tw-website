@@ -11,21 +11,21 @@ export function useEpoch() {
     const {
         isPending: isCurrentEpochPending,
         data: currentEpoch,
-        refetch: refetchCurrentEpoch
+        refetch: refetchCurrentEpoch,
     } = useQuery({
         queryKey: [QueryKeys.CurrentEpoch, userState],
         queryFn: async () => {
-            if (!userState) { 
+            if (!userState) {
                 return null
             }
             return userState.sync.calcCurrentEpoch()
-        }
+        },
     })
 
     const {
         isPending: isRemainingTimePending,
         data: remainingTime,
-        refetch: refetchRemainingTime
+        refetch: refetchRemainingTime,
     } = useQuery({
         queryKey: [QueryKeys.EpochRemainingTime, userState],
         queryFn: async () => {
@@ -33,10 +33,11 @@ export function useEpoch() {
                 return null
             }
             return userState.sync.calcEpochRemainingTime()
-        }
+        },
     })
 
-    const isPending = isUserStatePending || isCurrentEpochPending || isRemainingTimePending
+    const isPending =
+        isUserStatePending || isCurrentEpochPending || isRemainingTimePending
 
     const epochStartTime = useMemo(
         () =>
@@ -46,7 +47,10 @@ export function useEpoch() {
         [currentEpoch, remainingTime],
     )
     const epochEndTime = useMemo(
-        () => (currentEpoch && remainingTime ? Date.now() / 1000 + remainingTime : 0),
+        () =>
+            currentEpoch && remainingTime
+                ? Date.now() / 1000 + remainingTime
+                : 0,
         [currentEpoch, remainingTime],
     )
 

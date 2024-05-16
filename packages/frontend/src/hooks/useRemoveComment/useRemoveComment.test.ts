@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useRemoveComment } from "./useRemoveComment"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useRemoveComment } from './useRemoveComment'
 import { SERVER } from '@/config'
 import * as actionLib from '@/contexts/Actions'
 
@@ -16,7 +16,9 @@ jest.mock('@/hooks/useWeb3Provider/useWeb3Provider', () => ({
 jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
-            getEpochKeys: jest.fn().mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
+            getEpochKeys: jest
+                .fn()
+                .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
                 calcEpochRemainingTime: jest.fn().mockReturnValue(120),
@@ -50,20 +52,21 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
-
 describe('useRemoveComment', () => {
     afterAll(() => {
         nock.restore()
         jest.clearAllMocks()
     })
-    
+
     it('succeed to create a comment', async () => {
         const expectation = nock(SERVER)
-            .post('/api/transition').reply(200, { hash: '0xhash'})
-            .delete('/api/comment').reply(200, { hash: '0xhash'})
-        
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
+            .delete('/api/comment')
+            .reply(200, { hash: '0xhash' })
+
         const succeedActionById = jest.spyOn(actionLib, 'succeedActionById')
-        
+
         const { result } = renderHook(useRemoveComment, { wrapper })
 
         const comment = {
@@ -83,8 +86,10 @@ describe('useRemoveComment', () => {
 
     it('fail to create a comment', async () => {
         const expectation = nock(SERVER)
-            .post('/api/transition').reply(200, { hash: '0xhash'})
-            .delete('/api/comment').reply(400, { error: 'error' })
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
+            .delete('/api/comment')
+            .reply(400, { error: 'error' })
 
         const failActionById = jest.spyOn(actionLib, 'failActionById')
 

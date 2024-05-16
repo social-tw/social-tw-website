@@ -2,9 +2,9 @@ import { ethers } from 'ethers'
 import { UserState } from '@unirep/core'
 import nock from 'nock'
 import { renderHook, waitFor } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
+import { wrapper } from '@/utils/test-helpers/wrapper'
 import { buildMockConfigAPI } from '@/utils/test-helpers/buildMockAPIs'
-import { useUserState } from "./useUserState"
+import { useUserState } from './useUserState'
 
 const providerSpy = jest.spyOn(ethers.providers, 'JsonRpcProvider')
 

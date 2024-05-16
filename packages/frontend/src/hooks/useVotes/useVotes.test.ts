@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useVotes } from "./useVotes"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useVotes } from './useVotes'
 import { SERVER } from '@/config'
 import * as actionLib from '@/contexts/Actions'
 import { VoteAction } from '@/types'
@@ -9,14 +9,18 @@ import { VoteAction } from '@/types'
 jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
-            getEpochKeys: jest.fn().mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
+            getEpochKeys: jest
+                .fn()
+                .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
                 calcEpochRemainingTime: jest.fn().mockReturnValue(120),
             },
         },
         getGuaranteedUserState: () => ({
-            getEpochKeys: jest.fn().mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
+            getEpochKeys: jest
+                .fn()
+                .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
             genEpochKeyProof: jest.fn().mockResolvedValue({
@@ -38,24 +42,28 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
-
 describe('useVotes', () => {
     afterAll(() => {
         nock.restore()
         jest.clearAllMocks()
     })
-    
+
     it('succeed to vote a post', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
-            .post('/api/vote').reply(200, { hash: '0xhash'})
-            .get('/api/my-account/votes?epks=epochKey-1,epochKey-2_epochKey-1,epochKey-2_epochKey-1,epochKey-2&direction=asc&sortKey=publishedAt').reply(200, [])
-        
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 1 })
+            .post('/api/vote')
+            .reply(200, { hash: '0xhash' })
+            .get(
+                '/api/my-account/votes?epks=epochKey-1,epochKey-2_epochKey-1,epochKey-2_epochKey-1,epochKey-2&direction=asc&sortKey=publishedAt',
+            )
+            .reply(200, [])
+
         const { result } = renderHook(useVotes, { wrapper })
 
         const vote = {
             id: 'post-id',
-            voteAction: VoteAction.UPVOTE
+            voteAction: VoteAction.UPVOTE,
         }
         await act(async () => {
             await result.current.createVote(vote)
@@ -66,14 +74,16 @@ describe('useVotes', () => {
 
     it('fail to vote a post', async () => {
         const expectation = nock(SERVER)
-            .get('/api/counter?epks=epochKey-1_epochKey-2').reply(200, { counter: 1 })
-            .post('/api/vote').reply(400, { error: 'error' })
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 1 })
+            .post('/api/vote')
+            .reply(400, { error: 'error' })
 
         const { result } = renderHook(() => useVotes(), { wrapper })
 
         const vote = {
-          id: 'post-id',
-          voteAction: VoteAction.UPVOTE
+            id: 'post-id',
+            voteAction: VoteAction.UPVOTE,
         }
 
         await act(async () => {

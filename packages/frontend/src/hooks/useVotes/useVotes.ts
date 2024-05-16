@@ -1,5 +1,5 @@
 import { UserState } from '@unirep/core'
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
 import { useActionCount } from '@/hooks/useActionCount/useActionCount'
 import { useUserState } from '@/hooks/useUserState/useUserState'
@@ -29,8 +29,8 @@ export function useVotes() {
             id,
             voteAction,
         }: {
-            id: string,
-            voteAction: VoteAction,
+            id: string
+            voteAction: VoteAction
         }) => {
             const userState = getGuaranteedUserState()
 

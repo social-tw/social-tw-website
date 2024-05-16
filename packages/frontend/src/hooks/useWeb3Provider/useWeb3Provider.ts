@@ -5,11 +5,10 @@ import { useRelayConfig } from '../useRelayConfig/useRelayConfig'
 export function useWeb3Provider() {
     const { data: config } = useRelayConfig()
 
-    const provider = useMemo(() => 
-        !!config
-            ? createProviderByUrl(config.ETH_PROVIDER_URL)
-            : undefined,
-        [config]
+    const provider = useMemo(
+        () =>
+            !!config ? createProviderByUrl(config.ETH_PROVIDER_URL) : undefined,
+        [config],
     )
 
     const getGuaranteedProvider = () => {

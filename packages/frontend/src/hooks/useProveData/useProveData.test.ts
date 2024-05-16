@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { act, renderHook } from '@testing-library/react'
-import { wrapper } from "@/utils/test-helpers/wrapper"
-import { useProveData } from "./useProveData"
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { useProveData } from './useProveData'
 
 jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
@@ -27,9 +27,9 @@ describe('useProveData', () => {
 
         await act(async () => {
             await result.current.proveData({
-              0: 'zero',
-              1: 'one',
-              2: 'two',
+                0: 'zero',
+                1: 'one',
+                2: 'two',
             })
         })
     })
