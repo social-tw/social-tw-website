@@ -16,7 +16,7 @@ export function useUserStateTransition() {
         mutationKey: [MutationKeys.UserStateTransition],
         mutationFn: async () => {
             const provider = getGuaranteedProvider()
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             const latestTransitionedEpoch =
                 await userState.latestTransitionedEpoch()

@@ -38,7 +38,7 @@ export function useRemoveComment() {
             nonce: number
         }) => {
             const provider = getGuaranteedProvider()
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             await stateTransition()
 

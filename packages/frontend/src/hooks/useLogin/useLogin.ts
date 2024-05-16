@@ -18,9 +18,6 @@ export function useLogin() {
             try {
                 LocalStorageHelper.setSignature(signature)
                 LocalStorageHelper.removeIsTwitterVerified()
-                LocalStorageHelper.removeHashUserId()
-                LocalStorageHelper.removeAccessToken()
-                LocalStorageHelper.removeSignMsg()
             } catch {
                 throw new LoginUnknownError()
             }

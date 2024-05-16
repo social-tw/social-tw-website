@@ -39,7 +39,7 @@ export function useSignup() {
                 if (hasSignedUp) return
 
                 const provider = getGuaranteedProvider()
-                const userState = getGuaranteedUserState()
+                const userState = await getGuaranteedUserState()
 
                 const proof = await userState.genUserSignUpProof()
 

@@ -39,7 +39,7 @@ export function useCreateComment() {
             content: string
         }) => {
             const provider = getGuaranteedProvider()
-            const userState = getGuaranteedUserState()
+            const userState = await getGuaranteedUserState()
 
             await stateTransition()
 

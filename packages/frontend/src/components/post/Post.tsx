@@ -14,7 +14,7 @@ import useVoteStore from '../../store/useVoteStore'
 import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 
 export default function Post({
     id = '',
@@ -53,7 +53,7 @@ export default function Post({
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
-    const { isLoggedIn } = useIsLogin()
+    const { isLoggedIn } = useAuthStatus()
 
     const { createVote } = useVotes()
     // 'upvote', 'downvote', or null

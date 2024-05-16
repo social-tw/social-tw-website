@@ -7,7 +7,7 @@ export function useProveData() {
     const { getGuaranteedUserState } = useUserState()
 
     const proveData = async (data: { [key: number]: string | number }) => {
-        const userState = getGuaranteedUserState()
+        const userState = await getGuaranteedUserState()
         const epoch = await userState.sync.loadCurrentEpoch()
         const chainId = userState.chainId
         const stateTree = await userState.sync.genStateTree(epoch)

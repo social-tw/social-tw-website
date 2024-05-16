@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import Backdrop from '@/components/common/Backdrop'
 import { MutationKeys } from '@/constants/queryKeys'
 import { useIsMutating, useMutationState } from '@tanstack/react-query'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 
 const textsAndTimes: { text: string; time: number }[] = [
     { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
@@ -20,7 +20,7 @@ export default function SignUpLoadingModal() {
         navigate('/login', { replace: true, state: {} })
     }
 
-    const { isLoggedIn } = useIsLogin()
+    const { isLoggedIn } = useAuthStatus()
 
     const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
     const isSigningUp = signingUpCount > 0

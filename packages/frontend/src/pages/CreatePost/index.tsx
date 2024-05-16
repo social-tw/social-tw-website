@@ -8,14 +8,14 @@ import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
-import { useIsLogin } from '@/hooks/useIsLogin/useIsLogin'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 import { useUserState } from '@/hooks/useUserState/useUserState'
 import { PATHS } from '@/constants/paths'
 
 export default function CreatePost() {
     const { userState } = useUserState()
 
-    const { isLoggedIn } = useIsLogin()
+    const { isLoggedIn } = useAuthStatus()
 
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,

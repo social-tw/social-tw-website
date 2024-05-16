@@ -104,7 +104,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
         epoch: number,
         epochKey: string,
     ) => {
-        const _userState = getGuaranteedUserState()
+        const _userState = await getGuaranteedUserState()
         const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
         if (!nonce) return
 
