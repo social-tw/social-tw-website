@@ -11,7 +11,7 @@ import {
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
 import { useVoteEvents } from '@/hooks/useVotes'
-import { PostInfo, PostStatus, VoteAction, VoteMsg } from '@/types'
+import { PostInfo, PostStatus } from '@/types'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -22,6 +22,7 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
+import { handleVoteEvent } from '@/hooks/useVoteEvents' // 导入共享函数
 
 export default function PostList() {
     const { userState } = useUser()
@@ -76,7 +77,7 @@ export default function PostList() {
 
     useEffect(() => {
         if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage({ cancelRefetch: false }).then((r) => r)
+            fetchNextPage({ cancelRefetch: false })
         }
     }, [entry, hasNextPage, fetchNextPage])
 
@@ -112,48 +113,7 @@ export default function PostList() {
         navigate(`/posts/${postId}/#comments`)
     }
 
-    function handleVoteEvent(msg: VoteMsg) {
-        // Update the query data for 'posts'
-        queryClient.setQueryData<InfiniteData<PostInfo[]>>(
-            ['posts'],
-            (oldData) => {
-                // Iterate over all pages of posts
-                const updatedPages = oldData?.pages.map((page) => {
-                    // Iterate over each post in a page
-                    return page.map((post) => {
-                        // Find the post that matches the postId from the vote message
-                        if (post.postId === msg.postId) {
-                            // Update vote counts based on the action in the vote message
-                            switch (msg.vote) {
-                                case VoteAction.UPVOTE:
-                                    post.upCount += 1
-                                    break
-                                case VoteAction.DOWNVOTE:
-                                    post.downCount += 1
-                                    break
-                                case VoteAction.CANCEL_UPVOTE:
-                                    post.upCount -= 1
-                                    break
-                                case VoteAction.CANCEL_DOWNVOTE:
-                                    post.downCount -= 1
-                                    break
-                                // Add any other vote actions if needed
-                            }
-                        }
-                        return post // Return the updated or original post
-                    })
-                })
-
-                // Return the updated data structure expected by React Query
-                return {
-                    pages: updatedPages ?? [],
-                    pageParams: oldData?.pageParams ?? [],
-                }
-            },
-        )
-    }
-
-    useVoteEvents(handleVoteEvent)
+    useVoteEvents((msg) => handleVoteEvent(queryClient, msg)) //using shared function
 
     return (
         <div ref={pageContainerRef}>
