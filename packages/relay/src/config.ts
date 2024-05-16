@@ -54,7 +54,7 @@ export const TWITTER_CLIENT_ID = IS_IN_TEST
 export const TWITTER_CLIENT_KEY = IS_IN_TEST
     ? 'test-client-key'
     : process.env.TWITTER_CLIENT_KEY
-export const LOAD_POST_COUNT = 10
+export const LOAD_POST_COUNT = 15
 export const EPOCHKEYS_AMOUNT = 3
 // default update post order interval 30 minutes convert into milisecond
 export const UPDATE_POST_ORDER_INTERVAL = 0.5 * 60 * 60 * 1000

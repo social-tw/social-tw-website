@@ -25,50 +25,49 @@ import { useIntersectionObserver } from '@uidotdev/usehooks'
 
 export default function PostList() {
     const { userState } = useUser()
-
     const queryClient = useQueryClient()
 
-    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<
-        PostInfo[],
-        DefaultError,
-        InfiniteData<PostInfo[]>,
-        QueryKey,
-        number
-    >({
-        queryKey: ['posts'],
-        queryFn: async ({ pageParam }) => {
-            const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
-            const jsonData = (await res.json()) as FetchPostsResponse
-            return jsonData.map((item) => {
-                const voteCheck = userState
-                    ? checkVoteIsMine(item.votes, userState)
-                    : {
-                          isMine: false,
-                          finalAction: null,
-                      }
-                return {
-                    id: item.transactionHash!,
-                    postId: item.postId,
-                    epochKey: item.epochKey,
-                    content: item.content,
-                    publishedAt: new Date(Number(item.publishedAt)),
-                    commentCount: item.commentCount,
-                    upCount: item.upCount,
-                    downCount: item.downCount,
-                    isMine: voteCheck.isMine,
-                    finalAction: voteCheck.finalAction,
-                    status: PostStatus.Success,
-                }
-            })
-        },
-        initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages, lastPageParam) => {
-            return lastPage.length === 0 ? undefined : lastPageParam + 1
-        },
-    })
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+        useInfiniteQuery<
+            PostInfo[],
+            DefaultError,
+            InfiniteData<PostInfo[]>,
+            QueryKey,
+            number
+        >({
+            queryKey: ['posts'],
+            queryFn: async ({ pageParam = 1 }) => {
+                const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
+                const jsonData = (await res.json()) as FetchPostsResponse
+                return jsonData.map((item) => {
+                    const voteCheck = userState
+                        ? checkVoteIsMine(item.votes, userState)
+                        : {
+                              isMine: false,
+                              finalAction: null,
+                          }
+                    return {
+                        id: item.transactionHash!,
+                        postId: item.postId,
+                        epochKey: item.epochKey,
+                        content: item.content,
+                        publishedAt: new Date(Number(item.publishedAt)),
+                        commentCount: item.commentCount,
+                        upCount: item.upCount,
+                        downCount: item.downCount,
+                        isMine: voteCheck.isMine,
+                        finalAction: voteCheck.finalAction,
+                        status: PostStatus.Success,
+                    }
+                })
+            },
+            initialPageParam: 1,
+            getNextPageParam: (lastPage, allPages) => {
+                return lastPage.length === 0 ? undefined : allPages.length + 1
+            },
+        })
 
     const pageContainerRef = useRef(null)
-
     const [pageBottomRef, entry] = useIntersectionObserver({
         threshold: 0,
         root: pageContainerRef.current ?? null,
@@ -79,13 +78,12 @@ export default function PostList() {
         if (entry?.isIntersecting && hasNextPage) {
             fetchNextPage({ cancelRefetch: false }).then((r) => r)
         }
-    }, [entry, userState])
+    }, [entry, hasNextPage, fetchNextPage])
 
     const postActions = useActionStore(postActionsSelector)
 
     const localPosts = useMemo(() => {
         const postIds = (data?.pages ?? []).flat().map((post) => post.postId)
-
         return postActions
             .filter((action) => action.status !== ActionStatus.Failure)
             .map((action) => {
@@ -210,6 +208,9 @@ export default function PostList() {
                 ))}
             </ul>
             <div ref={pageBottomRef} className="w-full h-1 bg-transparent" />
+            {isFetchingNextPage && (
+                <div className="loading-indicator">Loading more posts...</div>
+            )}
         </div>
     )
 }
