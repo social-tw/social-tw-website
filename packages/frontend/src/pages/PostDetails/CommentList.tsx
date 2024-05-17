@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import Comment from '@/components/comment/Comment'
-import { SERVER } from '@/config'
 import {
     ActionStatus,
     commentActionsSelector,
@@ -12,12 +11,12 @@ import {
 import { useUser } from '@/contexts/User'
 import useCreateComment from '@/hooks/useCreateComment'
 import useRemoveComment from '@/hooks/useRemoveComment'
-import { CommentStatus } from '@/types'
-import { RelayRawComment } from '@/types/api'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import useEpoch from '@/hooks/useEpoch'
 import getNonceFromEpochKey from '@/utils/getNonceFromEpochKey'
+import { CommentStatus } from '@/types/Comments'
+import { fetchCommentsByPostId } from '@/utils/api'
 
 interface CommentListProps {
     postId: string
@@ -165,26 +164,6 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
             ))}
         </ul>
     )
-}
-
-async function fetchCommentsByPostId(
-    postId: string,
-): Promise<RelayRawComment[]> {
-    const queryParams = new URLSearchParams()
-
-    if (postId) {
-        queryParams.append('postId', postId)
-    }
-
-    const response = await fetch(
-        `${SERVER}/api/comment?${queryParams.toString()}`,
-    )
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${await response.json()}`)
-    }
-
-    return await response.json()
 }
 
 export default CommentList
