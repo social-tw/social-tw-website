@@ -7,7 +7,7 @@ import { useUser } from '../contexts/User'
 import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import useActionCount from './useActionCount'
-import { VoteAction, VoteMsg } from '../types'
+import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()

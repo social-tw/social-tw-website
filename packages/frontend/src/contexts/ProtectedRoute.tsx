@@ -21,5 +21,5 @@ export const ProtectedRoute: React.FC<ProtectedRouterProps> = ({
         return <Navigate to={PATHS.WELCOME} />
     }
 
-    return children
+    return React.isValidElement(children) ? children : null
 }

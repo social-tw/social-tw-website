@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import client from '@/socket'
-import { CommentMsg } from '@/types'
 import { useList } from '@uidotdev/usehooks'
+import { CommentMsg } from '@/types/Comments'
 
 export default function useCommentEvents(postId: string) {
     const [list, { push, removeAt }] = useList<CommentMsg>([])
