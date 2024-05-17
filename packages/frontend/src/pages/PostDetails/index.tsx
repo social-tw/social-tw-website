@@ -11,11 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import CommentForm from './CommentForm'
 import CommentList from './CommentList'
 import { PostStatus } from '@/types/Post'
-
-async function fetchPostById(postId: string) {
-    const response = await fetch(`${SERVER}/api/post/${postId}`)
-    return await response.json()
-}
+import { fetchSinglePost } from '@/utils/api'
 
 const PostDetails: React.FC = () => {
     const { id } = useParams()
@@ -32,7 +28,7 @@ const PostDetails: React.FC = () => {
         queryKey: ['post', id],
         queryFn: async () => {
             if (!id) return undefined
-            const post = await fetchPostById(id)
+            const post = await fetchSinglePost(id)
             return {
                 id: post._id,
                 postId: post.postId,
