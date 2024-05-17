@@ -1,6 +1,6 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/utils/ErrorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 
 import type { Helia } from '@helia/interface'

@@ -2,15 +2,15 @@ import { DB } from 'anondb'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import IpfsHelper from './singletons/IpfsHelper'
-import ProofHelper from './singletons/ProofHelper'
+import IpfsHelper from './utils/IpfsHelper'
+import ProofHelper from './utils/ProofHelper'
 import {
     CommentNotExistError,
     InvalidEpochKeyError,
 } from '../types/InternalError'
 import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
-import TransactionManager from './singletons/TransactionManager'
+import TransactionManager from './utils/TransactionManager'
 
 export class CommentService {
     async fetchComments(postId: string, db: DB): Promise<Comment[]> {

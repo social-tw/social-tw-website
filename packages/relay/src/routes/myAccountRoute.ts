@@ -1,6 +1,6 @@
 import { DB } from 'anondb/node'
 import { Express, Request, Response } from 'express'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/utils/ErrorHandler'
 import { commentService } from '../services/CommentService'
 import {
     UnspecifiedEpochKeyError,

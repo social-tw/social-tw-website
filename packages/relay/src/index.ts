@@ -17,13 +17,13 @@ import {
     provider,
     UNIREP_ADDRESS,
 } from './config'
-import TransactionManager from './services/singletons/TransactionManager'
-import { SocketManager } from './services/singletons/SocketManager'
+import TransactionManager from './services/utils/TransactionManager'
+import { SocketManager } from './services/utils/SocketManager'
 import { postService } from './services/PostService'
 
 // libraries
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
-import prover from './services/singletons/prover'
+import prover from './services/utils/Prover'
 import schema from './db/schema'
 import cors from 'cors'
 
