@@ -1,12 +1,11 @@
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 
-import { RelayRawVote } from '../../../../types/api'
-import { fetchVotesByEpochKeys } from '../../../../utils/api'
-import { Vote } from '../DTO/Vote'
 import { ActiveFilter, VoteType } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
+import { RelayRawVote, VoteHistoryMetaData } from '@/types/Vote'
 import ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
+import { fetchVotesByEpochKeys } from '@/utils/api'
 
 export class VoteService {
     async fetchVoteHistoryByUserState(userState: UserState) {
@@ -22,7 +21,7 @@ export class VoteService {
     }
 
     sortVotes(
-        votes: Vote[],
+        votes: VoteHistoryMetaData[],
         activeFilter: Exclude<ActiveFilter, ActiveFilter.PopularityAsc>,
     ) {
         switch (activeFilter) {
@@ -38,31 +37,31 @@ export class VoteService {
         }
     }
 
-    isUpvote(vote: Vote) {
+    isUpvote(vote: VoteHistoryMetaData) {
         return vote.type === VoteType.Upvote
     }
 
-    private sortVotesByDateAsc(votes: Vote[]) {
+    private sortVotesByDateAsc(votes: VoteHistoryMetaData[]) {
         return votes.sort((a, b) => b.publishedAt - a.publishedAt)
     }
 
-    private sortVotesByDateDesc(votes: Vote[]) {
+    private sortVotesByDateDesc(votes: VoteHistoryMetaData[]) {
         return votes.sort((a, b) => a.publishedAt - b.publishedAt)
     }
 
-    private parseRelayRawVotesToVotes(relayRawVotes: RelayRawVote[]): Vote[] {
+    private parseRelayRawVotesToVotes(
+        relayRawVotes: RelayRawVote[],
+    ): VoteHistoryMetaData[] {
         return relayRawVotes.map((relayRawVote) => {
             const publishedAt = parseInt(relayRawVote.publishedAt)
             const voteType = this.getVoteTypeByRelayRawVote(relayRawVote)
-            return new Vote(
-                relayRawVote.epochKey,
-                publishedAt,
-                relayRawVote.content,
-                relayRawVote.voteSum,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genVoteUrlByPostId(relayRawVote.postId),
-                voteType,
-            )
+            return {
+                epochKey: relayRawVote.epochKey,
+                publishedAt: publishedAt,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genVoteUrlByPostId(relayRawVote.postId),
+                type: voteType,
+            }
         })
     }
 

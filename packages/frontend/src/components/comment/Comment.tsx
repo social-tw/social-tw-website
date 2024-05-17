@@ -12,9 +12,9 @@ import {
     useMenuState,
 } from '@szhsin/react-menu'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import { CommentStatus } from '../../types'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
+import { CommentInfo, CommentStatus } from '@/types/Comments'
 
 interface CommentProps {
     commentId?: string

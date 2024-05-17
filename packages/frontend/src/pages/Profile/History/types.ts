@@ -1,9 +1,8 @@
 import { UserState } from '@unirep/core'
 import { StateCreator } from 'zustand'
-
-import type { Comment } from './DTO/Comment'
-import type { Post } from './DTO/Post'
-import type { Vote } from './DTO/Vote'
+import type { CommentHistoryMetaData } from '@/types/Comments'
+import type { PostHistoryMetaData } from '@/types/Post'
+import type { VoteHistoryMetaData } from '@/types/Vote'
 
 export enum ActiveTab {
     Post = 'Post',
@@ -66,7 +65,7 @@ interface PostSlice {
         activeFilter: ActiveFilter
         isFetching: boolean
         isInit: boolean
-        data: Post[]
+        data: PostHistoryMetaData[]
     }
     setPostActiveFilterToDateAsc: () => void
     setPostActiveFilterToDateDesc: () => void
@@ -81,7 +80,7 @@ interface CommentSlice {
         activeFilter: ActiveFilter
         isFetching: boolean
         isInit: boolean
-        data: Comment[]
+        data: CommentHistoryMetaData[]
     }
     setCommentActiveFilterToDateAsc: () => void
     setCommentActiveFilterToDateDesc: () => void
@@ -96,7 +95,7 @@ interface VoteSlice {
         activeFilter: Exclude<ActiveFilter, ActiveFilter.PopularityAsc>
         isFetching: boolean
         isInit: boolean
-        data: Vote[]
+        data: VoteHistoryMetaData[]
     }
     setVoteActiveFilterToDateAsc: () => void
     setVoteActiveFilterToDateDesc: () => void
