@@ -1,5 +1,6 @@
 import { InfiniteData, QueryClient } from '@tanstack/react-query'
-import { PostInfo, VoteAction, VoteMsg } from '@/types'
+import { VoteAction, VoteMsg } from '@/types/Vote'
+import { PostInfo } from '@/types/Post'
 
 export const handleVoteEvent = (queryClient: QueryClient, msg: VoteMsg) => {
     queryClient.setQueryData<InfiniteData<PostInfo[]>>(['posts'], (oldData) => {

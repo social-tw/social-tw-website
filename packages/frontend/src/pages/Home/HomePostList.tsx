@@ -11,7 +11,6 @@ import {
 } from '@/contexts/Actions'
 import { useUser } from '@/contexts/User'
 import { useVoteEvents } from '@/hooks/useVotes'
-import { PostInfo, PostStatus } from '@/types'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -22,7 +21,8 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
-import { handleVoteEvent } from '@/hooks/useVoteEvents' //using shared function
+import { handleVoteEvent } from '@/hooks/useVoteEvents'
+import { PostInfo, PostStatus } from '@/types/Post' //using shared function
 
 export default function PostList() {
     const { userState } = useUser()
