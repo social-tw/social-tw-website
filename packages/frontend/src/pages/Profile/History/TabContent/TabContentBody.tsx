@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom'
 
 import Downvote from '../../../../assets/downvote.png'
 import Upvote from '../../../../assets/upvote.png'
-import { Comment } from '../DTO/Comment'
-import { Post } from '../DTO/Post'
-import { Vote } from '../DTO/Vote'
 import { VoteService } from '../services/VoteService'
+import { CommentHistoryMetaData } from '@/types/Comments'
+import { PostHistoryMetaData } from '@/types/Post'
+import { VoteHistoryMetaData } from '@/types/Vote'
 
 interface TabContentBodyProps {
     isInit: boolean
@@ -73,7 +73,7 @@ export function TabContentBody({
             {isInit && data.length === 0 && <div>NO DATA</div>}
             {isInit && data.length > 0 && (
                 <AutoSizer>
-                    {({ height, width }) => {
+                    {({ height, width }: { height: number; width: number }) => {
                         const rowHeight = 35
                         const rowCount = data.length
                         const columnCount = data[0].length
@@ -153,7 +153,9 @@ function BodyCellImg({ src, alt }: CellImgProps) {
     return <img className="w-5 h-5" src={src} alt={alt} />
 }
 
-export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
+export function parsePostsToBodyData(
+    posts: PostHistoryMetaData[],
+): BodyCellData[][] {
     return posts.map((post) => {
         return [
             { type: BodyCellType.Text, content: post.date },
@@ -164,7 +166,9 @@ export function parsePostsToBodyData(posts: Post[]): BodyCellData[][] {
     })
 }
 
-export function parseCommentsToBodyData(comments: Comment[]): BodyCellData[][] {
+export function parseCommentsToBodyData(
+    comments: CommentHistoryMetaData[],
+): BodyCellData[][] {
     return comments.map((comment) => {
         return [
             { type: BodyCellType.Text, content: comment.date },
@@ -175,14 +179,16 @@ export function parseCommentsToBodyData(comments: Comment[]): BodyCellData[][] {
     })
 }
 
-export function parseVotesToBodyData(votes: Vote[]): BodyCellData[][] {
+export function parseVotesToBodyData(
+    votes: VoteHistoryMetaData[],
+): BodyCellData[][] {
     const voteService = new VoteService()
     return votes.map((vote) => {
         const imgSrc = voteService.isUpvote(vote) ? Upvote : Downvote
         const imgAlt = voteService.isUpvote(vote) ? 'Upvote' : 'Downvote'
         return [
             { type: BodyCellType.Text, content: vote.date },
-            { type: BodyCellType.Text, content: vote.content },
+            // { type: BodyCellType.Text, content: vote.content },
             { type: BodyCellType.Img, src: imgSrc, alt: imgAlt },
             { type: BodyCellType.Text, content: vote.epochKey },
             { type: BodyCellType.Link, content: '前往查看', url: vote.url },

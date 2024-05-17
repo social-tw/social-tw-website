@@ -1,3 +1,4 @@
+import { RelayRawComment } from '@/types/Comments'
 import { SERVER } from '../config'
 import {
     Directions,
@@ -7,9 +8,9 @@ import {
     FetchPostsByEpochKeysResponse,
     FetchVotesByEpochKeysParams,
     FetchVotesByEpochKeysResponse,
-    RelayRawPost,
     SortKeys,
 } from '../types/api'
+import { RelayRawPost } from '@/types/Post'
 
 export async function fetchRelayConfig() {
     const res = await fetch(`${SERVER}/api/config`)
@@ -19,6 +20,18 @@ export async function fetchRelayConfig() {
 export async function fetchLogin() {
     const res = await fetch(`${SERVER}/api/login`)
     return res.json()
+}
+
+export async function fetchCommentsByPostId(
+    postId: string,
+): Promise<RelayRawComment[]> {
+    if (!postId) return []
+    const queryParams = new URLSearchParams()
+    queryParams.append('postId', postId)
+    const res = await fetch(
+        `${SERVER}/api/comment?${queryParams.toString()}`,
+    )
+    return await res.json()
 }
 
 export async function fetchSinglePost(postId: string): Promise<RelayRawPost> {

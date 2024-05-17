@@ -1,13 +1,8 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
-import {
-    stringifyBigInts,
-    IncrementalMerkleTree,
-    genStateTreeLeaf,
-} from '@unirep/utils'
+import { stringifyBigInts } from '@unirep/utils'
 
 import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
@@ -19,8 +14,7 @@ import { SQLiteConnector } from 'anondb/node'
 import { postData } from './mocks/posts'
 import { PostService } from '../src/services/PostService'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
-
-const { STATE_TREE_DEPTH } = CircuitConfig.default
+import { post } from './utils/post'
 
 describe('POST /post', function () {
     let snapshot: any
@@ -95,28 +89,26 @@ describe('POST /post', function () {
                 return res.body
             })
 
-        await ethers.provider.waitForTransaction(res.transaction)
+        await ethers.provider.waitForTransaction(res.txHash)
         await sync.waitForSync()
 
         let posts = await express
-            .get(`/api/post?query=mocktype&epks=${epochKeyProof.epochKey}`)
+            .get(`/api/post?epks=${epochKeyProof.epochKey}`)
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
             })
 
-        expect(posts[0].transactionHash).equal(res.transaction)
+        expect(posts[0].transactionHash).equal(res.txHash)
         expect(posts[0].content).equal(testContent)
         expect(posts[0].status).equal(1)
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 
-        posts = await express
-            .get(`/api/post?query=mocktype&epks=${mockEpk}`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                return res.body
-            })
+        posts = await express.get(`/api/post?epks=${mockEpk}`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
         expect(posts.length).equal(0)
     })
@@ -179,7 +171,7 @@ describe('POST /post', function () {
             })
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid Epoch')
+                expect(res.body.error).equal('Invalid epoch')
             })
     })
 
@@ -245,5 +237,55 @@ describe('POST /post', function () {
                 }
             }
         }
+    })
+
+    it('should fetch posts which are already on-chain', async function () {
+        // send a post
+        const { txHash } = await post(express, userState)
+        // update the cache, the amount of posts is still 10
+        // since the above post is not on-chain yet
+        await pService.updateOrder(sqlite)
+
+        // one page will have 10 posts
+        let posts = await express.get(`/api/post?page=1`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
+
+        // every post is on-chain so the status must be 1
+        for (let i = 0; i < post.length; i++) {
+            const post = posts[i]
+            expect(post.status).equal(1)
+        }
+
+        // second page will be empty
+        posts = await express.get(`/api/post?page=2`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
+
+        expect(posts.length).equal(0)
+
+        // check the post is off-chain so the status must be 0
+        const offChainPost = await sqlite.findOne('Post', {
+            where: {
+                transactionHash: txHash,
+            },
+        })
+
+        expect(offChainPost.status).equal(0)
+    })
+
+    it('should fetch post failed with incorrect input', async function () {
+        // page number shouldn't be negative
+        await express.get(`/api/post?page=-1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
+        // page number shouldn't be non-integer
+        await express.get(`/api/post?page=0.1`).then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).equal('Invalid page: page is undefined')
+        })
     })
 })

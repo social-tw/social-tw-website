@@ -61,7 +61,7 @@ describe('GET /counter', function () {
 
     it('should add the counter number increment after the user posted', async function () {
         let res = await post(express, userState)
-        await ethers.provider.waitForTransaction(res.transaction)
+        await ethers.provider.waitForTransaction(res.txHash)
         await sync.waitForSync()
 
         const epochKeys = (userState.getEpochKeys() as bigint[])
@@ -86,7 +86,7 @@ describe('GET /counter', function () {
             .set('content-type', 'application/json')
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('wrong number of epks')
+                expect(res.body.error).equal('Wrong number of epoch keys')
             })
     })
 
@@ -95,7 +95,7 @@ describe('GET /counter', function () {
     // put this test in the end since this test will
     // go to next epoch
     it('should delete the EpochKeyAction table after the epoch ended', async function () {
-        const epoch = await sync.loadCurrentEpoch()
+        const epoch = sync.calcCurrentEpoch()
         const epochRemainingTime = sync.calcEpochRemainingTime()
 
         // add epoch time to make sure this epoch ended
@@ -108,7 +108,7 @@ describe('GET /counter', function () {
         await sync.waitForSync()
 
         const rows = await anondb.count('EpochKeyAction', {
-            epoch: epoch,
+            epoch: { lte: epoch },
         })
 
         expect(rows).equal(0)

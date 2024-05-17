@@ -18,7 +18,7 @@ export function TabContentHeader({ data }: TabContentHeaderProps) {
     return (
         <div className={`py-2`}>
             <AutoSizer disableHeight>
-                {({ width }) => {
+                {({ width }: { width: number }) => {
                     const rowHeight = 35
                     const columnCount = data.length
                     const columnWidth = Math.floor(width / columnCount)
@@ -79,7 +79,6 @@ export function getCommentHeaderData(): HeaderCellData[] {
 export function getVoteHeaderData(): HeaderCellData[] {
     return [
         { label: 'Date' },
-        { label: 'Content' },
         { label: 'Type' },
         { label: 'Epoch Key' },
         { label: 'Link' },

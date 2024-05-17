@@ -1,10 +1,9 @@
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
-import { RelayRawPost } from '../../../../types/api'
 import { fetchPostsByEpochKeys } from '../../../../utils/api'
-import { Post } from '../DTO/Post'
 import { ActiveFilter } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
+import { PostHistoryMetaData, RelayRawPost } from '@/types/Post'
 
 export class PostService {
     async fetchPostHistoryByUserState(userState: UserState) {
@@ -19,7 +18,7 @@ export class PostService {
             .flat(2)
     }
 
-    sortPosts(posts: Post[], activeFilter: ActiveFilter) {
+    sortPosts(posts: PostHistoryMetaData[], activeFilter: ActiveFilter) {
         switch (activeFilter) {
             case ActiveFilter.DateAsc: {
                 return this.sortPostsByDateAsc(posts)
@@ -36,30 +35,32 @@ export class PostService {
         }
     }
 
-    private sortPostsByDateAsc(posts: Post[]) {
+    private sortPostsByDateAsc(posts: PostHistoryMetaData[]) {
         return posts.sort((a, b) => b.publishedAt - a.publishedAt)
     }
 
-    private sortPostsByDateDesc(posts: Post[]) {
+    private sortPostsByDateDesc(posts: PostHistoryMetaData[]) {
         return posts.sort((a, b) => a.publishedAt - b.publishedAt)
     }
 
-    private sortPostsByPopularityAsc(posts: Post[]) {
+    private sortPostsByPopularityAsc(posts: PostHistoryMetaData[]) {
         return posts.sort((a, b) => b.voteSum - a.voteSum)
     }
 
-    private parseRelayRawPostsToPosts(relayRawPosts: RelayRawPost[]): Post[] {
+    private parseRelayRawPostsToPosts(
+        relayRawPosts: RelayRawPost[],
+    ): PostHistoryMetaData[] {
         return relayRawPosts.map((relaySourcePost) => {
             const publishedAt = parseInt(relaySourcePost.publishedAt)
-            return new Post(
-                relaySourcePost.postId,
-                relaySourcePost.epochKey,
-                publishedAt,
-                relaySourcePost.content,
-                relaySourcePost.voteSum,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genPostUrlById(relaySourcePost.postId),
-            )
+            return {
+                id: relaySourcePost.postId,
+                epochKey: relaySourcePost.epochKey,
+                publishedAt: publishedAt,
+                content: relaySourcePost.content,
+                voteSum: relaySourcePost.voteSum,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genPostUrlById(relaySourcePost.postId),
+            }
         })
     }
 

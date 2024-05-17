@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 import CloseIcon from '@/assets/close.svg'
 import PostIcon from '@/assets/post.svg'
 import useCommentEvents from '@/hooks/useCommentEvents'
-import { CommentMsg } from '@/types'
+import { CommentMsg } from '@/types/Comments'
 
 interface CommentNotificationsProps {
     postId: string
 }
 
-const CommentNotifications: React.FC<CommentNotificationsProps> = (props) => {
-    const { postId } = props
-
+export default function CommentNotifications({
+    postId,
+}: CommentNotificationsProps) {
     const { list, removeAt } = useCommentEvents(postId)
 
     const renderNotification = (item: CommentMsg, index: number) => {
@@ -58,5 +58,3 @@ const CommentNotifications: React.FC<CommentNotificationsProps> = (props) => {
         </div>
     )
 }
-
-export default CommentNotifications
