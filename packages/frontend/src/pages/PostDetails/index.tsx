@@ -108,7 +108,3 @@ const PostDetails: React.FC = () => {
 }
 
 export default PostDetails
-function fetchPostById(id: string) {
-    throw new Error('Function not implemented.')
-}
-

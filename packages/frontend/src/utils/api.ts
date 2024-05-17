@@ -28,9 +28,7 @@ export async function fetchCommentsByPostId(
     if (!postId) return []
     const queryParams = new URLSearchParams()
     queryParams.append('postId', postId)
-    const res = await fetch(
-        `${SERVER}/api/comment?${queryParams.toString()}`,
-    )
+    const res = await fetch(`${SERVER}/api/comment?${queryParams.toString()}`)
     return await res.json()
 }
 
