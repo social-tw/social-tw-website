@@ -29,7 +29,7 @@ export default function EpochInfo() {
             />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
-                    <div>
+                    <div className="w-[90px] basis-[90px]">
                         <span className="block text-xs font-semibold text-white">
                             Next Epoch in{' '}
                         </span>
