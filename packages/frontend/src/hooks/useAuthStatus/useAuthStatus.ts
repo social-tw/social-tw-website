@@ -1,15 +1,15 @@
-import { useIsMutating, useMutationState } from "@tanstack/react-query"
-import { useUserState } from "../useUserState/useUserState"
-import { MutationKeys } from '@/constants/queryKeys';
+import { useIsMutating, useMutationState } from '@tanstack/react-query'
+import { useUserState } from '../useUserState/useUserState'
+import { MutationKeys } from '@/constants/queryKeys'
 
 export function useAuthStatus() {
     const { isPending, userState } = useUserState()
 
     const loginErrors = useMutationState({
         filters: {
-            mutationKey: [MutationKeys.Login]
+            mutationKey: [MutationKeys.Login],
         },
-        select: (mutation) => mutation.state.error
+        select: (mutation) => mutation.state.error,
     })
 
     const isSigningUp = useIsMutating({
@@ -18,9 +18,9 @@ export function useAuthStatus() {
 
     const signupErrors = useMutationState({
         filters: {
-            mutationKey: [MutationKeys.Signup]
+            mutationKey: [MutationKeys.Signup],
         },
-        select: (mutation) => mutation.state.error
+        select: (mutation) => mutation.state.error,
     })
 
     return {

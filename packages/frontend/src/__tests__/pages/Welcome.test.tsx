@@ -1,5 +1,4 @@
-import '@testing-library/jest-dom'
-import { render, waitFor, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { Welcome } from '@/pages/Welcome'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 
@@ -13,10 +12,8 @@ jest.mock('../../pages/Welcome/ExamplePostsList', () => ({
     default: () => <div>Mocked PostList</div>,
 }))
 
-test('Welcome should render', () => {
+test('Welcome should render', async () => {
     render(<Welcome />, { wrapper })
-    waitFor(() => {
-        expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
-        expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
-    })
+    await screen.findByAltText('UniRep Logo')
+    await screen.findByText('Unirep Social TW')
 })

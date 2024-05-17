@@ -3,8 +3,7 @@ import { act, renderHook } from '@testing-library/react'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { useVotes } from './useVotes'
 import { SERVER } from '@/config'
-import * as actionLib from '@/contexts/Actions'
-import { VoteAction } from '@/types'
+import { VoteAction } from '@/types/Vote'
 
 jest.mock('@/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({

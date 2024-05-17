@@ -41,7 +41,7 @@ export default function HomePostForm({ disabled = false }: HomePostFormProps) {
     useEffect(() => {
         if (isPending) {
             setIsSubmitting(true)
-            
+
             const timer = setTimeout(() => {
                 setIsSubmitting(false)
                 reset()

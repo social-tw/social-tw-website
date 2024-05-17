@@ -4,7 +4,7 @@ import { useAuthStatus } from './useAuthStatus'
 import { ethers } from 'ethers'
 import { buildMockConfigAPI } from '@/utils/test-helpers/buildMockAPIs'
 
-const providerSpy = jest.spyOn(ethers.providers, 'JsonRpcProvider')
+jest.spyOn(ethers.providers, 'JsonRpcProvider')
 
 jest.mock('@unirep/core')
 
@@ -15,9 +15,8 @@ describe('useAuthStatus', () => {
 
         const { result } = renderHook(useAuthStatus, { wrapper })
 
-        await waitFor(() => {
-            expect(result.current.isLoggedIn).toBe(true)
-            expect(result.current.isLoggingIn).toBe(false)
-        })
+        await waitFor(() => expect(result.current.isLoggedIn).toBe(true))
+        await waitFor(() => expect(result.current.isLoggingIn).toBe(false))
+        expectation.done()
     })
 })

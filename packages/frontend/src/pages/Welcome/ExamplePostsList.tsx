@@ -8,8 +8,8 @@ import {
     PostData,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
-import { useVoteEvents } from '@/hooks/useVotes'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useVoteEvents } from '@/hooks/useVoteEvents/useVoteEvents'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -24,7 +24,7 @@ import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function ExamplePostList() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     const queryClient = useQueryClient()
 
@@ -79,7 +79,7 @@ export default function ExamplePostList() {
         if (entry?.isIntersecting && hasNextPage) {
             fetchNextPage({ cancelRefetch: false }).then((r) => r)
         }
-    }, [entry])
+    }, [entry, fetchNextPage, hasNextPage])
 
     const postActions = useActionStore(postActionsSelector)
 

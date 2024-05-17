@@ -29,7 +29,7 @@ export function useUserState() {
         isPending,
         isSuccess,
         data: userState,
-        refetch
+        refetch,
     } = useQuery({
         queryKey: [QueryKeys.UserState, config, signature],
         queryFn: async () => {
@@ -68,7 +68,6 @@ export function useUserState() {
     const getGuaranteedUserState = async () => {
         if (userState) {
             return userState
-            
         }
         const result = await refetch()
 

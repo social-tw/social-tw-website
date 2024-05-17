@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import client from '@/socket'
-import { VoteMsg } from '@/types'
+import { VoteMsg } from '@/types/Vote'
 
 export function useVoteEvents(callback: (data: VoteMsg) => void) {
     useEffect(() => {

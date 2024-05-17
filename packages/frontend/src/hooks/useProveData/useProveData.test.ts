@@ -10,6 +10,7 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
             sync: {
+                loadCurrentEpoch: jest.fn().mockResolvedValue(2),
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
             },
         }),

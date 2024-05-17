@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useUserState } from '../useUserState/useUserState'
 import { QueryKeys } from '@/constants/queryKeys'
 import { useQuery } from '@tanstack/react-query'
@@ -13,7 +13,7 @@ export function useEpoch() {
         data: currentEpoch,
         refetch: refetchCurrentEpoch,
     } = useQuery({
-        queryKey: [QueryKeys.CurrentEpoch, userState?.id.toString()],
+        queryKey: [QueryKeys.CurrentEpoch, userState?.id?.toString()],
         queryFn: async () => {
             if (!userState) {
                 return null
@@ -27,7 +27,7 @@ export function useEpoch() {
         data: remainingTime,
         refetch: refetchRemainingTime,
     } = useQuery({
-        queryKey: [QueryKeys.EpochRemainingTime, userState?.id.toString()],
+        queryKey: [QueryKeys.EpochRemainingTime, userState?.id?.toString()],
         queryFn: async () => {
             if (!userState) {
                 return null
@@ -65,7 +65,7 @@ export function useEpoch() {
                 clearTimeout(timer)
             }
         }
-    }, [currentEpoch, remainingTime])
+    }, [currentEpoch, refetchCurrentEpoch, refetchRemainingTime, remainingTime])
 
     return {
         isPending,

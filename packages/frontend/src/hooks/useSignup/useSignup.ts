@@ -50,7 +50,7 @@ export function useSignup() {
                     fromServer,
                 )
 
-                await provider.waitForTransaction(data.hash)
+                await provider.waitForTransaction(data.txHash)
                 await userState.waitForSync()
 
                 return data

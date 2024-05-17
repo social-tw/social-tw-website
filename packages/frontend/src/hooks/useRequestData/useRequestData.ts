@@ -36,8 +36,8 @@ export function useRequestData() {
             const proof = await userState.genEpochKeyProof({
                 nonce: epkNonce,
             })
-            const data = await relayRequestData(proof, filteredReqData)
-            await provider.waitForTransaction(data.hash)
+            const { txHash } = await relayRequestData(proof, filteredReqData)
+            await provider.waitForTransaction(txHash)
             await userState.waitForSync()
         },
     })
