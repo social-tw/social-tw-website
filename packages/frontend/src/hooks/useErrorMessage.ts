@@ -1,13 +1,11 @@
 import { useMemo } from 'react'
-import LOGIN_ERROR_MESSAGES from '../constants/error-messages/loginErrorMessage'
+import ERROR_MESSAGES from '../constants/error-messages/errorMessage'
 
-const useErrorMessage = (errorCode: keyof typeof LOGIN_ERROR_MESSAGES | '') => {
-    const errorMessage = useMemo(() => {
+export default function useErrorMessage(
+    errorCode: keyof typeof ERROR_MESSAGES | '',
+) {
+    return useMemo(() => {
         if (!errorCode) return { code: 'NO_ERROR', message: '' }
-        return LOGIN_ERROR_MESSAGES[errorCode]
+        return ERROR_MESSAGES[errorCode]
     }, [errorCode])
-
-    return errorMessage
 }
-
-export default useErrorMessage

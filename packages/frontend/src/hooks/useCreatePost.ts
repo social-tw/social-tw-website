@@ -68,8 +68,8 @@ export default function useCreatePost() {
                 proof: epochKeyProof.proof,
             })
 
-            const { transaction } = await publishPost(proof)
-            const receipt = await provider.waitForTransaction(transaction)
+            const { txHash } = await publishPost(proof)
+            const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(
                 receipt.logs[0].topics[2],
             ).toString()
@@ -80,11 +80,11 @@ export default function useCreatePost() {
             succeedActionById(actionId, {
                 postId,
                 epochKey,
-                transactionHash: transaction,
+                transactionHash: txHash,
             })
 
             return {
-                transactionHash: transaction,
+                transactionHash: txHash,
                 postId,
                 content,
                 epoch,

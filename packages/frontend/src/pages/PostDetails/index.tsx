@@ -4,13 +4,13 @@ import CommentNotifications from '@/components/comment/CommentNotification'
 import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
-import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/loginErrorMessage'
+import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
 import { useUser } from '@/contexts/User'
-import { PostStatus } from '@/types'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
 import CommentForm from './CommentForm'
 import CommentList from './CommentList'
+import { PostStatus } from '@/types/Post'
 
 async function fetchPostById(postId: string) {
     const response = await fetch(`${SERVER}/api/post/${postId}`)

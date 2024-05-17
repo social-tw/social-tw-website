@@ -19,7 +19,7 @@ export default (
             state: STATE,
             code_challenge,
         })
-        res.status(200).json({ url: url })
+        res.status(200).json({ url })
     })
 
     app.get('/api/user', async (req, res) => {

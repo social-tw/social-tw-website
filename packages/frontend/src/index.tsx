@@ -15,7 +15,6 @@ import ErrorPage from './pages/ErrorPage'
 import Home from './pages/Home'
 import { Login } from './pages/Login'
 import { InternalLogin } from './pages/Login/InternalLogin'
-import PostDetails from './pages/PostDetails'
 import { History } from './pages/Profile/History'
 import Profile from './pages/Profile/Profile'
 import ProfileLayout from './pages/Profile/ProfileLayout'
@@ -23,6 +22,7 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
+import PostDetails from './pages/PostDetails'
 
 dayjs.extend(relativeTime)
 
@@ -111,7 +111,7 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient()
 
-const App = () => {
+export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <UserProvider>
@@ -120,8 +120,6 @@ const App = () => {
         </QueryClientProvider>
     )
 }
-
-export default App
 
 const rootElement = document.getElementById('root')
 if (rootElement) {

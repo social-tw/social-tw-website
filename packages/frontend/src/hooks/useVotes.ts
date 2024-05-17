@@ -7,7 +7,7 @@ import { useUser } from '../contexts/User'
 import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import useActionCount from './useActionCount'
-import { VoteAction, VoteMsg } from '../types'
+import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()
@@ -50,7 +50,6 @@ export default function useVotes() {
             await invokeFetchHistoryVotesFlow(userState as unknown as UserState)
 
             if (response.status === 201) {
-                console.log('Vote succeeded!')
                 return true
             } else {
                 throw new Error(
@@ -58,7 +57,6 @@ export default function useVotes() {
                 )
             }
         } catch (error) {
-            console.error('Vote failed:', error)
             return false
         }
     }
