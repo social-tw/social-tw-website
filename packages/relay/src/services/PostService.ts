@@ -8,11 +8,11 @@ import {
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
-import ProofHelper from './singletons/ProofHelper'
+import ProofHelper from './utils/ProofHelper'
 import { Post } from '../types/Post'
-import IpfsHelper from './singletons/IpfsHelper'
+import IpfsHelper from './utils/IpfsHelper'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
-import TransactionManager from './singletons/TransactionManager'
+import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
     // TODO: modify the cache data structure to avoid memory leak

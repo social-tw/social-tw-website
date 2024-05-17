@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployContracts, startServer, stopServer } from './environment'
 
-import ActionCountManager from '../src/services/singletons/ActionCountManager'
+import ActionCountManager from '../src/services/utils/ActionCountManager'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 
 describe('My Account Page', function () {

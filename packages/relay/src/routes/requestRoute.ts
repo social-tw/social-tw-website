@@ -1,9 +1,9 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
-import TransactionManager from '../services/singletons/TransactionManager'
+import TransactionManager from '../services/utils/TransactionManager'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import ProofHelper from '../services/singletons/ProofHelper'
-import { errorHandler } from '../services/singletons/errorHandler'
+import ProofHelper from '../services/utils/ProofHelper'
+import { errorHandler } from '../services/utils/ErrorHandler'
 
 export default (
     app: Express,

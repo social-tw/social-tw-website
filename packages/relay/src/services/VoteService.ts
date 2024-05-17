@@ -1,10 +1,10 @@
 import { DB } from 'anondb'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { VoteAction } from '../types'
-import ActionCountManager from './singletons/ActionCountManager'
-import { socketManager } from './singletons/SocketManager'
+import ActionCountManager from './utils/ActionCountManager'
+import { socketManager } from './utils/SocketManager'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
-import ProofHelper from './singletons/ProofHelper'
+import ProofHelper from './utils/ProofHelper'
 import {
     InvalidPostIdError,
     InvalidVoteActionError,

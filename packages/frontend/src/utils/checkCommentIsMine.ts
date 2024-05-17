@@ -1,4 +1,4 @@
-import { UserState } from '@/contexts/Userstate'
+import { UserState } from '@/contexts/UserState'
 import { RelayRawComment } from '@/types/Comments'
 
 const checkCommentIsMine = (

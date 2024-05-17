@@ -5,9 +5,9 @@ import { Synchronizer } from '@unirep/core'
 import schema from '../../db/schema'
 import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
-import { socketManager } from './SocketManager'
+import { socketManager } from '../utils/SocketManager'
 import { UserRegisterStatus } from '../../types'
-import ActionCountManager from './ActionCountManager'
+import ActionCountManager from '../utils/ActionCountManager'
 
 type EventHandlerArgs = {
     event: ethers.Event

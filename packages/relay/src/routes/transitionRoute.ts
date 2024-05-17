@@ -1,9 +1,9 @@
 import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { UserStateTransitionProof } from '@unirep/circuits'
-import TransactionManager from '../services/singletons/TransactionManager'
+import TransactionManager from '../services/utils/TransactionManager'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/utils/ErrorHandler'
 import { InvalidProofError } from '../types/InternalError'
 
 export default (
