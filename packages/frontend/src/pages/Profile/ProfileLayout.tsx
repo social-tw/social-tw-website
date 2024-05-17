@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
-import { Avatar } from './Avatar'
+import Avatar from './Avatar'
 
-const ProfileLayout = () => {
+export default function ProfileLayout() {
     return (
         <div className="h-screen w-full md:pt-24 pt-8">
             <div className="w-full h-full grid grid-rows-[auto_1fr]">
@@ -13,5 +13,3 @@ const ProfileLayout = () => {
         </div>
     )
 }
-
-export default ProfileLayout

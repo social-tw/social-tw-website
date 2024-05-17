@@ -3,7 +3,12 @@ import { Express } from 'express'
 import { errorHandler } from '../services/singletons/errorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { voteService } from '../services/VoteService'
-import { InternalError } from '../types/InternalError'
+import {
+    InvalidPostIdError,
+    InvalidVoteActionError,
+    InvalidPublicSignalError,
+    InvalidProofError,
+} from '../types/InternalError'
 
 export default (
     app: Express,
@@ -15,16 +20,17 @@ export default (
         errorHandler(async (req, res, _) => {
             //vote for post with _id
             const { postId, voteAction, publicSignals, proof } = req.body
-            if (
-                postId == undefined ||
-                voteAction == undefined ||
-                publicSignals == undefined ||
-                proof == undefined
-            ) {
-                throw new InternalError(
-                    'postId, voteAction, publicSignals, proof should not be null',
-                    400
-                )
+            if (postId == undefined) {
+                throw InvalidPostIdError
+            }
+            if (voteAction == undefined) {
+                throw InvalidVoteActionError
+            }
+            if (InvalidPublicSignalError == undefined) {
+                throw InvalidPublicSignalError
+            }
+            if (proof == undefined) {
+                throw InvalidProofError
             }
 
             await voteService.vote(

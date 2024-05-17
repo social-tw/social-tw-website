@@ -4,6 +4,7 @@ import { UserStateFactory } from './UserStateFactory'
 import { UserService } from '../../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../../src/services/singletons/UnirepSocialSynchronizer'
 import { UserState } from '@unirep/core'
+import { ethers } from 'hardhat'
 
 export async function signUp(
     user: User,
@@ -21,13 +22,15 @@ export async function signUp(
     const fromServer = wallet ? false : true
 
     // sign up
-    await userService.signup(
+    const txHash = await userService.signup(
         publicSignals,
         signupProof._snarkProof,
         user.hashUserId,
         fromServer,
         synchronizer
     )
+
+    await ethers.provider.waitForTransaction(txHash)
 
     return userState
 }

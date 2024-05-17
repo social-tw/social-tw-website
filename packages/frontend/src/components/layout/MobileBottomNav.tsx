@@ -15,10 +15,10 @@ interface MobileNavbarProps {
     signupStatus: SignupStatus
 }
 
-const MobileBottomNav: React.FC<MobileNavbarProps> = ({
+export default function MobileBottomNav({
     isShow,
     signupStatus,
-}) => {
+}: MobileNavbarProps) {
     const navVariants = {
         start: { y: 100 },
         end: {
@@ -100,5 +100,3 @@ const MobileBottomNav: React.FC<MobileNavbarProps> = ({
         </>
     )
 }
-
-export default MobileBottomNav

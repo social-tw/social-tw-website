@@ -12,16 +12,21 @@ import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../config'
 
-async function publishPost(data: string) {
+async function publishPost(values: string) {
     const response = await fetch(`${SERVER}/api/post`, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(values),
     })
 
-    return await response.json()
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(data.error)
+    }
+    return data
 }
 
 export default function useCreatePost() {
@@ -63,8 +68,8 @@ export default function useCreatePost() {
                 proof: epochKeyProof.proof,
             })
 
-            const { transaction } = await publishPost(proof)
-            const receipt = await provider.waitForTransaction(transaction)
+            const { txHash } = await publishPost(proof)
+            const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(
                 receipt.logs[0].topics[2],
             ).toString()
@@ -75,11 +80,11 @@ export default function useCreatePost() {
             succeedActionById(actionId, {
                 postId,
                 epochKey,
-                transactionHash: transaction,
+                transactionHash: txHash,
             })
 
             return {
-                transactionHash: transaction,
+                transactionHash: txHash,
                 postId,
                 content,
                 epoch,
