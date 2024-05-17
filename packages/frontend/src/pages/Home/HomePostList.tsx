@@ -21,7 +21,7 @@ import {
     useQueryClient,
 } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
-import { handleVoteEvent } from '@/hooks/useVoteEvents'
+import { handleVoteEvent } from '@/utils/handleVoteEvent'
 import { PostInfo, PostStatus } from '@/types/Post' //using shared function
 
 export default function PostList() {

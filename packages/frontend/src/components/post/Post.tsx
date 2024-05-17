@@ -72,8 +72,6 @@ export default function Post({
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
-    // ignore next event
-    const [ignoreNextEvent] = useState(false)
     const [isMineState, setIsMineState] = useState(isMine)
     const updateVoteCount = useStore((state) => state.updateVoteCount)
     const [isError, setIsError] = useState(false)
@@ -85,8 +83,6 @@ export default function Post({
     }, [isMine, finalAction])
 
     const handleVote = async (voteType: VoteAction) => {
-        if (ignoreNextEvent) return
-
         let action: VoteAction
         let success = false
         let newUpCount = voteState.upCount
