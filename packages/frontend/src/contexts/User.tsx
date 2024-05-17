@@ -18,7 +18,7 @@ import { fetchRelayConfig } from '../utils/api'
 import { createProviderByUrl } from '../utils/createProviderByUrl'
 import prover from './Prover'
 import { schema } from './schema'
-import { UserState } from './Userstate'
+import { UserState } from './UserState'
 import useLocalStorage from '@/hooks/useLocalStorage'
 
 export type SignupStatus = 'default' | 'pending' | 'success' | 'error'
