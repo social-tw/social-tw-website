@@ -4,6 +4,6 @@ import { useVoteEvents } from './useVoteEvents'
 
 describe('useVoteEvents', () => {
     it.skip('should get vote event from socket', async () => {
-        const { result } = renderHook(useVoteEvents, { wrapper })
+        renderHook(useVoteEvents, { wrapper })
     })
 })

@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { useLoginWithServer } from './useLoginWithServer'
 
@@ -16,6 +16,8 @@ describe('useLoginWithServer', () => {
         const signature = localStorage.getItem('signature')
 
         expect(signature).toBe('"0xsignature"')
-        expect(localStorage.removeItem).toHaveBeenCalledWith('signMsg')
+        expect(localStorage.removeItem).toHaveBeenCalledWith(
+            'isVerifiedByTwitter',
+        )
     })
 })

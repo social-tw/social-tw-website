@@ -1,6 +1,5 @@
-import '@testing-library/jest-dom'
-import DesktopCommentForm from '@/components/comment/DesktopCommentForm' // Adjust the import path as needed
-import { act, render, screen, waitFor } from '@testing-library/react'
+import DesktopCommentForm from '@/components/comment/DesktopCommentForm'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 describe('DesktopCommentForm', () => {
@@ -25,15 +24,13 @@ describe('DesktopCommentForm', () => {
 
         render(<DesktopCommentForm isOpen={true} onSubmit={mockOnSubmit} />)
 
-        await act(async () => {
-            const input = screen.getByLabelText('comment editor')
+        const input = screen.getByLabelText('comment editor')
 
-            await user.click(input)
-            await user.keyboard('Test comment')
+        await user.click(input)
+        await user.keyboard('Test comment')
 
-            const submitButton = screen.getByTitle('submit a comment')
-            await user.click(submitButton)
-        })
+        const submitButton = screen.getByTitle('submit a comment')
+        await user.click(submitButton)
 
         // expect(mockOnSubmit).toHaveBeenCalledWith({ content: 'Test comment' })
     })
@@ -45,10 +42,8 @@ describe('DesktopCommentForm', () => {
 
         render(<DesktopCommentForm isOpen={true} onCancel={mockOnCancel} />)
 
-        await act(async () => {
-            const cancelButton = screen.getByTitle('cancel a comment')
-            await user.click(cancelButton)
-        })
+        const cancelButton = screen.getByTitle('cancel a comment')
+        await user.click(cancelButton)
 
         expect(mockOnCancel).toHaveBeenCalled()
     })

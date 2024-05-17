@@ -29,7 +29,7 @@ export function useUserStateTransition() {
             await userState.waitForSync()
             const proof = await userState.genUserStateTransitionProof()
             const data = await relayUserStateTransition(proof)
-            await provider.waitForTransaction(data.hash)
+            await provider.waitForTransaction(data.txHash)
             await userState.waitForSync()
 
             return data

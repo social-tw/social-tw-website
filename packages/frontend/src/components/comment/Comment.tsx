@@ -14,7 +14,7 @@ import {
 import { useMediaQuery } from '@uidotdev/usehooks'
 import CommentDeleteDialog from './CommentDeleteDialog'
 import CommentReportDialog from './CommentReportDialog'
-import { CommentInfo, CommentStatus } from '@/types/Comments'
+import { CommentStatus } from '@/types/Comments'
 
 interface CommentProps {
     commentId?: string

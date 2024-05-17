@@ -1,6 +1,6 @@
 import Backdrop from '@/components/common/Backdrop'
 import RichTextEditor from '@/components/common/RichTextEditor'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { GrFormClose } from 'react-icons/gr'
 import { CommentValues } from './MobileCommentForm'

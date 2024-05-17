@@ -1,4 +1,3 @@
-import { UserState } from '@unirep/core'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useProfileHistoryStore } from '@/pages/Profile/History/store/useProfileHistoryStore'
 import { useActionCount } from '@/hooks/useActionCount/useActionCount'
@@ -6,12 +5,12 @@ import { useUserState } from '@/hooks/useUserState/useUserState'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { relayVote } from '@/utils/api'
-import { VoteAction } from '@/types'
+import { VoteAction } from '@/types/Vote'
 
 export function useVotes() {
     const queryClient = useQueryClient()
 
-    const { userState, getGuaranteedUserState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
     const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryVotesFlow,

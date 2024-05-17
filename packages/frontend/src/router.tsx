@@ -100,14 +100,14 @@ const router = createBrowserRouter([
         path: '/explore',
         loader: () => {
             return redirect(PATHS.HOME)
-        }
+        },
     },
     {
         path: '/notification',
         loader: () => {
             return redirect(PATHS.HOME)
-        }
-    }
+        },
+    },
 ])
 
 export default router

@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom'
 import ActionTable from '@/components/layout/ActionTable'
 import { ActionType, addAction } from '@/contexts/Actions'
 import { act, render, screen } from '@testing-library/react'

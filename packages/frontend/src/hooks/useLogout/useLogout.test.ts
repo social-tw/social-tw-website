@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { useLogout } from './useLogout'
 

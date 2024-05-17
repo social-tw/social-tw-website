@@ -31,6 +31,8 @@ describe('useLoginWithWallet', () => {
 
         expect(window.ethereum.request).toHaveBeenCalled()
         expect(signature).toBeTruthy()
-        expect(localStorage.removeItem).toHaveBeenCalledWith('hashUserId')
+        expect(localStorage.removeItem).toHaveBeenCalledWith(
+            'isVerifiedByTwitter',
+        )
     })
 })

@@ -35,6 +35,14 @@ const config: CracoConfig = {
             return jestConfig
         },
     },
+    eslint: {
+        configure: (eslintConfig, { env, paths }) => {
+            if (Array.isArray(eslintConfig.extends)) {
+                eslintConfig.extends.push('prettier')
+            }
+            return eslintConfig
+        },
+    },
 }
 
 export default config
