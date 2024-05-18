@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { userService } from '../src/services/UserService'
