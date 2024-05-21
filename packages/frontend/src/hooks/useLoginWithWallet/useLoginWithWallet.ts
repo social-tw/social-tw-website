@@ -13,8 +13,9 @@ export function useLoginWithWallet() {
     } = useMutation({
         mutationFn: async () => {
             const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
-            const signature =
-                await EthereumHelper.signUserIdWithWallet(hashUserId)
+            const signature = await EthereumHelper.signUserIdWithWallet(
+                hashUserId,
+            )
             await baseLogin(signature)
         },
     })

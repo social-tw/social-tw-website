@@ -19,7 +19,7 @@ describe('<ErrorPage />', () => {
             status: 404,
             statusText: '404 Not Found',
             internal: true,
-            data: {}
+            data: {},
         })
 
         render(<ErrorPage />)

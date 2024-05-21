@@ -42,8 +42,8 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
 }))
 
 describe('useVotes', () => {
-    afterAll(() => {
-        nock.restore()
+    afterEach(() => {
+        nock.cleanAll()
         jest.clearAllMocks()
     })
 
@@ -57,6 +57,8 @@ describe('useVotes', () => {
                 '/api/my-account/votes?epks=epochKey-1,epochKey-2_epochKey-1,epochKey-2_epochKey-1,epochKey-2&direction=asc&sortKey=publishedAt',
             )
             .reply(200, [])
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 2 })
 
         const { result } = renderHook(useVotes, { wrapper })
 
@@ -77,6 +79,8 @@ describe('useVotes', () => {
             .reply(200, { counter: 1 })
             .post('/api/vote')
             .reply(400, { error: 'error' })
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 2 })
 
         const { result } = renderHook(() => useVotes(), { wrapper })
 

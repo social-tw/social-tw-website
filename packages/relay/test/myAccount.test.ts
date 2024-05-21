@@ -51,7 +51,7 @@ describe('My Account Page', function () {
 
     it('should fetch posts', async function () {
         const res = await express.get(
-            `/api/my-account/posts?epks=${postEpochKey}`,
+            `/api/my-account/posts?epks=${postEpochKey}`
         )
 
         expect(res.body.length).equal(1)
