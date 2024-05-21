@@ -34,6 +34,7 @@ export default function HomePostForm({ disabled = false }: HomePostFormProps) {
             await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
             toast('貼文成功送出')
         } catch {
+            setIsSubmitting(false)
             queryClient.setQueryData(['posts'], previousPostsData)
         }
     }

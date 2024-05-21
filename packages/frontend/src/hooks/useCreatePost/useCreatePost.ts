@@ -39,7 +39,7 @@ export function useCreatePost() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(actionCount)
+            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
             const proof = await userState.genEpochKeyProof({
                 nonce,
@@ -93,6 +93,10 @@ export function useCreatePost() {
 
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.Counter]
             })
         },
     })

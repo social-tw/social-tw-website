@@ -59,10 +59,11 @@ export function useUserState() {
                 await _userState.waitForSync()
 
                 return _userState
-            } catch (error) {
-                console.log(error)
+            } catch {
+                return null
             }
         },
+        staleTime: Infinity,
     })
 
     const getGuaranteedUserState = async () => {

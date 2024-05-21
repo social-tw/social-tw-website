@@ -39,8 +39,8 @@ export default function EpochInfo() {
                         >
                             {epochEndTime && (
                                 <Countdown
-                                    key={epochEndTime * 1000}
-                                    date={epochEndTime * 1000}
+                                    key={epochEndTime}
+                                    date={epochEndTime}
                                     renderer={(props) =>
                                         `${props.formatted.minutes}:${props.formatted.seconds}`
                                     }

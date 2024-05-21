@@ -4,7 +4,7 @@ import AppLayout from './layouts/AppLayout'
 import BaseLayout from './layouts/BaseLayout'
 import OnboardingLayout from './layouts/OnboardingLayout'
 import CreatePost from './pages/CreatePost'
-import ErrorPage from './pages/ErrorPage'
+import ErrorPage from './components/ErrorBoundary'
 import Home from './pages/Home'
 import { Login } from './pages/Login'
 import { InternalLogin } from './pages/Login/InternalLogin'
@@ -18,6 +18,7 @@ import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
 import TwitterCallback from './pages/Login/TwitterCallback'
 import ProtectedRoute from './components/ProtectedRoute'
+import ResetStorage from './components/ResetStorage'
 
 const router = createBrowserRouter([
     {
@@ -56,11 +57,10 @@ const router = createBrowserRouter([
                 <BaseLayout />
             </ProtectedRoute>
         ),
-        errorElement: <ErrorPage />,
+        errorElement: <ResetStorage />,
         children: [
             {
                 element: <AppLayout />,
-                errorElement: <ErrorPage />,
                 children: [
                     {
                         path: PATHS.HOME,
