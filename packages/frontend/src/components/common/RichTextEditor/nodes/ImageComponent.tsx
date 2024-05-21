@@ -23,7 +23,6 @@ import {
 } from 'lexical'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
-// import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary'
@@ -115,7 +114,6 @@ export default function ImageComponent({
     const [isSelected, setSelected, clearSelection] =
         useLexicalNodeSelection(nodeKey)
     const [isResizing, setIsResizing] = useState<boolean>(false)
-    // const { isCollabActive } = useCollaborationContext()
     const [editor] = useLexicalComposerContext()
     const [selection, setSelection] = useState<
         RangeSelection | NodeSelection | GridSelection | null
