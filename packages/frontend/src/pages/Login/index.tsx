@@ -16,7 +16,7 @@ import { getVariantAutoScrollY } from '../../utils/motionVariants'
 
 export function Login() {
     // TODO: move handle callback to "twitter/callback" page
-    useHandleTwitterCallback()
+    // useHandleTwitterCallback()
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
     return (
@@ -44,50 +44,4 @@ export function Login() {
             </motion.div>
         </div>
     )
-}
-
-// TODO: it's good idea to create a page like "twitter/callback" to handle callback instead of using "login" page
-// TODO: with "twitter/callback" we can (a) prevent flashing on ui (b) detect invalid and redirect to welcome page
-function useHandleTwitterCallback() {
-    const [searchParams] = useSearchParams()
-    const navigate = useNavigate()
-    const hashUserId = searchParams.get('code')
-    const accessToken = searchParams.get('token')
-    const status = searchParams.get('status')
-    const signMsg = searchParams.get('signMsg')
-    const error = searchParams.get('error')
-
-    useEffect(() => {
-        function isError() {
-            return !!error
-        }
-        function isValidStatus(status: string | null) {
-            return status && ['1', '2', '3'].includes(status)
-        }
-
-        function isValidParams() {
-            return isValidStatus(status) && hashUserId && accessToken && signMsg
-        }
-        function main() {
-            if (isError()) {
-                toast(error)
-                navigate(PATHS.WELCOME)
-            } else if (isValidParams()) {
-                LocalStorageHelper.setHashUserId(hashUserId!)
-                LocalStorageHelper.setSignature(signMsg!)
-                LocalStorageHelper.setAccessToken(accessToken!)
-                status === '1' && navigate(PATHS.SIGN_UP_INTERNAL)
-                status === '2' &&
-                    navigate(
-                        `${PATHS.LOGIN_INTERNAL}/${SIGNUP_METHODS.METAMASK}`,
-                    )
-                status === '3' &&
-                    navigate(`${PATHS.LOGIN_INTERNAL}/${SIGNUP_METHODS.SERVER}`)
-            } else {
-                // TODO: once we have "twitter/callback" page, we can navigate to "welcome" if param is invalid
-                navigate(PATHS.LOGIN)
-            }
-        }
-        main()
-    }, [])
 }

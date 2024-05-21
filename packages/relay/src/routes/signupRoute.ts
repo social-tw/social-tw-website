@@ -2,7 +2,7 @@ import { Express } from 'express'
 import { DB } from 'anondb/node'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { userService } from '../services/UserService'
-import { errorHandler } from '../services/singletons/errorHandler'
+import { errorHandler } from '../services/utils/ErrorHandler'
 
 export default (
     app: Express,

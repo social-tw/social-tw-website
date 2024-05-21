@@ -1,9 +1,9 @@
 import { SignupProof } from '@unirep/circuits'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import TransactionManager from './singletons/TransactionManager'
+import TransactionManager from './utils/TransactionManager'
 import { TWITTER_USER_URL } from '../config'
-import TwitterClient from './singletons/TwitterClient'
+import TwitterClient from './utils/TwitterClient'
 import crypto from 'crypto'
 import { User } from '../types'
 import { DB } from 'anondb/node'
@@ -15,7 +15,7 @@ import {
     UserAlreadySignedUpError,
     UserLoginError,
 } from '../types/InternalError'
-import ProofHelper from './singletons/ProofHelper'
+import ProofHelper from './utils/ProofHelper'
 
 const STATE = 'state'
 

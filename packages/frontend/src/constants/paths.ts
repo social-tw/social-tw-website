@@ -1,6 +1,7 @@
 export const PATHS = {
     WELCOME: '/welcome',
     LOGIN: '/login',
+    TWITTER_CALLBACK: '/twitter/callback',
     LOGIN_INTERNAL: '/login/internal',
     SIGN_UP: '/signup',
     SIGN_UP_INTERNAL: '/signup/internal',

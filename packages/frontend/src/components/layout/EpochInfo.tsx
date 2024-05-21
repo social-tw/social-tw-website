@@ -1,20 +1,12 @@
 /* eslint-disable react/prop-types */
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
 import Countdown from 'react-countdown'
 import EpochImg from '@/assets/epoch.png'
 import useActionCount from '@/hooks/useActionCount'
 import useEpoch from '@/hooks/useEpoch'
 
 export default function EpochInfo() {
-    const { epochLength, remainingTime } = useEpoch()
-
-    const [nextEpochTime, setNextEpochTime] = useState<number>()
-    useEffect(() => {
-        if (remainingTime) {
-            setNextEpochTime(Date.now() + remainingTime * 1000)
-        }
-    }, [remainingTime])
+    const { epochEndTime } = useEpoch()
 
     const count = useActionCount()
 
@@ -37,7 +29,7 @@ export default function EpochInfo() {
             />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
-                    <div>
+                    <div className="w-[90px] basis-[90px]">
                         <span className="block text-xs font-semibold text-white">
                             Next Epoch in{' '}
                         </span>
@@ -45,16 +37,12 @@ export default function EpochInfo() {
                             className="block text-3xl font-semibold text-white h-9"
                             data-testid="epoch-remaining-time"
                         >
-                            {nextEpochTime && (
+                            {epochEndTime && (
                                 <Countdown
-                                    date={nextEpochTime}
+                                    key={epochEndTime * 1000}
+                                    date={epochEndTime * 1000}
                                     renderer={(props) =>
                                         `${props.formatted.minutes}:${props.formatted.seconds}`
-                                    }
-                                    onComplete={() =>
-                                        setNextEpochTime(
-                                            Date.now() / 1000 + epochLength,
-                                        )
                                     }
                                 />
                             )}
