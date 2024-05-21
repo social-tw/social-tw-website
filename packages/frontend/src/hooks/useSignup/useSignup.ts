@@ -1,24 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { relaySignUp } from '@/utils/api'
 import { useUserState } from '../useUserState/useUserState'
 import { useWeb3Provider } from '../useWeb3Provider/useWeb3Provider'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { SignupFailedError } from '@/utils/errors'
+import { useAuthStatus } from '../useAuthStatus/useAuthStatus'
 
 export function useSignup() {
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
 
-    const { userState, getGuaranteedUserState } = useUserState()
+    const { getGuaranteedUserState } = useUserState()
 
-    const { data: hasSignedUp } = useQuery({
-        queryKey: [QueryKeys.HasSignedUp],
-        queryFn: async () => {
-            if (!userState) return false
-            return userState.hasSignedUp()
-        },
-    })
+    const { isSignedUp } = useAuthStatus()
 
     const {
         isPending,
@@ -36,7 +31,7 @@ export function useSignup() {
             fromServer: boolean
         }) => {
             try {
-                if (hasSignedUp) return
+                if (isSignedUp) return
 
                 const provider = getGuaranteedProvider()
                 const userState = await getGuaranteedUserState()
@@ -68,7 +63,6 @@ export function useSignup() {
     return {
         isPending,
         error,
-        hasSignedUp,
         signup,
     }
 }

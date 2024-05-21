@@ -89,7 +89,7 @@ export default function AppLayout() {
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
                             <SearchIcon className="w-5 h-5" />
                             <input
-                                className="flex-1 text-base font-medium placeholder:text-white/60 focus:outline-none"
+                                className="flex-1 text-base font-medium bg-transparent placeholder:text-white/60 focus:outline-none"
                                 placeholder="Search"
                             />
                         </div>
