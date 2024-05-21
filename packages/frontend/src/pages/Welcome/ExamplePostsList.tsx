@@ -8,10 +8,8 @@ import {
     PostData,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUserState } from '@/hooks/useUserState/useUserState'
 import { useVoteEvents } from '@/hooks/useVoteEvents/useVoteEvents'
 import { FetchPostsResponse } from '@/types/api'
-import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
     DefaultError,
     InfiniteData,
@@ -24,8 +22,6 @@ import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
 
 export default function ExamplePostList() {
-    const { userState } = useUserState()
-
     const queryClient = useQueryClient()
 
     const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<
@@ -40,12 +36,6 @@ export default function ExamplePostList() {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
             const jsonData = (await res.json()) as FetchPostsResponse
             return jsonData.map((item) => {
-                const voteCheck = userState
-                    ? checkVoteIsMine(item.votes, userState)
-                    : {
-                          isMine: false,
-                          finalAction: null,
-                      }
                 return {
                     id: item.transactionHash!,
                     postId: item.postId,
@@ -55,8 +45,8 @@ export default function ExamplePostList() {
                     commentCount: item.commentCount,
                     upCount: item.upCount,
                     downCount: item.downCount,
-                    isMine: voteCheck.isMine,
-                    finalAction: voteCheck.finalAction,
+                    isMine: false,
+                    finalAction: null,
                     status: PostStatus.Success,
                 }
             })

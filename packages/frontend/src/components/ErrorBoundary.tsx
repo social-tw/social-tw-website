@@ -1,9 +1,10 @@
-import { useRouteError } from 'react-router-dom'
+import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 
-type RouteError = Error & { statusText: string }
 
-export default function ErrorPage() {
-    const error = useRouteError() as RouteError
+export default function ErrorBoundary() {
+    const error = useRouteError() as Error
+
+    const message = isRouteErrorResponse(error) ? error.statusText : error.message
 
     return (
         <div className="flex flex-col items-center justify-center w-screen h-screen">
@@ -11,7 +12,7 @@ export default function ErrorPage() {
                 <h1>Oops!</h1>
                 <p>Sorry, an unexpected error has occurred.</p>
                 <p>
-                    <i>{error.statusText || error.message}</i>
+                    <i>{message}</i>
                 </p>
             </div>
         </div>

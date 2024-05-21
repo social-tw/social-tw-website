@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import ErrorPage from '../../pages/ErrorPage'
+import ErrorPage from '../../components/ErrorBoundary'
 import { useRouteError } from 'react-router-dom'
 
 // Mock the useRouteError hook from react-router-dom

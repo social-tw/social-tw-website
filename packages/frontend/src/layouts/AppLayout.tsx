@@ -83,7 +83,7 @@ export default function AppLayout() {
         )
     } else {
         return (
-            <div className="grid grid-cols-[1fr_20rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
+            <div className="grid grid-cols-[1fr_24rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">

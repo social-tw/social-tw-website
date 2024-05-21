@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useIsFirstRender } from '@uidotdev/usehooks'
 import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 import { PATHS } from '@/constants/paths'
-import { useIsFirstRender } from '@uidotdev/usehooks'
 
 type ProtectedRouterProps = {
     children: React.ReactNode
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouterProps) {
-    const isFirstRender = useIsFirstRender()
-
     const navigate = useNavigate()
-
+    
     const { isLoggedIn, isLoggingIn } = useAuthStatus()
+    
+    const isFirstRender = useIsFirstRender()
 
     useEffect(() => {
         if (isFirstRender || isLoggingIn) {

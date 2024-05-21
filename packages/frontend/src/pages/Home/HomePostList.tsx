@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
@@ -69,11 +69,8 @@ export default function PostList() {
         },
     })
 
-    const pageContainerRef = useRef(null)
-
     const [pageBottomRef, entry] = useIntersectionObserver({
         threshold: 0,
-        root: pageContainerRef.current ?? null,
         rootMargin: '10%',
     })
 
@@ -160,7 +157,7 @@ export default function PostList() {
     useVoteEvents(handleVoteEvent)
 
     return (
-        <div className="px-4" ref={pageContainerRef}>
+        <div className="px-4">
             <ul className="space-y-3 md:space-y-6">
                 {localPosts.map((post) => (
                     <li

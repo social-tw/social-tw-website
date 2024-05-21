@@ -44,7 +44,7 @@ export function useCreateComment() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(actionCount)
+            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
             const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
             const epoch = Number(epochKeyProof.epoch)
@@ -103,6 +103,10 @@ export function useCreateComment() {
 
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, variables.postId],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: [QueryKeys.Counter]
             })
         },
     })
