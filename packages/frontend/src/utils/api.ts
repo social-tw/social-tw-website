@@ -6,7 +6,7 @@ import {
     EpochKeyProof,
     EpochKeyLiteProof,
 } from '@unirep/circuits'
-import { SERVER } from '../config'
+import { SERVER } from '../constants/config'
 import {
     Directions,
     FetchCommentsByEpochKeysParams,

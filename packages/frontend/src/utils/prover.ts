@@ -1,7 +1,7 @@
 import * as snarkjs from 'snarkjs'
 import type { CircuitSignals, PublicSignals, Groth16Proof } from 'snarkjs'
 import { Circuit } from '@unirep/circuits'
-import { KEY_SERVER } from '../config'
+import { KEY_SERVER } from '../constants/config'
 
 const prover = {
     verifyProof: async (

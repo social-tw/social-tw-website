@@ -8,6 +8,9 @@ module.exports = {
                 'btn-login': '#DC832B',
                 link: '#5F8297',
             },
+            spacing: {
+                30: '7.5rem',
+            },
             boxShadow: {
                 base: '0px 0px 20px 0px rgba(0,0,0,0.03)',
             },

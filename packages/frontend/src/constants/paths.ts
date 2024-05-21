@@ -8,4 +8,7 @@ export const PATHS = {
     HOME: '/',
     VIEW_POST: '/posts/:id',
     WRITE_POST: '/write-post',
+    PROFILE: '/profile',
+    HISTORTY: '/profile/history',
+    REPUTATION: '/profile/reputation',
 }
