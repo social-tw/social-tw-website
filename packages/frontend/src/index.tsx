@@ -23,6 +23,7 @@ import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
 import PostDetails from './pages/PostDetails'
+import TwitterCallback from './pages/Login/TwitterCallback'
 
 dayjs.extend(relativeTime)
 
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             {
                 path: PATHS.LOGIN,
                 element: <Login />,
+            },
+            {
+                path: PATHS.TWITTER_CALLBACK,
+                element: <TwitterCallback />,
             },
             {
                 path: `${PATHS.LOGIN_INTERNAL}/:selectedSignupMethod`,
