@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import clsx from 'clsx'
 import Countdown from 'react-countdown'
-import EpochImg from '@/assets/epoch.png'
+import EpochImg from '@/assets/img/epoch.png'
 import { useActionCount } from '@/hooks/useActionCount/useActionCount'
 import { useEpoch } from '@/hooks/useEpoch/useEpoch'
 

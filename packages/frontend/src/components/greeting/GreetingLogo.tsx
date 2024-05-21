@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
-
-import LogoWhite from '../../assets/logo-white.png'
-import { getVariantAutoScrollY } from '../../utils/motionVariants'
+import LogoWhite from '@/assets/img/logo-white.png'
+import { getVariantAutoScrollY } from '@/utils/motionVariants'
 
 export function GreetingLogo() {
     const variantAutoScrollY = getVariantAutoScrollY()

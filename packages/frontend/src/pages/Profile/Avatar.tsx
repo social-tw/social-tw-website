@@ -1,4 +1,4 @@
-import AvatarIcon from '../../assets/avatar.png'
+import AvatarIcon from '@/assets/img/avatar.png'
 
 export default function Avatar() {
     return (
