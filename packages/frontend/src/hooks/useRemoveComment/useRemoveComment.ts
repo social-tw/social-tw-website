@@ -81,7 +81,7 @@ export function useRemoveComment() {
             })
 
             queryClient.invalidateQueries({
-                queryKey: [QueryKeys.Counter]
+                queryKey: [QueryKeys.Counter],
             })
         },
     })

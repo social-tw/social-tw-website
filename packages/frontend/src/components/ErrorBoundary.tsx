@@ -1,10 +1,11 @@
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 
-
 export default function ErrorBoundary() {
     const error = useRouteError() as Error
 
-    const message = isRouteErrorResponse(error) ? error.statusText : error.message
+    const message = isRouteErrorResponse(error)
+        ? error.statusText
+        : error.message
 
     return (
         <div className="flex flex-col items-center justify-center w-screen h-screen">

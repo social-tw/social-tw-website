@@ -45,21 +45,33 @@ export function useEpoch() {
         isUserStatePending || isCurrentEpochPending || isRemainingTimePending
 
     const epochStartTime = useMemo(() => {
-        if (isUndefined(currentEpoch) || isNull(currentEpoch) || !remainingTime) {
+        if (
+            isUndefined(currentEpoch) ||
+            isNull(currentEpoch) ||
+            !remainingTime
+        ) {
             return 0
         }
         return Date.now() - (epochLength - remainingTime)
     }, [currentEpoch, remainingTime])
 
     const epochEndTime = useMemo(() => {
-        if (isUndefined(currentEpoch) || isNull(currentEpoch) || !remainingTime) {
+        if (
+            isUndefined(currentEpoch) ||
+            isNull(currentEpoch) ||
+            !remainingTime
+        ) {
             return 0
         }
         return Date.now() + remainingTime
     }, [currentEpoch, remainingTime])
 
     useEffect(() => {
-        if (isUndefined(currentEpoch) || isNull(currentEpoch) || !remainingTime) {
+        if (
+            isUndefined(currentEpoch) ||
+            isNull(currentEpoch) ||
+            !remainingTime
+        ) {
             return
         }
 

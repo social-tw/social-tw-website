@@ -1,6 +1,6 @@
-import { LocalStorageHelper } from "@/utils/LocalStorageHelper";
-import { useEffect } from "react";
-import { useNavigate, useRouteError } from "react-router-dom";
+import { LocalStorageHelper } from '@/utils/LocalStorageHelper'
+import { useEffect } from 'react'
+import { useNavigate, useRouteError } from 'react-router-dom'
 
 export default function ResetStorage() {
     const error = useRouteError() as Error

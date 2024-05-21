@@ -101,9 +101,8 @@ async function _fetchHistoryCommentsAndSorted(
     activeFilter: ActiveFilter,
 ) {
     const commentService = new CommentService()
-    const comments = await commentService.fetchCommentHistoryByUserState(
-        userState,
-    )
+    const comments =
+        await commentService.fetchCommentHistoryByUserState(userState)
     const sortedComments = commentService.sortComments(comments, activeFilter)
     return sortedComments
 }

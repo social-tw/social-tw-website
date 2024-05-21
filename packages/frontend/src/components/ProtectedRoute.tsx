@@ -11,11 +11,11 @@ type ProtectedRouterProps = {
 
 export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     const navigate = useNavigate()
-    
+
     const { isLoggedIn, isLoggingIn, isSignedUp, isSigningUp } = useAuthStatus()
 
     const { logout } = useLogout()
-    
+
     const isFirstRender = useIsFirstRender()
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
     useEffect(() => {
-        if(isLoggedIn && !isSigningUp && !isSignedUp) {
+        if (isLoggedIn && !isSigningUp && !isSignedUp) {
             logout()
             navigate(PATHS.WELCOME)
         }

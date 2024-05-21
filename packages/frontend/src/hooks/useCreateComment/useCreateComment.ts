@@ -106,7 +106,7 @@ export function useCreateComment() {
             })
 
             queryClient.invalidateQueries({
-                queryKey: [QueryKeys.Counter]
+                queryKey: [QueryKeys.Counter],
             })
         },
     })
