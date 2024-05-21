@@ -18,8 +18,8 @@ export default (app: Express, db: DB) => {
             epks: string[],
             sortKey: 'publishedAt' | 'voteSum',
             direction: 'asc' | 'desc',
-            db: DB,
-        ) => Promise<any[]>,
+            db: DB
+        ) => Promise<any[]>
     ) => {
         const epks = req.query.epks as string | undefined
         const parsedEpks = epks?.split('_') || []
@@ -47,9 +47,9 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                postService.fetchMyAccountPosts,
+                postService.fetchMyAccountPosts
             )
-        }),
+        })
     )
 
     app.get(
@@ -58,9 +58,9 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                commentService.fetchMyAccountComments,
+                commentService.fetchMyAccountComments
             )
-        }),
+        })
     )
 
     app.get(
@@ -69,8 +69,8 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                voteService.fetchMyAccountVotes,
+                voteService.fetchMyAccountVotes
             )
-        }),
+        })
     )
 }

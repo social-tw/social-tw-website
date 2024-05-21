@@ -20,7 +20,7 @@ export async function downloadPtau() {
                 readline.clearLine(process.stdout, 0)
                 readline.cursorTo(process.stdout, 0)
                 process.stdout.write(
-                    `Downloading ptau file, please wait... ${p}%`,
+                    `Downloading ptau file, please wait... ${p}%`
                 )
             }
             const file = fs.createWriteStream(tmp, { flags: 'w' })
@@ -32,15 +32,15 @@ export async function downloadPtau() {
                     const contentLength = res.headers['content-length']
                     if (statusCode !== 200) {
                         return rj(
-                            `Received non-200 status code from ptau url: ${statusCode}`,
+                            `Received non-200 status code from ptau url: ${statusCode}`
                         )
                     }
                     let totalReceived = 0
                     const logTimer = setInterval(() => {
                         logPercent(
                             Math.floor(
-                                (100 * totalReceived) / Number(contentLength),
-                            ),
+                                (100 * totalReceived) / Number(contentLength)
+                            )
                         )
                     }, 1000)
                     res.on('data', (chunk) => {
@@ -58,7 +58,7 @@ export async function downloadPtau() {
                         console.log()
                         rs('')
                     })
-                },
+                }
             )
         })
         await fs.promises.rename(tmp, ptau)

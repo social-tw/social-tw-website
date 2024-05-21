@@ -53,8 +53,8 @@ jest.mock('@/hooks/useUserState/useUserState', () => ({
 }))
 
 describe('useCreatePost', () => {
-    afterAll(() => {
-        nock.restore()
+    afterEach(() => {
+        nock.cleanAll()
         jest.clearAllMocks()
     })
 
@@ -66,6 +66,8 @@ describe('useCreatePost', () => {
             .reply(200, { hash: '0xhash' })
             .post('/api/post')
             .reply(200, { hash: '0xhash' })
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 2 })
 
         const succeedActionById = jest.spyOn(actionLib, 'succeedActionById')
 
@@ -90,6 +92,8 @@ describe('useCreatePost', () => {
             .reply(200, { hash: '0xhash' })
             .post('/api/post')
             .reply(400, { error: 'error' })
+            .get('/api/counter?epks=epochKey-1_epochKey-2')
+            .reply(200, { counter: 2 })
 
         const failActionById = jest.spyOn(actionLib, 'failActionById')
 

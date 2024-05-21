@@ -4507,6 +4507,13 @@
   dependencies:
     fs-extra "^9.1.0"
 
+"@typechain/hardhat@^9.1.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-9.1.0.tgz#6985015f01dfb37ef2ca8a29c742d05890351ddc"
+  integrity sha512-mtaUlzLlkqTlfPwB3FORdejqBskSnh+Jl8AIJGjXNAQfRQ4ofHADPl1+oU7Z3pAJzmZbUXII8MhOLQltcHgKnA==
+  dependencies:
+    fs-extra "^9.1.0"
+
 "@types/aria-query@^5.0.1":
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-5.0.4.tgz#1a31c3d378850d2778dabb6374d036dcba4ba708"
