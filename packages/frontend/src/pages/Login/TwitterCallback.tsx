@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export default function TwitterCallback() {
     useHandleTwitterCallback()
-    return <></>
+    return null
 }
 
 function useHandleTwitterCallback() {

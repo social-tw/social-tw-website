@@ -23,7 +23,7 @@ import { Reputation } from './pages/Profile/Reputation'
 import { Signup } from './pages/Signup'
 import { InternalSignup } from './pages/Signup/InternalSignup'
 import { Welcome } from './pages/Welcome'
-import TwitterCallback from './pages/Login/twitterCallback'
+import TwitterCallback from './pages/Login/TwitterCallback'
 
 dayjs.extend(relativeTime)
 
