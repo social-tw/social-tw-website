@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import Comment from '@/assets/comment.png'
+import Comment from '@/assets/img/comment.png'
 import Backdrop from '@/components/common/Backdrop'
 
 interface TransactionModalProps {

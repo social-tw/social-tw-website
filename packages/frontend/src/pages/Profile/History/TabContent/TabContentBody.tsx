@@ -1,10 +1,8 @@
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
-
 import { Link } from 'react-router-dom'
-
-import Downvote from '../../../../assets/downvote.png'
-import Upvote from '../../../../assets/upvote.png'
+import Downvote from '@/assets/img/downvote.png'
+import Upvote from '@/assets/img/upvote.png'
 import { VoteService } from '../services/VoteService'
 import { CommentHistoryMetaData } from '@/types/Comments'
 import { PostHistoryMetaData } from '@/types/Post'

@@ -1,4 +1,4 @@
-import Avatar from '@/assets/avatar.png'
+import Avatar from '@/assets/img/avatar.png'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { clsx } from 'clsx'
 import { useEffect } from 'react'

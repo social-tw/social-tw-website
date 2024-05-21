@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import Logo from '@/assets/logo.png'
+import Logo from '@/assets/img/logo.png'
 import Backdrop from '@/components/common/Backdrop'
 import { useMediaQuery } from '@uidotdev/usehooks'
 
