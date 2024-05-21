@@ -18,7 +18,7 @@ describe('useEpoch', () => {
         const { result } = renderHook(useEpoch, { wrapper })
 
         await waitFor(() => expect(result.current.currentEpoch).toBe(2))
-        await waitFor(() => expect(result.current.remainingTime).toBe(120))
-        await waitFor(() => expect(result.current.epochLength).toBe(300))
+        await waitFor(() => expect(result.current.remainingTime).toBe(120000))
+        await waitFor(() => expect(result.current.epochLength).toBe(300000))
     })
 })

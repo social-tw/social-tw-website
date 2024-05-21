@@ -94,10 +94,6 @@ export function useCreatePost() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
-
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.Counter],
-            })
         },
     })
 

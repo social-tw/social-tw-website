@@ -79,10 +79,6 @@ export function useRemoveComment() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, variables.postId],
             })
-
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.Counter],
-            })
         },
     })
 
