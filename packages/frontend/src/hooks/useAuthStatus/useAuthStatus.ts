@@ -1,6 +1,6 @@
-import { useIsMutating, useMutationState } from '@tanstack/react-query'
+import { useIsMutating, useMutationState, useQuery } from '@tanstack/react-query'
 import { useUserState } from '../useUserState/useUserState'
-import { MutationKeys } from '@/constants/queryKeys'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 
 export function useAuthStatus() {
     const { isPending, userState } = useUserState()
@@ -10,6 +10,14 @@ export function useAuthStatus() {
             mutationKey: [MutationKeys.Login],
         },
         select: (mutation) => mutation.state.error,
+    })
+
+    const { data: isSignedUp } = useQuery({
+        queryKey: [QueryKeys.HasSignedUp],
+        queryFn: async () => {
+            if (!userState) return false
+            return userState.hasSignedUp()
+        },
     })
 
     const isSigningUp = useIsMutating({
@@ -27,6 +35,7 @@ export function useAuthStatus() {
         isLoggedIn: !!userState,
         isLoggingIn: isPending,
         loginErrors,
+        isSignedUp,
         isSigningUp,
         signupErrors,
     }
