@@ -49,5 +49,5 @@ function useHandleTwitterCallback() {
             }
         }
         main()
-    }, [])
+    }, [accessToken, error, hashUserId, navigate, signMsg, status])
 }
