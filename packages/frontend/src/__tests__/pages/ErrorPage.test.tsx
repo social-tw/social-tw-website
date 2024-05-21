@@ -16,8 +16,10 @@ describe('<ErrorPage />', () => {
         // Mock the hook to return a specific error
         // @ts-ignore
         ;(useRouteError as jest.Mock).mockReturnValue({
-            message: 'A test error',
+            status: 404,
             statusText: '404 Not Found',
+            internal: true,
+            data: {}
         })
 
         render(<ErrorPage />)
