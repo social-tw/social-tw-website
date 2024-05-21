@@ -19,7 +19,7 @@ export class UserStateFactory {
         prover: Prover,
         unirepAddress: ethers.Contract,
         attesterId: ethers.Contract,
-        synchronizer: Synchronizer
+        synchronizer: Synchronizer,
     ) {
         this.db = db
         this.provider = provider
@@ -32,7 +32,7 @@ export class UserStateFactory {
     async createUserState(
         user: User,
         wallet?: ethers.Wallet,
-        requireSync: boolean = true
+        requireSync: boolean = true,
     ) {
         let signature = user.signMsg
         if (wallet) {

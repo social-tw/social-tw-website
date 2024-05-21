@@ -45,7 +45,7 @@ describe('POST /post', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
 
         // initUserStatus
@@ -56,7 +56,7 @@ describe('POST /post', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet
+            wallet,
         )
 
         await userState.waitForSync()
@@ -180,7 +180,7 @@ describe('POST /post', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -213,7 +213,7 @@ describe('POST /post', function () {
         // insert 9 mock posts into db
         const mockPosts = postData
         mockPosts.unshift(
-            await sqlite.findOne('Post', { where: { postId: '0' } })
+            await sqlite.findOne('Post', { where: { postId: '0' } }),
         )
         await insertPosts(sqlite)
         // insert random amount of comments into db
@@ -243,7 +243,7 @@ describe('POST /post', function () {
                 expect(prevPost.sorting_score).gte(nextPost.sorting_score)
                 if (prevPost.sorting_score == nextPost.sorting_score) {
                     expect(BigInt(prevPost.publishedAt)).gte(
-                        BigInt(nextPost.publishedAt)
+                        BigInt(nextPost.publishedAt),
                     )
                 }
             } else {
@@ -257,14 +257,14 @@ describe('POST /post', function () {
 
                     if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
                         expect(prevPost.daily_comments).gte(
-                            nextPost.daily_comments
+                            nextPost.daily_comments,
                         )
 
                         if (
                             prevPost.daily_comments == nextPost.daily_comments
                         ) {
                             expect(BigInt(prevPost.publishedAt)).gte(
-                                BigInt(nextPost.publishedAt)
+                                BigInt(nextPost.publishedAt),
                             )
                         }
                     }

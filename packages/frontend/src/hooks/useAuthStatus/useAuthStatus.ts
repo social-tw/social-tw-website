@@ -1,4 +1,8 @@
-import { useIsMutating, useMutationState, useQuery } from '@tanstack/react-query'
+import {
+    useIsMutating,
+    useMutationState,
+    useQuery,
+} from '@tanstack/react-query'
 import { useUserState } from '../useUserState/useUserState'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 

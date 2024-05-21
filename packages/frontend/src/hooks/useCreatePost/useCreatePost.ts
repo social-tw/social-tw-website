@@ -96,7 +96,7 @@ export function useCreatePost() {
             })
 
             queryClient.invalidateQueries({
-                queryKey: [QueryKeys.Counter]
+                queryKey: [QueryKeys.Counter],
             })
         },
     })

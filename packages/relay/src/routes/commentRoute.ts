@@ -11,7 +11,7 @@ export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia
+    helia: Helia,
 ) => {
     app.route('/api/comment')
         .get(
@@ -23,7 +23,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    db
+                    db,
                 )
                 if (!post) {
                     throw InvalidPostIdError
@@ -31,10 +31,10 @@ export default (
 
                 const comments = await commentService.fetchComments(
                     postId.toString(),
-                    db
+                    db,
                 )
                 res.json(comments)
-            })
+            }),
         )
 
         .post(
@@ -46,7 +46,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    db
+                    db,
                 )
                 if (!post) {
                     throw InvalidPostIdError
@@ -58,10 +58,10 @@ export default (
                     proof,
                     db,
                     synchronizer,
-                    helia
+                    helia,
                 )
                 res.json({ txHash })
-            })
+            }),
         )
 
         .delete(
@@ -73,9 +73,9 @@ export default (
                     publicSignals,
                     proof,
                     synchronizer,
-                    db
+                    db,
                 )
                 res.json({ txHash })
-            })
+            }),
         )
 }
