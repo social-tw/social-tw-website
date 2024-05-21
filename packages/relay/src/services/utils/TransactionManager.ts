@@ -3,6 +3,11 @@ import { DB } from 'anondb/node'
 import { APP_ADDRESS } from '../../config'
 import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { TransactionResult } from '../../types'
+import {
+    UninitializedError,
+    UserAlreadySignedUpError,
+    NoDBConnectedError,
+} from '../../types/InternalError'
 
 export class TransactionManager {
     appContract?: Contract
@@ -26,7 +31,7 @@ export class TransactionManager {
      * Start the transaction manager.
      */
     async start() {
-        if (!this.wallet || !this._db) throw new Error('Not initialized')
+        if (!this.wallet || !this._db) throw UninitializedError
         const latestNonce = await this.wallet.getTransactionCount()
         await this._db.upsert('AccountNonce', {
             where: {
@@ -45,7 +50,7 @@ export class TransactionManager {
      * Start the daemon to continuously check for transactions.
      */
     async startDaemon() {
-        if (!this._db) throw new Error('No db connected')
+        if (!this._db) throw NoDBConnectedError
         for (;;) {
             const nextTx = await this._db.findOne('AccountTransaction', {
                 where: {},
@@ -78,7 +83,7 @@ export class TransactionManager {
      * @returns True if the transaction was sent, false otherwise.
      */
     async tryBroadcastTransaction(signedData: string) {
-        if (!this.wallet) throw new Error('Not initialized')
+        if (!this.wallet) throw UninitializedError
         const hash = ethers.utils.keccak256(signedData)
         try {
             console.log(`Sending tx ${hash}`)
@@ -185,7 +190,7 @@ export class TransactionManager {
         } else {
             Object.assign(args, data)
         }
-        if (!this.wallet) throw new Error('Not initialized')
+        if (!this.wallet) throw UninitializedError
         if (!args.gasLimit) {
             // don't estimate, use this for unpredictable gas limit tx's
             // transactions may revert with this
@@ -202,7 +207,7 @@ export class TransactionManager {
                     err.message &&
                     err.message.includes('UserAlreadySignedUp')
                 ) {
-                    throw new Error('The user has already signed up.')
+                    throw UserAlreadySignedUpError
                 } else {
                     console.error(err)
                 }
@@ -241,12 +246,14 @@ export class TransactionManager {
         functionSignature: string, // 'leaveComment' for example
         args: any[]
     ): Promise<string> {
-        const appContract = new ethers.Contract(APP_ADDRESS, ABI)
+        if (!this.appContract) throw UninitializedError
+        const appContract = this.appContract
+
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
             [...args]
         )
-        const hash = await this.queueTransaction(APP_ADDRESS, calldata)
+        const hash = await this.queueTransaction(appContract.address, calldata)
 
         return hash
     }

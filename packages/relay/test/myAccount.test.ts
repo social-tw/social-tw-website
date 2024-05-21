@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deployContracts, startServer, stopServer } from './environment'
 
-import ActionCountManager from '../src/services/singletons/ActionCountManager'
+import ActionCountManager from '../src/services/utils/ActionCountManager'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 
 describe('My Account Page', function () {
@@ -22,41 +22,27 @@ describe('My Account Page', function () {
         const epoch = 1
 
         // insert mock post
-        await ActionCountManager.addActionCount(
-            db,
-            postEpochKey,
-            epoch,
-            (txDB) => {
-                txDB.create('Post', {
-                    content: 'content',
-                    cid: 'cid',
-                    epochKey: postEpochKey,
-                    epoch: epoch,
-                    transactionHash: 'txnHash',
-                    _id: '1',
-                    postId: '0',
-                    status: 1,
-                })
-                return 1
-            }
-        )
+        await db.create('Post', {
+            content: 'content',
+            cid: 'cid',
+            epochKey: postEpochKey,
+            epoch: epoch,
+            transactionHash: 'txnHash',
+            _id: '1',
+            postId: '0',
+            status: 1,
+        })
+        await ActionCountManager.addActionCount(db, postEpochKey, epoch, 1)
 
         // insert mock vote
-        await ActionCountManager.addActionCount(
-            db,
-            voteEpochKey,
-            epoch,
-            (txDB) => {
-                txDB.create('Vote', {
-                    epochKey: voteEpochKey,
-                    epoch: epoch,
-                    postId: '1',
-                    _id: '1',
-                    upVote: true,
-                })
-                return 1
-            }
-        )
+        await db.create('Vote', {
+            epochKey: voteEpochKey,
+            epoch: epoch,
+            postId: '1',
+            _id: '1',
+            upVote: true,
+        })
+        await ActionCountManager.addActionCount(db, voteEpochKey, epoch, 1)
     })
 
     after(async function () {

@@ -1,5 +1,5 @@
-import { Hint } from './Hint'
-import { Score } from './Score'
+import Hint from './Hint'
+import Score from './Score'
 
 export const Reputation = () => {
     return (

@@ -1,11 +1,10 @@
-import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
+import { UserState } from '@unirep/core'
 
-import { RelayRawComment } from '../../../../types/api'
-import { fetchCommentsByEpochKeys } from '../../../../utils/api'
-import { Comment } from '../DTO/Comment'
 import { ActiveFilter } from '../types'
 import { fetchAllByEpochKeysInBatches } from '../utils'
+import { CommentHistoryMetaData, RelayRawComment } from '@/types/Comments'
+import { fetchCommentsByEpochKeys } from '@/utils/api'
 
 export class CommentService {
     async fetchCommentHistoryByUserState(userState: UserState) {
@@ -20,7 +19,10 @@ export class CommentService {
             .flat(2)
     }
 
-    sortComments(comments: Comment[], activeFilter: ActiveFilter) {
+    sortComments(
+        comments: CommentHistoryMetaData[],
+        activeFilter: ActiveFilter,
+    ) {
         switch (activeFilter) {
             case ActiveFilter.DateAsc: {
                 return this.sortCommentsByDateAsc(comments)
@@ -37,36 +39,36 @@ export class CommentService {
         }
     }
 
-    private sortCommentsByDateAsc(comments: Comment[]) {
+    private sortCommentsByDateAsc(comments: CommentHistoryMetaData[]) {
         return comments.sort((a, b) => b.publishedAt - a.publishedAt)
     }
 
-    private sortCommentsByDateDesc(comments: Comment[]) {
+    private sortCommentsByDateDesc(comments: CommentHistoryMetaData[]) {
         return comments.sort((a, b) => a.publishedAt - b.publishedAt)
     }
 
-    private sortCommentsByPopularityAsc(comments: Comment[]) {
+    private sortCommentsByPopularityAsc(comments: CommentHistoryMetaData[]) {
         return comments.sort((a, b) => b.voteSum - a.voteSum)
     }
 
     private parseRelayRawCommentsToComments(
         relayRawComments: RelayRawComment[],
-    ): Comment[] {
+    ): CommentHistoryMetaData[] {
         return relayRawComments.map((relayRawComment) => {
             const publishedAt = parseInt(relayRawComment.publishedAt)
-            return new Comment(
-                relayRawComment.commentId,
-                relayRawComment.postId,
-                relayRawComment.epochKey,
-                publishedAt,
-                relayRawComment.content,
-                relayRawComment.voteSum,
-                dayjs(publishedAt).format('YYYY/MM/DD'),
-                this.genCommentUrlById(
+            return {
+                id: relayRawComment.commentId,
+                postId: relayRawComment.postId,
+                epochKey: relayRawComment.epochKey,
+                publishedAt: publishedAt,
+                content: relayRawComment.content,
+                voteSum: relayRawComment.voteSum,
+                date: dayjs(publishedAt).format('YYYY/MM/DD'),
+                url: this.genCommentUrlById(
                     relayRawComment.postId,
                     relayRawComment.commentId,
                 ),
-            )
+            }
         })
     }
 

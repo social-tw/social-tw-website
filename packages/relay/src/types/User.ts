@@ -4,3 +4,10 @@ export type User = {
     signMsg: string | undefined
     token: string | undefined
 }
+
+export enum UserRegisterStatus {
+    NOT_REGISTER,
+    INIT,
+    REGISTERER,
+    REGISTERER_SERVER,
+}

@@ -1,6 +1,8 @@
 import { io } from 'socket.io-client'
 import { SERVER } from './config'
-import { CommentMsg, EventType, VoteMsg } from './types'
+import { EventType } from './types'
+import { VoteMsg } from './types/Vote'
+import { CommentMsg } from './types/Comments'
 
 class SocketClient {
     socket = io(SERVER, {})

@@ -102,7 +102,7 @@ export default function AppLayout() {
         )
     } else {
         return (
-            <div className="grid grid-cols-[1fr_20rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
+            <div className="grid grid-cols-[1fr_24rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
                 <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">

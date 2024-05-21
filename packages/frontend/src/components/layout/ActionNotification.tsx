@@ -10,12 +10,31 @@ import {
     useActionStore,
 } from '@/contexts/Actions'
 import { Dialog } from '@headlessui/react'
-import ActionTable, { getActionLink, getActionTypeLabel } from './ActionTable'
+import ActionTable, { getActionLink } from './ActionTable'
 
 import type { Action } from '@/contexts/Actions'
 
+function getActionMessage(type: ActionType) {
+    const messages = {
+        [ActionType.Post]: '貼文存取',
+        [ActionType.Comment]: '留言存取',
+        [ActionType.DeleteComment]: '刪除留言',
+    }
+    return messages[type]
+}
+
+function getActionSubject(type: ActionType) {
+    const subjects = {
+        [ActionType.Post]: '貼文',
+        [ActionType.Comment]: '留言',
+        [ActionType.DeleteComment]: '留言',
+    }
+    return subjects[type]
+}
+
 function getActionStatusLabel(action: Action) {
-    const actionTypeLabel = getActionTypeLabel(action.type)
+    const message = getActionMessage(action.type)
+    const subject = getActionSubject(action.type)
     const actionLink = getActionLink(action)
 
     switch (action.status) {
@@ -24,7 +43,7 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
-                        {actionTypeLabel}存取交易進行中
+                        {message}交易進行中
                     </span>
                     <progress className="flex-1 h-3 rounded-none progress progress-primary" />
                 </div>
@@ -35,14 +54,14 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-white" />
                     <span className="text-xs text-white">
-                        {actionTypeLabel}存取交易成功!
+                        {message}交易成功!
                     </span>
                     {action.type !== ActionType.DeleteComment && (
                         <Link
                             className="text-xs text-secondary"
                             to={actionLink}
                         >
-                            前往查看{actionTypeLabel}
+                            前往查看{subject}
                         </Link>
                     )}
                 </div>
@@ -53,10 +72,10 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
-                        {actionTypeLabel}存取交易失敗!
+                        {message}交易失敗!
                     </span>
                     <Link className="text-xs text-secondary" to={actionLink}>
-                        前往查看{actionTypeLabel}
+                        前往查看{subject}
                     </Link>
                 </div>
             )

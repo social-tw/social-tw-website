@@ -1,9 +1,9 @@
 import { SignupProof } from '@unirep/circuits'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import TransactionManager from './singletons/TransactionManager'
-import { APP_ADDRESS, TWITTER_USER_URL } from '../config'
-import TwitterClient from './singletons/TwitterClient'
+import TransactionManager from './utils/TransactionManager'
+import { TWITTER_USER_URL } from '../config'
+import TwitterClient from './utils/TwitterClient'
 import crypto from 'crypto'
 import { User } from '../types'
 import { DB } from 'anondb/node'
@@ -15,7 +15,7 @@ import {
     UserAlreadySignedUpError,
     UserLoginError,
 } from '../types/InternalError'
-import ProofHelper from './singletons/ProofHelper'
+import ProofHelper from './utils/ProofHelper'
 
 const STATE = 'state'
 
@@ -120,24 +120,21 @@ export class UserService {
             throw InvalidProofError
         }
 
-        const appContract = TransactionManager.appContract!!
-        const calldata = appContract.interface.encodeFunctionData(
-            'userSignUp',
-            [
-                signupProof.publicSignals,
-                signupProof.proof,
-                hashUserId,
-                fromServer,
-            ]
-        )
+        // save user into db, status is NOT_REGISTER because
+        // the data is not on-chain
+        await synchronizer.db.create('SignUp', {
+            hashUserId: hashUserId,
+            status: UserRegisterStatus.NOT_REGISTER,
+        })
 
-        const { logs, txHash } = await TransactionManager.executeTransaction(
-            appContract,
-            APP_ADDRESS,
-            calldata
-        )
+        const txHash = await TransactionManager.callContract('userSignUp', [
+            signupProof.publicSignals,
+            signupProof.proof,
+            hashUserId,
+            fromServer,
+        ])
 
-        return { logs, txHash }
+        return txHash
     }
 
     async verifyHashUserId(db: DB, hashUserId: string, accessToken: string) {

@@ -1,4 +1,4 @@
-export const Score = () => {
+export default function Score() {
     const myScore = 0
     const myScoreStyle = getScoreStyle(myScore)
     const hint = getHintByScore(myScore)

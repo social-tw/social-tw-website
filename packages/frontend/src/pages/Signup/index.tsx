@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { motion } from 'framer-motion'
 
-import { BackToWelcomePageButton } from '../../components/buttons/BackToWelcomeButton'
+import BackToWelcomePageButton from '../../components/buttons/BackToWelcomeButton'
 import { TwitterSignupButton } from '../../components/buttons/TwitterButton'
 import { GreetingContent } from '../../components/greeting/GreetingContent'
 import { GreetingContentOnSmallDevice } from '../../components/greeting/GreetingContentOnSmallDevice'

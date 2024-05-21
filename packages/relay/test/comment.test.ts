@@ -1,13 +1,8 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { CircuitConfig } from '@unirep/circuits'
 import { UserState } from '@unirep/core'
-import {
-    genStateTreeLeaf,
-    IncrementalMerkleTree,
-    stringifyBigInts,
-} from '@unirep/utils'
+import { stringifyBigInts } from '@unirep/utils'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -18,14 +13,13 @@ import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
-const { STATE_TREE_DEPTH } = CircuitConfig.default
-
 describe('COMMENT /comment', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let chainId: number
+    let testContent: String
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -62,7 +56,7 @@ describe('COMMENT /comment', function () {
         expect(hasSignedUp).equal(true)
 
         const result = await post(chaiServer, userState)
-        await ethers.provider.waitForTransaction(result.transaction)
+        await ethers.provider.waitForTransaction(result.txHash)
         await sync.waitForSync()
 
         const res = await chaiServer.get('/api/post/0')
@@ -78,8 +72,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should create a comment', async function () {
-        // TODO: Look for fuzzer to test content
-        const testContent = 'test content'
+        testContent = 'create comment'
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
         })
@@ -96,38 +89,39 @@ describe('COMMENT /comment', function () {
         })
 
         // create a comment
-        const transaction = await express
+        const txHash = await express
             .post('/api/comment')
             .set('content-type', 'application/json')
-            .send({
-                content: testContent,
-                postId: 0,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    content: testContent,
+                    postId: 0,
+                    publicSignals: stringifyBigInts(
+                        epochKeyProof.publicSignals
+                    ),
+                    proof: stringifyBigInts(epochKeyProof.proof),
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
-                return res.body.transaction
+                return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(transaction)
+        await ethers.provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
         // comment on the post
-        await express
-            .get(`/api/comment?epks=${epochKeyProof.epochKey}&postId=0`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                const comments = res.body
-                expect(comments[0].transactionHash).equal(transaction)
-                expect(comments[0].content).equal(testContent)
-                expect(comments[0].status).equal(1)
-            })
+        await express.get(`/api/comment?postId=0`).then((res) => {
+            expect(res).to.have.status(200)
+            const comments = res.body
+            expect(comments[0].transactionHash).equal(txHash)
+            expect(comments[0].content).equal(testContent)
+            expect(comments[0].status).equal(1)
+        })
     })
 
     it('should comment failed with wrong proof', async function () {
-        const testContent = 'test content'
-
+        testContent = 'comment with wrong proof'
         var epochKeyProof = await userState.genEpochKeyProof({
             nonce: 2,
         })
@@ -152,11 +146,10 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong epoch', async function () {
-        const testContent = 'invalid epoch'
-
+        testContent = 'comment with wrong epoch'
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = await userState.sync.attesterId
+        const attesterId = userState.sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
@@ -189,7 +182,7 @@ describe('COMMENT /comment', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid Epoch')
+                expect(res.body.error).equal('Invalid epoch')
             })
     })
 
@@ -248,7 +241,7 @@ describe('COMMENT /comment', function () {
         })
 
         // delete a comment
-        const transaction = await express
+        const txHash = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
             .send(
@@ -261,10 +254,10 @@ describe('COMMENT /comment', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(200)
-                return res.body.transaction
+                return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(transaction)
+        await ethers.provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
         // check comment exist

@@ -1,6 +1,6 @@
-import { HistoryButton } from './HistoryButton'
-import { LogoutButton } from './LogoutButton'
-import { ReputationButton } from './ReputationButton'
+import HistoryButton from './HistoryButton'
+import LogoutButton from './LogoutButton'
+import ReputationButton from './ReputationButton'
 
 const Profile = () => {
     return (

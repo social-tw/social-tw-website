@@ -7,15 +7,15 @@ import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import prover from '../src/services/singletons/prover'
+import prover from '../src/services/utils/Prover'
 import schema from '../src/db/schema'
-import TransactionManager from '../src/services/singletons/TransactionManager'
+import TransactionManager from '../src/services/utils/TransactionManager'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
 import {
     SocketManager,
     socketManager,
-} from '../src/services/singletons/SocketManager'
+} from '../src/services/utils/SocketManager'
 import { postService } from '../src/services/PostService'
 import { Synchronizer } from '@unirep/core'
 

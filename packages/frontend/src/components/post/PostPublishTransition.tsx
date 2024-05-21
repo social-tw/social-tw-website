@@ -8,7 +8,9 @@ interface TransactionModalProps {
     isOpen: boolean
 }
 
-const PostPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
+export default function PostPublishTransition({
+    isOpen,
+}: TransactionModalProps) {
     const items = [1, 2, 3]
     const variants = {
         animate: (i: number) => ({
@@ -65,5 +67,3 @@ const PostPublishTransition: React.FC<TransactionModalProps> = ({ isOpen }) => {
         </Backdrop>
     )
 }
-
-export default PostPublishTransition

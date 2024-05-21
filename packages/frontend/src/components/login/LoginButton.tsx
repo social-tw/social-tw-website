@@ -14,8 +14,7 @@ interface LoginButtonProps {
     text: string
 }
 
-// TODO: signup with wallet and without wallet
-const LoginButton: React.FC<LoginButtonProps> = ({
+export default function LoginButton({
     icon: Icon,
     onClick,
     isLoading,
@@ -25,7 +24,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
     start,
     text,
     iconSize,
-}) => {
+}: LoginButtonProps) {
     return (
         <button
             type="button"
@@ -69,5 +68,3 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         </button>
     )
 }
-
-export default LoginButton

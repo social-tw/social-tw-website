@@ -1,10 +1,10 @@
 import { DB } from 'anondb'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { VoteAction } from '../types'
-import ActionCountManager from './singletons/ActionCountManager'
-import { socketManager } from './singletons/SocketManager'
+import ActionCountManager from './utils/ActionCountManager'
+import { socketManager } from './utils/SocketManager'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
-import ProofHelper from './singletons/ProofHelper'
+import ProofHelper from './utils/ProofHelper'
 import {
     InvalidPostIdError,
     InvalidVoteActionError,
@@ -73,7 +73,7 @@ export class VoteService {
                 epochKey: epochKey,
             },
         })
-
+        console.log('findVote', findVote)
         this.verifyVoteAction(voteAction, findVote)
 
         await this.executeTx(
@@ -187,26 +187,29 @@ export class VoteService {
                 break
         }
 
-        await ActionCountManager.addActionCount(db, epochKey, epoch, (txDB) => {
-            let actionCount
-            if (createVote) {
-                txDB.create('Vote', voteCreateStatement)
-                actionCount = 1
-            } else {
-                txDB.delete('Vote', voteDeleteStatement)
-                // epk cancel the action, decrease 1 count
-                actionCount = -1
-            }
-            txDB.update('Post', postStatement)
+        let actionCount: number
+        if (createVote) {
+            await db.create('Vote', voteCreateStatement)
+            actionCount = 1
+        } else {
+            await db.delete('Vote', voteDeleteStatement)
+            // epk cancel the action, decrease 1 count
+            actionCount = -1
+        }
+        await db.update('Post', postStatement)
 
-            socketManager.emitVote({
-                postId: postId,
-                epoch: epoch,
-                vote: voteAction,
-            })
-
-            return actionCount
+        socketManager.emitVote({
+            postId: postId,
+            epoch: epoch,
+            vote: voteAction,
         })
+
+        await ActionCountManager.addActionCount(
+            db,
+            epochKey,
+            epoch,
+            actionCount
+        )
     }
 }
 

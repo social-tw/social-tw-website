@@ -1,5 +1,5 @@
 import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
-import { UnirepSocialSynchronizer } from './UnirepSocialSynchronizer'
+import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
 import { PublicSignals, Groth16Proof } from 'snarkjs'
 import {
     InvalidAttesterIdError,
