@@ -31,7 +31,7 @@ export default (
                 code as string,
                 db
             )
-            var redirectUrl = `${CLIENT_URL}/login?code=${user.hashUserId}&status=${user.status}&token=${user.token}&signMsg=${user.signMsg}`
+            var redirectUrl = `${CLIENT_URL}/twitter/callback?code=${user.hashUserId}&status=${user.status}&token=${user.token}&signMsg=${user.signMsg}`
 
             res.redirect(redirectUrl)
         } catch (error) {
