@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { PATHS } from '@/constants/paths'
-import { MutationKeys } from '@/constants/queryKeys'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { LoginUnknownError } from '@/utils/errors'
 
 export function useLogin() {
     const navigate = useNavigate()
+
+    const queryClient = useQueryClient()
 
     const {
         isPending,
@@ -22,7 +24,10 @@ export function useLogin() {
                 throw new LoginUnknownError()
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: [QueryKeys.HasSignedUp],
+            })
             navigate(PATHS.HOME)
         },
     })

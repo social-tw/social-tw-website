@@ -52,15 +52,15 @@ Constants are fixed values defined in a centralized location, used throughout th
 
 Example: config.ts might contain values like API endpoints or reusable static information.
 
-
 ### features
 
 Features are the specific functionality under the application.
 
 Each feature folder should follow the rule below:
-- Must take a explicit and clear folder name.
-- Must contain one `index.ts` which exports all functionalities sush as components, hooks, stores and so on.
-- Could contain components, hooks, stores folders.
+
+-   Must take a explicit and clear folder name.
+-   Must contain one `index.ts` which exports all functionalities sush as components, hooks, stores and so on.
+-   Could contain components, hooks, stores folders.
 
 ### routes
 
@@ -85,7 +85,6 @@ Example: userTypes.ts defining the types related to user data.
 Utility functions that can be used across the application.
 
 Example: formatDate.ts which would contain a function to format dates consistently across the app.
-
 
 ## tests
 
