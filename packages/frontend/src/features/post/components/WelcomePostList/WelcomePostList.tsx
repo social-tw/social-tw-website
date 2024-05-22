@@ -90,7 +90,7 @@ export default function WelcomePostList() {
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages, lastPageParam) => {
-            return lastPage.length === 0 ? undefined : lastPageParam + 1
+            return lastPage?.length === 0 ? undefined : lastPageParam + 1
         },
     })
 

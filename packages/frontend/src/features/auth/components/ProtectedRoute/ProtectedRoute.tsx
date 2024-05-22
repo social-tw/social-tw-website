@@ -12,7 +12,12 @@ type ProtectedRouterProps = {
 export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     const navigate = useNavigate()
 
-    const { isLoggedIn, isLoggingIn } = useAuthStatus()
+    const {
+        isLoggedIn,
+        isLoggingIn,
+        // isSignedUp,
+        // isSigningUp
+    } = useAuthStatus()
 
     // const { logout } = useLogout()
 
@@ -28,8 +33,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         }
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
-    // XXX: the user is logged in when the signature in localStorage exists. However, we need to check if the user is signed up and valid.
-    //      Code below is buggy. I aleady fix this in the next [PR](https://github.com/social-tw/social-tw-website/pull/368).
+    // XXX: user should logout if has not signed up
     // useEffect(() => {
     //     if (isLoggedIn && !isSigningUp && !isSignedUp) {
     //         logout()
