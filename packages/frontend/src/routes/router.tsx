@@ -6,13 +6,13 @@ import SignupPage from './onboarding/signup/page'
 import SignupInternalPage from './onboarding/signup/internal/page'
 import WelcomePage from './welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
-import RootLayout from './root/layout'
-import PostListPage from './root/posts/page'
-import PostPage from './root/posts/[id]/page'
-import ProfileLayout from './root/profile/layout'
-import ProfilePage from './root/profile/page'
-import HistoryPage from './root/profile/history/page'
-import ReputationPage from './root/profile/reputation/page'
+import AppLayout from './app/layout'
+import PostListPage from './app/posts/page'
+import PostPage from './app/posts/[id]/page'
+import ProfileLayout from './app/profile/layout'
+import ProfilePage from './app/profile/page'
+import HistoryPage from './app/profile/history/page'
+import ReputationPage from './app/profile/reputation/page'
 import FullScreenLayout from './full-screen/layout'
 import WritePostPage from './full-screen/write-post/page'
 import { ProtectedRoute } from '@/features/auth'
@@ -53,7 +53,7 @@ const router = createBrowserRouter([
     {
         element: (
             <ProtectedRoute>
-                <RootLayout />
+                <AppLayout />
             </ProtectedRoute>
         ),
         errorElement: <ResetStorage />,

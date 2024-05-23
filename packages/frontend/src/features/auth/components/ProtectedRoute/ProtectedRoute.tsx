@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useIsFirstRender } from '@uidotdev/usehooks'
-import { useAuthStatus } from '@/features/auth/hooks/useAuthStatus/useAuthStatus'
+import { useAuthStatus, useLogout } from '@/features/auth'
 import { PATHS } from '@/constants/paths'
-// import { useLogout } from '@/features/auth/hooks/useLogout/useLogout'
 
 type ProtectedRouterProps = {
     children: React.ReactNode
@@ -15,11 +14,12 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     const {
         isLoggedIn,
         isLoggingIn,
-        // isSignedUp,
-        // isSigningUp
+        isSignedUp,
+        isSigningUp,
+        isCheckingSignedUp,
     } = useAuthStatus()
 
-    // const { logout } = useLogout()
+    const { logout } = useLogout()
 
     const isFirstRender = useIsFirstRender()
 
@@ -33,13 +33,23 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         }
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
-    // XXX: user should logout if has not signed up
-    // useEffect(() => {
-    //     if (isLoggedIn && !isSigningUp && !isSignedUp) {
-    //         logout()
-    //         navigate(PATHS.WELCOME)
-    //     }
-    // }, [isLoggedIn, isSignedUp, isSigningUp, logout, navigate])
+    useEffect(() => {
+        if (isFirstRender || isSigningUp || isCheckingSignedUp) {
+            return
+        }
+        if (isLoggedIn && !isSignedUp) {
+            logout()
+            navigate(PATHS.WELCOME)
+        }
+    }, [
+        isCheckingSignedUp,
+        isFirstRender,
+        isLoggedIn,
+        isSignedUp,
+        isSigningUp,
+        logout,
+        navigate,
+    ])
 
     if (isLoggingIn) {
         return null
