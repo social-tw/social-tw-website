@@ -1,14 +1,10 @@
-import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useSignup } from '@/hooks/useSignup/useSignup'
 import { useLoginWithWallet } from '@/hooks/useLoginWithWallet/useLoginWithWallet'
 import { MutationKeys } from '@/constants/queryKeys'
 import { LocalStorageHelper } from '@/utils/LocalStorageHelper'
-import { PATHS } from '@/constants/paths'
 
 export function useSignupWithWallet() {
-    const navigate = useNavigate()
-
     const { signup: baseSignup } = useSignup()
 
     const { login } = useLoginWithWallet()
@@ -27,9 +23,6 @@ export function useSignupWithWallet() {
         },
         onMutate: async () => {
             await login()
-        },
-        onError: () => {
-            navigate(PATHS.WELCOME)
         },
     })
 

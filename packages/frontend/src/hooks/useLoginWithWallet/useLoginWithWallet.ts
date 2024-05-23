@@ -16,7 +16,7 @@ export function useLoginWithWallet() {
             const signature = await EthereumHelper.signUserIdWithWallet(
                 hashUserId,
             )
-            await baseLogin(signature)
+            await baseLogin({ signature })
         },
     })
 
