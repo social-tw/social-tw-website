@@ -16,8 +16,8 @@ export function useAuthStatus() {
         select: (mutation) => mutation.state.error,
     })
 
-    const { data: isSignedUp } = useQuery({
-        queryKey: [QueryKeys.HasSignedUp],
+    const { isPending: isCheckingSignedUp, data: isSignedUp } = useQuery({
+        queryKey: [QueryKeys.HasSignedUp, userState?.id.toString()],
         queryFn: async () => {
             if (!userState) return false
             return userState.hasSignedUp()
@@ -39,6 +39,7 @@ export function useAuthStatus() {
         isLoggedIn: !!userState,
         isLoggingIn: isPending,
         loginErrors,
+        isCheckingSignedUp,
         isSignedUp,
         isSigningUp,
         signupErrors,

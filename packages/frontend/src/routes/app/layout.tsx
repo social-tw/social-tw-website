@@ -19,7 +19,7 @@ import { ErrorDialog } from '@/features/auth'
 import { ActionNotification, EpochInfo } from '@/features/core'
 import { MobileBottomNav } from '@/features/shared'
 
-export default function RootLayout() {
+export default function AppLayout() {
     const matchPath = useMatch('/')
 
     const location = useLocation()
