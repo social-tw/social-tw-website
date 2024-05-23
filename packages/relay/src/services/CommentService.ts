@@ -59,12 +59,12 @@ export class CommentService {
         )
 
         // store content into helia ipfs node with json plain
-        const cid = await IpfsHelper.createIpfsContent(helia, content)
+        const cid = (await (IpfsHelper.createIpfsContent(helia, content))).toString()
         const txHash = await TransactionManager.callContract('leaveComment', [
             publicSignals,
             proof,
             postId,
-            content,
+            cid,
         ])
 
         const epoch = Number(epochKeyProof.epoch)
