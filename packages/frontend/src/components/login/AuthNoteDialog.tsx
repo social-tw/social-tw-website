@@ -1,4 +1,3 @@
-import React from 'react'
 import { IconType } from 'react-icons'
 import Dialog from '@/components/common/Dialog'
 

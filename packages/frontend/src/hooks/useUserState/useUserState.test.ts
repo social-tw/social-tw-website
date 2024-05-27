@@ -10,13 +10,6 @@ const providerSpy = jest.spyOn(ethers.providers, 'JsonRpcProvider')
 
 jest.mock('@unirep/core')
 
-// jest.mocked(UserState).mockImplementation(() => {
-//     return {
-//         start: () => {},
-//         waitForSync: () => {},
-//     } as unknown as UserState
-// })
-
 describe('useUserState', () => {
     afterEach(() => {
         nock.restore()

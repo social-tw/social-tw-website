@@ -39,7 +39,7 @@ const prover = {
      * @returns vkey of the circuit
      */
     getVKey: async (_name: string | Circuit) => {
-        // return require(path.join(buildPath, `$_{name}.vkey.json`))
+        // return require(path.join(buildPath, `${_name}.vkey.json`))
     },
 }
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import { GrFormClose } from 'react-icons/gr'
 import Backdrop from '../common/Backdrop'
 import { useLogout } from '@/hooks/useLogout/useLogout'

@@ -1,4 +1,3 @@
-import React from 'react'
 import { GrFormClose } from 'react-icons/gr'
 import { useNavigate } from 'react-router-dom'
 import Backdrop from '@/components/common/Backdrop'

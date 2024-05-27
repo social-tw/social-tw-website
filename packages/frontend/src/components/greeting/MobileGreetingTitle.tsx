@@ -1,5 +1,3 @@
-import React from 'react'
-
 const MobileGreetingTitle = () => {
     return (
         <div className="flex flex-col items-start w-4/5 mt-24 mb-12">

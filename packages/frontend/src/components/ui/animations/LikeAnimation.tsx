@@ -1,4 +1,3 @@
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import upvoteImage from '../../../assets/upvote.png'
 import downvoteImage from '../../../assets/downvote.png'

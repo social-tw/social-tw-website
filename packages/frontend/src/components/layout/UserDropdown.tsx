@@ -1,4 +1,3 @@
-import React from 'react'
 import { VscAccount } from 'react-icons/vsc'
 import { useLogout } from '@/hooks/useLogout/useLogout'
 

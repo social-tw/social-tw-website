@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { ReactComponent as AddIcon } from '@/assets/add.svg'
 import { ReactComponent as BellIcon } from '@/assets/bell.svg'
