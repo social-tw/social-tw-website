@@ -45,6 +45,8 @@ export default function ExamplePostList() {
                     : {
                           isMine: false,
                           finalAction: null,
+                          votedNonce: null,
+                          votedEpoch: null,
                       }
                 return {
                     id: item.transactionHash!,
@@ -57,6 +59,8 @@ export default function ExamplePostList() {
                     downCount: item.downCount,
                     isMine: voteCheck.isMine,
                     finalAction: voteCheck.finalAction,
+                    votedNonce: voteCheck.votedNonce,
+                    votedEpoch: voteCheck.votedEpoch,
                     status: PostStatus.Success,
                 }
             })
@@ -101,6 +105,8 @@ export default function ExamplePostList() {
                     downCount: 0,
                     isMine: true,
                     finalAction: null,
+                    votedNonce: null,
+                    votedEpoch: null,
                     status: action.status as unknown as PostStatus,
                 }
             })
@@ -173,6 +179,8 @@ export default function ExamplePostList() {
                                     compact
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
+                                    votedNonce={post.votedNonce}
+                                    votedEpoch={post.votedEpoch}
                                     status={post.status}
                                 />
                             </div>
@@ -200,6 +208,8 @@ export default function ExamplePostList() {
                                             compact
                                             isMine={post.isMine}
                                             finalAction={post.finalAction}
+                                            votedNonce={post.votedNonce}
+                                            votedEpoch={post.votedEpoch}
                                             status={post.status}
                                         />
                                     </div>

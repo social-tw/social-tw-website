@@ -28,6 +28,8 @@ export default function Post({
     compact = false,
     isMine = false,
     finalAction = null,
+    votedNonce = null,
+    votedEpoch = null,
     status = PostStatus.Success,
     onComment = () => {},
 }: {
@@ -42,6 +44,8 @@ export default function Post({
     compact?: boolean
     isMine?: boolean
     finalAction?: VoteAction | null
+    votedNonce?: number | null
+    votedEpoch?: number | null
     status?: PostStatus
     onComment?: () => void
 }) {
@@ -49,7 +53,6 @@ export default function Post({
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
-
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
@@ -62,6 +65,8 @@ export default function Post({
         downCount: downCount,
         isMine: isMine,
         finalAction: finalAction,
+        votedNonce: votedNonce,
+        votedEpoch: votedEpoch,
     }
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
@@ -73,6 +78,8 @@ export default function Post({
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
+    const [isVotedNonce, setIsVotedNonce] = useState(votedNonce)
+    const [isVotedEpoch, setIsVotedEpoch] = useState(votedEpoch)
     const updateVoteCount = useStore((state) => state.updateVoteCount)
     const [isError, setIsError] = useState(false)
 
@@ -80,7 +87,9 @@ export default function Post({
     useEffect(() => {
         setIsMineState(isMine)
         setIsAction(finalAction)
-    }, [isMine, finalAction])
+        setIsVotedNonce(votedNonce)
+        setIsVotedEpoch(votedEpoch)
+    }, [isMine, finalAction, votedNonce, votedEpoch])
 
     const handleVote = async (voteType: VoteAction) => {
         let action: VoteAction
@@ -95,8 +104,7 @@ export default function Post({
                 voteState.finalAction === VoteAction.UPVOTE
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
-
-            success = await create(id, cancelAction)
+            success = await create(id, cancelAction, isVotedEpoch, isVotedNonce)
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
@@ -140,7 +148,15 @@ export default function Post({
             }
         }
         setIsMineState(newIsMine)
-        updateVote(id, newUpCount, newDownCount, newIsMine, newFinalAction)
+        updateVote(
+            id,
+            newUpCount,
+            newDownCount,
+            newIsMine,
+            newFinalAction,
+            isVotedNonce,
+            isVotedEpoch,
+        )
         setTimeout(() => setShow(false), 500)
     }
 
@@ -150,6 +166,8 @@ export default function Post({
             downCount: downCount,
             isMine: isMine,
             finalAction: finalAction,
+            votedNonce: votedNonce,
+            votedEpoch: votedEpoch,
         }
 
         setLocalUpCount(voteState.upCount)
@@ -161,6 +179,8 @@ export default function Post({
         setLocalDownCount(voteState.downCount)
         setIsMineState(voteState.isMine)
         setIsAction(voteState.finalAction)
+        setIsVotedNonce(voteState.votedNonce)
+        setIsVotedEpoch(voteState.votedEpoch)
     }, [voteState])
 
     const postInfo = (

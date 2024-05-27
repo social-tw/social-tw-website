@@ -46,7 +46,10 @@ export default function PostList() {
                         : {
                               isMine: false,
                               finalAction: null,
+                              votedNonce: null,
+                              votedEpoch: null,
                           }
+                    console.log('voteCheck', voteCheck)
                     return {
                         id: item.transactionHash!,
                         postId: item.postId,
@@ -58,6 +61,8 @@ export default function PostList() {
                         downCount: item.downCount,
                         isMine: voteCheck.isMine,
                         finalAction: voteCheck.finalAction,
+                        votedNonce: voteCheck.votedNonce,
+                        votedEpoch: voteCheck.votedEpoch,
                         status: PostStatus.Success,
                     }
                 })
@@ -100,6 +105,8 @@ export default function PostList() {
                     downCount: 0,
                     isMine: true,
                     finalAction: null,
+                    votedNonce: null,
+                    votedEpoch: null,
                     status: action.status as unknown as PostStatus,
                 }
             })
@@ -134,6 +141,8 @@ export default function PostList() {
                             compact
                             isMine={post.isMine}
                             finalAction={post.finalAction}
+                            votedNonce={post.votedNonce}
+                            votedEpoch={post.votedEpoch}
                             status={post.status}
                         />
                     </li>
@@ -156,6 +165,8 @@ export default function PostList() {
                                     compact
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
+                                    votedNonce={post.votedNonce}
+                                    votedEpoch={post.votedEpoch}
                                     status={post.status}
                                     onComment={() => {
                                         if (!post.postId) return

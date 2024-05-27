@@ -67,13 +67,13 @@ export class VoteService {
         }
 
         const epochKey = epochKeyProof.epochKey.toString()
+        console.log('epochKey', epochKey)
         const findVote = await db.findOne('Vote', {
             where: {
                 postId: postId,
                 epochKey: epochKey,
             },
         })
-        console.log('findVote', findVote)
         this.verifyVoteAction(voteAction, findVote)
 
         await this.executeTx(

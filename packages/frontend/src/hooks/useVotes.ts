@@ -8,6 +8,7 @@ import client from '../socket'
 import { getEpochKeyNonce } from '@/utils/getEpochKeyNonce'
 import useActionCount from './useActionCount'
 import { VoteAction, VoteMsg } from '@/types/Vote'
+import { EpochKeyProof } from '@unirep/circuits'
 
 export default function useVotes() {
     const { userState, loadData } = useUser()
@@ -18,17 +19,40 @@ export default function useVotes() {
 
     const actionCount = useActionCount()
 
-    const create = async (
+    async function create(
         _id: string,
         voteAction: VoteAction,
+        epoch?: number | null,
+        nonce?: number | null,
+    ): Promise<boolean> {
+        try {
+            if (!userState) throw new Error('User state not initialized')
+            let epochKeyProof: EpochKeyProof
+            if (epoch != null && nonce != null) {
+                epochKeyProof = await userState.genEpochKeyProof({
+                    epoch: epoch,
+                    nonce: nonce,
+                })
+            } else {
+                const nowNonce = getEpochKeyNonce(actionCount)
+                epochKeyProof = await userState.genEpochKeyProof({
+                    nonce: nowNonce,
+                })
+            }
+            return createVote(_id, voteAction, epochKeyProof)
+        } catch (err) {
+            console.error('Error when creating vote:', err)
+            return false
+        }
+    }
+
+    const createVote = async (
+        _id: string,
+        voteAction: VoteAction,
+        epochKeyProof: EpochKeyProof,
     ): Promise<boolean> => {
         try {
             if (!userState) throw new Error('User state not initialized')
-
-            const nonce = getEpochKeyNonce(actionCount)
-
-            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
-
             const response = await fetch(`${SERVER}/api/vote`, {
                 method: 'POST',
                 headers: {
@@ -56,7 +80,8 @@ export default function useVotes() {
                     `Vote failed with status: ${await response.json()}`,
                 )
             }
-        } catch (error) {
+        } catch (err) {
+            console.error('Error when creating vote:', err)
             return false
         }
     }

@@ -40,6 +40,8 @@ const PostDetails: React.FC = () => {
                 downCount: post.downCount,
                 isMine: false,
                 finalAction: null,
+                votedNonce: null,
+                votedEpoch: null,
                 status: PostStatus.Success,
                 votes: post.votes,
             }
@@ -55,6 +57,8 @@ const PostDetails: React.FC = () => {
                 ...data,
                 isMine: isMine,
                 finalAction: finalAction,
+                votedNonce: voteCheck.votedNonce,
+                votedEpoch: voteCheck.votedEpoch,
             }
         }
         return data
@@ -89,6 +93,8 @@ const PostDetails: React.FC = () => {
                         onComment={onWriteComment}
                         isMine={post.isMine}
                         finalAction={post.finalAction}
+                        votedNonce={post.votedNonce}
+                        votedEpoch={post.votedEpoch}
                     />
                 </section>
                 <section id="comments">
