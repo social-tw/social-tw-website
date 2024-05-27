@@ -1,5 +1,4 @@
 import { clsx } from 'clsx'
-import React from 'react'
 import { IconType } from 'react-icons'
 
 interface LoginButtonProps {

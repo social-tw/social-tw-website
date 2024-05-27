@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import React from 'react'
 import Logo from '@/assets/logo.png'
 import Backdrop from '@/components/common/Backdrop'
 import { useMediaQuery } from '@uidotdev/usehooks'

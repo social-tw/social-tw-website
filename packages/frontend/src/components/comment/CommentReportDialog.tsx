@@ -1,5 +1,4 @@
 import { clsx } from 'clsx'
-import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import Dialog from '@/components/common/Dialog'
 
