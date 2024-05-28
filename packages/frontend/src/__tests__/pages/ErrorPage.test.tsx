@@ -1,7 +1,5 @@
-import React from 'react'
 import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom'
-import ErrorPage from '../../pages/ErrorPage'
+import ErrorPage from '../../components/ErrorBoundary'
 import { useRouteError } from 'react-router-dom'
 
 // Mock the useRouteError hook from react-router-dom
@@ -18,8 +16,10 @@ describe('<ErrorPage />', () => {
         // Mock the hook to return a specific error
         // @ts-ignore
         ;(useRouteError as jest.Mock).mockReturnValue({
-            message: 'A test error',
+            status: 404,
             statusText: '404 Not Found',
+            internal: true,
+            data: {},
         })
 
         render(<ErrorPage />)

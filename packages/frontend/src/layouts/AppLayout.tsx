@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
 import {
     Link,
     NavLink,
@@ -8,25 +7,24 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
-import ArrowLeftIcon from '@/assets/arrow-left.svg'
-import BellIcon from '@/assets/bell.svg'
-import HomeIcon from '@/assets/home.svg'
+import { ReactComponent as ArrowLeftIcon } from '@/assets/arrow-left.svg'
+import { ReactComponent as BellIcon } from '@/assets/bell.svg'
+import { ReactComponent as HomeIcon } from '@/assets/home.svg'
 import Logo from '@/assets/logo.png'
-import PersonCircleIcon from '@/assets/person-circle.svg'
-import SearchIcon from '@/assets/search.svg'
-import StarIcon from '@/assets/star.svg'
+import { ReactComponent as PersonCircleIcon } from '@/assets/person-circle.svg'
+import { ReactComponent as SearchIcon } from '@/assets/search.svg'
+import { ReactComponent as StarIcon } from '@/assets/star.svg'
 import ActionNotification from '@/components/layout/ActionNotification'
 import EpochInfo from '@/components/layout/EpochInfo'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
-import AuthErrorDialog from '@/components/login/AuthErrorDialog'
-import { useUser } from '@/contexts/User'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import ErrorDialog from './ErrorDialog'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
+
     const location = useLocation()
-    const { isLogin, signupStatus, setSignupStatus } = useUser()
-    const [isShow, setIsShow] = useState(true)
+
     const navigate = useNavigate()
 
     const headerTextOnDesktop = getDesktopHeaderTextByPath(location.pathname)
@@ -39,23 +37,6 @@ export default function AppLayout() {
             navigate('/')
         }
     }
-
-    useEffect(() => {
-        if (isLogin && signupStatus === 'success') {
-            setTimeout(() => {
-                setSignupStatus('default')
-                setIsShow(false)
-            }, 1500)
-            return
-        }
-        if (isLogin && signupStatus === 'default') {
-            setIsShow(false)
-        }
-        if (!isLogin) {
-            setIsShow(true)
-            return
-        }
-    }, [isLogin, signupStatus])
 
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const isShowingHeaderLogoOnSmallDevice =
@@ -71,7 +52,6 @@ export default function AppLayout() {
     if (isSmallDevice) {
         return (
             <div className="pt-8">
-                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <header className="relative flex items-center justify-center h-16 gap-2 px-4">
                     {!matchPath && (
                         <button
@@ -97,19 +77,19 @@ export default function AppLayout() {
                 <main className="max-w-5xl pb-20 mx-auto">
                     <Outlet />
                 </main>
-                <MobileBottomNav isShow={isShow} signupStatus={signupStatus} />
+                <MobileBottomNav />
+                <ErrorDialog />
             </div>
         )
     } else {
         return (
             <div className="grid grid-cols-[1fr_24rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
-                <AuthErrorDialog isOpen={signupStatus === 'error'} />
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
                             <SearchIcon className="w-5 h-5" />
                             <input
-                                className="flex-1 text-base font-medium placeholder:text-white/60 focus:outline-none"
+                                className="flex-1 text-base font-medium bg-transparent placeholder:text-white/60 focus:outline-none"
                                 placeholder="Search"
                             />
                         </div>
@@ -185,7 +165,7 @@ export default function AppLayout() {
                                             : 'text-white',
                                     )
                                 }
-                                to="/nofitication"
+                                to="/notification"
                             >
                                 <BellIcon className="w-14 h-14" />
                                 <span className="text-xl font-bold ">
@@ -215,6 +195,7 @@ export default function AppLayout() {
                         </div>
                     </div>
                 </section>
+                <ErrorDialog />
             </div>
         )
     }

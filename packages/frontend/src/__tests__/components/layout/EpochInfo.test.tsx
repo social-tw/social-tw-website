@@ -1,38 +1,22 @@
-import '@testing-library/jest-dom'
 import EpochInfo from '@/components/layout/EpochInfo'
 import { render, screen } from '@testing-library/react'
-
-jest.mock('@/contexts/User', () => ({
-    useUser: () => ({
-        userState: {
-            sync: {
-                calcEpochRemainingTime: jest.fn().mockReturnValue(100),
-                calcCurrentEpoch: jest.fn().mockReturnValue(9999),
-                getEpochKeys: jest.fn().mockReturnValue('epochkey'),
-            },
-        },
-    }),
-}))
-
-jest.mock('@/hooks/useActionCount', () => {
-    return jest.fn().mockReturnValue(4)
-})
+import { wrapper } from '@/utils/test-helpers/wrapper'
 
 describe('EpochInfo', () => {
     it('should display remaining time', () => {
-        render(<EpochInfo />)
+        render(<EpochInfo />, { wrapper })
 
         expect(screen.getByTestId('epoch-remaining-time')).toBeInTheDocument()
     })
 
     it('should display action count indicator', () => {
-        render(<EpochInfo />)
+        render(<EpochInfo />, { wrapper })
 
         expect(screen.getByTestId('action-counter')).toBeInTheDocument()
     })
 
     it('should display message', () => {
-        render(<EpochInfo />)
+        render(<EpochInfo />, { wrapper })
 
         expect(
             screen.getByText('目前動作次數(3次內)可確保匿名身份不被洩漏'),

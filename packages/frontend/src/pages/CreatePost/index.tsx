@@ -2,16 +2,21 @@ import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
-import { useUser } from '@/contexts/User'
-import useCreatePost from '@/hooks/useCreatePost'
+import { useCreatePost } from '@/hooks/useCreatePost/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { PATHS } from '@/constants/paths'
 
 export default function CreatePost() {
-    const { isLogin, userState } = useUser()
+    const { userState } = useUserState()
+
+    const { isLoggedIn } = useAuthStatus()
+
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,
     )
@@ -20,60 +25,50 @@ export default function CreatePost() {
 
     const queryClient = useQueryClient()
 
-    const { create: createPost } = useCreatePost()
+    const { isPending, error, reset, createPost } = useCreatePost()
 
-    const [isSubmitted, setIsSubmitted] = useState(false)
-
-    const [isError, setIsError] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const onSubmit = async (values: PostValues) => {
-        const { content } = values
-
         const previousPostsData = queryClient.getQueryData(['posts'])
 
         try {
-            setIsSubmitted(true)
-
-            await createPost(content)
-
-            queryClient.invalidateQueries({
-                queryKey: ['posts'],
-                refetchType: 'all',
-            })
-
+            await createPost(values)
             await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
-        } catch (error) {
-            setIsSubmitted(false)
-            setIsError(true)
+        } catch {
             queryClient.setQueryData(['post'], previousPostsData)
         }
     }
 
     useEffect(() => {
-        if (!isSubmitted) return
+        if (isPending) {
+            setIsSubmitting(true)
 
-        const timer = setTimeout(() => {
-            setIsSubmitted(false)
-            navigate('/')
-        }, 5000)
+            const timer = setTimeout(() => {
+                setIsSubmitting(false)
+                navigate(PATHS.HOME)
+            }, 5000)
 
-        return () => {
-            clearTimeout(timer)
+            return () => {
+                clearTimeout(timer)
+            }
         }
-    }, [isSubmitted])
+    }, [isPending, navigate])
 
-    if (!isLogin) {
-        return <AuthErrorDialog isOpen={true} />
+    if (!isLoggedIn) {
+        return (
+            <AuthErrorDialog
+                isOpen={true}
+                message="很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！"
+            />
+        )
     }
 
     return (
         <div className="p-4">
             <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
-            <PostPublishTransition isOpen={isSubmitted} />
-            <PostFailureDialog
-                isOpen={isError}
-                onClose={() => setIsError(false)}
-            />
+            <PostPublishTransition isOpen={isSubmitting} />
+            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </div>
     )
 }

@@ -1,17 +1,7 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import OnboardingLayout from '../../layouts/OnboardingLayout'
-import { UserProvider } from '../../contexts/User'
-import '@testing-library/jest-dom'
-import { MemoryRouter } from 'react-router-dom'
-import { expect } from '@jest/globals'
+import { render } from '@testing-library/react'
+import OnboardingLayout from '@/layouts/OnboardingLayout'
+import { wrapper } from '@/utils/test-helpers/wrapper'
 
 test('OnboardingLayout should render', () => {
-    render(
-        <MemoryRouter>
-            <UserProvider>
-                <OnboardingLayout />
-            </UserProvider>
-        </MemoryRouter>,
-    )
+    render(<OnboardingLayout />, { wrapper })
 })

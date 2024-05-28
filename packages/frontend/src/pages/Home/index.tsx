@@ -1,41 +1,37 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import SignupLoadingTransition from '@/components/login/SignupPendingTransition'
-import { useUser } from '@/contexts/User'
 import HomePostForm from './HomePostForm'
 import HomePostList from './HomePostList'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
+import { useIsMutating } from '@tanstack/react-query'
+import { MutationKeys } from '@/constants/queryKeys'
 
 export default function Home() {
-    const { isLogin, signupStatus } = useUser()
+    const { isLoggedIn } = useAuthStatus()
+
+    const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
+    const isPending = signingUpCount > 0
 
     const [isShowSignupLoadingTransition, setIsShowSignupLoadingTransition] =
         useState(false)
 
-    const isSignupLoading = useMemo(
-        () => signupStatus !== 'default' && isShowSignupLoadingTransition,
-        [signupStatus, isShowSignupLoadingTransition],
-    )
+    const isSignupLoading = isPending || isShowSignupLoadingTransition
 
     useEffect(() => {
-        if (isLogin) {
+        if (isLoggedIn) {
             setTimeout(() => {
                 setIsShowSignupLoadingTransition(false)
             }, 1500)
         } else {
             setIsShowSignupLoadingTransition(true)
         }
-    }, [isLogin])
+    }, [isLoggedIn])
 
     return (
         <div>
             <section className="relative hidden py-6 border-b border-neutral-600 md:block">
                 <HomePostForm disabled={isSignupLoading} />
-                {isSignupLoading && (
-                    <SignupLoadingTransition
-                        status={signupStatus}
-                        isOpen={true}
-                        opacity={0}
-                    />
-                )}
+                {isSignupLoading && <SignupLoadingTransition />}
             </section>
             <section className="py-6">
                 <HomePostList />

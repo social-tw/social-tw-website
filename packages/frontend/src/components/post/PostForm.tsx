@@ -25,7 +25,7 @@ export default function PostForm({
         },
     })
 
-    const { isValid, isSubmitSuccessful } = formState
+    const { isSubmitSuccessful } = formState
 
     const _onSubmit = handleSubmit((values) => {
         const cache = { ...values }
@@ -52,7 +52,7 @@ export default function PostForm({
             >
                 <section className="flex items-center justify-end gap-1">
                     <button
-                        className="btn btn-sm btn-ghost"
+                        className="text-white btn btn-sm btn-ghost"
                         title="cancel a post"
                         type="button"
                         disabled={disabled}
@@ -61,10 +61,9 @@ export default function PostForm({
                         取消編輯
                     </button>
                     <button
-                        className="btn btn-sm btn-secondary"
+                        className="text-white btn btn-sm btn-secondary"
                         title="submit a post"
                         type="submit"
-                        disabled={disabled || !isValid}
                     >
                         發佈文章
                     </button>

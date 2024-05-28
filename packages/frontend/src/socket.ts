@@ -8,16 +8,18 @@ class SocketClient {
     socket = io(SERVER, {})
 
     onVoteEvent(callback: (data: VoteMsg) => void) {
-        this.socket.on(EventType.VOTE, (data: VoteMsg) => {
-            callback(data)
-        })
+        this.socket.on(EventType.VOTE, callback)
+
+        return () => {
+            this.socket.off(EventType.VOTE, callback)
+        }
     }
 
     onCommentEvent(callback: (data: CommentMsg) => void) {
         this.socket.on(EventType.COMMENT, callback)
 
         return () => {
-            this.socket.on(EventType.COMMENT, callback)
+            this.socket.off(EventType.COMMENT, callback)
         }
     }
 }

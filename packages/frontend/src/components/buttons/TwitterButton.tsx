@@ -1,23 +1,17 @@
 import { BsTwitter } from 'react-icons/bs'
-import { useUser } from '../../contexts/User'
 import { LocalStorageHelper } from '../../utils/LocalStorageHelper'
 import { fetchLogin } from '../../utils/api'
 import LoginButton from '../login/LoginButton'
 
 interface TwitterButtonProps {
     title: string
-    isLoading: boolean
     handleClick: () => void
 }
 
-export default function TwitterButton({
-    title,
-    isLoading,
-    handleClick,
-}: TwitterButtonProps) {
+export function TwitterButton({ title, handleClick }: TwitterButtonProps) {
     return (
         <LoginButton
-            isLoading={isLoading}
+            isLoading={false}
             icon={BsTwitter}
             onClick={handleClick}
             title={title}
@@ -29,7 +23,6 @@ export default function TwitterButton({
 }
 
 export function TwitterLoginButton() {
-    const { signupStatus } = useUser()
     const handleClick = async () => {
         const { url } = await fetchLogin()
         LocalStorageHelper.setIsTwitterVerified()
@@ -37,7 +30,6 @@ export function TwitterLoginButton() {
     }
     return (
         <TwitterButton
-            isLoading={signupStatus === 'pending'}
             title="使用 Twitter 帳號登入"
             handleClick={handleClick}
         />
@@ -45,14 +37,12 @@ export function TwitterLoginButton() {
 }
 
 export function TwitterSignupButton() {
-    const { signupStatus } = useUser()
     const handleClick = async () => {
         const { url } = await fetchLogin()
         window.location.href = url
     }
     return (
         <TwitterButton
-            isLoading={signupStatus === 'pending'}
             title="使用 Twitter 帳號註冊"
             handleClick={handleClick}
         />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import CloseIcon from '@/assets/close.svg'
-import PostIcon from '@/assets/post.svg'
+import { ReactComponent as CloseIcon } from '@/assets/close.svg'
+import { ReactComponent as PostIcon } from '@/assets/post.svg'
 import {
     ActionStatus,
     ActionType,

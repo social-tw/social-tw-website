@@ -2,8 +2,8 @@
 import clsx from 'clsx'
 import Countdown from 'react-countdown'
 import EpochImg from '@/assets/epoch.png'
-import useActionCount from '@/hooks/useActionCount'
-import useEpoch from '@/hooks/useEpoch'
+import { useActionCount } from '@/hooks/useActionCount/useActionCount'
+import { useEpoch } from '@/hooks/useEpoch/useEpoch'
 
 export default function EpochInfo() {
     const { epochEndTime } = useEpoch()
@@ -39,8 +39,8 @@ export default function EpochInfo() {
                         >
                             {epochEndTime && (
                                 <Countdown
-                                    key={epochEndTime * 1000}
-                                    date={epochEndTime * 1000}
+                                    key={epochEndTime}
+                                    date={epochEndTime}
                                     renderer={(props) =>
                                         `${props.formatted.minutes}:${props.formatted.seconds}`
                                     }

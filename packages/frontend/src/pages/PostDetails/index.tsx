@@ -3,15 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom'
 import CommentNotifications from '@/components/comment/CommentNotification'
 import AuthErrorDialog from '@/components/login/AuthErrorDialog'
 import Post from '@/components/post/Post'
-import { SERVER } from '@/config'
-import LOGIN_ERROR_MESSAGES from '@/constants/error-messages/errorMessage'
-import { useUser } from '@/contexts/User'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
 import CommentForm from './CommentForm'
 import CommentList from './CommentList'
 import { PostStatus } from '@/types/Post'
 import { fetchSinglePost } from '@/utils/api'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
+import { QueryKeys } from '@/constants/queryKeys'
 
 const PostDetails: React.FC = () => {
     const { id } = useParams()
@@ -22,10 +22,12 @@ const PostDetails: React.FC = () => {
         navigate('/')
     }
 
-    const { userState, isLogin, setErrorCode } = useUser()
+    const { userState } = useUserState()
+
+    const { isLoggedIn } = useAuthStatus()
 
     const { data } = useQuery({
-        queryKey: ['post', id],
+        queryKey: [QueryKeys.SinglePost, id],
         queryFn: async () => {
             if (!id) return undefined
             const post = await fetchSinglePost(id)
@@ -61,12 +63,14 @@ const PostDetails: React.FC = () => {
     }, [data, userState])
 
     const [isOpenComment, setIsOpenCommnet] = useState(false)
-    const [isError, setIsError] = useState(false)
+
+    const [errorMessage, setErrorMessage] = useState<string>()
 
     const onWriteComment = () => {
-        if (!isLogin) {
-            setIsError(true)
-            setErrorCode(LOGIN_ERROR_MESSAGES.ACTION_WITHOUT_LOGIN.code)
+        if (!isLoggedIn) {
+            setErrorMessage(
+                '很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！',
+            )
             return
         }
         setIsOpenCommnet((prev) => !prev)
@@ -102,7 +106,11 @@ const PostDetails: React.FC = () => {
                 onClose={() => setIsOpenCommnet(false)}
             />
             <CommentNotifications postId={id} />
-            <AuthErrorDialog isOpen={isError} buttonText="返回註冊/登入頁" />
+            <AuthErrorDialog
+                isOpen={!!errorMessage}
+                message={errorMessage}
+                buttonText="返回註冊/登入頁"
+            />
         </>
     )
 }

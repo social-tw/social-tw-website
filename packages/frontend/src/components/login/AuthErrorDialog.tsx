@@ -1,26 +1,22 @@
-import React from 'react'
 import { GrFormClose } from 'react-icons/gr'
 import { useNavigate } from 'react-router-dom'
 import Backdrop from '@/components/common/Backdrop'
-import { useUser } from '@/contexts/User'
-import useErrorMessage from '@/hooks/useErrorMessage'
 
 interface ErrorModalProps {
     isOpen: boolean
+    message?: string
     buttonText?: string
 }
 
 export default function AuthErrorDialog({
     isOpen,
+    message = '',
     buttonText = '返回註冊頁重新嘗試',
 }: ErrorModalProps) {
-    const { setSignupStatus, errorCode, setErrorCode } = useUser()
-    const { message } = useErrorMessage(errorCode)
     const navigate = useNavigate()
+
     const handleClick = () => {
-        setSignupStatus('default')
         navigate('/welcome')
-        setErrorCode('')
     }
 
     return (

@@ -1,6 +1,6 @@
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { motion } from 'framer-motion'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 interface ScrollingModalProps {
     children: React.ReactNode
@@ -16,7 +16,7 @@ export default function WelcomeBackgroundList({
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const postListRef = useRef<HTMLDivElement>(null)
 
-    const handleScroll = () => {
+    const handleScroll = useCallback(() => {
         const container = postListRef.current
         if (!container) return
         const ulElement = container.querySelector('ul')
@@ -46,7 +46,7 @@ export default function WelcomeBackgroundList({
                 child.style.opacity = '0.3'
             }
         })
-    }
+    }, [isSmallDevice])
 
     useEffect(() => {
         const container = postListRef.current
@@ -62,7 +62,8 @@ export default function WelcomeBackgroundList({
                 container.removeEventListener('scroll', handleScroll)
             }
         }
-    }, [method])
+    }, [handleScroll, method])
+
     return (
         <motion.div
             className="fixed z-30 overflow-scroll pt-[268px] flex justify-center md:pl-4 w-full h-full"

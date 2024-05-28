@@ -1,5 +1,4 @@
 import { clsx } from 'clsx'
-import React from 'react'
 
 interface StepInfoProps {
     hashUserId: string | null
@@ -36,16 +35,7 @@ export default function StepInfo({ hashUserId }: StepInfoProps) {
                 >
                     1
                 </div>
-                <div
-                    className="
-                    text-white 
-                    text-sm 
-                    flex 
-                    flex-col 
-                    justify-center 
-                    items-center 
-                    tracking-wide"
-                >
+                <div className="flex flex-col items-center justify-center text-sm tracking-wide text-white ">
                     <span>Twitter</span>
                     <span>帳號登入</span>
                 </div>
@@ -86,16 +76,7 @@ export default function StepInfo({ hashUserId }: StepInfoProps) {
                 >
                     2
                 </div>
-                <div
-                    className="
-                    text-white 
-                    text-sm 
-                    flex 
-                    flex-col 
-                    justify-center 
-                    items-center 
-                    tracking-wide"
-                >
+                <div className="flex flex-col items-center justify-center text-sm tracking-wide text-white ">
                     <span>錢包註冊</span>
                     <span>Or 直接註冊</span>
                 </div>

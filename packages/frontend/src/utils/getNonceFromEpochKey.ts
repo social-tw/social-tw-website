@@ -1,4 +1,4 @@
-import type { UserState } from '@/contexts/UserState'
+import { UserState } from '@unirep/core'
 
 export default function getNonceFromEpochKey(
     epoch: number,

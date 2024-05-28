@@ -1,79 +1,64 @@
 import PostFailureDialog from '@/components/post/PostFailureDialog'
 import PostForm, { PostValues } from '@/components/post/PostForm'
 import PostPublishTransition from '@/components/post/PostPublishTransition'
-import useCreatePost from '@/hooks/useCreatePost'
+import { useCreatePost } from '@/hooks/useCreatePost/useCreatePost'
 import { useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-
-import { useUser } from '@/contexts/User'
 import { UserState } from '@unirep/core'
 import { useProfileHistoryStore } from '../Profile/History/store/useProfileHistoryStore'
+import { useUserState } from '@/hooks/useUserState/useUserState'
 
 interface HomePostFormProps {
     disabled?: boolean
 }
 
 export default function HomePostForm({ disabled = false }: HomePostFormProps) {
-    const { userState } = useUser()
+    const { userState } = useUserState()
+
     const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
         (state) => state.invokeFetchHistoryPostsFlow,
     )
 
     const queryClient = useQueryClient()
 
-    const { create: createPost } = useCreatePost()
+    const { isPending, error, reset, createPost } = useCreatePost()
 
-    const [isSubmitted, setIsSubmitted] = useState(false)
-
-    const [isError, setIsError] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const onSubmit = async (values: PostValues) => {
-        const { content } = values
-
         const previousPostsData = queryClient.getQueryData(['posts'])
 
         try {
-            setIsSubmitted(true)
-
-            await createPost(content)
-
-            queryClient.invalidateQueries({
-                queryKey: ['posts'],
-                refetchType: 'all',
-            })
-
+            await createPost(values)
             await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
-
             toast('貼文成功送出')
-        } catch (error) {
-            setIsSubmitted(false)
-            setIsError(true)
-
+        } catch {
+            setIsSubmitting(false)
             queryClient.setQueryData(['posts'], previousPostsData)
         }
     }
 
     useEffect(() => {
-        if (!isSubmitted) return
+        if (isPending) {
+            setIsSubmitting(true)
 
-        const timer = setTimeout(() => {
-            setIsSubmitted(false)
-        }, 5000)
+            const timer = setTimeout(() => {
+                setIsSubmitting(false)
+                reset()
+            }, 5000)
 
-        return () => {
-            clearTimeout(timer)
+            return () => {
+                clearTimeout(timer)
+            }
         }
-    }, [isSubmitted])
+    }, [isPending, reset])
 
     return (
         <>
             <PostForm disabled={disabled} onSubmit={onSubmit} />
-            <PostPublishTransition isOpen={isSubmitted} />
-            <PostFailureDialog
-                isOpen={isError}
-                onClose={() => setIsError(false)}
-            />
+            <PostPublishTransition isOpen={isSubmitting} />
+            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </>
     )
 }

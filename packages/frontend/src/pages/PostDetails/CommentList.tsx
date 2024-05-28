@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import Comment from '@/components/comment/Comment'
 import {
     ActionStatus,
@@ -8,29 +9,27 @@ import {
     removeActionById,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
-import useCreateComment from '@/hooks/useCreateComment'
-import useRemoveComment from '@/hooks/useRemoveComment'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { useEpoch } from '@/hooks/useEpoch/useEpoch'
+import { useCreateComment } from '@/hooks/useCreateComment/useCreateComment'
+import { useRemoveComment } from '@/hooks/useRemoveComment/useRemoveComment'
 import checkCommentIsMine from '@/utils/checkCommentIsMine'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import useEpoch from '@/hooks/useEpoch'
 import getNonceFromEpochKey from '@/utils/getNonceFromEpochKey'
 import { CommentStatus } from '@/types/Comments'
 import { fetchCommentsByPostId } from '@/utils/api'
+import { QueryKeys } from '@/constants/queryKeys'
 
 interface CommentListProps {
     postId: string
 }
 
 const CommentList: React.FC<CommentListProps> = ({ postId }) => {
-    const { userState } = useUser()
+    const { userState, getGuaranteedUserState } = useUserState()
 
-    const { epoch } = useEpoch()
+    const { currentEpoch } = useEpoch()
 
-    const queryClient = useQueryClient()
-
-    const { data, refetch } = useQuery({
-        queryKey: ['comments', postId],
+    const { data } = useQuery({
+        queryKey: [QueryKeys.ManyComments, postId],
         queryFn: async () => {
             const comments = await fetchCommentsByPostId(postId)
             return comments
@@ -54,12 +53,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                 ? checkCommentIsMine(item, userState)
                 : false
 
-            const canDelete = isMine && item.epoch === epoch
+            const canDelete = isMine && item.epoch === currentEpoch
             const canReport = !isMine
 
             return { ...item, canDelete, canReport }
         })
-    }, [data, userState, epoch])
+    }, [data, userState, currentEpoch])
 
     const commentActions = useActionStore(commentActionsSelector)
 
@@ -95,9 +94,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
         }
     }, [location.hash])
 
-    const { create: createCommnet } = useCreateComment()
+    const { createComment } = useCreateComment()
 
-    const { remove: removeComment } = useRemoveComment()
+    const { removeComment } = useRemoveComment()
 
     const onDelete = async (
         postId: string,
@@ -105,14 +104,11 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
         epoch: number,
         epochKey: string,
     ) => {
-        const nonce = getNonceFromEpochKey(epoch, epochKey, userState!)
+        const _userState = await getGuaranteedUserState()
+        const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
         if (!nonce) return
 
-        await removeComment(postId, commentId, epoch, nonce)
-        await refetch()
-        await queryClient.invalidateQueries({
-            queryKey: ['post', postId],
-        })
+        await removeComment({ postId, commentId, epoch, nonce })
     }
 
     return (
@@ -150,10 +146,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId }) => {
                         canReport={comment.canReport}
                         onRepublish={async () => {
                             removeActionById(comment.actionId)
-                            await createCommnet(comment.postId, comment.content)
-                            await refetch()
-                            await queryClient.invalidateQueries({
-                                queryKey: ['post', postId],
+                            await createComment({
+                                postId: comment.postId,
+                                content: comment.content,
                             })
                         }}
                         onDelete={() => {

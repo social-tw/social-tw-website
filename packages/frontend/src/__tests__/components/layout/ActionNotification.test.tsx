@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom'
 import ActionNotification from '@/components/layout/ActionNotification'
 import { ActionType, addAction } from '@/contexts/Actions'
 import { act, render, screen } from '@testing-library/react'

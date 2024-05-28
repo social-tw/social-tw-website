@@ -1,20 +1,20 @@
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import Avatar from '@/components/common/Avatar'
 import Comment from '../../assets/comment.png'
 import Downvote from '../../assets/downvote.png'
 import Upvote from '../../assets/upvote.png'
-import { useUser } from '../../contexts/User'
-import useVotes from '../../hooks/useVotes'
+import { useVotes } from '../../hooks/useVotes/useVotes'
 import LikeAnimation from '../ui/animations/LikeAnimation'
 import useStore from '../../store/usePostStore'
 import useVoteStore from '../../store/useVoteStore'
 import VoteFailureDialog from '@/components/post/VoteFailureDialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 
 export default function Post({
     id = '',
@@ -53,16 +53,21 @@ export default function Post({
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
-    const { isLogin } = useUser()
-    const { create } = useVotes()
+    const { isLoggedIn } = useAuthStatus()
+
+    const { createVote } = useVotes()
     // 'upvote', 'downvote', or null
     const { votes, updateVote } = useVoteStore()
-    const voteState = votes[id] || {
-        upCount: upCount,
-        downCount: downCount,
-        isMine: isMine,
-        finalAction: finalAction,
-    }
+    const voteState = useMemo(() => {
+        return (
+            votes[id] || {
+                upCount: upCount,
+                downCount: downCount,
+                isMine: isMine,
+                finalAction: finalAction,
+            }
+        )
+    }, [downCount, finalAction, id, isMine, upCount, votes])
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -127,7 +132,7 @@ export default function Post({
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
 
-            success = await create(id, cancelAction)
+            success = await createVote({ id, voteAction: cancelAction })
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
@@ -148,7 +153,7 @@ export default function Post({
         if (!voteState.isMine || voteState.finalAction !== voteType) {
             action = voteType
             setIgnoreNextEvent(true)
-            success = await create(id, action)
+            success = await createVote({ id, voteAction: action })
 
             if (success) {
                 setShow(true)
@@ -210,14 +215,16 @@ export default function Post({
                 )}
                 {!compact && imageUrl && (
                     <section className="hidden rounded-xl shadow-base">
-                        <img className="w-full" src={imageUrl} alt="image" />
+                        <img className="w-full" src={imageUrl} alt={content} />
                     </section>
                 )}
                 <footer className="flex items-center gap-4">
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.UPVOTE)}
-                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
+                        style={{
+                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
+                        }}
                     >
                         <div
                             className={`${
@@ -239,7 +246,9 @@ export default function Post({
                     <div
                         className={`flex items-center gap-1`}
                         onClick={() => handleVote(VoteAction.DOWNVOTE)}
-                        style={{ cursor: isLogin ? 'pointer' : 'not-allowed' }}
+                        style={{
+                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
+                        }}
                     >
                         <div
                             className={`${
@@ -268,7 +277,7 @@ export default function Post({
                             src={Comment}
                             alt="comment"
                             style={{
-                                cursor: isLogin ? 'pointer' : 'not-allowed',
+                                cursor: isLoggedIn ? 'pointer' : 'not-allowed',
                             }}
                         />
                         <span className="text-xs font-medium tracking-wide text-black/80">
@@ -282,7 +291,7 @@ export default function Post({
                     <img
                         className="object-cover w-full h-full"
                         src={imageUrl}
-                        alt="image"
+                        alt={content}
                     />
                 </div>
             )}

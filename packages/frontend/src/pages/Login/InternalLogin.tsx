@@ -2,18 +2,17 @@ import { useState } from 'react'
 import { GrFormClose } from 'react-icons/gr'
 import { useParams } from 'react-router-dom'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import BackToWelcomePageButton from '../../components/buttons/BackToWelcomeButton'
-import { GreetingContent } from '../../components/greeting/GreetingContent'
-import { GreetingLogo } from '../../components/greeting/GreetingLogo'
-import { GreetingTitle } from '../../components/greeting/GreetingTitle'
-import AuthErrorDialog from '../../components/login/AuthErrorDialog'
-import AuthNoteDialog from '../../components/login/AuthNoteDialog'
-import LoginButton from '../../components/login/LoginButton'
-import { SIGNUP_METHODS } from '../../constants/signupMethods'
-import { useUser } from '../../contexts/User'
-import { useLoginWithServer } from '../../hooks/useLoginWithServer'
-import { useLoginWithWallet } from '../../hooks/useLoginWithWallet'
 import MobileGreetingTitle from '@/components/greeting/MobileGreetingTitle'
+import { GreetingContent } from '@/components/greeting/GreetingContent'
+import { GreetingLogo } from '@/components/greeting/GreetingLogo'
+import { GreetingTitle } from '@/components/greeting/GreetingTitle'
+import AuthErrorDialog from '@/components/login/AuthErrorDialog'
+import AuthNoteDialog from '@/components/login/AuthNoteDialog'
+import LoginButton from '@/components/login/LoginButton'
+import BackToWelcomePageButton from '@/components/buttons/BackToWelcomeButton'
+import { SIGNUP_METHODS } from '@/constants/signupMethods'
+import { useLoginWithServer } from '@/hooks/useLoginWithServer/useLoginWithServer'
+import { useLoginWithWallet } from '@/hooks/useLoginWithWallet/useLoginWithWallet'
 
 enum NoteStatus {
     Close = 'close',
@@ -22,15 +21,27 @@ enum NoteStatus {
 }
 
 export function InternalLogin() {
-    const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
     const { selectedSignupMethod } = useParams()
-    const { signupStatus, errorCode } = useUser()
-    const loginWithServer = useLoginWithServer()
-    const loginWithWallet = useLoginWithWallet()
+
+    const {
+        isPending: isWalletLoginPending,
+        error: walletLoginError,
+        login: walletLogin,
+    } = useLoginWithWallet()
+    const {
+        isPending: isServerLoginPending,
+        error: serverLoginError,
+        login: serverLogin,
+    } = useLoginWithServer()
+
+    const isPending = isWalletLoginPending || isServerLoginPending
+    const error = walletLoginError || serverLoginError
+
+    const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     return (
-        <div className="flex flex-col items-center h-full">
+        <div className="flex flex-col items-center h-full px-4 pt-20">
             <div className="z-20 flex flex-col w-11/12 mb-6">
                 {isSmallDevice ? (
                     <MobileGreetingTitle />
@@ -57,8 +68,8 @@ export function InternalLogin() {
                         Twitter 帳號註冊
                     </p>
                     <LoginButton
-                        isLoading={signupStatus === 'pending'}
-                        onClick={loginWithWallet}
+                        isLoading={isPending}
+                        onClick={walletLogin}
                         title={'錢包登入'}
                         subTitle={'使用 MetaMask 錢包進行登入'}
                         color="#2F9CAF"
@@ -80,8 +91,8 @@ export function InternalLogin() {
                         Twitter 帳號註冊
                     </p>
                     <LoginButton
-                        isLoading={signupStatus === 'pending'}
-                        onClick={loginWithServer}
+                        isLoading={isPending}
+                        onClick={serverLogin}
                         title={'直接登入'}
                         subTitle={'使用 Server 登入'}
                         color="#DB7622"
@@ -101,7 +112,7 @@ export function InternalLogin() {
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <AuthErrorDialog isOpen={errorCode !== ''} />
+            <AuthErrorDialog isOpen={!!error} message={error?.message} />
         </div>
     )
 }

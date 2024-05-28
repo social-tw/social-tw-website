@@ -35,7 +35,7 @@ function useHandleTwitterCallback() {
                 navigate(PATHS.WELCOME)
             } else if (isValidParams()) {
                 LocalStorageHelper.setHashUserId(hashUserId!)
-                LocalStorageHelper.setSignature(signMsg!)
+                LocalStorageHelper.setSignMsg(signMsg!)
                 LocalStorageHelper.setAccessToken(accessToken!)
                 status === '1' && navigate(PATHS.SIGN_UP_INTERNAL)
                 status === '2' &&
@@ -49,5 +49,5 @@ function useHandleTwitterCallback() {
             }
         }
         main()
-    }, [])
+    }, [accessToken, error, hashUserId, navigate, signMsg, status])
 }

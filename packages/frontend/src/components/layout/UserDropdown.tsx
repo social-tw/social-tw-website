@@ -1,12 +1,10 @@
-import React from 'react'
 import { VscAccount } from 'react-icons/vsc'
-import { useUser } from '@/contexts/User'
+import { useLogout } from '@/hooks/useLogout/useLogout'
 
 export default function UserDropdown() {
-    const { logout } = useUser()
+    const { logout } = useLogout()
 
-    const handleLogout = (event: React.MouseEvent) => {
-        event.preventDefault()
+    const handleLogout = () => {
         logout()
     }
 
@@ -20,7 +18,7 @@ export default function UserDropdown() {
                 className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
             >
                 <li>
-                    <a onClick={handleLogout}>Logout</a>
+                    <button onClick={handleLogout}>Logout</button>
                 </li>
             </ul>
         </div>

@@ -1,37 +1,12 @@
-import '@testing-library/jest-dom'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { ReactNode } from 'react'
 import Comment from '@/components/comment/Comment'
-import { UserProvider } from '@/contexts/User'
-import useCreateComment from '@/hooks/useCreateComment'
-import useRemoveComment from '@/hooks/useRemoveComment'
 import { CommentStatus } from '@/types/Comments'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { render, screen } from '@testing-library/react'
-
-dayjs.extend(relativeTime)
+import { wrapper } from '@/utils/test-helpers/wrapper'
 
 jest.mock('@uidotdev/usehooks', () => ({
     useMediaQuery: jest.fn().mockReturnValue(false),
 }))
-
-jest.mock('@/contexts/Actions', () => ({
-    ...jest.requireActual<typeof import('@/contexts/Actions')>(
-        '@/contexts/Actions',
-    ), // This imports all the actual other exports
-    removeActionByCommentId: jest.fn(), // This provides your mock implementation
-}))
-
-jest.mock('@/hooks/useCreateComment')
-jest.mock('@/hooks/useRemoveComment')
-
-const mockedUseCreateComment = useCreateComment as jest.MockedFunction<
-    typeof useCreateComment
->
-const mockedUseRemoveComment = useRemoveComment as jest.MockedFunction<
-    typeof useRemoveComment
->
 
 describe('Comment', () => {
     const mockCommentInfo = {
@@ -47,55 +22,39 @@ describe('Comment', () => {
         canReport: true,
     }
 
-    const mockTransaction = 'mockTransaction'
+    it('renders successfully', async () => {
+        render(<Comment {...mockCommentInfo} />, { wrapper })
 
-    beforeEach(() => {
-        mockedUseCreateComment.mockReturnValue({
-            create: jest.fn().mockImplementation(() =>
-                Promise.resolve({
-                    transaction: mockTransaction,
-                }),
-            ),
+        await waitFor(() => {
+            expect(
+                screen.getByText(mockCommentInfo.content),
+            ).toBeInTheDocument()
         })
-
-        mockedUseRemoveComment.mockReturnValue({
-            remove: jest.fn().mockImplementation(() =>
-                Promise.resolve({
-                    transaction: mockTransaction,
-                }),
-            ),
-        })
-    })
-
-    const renderWithProvider = (component: ReactNode) => {
-        return render(<UserProvider>{component}</UserProvider>)
-    }
-
-    it('renders successfully', () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
-        expect(screen.getByText(mockCommentInfo.content)).toBeInTheDocument()
     })
 
     it('opens report dialog on report action', async () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
+        render(<Comment {...mockCommentInfo} />, { wrapper })
 
-        await userEvent.click(screen.getByRole('button', { name: /more/i }))
-        await userEvent.click(screen.getByText(/檢舉留言/i))
+        const user = userEvent.setup()
+        await user.click(screen.getByRole('button', { name: /more/i }))
+        await user.click(screen.getByText(/檢舉留言/i))
 
         expect(screen.getByText(/確認檢舉/i)).toBeInTheDocument()
     })
 
     it('opens delete dialog and calls onDelete function', async () => {
-        renderWithProvider(<Comment {...mockCommentInfo} />)
+        render(<Comment {...mockCommentInfo} />, { wrapper })
 
-        await userEvent.click(screen.getByRole('button', { name: /more/i }))
-        await userEvent.click(screen.getByText(/刪除留言/i))
-        await userEvent.click(screen.getByText(/確認刪除/i))
+        const user = userEvent.setup()
+        await user.click(screen.getByRole('button', { name: /more/i }))
+        await user.click(screen.getByText(/刪除留言/i))
+        await user.click(screen.getByText(/確認刪除/i))
     })
 
     it('calls republish function on republish button click', async () => {
-        renderWithProvider(
+        render(
             <Comment {...mockCommentInfo} status={CommentStatus.Failure} />,
+            { wrapper },
         )
 
         const republishButton = screen.getByText(/再次發佈這則留言/i)

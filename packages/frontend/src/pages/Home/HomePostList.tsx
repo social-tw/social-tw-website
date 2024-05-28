@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Post from '@/components/post/Post'
 import { SERVER } from '@/config'
@@ -9,8 +9,7 @@ import {
     PostData,
     useActionStore,
 } from '@/contexts/Actions'
-import { useUser } from '@/contexts/User'
-import { useVoteEvents } from '@/hooks/useVotes'
+import { useVoteEvents } from '@/hooks/useVoteEvents/useVoteEvents'
 import { FetchPostsResponse } from '@/types/api'
 import checkVoteIsMine from '@/utils/checkVoteIsMine'
 import {
@@ -23,9 +22,11 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { PostInfo, PostStatus } from '@/types/Post'
 import { VoteAction, VoteMsg } from '@/types/Vote'
+import { useUserState } from '@/hooks/useUserState/useUserState'
+import { QueryKeys } from '@/constants/queryKeys'
 
 export default function PostList() {
-    const { userState } = useUser()
+    const { userState } = useUserState()
 
     const queryClient = useQueryClient()
 
@@ -36,7 +37,7 @@ export default function PostList() {
         QueryKey,
         number
     >({
-        queryKey: ['posts'],
+        queryKey: [QueryKeys.ManyPosts],
         queryFn: async ({ pageParam }) => {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
             const jsonData = (await res.json()) as FetchPostsResponse
@@ -63,16 +64,13 @@ export default function PostList() {
             })
         },
         initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages, lastPageParam) => {
+        getNextPageParam: (lastPage, _allPages, lastPageParam) => {
             return lastPage.length === 0 ? undefined : lastPageParam + 1
         },
     })
 
-    const pageContainerRef = useRef(null)
-
     const [pageBottomRef, entry] = useIntersectionObserver({
         threshold: 0,
-        root: pageContainerRef.current ?? null,
         rootMargin: '10%',
     })
 
@@ -80,7 +78,7 @@ export default function PostList() {
         if (entry?.isIntersecting && hasNextPage) {
             fetchNextPage({ cancelRefetch: false }).then((r) => r)
         }
-    }, [entry, userState])
+    }, [entry, fetchNextPage, hasNextPage, userState])
 
     const postActions = useActionStore(postActionsSelector)
 
@@ -159,7 +157,7 @@ export default function PostList() {
     useVoteEvents(handleVoteEvent)
 
     return (
-        <div ref={pageContainerRef}>
+        <div className="px-4">
             <ul className="space-y-3 md:space-y-6">
                 {localPosts.map((post) => (
                     <li

@@ -1,30 +1,56 @@
 import './signupPendingTransition.css'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Backdrop from '@/components/common/Backdrop'
-import { SignupStatus } from '@/contexts/User'
+import { MutationKeys } from '@/constants/queryKeys'
+import { useIsMutating, useMutationState } from '@tanstack/react-query'
+import { useAuthStatus } from '@/hooks/useAuthStatus/useAuthStatus'
 
-interface SignUpLoadingModal {
-    status: SignupStatus
-    isOpen: boolean
-    opacity: number
-    onClose?: () => void
-}
+const textsAndTimes: { text: string; time: number }[] = [
+    { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
+    { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
+]
 
-export default function SignUpLoadingModal({
-    status,
-    isOpen,
-}: SignUpLoadingModal) {
-    const [pendingText, setPendingText] =
-        useState('努力註冊中，先來看看文章吧！')
+export default function SignUpLoadingModal() {
     const navigate = useNavigate()
 
-    const textsAndTimes: { text: string; time: number }[] = [
-        { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
-        { text: '匿名的友善互動環境還需請您一起共同守護 ：）', time: 14000 },
-    ]
+    const onClick = () => {
+        navigate('/login', { replace: true, state: {} })
+    }
+
+    const { isLoggedIn } = useAuthStatus()
+
+    const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
+    const isSigningUp = signingUpCount > 0
+
+    const [isShowSignupLoadingTransition, setIsShowSignupLoadingTransition] =
+        useState(false)
+
+    const isPending = isSigningUp || isShowSignupLoadingTransition
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            setTimeout(() => {
+                setIsShowSignupLoadingTransition(false)
+            }, 1500)
+        } else {
+            setIsShowSignupLoadingTransition(true)
+        }
+    }, [isLoggedIn])
+
+    const statuses = useMutationState({
+        filters: {
+            mutationKey: [MutationKeys.Signup],
+        },
+        select: (mutation) => mutation.state.status,
+    })
+
+    const status = statuses[0]
+
+    const [pendingText, setPendingText] =
+        useState('努力註冊中，先來看看文章吧！')
 
     const opacityVarients = {
         visible: { opacity: 1 },
@@ -38,9 +64,23 @@ export default function SignUpLoadingModal({
         },
     }
 
-    const onClick = () => {
-        navigate('/login', { replace: true, state: {} })
-    }
+    useEffect(() => {
+        if (status === 'pending') {
+            const timers: NodeJS.Timeout[] = []
+
+            textsAndTimes.forEach(({ text, time }) => {
+                const timer = setTimeout(() => {
+                    setPendingText(text)
+                }, time)
+
+                timers.push(timer)
+            })
+
+            return () => {
+                timers.forEach((timer) => clearTimeout(timer))
+            }
+        } else return
+    }, [status])
 
     let content
     switch (status) {
@@ -76,7 +116,7 @@ export default function SignUpLoadingModal({
             )
             break
 
-        case 'default' || 'error':
+        case 'idle' || 'error':
             content = (
                 <>
                     <p className="text-lg font-semibold tracking-wider text-white">
@@ -96,34 +136,16 @@ export default function SignUpLoadingModal({
             break
     }
 
-    useEffect(() => {
-        if (status === 'pending') {
-            const timers: NodeJS.Timeout[] = []
-
-            textsAndTimes.forEach(({ text, time }) => {
-                const timer = setTimeout(() => {
-                    setPendingText(text)
-                }, time)
-
-                timers.push(timer)
-            })
-
-            return () => {
-                timers.forEach((timer) => clearTimeout(timer))
-            }
-        } else return
-    }, [status])
-
     return (
         <Backdrop
-            isOpen={isOpen}
+            isOpen={isPending}
             position="absolute"
             background="bg-gradient-to-t from-black/100 to-white/0"
         >
             <div
                 className={clsx(
                     `flex flex-col justify-center items-center gap-2 w-full h-full`,
-                    status !== 'default' && 'md:pt-12',
+                    status !== 'idle' && 'md:pt-12',
                 )}
             >
                 {content}

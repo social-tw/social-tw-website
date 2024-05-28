@@ -119,7 +119,7 @@ describe('LOGIN /login', function () {
         )
 
         nock(`${CLIENT_URL}`)
-            .get('/login')
+            .get('/twitter/callback')
             .query({
                 code: user.hashUserId,
                 status: user.status,

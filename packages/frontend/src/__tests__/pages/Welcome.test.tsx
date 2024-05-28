@@ -1,14 +1,6 @@
-import { expect } from '@jest/globals'
-import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import { UserProvider } from '../../contexts/User'
-import { Welcome } from '../../pages/Welcome'
-
-jest.mock('@uidotdev/usehooks', () => ({
-    useMediaQuery: jest.fn().mockReturnValue(true),
-    useIsFirstRender: jest.fn().mockReturnValue(false),
-}))
+import { Welcome } from '@/pages/Welcome'
+import { wrapper } from '@/utils/test-helpers/wrapper'
 
 jest.mock('../../pages/Home/HomePostList', () => ({
     __esModule: true,
@@ -20,18 +12,8 @@ jest.mock('../../pages/Welcome/ExamplePostsList', () => ({
     default: () => <div>Mocked PostList</div>,
 }))
 
-test('Welcome should render', () => {
-    render(
-        <MemoryRouter>
-            <UserProvider>
-                <Welcome />
-            </UserProvider>
-        </MemoryRouter>,
-    )
-    // @ts-ignore
-    expect(screen.getByAltText('UniRep Logo')).toBeInTheDocument()
-    // @ts-ignore
-    expect(screen.getByText('Unirep Social TW')).toBeInTheDocument()
-
-    // ... Add more tests as needed ...
+test('Welcome should render', async () => {
+    render(<Welcome />, { wrapper })
+    await screen.findByAltText('UniRep Logo')
+    await screen.findByText('Unirep Social TW')
 })
