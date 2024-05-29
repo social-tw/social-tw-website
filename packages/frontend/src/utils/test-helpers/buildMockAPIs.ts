@@ -1,4 +1,4 @@
-import { SERVER } from '@/config'
+import { SERVER } from '@/constants/config'
 import nock from 'nock'
 
 export function buildMockConfigAPI() {

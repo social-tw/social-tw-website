@@ -6,95 +6,71 @@ This file is for frontend coding guidelines
 
 ```
 ├── src
-|   ├── __tests__
 │   ├── assets
-│   │   ├── images
-│   │   └── icons
-│   ├── components
-│   │   ├── common
-│   │   ├── layout
-│   │   ├── ...
-│   ├── contexts
-│   ├── hooks
-│   ├── layouts
-│   ├── pages
-│   ├── services
-│   ├── styles
+│   │   ├── img
+│   │   ├── svg
+│   │   └── css
+│   ├── constants
+│   ├── features
+│   │   ├── featureA
+│   │   ├── featureB
+│   │   └──  ...
+│   ├── routes
+│   │   ├── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── router.tsx
+│   │   └──  ...
 │   ├── types
 │   ├── utils
+│   ├── App.tsx
 │   ├── index.tsx
 │   ├── react-app-env.d.ts
-│   ├── socket.ts
-|   └── config.ts
+│   └── setupTests.ts
+├── .dockerignore
+├── .eslintrc.json
 ├── .gitignore
+├── .prettierrc.json
+├── craco.config.ts
+├── Dockerfile
 ├── package.json
-└── ...
+├── README.md
+├── tailwind.config.js
+└──  tsconfig.json
 ```
-
-### **tests**
-
-Contains all the test files for the project, mirroring the structure of the src/ directory.
-
-components: Unit tests for individual components. Example: Button.test.tsx
-contexts: Tests for context providers and consumers. Example: AuthContext.test.tsx
-layouts: Tests for layout components. Example: MainLayout.test.tsx
-pages: Tests for page components. Example: HomePage.test.tsx
-
--> TODO: Now we have two tests folder on in the root and one in src. We have to modify it.
 
 ### assets
 
-Static assets such as images and icons used across the application.
+Static assets such as images, icons, css used across the application.
 
-images: Image files. Example: logo.png
-icons: SVG icon files. Example: add-icon.svg
+img: Image files. Example: logo.png
+svg: SVG icon files. Example: add-icon.svg
+css: CSS files and other stylesheets used globally. Example: main.css
 
-### components
+### constants
 
-React components that are reused in multiple places. If the component has specific usage in certain feature and won't be reused in multiple places. It should be in the feature folder
+Constants are fixed values defined in a centralized location, used throughout the application for consistency and maintainability.
 
-```
-├── components
-│   │   ├── common
-│   │   ├── layout
-│   │   ├── comments
-|   |   |    ├── CommentForm.tsx
-```
+Example: config.ts might contain values like API endpoints or reusable static information.
 
-common: Generic components like Button.tsx, Input.tsx.
-layout: Components that make up the layout of the application, such as Header.tsx, Footer.tsx.
+### features
 
-The layout subfolder inside components is usually meant for smaller layout helpers or components that manage the layout of content within a page, rather than the overall page structure. These might be used to handle the layout of specific content sections within a page or to abstract common layout patterns.
+Features are the specific functionality under the application.
 
--> TODO: Change modals naming and move it into common folder
+Each feature folder should follow the rule below:
 
-### contexts
+-   Must take a explicit and clear folder name.
+-   Must contain one `index.ts` which exports all functionalities sush as components, hooks, stores and so on.
+-   Could contain components, hooks, stores folders.
 
-React Context API files for global state management.
+### routes
 
-### hooks
+Contains all routes across the application, folder structure should mirror routes configuration.
 
-Custom React hooks for sharing logic between components.
+`routers.tsx`: This is only one file that should be put in the root of routes folder, containing all routes configuration.
+`layout.tsx`: This is a layout route for the url path. It must contain `<Outlet />` component.
+`page.tsx` This is a page route for thr url path.
 
--> TODO: Exact each files like components folder. For example, useSignupWithServer should be in child folder login.
-
-### layouts
-
-Components that define various page layouts.
-
-Example: MainLayout.tsx which could include the Header and Footer components.
-
-### pages
-
-Components that represent entire pages.
-
-Example: HomePage.tsx which would be rendered at the application's root path.
-
-### styles
-
-CSS files and other stylesheets.
-
--> TODO: move signupLoadingModal.css into styles folder
+Route is defined on [this](https://reactrouter.com/en/main/route/route)
 
 ### types
 
@@ -110,16 +86,6 @@ Utility functions that can be used across the application.
 
 Example: formatDate.ts which would contain a function to format dates consistently across the app.
 
-### services
+## tests
 
-Services for handling external operations such as API calls.
-
-Example: apiService.ts which abstracts the fetch calls to the API.
-
--> TODO: Modify api service in for example User.tsx into units and put it in the folder
-
-### constants
-
-Constants are fixed values defined in a centralized location, used throughout the application for consistency and maintainability.
-
-Example: constants.ts might contain values like API endpoints, error messages, or reusable static information.
+Test file has a suffix of .test or .spec and are placed in the nearest file.
