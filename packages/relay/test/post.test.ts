@@ -76,11 +76,14 @@ describe('POST /post', function () {
         // cid of test content
         const { createHelia } = await eval("import('helia')")
         const helia = await createHelia()
-        const testContentHash = await IpfsHelper.createIpfsContent(helia, testContent)
+        const testContentHash = await IpfsHelper.createIpfsContent(
+            helia,
+            testContent
+        )
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
-        
+
         const res = await express
             .post('/api/post')
             .set('content-type', 'application/json')
@@ -94,7 +97,6 @@ describe('POST /post', function () {
                 return res.body
             })
 
-            
         // to check if the event emitting on chain correctly
         // Post Event = {
         //  type in solidity        type in typescript
@@ -106,9 +108,11 @@ describe('POST /post', function () {
         const epk = epochKeyProof.epochKey as bigint
         const receipt = await ethers.provider.waitForTransaction(res.txHash)
         const unirepAppInterface = new ethers.utils.Interface(abi)
-        const rawEvent = receipt.logs.map((log) => unirepAppInterface.parseLog(log)).find((log) => log.name == 'Post')
+        const rawEvent = receipt.logs
+            .map((log) => unirepAppInterface.parseLog(log))
+            .find((log) => log.name == 'Post')
         const postEvent = rawEvent?.args
-            
+
         expect(postEvent).to.not.be.undefined
         if (postEvent) {
             expect(postEvent[0].toString()).equal(epk.toString())
@@ -130,7 +134,7 @@ describe('POST /post', function () {
         expect(posts[0].content).equal(testContent)
         expect(posts[0].status).equal(1)
         // for checking cid is synchronized in db
-        
+
         expect(posts[0].cid).equal(testContentHash)
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
