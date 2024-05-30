@@ -12,6 +12,8 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
+import { APP_ABI as abi } from '../src/config'
+import IpfsHelper from '../src/services/utils/IpfsHelper'
 
 describe('COMMENT /comment', function () {
     let snapshot: any
@@ -73,6 +75,9 @@ describe('COMMENT /comment', function () {
 
     it('should create a comment', async function () {
         testContent = 'create comment'
+        const { createHelia } = await eval("import('helia')")
+        const helia = await createHelia()
+        const testContentHash = await IpfsHelper.createIpfsContent(helia, 'create comment')
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
         })
@@ -107,7 +112,30 @@ describe('COMMENT /comment', function () {
                 return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(txHash)
+        // to check if the event emitting on chain correctly
+        // Post Comment = {
+        //  type in solidity        type in typescript
+        //  uint256 epochKey, [0]   BigInt
+        //  uint256 postId,   [1]   BigInt
+        //  uint256 commentId [2]   BigInt
+        //  uint256 epoch     [3]   BigInt
+        //  string cid        [4]   String
+        // }
+        const epk = epochKeyProof.epochKey as bigint
+        const receipt = await ethers.provider.waitForTransaction(txHash)
+        const unirepAppInterface = new ethers.utils.Interface(abi)
+        const rawEvent = receipt.logs
+            .map((log) => unirepAppInterface.parseLog(log))
+            .find((log) => log.name == 'Comment')
+        const commentEvent = rawEvent?.args
+        expect(commentEvent).to.not.be.undefined
+        if (commentEvent) {
+            expect(commentEvent[0].toString()).equal(epk.toString())
+            expect(commentEvent[1]).equal('0')
+            expect(commentEvent[2]).equal('0')
+            expect(commentEvent[3]).equal('0')
+            expect(commentEvent[4]).equal(testContentHash)
+        }
         await sync.waitForSync()
 
         // comment on the post
