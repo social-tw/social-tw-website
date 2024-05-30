@@ -110,10 +110,12 @@ describe('POST /post', function () {
         const postEvent = rawEvent?.args
             
         expect(postEvent).to.not.be.undefined
-        expect(postEvent[0].toString()).equal(epk.toString())
-        expect(postEvent[1]).equal('0')
-        expect(postEvent[2]).equal('0')
-        expect(postEvent[3]).equal(testContentHash)
+        if (postEvent) {
+            expect(postEvent[0].toString()).equal(epk.toString())
+            expect(postEvent[1]).equal('0')
+            expect(postEvent[2]).equal('0')
+            expect(postEvent[3]).equal(testContentHash)
+        }
 
         await sync.waitForSync()
 
