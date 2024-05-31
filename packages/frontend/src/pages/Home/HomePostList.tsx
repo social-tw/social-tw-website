@@ -49,7 +49,6 @@ export default function PostList() {
                               votedNonce: null,
                               votedEpoch: null,
                           }
-                    console.log('voteCheck', voteCheck)
                     return {
                         id: item.transactionHash!,
                         postId: item.postId,
