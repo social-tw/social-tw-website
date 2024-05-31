@@ -110,7 +110,7 @@ export default function Post({
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
 
-            success = await createVote({ id, voteAction: cancelAction, isVotedEpoch, isVotedNonce })
+            success = await createVote({ id, voteAction: cancelAction })
 
             if (success) {
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
@@ -129,7 +129,6 @@ export default function Post({
         // if not exist vote, create vote
         if (!voteState.isMine || voteState.finalAction !== voteType) {
             action = voteType
-            setIgnoreNextEvent(true)
             success = await createVote({ id, voteAction: action })
 
             if (success) {

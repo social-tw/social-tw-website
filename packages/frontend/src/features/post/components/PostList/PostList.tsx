@@ -22,7 +22,7 @@ import { QueryKeys } from '@/constants/queryKeys'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { FetchPostsResponse } from '@/types/api'
 import { PostInfo, PostStatus } from '@/types/Post'
-import { VoteAction, VoteMsg } from '@/types/Vote'
+import { handleVoteEvent } from '@/utils/handleVoteEvent'
 
 export default function PostList() {
     const { userState } = useUserState()
@@ -176,9 +176,6 @@ export default function PostList() {
                 ))}
             </ul>
             <div ref={pageBottomRef} className="w-full h-1 bg-transparent" />
-            {isFetchingNextPage && (
-                <div className="loading-indicator">Loading more posts...</div>
-            )}
         </div>
     )
 }
