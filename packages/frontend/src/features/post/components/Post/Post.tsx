@@ -116,9 +116,14 @@ export default function Post({
                     'votedNonce',
                     votedNonce,
                     'votedEpoch',
-                    votedEpoch
+                    votedEpoch,
                 )
-                await createVote({ id, voteAction: cancelAction })
+                await createVote({
+                    id,
+                    voteAction: cancelAction,
+                    votedNonce,
+                    votedEpoch,
+                })
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
                     newUpCount -= 1
                 } else {
@@ -149,6 +154,12 @@ export default function Post({
                     newDownCount += 1
                 }
                 setIsAction(action)
+                await createVote({
+                    id,
+                    voteAction: action,
+                    votedNonce,
+                    votedEpoch,
+                })
                 updateVoteCount(id, newUpCount, newDownCount)
                 newIsMine = true
                 setIsAction(newFinalAction)

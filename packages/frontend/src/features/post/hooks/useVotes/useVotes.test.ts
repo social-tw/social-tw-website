@@ -65,6 +65,8 @@ describe('useVotes', () => {
         const vote = {
             id: 'post-id',
             voteAction: VoteAction.UPVOTE,
+            votedNonce: 1,
+            votedEpoch: 1,
         }
         await act(async () => {
             await result.current.createVote(vote)
@@ -87,6 +89,8 @@ describe('useVotes', () => {
         const vote = {
             id: 'post-id',
             voteAction: VoteAction.UPVOTE,
+            votedNonce: 1,
+            votedEpoch: 1,
         }
 
         await act(async () => {

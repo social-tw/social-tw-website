@@ -26,14 +26,26 @@ export function useVotes() {
         mutationFn: async ({
             id,
             voteAction,
+            votedNonce,
+            votedEpoch,
         }: {
             id: string
             voteAction: VoteAction
+            votedNonce: number | null
+            votedEpoch: number | null
         }) => {
             const userState = await getGuaranteedUserState()
 
-            const nonce = getEpochKeyNonce(actionCount)
-            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+            let epochKeyProof
+            if (votedNonce !== null && votedEpoch !== null) {
+                epochKeyProof = await userState.genEpochKeyProof({
+                    nonce: votedNonce,
+                    epoch: votedEpoch,
+                })
+            } else {
+                const nonce = getEpochKeyNonce(actionCount)
+                epochKeyProof = await userState.genEpochKeyProof({ nonce })
+            }
 
             await relayVote(epochKeyProof, id, voteAction)
             await userState.waitForSync()
