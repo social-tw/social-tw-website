@@ -24,9 +24,9 @@ export function useVotes() {
     } = useMutation({
         mutationKey: [MutationKeys.Vote],
         mutationFn: async ({
-                               id,
-                               voteAction,
-                           }: {
+            id,
+            voteAction,
+        }: {
             id: string
             voteAction: VoteAction
         }) => {

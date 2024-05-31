@@ -19,22 +19,22 @@ import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 
 export default function Post({
-                                 id = '',
-                                 epochKey,
-                                 content = '',
-                                 imageUrl,
-                                 publishedAt = new Date(),
-                                 commentCount = 0,
-                                 upCount = 0,
-                                 downCount = 0,
-                                 compact = false,
-                                 isMine = false,
-                                 finalAction = null,
-                                 votedNonce = null,
-                                 votedEpoch = null,
-                                 status = PostStatus.Success,
-                                 onComment = () => {},
-                             }: {
+    id = '',
+    epochKey,
+    content = '',
+    imageUrl,
+    publishedAt = new Date(),
+    commentCount = 0,
+    upCount = 0,
+    downCount = 0,
+    compact = false,
+    isMine = false,
+    finalAction = null,
+    votedNonce = null,
+    votedEpoch = null,
+    status = PostStatus.Success,
+    onComment = () => {},
+}: {
     id?: string
     epochKey?: string
     content?: string
@@ -98,7 +98,6 @@ export default function Post({
 
     const handleVote = async (voteType: VoteAction) => {
         let action: VoteAction
-        let success = false
         let newUpCount = voteState.upCount
         let newDownCount = voteState.downCount
         let newIsMine = true
@@ -111,7 +110,15 @@ export default function Post({
                     : VoteAction.CANCEL_DOWNVOTE
 
             try {
-                success = await createVote({ id, voteAction: cancelAction })
+                console.log(
+                    'cancelAction',
+                    cancelAction,
+                    'votedNonce',
+                    votedNonce,
+                    'votedEpoch',
+                    votedEpoch
+                )
+                await createVote({ id, voteAction: cancelAction })
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
                     newUpCount -= 1
                 } else {
@@ -129,7 +136,6 @@ export default function Post({
         if (!voteState.isMine || voteState.finalAction !== voteType) {
             action = voteType
             try {
-                success = await createVote({ id, voteAction: action })
                 setShow(true)
                 setImgType(
                     voteType === VoteAction.UPVOTE
