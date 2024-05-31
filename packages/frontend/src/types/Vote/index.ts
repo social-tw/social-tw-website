@@ -1,4 +1,4 @@
-import { VoteType } from '@/pages/Profile/History/types'
+import { VoteType } from '@/features/profile/utils/types'
 
 export enum VoteAction {
     UPVOTE,

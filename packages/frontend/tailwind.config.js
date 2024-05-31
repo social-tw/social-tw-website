@@ -1,4 +1,4 @@
-/** @type {import("tailwindcss").Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
     content: ['./src/**/*.{js,jsx,ts,tsx}'],
     theme: {
@@ -7,6 +7,9 @@ module.exports = {
                 'btn-signup': '#74C5F8',
                 'btn-login': '#DC832B',
                 link: '#5F8297',
+            },
+            spacing: {
+                30: '7.5rem',
             },
             boxShadow: {
                 base: '0px 0px 20px 0px rgba(0,0,0,0.03)',

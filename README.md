@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/social-tw/social-tw-website/6cae1ef115864d3301a2d216a07f553058f31327/packages/frontend/src/assets/logo.svg"
+    <img src="https://raw.githubusercontent.com/social-tw/social-tw-website/6cae1ef115864d3301a2d216a07f553058f31327/packages/frontend/src/assets/svg/logo.svg"
         height="130"><h1 align="center">Unirep Social Taiwan</h1>
 </p>
 

@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "@helia/json": "^1.0.0",
+        "@typechain/hardhat": "^9.1.0",
         "@types/crypto-js": "^4.1.1",
         "@unirep-app/contracts": "1.0.0",
         "@unirep/core": "2.0.0",

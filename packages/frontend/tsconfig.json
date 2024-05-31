@@ -9,21 +9,15 @@
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "noEmit": false,
+        "noEmit": true,
         "jsx": "react-jsx",
-        "typeRoots": ["./types", "../../node_modules/@types"],
-        "useDefineForClassFields": true,
-        "outDir": "build",
-        "types": ["jest"],
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["./src/*"]
         }
     },
-    "include": ["src", "../../node_modules/ts-jest/globals.d.ts"],
-    "exclude": ["node_modules", "typings", "build/**/*"]
+    "include": ["src"]
 }
