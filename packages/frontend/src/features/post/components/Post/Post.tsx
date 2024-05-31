@@ -19,22 +19,22 @@ import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 
 export default function Post({
-    id = '',
-    epochKey,
-    content = '',
-    imageUrl,
-    publishedAt = new Date(),
-    commentCount = 0,
-    upCount = 0,
-    downCount = 0,
-    compact = false,
-    isMine = false,
-    finalAction = null,
-    votedNonce = null,
-    votedEpoch = null,
-    status = PostStatus.Success,
-    onComment = () => {},
-}: {
+                                 id = '',
+                                 epochKey,
+                                 content = '',
+                                 imageUrl,
+                                 publishedAt = new Date(),
+                                 commentCount = 0,
+                                 upCount = 0,
+                                 downCount = 0,
+                                 compact = false,
+                                 isMine = false,
+                                 finalAction = null,
+                                 votedNonce = null,
+                                 votedEpoch = null,
+                                 status = PostStatus.Success,
+                                 onComment = () => {},
+                             }: {
     id?: string
     epochKey?: string
     content?: string
@@ -110,9 +110,8 @@ export default function Post({
                     ? VoteAction.CANCEL_UPVOTE
                     : VoteAction.CANCEL_DOWNVOTE
 
-            success = await createVote({ id, voteAction: cancelAction })
-
-            if (success) {
+            try {
+                success = await createVote({ id, voteAction: cancelAction })
                 if (cancelAction === VoteAction.CANCEL_UPVOTE) {
                     newUpCount -= 1
                 } else {
@@ -120,7 +119,7 @@ export default function Post({
                 }
                 newIsMine = false
                 updateVoteCount(id, newUpCount, newDownCount)
-            } else {
+            } catch (err) {
                 setIsError(true)
                 return
             }
@@ -129,9 +128,8 @@ export default function Post({
         // if not exist vote, create vote
         if (!voteState.isMine || voteState.finalAction !== voteType) {
             action = voteType
-            success = await createVote({ id, voteAction: action })
-
-            if (success) {
+            try {
+                success = await createVote({ id, voteAction: action })
                 setShow(true)
                 setImgType(
                     voteType === VoteAction.UPVOTE
@@ -148,7 +146,7 @@ export default function Post({
                 updateVoteCount(id, newUpCount, newDownCount)
                 newIsMine = true
                 setIsAction(newFinalAction)
-            } else {
+            } catch (err) {
                 setIsError(true)
                 return
             }
