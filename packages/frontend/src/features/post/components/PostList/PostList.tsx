@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useMemo } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import {
@@ -16,13 +16,14 @@ import {
     useActionStore,
     useUserState,
 } from '@/features/core'
-import { Post, useVoteEvents } from '@/features/post'
+import { Post, useVoteEvents, useVotes } from '@/features/post'
 import { SERVER } from '@/constants/config'
 import { QueryKeys } from '@/constants/queryKeys'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { FetchPostsResponse } from '@/types/api'
 import { PostInfo, PostStatus } from '@/types/Post'
 import { handleVoteEvent } from '@/utils/handleVoteEvent'
+import { VoteAction } from '@/types/Vote'
 
 export default function PostList() {
     const { userState } = useUserState()
@@ -117,12 +118,86 @@ export default function PostList() {
         navigate(`/posts/${postId}/#comments`)
     }
 
-    useVoteEvents((msg) => handleVoteEvent(queryClient, msg)) //using shared function
+    const [postsState, setPostsState] = useState<PostInfo[]>(localPosts)
+    const { createVote } = useVotes()
+
+    const handleVote = async (
+        id: string,
+        voteType: VoteAction,
+        post: PostInfo,
+    ): Promise<boolean> => {
+        try {
+            console.log(
+                'isMine',
+                post.isMine,
+                'voteType',
+                voteType,
+                'votedNonce',
+                post.votedNonce,
+                'votedEpoch',
+                post.votedEpoch,
+            )
+            // if isMine is true, it means the user has already voted on this post, so need cancel the vote first
+            if (post.isMine) {
+                let cancelAction: VoteAction
+                if (post.finalAction === VoteAction.UPVOTE) {
+                    cancelAction = VoteAction.CANCEL_UPVOTE
+                    post.upCount -= 1
+                } else if (post.finalAction === VoteAction.DOWNVOTE) {
+                    cancelAction = VoteAction.CANCEL_DOWNVOTE
+                    post.downCount -= 1
+                } else {
+                    throw new Error('Invalid finalAction')
+                }
+
+                await createVote({
+                    id,
+                    voteAction: cancelAction,
+                    votedNonce: post.votedNonce,
+                    votedEpoch: post.votedEpoch,
+                })
+            }
+            await createVote({
+                id,
+                voteAction: voteType,
+                votedNonce: null,
+                votedEpoch: null,
+            })
+            if (voteType === VoteAction.UPVOTE) {
+                post.upCount += 1
+            } else if (voteType === VoteAction.DOWNVOTE) {
+                post.downCount += 1
+            }
+
+            setPostsState((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === id
+                        ? {
+                              ...post,
+                              upCount: post.upCount,
+                              downCount: post.downCount,
+                              isMine: true,
+                              finalAction: voteType,
+                              votedNonce: null,
+                              votedEpoch: null,
+                          }
+                        : post,
+                ),
+            )
+
+            return true
+        } catch (err) {
+            console.error(err)
+            return false
+        }
+    }
+
+    useVoteEvents((msg) => handleVoteEvent(queryClient, msg))
 
     return (
         <div className="px-4">
             <ul className="space-y-3 md:space-y-6">
-                {localPosts.map((post) => (
+                {postsState.map((post) => (
                     <li
                         key={post.id}
                         className="transition-opacity duration-500"
@@ -141,6 +216,9 @@ export default function PostList() {
                             votedNonce={post.votedNonce}
                             votedEpoch={post.votedEpoch}
                             status={post.status}
+                            onVote={(voteType) =>
+                                handleVote(post.postId!, voteType, post)
+                            }
                         />
                     </li>
                 ))}
@@ -169,6 +247,9 @@ export default function PostList() {
                                         if (!post.postId) return
                                         gotoCommentsByPostId(post.postId)
                                     }}
+                                    onVote={(voteType) =>
+                                        handleVote(post.postId!, voteType, post)
+                                    }
                                 />
                             </li>
                         ))}

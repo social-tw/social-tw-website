@@ -10,7 +10,6 @@ import { useAuthStatus } from '@/features/auth'
 import {
     LikeAnimation,
     VoteFailureDialog,
-    useVotes,
     usePostStore,
     useVoteStore,
 } from '@/features/post'
@@ -34,6 +33,7 @@ export default function Post({
     votedEpoch = null,
     status = PostStatus.Success,
     onComment = () => {},
+    onVote = async (voteType: VoteAction) => false,
 }: {
     id?: string
     epochKey?: string
@@ -50,6 +50,7 @@ export default function Post({
     votedEpoch?: number | null
     status?: PostStatus
     onComment?: () => void
+    onVote?: (voteType: VoteAction) => Promise<boolean>
 }) {
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
@@ -60,9 +61,8 @@ export default function Post({
 
     const { isLoggedIn } = useAuthStatus()
 
-    const { createVote } = useVotes()
-    // 'upvote', 'downvote', or null
     const { votes, updateVote } = useVoteStore()
+
     const voteState = useMemo(() => {
         return (
             votes[id] || {
@@ -70,9 +70,20 @@ export default function Post({
                 downCount: downCount,
                 isMine: isMine,
                 finalAction: finalAction,
+                votedNonce: votedNonce,
+                votedEpoch: votedEpoch,
             }
         )
-    }, [downCount, finalAction, id, isMine, upCount, votes])
+    }, [
+        downCount,
+        finalAction,
+        id,
+        isMine,
+        upCount,
+        votes,
+        votedNonce,
+        votedEpoch,
+    ])
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -84,100 +95,33 @@ export default function Post({
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
     const updateVoteCount = usePostStore((state) => state.updateVoteCount)
-    const [isVotedNonce, setIsVotedNonce] = useState(votedNonce)
-    const [isVotedEpoch, setIsVotedEpoch] = useState(votedEpoch)
     const [isError, setIsError] = useState(false)
 
     // set isAction when finalAction is changed
     useEffect(() => {
         setIsMineState(isMine)
         setIsAction(finalAction)
-        setIsVotedNonce(votedNonce)
-        setIsVotedEpoch(votedEpoch)
-    }, [isMine, finalAction, votedNonce, votedEpoch])
+    }, [isMine, finalAction])
 
     const handleVote = async (voteType: VoteAction) => {
-        let action: VoteAction
-        let newUpCount = voteState.upCount
-        let newDownCount = voteState.downCount
-        let newIsMine = true
-        const newFinalAction = voteType
-
-        if (voteState.isMine) {
-            const cancelAction =
-                voteState.finalAction === VoteAction.UPVOTE
-                    ? VoteAction.CANCEL_UPVOTE
-                    : VoteAction.CANCEL_DOWNVOTE
-
-            try {
-                console.log(
-                    'cancelAction',
-                    cancelAction,
-                    'votedNonce',
-                    votedNonce,
-                    'votedEpoch',
-                    votedEpoch,
-                )
-                await createVote({
-                    id,
-                    voteAction: cancelAction,
-                    votedNonce,
-                    votedEpoch,
-                })
-                if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    newUpCount -= 1
-                } else {
-                    newDownCount -= 1
-                }
-                newIsMine = false
-                updateVoteCount(id, newUpCount, newDownCount)
-            } catch (err) {
-                setIsError(true)
-                return
-            }
+        const success = await onVote(voteType)
+        if (!success) {
+            setIsError(true)
+            return
         }
 
-        // if not exist vote, create vote
-        if (!voteState.isMine || voteState.finalAction !== voteType) {
-            action = voteType
-            try {
-                setShow(true)
-                setImgType(
-                    voteType === VoteAction.UPVOTE
-                        ? VoteAction.UPVOTE
-                        : VoteAction.DOWNVOTE,
-                )
-
-                if (action === VoteAction.UPVOTE) {
-                    newUpCount += 1
-                } else {
-                    newDownCount += 1
-                }
-                setIsAction(action)
-                await createVote({
-                    id,
-                    voteAction: action,
-                    votedNonce,
-                    votedEpoch,
-                })
-                updateVoteCount(id, newUpCount, newDownCount)
-                newIsMine = true
-                setIsAction(newFinalAction)
-            } catch (err) {
-                setIsError(true)
-                return
-            }
-        }
-        setIsMineState(newIsMine)
-        updateVote(
-            id,
-            newUpCount,
-            newDownCount,
-            newIsMine,
-            newFinalAction,
-            isVotedNonce,
-            isVotedEpoch,
+        setShow(true)
+        setImgType(
+            voteType === VoteAction.UPVOTE
+                ? VoteAction.UPVOTE
+                : VoteAction.DOWNVOTE,
         )
+        setIsAction(voteType)
+        if (voteType === VoteAction.UPVOTE) {
+            setLocalUpCount(localUpCount + 1)
+        } else {
+            setLocalDownCount(localDownCount + 1)
+        }
         setTimeout(() => setShow(false), 500)
     }
 
@@ -193,15 +137,22 @@ export default function Post({
 
         setLocalUpCount(voteState.upCount)
         setLocalDownCount(voteState.downCount)
-    }, [votes, id, isMine, finalAction, upCount, downCount])
+    }, [
+        votes,
+        id,
+        isMine,
+        finalAction,
+        upCount,
+        downCount,
+        votedNonce,
+        votedEpoch,
+    ])
 
     useEffect(() => {
         setLocalUpCount(voteState.upCount)
         setLocalDownCount(voteState.downCount)
         setIsMineState(voteState.isMine)
         setIsAction(voteState.finalAction)
-        setIsVotedNonce(voteState.votedNonce)
-        setIsVotedEpoch(voteState.votedEpoch)
     }, [voteState])
 
     const postInfo = (

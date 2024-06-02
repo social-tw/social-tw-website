@@ -35,7 +35,14 @@ export function useVotes() {
             votedEpoch: number | null
         }) => {
             const userState = await getGuaranteedUserState()
-
+            console.log(
+                'voteAction',
+                voteAction,
+                'voteNonce',
+                votedNonce,
+                'voteEpoch',
+                votedEpoch,
+            )
             let epochKeyProof
             if (votedNonce !== null && votedEpoch !== null) {
                 epochKeyProof = await userState.genEpochKeyProof({
