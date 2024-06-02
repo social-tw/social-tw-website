@@ -7,16 +7,10 @@ import Comment from '@/assets/img/comment.png'
 import Downvote from '@/assets/img/downvote.png'
 import Upvote from '@/assets/img/upvote.png'
 import { useAuthStatus } from '@/features/auth'
-import {
-    LikeAnimation,
-    VoteFailureDialog,
-    usePostStore,
-    useVoteStore,
-} from '@/features/post'
+import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
-import { useEpoch } from '@/features/core'
 
 export default function Post({
     id = '',
