@@ -172,16 +172,16 @@ export default function PostList() {
             }
 
             setPostsState((prevPosts) =>
-                prevPosts.map((p) =>
-                    p.id === id
+                prevPosts.map((prevPost) =>
+                    prevPost.id === id
                         ? {
-                              ...p,
-                              upCount: post.upCount,
-                              downCount: post.downCount,
-                              isMine: true,
-                              finalAction: voteType,
-                          }
-                        : p,
+                            ...prevPost,
+                            upCount: post.upCount,
+                            downCount: post.downCount,
+                            isMine: true,
+                            finalAction: voteType,
+                        }
+                        : prevPost,
                 ),
             )
 
