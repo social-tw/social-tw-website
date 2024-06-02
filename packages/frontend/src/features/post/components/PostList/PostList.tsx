@@ -157,31 +157,31 @@ export default function PostList() {
                     votedEpoch: post.votedEpoch,
                 })
             }
-            await createVote({
-                id,
-                voteAction: voteType,
-                votedNonce: null,
-                votedEpoch: null,
-            })
-            if (voteType === VoteAction.UPVOTE) {
-                post.upCount += 1
-            } else if (voteType === VoteAction.DOWNVOTE) {
-                post.downCount += 1
+            if (voteType !== post.finalAction) {
+                await createVote({
+                    id,
+                    voteAction: voteType,
+                    votedNonce: null,
+                    votedEpoch: null,
+                })
+                if (voteType === VoteAction.UPVOTE) {
+                    post.upCount += 1
+                } else if (voteType === VoteAction.DOWNVOTE) {
+                    post.downCount += 1
+                }
             }
 
             setPostsState((prevPosts) =>
-                prevPosts.map((post) =>
-                    post.id === id
+                prevPosts.map((p) =>
+                    p.id === id
                         ? {
-                              ...post,
+                              ...p,
                               upCount: post.upCount,
                               downCount: post.downCount,
                               isMine: true,
                               finalAction: voteType,
-                              votedNonce: null,
-                              votedEpoch: null,
                           }
-                        : post,
+                        : p,
                 ),
             )
 

@@ -61,7 +61,7 @@ export default function Post({
 
     const { isLoggedIn } = useAuthStatus()
 
-    const { votes, updateVote } = useVoteStore()
+    const { votes } = useVoteStore()
 
     const voteState = useMemo(() => {
         return (
@@ -94,7 +94,6 @@ export default function Post({
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
-    const updateVoteCount = usePostStore((state) => state.updateVoteCount)
     const [isError, setIsError] = useState(false)
 
     // set isAction when finalAction is changed
@@ -119,38 +118,24 @@ export default function Post({
         setIsAction(voteType)
         if (voteType === VoteAction.UPVOTE) {
             setLocalUpCount(localUpCount + 1)
+            if (isAction === VoteAction.DOWNVOTE) {
+                setLocalDownCount(localDownCount - 1)
+            }
         } else {
             setLocalDownCount(localDownCount + 1)
+            if (isAction === VoteAction.UPVOTE) {
+                setLocalUpCount(localUpCount - 1)
+            }
         }
         setTimeout(() => setShow(false), 500)
     }
 
     useEffect(() => {
-        const voteState = votes[id] || {
-            upCount: upCount,
-            downCount: downCount,
-            isMine: isMine,
-            finalAction: finalAction,
-            votedNonce: votedNonce,
-            votedEpoch: votedEpoch,
-        }
-
         setLocalUpCount(voteState.upCount)
         setLocalDownCount(voteState.downCount)
-    }, [
-        votes,
-        id,
-        isMine,
-        finalAction,
-        upCount,
-        downCount,
-        votedNonce,
-        votedEpoch,
-    ])
+    }, [votes, id, upCount, downCount, voteState])
 
     useEffect(() => {
-        setLocalUpCount(voteState.upCount)
-        setLocalDownCount(voteState.downCount)
         setIsMineState(voteState.isMine)
         setIsAction(voteState.finalAction)
     }, [voteState])
