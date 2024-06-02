@@ -16,6 +16,7 @@ import {
 import { Avatar } from '@/features/shared'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import { useEpoch } from '@/features/core'
 
 export default function Post({
     id = '',
@@ -116,17 +117,6 @@ export default function Post({
                 : VoteAction.DOWNVOTE,
         )
         setIsAction(voteType)
-        if (voteType === VoteAction.UPVOTE) {
-            setLocalUpCount(localUpCount + 1)
-            if (isAction === VoteAction.DOWNVOTE) {
-                setLocalDownCount(localDownCount - 1)
-            }
-        } else {
-            setLocalDownCount(localDownCount + 1)
-            if (isAction === VoteAction.UPVOTE) {
-                setLocalUpCount(localUpCount - 1)
-            }
-        }
         setTimeout(() => setShow(false), 500)
     }
 

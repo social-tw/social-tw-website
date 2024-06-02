@@ -30,7 +30,7 @@ export default function PostList() {
 
     const queryClient = useQueryClient()
 
-    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<
+    const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery<
         PostInfo[],
         DefaultError,
         InfiniteData<PostInfo[]>,
@@ -118,7 +118,6 @@ export default function PostList() {
         navigate(`/posts/${postId}/#comments`)
     }
 
-    const [postsState, setPostsState] = useState<PostInfo[]>(localPosts)
     const { createVote } = useVotes()
 
     const handleVote = async (
@@ -127,25 +126,12 @@ export default function PostList() {
         post: PostInfo,
     ): Promise<boolean> => {
         try {
-            console.log(
-                'isMine',
-                post.isMine,
-                'voteType',
-                voteType,
-                'votedNonce',
-                post.votedNonce,
-                'votedEpoch',
-                post.votedEpoch,
-            )
-            // if isMine is true, it means the user has already voted on this post, so need cancel the vote first
             if (post.isMine) {
                 let cancelAction: VoteAction
                 if (post.finalAction === VoteAction.UPVOTE) {
                     cancelAction = VoteAction.CANCEL_UPVOTE
-                    post.upCount -= 1
                 } else if (post.finalAction === VoteAction.DOWNVOTE) {
                     cancelAction = VoteAction.CANCEL_DOWNVOTE
-                    post.downCount -= 1
                 } else {
                     throw new Error('Invalid finalAction')
                 }
@@ -164,26 +150,9 @@ export default function PostList() {
                     votedNonce: null,
                     votedEpoch: null,
                 })
-                if (voteType === VoteAction.UPVOTE) {
-                    post.upCount += 1
-                } else if (voteType === VoteAction.DOWNVOTE) {
-                    post.downCount += 1
-                }
             }
 
-            setPostsState((prevPosts) =>
-                prevPosts.map((prevPost) =>
-                    prevPost.id === id
-                        ? {
-                            ...prevPost,
-                            upCount: post.upCount,
-                            downCount: post.downCount,
-                            isMine: true,
-                            finalAction: voteType,
-                        }
-                        : prevPost,
-                ),
-            )
+            refetch() // Refresh the posts data after voting
 
             return true
         } catch (err) {
@@ -197,7 +166,7 @@ export default function PostList() {
     return (
         <div className="px-4">
             <ul className="space-y-3 md:space-y-6">
-                {postsState.map((post) => (
+                {localPosts.map((post) => (
                     <li
                         key={post.id}
                         className="transition-opacity duration-500"

@@ -29,16 +29,6 @@ const checkVoteIsMine = (votes: RelayRawVote[], userState: any) => {
             }
         }
     }
-    console.log(
-        'isMine',
-        isMine,
-        'finalAction',
-        finalAction,
-        'votedNonce',
-        votedNonce,
-        'votedEpoch',
-        votedEpoch,
-    )
     return { isMine, finalAction, votedNonce, votedEpoch }
 }
 
