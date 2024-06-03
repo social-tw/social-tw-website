@@ -92,10 +92,8 @@ const PostDetailsPage: React.FC = () => {
                 let cancelAction: VoteAction
                 if (post.finalAction === VoteAction.UPVOTE) {
                     cancelAction = VoteAction.CANCEL_UPVOTE
-                    post.upCount -= 1
                 } else if (post.finalAction === VoteAction.DOWNVOTE) {
                     cancelAction = VoteAction.CANCEL_DOWNVOTE
-                    post.downCount -= 1
                 } else {
                     throw new Error('Invalid finalAction')
                 }
@@ -113,11 +111,6 @@ const PostDetailsPage: React.FC = () => {
                 votedNonce: null,
                 votedEpoch: null,
             })
-            if (voteType === VoteAction.UPVOTE) {
-                post.upCount += 1
-            } else if (voteType === VoteAction.DOWNVOTE) {
-                post.downCount += 1
-            }
 
             await refetch() // Refresh the post data after voting
 
