@@ -8,11 +8,13 @@ import {
     CommentList,
     CreateComment,
     Post,
+    useVotes,
 } from '@/features/post'
 import { fetchSinglePost } from '@/utils/api'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
-import { PostStatus } from '@/types/Post'
 import { QueryKeys } from '@/constants/queryKeys'
+import { PostStatus } from '@/types/Post'
+import { VoteAction } from '@/types/Vote'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
@@ -27,7 +29,9 @@ const PostDetailsPage: React.FC = () => {
 
     const { isLoggedIn } = useAuthStatus()
 
-    const { data } = useQuery({
+    const { createVote } = useVotes()
+
+    const { data, refetch } = useQuery({
         queryKey: [QueryKeys.SinglePost, id],
         queryFn: async () => {
             if (!id) return undefined
@@ -43,6 +47,8 @@ const PostDetailsPage: React.FC = () => {
                 downCount: post.downCount,
                 isMine: false,
                 finalAction: null,
+                votedNonce: null,
+                votedEpoch: null,
                 status: PostStatus.Success,
                 votes: post.votes,
             }
@@ -58,6 +64,8 @@ const PostDetailsPage: React.FC = () => {
                 ...data,
                 isMine: isMine,
                 finalAction: finalAction,
+                votedNonce: voteCheck.votedNonce,
+                votedEpoch: voteCheck.votedEpoch,
             }
         }
         return data
@@ -77,6 +85,42 @@ const PostDetailsPage: React.FC = () => {
         setIsOpenCommnet((prev) => !prev)
     }
 
+    const handleVote = async (voteType: VoteAction): Promise<boolean> => {
+        if (!post) return false
+        try {
+            if (post.isMine) {
+                let cancelAction: VoteAction
+                if (post.finalAction === VoteAction.UPVOTE) {
+                    cancelAction = VoteAction.CANCEL_UPVOTE
+                } else if (post.finalAction === VoteAction.DOWNVOTE) {
+                    cancelAction = VoteAction.CANCEL_DOWNVOTE
+                } else {
+                    throw new Error('Invalid finalAction')
+                }
+
+                await createVote({
+                    id: post.postId,
+                    voteAction: cancelAction,
+                    votedNonce: post.votedNonce,
+                    votedEpoch: post.votedEpoch,
+                })
+            }
+            await createVote({
+                id: post.postId,
+                voteAction: voteType,
+                votedNonce: null,
+                votedEpoch: null,
+            })
+
+            await refetch() // Refresh the post data after voting
+
+            return true
+        } catch (err) {
+            console.error(err)
+            return false
+        }
+    }
+
     if (!id || !post) return null
 
     return (
@@ -94,6 +138,9 @@ const PostDetailsPage: React.FC = () => {
                         onComment={onWriteComment}
                         isMine={post.isMine}
                         finalAction={post.finalAction}
+                        votedNonce={post.votedNonce}
+                        votedEpoch={post.votedEpoch}
+                        onVote={handleVote}
                     />
                 </section>
                 <section id="comments">

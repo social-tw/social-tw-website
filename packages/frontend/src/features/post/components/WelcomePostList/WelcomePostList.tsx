@@ -84,9 +84,11 @@ export default function WelcomePostList() {
                     downCount: item.downCount,
                     isMine: false,
                     finalAction: null,
+                    votedNonce: null, // Ensure these fields are included
+                    votedEpoch: null, // Ensure these fields are included
                     status: PostStatus.Success,
                 }
-            })
+            }) as PostInfo[] // Cast to PostInfo[]
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages, lastPageParam) => {
