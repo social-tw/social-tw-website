@@ -7,13 +7,7 @@ import Comment from '@/assets/img/comment.png'
 import Downvote from '@/assets/img/downvote.png'
 import Upvote from '@/assets/img/upvote.png'
 import { useAuthStatus } from '@/features/auth'
-import {
-    LikeAnimation,
-    VoteFailureDialog,
-    useVotes,
-    usePostStore,
-    useVoteStore,
-} from '@/features/post'
+import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
@@ -30,8 +24,11 @@ export default function Post({
     compact = false,
     isMine = false,
     finalAction = null,
+    votedNonce = null,
+    votedEpoch = null,
     status = PostStatus.Success,
     onComment = () => {},
+    onVote = async (voteType: VoteAction) => false,
 }: {
     id?: string
     epochKey?: string
@@ -44,22 +41,23 @@ export default function Post({
     compact?: boolean
     isMine?: boolean
     finalAction?: VoteAction | null
+    votedNonce?: number | null
+    votedEpoch?: number | null
     status?: PostStatus
     onComment?: () => void
+    onVote?: (voteType: VoteAction) => Promise<boolean>
 }) {
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
         : publishedTime.fromNow()
-
     const subtitle =
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
 
-    const { createVote } = useVotes()
-    // 'upvote', 'downvote', or null
-    const { votes, updateVote } = useVoteStore()
+    const { votes } = useVoteStore()
+
     const voteState = useMemo(() => {
         return (
             votes[id] || {
@@ -67,9 +65,20 @@ export default function Post({
                 downCount: downCount,
                 isMine: isMine,
                 finalAction: finalAction,
+                votedNonce: votedNonce,
+                votedEpoch: votedEpoch,
             }
         )
-    }, [downCount, finalAction, id, isMine, upCount, votes])
+    }, [
+        downCount,
+        finalAction,
+        id,
+        isMine,
+        upCount,
+        votes,
+        votedNonce,
+        votedEpoch,
+    ])
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -79,10 +88,7 @@ export default function Post({
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
-    // ignore next event
-    const [ignoreNextEvent, setIgnoreNextEvent] = useState(false)
     const [isMineState, setIsMineState] = useState(isMine)
-    const updateVoteCount = usePostStore((state) => state.updateVoteCount)
     const [isError, setIsError] = useState(false)
 
     // set isAction when finalAction is changed
@@ -90,6 +96,33 @@ export default function Post({
         setIsMineState(isMine)
         setIsAction(finalAction)
     }, [isMine, finalAction])
+
+    const handleVote = async (voteType: VoteAction) => {
+        const success = await onVote(voteType)
+        if (!success) {
+            setIsError(true)
+            return
+        }
+
+        setShow(true)
+        setImgType(
+            voteType === VoteAction.UPVOTE
+                ? VoteAction.UPVOTE
+                : VoteAction.DOWNVOTE,
+        )
+        setIsAction(voteType)
+        setTimeout(() => setShow(false), 500)
+    }
+
+    useEffect(() => {
+        setLocalUpCount(voteState.upCount)
+        setLocalDownCount(voteState.downCount)
+    }, [votes, id, upCount, downCount, voteState])
+
+    useEffect(() => {
+        setIsMineState(voteState.isMine)
+        setIsAction(voteState.finalAction)
+    }, [voteState])
 
     const postInfo = (
         <div className="space-y-3">
@@ -116,95 +149,6 @@ export default function Post({
             </section>
         </div>
     )
-
-    const handleVote = async (voteType: VoteAction) => {
-        let action: VoteAction
-        let success = false
-        let newUpCount = voteState.upCount
-        let newDownCount = voteState.downCount
-        let newIsMine = true
-        const newFinalAction = voteType
-        if (ignoreNextEvent) return
-
-        // if exist vote, cancel vote
-        if (voteState.isMine) {
-            setIgnoreNextEvent(true)
-            const cancelAction =
-                voteState.finalAction === VoteAction.UPVOTE
-                    ? VoteAction.CANCEL_UPVOTE
-                    : VoteAction.CANCEL_DOWNVOTE
-
-            success = await createVote({ id, voteAction: cancelAction })
-
-            if (success) {
-                if (cancelAction === VoteAction.CANCEL_UPVOTE) {
-                    newUpCount -= 1
-                } else {
-                    newDownCount -= 1
-                }
-                newIsMine = false
-                updateVoteCount(id, newUpCount, newDownCount)
-            } else {
-                setIsError(true)
-                setIgnoreNextEvent(false)
-                return
-            }
-        }
-
-        // if not exist vote, create vote
-        if (!voteState.isMine || voteState.finalAction !== voteType) {
-            action = voteType
-            setIgnoreNextEvent(true)
-            success = await createVote({ id, voteAction: action })
-
-            if (success) {
-                setShow(true)
-                setImgType(
-                    voteType === VoteAction.UPVOTE
-                        ? VoteAction.UPVOTE
-                        : VoteAction.DOWNVOTE,
-                )
-
-                if (action === VoteAction.UPVOTE) {
-                    newUpCount += 1
-                } else {
-                    newDownCount += 1
-                }
-                setIsAction(action)
-                updateVoteCount(id, newUpCount, newDownCount)
-                newIsMine = true
-                setIsAction(newFinalAction)
-            } else {
-                setIsError(true)
-                setIgnoreNextEvent(false)
-                return
-            }
-            setTimeout(() => setIgnoreNextEvent(false), 500)
-        }
-        setIsMineState(newIsMine)
-        updateVote(id, newUpCount, newDownCount, newIsMine, newFinalAction)
-        setIgnoreNextEvent(false)
-        setTimeout(() => setShow(false), 500)
-    }
-
-    useEffect(() => {
-        const voteState = votes[id] || {
-            upCount: upCount,
-            downCount: downCount,
-            isMine: isMine,
-            finalAction: finalAction,
-        }
-
-        setLocalUpCount(voteState.upCount)
-        setLocalDownCount(voteState.downCount)
-    }, [votes, id, isMine, finalAction, upCount, downCount])
-
-    useEffect(() => {
-        setLocalUpCount(voteState.upCount)
-        setLocalDownCount(voteState.downCount)
-        setIsMineState(voteState.isMine)
-        setIsAction(voteState.finalAction)
-    }, [voteState])
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">

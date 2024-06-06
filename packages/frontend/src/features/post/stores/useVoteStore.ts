@@ -9,6 +9,8 @@ type VoteState = {
             downCount: number
             isMine: boolean
             finalAction: VoteAction | null
+            votedNonce: number | null
+            votedEpoch: number | null
         }
     >
     updateVote: (
@@ -17,16 +19,33 @@ type VoteState = {
         downCount: number,
         isMine: boolean,
         finalAction: VoteAction | null,
+        votedNonce: number | null,
+        votedEpoch: number | null,
     ) => void
 }
 
 export const useVoteStore = create<VoteState>((set) => ({
     votes: {},
-    updateVote: (postId, upCount, downCount, isMine, finalAction) =>
+    updateVote: (
+        postId,
+        upCount,
+        downCount,
+        isMine,
+        finalAction,
+        votedNonce,
+        votedEpoch,
+    ) =>
         set((state) => ({
             votes: {
                 ...state.votes,
-                [postId]: { upCount, downCount, isMine, finalAction },
+                [postId]: {
+                    upCount,
+                    downCount,
+                    isMine,
+                    finalAction,
+                    votedNonce,
+                    votedEpoch,
+                },
             },
         })),
 }))

@@ -16,20 +16,21 @@ import {
     useActionStore,
     useUserState,
 } from '@/features/core'
-import { Post, useVoteEvents } from '@/features/post'
+import { Post, useVoteEvents, useVotes } from '@/features/post'
 import { SERVER } from '@/constants/config'
 import { QueryKeys } from '@/constants/queryKeys'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { FetchPostsResponse } from '@/types/api'
 import { PostInfo, PostStatus } from '@/types/Post'
-import { VoteAction, VoteMsg } from '@/types/Vote'
+import { handleVoteEvent } from '@/utils/handleVoteEvent'
+import { VoteAction } from '@/types/Vote'
 
 export default function PostList() {
     const { userState } = useUserState()
 
     const queryClient = useQueryClient()
 
-    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<
+    const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery<
         PostInfo[],
         DefaultError,
         InfiniteData<PostInfo[]>,
@@ -46,6 +47,8 @@ export default function PostList() {
                     : {
                           isMine: false,
                           finalAction: null,
+                          votedNonce: null,
+                          votedEpoch: null,
                       }
                 return {
                     id: item.transactionHash!,
@@ -58,6 +61,8 @@ export default function PostList() {
                     downCount: item.downCount,
                     isMine: voteCheck.isMine,
                     finalAction: voteCheck.finalAction,
+                    votedNonce: voteCheck.votedNonce,
+                    votedEpoch: voteCheck.votedEpoch,
                     status: PostStatus.Success,
                 }
             })
@@ -75,7 +80,7 @@ export default function PostList() {
 
     useEffect(() => {
         if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage({ cancelRefetch: false }).then((r) => r)
+            fetchNextPage({ cancelRefetch: false })
         }
     }, [entry, fetchNextPage, hasNextPage, userState])
 
@@ -83,7 +88,6 @@ export default function PostList() {
 
     const localPosts = useMemo(() => {
         const postIds = (data?.pages ?? []).flat().map((post) => post.postId)
-
         return postActions
             .filter((action) => action.status !== ActionStatus.Failure)
             .map((action) => {
@@ -99,6 +103,8 @@ export default function PostList() {
                     downCount: 0,
                     isMine: true,
                     finalAction: null,
+                    votedNonce: null,
+                    votedEpoch: null,
                     status: action.status as unknown as PostStatus,
                 }
             })
@@ -112,48 +118,50 @@ export default function PostList() {
         navigate(`/posts/${postId}/#comments`)
     }
 
-    function handleVoteEvent(msg: VoteMsg) {
-        // Update the query data for 'posts'
-        queryClient.setQueryData<InfiniteData<PostInfo[]>>(
-            ['posts'],
-            (oldData) => {
-                // Iterate over all pages of posts
-                const updatedPages = oldData?.pages.map((page) => {
-                    // Iterate over each post in a page
-                    return page.map((post) => {
-                        // Find the post that matches the postId from the vote message
-                        if (post.postId === msg.postId) {
-                            // Update vote counts based on the action in the vote message
-                            switch (msg.vote) {
-                                case VoteAction.UPVOTE:
-                                    post.upCount += 1
-                                    break
-                                case VoteAction.DOWNVOTE:
-                                    post.downCount += 1
-                                    break
-                                case VoteAction.CANCEL_UPVOTE:
-                                    post.upCount -= 1
-                                    break
-                                case VoteAction.CANCEL_DOWNVOTE:
-                                    post.downCount -= 1
-                                    break
-                                // Add any other vote actions if needed
-                            }
-                        }
-                        return post // Return the updated or original post
-                    })
-                })
+    const { createVote } = useVotes()
 
-                // Return the updated data structure expected by React Query
-                return {
-                    pages: updatedPages ?? [],
-                    pageParams: oldData?.pageParams ?? [],
+    const handleVote = async (
+        id: string,
+        voteType: VoteAction,
+        post: PostInfo,
+    ): Promise<boolean> => {
+        try {
+            if (post.isMine) {
+                let cancelAction: VoteAction
+                if (post.finalAction === VoteAction.UPVOTE) {
+                    cancelAction = VoteAction.CANCEL_UPVOTE
+                } else if (post.finalAction === VoteAction.DOWNVOTE) {
+                    cancelAction = VoteAction.CANCEL_DOWNVOTE
+                } else {
+                    throw new Error('Invalid finalAction')
                 }
-            },
-        )
+
+                await createVote({
+                    id,
+                    voteAction: cancelAction,
+                    votedNonce: post.votedNonce,
+                    votedEpoch: post.votedEpoch,
+                })
+            }
+            if (voteType !== post.finalAction) {
+                await createVote({
+                    id,
+                    voteAction: voteType,
+                    votedNonce: null,
+                    votedEpoch: null,
+                })
+            }
+
+            refetch() // Refresh the posts data after voting
+
+            return true
+        } catch (err) {
+            console.error(err)
+            return false
+        }
     }
 
-    useVoteEvents(handleVoteEvent)
+    useVoteEvents((msg) => handleVoteEvent(queryClient, msg))
 
     return (
         <div className="px-4">
@@ -174,7 +182,12 @@ export default function PostList() {
                             compact
                             isMine={post.isMine}
                             finalAction={post.finalAction}
+                            votedNonce={post.votedNonce}
+                            votedEpoch={post.votedEpoch}
                             status={post.status}
+                            onVote={(voteType) =>
+                                handleVote(post.postId!, voteType, post)
+                            }
                         />
                     </li>
                 ))}
@@ -196,11 +209,16 @@ export default function PostList() {
                                     compact
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
+                                    votedNonce={post.votedNonce}
+                                    votedEpoch={post.votedEpoch}
                                     status={post.status}
                                     onComment={() => {
                                         if (!post.postId) return
                                         gotoCommentsByPostId(post.postId)
                                     }}
+                                    onVote={(voteType) =>
+                                        handleVote(post.postId!, voteType, post)
+                                    }
                                 />
                             </li>
                         ))}

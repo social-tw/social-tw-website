@@ -26,7 +26,7 @@ export default (
             if (voteAction == undefined) {
                 throw InvalidVoteActionError
             }
-            if (InvalidPublicSignalError == undefined) {
+            if (publicSignals == undefined) {
                 throw InvalidPublicSignalError
             }
             if (proof == undefined) {

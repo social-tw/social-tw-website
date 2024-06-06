@@ -20,6 +20,8 @@ export interface PostInfo {
     downCount: number
     isMine: boolean
     finalAction: VoteAction | null
+    votedNonce: number | null
+    votedEpoch: number | null
     status: PostStatus
 }
 
