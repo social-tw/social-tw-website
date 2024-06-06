@@ -15,6 +15,8 @@ import { postData } from './mocks/posts'
 import { PostService } from '../src/services/PostService'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
 import { post } from './utils/post'
+import IpfsHelper from '../src/services/utils/IpfsHelper'
+import { APP_ABI as abi } from '../src/config'
 
 describe('POST /post', function () {
     let snapshot: any
@@ -71,7 +73,13 @@ describe('POST /post', function () {
     it('should create a post', async function () {
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content #0'
-
+        // cid of test content
+        const { createHelia } = await eval("import('helia')")
+        const helia = await createHelia()
+        const testContentHash = await IpfsHelper.createIpfsContent(
+            helia,
+            testContent
+        )
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -89,7 +97,30 @@ describe('POST /post', function () {
                 return res.body
             })
 
-        await ethers.provider.waitForTransaction(res.txHash)
+        // to check if the event emitting on chain correctly
+        // Post Event = {
+        //  type in solidity        type in typescript
+        //  uint256 epochKey, [0]   BigInt
+        //  uint256 postId,   [1]   BigInt
+        //  uint256 epoch     [2]   BigInt
+        //  string cid        [3]   String
+        // }
+        const epk = epochKeyProof.epochKey as bigint
+        const receipt = await ethers.provider.waitForTransaction(res.txHash)
+        const unirepAppInterface = new ethers.utils.Interface(abi)
+        const rawEvent = receipt.logs
+            .map((log) => unirepAppInterface.parseLog(log))
+            .find((log) => log.name == 'Post')
+        const postEvent = rawEvent?.args
+
+        expect(postEvent).to.not.be.undefined
+        if (postEvent) {
+            expect(postEvent[0].toString()).equal(epk.toString())
+            expect(postEvent[1]).equal('0')
+            expect(postEvent[2]).equal('0')
+            expect(postEvent[3]).equal(testContentHash)
+        }
+
         await sync.waitForSync()
 
         let posts = await express
@@ -102,6 +133,9 @@ describe('POST /post', function () {
         expect(posts[0].transactionHash).equal(res.txHash)
         expect(posts[0].content).equal(testContent)
         expect(posts[0].status).equal(1)
+        // for checking cid is synchronized in db
+
+        expect(posts[0].cid).equal(testContentHash)
 
         const mockEpk = epochKeyProof.epochKey + BigInt(1)
 

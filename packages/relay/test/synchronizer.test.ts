@@ -10,6 +10,109 @@ import { signUp } from './utils/signUp'
 import { HTTP_SERVER } from './configs'
 import { io } from 'socket.io-client'
 import { post } from './utils/post'
+import IpfsHelper from '../src/services/utils/IpfsHelper'
+
+describe('Synchronize Post Test', function () {
+    let snapshot: any
+    let express: ChaiHttp.Agent
+    let sync: UnirepSocialSynchronizer
+    let unirep: Unirep
+    let unirepApp: UnirepApp
+    let users: {
+        hashUserId: String
+        wallet: any
+        userState: UserState
+    }[] = []
+
+    before(async function () {
+        snapshot = await ethers.provider.send('evm_snapshot', [])
+
+        // Deploy contract
+        const contracts = await deployContracts(100000)
+        unirepApp = contracts.app
+        unirep = contracts.unirep
+
+        // Start server
+        const { db, prover, provider, synchronizer, chaiServer } =
+            await startServer(unirep, unirepApp)
+        express = chaiServer
+        sync = synchronizer
+
+        const userStateFactory = new UserStateFactory(
+            db,
+            provider,
+            prover,
+            unirep,
+            unirepApp,
+            synchronizer
+        )
+
+        // Create users identity and signup users
+        for (let i = 0; i < 2; i++) {
+            const wallet = ethers.Wallet.createRandom()
+
+            let initUser = await userService.getLoginUser(
+                db,
+                i.toString(),
+                undefined
+            )
+
+            let userState = await signUp(
+                initUser,
+                userStateFactory,
+                userService,
+                sync,
+                wallet
+            )
+
+            users.push({
+                hashUserId: initUser.hashUserId,
+                wallet: wallet,
+                userState: userState,
+            })
+        }
+
+        // Ensure users are signed up
+        await synchronizer.waitForSync()
+        let hasSignUp_1 = await users[0].userState.hasSignedUp()
+        let hasSignUp_2 = await users[1].userState.hasSignedUp()
+        expect(hasSignUp_1).equal(true)
+        expect(hasSignUp_2).equal(true)
+    })
+
+    after(async function () {
+        await stopServer('synchronize', snapshot, sync, express)
+    })
+
+    describe('Synchronize Post', async function () {
+        it('should synchronize post', async function () {
+            const userState = users[0].userState
+            const result = await post(express, userState)
+            const { createHelia } = await eval("import('helia')")
+            const helia = await createHelia()
+            const contentHash = await IpfsHelper.createIpfsContent(
+                helia,
+                'test content'
+            )
+
+            await ethers.provider.waitForTransaction(result.txHash)
+            await sync.waitForSync()
+
+            // check db if the post is synchronized
+            let record = await sync.db.findOne('Post', {
+                where: {
+                    postId: '0',
+                    status: 1,
+                },
+            })
+
+            expect(record.postId).equal('0')
+            expect(record.content).equal('test content')
+            expect(record.cid).equal(contentHash)
+            expect(record.status).equal(1)
+        })
+    })
+})
 
 describe('Synchronize Comment Test', function () {
     let snapshot: any

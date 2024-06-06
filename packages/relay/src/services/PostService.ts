@@ -223,12 +223,13 @@ export class PostService {
         )
 
         // post content
-        const cid = await IpfsHelper.createIpfsContent(helia, content)
-
+        const cid = (
+            await IpfsHelper.createIpfsContent(helia, content)
+        ).toString()
         const txHash = await TransactionManager.callContract('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
-            content,
+            cid,
         ])
 
         const epoch = Number(epochKeyProof.epoch)
