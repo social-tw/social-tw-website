@@ -77,9 +77,10 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ? UserRegisterStatus.REGISTERER_SERVER
             : UserRegisterStatus.REGISTERER
 
-        db.update('SignUp', {
+        db.upsert('SignUp', {
             where: { hashUserId },
             update: { status },
+            create: { hashUserId, status },
         })
     }
 
