@@ -21,6 +21,10 @@ export const UserLoginError = new InternalError('Error in login', 400)
 // general error
 export const InvalidEpochError = new InternalError('Invalid epoch', 400)
 export const InvalidEpochKeyError = new InternalError('Invalid epoch key', 400)
+export const InvalidParametersError = new InternalError(
+    'Invalid parameters',
+    400
+)
 export const UnspecifiedEpochKeyError = new InternalError(
     'Epoch keys must be specified and should be a non-empty string',
     400

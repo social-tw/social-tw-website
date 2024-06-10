@@ -9,6 +9,7 @@ import {
     InvalidPostIdError,
     InvalidVoteActionError,
 } from '../types/InternalError'
+import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
 
 export class VoteService {
     async fetchMyAccountVotes(
@@ -35,8 +36,11 @@ export class VoteService {
      * The user can vote or cancel the vote to the post even in the different epoch,
      * but the user is only allowed to vote either upvote or downvote, not both.
      *
-     * @param req express request, the body should contain postId, voteAction(refer to types/VoteAction.ts) and zkp
-     * @param res express response
+     * @param postId
+     * @param voteAction
+     * @param publicSignals
+     * @param proof
+     * @param onCancel
      * @param db SQLiteConnector
      * @param synchronizer UnirepSocialSynchronizer
      * @returns
@@ -46,15 +50,26 @@ export class VoteService {
         voteAction: VoteAction,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
+        onCancel: boolean,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
         // get valid epoch key
-        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
-            publicSignals,
-            proof,
-            synchronizer
-        )
+        let epochKeyProof: EpochKeyLiteProof | EpochKeyProof
+        if (onCancel) {
+            epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                publicSignals,
+                proof,
+                synchronizer,
+                true
+            )
+        } else {
+            epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
+        }
 
         // find post which is voted
         const findPost = await db.findOne('Post', {

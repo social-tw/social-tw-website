@@ -126,22 +126,22 @@ export default function PostList() {
         post: PostInfo,
     ): Promise<boolean> => {
         try {
-            if (post.isMine) {
+            if (post.isMine && post.finalAction !== null) {
                 let cancelAction: VoteAction
                 if (post.finalAction === VoteAction.UPVOTE) {
                     cancelAction = VoteAction.CANCEL_UPVOTE
-                } else if (post.finalAction === VoteAction.DOWNVOTE) {
-                    cancelAction = VoteAction.CANCEL_DOWNVOTE
                 } else {
-                    throw new Error('Invalid finalAction')
+                    cancelAction = VoteAction.CANCEL_DOWNVOTE
                 }
 
-                await createVote({
-                    id,
-                    voteAction: cancelAction,
-                    votedNonce: post.votedNonce,
-                    votedEpoch: post.votedEpoch,
-                })
+                if (cancelAction) {
+                    await createVote({
+                        id,
+                        voteAction: cancelAction,
+                        votedNonce: post.votedNonce,
+                        votedEpoch: post.votedEpoch,
+                    })
+                }
             }
             if (voteType !== post.finalAction) {
                 await createVote({

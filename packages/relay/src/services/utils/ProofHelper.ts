@@ -50,7 +50,8 @@ class ProofHelper {
     async getAndVerifyEpochKeyLiteProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
+        useOldEpochKey: boolean = false
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
@@ -62,7 +63,9 @@ class ProofHelper {
         this.validateAttesterId(synchronizer, epochKeyLiteProof)
 
         // check if epoch is valid
-        await this.validateEpoch(synchronizer, epochKeyLiteProof)
+        if (!useOldEpochKey) {
+            await this.validateEpoch(synchronizer, epochKeyLiteProof)
+        }
 
         const isProofValid = await epochKeyLiteProof.verify()
         if (!isProofValid) {
