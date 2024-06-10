@@ -133,7 +133,7 @@ describe('POST /vote', function () {
 
     it('should vote for post', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // check socket message
@@ -172,7 +172,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when vote again with the same type', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // make sure the post is already upvoted
@@ -200,7 +200,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when vote again with different type', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // make sure the post is already upvoted
@@ -229,7 +229,7 @@ describe('POST /vote', function () {
 
     it('should cancel vote for post', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // make sure the post is already upvoted
@@ -261,7 +261,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // make sure the post is not upvoted
@@ -322,7 +322,7 @@ describe('POST /vote', function () {
 
     it('should vote failed with wrong proof', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         epochKeyProof.publicSignals[0] = BigInt(0)
@@ -339,7 +339,7 @@ describe('POST /vote', function () {
 
     it('should vote failed with invalid post', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
 
         // upvote with the wrong post id
