@@ -127,21 +127,17 @@ export default function PostList() {
     ): Promise<boolean> => {
         try {
             if (post.isMine && post.finalAction !== null) {
-                let cancelAction: VoteAction
-                if (post.finalAction === VoteAction.UPVOTE) {
-                    cancelAction = VoteAction.CANCEL_UPVOTE
-                } else {
-                    cancelAction = VoteAction.CANCEL_DOWNVOTE
-                }
+                const cancelAction =
+                    post.finalAction === VoteAction.UPVOTE
+                        ? VoteAction.CANCEL_UPVOTE
+                        : VoteAction.CANCEL_DOWNVOTE
 
-                if (cancelAction) {
-                    await createVote({
-                        id,
-                        voteAction: cancelAction,
-                        votedNonce: post.votedNonce,
-                        votedEpoch: post.votedEpoch,
-                    })
-                }
+                await createVote({
+                    id,
+                    voteAction: cancelAction,
+                    votedNonce: post.votedNonce,
+                    votedEpoch: post.votedEpoch,
+                })
             }
             if (voteType !== post.finalAction) {
                 await createVote({

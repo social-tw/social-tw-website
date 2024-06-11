@@ -88,15 +88,11 @@ const PostDetailsPage: React.FC = () => {
     const handleVote = async (voteType: VoteAction): Promise<boolean> => {
         if (!post) return false
         try {
-            if (post.isMine) {
-                let cancelAction: VoteAction
-                if (post.finalAction === VoteAction.UPVOTE) {
-                    cancelAction = VoteAction.CANCEL_UPVOTE
-                } else if (post.finalAction === VoteAction.DOWNVOTE) {
-                    cancelAction = VoteAction.CANCEL_DOWNVOTE
-                } else {
-                    throw new Error('Invalid finalAction')
-                }
+            if (post.isMine && post.finalAction !== null) {
+                const cancelAction =
+                    post.finalAction === VoteAction.UPVOTE
+                        ? VoteAction.CANCEL_UPVOTE
+                        : VoteAction.CANCEL_DOWNVOTE
 
                 await createVote({
                     id: post.postId,
@@ -105,12 +101,14 @@ const PostDetailsPage: React.FC = () => {
                     votedEpoch: post.votedEpoch,
                 })
             }
-            await createVote({
-                id: post.postId,
-                voteAction: voteType,
-                votedNonce: null,
-                votedEpoch: null,
-            })
+            if (voteType !== post.finalAction) {
+                await createVote({
+                    id: post.postId,
+                    voteAction: voteType,
+                    votedNonce: null,
+                    votedEpoch: null,
+                })
+            }
 
             await refetch() // Refresh the post data after voting
 

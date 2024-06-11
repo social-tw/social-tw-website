@@ -116,7 +116,6 @@ describe('POST /vote', function () {
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                    onCancel: false,
                 })
             )
     }

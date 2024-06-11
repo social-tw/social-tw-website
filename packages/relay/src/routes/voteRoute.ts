@@ -20,8 +20,7 @@ export default (
         '/api/vote',
         errorHandler(async (req, res, _) => {
             //vote for post with _id
-            const { postId, voteAction, publicSignals, proof, onCancel } =
-                req.body
+            const { postId, voteAction, publicSignals, proof } = req.body
             if (postId == undefined) {
                 throw InvalidPostIdError
             }
@@ -34,16 +33,12 @@ export default (
             if (proof == undefined) {
                 throw InvalidProofError
             }
-            if (onCancel == undefined) {
-                throw InvalidParametersError
-            }
 
             await voteService.vote(
                 postId,
                 voteAction,
                 publicSignals,
                 proof,
-                onCancel,
                 db,
                 synchronizer
             )
