@@ -117,6 +117,7 @@ describe('POST /vote', function () {
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
+                    onCancel: false,
                 })
             )
     }
@@ -318,7 +319,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with wrong proof', async function () {
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
+        const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
