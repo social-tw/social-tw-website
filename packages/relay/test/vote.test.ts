@@ -332,7 +332,7 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Invalid proof')
+        expect(upvoteResponse.body.error).equal('Wrong attesterId')
     })
 
     it('should vote failed with invalid post', async function () {
