@@ -40,6 +40,7 @@ export class VoteService {
      * @param voteAction
      * @param publicSignals
      * @param proof
+     * @param onCancel
      * @param db SQLiteConnector
      * @param synchronizer UnirepSocialSynchronizer
      * @returns
@@ -49,6 +50,7 @@ export class VoteService {
         voteAction: VoteAction,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
+        onCancel: boolean,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
@@ -56,7 +58,8 @@ export class VoteService {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
+            onCancel
         )
 
         // find post which is voted
