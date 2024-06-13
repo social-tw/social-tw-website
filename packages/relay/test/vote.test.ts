@@ -12,10 +12,11 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { signUp } from './utils/signUp'
 import { post } from './utils/post'
 import { VoteAction } from '../src/types'
-import { genEpochKeyProof, randomData } from './utils/genProof'
+import { randomData } from './utils/genProof'
 import { PostService } from '../src/services/PostService'
 import { io } from 'socket.io-client'
 import { EventType, VoteMsg } from '../src/types/SocketTypes'
+import { genEpochKeyLiteProof } from '@unirep-app/contracts/test/utils'
 
 describe('POST /vote', function () {
     let socketClient: any
@@ -107,7 +108,7 @@ describe('POST /vote', function () {
     })
 
     async function voteForPost(postId, voteAction, epochKeyProof) {
-        return await express
+        return express
             .post('/api/vote')
             .set('content-type', 'application/json')
             .send(
@@ -116,6 +117,7 @@ describe('POST /vote', function () {
                     voteAction,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
+                    enableEpochValidation: true,
                 })
             )
     }
@@ -131,7 +133,7 @@ describe('POST /vote', function () {
     }
 
     it('should vote for post', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 
@@ -170,7 +172,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with the same type', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 
@@ -198,7 +200,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with different type', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 
@@ -227,7 +229,7 @@ describe('POST /vote', function () {
     })
 
     it('should cancel vote for post', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 
@@ -259,7 +261,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 
@@ -298,15 +300,12 @@ describe('POST /vote', function () {
         )
         const id = userState.id
         const data = randomData()
-        const epochKeyProof = await genEpochKeyProof({
+        const epochKeyProof = await genEpochKeyLiteProof({
             id,
-            tree,
-            leafIndex,
             epoch: wrongEpoch,
             nonce: 0,
             chainId,
             attesterId,
-            data,
         })
 
         // upvote with the wrong epoch
@@ -320,7 +319,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with wrong proof', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
 
@@ -333,11 +332,11 @@ describe('POST /vote', function () {
             epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Invalid proof')
+        expect(upvoteResponse.body.error).equal('Wrong attesterId')
     })
 
     it('should vote failed with invalid post', async function () {
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
 

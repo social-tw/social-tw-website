@@ -8,6 +8,7 @@ import {
     InvalidVoteActionError,
     InvalidPublicSignalError,
     InvalidProofError,
+    InvalidParametersError,
 } from '../types/InternalError'
 
 export default (
@@ -19,7 +20,13 @@ export default (
         '/api/vote',
         errorHandler(async (req, res, _) => {
             //vote for post with _id
-            const { postId, voteAction, publicSignals, proof } = req.body
+            const {
+                postId,
+                voteAction,
+                publicSignals,
+                proof,
+                enableEpochValidation,
+            } = req.body
             if (postId == undefined) {
                 throw InvalidPostIdError
             }
@@ -32,12 +39,16 @@ export default (
             if (proof == undefined) {
                 throw InvalidProofError
             }
+            if (enableEpochValidation == undefined) {
+                throw InvalidParametersError
+            }
 
             await voteService.vote(
                 postId,
                 voteAction,
                 publicSignals,
                 proof,
+                enableEpochValidation,
                 db,
                 synchronizer
             )

@@ -34,6 +34,12 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
                 epoch: 0,
                 epochKey: 'mocked_epockKey',
             }),
+            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 1,
+                epochKey: 'mocked_epochKeyLite',
+            }),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
             },

@@ -256,9 +256,10 @@ export async function relayRemoveComment(
 }
 
 export async function relayVote(
-    proof: EpochKeyProof,
+    proof: EpochKeyLiteProof,
     id: string,
     voteAction: VoteAction,
+    enableEpochValidation: boolean,
 ) {
     const response = await fetch(`${SERVER}/api/vote`, {
         method: 'POST',
@@ -271,6 +272,7 @@ export async function relayVote(
                 voteAction,
                 publicSignals: proof.publicSignals,
                 proof: proof.proof,
+                enableEpochValidation,
             }),
         ),
     })
