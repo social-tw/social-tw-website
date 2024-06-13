@@ -37,13 +37,13 @@ export function useVotes() {
             const userState = await getGuaranteedUserState()
             let epochKeyProof
             // If user has voted before, generate proof for canceling the vote, if true will don't check epoch equals now epoch
-            let enableEpochValidation = false
+            let enableEpochValidation = true
             if (votedNonce !== null && votedEpoch !== null) {
                 epochKeyProof = await userState.genEpochKeyLiteProof({
                     nonce: votedNonce,
                     epoch: votedEpoch,
                 })
-                enableEpochValidation = true
+                enableEpochValidation = false
             } else {
                 const nonce = getEpochKeyNonce(actionCount)
                 epochKeyProof = await userState.genEpochKeyLiteProof({ nonce })

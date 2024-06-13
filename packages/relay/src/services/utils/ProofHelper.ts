@@ -51,7 +51,7 @@ class ProofHelper {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
-        enableEpochValidation: boolean = false
+        enableEpochValidation: boolean = true
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
@@ -63,7 +63,7 @@ class ProofHelper {
         this.validateAttesterId(synchronizer, epochKeyLiteProof)
 
         // check if epoch is valid, if onCancel is true, we don't need to validate the epoch cause is canceling the vote, it will bring the epoch back to the old one
-        if (!enableEpochValidation) {
+        if (enableEpochValidation) {
             await this.validateEpoch(synchronizer, epochKeyLiteProof)
         }
 
