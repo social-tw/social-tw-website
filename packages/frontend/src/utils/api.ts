@@ -259,7 +259,7 @@ export async function relayVote(
     proof: EpochKeyLiteProof,
     id: string,
     voteAction: VoteAction,
-    onCancel: boolean,
+    enableEpochValidation: boolean,
 ) {
     const response = await fetch(`${SERVER}/api/vote`, {
         method: 'POST',
@@ -272,7 +272,7 @@ export async function relayVote(
                 voteAction,
                 publicSignals: proof.publicSignals,
                 proof: proof.proof,
-                onCancel,
+                enableEpochValidation,
             }),
         ),
     })

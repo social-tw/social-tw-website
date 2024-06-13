@@ -40,7 +40,7 @@ export class VoteService {
      * @param voteAction
      * @param publicSignals
      * @param proof
-     * @param onCancel
+     * @param enableEpochValidation
      * @param db SQLiteConnector
      * @param synchronizer UnirepSocialSynchronizer
      * @returns
@@ -50,7 +50,7 @@ export class VoteService {
         voteAction: VoteAction,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        onCancel: boolean,
+        enableEpochValidation: boolean,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
@@ -59,7 +59,7 @@ export class VoteService {
             publicSignals,
             proof,
             synchronizer,
-            onCancel
+            enableEpochValidation
         )
 
         // find post which is voted
