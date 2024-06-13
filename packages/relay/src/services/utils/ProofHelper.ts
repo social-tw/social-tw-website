@@ -62,7 +62,7 @@ class ProofHelper {
         // check if attester id is valid
         this.validateAttesterId(synchronizer, epochKeyLiteProof)
 
-        // check if epoch is valid, if onCancel is true, we don't need to validate the epoch cause is canceling the vote, it will bring the epoch back to the old one
+        // check if epoch is valid, if enableEpochValidation is true (default), if false, don't check epoch equals now epoch
         if (enableEpochValidation) {
             await this.validateEpoch(synchronizer, epochKeyLiteProof)
         }
