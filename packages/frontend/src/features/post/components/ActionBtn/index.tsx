@@ -4,13 +4,12 @@ import { ReactComponent as EllipsisIcon } from '@/assets/svg/ellipsis.svg'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import { ReactEventHandler, useCallback, useState } from 'react'
 
-export default function PostReportBtn() {
+export default function ActionBtn() {
     const [isOpen, setIsOpen] = useState(false)
     const openActionMenu = useCallback(() => setIsOpen(true), [])
     const closeActionMenu = useCallback(() => setIsOpen(false), [])
 
     const onClick: ReactEventHandler = (e) => {
-        // TODO: update Post > Header structure to prevent using preventDefault
         e.preventDefault()
         openActionMenu()
     }
@@ -18,34 +17,34 @@ export default function PostReportBtn() {
     return (
         <div className="relative" onClick={(e) => e.preventDefault()}>
             <EllipsisIcon className="cursor-pointer" onClick={onClick} />
-            <ActionBtnList isOpen={isOpen} onClose={closeActionMenu} />
+            <ActionMenu isOpen={isOpen} onClose={closeActionMenu} />
         </div>
     )
 }
 
-interface ActionBtnListProps {
+interface ActionMenuProps {
     isOpen: boolean
     onClose: () => void
 }
-function ActionBtnList({ isOpen, onClose }: ActionBtnListProps) {
+function ActionMenu({ isOpen, onClose }: ActionMenuProps) {
     const isStickOnBottom = useMediaQuery('only screen and (max-width : 768px)')
     return (
         <>
             {!isOpen && null}
             {isOpen && !isStickOnBottom && (
-                <ActionBtnListMenu onClose={onClose} />
+                <ActionMenuFloat onClose={onClose} />
             )}
             {isOpen && isStickOnBottom && (
-                <ActionBtnListBottomMenu onClose={onClose} />
+                <ActionMenuBottom onClose={onClose} />
             )}
         </>
     )
 }
 
-interface ActionBtnListMenuProps {
+interface ActionMenuFloatProps {
     onClose: () => void
 }
-function ActionBtnListMenu({ onClose }: ActionBtnListMenuProps) {
+function ActionMenuFloat({ onClose }: ActionMenuFloatProps) {
     return (
         <div
             className={`
@@ -62,12 +61,12 @@ function ActionBtnListMenu({ onClose }: ActionBtnListMenuProps) {
                 className={`w-3 h-3 absolute cursor-pointer top-2 right-3`}
                 onClick={onClose}
             />
-            <MenuItem />
+            <MenuItemFloat />
         </div>
     )
 }
 
-function MenuItem() {
+function MenuItemFloat() {
     return (
         <div className="flex items-center gap-1 cursor-pointer text-white">
             <BanIcon /> 檢舉貼文
@@ -75,10 +74,10 @@ function MenuItem() {
     )
 }
 
-interface ActionBtnListBottomMenuProps {
+interface ActionMenuBottomProps {
     onClose: () => void
 }
-function ActionBtnListBottomMenu({ onClose }: ActionBtnListBottomMenuProps) {
+function ActionMenuBottom({ onClose }: ActionMenuBottomProps) {
     return (
         <div
             className={`
@@ -99,11 +98,11 @@ function ActionBtnListBottomMenu({ onClose }: ActionBtnListBottomMenuProps) {
                 className={`w-5 h-5 absolute cursor-pointer top-7 right-6`}
                 onClick={onClose}
             />
-            <BottomMenuItem />
+            <MenuItemBottom />
         </div>
     )
 }
-function BottomMenuItem() {
+function MenuItemBottom() {
     return (
         <div className="flex items-center gap-4 cursor-pointer text-white">
             <BanIcon className={`w-5 h-5`} /> 檢舉貼文

@@ -1,8 +1,7 @@
-import clsx from 'clsx'
-import { nanoid } from 'nanoid'
-import { useRef, useState } from 'react'
-import { FaBan, FaTrashCan } from 'react-icons/fa6'
-import { FiMoreHorizontal } from 'react-icons/fi'
+import { CommentDeleteDialog, CommentReportDialog } from '@/features/post'
+import { Avatar } from '@/features/shared'
+import { CommentStatus } from '@/types/Comments'
+import formatDate from '@/utils/helpers/formatDate'
 import {
     ControlledMenu,
     MenuItem,
@@ -10,10 +9,12 @@ import {
     useMenuState,
 } from '@szhsin/react-menu'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import { Avatar } from '@/features/shared'
-import { CommentDeleteDialog, CommentReportDialog } from '@/features/post'
-import formatDate from '@/utils/helpers/formatDate'
-import { CommentStatus } from '@/types/Comments'
+import clsx from 'clsx'
+import { nanoid } from 'nanoid'
+import { useRef, useState } from 'react'
+import { FaBan, FaTrashCan } from 'react-icons/fa6'
+import { FiMoreHorizontal } from 'react-icons/fi'
+import ActionBtn from '../ActionBtn'
 
 interface CommentProps {
     commentId?: string
@@ -101,13 +102,16 @@ export default function Comment({
                 )}
             >
                 <header className="grid grid-cols-[1fr_auto] items-center">
-                    <div className="flex items-center gap-5">
-                        <Avatar name={epochKey} />
-                        <span className="text-xs font-medium tracking-wide text-white">
-                            {status === CommentStatus.Failure
-                                ? '存取失敗，請再嘗試留言'
-                                : formatDate(publishedAt)}
-                        </span>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-5">
+                            <Avatar name={epochKey} />
+                            <span className="text-xs font-medium tracking-wide text-white">
+                                {status === CommentStatus.Failure
+                                    ? '存取失敗，請再嘗試留言'
+                                    : formatDate(publishedAt)}
+                            </span>
+                        </div>
+                        <ActionBtn />
                     </div>
                     <div>
                         {status !== CommentStatus.Failure &&
