@@ -8,8 +8,8 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import ActionBtn from '../ActionBtn'
 import PostFooter from './PostFooter'
-import PostReportBtn from './PostReportBtn'
 
 export default function Post({
     id = '',
@@ -132,7 +132,7 @@ export default function Post({
                         {subtitle}
                     </span>
                 </div>
-                <PostReportBtn />
+                <ActionBtn />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
