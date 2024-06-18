@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import PostFooter from './PostFooter'
+import PostReportBtn from './PostReportBtn'
 
 export default function Post({
     id = '',
@@ -124,11 +125,14 @@ export default function Post({
 
     const postInfo = (
         <div className="space-y-3">
-            <header className="flex items-center gap-4">
-                <Avatar name={epochKey ?? nanoid()} />
-                <span className="text-xs font-medium tracking-wide text-black/80">
-                    {subtitle}
-                </span>
+            <header className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Avatar name={epochKey ?? nanoid()} />
+                    <span className="text-xs font-medium tracking-wide text-black/80">
+                        {subtitle}
+                    </span>
+                </div>
+                <PostReportBtn />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
