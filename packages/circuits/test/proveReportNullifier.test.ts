@@ -3,13 +3,9 @@ import * as utils from '@unirep/utils'
 import { poseidon2 } from 'poseidon-lite'
 import { Identity } from '@semaphore-protocol/identity'
 import { IdentityObject } from './types'
-import { Circuit, CircuitConfig } from '@unirep/circuits'
+import { Circuit } from '@unirep/circuits'
 import { defaultProver } from '../provers/defaultProver'
 import crypto from 'crypto'
-
-const { FIELD_COUNT, SUM_FIELD_COUNT, STATE_TREE_DEPTH, REPL_NONCE_BITS } =
-    CircuitConfig.default
-
 const circuit = 'reportNullifierProof'
 
 const genCircuitInput = (config: {
