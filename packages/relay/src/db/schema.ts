@@ -150,22 +150,39 @@ const _schema = [
             ['type', 'Int'], // 0: Post, 1: Comment
             ['objectId', 'String'], // PostId or CommentId
             ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
-            ['reportorClaimedRep', 'Bool'], // TRUE: claimed, FALSE: not claimed
+            {
+                name: 'reportorClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
             ['respondentEpochKey', 'String'], // Epoch Key of the person who was reported
-            ['respondentClaimedRep', 'Bool'], // TRUE: claimed, FALSE: not claimed
+            {
+                name: 'respondentClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
             ['reason', 'String'], // Reason of the report
-            ['adjudicateCount', 'Int'], // Number of voters
+            {
+                name: 'adjudicateCount', // Number of voters
+                type: 'Int',
+                default: () => 0,
+            },
             {
                 name: 'adjudicatorsNullifier', // Nullifier of the voter who replied
                 type: 'Object',
-                rows: [
-                    ['nullifier', 'String'],
-                    ['adjudicateValue', 'Int'], // 1: agree, 0: disagree
-                    ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
-                ],
+                // rows: [
+                //     ['nullifier', 'String'],
+                //     ['adjudicateValue', 'Int'], // 1: agree, 0: disagree
+                //     ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
+                // ],
+                optional: true,
             },
-            ['status', 'Int'], // 0: Voting, 1: Waiting for Tx, 2: Completed
-            ['category', 'Int'], //
+            {
+                name: 'status',
+                type: 'Int', // 0: Voting, 1: Waiting for Tx, 2: Completed
+                default: () => 0,
+            },
+            ['category', 'Int'],
             ['reportEpoch', 'Int'],
             {
                 name: 'reportAt',
