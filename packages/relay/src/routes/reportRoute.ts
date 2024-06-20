@@ -4,6 +4,9 @@ import { reportService } from '../services/ReportService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 
+import { ReportStatus } from '../types'
+import { InvalidReportStatusError } from '../types/InternalError'
+
 export default (
     app: Express,
     db: DB,
@@ -26,6 +29,23 @@ export default (
             // 3. Adjust Post / Comment Status
             await reportService.updateObjectStatus(db, reportData)
             res.json({ reportId })
+        })
+    )
+    
+    app.get(
+        '/api/report',
+        errorHandler( async (req: Request, res: Response) => {
+            const { status } = req.query
+            if (!status) {
+                throw InvalidReportStatusError
+            }
+
+            const reports = await reportService.fetchReport(
+                ReportStatus[status.toString()],
+                synchronizer,
+                db
+            )
+            res.json(reports)
         })
     )
 }

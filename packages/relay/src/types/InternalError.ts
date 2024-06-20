@@ -101,3 +101,7 @@ export const ReportObjectTypeNotExistsError = new InternalError(
     'Report object type does not exist',
     400
 )
+export const InvalidReportStatusError = new InternalError(
+    'Invalid report status',
+    400
+)
