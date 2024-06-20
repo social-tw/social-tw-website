@@ -142,6 +142,38 @@ const _schema = [
             },
         ],
     },
+    {
+        name: 'ReportHistory',
+        primaryKey: 'reportId',
+        rows: [
+            ['reportId', 'String'],
+            ['type', 'Int'], // 0: Post, 1: Comment
+            ['objectId', 'String'], // PostId or CommentId
+            ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
+            ['reportorClaimedRep', 'Bool'], // TRUE: claimed, FALSE: not claimed
+            ['respondentEpochKey', 'String'], // Epoch Key of the person who was reported
+            ['respondentClaimedRep', 'Bool'], // TRUE: claimed, FALSE: not claimed
+            ['reason', 'String'], // Reason of the report
+            ['adjudicateCount', 'Int'], // Number of voters
+            {
+                name: 'adjudicatorsNullifier', // Nullifier of the voter who replied
+                type: 'Object',
+                rows: [
+                    ['nullifier', 'String'],
+                    ['adjudicateValue', 'Int'], // 1: agree, 0: disagree
+                    ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
+                ],
+            },
+            ['status', 'Int'], // 0: Voting, 1: Waiting for Tx, 2: Completed
+            ['category', 'Int'], //
+            ['reportEpoch', 'Int'],
+            {
+                name: 'reportAt',
+                type: 'String',
+                default: () => (+new Date()).toString(),
+            },
+        ],
+    },
 ]
 
 export default _schema
