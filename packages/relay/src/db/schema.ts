@@ -142,6 +142,55 @@ const _schema = [
             },
         ],
     },
+    {
+        name: 'ReportHistory',
+        primaryKey: 'reportId',
+        rows: [
+            ['reportId', 'String'],
+            ['type', 'Int'], // 0: Post, 1: Comment
+            ['objectId', 'String'], // PostId or CommentId
+            ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
+            {
+                name: 'reportorClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
+            ['respondentEpochKey', 'String'], // Epoch Key of the person who was reported
+            {
+                name: 'respondentClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
+            ['reason', 'String'], // Reason of the report
+            {
+                name: 'adjudicateCount', // Number of voters
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'adjudicatorsNullifier', // Nullifier of the voter who replied
+                type: 'Object',
+                // rows: [
+                //     ['nullifier', 'String'],
+                //     ['adjudicateValue', 'Int'], // 1: agree, 0: disagree
+                //     ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
+                // ],
+                optional: true,
+            },
+            {
+                name: 'status',
+                type: 'Int', // 0: Voting, 1: Waiting for Tx, 2: Completed
+                default: () => 0,
+            },
+            ['category', 'Int'],
+            ['reportEpoch', 'Int'],
+            {
+                name: 'reportAt',
+                type: 'String',
+                default: () => (+new Date()).toString(),
+            },
+        ],
+    },
 ]
 
 export default _schema
