@@ -14,7 +14,7 @@ import { comment } from './utils/comment'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
-describe('POST /api/report', function () {
+describe('Report /report', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let userState: UserState
@@ -38,6 +38,9 @@ describe('POST /api/report', function () {
         db = _db
         express = chaiServer
         sync = synchronizer
+        express = chaiServer
+        sync = synchronizer
+
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -97,11 +100,11 @@ describe('POST /api/report', function () {
 
     it('should create a report and update post status', async function () {
         const reportData: ReportHistory = {
-            type: ReportType.Post,
+            type: ReportType.POST,
             objectId: '0',
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
-            category: ReportCategory.Spam,
+            category: ReportCategory.SPAM,
             reportEpoch: 1,
         }
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -131,11 +134,11 @@ describe('POST /api/report', function () {
 
     it('should fail to create a report with invalid proof', async function () {
         const reportData: ReportHistory = {
-            type: ReportType.Comment,
+            type: ReportType.COMMENT,
             objectId: '0',
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
-            category: ReportCategory.Spam,
+            category: ReportCategory.SPAM,
             reportEpoch: 1,
         }
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -163,11 +166,11 @@ describe('POST /api/report', function () {
 
     it('should create a report and update comment status', async function () {
         const reportData: ReportHistory = {
-            type: ReportType.Comment,
+            type: ReportType.COMMENT,
             objectId: '0',
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
-            category: ReportCategory.Spam,
+            category: ReportCategory.SPAM,
             reportEpoch: 1,
         }
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -200,11 +203,11 @@ describe('POST /api/report', function () {
 
     it('should fail to create a report on the same post / comment', async function () {
         const reportData: ReportHistory = {
-            type: ReportType.Post,
+            type: ReportType.POST,
             objectId: '0',
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
-            category: ReportCategory.Spam,
+            category: ReportCategory.SPAM,
             reportEpoch: 1,
         }
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -229,11 +232,11 @@ describe('POST /api/report', function () {
 
     it('should fail to create a report with non-existent post/comment', async function () {
         const reportData: ReportHistory = {
-            type: ReportType.Post,
+            type: ReportType.POST,
             objectId: 'non-existent',
             reportorEpochKey: 'epochKey1',
             reason: 'Non-existent post',
-            category: ReportCategory.Spam,
+            category: ReportCategory.SPAM,
             reportEpoch: 1,
         }
         const epochKeyProof = await userState.genEpochKeyProof({
