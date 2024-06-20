@@ -5,3 +5,7 @@ zksnarkBuild/*
 !*/dataProof.wasm
 !*/dataProof.zkey
 !*/dataProof_main.circom
+!*/reportNullifierProof.vkey.json
+!*/reportNullifierProof.wasm
+!*/reportNullifierProof.zkey
+!*/reportNullifierProof_main.circom
