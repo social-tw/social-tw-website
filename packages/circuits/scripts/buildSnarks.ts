@@ -89,7 +89,7 @@ async function main() {
             )
             await fs.promises.rename(wasmOut, wasmOutFinal)
             await fs.promises.rm(wasmOutDir, { recursive: true, force: true })
-            process.exit(0)
         }
     }
+    process.exit(0)
 }
