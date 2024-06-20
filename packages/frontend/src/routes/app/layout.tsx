@@ -18,6 +18,7 @@ import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
 import { ErrorDialog } from '@/features/auth'
 import { ActionNotification, EpochInfo } from '@/features/core'
 import { MobileBottomNav } from '@/features/shared'
+import { AdjudicationNotification } from '@/features/reporting'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -84,6 +85,7 @@ export default function AppLayout() {
                     <MobileBottomNav />
                     <ErrorDialog />
                 </div>
+                <AdjudicationNotification />
             </div>
         )
     } else {
@@ -208,6 +210,7 @@ export default function AppLayout() {
                     </section>
                     <ErrorDialog />
                 </div>
+                <AdjudicationNotification />
             </div>
         )
     }
