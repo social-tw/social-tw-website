@@ -5,52 +5,106 @@ import ProofHelper from './utils/ProofHelper'
 import { TransactionManager } from './utils/TransactionManager'
 
 
-export const claimPositiveReputation = async (
-    req: Request,
-    res: Response,
-    db: DB,
-    synchronizer: UnirepSocialSynchronizer
-) => {
-    const { userId, reportId, nullifier } = req.body
+class ReportService {
+    async claimPositiveReputation(
+        req: Request,
+        res: Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        const { userId, reportId, nullifier } = req.body
 
-    try {
-        // Generate the report nullifier proof
-        const { proof, publicSignals } = await ProofHelper.genProofAndPublicSignals('reportNullifierCircuit', {
-            userId,
-            reportId,
-            nullifier,
-        })
+        try {
+            // generate proof
+            const { proof, publicSignals } = await ProofHelper.genProofAndPublicSignals('reportPosRepProof', {
+                userId,
+                reportId,
+                nullifier,
+            })
 
-        // Verify the report nullifier proof
-        const isProofValid = await ProofHelper.verifyProof('reportNullifierCircuit', publicSignals, proof)
-        if (!isProofValid) {
-            return res.status(400).json({ message: 'Invalid report nullifier proof' })
+            // verify proof
+            const isProofValid = await ProofHelper.verifyProof('reportPosRepProof', publicSignals, proof)
+            if (!isProofValid) {
+                return res.status(400).json({ message: 'Invalid positive reputation proof' })
+            }
+
+            // send transaction to claim reputation
+            const txResult = await TransactionManager.callContract('claimPositiveReputation', [
+                userId,
+                reportId,
+                nullifier,
+                proof,
+                publicSignals
+            ])
+
+            // update nullifier status
+            await db.update('Nullifiers', { where: { nullifier }, update: { status: true } })
+
+            // record reputation claim
+            await db.create('ClaimedReputationHistory', {
+                userId,
+                reportId,
+                claimType: 'positive',
+                reputation: 1,
+                epochKey: publicSignals.epochKey,
+            })
+
+            return res.status(200).json({ message: 'Reputation claimed successfully', txHash: txResult.txHash })
+        } catch (error) {
+            console.error('Error claiming positive reputation:', error)
+            return res.status(500).json({ message: 'Internal server error' })
         }
+    }
 
-        // Send transaction to claim positive reputation
-        const txResult = await TransactionManager.callContract('claimPositiveReputation', [
-            userId,
-            reportId,
-            nullifier,
-            proof,
-            publicSignals
-        ])
+    async claimNegativeReputation(
+        req: Request,
+        res: Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        const { userId, reportId, nullifier } = req.body
 
-        // Update the status of the nullifier to 'claimed'
-        await db.update('Nullifiers', { where: { nullifier }, update: { status: true } })
+        try {
+            // generate proof
+            const { proof, publicSignals } = await ProofHelper.genProofAndPublicSignals('reportNegRepProof', {
+                userId,
+                reportId,
+                nullifier,
+            })
 
-        // Add a record to claimedReputationHistory
-        await db.create('ClaimedReputationHistory', {
-            userId,
-            reportId,
-            claimType: 'positive',
-            reputation: 1,
-            epochKey: publicSignals.epochKey,
-        })
+            // verify proof
+            const isProofValid = await ProofHelper.verifyProof('reportNegRepProof', publicSignals, proof)
+            if (!isProofValid) {
+                return res.status(400).json({ message: 'Invalid negative reputation proof' })
+            }
 
-        return res.status(200).json({ message: 'Reputation claimed successfully', txHash: txResult.txHash })
-    } catch (error) {
-        console.error('Error claiming positive reputation:', error)
-        return res.status(500).json({ message: 'Internal server error' })
+            // send transaction to claim reputation
+            const txResult = await TransactionManager.callContract('claimNegativeReputation', [
+                userId,
+                reportId,
+                nullifier,
+                proof,
+                publicSignals
+            ])
+
+            // update nullifier status
+            await db.update('Nullifiers', { where: { nullifier }, update: { status: true } })
+
+            // record reputation claim
+            await db.create('ClaimedReputationHistory', {
+                userId,
+                reportId,
+                claimType: 'negative',
+                reputation: -1,
+                epochKey: publicSignals.epochKey,
+            })
+
+            return res.status(200).json({ message: 'Reputation claimed successfully', txHash: txResult.txHash })
+        } catch (error) {
+            console.error('Error claiming negative reputation:', error)
+            return res.status(500).json({ message: 'Internal server error' })
+        }
     }
 }
+
+export const reportService = new ReportService()

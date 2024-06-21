@@ -1,7 +1,7 @@
 import { Express } from 'express'
 import { DB } from 'anondb'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import { claimPositiveReputation } from '../services/ReportService'
+import { reportService } from '../services/ReportService'
 
 
 export default (
@@ -11,9 +11,18 @@ export default (
 ) => {
     app.post('/api/reports/claimPositiveReputation', async (req, res) => {
         try {
-            await claimPositiveReputation(req, res, db, synchronizer)
+            await reportService.claimPositiveReputation(req, res, db, synchronizer)
         } catch (error) {
             console.error('Error in claimPositiveReputation route:', error)
+            res.status(500).json({ message: 'Internal server error' })
+        }
+    })
+
+    app.post('/api/reports/claimNegativeReputation', async (req, res) => {
+        try {
+            await reportService.claimNegativeReputation(req, res, db, synchronizer)
+        } catch (error) {
+            console.error('Error in claimNegativeReputation route:', error)
             res.status(500).json({ message: 'Internal server error' })
         }
     })
