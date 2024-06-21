@@ -58,7 +58,7 @@ function EpochActionCounter() {
     )
 }
 
-function getAcountCountMessage(count: number) {
+function getAccountCountMessage(count: number) {
     if (count > 5) {
         return '強烈建議等下個Epoch後執行動作，以免身份洩漏'
     } else if (count > 3) {
@@ -70,7 +70,7 @@ function getAcountCountMessage(count: number) {
 
 function EpochMessage() {
     const count = useActionCount()
-    const message = getAcountCountMessage(count)
+    const message = getAccountCountMessage(count)
 
     return <p className="text-xs font-medium text-white/60">{message}</p>
 }
