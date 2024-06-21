@@ -106,7 +106,7 @@ export class ReportService {
             case ReportStatus.VOTING:
                 reports = await db.findMany('ReportHistory', {
                     where: {
-                        epoch: epoch - 1,
+                        reportAt: epoch - 1,
                     },
                 })
                 break
@@ -114,7 +114,7 @@ export class ReportService {
                 reports = await db.findMany('ReportHistory', {
                     where: {
                         AND: [
-                            { epoch: { lt: epoch } },
+                            { reportAt: { lt: epoch } },
                             { status: ReportStatus.WAITING_FOR_TRANSACTION },
                         ],
                     },
