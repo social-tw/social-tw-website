@@ -9,3 +9,5 @@ export {
 } from './ActionMenuDropdown'
 
 export { ActionMenuContainer } from './ActionMenuContainer'
+
+export { useActionMenu } from './useActionMenu'

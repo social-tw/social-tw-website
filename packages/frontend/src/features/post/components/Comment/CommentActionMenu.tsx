@@ -1,29 +1,21 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
-import { ReactEventHandler, useCallback, useState } from 'react'
 import {
     ActionMenuBottomSlide,
     ActionMenuBottomSlideItem,
     ActionMenuContainer,
     ActionMenuDropdown,
     ActionMenuDropdownItem,
+    useActionMenu,
 } from '../ActionMenu'
 
 export function CommentActionMenu() {
-    const [isOpen, setIsOpen] = useState(false)
-    const openActionMenu = useCallback(() => setIsOpen(true), [])
-    const closeActionMenu = useCallback(() => setIsOpen(false), [])
-
-    const onClick: ReactEventHandler = (e) => {
-        e.preventDefault()
-        openActionMenu()
-    }
-
+    const { isOpen, onOpen, onClose } = useActionMenu()
     return (
-        <ActionMenuContainer onOpen={onClick}>
-            <ActionMenuDropdown isOpen={isOpen} onClose={closeActionMenu}>
+        <ActionMenuContainer onOpen={onOpen}>
+            <ActionMenuDropdown isOpen={isOpen} onClose={onClose}>
                 <ActionMenuDropdownItem icon={<BanIcon />} name="檢舉留言" />
             </ActionMenuDropdown>
-            <ActionMenuBottomSlide isOpen={isOpen} onClose={closeActionMenu}>
+            <ActionMenuBottomSlide isOpen={isOpen} onClose={onClose}>
                 <ActionMenuBottomSlideItem icon={<BanIcon />} name="檢舉留言" />
             </ActionMenuBottomSlide>
         </ActionMenuContainer>
