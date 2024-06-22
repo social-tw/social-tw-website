@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid'
 import { useRef, useState } from 'react'
 import { FaBan, FaTrashCan } from 'react-icons/fa6'
 import { FiMoreHorizontal } from 'react-icons/fi'
-import ActionBtn from '../ActionBtn'
+import { CommentActionMenu } from './CommentActionMenu'
 
 interface CommentProps {
     commentId?: string
@@ -111,7 +111,7 @@ export default function Comment({
                                     : formatDate(publishedAt)}
                             </span>
                         </div>
-                        <ActionBtn />
+                        <CommentActionMenu />
                     </div>
                     <div>
                         {status !== CommentStatus.Failure &&
