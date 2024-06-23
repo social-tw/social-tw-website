@@ -4,6 +4,7 @@ import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import {
+    AdjudicateValue,
     CommentNotExistError,
     CommentReportedError,
     InvalidCommentIdError,
@@ -137,6 +138,25 @@ export class ReportService {
         }
 
         return await db.findMany('ReportHistory', condition)
+    }
+
+    async voteOnReport(
+        id: string,
+        nullifier: string,
+        adjudicateValue: AdjudicateValue
+    ) {
+        // add voter into adjudicatorsNullifier
+        // update adjudicateCount
+    }
+
+    async fetchSingleReport(id: string, db: DB): Promise<ReportHistory | null> {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                reportId: id
+            },
+        })
+
+        return report
     }
 }
 

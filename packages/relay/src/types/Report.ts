@@ -1,20 +1,3 @@
-export type ReportHistory = {
-    reportId: string | undefined
-    type: number
-    objectId: string
-    reportorEpochKey: string
-    reportorClaimedRep: boolean
-    respondendEpochKey: string
-    respondentClaimedRep: boolean
-    reason: string
-    adjudicateCount: number
-    adjudicatorsNullifier?: Object | null
-    status: number
-    category: number
-    reportEpoch: number
-    reportAt: string
-}
-
 export enum ReportStatus {
     VOTING = 0,
     WAITING_FOR_TRANSACTION = 1,
@@ -30,11 +13,6 @@ export enum ReportCategory {
 export enum ReportType {
     POST = 0,
     COMMENT = 1,
-}
-
-export enum AdjudicateValue {
-    DISAGREE = 0,
-    AGREE = 1,
 }
 
 export type Adjudicator = {
