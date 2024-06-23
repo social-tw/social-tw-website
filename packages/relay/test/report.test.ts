@@ -2,6 +2,7 @@ import { UserState } from '@unirep/core'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
+
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { CommentStatus } from '../src/types/Comment'
