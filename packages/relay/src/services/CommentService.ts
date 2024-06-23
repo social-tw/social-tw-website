@@ -1,15 +1,15 @@
 import { DB } from 'anondb'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import IpfsHelper from './utils/IpfsHelper'
-import ProofHelper from './utils/ProofHelper'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { Comment } from '../types/Comment'
 import {
     CommentNotExistError,
     InvalidEpochKeyError,
 } from '../types/InternalError'
-import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import IpfsHelper from './utils/IpfsHelper'
+import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class CommentService {
@@ -34,8 +34,8 @@ export class CommentService {
     ): Promise<Comment> {
         const comment = await db.findOne('Comment', {
             where: {
-                status: 1,
                 commentId: commentId,
+                status: status ?? 1,
             },
         })
 

@@ -1,14 +1,14 @@
 import { DB } from 'anondb'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
 import { nanoid } from 'nanoid'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { ReportHistory, ReportType } from '../types/Report'
 import {
-    InvalidPostIdError,
     CommentNotExistError,
+    InvalidPostIdError,
 } from '../types/InternalError'
+import { ReportHistory, ReportType } from '../types/Report'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 
 export class ReportService {
@@ -23,6 +23,7 @@ export class ReportService {
         if (reportData.type === ReportType.Post) {
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
+                1,
                 db
             )
             if (!post) throw InvalidPostIdError

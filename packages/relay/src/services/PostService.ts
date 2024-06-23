@@ -1,17 +1,17 @@
 import { DB } from 'anondb'
+import { PostgresConnector, SQLiteConnector } from 'anondb/node'
+import { Helia } from 'helia'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     DAY_DIFF_STAEMENT,
     DB_PATH,
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import { Helia } from 'helia'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import ProofHelper from './utils/ProofHelper'
 import { Post } from '../types/Post'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
-import { PostgresConnector, SQLiteConnector } from 'anondb/node'
+import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
@@ -253,13 +253,13 @@ export class PostService {
 
     async fetchSinglePost(
         id: string,
-        db: DB,
-        status?: number
+        status: number,
+        db: DB
     ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,
-                status: status ?? 1,
+                status: status,
             },
         })
 
