@@ -1,15 +1,15 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
 
 import type { Helia } from '@helia/interface'
 import { postService } from '../services/PostService'
 import {
-    InvalidPostIdError,
     EmptyPostError,
     InvalidEpochKeyError,
     InvalidPageError,
+    InvalidPostIdError,
 } from '../types/InternalError'
 
 export default (
@@ -64,11 +64,15 @@ export default (
         '/api/post/:id',
         errorHandler(async (req, res, next) => {
             const id = req.params.id
+            const status = req.query.status
+                ? parseInt(req.query.status as string)
+                : 1
+
             if (!id) {
                 throw InvalidPostIdError
             }
 
-            const post = await postService.fetchSinglePost(id, db)
+            const post = await postService.fetchSinglePost(id, status, db)
             if (!post) {
                 throw InvalidPostIdError
             } else {
