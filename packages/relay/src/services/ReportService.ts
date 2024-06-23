@@ -103,18 +103,56 @@ export class ReportService {
         let reports
 
         switch (status) {
+            // VOTEING reports meet below condition
+            // 1. reportEpoch = current Epoch - 1
+            // 2. the result of adjudication is tie, should vote again
             case ReportStatus.VOTING:
                 reports = await db.findMany('ReportHistory', {
                     where: {
-                        reportAt: epoch - 1,
+                        AND: [
+                            {reportEpoch: epoch - 1 },
+                            {status: ReportStatus.VOTING}
+                        ]
                     },
                 })
+
+                // fetch all reports whose status is still voting
+                const allReports = await db.findMany('ReportHistory', {
+                    where: {
+                        AND: [
+                            {reportEpoch: { lt: epoch - 1 }},
+                            {status: ReportStatus.VOTING}
+                        ]
+                    }
+                })
+
+                for (let i = 0; i < allReports.length; i++) {
+                    const report = allReports[i];
+                    if (report.adjudicateCount < 5) {
+                        continue
+                    }
+                    // flatMap adjudicatorsNullifier to [adjudicateValue1, adjudicateValue2, adjudicateValue3]
+                    // agree: 1, disagree: 0, if the value is disagree, then -1
+                    const result = report.adjudicatorsNullifier.rows.flatMap((nullifier) => nullifier.adjudicateValue)
+                    .reduce((acc, value) => {
+                        if (Number(value) == 0) {
+                            return acc - 1
+                        }
+                        return acc + 1
+                    })
+
+                    // the result of adjudication is tie
+                    if (result == 0) {
+                        reports.push(report)
+                    }
+                }
                 break
+            // WAITING_FOR_TRANSACTION is for client side to claim reputation use
             case ReportStatus.WAITING_FOR_TRANSACTION:
                 reports = await db.findMany('ReportHistory', {
                     where: {
                         AND: [
-                            { reportAt: { lt: epoch } },
+                            { reportEpoch: { lt: epoch } },
                             { status: ReportStatus.WAITING_FOR_TRANSACTION },
                         ],
                     },
