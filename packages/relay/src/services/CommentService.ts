@@ -27,6 +27,21 @@ export class CommentService {
         return comments
     }
 
+    async fetchSingleComment(
+        commentId: string,
+        db: DB,
+        status?: number
+    ): Promise<Comment> {
+        const comment = await db.findOne('Comment', {
+            where: {
+                status: 1,
+                commentId: commentId,
+            },
+        })
+
+        return comment
+    }
+
     async fetchMyAccountComments(
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
@@ -125,6 +140,17 @@ export class CommentService {
         ])
 
         return txHash
+    }
+
+    async updateCommentStatus(commentId: string, status: number, db: DB) {
+        await db.update('Comment', {
+            where: {
+                commentId,
+            },
+            update: {
+                status,
+            },
+        })
     }
 }
 

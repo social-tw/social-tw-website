@@ -251,11 +251,15 @@ export class PostService {
         return txHash
     }
 
-    async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
+    async fetchSinglePost(
+        id: string,
+        db: DB,
+        status?: number
+    ): Promise<Post | null> {
         const post = await db.findOne('Post', {
             where: {
                 postId: id,
-                status: 1,
+                status: status ?? 1,
             },
         })
 
@@ -271,6 +275,17 @@ export class PostService {
         })
 
         return post
+    }
+
+    async updatePostStatus(
+        postId: string,
+        status: number,
+        db: DB
+    ): Promise<void> {
+        await db.update('Post', {
+            where: { postId },
+            update: { status },
+        })
     }
 }
 
