@@ -110,9 +110,9 @@ export class ReportService {
                 reports = await db.findMany('ReportHistory', {
                     where: {
                         AND: [
-                            {reportEpoch: epoch - 1 },
-                            {status: ReportStatus.VOTING}
-                        ]
+                            { reportEpoch: epoch - 1 },
+                            { status: ReportStatus.VOTING },
+                        ],
                     },
                 })
 
@@ -120,14 +120,14 @@ export class ReportService {
                 const allReports = await db.findMany('ReportHistory', {
                     where: {
                         AND: [
-                            {reportEpoch: { lt: epoch - 1 }},
-                            {status: ReportStatus.VOTING}
-                        ]
-                    }
+                            { reportEpoch: { lt: epoch - 1 } },
+                            { status: ReportStatus.VOTING },
+                        ],
+                    },
                 })
 
                 for (let i = 0; i < allReports.length; i++) {
-                    const report = allReports[i];
+                    const report = allReports[i]
                     // adjudicateCount < 5, keep adjudicating on next epoch
                     if (report.adjudicateCount < 5) {
                         reports.push(report)
@@ -135,13 +135,14 @@ export class ReportService {
                     }
                     // flatMap adjudicatorsNullifier to [adjudicateValue1, adjudicateValue2, adjudicateValue3]
                     // agree: 1, disagree: 0, if the value is disagree, then -1
-                    const result = report.adjudicatorsNullifier.rows.flatMap((nullifier) => nullifier.adjudicateValue)
-                    .reduce((acc, value) => {
-                        if (Number(value) == 0) {
-                            return acc - 1
-                        }
-                        return acc + 1
-                    })
+                    const result = report.adjudicatorsNullifier.rows
+                        .flatMap((nullifier) => nullifier.adjudicateValue)
+                        .reduce((acc, value) => {
+                            if (Number(value) == 0) {
+                                return acc - 1
+                            }
+                            return acc + 1
+                        })
 
                     // the result of adjudication is tie
                     if (result == 0) {
