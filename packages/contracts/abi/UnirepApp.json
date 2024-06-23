@@ -22,6 +22,11 @@
                 "type": "address"
             },
             {
+                "internalType": "contract VerifierHelperManager",
+                "name": "_verifierHelperManager",
+                "type": "address"
+            },
+            {
                 "internalType": "uint48",
                 "name": "_epochLength",
                 "type": "uint48"

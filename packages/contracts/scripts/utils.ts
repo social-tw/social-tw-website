@@ -8,6 +8,7 @@ import {
 import globalFactory from 'global-factory'
 import { UnirepApp__factory as UnirepAppFactory } from '../typechain-types'
 import DataProofVerifier from '../artifacts/contracts/verifiers/DataProofVerifier.sol/DataProofVerifier.json'
+import VerifierHelperManager from '../artifacts/contracts/verifierHelpers/VerifierHelperManager.sol/VerifierHelperManager.json'
 
 export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const unirep = await deployUnirep(deployer)
@@ -31,6 +32,16 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const verifier = await DataProofVerifierF.deploy()
     await verifier.deployed()
 
+    // deploy verifierHelperManager
+    const _VerifierHelperManagerF = new ethers.ContractFactory(
+        VerifierHelperManager.abi,
+        VerifierHelperManager.bytecode,
+        deployer
+    )
+    const VerifierHelperManagerF = await globalFactory(_VerifierHelperManagerF)
+    const verifierHelperManager = await VerifierHelperManagerF.deploy()
+    await verifierHelperManager.deployed()
+
     const AppF = new UnirepAppFactory(deployer)
 
     const app = await AppF.deploy(
@@ -38,6 +49,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         epkHelper.address,
         epkLiteHelper.address,
         verifier.address,
+        verifierHelperManager.address,
         epochLength
     )
 

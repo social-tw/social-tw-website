@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Unirep} from '@unirep/contracts/Unirep.sol';
-import {EpochKeyVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol';
-import {EpochKeyLiteVerifierHelper} from '@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol';
+import { Unirep } from "@unirep/contracts/Unirep.sol";
+import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
+import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
+import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -25,6 +26,7 @@ contract UnirepApp {
     IVerifier internal dataVerifier;
     EpochKeyVerifierHelper internal epkHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
+    VerifierHelperManager internal verifierHelperManager;
 
     // a global variable to store the latest postId
     uint256 public latestPostId;
@@ -75,6 +77,7 @@ contract UnirepApp {
         EpochKeyVerifierHelper _epkHelper,
         EpochKeyLiteVerifierHelper _epkLiteHelper,
         IVerifier _dataVerifier,
+        VerifierHelperManager _verifierHelperManager,
         uint48 _epochLength
     ) {
         // set unirep address
@@ -88,6 +91,9 @@ contract UnirepApp {
 
         // set verifier address
         dataVerifier = _dataVerifier;
+
+        // set verifierHelper manager
+        verifierHelperManager = _verifierHelperManager;
 
         // sign up as an attester
         attesterId = uint160(msg.sender);
