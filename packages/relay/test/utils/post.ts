@@ -1,15 +1,16 @@
 import { UserState } from '@unirep/core'
-import { expect } from 'chai'
 import { stringifyBigInts } from '@unirep/utils'
+import { expect } from 'chai'
 
 export async function post(
     server: ChaiHttp.Agent,
-    userState: UserState
+    userState: UserState,
+    nonce?: number
 ): Promise<any> {
     const testContent = 'test content'
 
     const epochKeyProof = await userState.genEpochKeyProof({
-        nonce: 0,
+        nonce: nonce ?? 0,
     })
 
     const res = await server
