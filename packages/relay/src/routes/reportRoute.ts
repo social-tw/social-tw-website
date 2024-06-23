@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 
 import Validator from '../services/utils/Validator'
-import { InvalidReportStatusError } from '../types'
+import { InvalidAdjudicateValueError, InvalidReportError, InvalidReportIdError, InvalidReportNullifierError, InvalidReportStatusError } from '../types'
 
 export default (
     app: Express,
@@ -46,6 +46,33 @@ export default (
                 db
             )
             res.json(reports)
+        })
+    )
+
+    app.post(
+        '/api/report/:id',
+        errorHandler(async (req, res, next) => {
+            const id = req.params.id
+            if (!id) {
+                throw InvalidReportIdError
+            }
+
+            const { nullifier, adjudicateValue } = req.body
+
+            if (!nullifier) {
+                throw InvalidReportNullifierError
+            }
+
+            if (!adjudicateValue) {
+                throw InvalidAdjudicateValueError
+            }
+
+            const report = await reportService.fetchSingleReport(id, db)
+            if (!report) {
+                throw InvalidReportError
+            }
+
+            await reportService.voteOnReport(id, nullifier, adjudicateValue)
         })
     )
 }
