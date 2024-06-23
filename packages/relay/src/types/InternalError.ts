@@ -105,3 +105,23 @@ export const InvalidReportStatusError = new InternalError(
     'Invalid report status',
     400
 )
+
+export const InvalidReportNullifierError = new InternalError(
+    'Invalid report nullifier',
+    400
+)
+
+export const InvalidAdjudicateValueError = new InternalError(
+    'Invalid adjudicate value',
+    400
+)
+
+export const InvalidReportIdError = new InternalError(
+    'Invalid report id',
+    400
+)
+
+export const InvalidReportError = new InternalError(
+    'Invalid report',
+    400
+)

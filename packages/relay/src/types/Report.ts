@@ -1,3 +1,20 @@
+export type ReportHistory = {
+    reportId: string | undefined
+    type: number
+    objectId: string
+    reportorEpochKey: string
+    reportorClaimedRep: boolean
+    respondendEpochKey: string
+    respondentClaimedRep: boolean
+    reason: string
+    adjudicateCount: number
+    adjudicatorsNullifier?: Object | null
+    status: number
+    category: number
+    reportEpoch: number
+    reportAt: string
+}
+
 export enum ReportStatus {
     VOTING = 0,
     WAITING_FOR_TRANSACTION = 1,
@@ -41,4 +58,9 @@ export interface ReportHistory {
     category: number
     reportEpoch: number
     reportAt?: string
+}
+
+export enum AdjudicateValue {
+    DISAGREE,
+    AGREE
 }
