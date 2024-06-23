@@ -1,5 +1,8 @@
 {
     "editor.detectIndentation": true,
     "editor.indentSize": "tabSize",
-    "editor.tabSize": 4
+    "editor.tabSize": 4,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    }
 }

@@ -1,16 +1,15 @@
-import dayjs from 'dayjs'
-import { nanoid } from 'nanoid'
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import LinesEllipsis from 'react-lines-ellipsis'
-import Comment from '@/assets/img/comment.png'
-import Downvote from '@/assets/img/downvote.png'
-import Upvote from '@/assets/img/upvote.png'
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import dayjs from 'dayjs'
+import { nanoid } from 'nanoid'
+import { useEffect, useMemo, useState } from 'react'
+import LinesEllipsis from 'react-lines-ellipsis'
+import { Link } from 'react-router-dom'
+import ActionBtn from '../ActionBtn'
+import PostFooter from './PostFooter'
 
 export default function Post({
     id = '',
@@ -126,11 +125,14 @@ export default function Post({
 
     const postInfo = (
         <div className="space-y-3">
-            <header className="flex items-center gap-4">
-                <Avatar name={epochKey ?? nanoid()} />
-                <span className="text-xs font-medium tracking-wide text-black/80">
-                    {subtitle}
-                </span>
+            <header className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Avatar name={epochKey ?? nanoid()} />
+                    <span className="text-xs font-medium tracking-wide text-black/80">
+                        {subtitle}
+                    </span>
+                </div>
+                <ActionBtn />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
@@ -164,73 +166,16 @@ export default function Post({
                         <img className="w-full" src={imageUrl} alt={content} />
                     </section>
                 )}
-                <footer className="flex items-center gap-4">
-                    <div
-                        className={`flex items-center gap-1`}
-                        onClick={() => handleVote(VoteAction.UPVOTE)}
-                        style={{
-                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
-                        }}
-                    >
-                        <div
-                            className={`${
-                                isMineState && isAction === VoteAction.UPVOTE
-                                    ? 'border-4 border-white rounded-full'
-                                    : ''
-                            }`}
-                        >
-                            <img
-                                className="w-5 h-5"
-                                src={Upvote}
-                                alt="upvote"
-                            />
-                        </div>
-                        <span className="text-xs font-medium tracking-wide text-black/80">
-                            {localUpCount}
-                        </span>
-                    </div>
-                    <div
-                        className={`flex items-center gap-1`}
-                        onClick={() => handleVote(VoteAction.DOWNVOTE)}
-                        style={{
-                            cursor: isLoggedIn ? 'pointer' : 'not-allowed',
-                        }}
-                    >
-                        <div
-                            className={`${
-                                isMineState && isAction === VoteAction.DOWNVOTE
-                                    ? 'border-4 border-white rounded-full'
-                                    : ''
-                            }`}
-                        >
-                            <img
-                                className="w-5 h-5"
-                                src={Downvote}
-                                alt="downvote"
-                            />
-                        </div>
-                        <span className="text-xs font-medium tracking-wide text-black/80">
-                            {localDownCount}
-                        </span>
-                    </div>
-                    <button
-                        className="flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
-                        disabled={!onComment}
-                        onClick={onComment}
-                    >
-                        <img
-                            className="w-5 h-5"
-                            src={Comment}
-                            alt="comment"
-                            style={{
-                                cursor: isLoggedIn ? 'pointer' : 'not-allowed',
-                            }}
-                        />
-                        <span className="text-xs font-medium tracking-wide text-black/80">
-                            {commentCount}
-                        </span>
-                    </button>
-                </footer>
+                <PostFooter
+                    isLoggedIn={isLoggedIn}
+                    isMineState={isMineState}
+                    countUpVote={localUpCount}
+                    countDownVote={localDownCount}
+                    countComment={commentCount}
+                    voteAction={isAction}
+                    handleVote={handleVote}
+                    handleComment={onComment}
+                />
             </div>
             {compact && imageUrl && (
                 <div className="max-w-[150px] rounded-xl shadow-base hidden">
