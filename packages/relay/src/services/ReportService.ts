@@ -128,7 +128,9 @@ export class ReportService {
 
                 for (let i = 0; i < allReports.length; i++) {
                     const report = allReports[i];
+                    // adjudicateCount < 5, keep adjudicating on next epoch
                     if (report.adjudicateCount < 5) {
+                        reports.push(report)
                         continue
                     }
                     // flatMap adjudicatorsNullifier to [adjudicateValue1, adjudicateValue2, adjudicateValue3]
