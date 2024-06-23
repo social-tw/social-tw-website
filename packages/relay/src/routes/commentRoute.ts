@@ -1,11 +1,11 @@
+import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
-import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { InvalidPostIdError, EmptyCommentError } from '../types/InternalError'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import { EmptyCommentError, InvalidPostIdError } from '../types/InternalError'
 
 export default (
     app: Express,
@@ -23,6 +23,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
+                    1,
                     db
                 )
                 if (!post) {
@@ -46,6 +47,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
+                    1,
                     db
                 )
                 if (!post) {
