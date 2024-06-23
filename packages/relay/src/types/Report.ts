@@ -1,3 +1,8 @@
+export enum ReportType {
+    Post = 0,
+    Comment = 1,
+}
+
 export interface ReportHistory {
     reportId?: string
     type: number // 0: Post, 1: Comment
