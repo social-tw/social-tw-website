@@ -1,3 +1,9 @@
+export enum ReportCategory {
+    Attack = 0, // 對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論
+    Spam = 1, // 張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等
+    R18 = 2, // 張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限
+}
+
 export enum ReportType {
     Post = 0,
     Comment = 1,
@@ -9,7 +15,7 @@ export interface ReportHistory {
     objectId: string // PostId or CommentId
     reportorEpochKey: string // Epoch Key of the person who reported
     reportorClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed
-    respondentEpochKey: string // Epoch Key of the person who was reported
+    respondentEpochKey?: string // Epoch Key of the person who was reported
     respondentClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed
     reason: string // Reason of the report
     adjudicateCount?: number // Number of voters
