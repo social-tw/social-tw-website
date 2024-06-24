@@ -36,7 +36,7 @@ export default (
                     postId as string,
                     db
                 )
-                
+
                 res.json(comments)
             })
         )
