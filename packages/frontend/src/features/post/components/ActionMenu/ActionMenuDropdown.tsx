@@ -11,6 +11,7 @@ interface ActionMenuDropdownProps {
 interface ActionMenuDropdownItemProps {
     icon: ReactElement
     name: string
+    onClick: () => void
 }
 
 interface DropdownItemIconProps {
@@ -39,9 +40,13 @@ export function ActionMenuDropdown({
 export function ActionMenuDropdownItem({
     icon,
     name,
+    onClick,
 }: ActionMenuDropdownItemProps) {
     return (
-        <div className="flex items-center gap-1 cursor-pointer text-white">
+        <div
+            className="flex items-center gap-1 cursor-pointer text-white"
+            onClick={onClick}
+        >
             <DropdownItemIcon icon={icon} />
             {name}
         </div>

@@ -11,6 +11,7 @@ interface ActionMenuBottomSlideProps {
 interface ActionMenuBottomSlideItemProps {
     icon: ReactElement
     name: string
+    onClick: () => void
 }
 
 interface BottomSlideItemIconProps {
@@ -39,9 +40,13 @@ export function ActionMenuBottomSlide({
 export function ActionMenuBottomSlideItem({
     icon,
     name,
+    onClick,
 }: ActionMenuBottomSlideItemProps) {
     return (
-        <div className="flex items-center gap-4 cursor-pointer text-white">
+        <div
+            className="flex items-center gap-4 cursor-pointer text-white"
+            onClick={onClick}
+        >
             <BottomSlideItemIcon icon={icon} />
             {name}
         </div>

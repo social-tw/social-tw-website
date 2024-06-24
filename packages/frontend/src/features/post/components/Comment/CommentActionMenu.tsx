@@ -13,10 +13,18 @@ export function CommentActionMenu() {
     return (
         <ActionMenuContainer onOpen={onOpen}>
             <ActionMenuDropdown isOpen={isOpen} onClose={onClose}>
-                <ActionMenuDropdownItem icon={<BanIcon />} name="檢舉留言" />
+                <ActionMenuDropdownItem
+                    icon={<BanIcon />}
+                    name="檢舉留言"
+                    onClick={() => {}} // TODO: trigger comment report dialog
+                />
             </ActionMenuDropdown>
             <ActionMenuBottomSlide isOpen={isOpen} onClose={onClose}>
-                <ActionMenuBottomSlideItem icon={<BanIcon />} name="檢舉留言" />
+                <ActionMenuBottomSlideItem
+                    icon={<BanIcon />}
+                    name="檢舉留言"
+                    onClick={() => {}} // TODO: trigger comment report dialog
+                />
             </ActionMenuBottomSlide>
         </ActionMenuContainer>
     )
