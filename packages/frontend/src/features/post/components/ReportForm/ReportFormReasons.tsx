@@ -8,7 +8,7 @@ class Option {
     ) {}
 }
 
-export function PostReportReasons() {
+export function ReportFormReasons() {
     const [selected, setSelected] = useState<Option>(getDefaultOption())
     const [isShowingOptionCtn, setIsShowingOptionCtn] = useState(false)
 

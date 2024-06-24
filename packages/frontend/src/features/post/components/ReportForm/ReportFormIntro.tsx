@@ -1,4 +1,4 @@
-export function PostReportIntro() {
+export function ReportFormIntro() {
     return (
         <div>
             <div className="mb-6">親愛的用戶：</div>

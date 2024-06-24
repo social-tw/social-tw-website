@@ -1,4 +1,5 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
+import { useDialog } from '@/features/shared'
 import {
     ActionMenuBottomSlide,
     ActionMenuBottomSlideItem,
@@ -7,33 +8,47 @@ import {
     ActionMenuDropdownItem,
     useActionMenu,
 } from '../ActionMenu'
-import { PostReportDialog, useReportDialog } from '../PostReport'
+import { PostReportDialog } from './PostReportDialog'
 
 export function PostActionMenu() {
-    const { isOpen, onOpen, onClose } = useActionMenu()
     const {
-        isOpen: isReportOpen,
-        onOpen: onReportOpen,
-        onClose: onReportClose,
-    } = useReportDialog()
+        isOpen: isActionMenuOpen,
+        onOpen: onActionMenuOpen,
+        onClose: onActionMenuClose,
+    } = useActionMenu()
+
+    const {
+        isOpen: isReportDialogOpen,
+        onOpen: onReportDialogOpen,
+        onClose: onReportDialogClose,
+    } = useDialog()
 
     return (
-        <ActionMenuContainer onOpen={onOpen}>
-            <ActionMenuDropdown isOpen={isOpen} onClose={onClose}>
+        <ActionMenuContainer onOpen={onActionMenuOpen}>
+            <ActionMenuDropdown
+                isOpen={isActionMenuOpen}
+                onClose={onActionMenuClose}
+            >
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReportOpen}
+                    onClick={onReportDialogOpen}
                 />
             </ActionMenuDropdown>
-            <ActionMenuBottomSlide isOpen={isOpen} onClose={onClose}>
+            <ActionMenuBottomSlide
+                isOpen={isActionMenuOpen}
+                onClose={onActionMenuClose}
+            >
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReportOpen}
+                    onClick={onReportDialogOpen}
                 />
             </ActionMenuBottomSlide>
-            <PostReportDialog isOpen={isReportOpen} onClose={onReportClose} />
+            <PostReportDialog
+                isOpen={isReportDialogOpen}
+                onClose={onReportDialogClose}
+            />
         </ActionMenuContainer>
     )
 }

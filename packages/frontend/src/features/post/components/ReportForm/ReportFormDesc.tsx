@@ -1,4 +1,4 @@
-export function PostReportDescription() {
+export function ReportFormDesc() {
     return (
         <textarea
             className="w-full h-32 resize-none rounded-lg border border-gray-300 p-4"

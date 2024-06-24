@@ -3,11 +3,11 @@ interface PostReportStepLabelProps {
     isRequired: boolean
 }
 
-interface PostReportStepGroupProps {
+interface ReportFormStepGroupProps {
     children: React.ReactNode
 }
 
-export function PostReportStepLabel({
+export function ReportFormStepLabel({
     title,
     isRequired,
 }: PostReportStepLabelProps) {
@@ -19,6 +19,6 @@ export function PostReportStepLabel({
     )
 }
 
-export function PostReportStepGroup({ children }: PostReportStepGroupProps) {
+export function ReportFormStepGroup({ children }: ReportFormStepGroupProps) {
     return <div className="flex flex-col gap-2">{children}</div>
 }
