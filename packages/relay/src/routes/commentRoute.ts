@@ -5,8 +5,11 @@ import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
-import { EmptyCommentError, InvalidPostIdError } from '../types/InternalError'
-import { PostStatus } from '../types/Post'
+import {
+    EmptyCommentError,
+    InvalidPostIdError,
+    PostNotExistError,
+} from '../types/InternalError'
 
 export default (
     app: Express,
@@ -18,18 +21,13 @@ export default (
         .get(
             errorHandler(async (req, res) => {
                 const { postId } = req.query
-                if (!postId) {
-                    throw InvalidPostIdError
-                }
+                if (!postId) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    PostStatus.OnChain,
                     db
                 )
-                if (!post) {
-                    throw InvalidPostIdError
-                }
+                if (!post) throw PostNotExistError
 
                 const comments = await commentService.fetchComments(
                     postId.toString(),
@@ -42,18 +40,18 @@ export default (
         .post(
             errorHandler(async (req, res) => {
                 const { content, postId, publicSignals, proof } = req.body
-                if (!content) {
-                    throw EmptyCommentError
-                }
+
+                if (!content) throw EmptyCommentError
+
+                if (!postId) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    PostStatus.OnChain,
                     db
                 )
-                if (!post) {
-                    throw InvalidPostIdError
-                }
+
+                if (!post) throw PostNotExistError
+
                 const txHash = await commentService.leaveComment(
                     postId.toString(),
                     content,

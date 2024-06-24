@@ -252,15 +252,20 @@ export class PostService {
     }
 
     async fetchSinglePost(
-        id: string,
-        status: number,
-        db: DB
+        postId: string,
+        db: DB,
+        status?: number
     ): Promise<Post | null> {
+        const whereClause = {
+            postId,
+        }
+
+        if (status) {
+            whereClause[status] = status
+        }
+
         const post = await db.findOne('Post', {
-            where: {
-                postId: id,
-                status: status,
-            },
+            where: whereClause,
         })
 
         // Check if the post exists
@@ -271,7 +276,7 @@ export class PostService {
         // Fetch the votes for the post
         // Add the vote data to the post object
         post.votes = await db.findMany('Vote', {
-            where: { postId: id },
+            where: { postId },
         })
 
         return post

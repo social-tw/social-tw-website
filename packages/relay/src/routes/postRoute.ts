@@ -10,8 +10,8 @@ import {
     InvalidEpochKeyError,
     InvalidPageError,
     InvalidPostIdError,
+    PostNotExistError,
 } from '../types/InternalError'
-import { PostStatus } from '../types/Post'
 
 export default (
     app: Express,
@@ -31,9 +31,7 @@ export default (
                 if (!epks) throw InvalidEpochKeyError
                 if (!page) throw InvalidPageError
             }
-            if (isNaN(page) || page < 1) {
-                throw InvalidPageError
-            }
+            if (isNaN(page) || page < 1) throw InvalidPageError
 
             const posts = await postService.fetchPosts(epks, page, db)
             res.json(posts)
@@ -44,9 +42,7 @@ export default (
         '/api/post',
         errorHandler(async (req, res, next) => {
             const { content, publicSignals, proof } = req.body
-            if (!content) {
-                throw EmptyPostError
-            }
+            if (!content) throw EmptyPostError
 
             const txHash = await postService.createPost(
                 content,
@@ -62,20 +58,15 @@ export default (
     )
 
     app.get(
-        '/api/post/:id',
+        '/api/post/:postId',
         errorHandler(async (req, res, next) => {
-            const id = req.params.id
-            const status = req.query.status
-                ? parseInt(req.query.status as string)
-                : PostStatus.OnChain
+            const postId = req.params.postId
 
-            if (!id) {
-                throw InvalidPostIdError
-            }
+            if (!postId) throw InvalidPostIdError
 
-            const post = await postService.fetchSinglePost(id, status, db)
+            const post = await postService.fetchSinglePost(postId, db)
             if (!post) {
-                throw InvalidPostIdError
+                throw PostNotExistError
             } else {
                 res.json(post)
             }

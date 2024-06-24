@@ -3,9 +3,14 @@ import { nanoid } from 'nanoid'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
+import { CommentStatus } from '../types/Comment'
 import {
     CommentNotExistError,
+    CommentReportedError,
+    InvalidCommentIdError,
     InvalidPostIdError,
+    PostNotExistError,
+    PostReportedError,
     ReportObjectTypeNotExistsError,
 } from '../types/InternalError'
 import { PostStatus } from '../types/Post'
@@ -23,19 +28,23 @@ export class ReportService {
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.Post) {
+            if (!reportData.objectId) throw InvalidPostIdError
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
-                PostStatus.OnChain,
                 db
             )
-            if (!post) throw InvalidPostIdError
+            if (!post) throw PostNotExistError
+            if (post.status === PostStatus.Reported) throw PostReportedError
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.Comment) {
+            if (!reportData.objectId) throw InvalidCommentIdError
             const comment = await commentService.fetchSingleComment(
                 reportData.objectId.toString(),
                 db
             )
             if (!comment) throw CommentNotExistError
+            if (comment.status === CommentStatus.Reported)
+                throw CommentReportedError
             reportData.respondentEpochKey = comment.epochKey
         } else {
             throw ReportObjectTypeNotExistsError
