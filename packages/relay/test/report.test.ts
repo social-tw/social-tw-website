@@ -223,7 +223,7 @@ describe('POST /api/report/create', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Invalid postId')
+                expect(res.body.error).to.be.equal('Post has been reported')
             })
     })
 
