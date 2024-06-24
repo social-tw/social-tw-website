@@ -5,6 +5,7 @@ import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
+import Validator from '../services/utils/Validator'
 import {
     EmptyCommentError,
     InvalidPostIdError,
@@ -21,7 +22,8 @@ export default (
         .get(
             errorHandler(async (req, res) => {
                 const { postId } = req.query
-                if (!postId) throw InvalidPostIdError
+
+                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
@@ -43,7 +45,7 @@ export default (
 
                 if (!content) throw EmptyCommentError
 
-                if (!postId) throw InvalidPostIdError
+                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),

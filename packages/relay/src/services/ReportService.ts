@@ -17,6 +17,7 @@ import { PostStatus } from '../types/Post'
 import { ReportHistory, ReportType } from '../types/Report'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
+import Validator from './utils/Validator'
 
 export class ReportService {
     async verifyReportData(
@@ -28,7 +29,9 @@ export class ReportService {
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.Post) {
-            if (!reportData.objectId) throw InvalidPostIdError
+            if (!Validator.isValidNumber(reportData.objectId))
+                throw InvalidPostIdError
+
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
                 db
@@ -37,7 +40,8 @@ export class ReportService {
             if (post.status === PostStatus.Reported) throw PostReportedError
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.Comment) {
-            if (!reportData.objectId) throw InvalidCommentIdError
+            if (!Validator.isValidNumber(reportData.objectId))
+                throw InvalidCommentIdError
             const comment = await commentService.fetchSingleComment(
                 reportData.objectId.toString(),
                 db

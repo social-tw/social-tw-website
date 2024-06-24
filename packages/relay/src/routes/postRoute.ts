@@ -1,10 +1,10 @@
+import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
-
-import type { Helia } from '@helia/interface'
-import { postService } from '../services/PostService'
+import Validator from '../services/utils/Validator'
 import {
     EmptyPostError,
     InvalidEpochKeyError,
@@ -62,7 +62,7 @@ export default (
         errorHandler(async (req, res, next) => {
             const postId = req.params.postId
 
-            if (!postId) throw InvalidPostIdError
+            if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
             const post = await postService.fetchSinglePost(postId, db)
             if (!post) {
