@@ -1,3 +1,9 @@
+export enum ReportStatus {
+    Voting = 0,
+    WaitingForTx = 1,
+    Completed = 2,
+}
+
 export enum ReportCategory {
     Attack = 0, // 對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論
     Spam = 1, // 張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等
@@ -7,6 +13,11 @@ export enum ReportCategory {
 export enum ReportType {
     Post = 0,
     Comment = 1,
+}
+
+export enum AdjudicateValue {
+    Disagree = 0,
+    Agree = 1,
 }
 
 export interface ReportHistory {

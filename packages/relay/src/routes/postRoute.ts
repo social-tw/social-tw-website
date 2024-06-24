@@ -11,6 +11,7 @@ import {
     InvalidPageError,
     InvalidPostIdError,
 } from '../types/InternalError'
+import { PostStatus } from '../types/Post'
 
 export default (
     app: Express,
@@ -66,7 +67,7 @@ export default (
             const id = req.params.id
             const status = req.query.status
                 ? parseInt(req.query.status as string)
-                : 1
+                : PostStatus.OnChain
 
             if (!id) {
                 throw InvalidPostIdError

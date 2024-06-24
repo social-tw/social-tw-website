@@ -1,3 +1,9 @@
+export enum PostStatus {
+    NotOnChain = 0,
+    OnChain = 1,
+    Reported = 2,
+}
+
 export type Post = {
     postId: string | undefined
     content: string | undefined

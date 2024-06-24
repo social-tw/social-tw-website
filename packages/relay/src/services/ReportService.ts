@@ -6,7 +6,9 @@ import { postService } from '../services/PostService'
 import {
     CommentNotExistError,
     InvalidPostIdError,
+    ReportObjectTypeNotExistsError,
 } from '../types/InternalError'
+import { PostStatus } from '../types/Post'
 import { ReportHistory, ReportType } from '../types/Report'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
@@ -23,7 +25,7 @@ export class ReportService {
         if (reportData.type === ReportType.Post) {
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
-                1,
+                PostStatus.OnChain,
                 db
             )
             if (!post) throw InvalidPostIdError
@@ -35,6 +37,8 @@ export class ReportService {
             )
             if (!comment) throw CommentNotExistError
             reportData.respondentEpochKey = comment.epochKey
+        } else {
+            throw ReportObjectTypeNotExistsError
         }
         // 1.b Check if the epoch key is valid
         await ProofHelper.getAndVerifyEpochKeyProof(
@@ -52,16 +56,10 @@ export class ReportService {
             type: reportData.type,
             objectId: reportData.objectId,
             reportorEpochKey: reportData.reportorEpochKey,
-            reportorClaimedRep: reportData.reportorClaimedRep ?? false,
             respondentEpochKey: reportData.respondentEpochKey,
-            respondentClaimedRep: reportData.respondentClaimedRep ?? false,
             reason: reportData.reason,
-            adjudicateCount: reportData.adjudicateCount ?? 0,
-            adjudicatorsNullifier: reportData.adjudicatorsNullifier,
-            status: reportData.status ?? 0,
             category: reportData.category,
             reportEpoch: reportData.reportEpoch,
-            reportAt: reportData.reportAt ?? (+new Date()).toString(),
         })
         return reportId
     }

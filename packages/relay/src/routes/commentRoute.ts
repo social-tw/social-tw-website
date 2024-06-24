@@ -6,6 +6,7 @@ import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import { EmptyCommentError, InvalidPostIdError } from '../types/InternalError'
+import { PostStatus } from '../types/Post'
 
 export default (
     app: Express,
@@ -23,7 +24,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    1,
+                    PostStatus.OnChain,
                     db
                 )
                 if (!post) {
@@ -47,7 +48,7 @@ export default (
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
-                    1,
+                    PostStatus.OnChain,
                     db
                 )
                 if (!post) {

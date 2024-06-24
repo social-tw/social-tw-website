@@ -82,3 +82,9 @@ export const EmptyCommentError = new InternalError(
 // transaction related error
 export const UninitializedError = new InternalError('Not initialized', 400)
 export const NoDBConnectedError = new InternalError('No db connected', 400)
+
+// report related error
+export const ReportObjectTypeNotExistsError = new InternalError(
+    'Report object type does not exist',
+    400
+)
