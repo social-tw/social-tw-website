@@ -1,17 +1,20 @@
-import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
-import { SQLiteConnector } from 'anondb/node'
-import { IncrementalMerkleTree } from '@unirep/utils'
 import {
-    CircuitConfig,
+    defaultProver,
+    defaultProver as prover,
+} from '@unirep-app/circuits/provers/defaultProver'
+import {
     Circuit,
-    EpochKeyProof,
+    CircuitConfig,
     EpochKeyLiteProof,
+    EpochKeyProof,
 } from '@unirep/circuits'
-import { schema, UserState } from '@unirep/core'
-import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
-import { poseidon1 } from 'poseidon-lite'
+import { UserState, schema } from '@unirep/core'
+import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
+import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
+import { ethers } from 'hardhat'
+import { poseidon1 } from 'poseidon-lite'
 import { IdentityObject } from './types'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
@@ -168,3 +171,86 @@ export const randomData = () => [
                 BigInt(2) ** BigInt(253)
         ),
 ]
+
+export function genReportNegRepCircuitInput(config: {
+    reportedEpochKey: any
+    hashUserId: string | bigint
+    reportedEpoch: number | bigint
+    currentEpoch: number | bigint
+    currentNonce: number | bigint
+    chainId: number | bigint
+    attesterId: number | bigint
+}) {
+    const {
+        reportedEpochKey,
+        hashUserId,
+        reportedEpoch,
+        currentEpoch,
+        currentNonce,
+        chainId,
+        attesterId,
+    } = Object.assign(config)
+
+    const circuitInputs = {
+        reported_epoch_key: reportedEpochKey,
+        hash_user_id: hashUserId,
+        reported_epoch: reportedEpoch,
+        current_epoch: currentEpoch,
+        current_nonce: currentNonce,
+        chain_id: chainId,
+        attester_id: attesterId,
+    }
+    return stringifyBigInts(circuitInputs)
+}
+
+export function genReportNullifierCircuitInput(config: {
+    reportNullifier: any
+    hashUserId: string | bigint
+    postId: number | bigint
+    currentEpoch: number | bigint
+    currentNonce: number | bigint
+    chainId: number | bigint
+    attesterId: number | bigint
+}) {
+    const {
+        reportNullifier,
+        hashUserId,
+        postId,
+        currentEpoch,
+        currentNonce,
+        chainId,
+        attesterId,
+    } = Object.assign(config)
+
+    const circuitInputs = {
+        report_nullifier: reportNullifier,
+        hash_user_id: hashUserId,
+        post_id: postId,
+        current_epoch: currentEpoch,
+        current_nonce: currentNonce,
+        chain_id: chainId,
+        attester_id: attesterId,
+    }
+    return stringifyBigInts(circuitInputs)
+}
+
+export async function genProofAndVerify(
+    circuit: Circuit | string,
+    circuitInputs: any
+) {
+    const startTime = new Date().getTime()
+    const { proof, publicSignals } =
+        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    const endTime = new Date().getTime()
+    console.log(
+        `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
+            (endTime - startTime) / 1000
+        )} s)`
+    )
+    const isValid = await defaultProver.verifyProof(
+        circuit,
+        publicSignals,
+        proof
+    )
+    return { isValid, proof, publicSignals }
+}
