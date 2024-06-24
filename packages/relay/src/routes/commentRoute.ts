@@ -26,15 +26,17 @@ export default (
                 if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
-                    postId.toString(),
+                    postId as string,
                     db
                 )
+
                 if (!post) throw PostNotExistError
 
                 const comments = await commentService.fetchComments(
-                    postId.toString(),
+                    postId as string,
                     db
                 )
+                
                 res.json(comments)
             })
         )
