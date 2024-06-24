@@ -9,6 +9,7 @@ import {
     CommentReportedError,
     InvalidCommentIdError,
     InvalidPostIdError,
+    InvalidReportError,
     InvalidReportStatusError,
     PostNotExistError,
     PostReportedError,
@@ -16,6 +17,7 @@ import {
     ReportObjectTypeNotExistsError,
     ReportStatus,
     ReportType,
+    UserAlreadyVotedError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
@@ -143,16 +145,90 @@ export class ReportService {
     async voteOnReport(
         id: string,
         nullifier: string,
-        adjudicateValue: AdjudicateValue
+        adjudicateValue: AdjudicateValue,
+        db: DB
     ) {
-        // add voter into adjudicatorsNullifier
-        // update adjudicateCount
+        const report = await this.fetchSingleReport(id, db)
+        if (!report) {
+            throw InvalidReportError
+        }
+
+        // check if user voted or not
+        if (this.isVoted(nullifier, report)) {
+            throw UserAlreadyVotedError
+        }
+
+        const adjudicatorsNullifier = this.upsertAdjudicatorsNullifier(
+            nullifier,
+            adjudicateValue,
+            report
+        )
+
+        // update adjudicatorsNullifier && adjudicateCount
+        await db.update('ReportHistory', {
+            where: {
+                reportId: id,
+            },
+            update: {
+                adjudicatorsNullifier: adjudicatorsNullifier,
+                adjudicateCount: report.adjudicateCount! + 1,
+            },
+        })
+    }
+
+    upsertAdjudicatorsNullifier(
+        nullifier: string,
+        adjudicateValue: AdjudicateValue,
+        report: ReportHistory
+    ): AdjudicatorsNullifier {
+        const adjudicator = {
+            nullifier: nullifier,
+            claimed: false,
+        }
+
+        switch (adjudicateValue) {
+            case AdjudicateValue.AGREE:
+                adjudicator[adjudicateValue] = 1
+                break
+            case AdjudicateValue.DISAGREE:
+                adjudicator[adjudicateValue] = 0
+                break
+            default:
+                throw InvalidAdjudicateValueError
+        }
+
+        let adjudicatorsNullifier
+        if (!report.adjudicatorsNullifier) {
+            // if this is the first time to vote on the report, create an adjudicatorsNullifier object
+            adjudicatorsNullifier = {
+                rows: [adjudicator],
+            }
+        } else {
+            // push the new adjudicator into adjudicatorsNullifier.rows
+            adjudicatorsNullifier = Object.assign(report.adjudicatorsNullifier)
+            adjudicatorsNullifier.rows.push(adjudicator)
+        }
+
+        return adjudicatorsNullifier
+    }
+
+    isVoted(nullifier: string, report: ReportHistory): boolean {
+        const adjudicators = (
+            report.adjudicatorsNullifier as AdjudicatorsNullifier
+        ).rows
+        if (!adjudicators || adjudicators.length == 0) {
+            return false
+        }
+
+        return adjudicators.some(
+            (adjudicator) => adjudicator.nullifier == nullifier
+        )
     }
 
     async fetchSingleReport(id: string, db: DB): Promise<ReportHistory | null> {
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportId: id
+                reportId: id,
             },
         })
 
