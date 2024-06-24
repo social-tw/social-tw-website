@@ -1,11 +1,16 @@
+import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
-import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
-import type { Helia } from '@helia/interface'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { InvalidPostIdError, EmptyCommentError } from '../types/InternalError'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import Validator from '../services/utils/Validator'
+import {
+    EmptyCommentError,
+    InvalidPostIdError,
+    PostNotExistError,
+} from '../types/InternalError'
 
 export default (
     app: Express,
@@ -17,22 +22,21 @@ export default (
         .get(
             errorHandler(async (req, res) => {
                 const { postId } = req.query
-                if (!postId) {
-                    throw InvalidPostIdError
-                }
+
+                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
-                    postId.toString(),
+                    postId as string,
                     db
                 )
-                if (!post) {
-                    throw InvalidPostIdError
-                }
+
+                if (!post) throw PostNotExistError
 
                 const comments = await commentService.fetchComments(
-                    postId.toString(),
+                    postId as string,
                     db
                 )
+
                 res.json(comments)
             })
         )
@@ -40,17 +44,18 @@ export default (
         .post(
             errorHandler(async (req, res) => {
                 const { content, postId, publicSignals, proof } = req.body
-                if (!content) {
-                    throw EmptyCommentError
-                }
+
+                if (!content) throw EmptyCommentError
+
+                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
                     db
                 )
-                if (!post) {
-                    throw InvalidPostIdError
-                }
+
+                if (!post) throw PostNotExistError
+
                 const txHash = await commentService.leaveComment(
                     postId.toString(),
                     content,

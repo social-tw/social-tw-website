@@ -1,22 +1,22 @@
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 
-import { deployContracts, startServer, stopServer } from './environment'
+import { SQLiteConnector } from 'anondb/node'
+import { APP_ABI as abi } from '../src/config'
+import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import IpfsHelper from '../src/services/utils/IpfsHelper'
+import { deployContracts, startServer, stopServer } from './environment'
+import { postData } from './mocks/posts'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
-import { signUp } from './utils/signUp'
-import { SQLiteConnector } from 'anondb/node'
-import { postData } from './mocks/posts'
-import { PostService } from '../src/services/PostService'
-import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
 import { post } from './utils/post'
-import IpfsHelper from '../src/services/utils/IpfsHelper'
-import { APP_ABI as abi } from '../src/config'
+import { signUp } from './utils/signUp'
+import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
 
 describe('POST /post', function () {
     let snapshot: any
@@ -87,11 +87,13 @@ describe('POST /post', function () {
         const res = await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .send({
-                content: testContent,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -159,11 +161,13 @@ describe('POST /post', function () {
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .send({
-                content: testContent,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid proof')
@@ -198,11 +202,13 @@ describe('POST /post', function () {
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .send({
-                content: testContent,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    content: testContent,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid epoch')
