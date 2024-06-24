@@ -37,8 +37,10 @@ export class CommentService {
         }
 
         if (status) {
-            whereClause[status] = status
+            whereClause['status'] = status
         }
+
+        console.log('whereClause:', whereClause)
 
         const comment = await db.findOne('Comment', {
             where: whereClause,

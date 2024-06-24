@@ -261,7 +261,7 @@ export class PostService {
         }
 
         if (status) {
-            whereClause[status] = status
+            whereClause['status'] = status
         }
 
         const post = await db.findOne('Post', {
