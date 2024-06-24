@@ -1,14 +1,14 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import Validator from '../services/utils/Validator'
 import { voteService } from '../services/VoteService'
 import {
     InvalidPostIdError,
-    InvalidVoteActionError,
-    InvalidPublicSignalError,
     InvalidProofError,
-    InvalidParametersError,
+    InvalidPublicSignalError,
+    InvalidVoteActionError,
 } from '../types/InternalError'
 
 export default (
@@ -21,18 +21,13 @@ export default (
         errorHandler(async (req, res, _) => {
             //vote for post with _id
             const { postId, voteAction, publicSignals, proof } = req.body
-            if (postId == undefined) {
-                throw InvalidPostIdError
-            }
-            if (voteAction == undefined) {
-                throw InvalidVoteActionError
-            }
-            if (publicSignals == undefined) {
-                throw InvalidPublicSignalError
-            }
-            if (proof == undefined) {
-                throw InvalidProofError
-            }
+            if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
+
+            if (voteAction == undefined) throw InvalidVoteActionError
+
+            if (publicSignals == undefined) throw InvalidPublicSignalError
+
+            if (proof == undefined) throw InvalidProofError
 
             await voteService.vote(
                 postId,

@@ -1,19 +1,19 @@
+import { UserState } from '@unirep/core'
+import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
+import { APP_ABI as abi } from '../src/config'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { UserStateFactory } from './utils/UserStateFactory'
+import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { Post } from '../src/types/Post'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
+import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
-import { APP_ABI as abi } from '../src/config'
-import IpfsHelper from '../src/services/utils/IpfsHelper'
 
 describe('COMMENT /comment', function () {
     let snapshot: any
@@ -104,10 +104,8 @@ describe('COMMENT /comment', function () {
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
-                    publicSignals: stringifyBigInts(
-                        epochKeyProof.publicSignals
-                    ),
-                    proof: stringifyBigInts(epochKeyProof.proof),
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
                 })
             )
             .then((res) => {

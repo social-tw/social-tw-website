@@ -54,12 +54,20 @@ export const InvalidDirectionError = new InternalError(
     400
 )
 
-// vote/post related error
+// post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
+export const PostNotExistError = new InternalError('Post does not exist', 400)
+export const PostReportedError = new InternalError(
+    'Post has been reported',
+    400
+)
+
+// vote related error
 export const InvalidVoteActionError = new InternalError(
     'Invalid vote action',
     400
 )
+
 export const InvalidPageError = new InternalError(
     'Invalid page: page is undefined',
     400
@@ -70,8 +78,13 @@ export const EmptyPostError = new InternalError(
 )
 
 // comment related error
+export const InvalidCommentIdError = new InternalError('Invalid commentId', 400)
 export const CommentNotExistError = new InternalError(
     'Comment does not exist',
+    400
+)
+export const CommentReportedError = new InternalError(
+    'Comment has been reported',
     400
 )
 export const EmptyCommentError = new InternalError(
@@ -82,3 +95,9 @@ export const EmptyCommentError = new InternalError(
 // transaction related error
 export const UninitializedError = new InternalError('Not initialized', 400)
 export const NoDBConnectedError = new InternalError('No db connected', 400)
+
+// report related error
+export const ReportObjectTypeNotExistsError = new InternalError(
+    'Report object type does not exist',
+    400
+)
