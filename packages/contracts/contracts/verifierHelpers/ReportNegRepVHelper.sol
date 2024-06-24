@@ -6,7 +6,7 @@ import { Unirep } from "@unirep/contracts/Unirep.sol";
 import { IVerifier } from "@unirep/contracts/interfaces/IVerifier.sol";
 import { IVerifierHelper } from "../interfaces/IVerifierHelper.sol";
 
-contract ReportNullifierVerifierHelper is BaseVerifierHelper, IVerifierHelper {
+contract ReportNegRepVHelper is BaseVerifierHelper, IVerifierHelper {
     constructor(
         Unirep _unirep,
         IVerifier _verifier
