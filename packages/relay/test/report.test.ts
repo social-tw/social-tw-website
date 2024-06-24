@@ -5,6 +5,7 @@ import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { CommentStatus } from '../src/types/Comment'
 import { Post } from '../src/types/Post'
 import { ReportCategory, ReportHistory, ReportType } from '../src/types/Report'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -80,7 +81,11 @@ describe('POST /api/report/create', function () {
             nonce++
         })
 
-        const resComment = await commentService.fetchSingleComment('0', db, 1)
+        const resComment = await commentService.fetchSingleComment(
+            '0',
+            db,
+            CommentStatus.OnChain
+        )
         expect(resComment).to.be.exist
 
         chainId = await unirep.chainid()
@@ -106,11 +111,13 @@ describe('POST /api/report/create', function () {
         await express
             .post('/api/report/create')
             .set('content-type', 'application/json')
-            .send({
-                _reportData: reportData,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then(async (res) => {
                 expect(res).to.have.status(200)
                 expect(res.body).to.have.property('reportId')
@@ -141,11 +148,13 @@ describe('POST /api/report/create', function () {
         await express
             .post('/api/report/create')
             .set('content-type', 'application/json')
-            .send({
-                _reportData: reportData,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid proof')
@@ -168,18 +177,24 @@ describe('POST /api/report/create', function () {
         await express
             .post('/api/report/create')
             .set('content-type', 'application/json')
-            .send({
-                _reportData: reportData,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 expect(res.body).to.have.property('reportId')
             })
 
         // Verify that the comment status is updated
-        const comment = await commentService.fetchSingleComment('0', db, 3)
+        const comment = await commentService.fetchSingleComment(
+            '0',
+            db,
+            CommentStatus.Reported
+        )
         expect(comment).to.be.exist
     })
 
@@ -199,11 +214,13 @@ describe('POST /api/report/create', function () {
         await express
             .post('/api/report/create')
             .set('content-type', 'application/json')
-            .send({
-                _reportData: reportData,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid postId')
@@ -226,11 +243,13 @@ describe('POST /api/report/create', function () {
         await express
             .post('/api/report/create')
             .set('content-type', 'application/json')
-            .send({
-                _reportData: reportData,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
-            })
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid postId')

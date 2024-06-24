@@ -21,8 +21,8 @@ export async function comment(
             stringifyBigInts({
                 content: testContent,
                 postId: postId,
-                publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-                proof: stringifyBigInts(epochKeyProof.proof),
+                publicSignals: epochKeyProof.publicSignals,
+                proof: epochKeyProof.proof,
             })
         )
         .then((res) => {

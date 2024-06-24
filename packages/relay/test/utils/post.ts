@@ -16,11 +16,13 @@ export async function post(
     const res = await server
         .post('/api/post')
         .set('content-type', 'application/json')
-        .send({
-            content: testContent,
-            publicSignals: stringifyBigInts(epochKeyProof.publicSignals),
-            proof: stringifyBigInts(epochKeyProof.proof),
-        })
+        .send(
+            stringifyBigInts({
+                content: testContent,
+                publicSignals: epochKeyProof.publicSignals,
+                proof: epochKeyProof.proof,
+            })
+        )
 
     expect(res).to.have.status(200)
 
