@@ -1,8 +1,8 @@
 import { DB } from 'anondb/node'
 import { Express, Request, Response } from 'express'
+import { reportService } from '../services/ReportService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
-import { reportService } from '../services/ReportService'
 
 export default (
     app: Express,
@@ -10,7 +10,7 @@ export default (
     synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
-        '/api/report/create',
+        '/api/report',
         errorHandler(async (req: Request, res: Response) => {
             const { _reportData, publicSignals, proof } = req.body
             // 1. Validate request body

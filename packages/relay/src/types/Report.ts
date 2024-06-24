@@ -20,6 +20,12 @@ export enum AdjudicateValue {
     Agree = 1,
 }
 
+export type Adjudicator = {
+    nullifier: string
+    adjudicateValue: number // 1: agree, 0: disagree
+    claimed: boolean // TRUE: claimed, FALSE: not claimed
+}
+
 export interface ReportHistory {
     reportId?: string
     type: number // 0: Post, 1: Comment
@@ -30,12 +36,7 @@ export interface ReportHistory {
     respondentClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed
     reason: string // Reason of the report
     adjudicateCount?: number // Number of voters
-    adjudicatorsNullifier?: {
-        // Nullifier of the voter who replied
-        nullifier: string
-        adjudicateValue: number // 1: agree, 0: disagree
-        claimed: boolean // TRUE: claimed, FALSE: not claimed
-    }[]
+    adjudicatorsNullifier?: Adjudicator[]
     status?: number // 0: Voting, 1: Waiting for Tx, 2: Completed
     category: number
     reportEpoch: number

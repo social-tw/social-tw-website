@@ -14,7 +14,7 @@ import { comment } from './utils/comment'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
-describe('POST /api/report/create', function () {
+describe('POST /api/report', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let userState: UserState
@@ -109,7 +109,7 @@ describe('POST /api/report/create', function () {
         })
 
         await express
-            .post('/api/report/create')
+            .post('/api/report')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -146,7 +146,7 @@ describe('POST /api/report/create', function () {
         epochKeyProof.publicSignals[0] = BigInt(0)
 
         await express
-            .post('/api/report/create')
+            .post('/api/report')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -175,7 +175,7 @@ describe('POST /api/report/create', function () {
         })
 
         await express
-            .post('/api/report/create')
+            .post('/api/report')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -212,7 +212,7 @@ describe('POST /api/report/create', function () {
         })
 
         await express
-            .post('/api/report/create')
+            .post('/api/report')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -241,7 +241,7 @@ describe('POST /api/report/create', function () {
         })
 
         await express
-            .post('/api/report/create')
+            .post('/api/report')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({

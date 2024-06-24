@@ -32,11 +32,16 @@ export class CommentService {
         db: DB,
         status?: number
     ): Promise<Comment> {
+        const whereClause = {
+            commentId,
+        }
+
+        if (status) {
+            whereClause[status] = status
+        }
+
         const comment = await db.findOne('Comment', {
-            where: {
-                commentId: commentId,
-                status: status ?? 1,
-            },
+            where: whereClause,
         })
 
         return comment

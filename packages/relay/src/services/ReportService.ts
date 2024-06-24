@@ -79,9 +79,17 @@ export class ReportService {
 
     async updateObjectStatus(db: DB, reportData: ReportHistory) {
         if (reportData.type === ReportType.Post) {
-            postService.updatePostStatus(reportData.objectId, 2, db)
+            postService.updatePostStatus(
+                reportData.objectId,
+                PostStatus.Reported,
+                db
+            )
         } else if (reportData.type === ReportType.Comment) {
-            commentService.updateCommentStatus(reportData.objectId, 3, db)
+            commentService.updateCommentStatus(
+                reportData.objectId,
+                CommentStatus.Reported,
+                db
+            )
         }
     }
 }
