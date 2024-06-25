@@ -4,7 +4,7 @@ import { reportService } from '../services/ReportService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 
-import { ReportStatus } from '../types'
+import Validator from '../services/utils/Validator'
 import { InvalidReportStatusError } from '../types/InternalError'
 
 export default (
@@ -31,17 +31,17 @@ export default (
             res.json({ reportId })
         })
     )
-    
+
     app.get(
         '/api/report',
-        errorHandler( async (req: Request, res: Response) => {
+        errorHandler(async (req: Request, res: Response) => {
             const { status } = req.query
-            if (!status) {
+            if (!Validator.isValidNumber(status)) {
                 throw InvalidReportStatusError
             }
 
             const reports = await reportService.fetchReport(
-                ReportStatus[status.toString()],
+                Number(status),
                 synchronizer,
                 db
             )

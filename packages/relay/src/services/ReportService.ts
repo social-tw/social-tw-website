@@ -13,7 +13,7 @@ import {
     InvalidReportStatusError,
     PostNotExistError,
     PostReportedError,
-    ReportObjectTypeNotExistsError
+    ReportObjectTypeNotExistsError,
 } from '../types/InternalError'
 import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -98,59 +98,30 @@ export class ReportService {
         status: ReportStatus,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
-    ): Promise<any[]> {
-        const epoch = synchronizer.calcCurrentEpoch()
+    ): Promise<ReportHistory[] | null> {
+        const epoch = await synchronizer.loadCurrentEpoch()
         let reports
 
         switch (status) {
             // VOTEING reports meet below condition
             // 1. reportEpoch = current Epoch - 1
             // 2. the result of adjudication is tie, should vote again
+            // p.s. synchronizer would handle the adjudication result,
+            // we can assume all reports whose status is VOTING are already handled by synchronizer
             case ReportStatus.VOTING:
                 reports = await db.findMany('ReportHistory', {
                     where: {
                         AND: [
-                            { reportEpoch: epoch - 1 },
+                            { reportEpoch: { lt: epoch } },
                             { status: ReportStatus.VOTING },
                         ],
                     },
                 })
-
-                // fetch all reports whose status is still voting
-                const allReports = await db.findMany('ReportHistory', {
-                    where: {
-                        AND: [
-                            { reportEpoch: { lt: epoch - 1 } },
-                            { status: ReportStatus.VOTING },
-                        ],
-                    },
-                })
-
-                for (let i = 0; i < allReports.length; i++) {
-                    const report = allReports[i]
-                    // adjudicateCount < 5, keep adjudicating on next epoch
-                    if (report.adjudicateCount < 5) {
-                        reports.push(report)
-                        continue
-                    }
-                    // flatMap adjudicatorsNullifier to [adjudicateValue1, adjudicateValue2, adjudicateValue3]
-                    // agree: 1, disagree: 0, if the value is disagree, then -1
-                    const result = report.adjudicatorsNullifier.rows
-                        .flatMap((nullifier) => nullifier.adjudicateValue)
-                        .reduce((acc, value) => {
-                            if (Number(value) == 0) {
-                                return acc - 1
-                            }
-                            return acc + 1
-                        })
-
-                    // the result of adjudication is tie
-                    if (result == 0) {
-                        reports.push(report)
-                    }
-                }
                 break
             // WAITING_FOR_TRANSACTION is for client side to claim reputation use
+            // reports whose report epoch is equal to current epoch are pending reports
+            // the status should be always VOTING, so the where clause don't search
+            // current epoch
             case ReportStatus.WAITING_FOR_TRANSACTION:
                 reports = await db.findMany('ReportHistory', {
                     where: {
@@ -160,6 +131,7 @@ export class ReportService {
                         ],
                     },
                 })
+                break
             default:
                 throw InvalidReportStatusError
         }
