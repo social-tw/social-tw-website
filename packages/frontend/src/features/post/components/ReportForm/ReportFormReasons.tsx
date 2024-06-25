@@ -28,6 +28,21 @@ interface ReportFormReasonsProps {
     trigger: UseFormTrigger<FieldValues>
 }
 
+interface OptionControllerProps {
+    option: Option
+    isShowingOptionCtn: boolean
+    onClick: () => void
+}
+
+interface OptionContainerProps {
+    children: React.ReactNode
+}
+
+interface OptionItemProps {
+    option: Option
+    onClick: (option: Option) => void
+}
+
 export const REGISTER_ID = 'reason'
 
 export function ReportFormReasons({
@@ -37,11 +52,7 @@ export function ReportFormReasons({
     getValues,
     trigger,
 }: ReportFormReasonsProps) {
-    const shouldShowErrorHint = errors[REGISTER_ID]
-    register(REGISTER_ID, {
-        required: true,
-        validate: { positive: (x) => x > 0 },
-    })
+    register(REGISTER_ID, { required: true, validate: getValidate() })
 
     const [selected, setSelected] = useState<Option>(
         getDefaultOption(getValues(REGISTER_ID)),
@@ -49,15 +60,19 @@ export function ReportFormReasons({
     const [isShowingOptionCtn, setIsShowingOptionCtn] = useState(false)
 
     const options = useMemo(() => getOptions(), [])
-    const onClickOptionItem = (option: Option) => {
+
+    const onSelectOption = (option: Option) => {
         setSelected(option)
         setIsShowingOptionCtn(false)
         setValue(REGISTER_ID, option.value)
         trigger(REGISTER_ID)
     }
+
     const onToggleOptionCtn = () => {
         setIsShowingOptionCtn(!isShowingOptionCtn)
     }
+
+    const hasError = errors[REGISTER_ID]
 
     return (
         <ReportFormStepContent>
@@ -72,14 +87,12 @@ export function ReportFormReasons({
                         <OptionItem
                             key={option.value}
                             option={option}
-                            onClick={onClickOptionItem}
+                            onClick={onSelectOption}
                         />
                     ))}
                 </OptionContainer>
             )}
-            {shouldShowErrorHint && (
-                <ReportFormStepErrorHint msg={'此為必選欄位'} />
-            )}
+            {hasError && <ReportFormStepErrorHint msg={'此為必選欄位'} />}
         </ReportFormStepContent>
     )
 }
@@ -88,11 +101,7 @@ function OptionController({
     option,
     isShowingOptionCtn,
     onClick,
-}: {
-    option: Option
-    isShowingOptionCtn: boolean
-    onClick: () => void
-}) {
+}: OptionControllerProps) {
     const textColor = option.value === -1 ? 'text-gray-400' : 'text-black'
     const icon = isShowingOptionCtn ? <IoIosArrowUp /> : <IoIosArrowDown />
     return (
@@ -111,7 +120,7 @@ function OptionController({
     )
 }
 
-function OptionContainer({ children }: { children: React.ReactNode }) {
+function OptionContainer({ children }: OptionContainerProps) {
     return (
         <div className="z-10 max-h-[200px] overflow-y-scroll mt-1 flex flex-col gap-2 absolute border border-gray-300 bg-white py-4 px-2 rounded-lg">
             {children}
@@ -119,13 +128,7 @@ function OptionContainer({ children }: { children: React.ReactNode }) {
     )
 }
 
-function OptionItem({
-    option,
-    onClick,
-}: {
-    option: Option
-    onClick: (option: Option) => void
-}) {
+function OptionItem({ option, onClick }: OptionItemProps) {
     return (
         <div
             className="flex gap-2 hover:bg-[#FF892A] hover:bg-opacity-30 p-2 rounded-[4px] cursor-pointer"
@@ -138,11 +141,9 @@ function OptionItem({
 }
 
 function getDefaultOption(index: number) {
-    if (index <= 0) {
-        return new Option(-1, '請選擇檢舉原因')
-    } else {
-        return getOptions()[index - 1]
-    }
+    return index <= 0
+        ? new Option(-1, '請選擇檢舉原因')
+        : getOptions()[index - 1]
 }
 
 function getOptions() {
@@ -164,4 +165,8 @@ function getOptions() {
         new Option(6, '文章內容空泛或明顯無意義內容'),
         new Option(7, '其他'),
     ]
+}
+
+function getValidate() {
+    return { positive: (x: number) => x > 0 }
 }

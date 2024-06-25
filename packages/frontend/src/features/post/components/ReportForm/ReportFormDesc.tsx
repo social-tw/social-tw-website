@@ -12,7 +12,7 @@ interface ReportFormDescProps {
 export const REGISTER_ID = 'desc'
 
 export function ReportFormDesc({ register, errors }: ReportFormDescProps) {
-    const shouldShowErrorHint = errors[REGISTER_ID]
+    const hasError = errors[REGISTER_ID]
     return (
         <ReportFormStepContent>
             <textarea
@@ -20,7 +20,7 @@ export function ReportFormDesc({ register, errors }: ReportFormDescProps) {
                 className="w-full h-32 resize-none rounded-lg border border-gray-300 p-4 mb-[-5px]"
                 placeholder="請於此填寫檢舉原因，至少10個字"
             />
-            {shouldShowErrorHint && (
+            {hasError && (
                 <ReportFormStepErrorHint msg={'檢舉描述長度至少為10個字'} />
             )}
         </ReportFormStepContent>
