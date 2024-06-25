@@ -1,19 +1,25 @@
 import { UserState } from '@unirep/core'
+import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
-
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { CommentStatus } from '../src/types/Comment'
 import { Post } from '../src/types/Post'
+import {
+    ReportCategory,
+    ReportHistory,
+    ReportStatus,
+    ReportType,
+} from '../src/types/Report'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
-describe('Report /report', function () {
+describe('POST /api/report', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let userState: UserState
@@ -21,11 +27,12 @@ describe('Report /report', function () {
     let chainId: number
     let db: any
     let nonce: number = 0
+    const EPOCH_LENGTH = 100000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app } = await deployContracts(EPOCH_LENGTH)
         // start server
         const {
             db: _db,
@@ -37,9 +44,6 @@ describe('Report /report', function () {
         db = _db
         express = chaiServer
         sync = synchronizer
-        express = chaiServer
-        sync = synchronizer
-
         const userStateFactory = new UserStateFactory(
             db,
             provider,
