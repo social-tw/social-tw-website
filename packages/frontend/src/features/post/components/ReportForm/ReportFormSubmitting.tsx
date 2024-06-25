@@ -4,7 +4,11 @@ import {
     DialogPanel as HeadlessDialogPanel,
 } from '@headlessui/react'
 
-export function ReportFormSubmitting({ isOpen }: { isOpen: boolean }) {
+interface ReportFormSubmittingProps {
+    isOpen: boolean
+}
+
+export function ReportFormSubmitting({ isOpen }: ReportFormSubmittingProps) {
     return (
         <HeadlessDialog
             className="relative z-40"

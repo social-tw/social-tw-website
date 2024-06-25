@@ -5,13 +5,15 @@ import {
     DialogPanel as HeadlessDialogPanel,
 } from '@headlessui/react'
 
+interface ReportFormSubmitFailureProps {
+    isOpen: boolean
+    onClose: () => void
+}
+
 export function ReportFormSubmitFailure({
     isOpen,
     onClose,
-}: {
-    isOpen: boolean
-    onClose: () => void
-}) {
+}: ReportFormSubmitFailureProps) {
     return (
         <HeadlessDialog
             className="relative z-40"
