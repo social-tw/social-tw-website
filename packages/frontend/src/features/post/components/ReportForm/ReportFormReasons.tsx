@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react'
 import {
     FieldErrors,
     FieldValues,
-    Path,
-    PathValue,
     UseFormGetValues,
     UseFormRegister,
     UseFormSetValue,
@@ -22,30 +20,31 @@ class Option {
     ) {}
 }
 
-interface ReportFormReasonsProps<T extends FieldValues> {
-    register: UseFormRegister<T>
-    errors: FieldErrors<T>
-    setValue: UseFormSetValue<T>
-    getValues: UseFormGetValues<T>
-    trigger: UseFormTrigger<T>
+interface ReportFormReasonsProps {
+    register: UseFormRegister<FieldValues>
+    errors: FieldErrors<FieldValues>
+    setValue: UseFormSetValue<FieldValues>
+    getValues: UseFormGetValues<FieldValues>
+    trigger: UseFormTrigger<FieldValues>
 }
 
-export function ReportFormReasons<T extends FieldValues>({
+export const REGISTER_ID = 'reason'
+
+export function ReportFormReasons({
     register,
     errors,
     setValue,
     getValues,
     trigger,
-}: ReportFormReasonsProps<T>) {
-    const registerId = 'reason' as Path<T>
-    const shouldShowErrorHint = errors[registerId]
-    register(registerId, {
+}: ReportFormReasonsProps) {
+    const shouldShowErrorHint = errors[REGISTER_ID]
+    register(REGISTER_ID, {
         required: true,
         validate: { positive: (x) => x > 0 },
     })
 
     const [selected, setSelected] = useState<Option>(
-        getDefaultOption(getValues(registerId)),
+        getDefaultOption(getValues(REGISTER_ID)),
     )
     const [isShowingOptionCtn, setIsShowingOptionCtn] = useState(false)
 
@@ -53,8 +52,8 @@ export function ReportFormReasons<T extends FieldValues>({
     const onClickOptionItem = (option: Option) => {
         setSelected(option)
         setIsShowingOptionCtn(false)
-        setValue(registerId, option.value as PathValue<T, Path<T>>)
-        trigger(registerId)
+        setValue(REGISTER_ID, option.value)
+        trigger(REGISTER_ID)
     }
     const onToggleOptionCtn = () => {
         setIsShowingOptionCtn(!isShowingOptionCtn)

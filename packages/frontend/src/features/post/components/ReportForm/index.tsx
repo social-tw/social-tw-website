@@ -1,10 +1,15 @@
 export { ReportFormCtn } from './ReportFormCtn'
-export { ReportFormDesc } from './ReportFormDesc'
+export {
+    REGISTER_ID as REGISTER_ID_DESC,
+    ReportFormDesc,
+} from './ReportFormDesc'
 export { ReportFormIntro } from './ReportFormIntro'
-export { ReportFormReasons } from './ReportFormReasons'
+export {
+    REGISTER_ID as REGISTER_ID_REASON,
+    ReportFormReasons,
+} from './ReportFormReasons'
 export { ReportFormStepGroup, ReportFormStepLabel } from './ReportFormStep'
 export { ReportFormSubmitBtn } from './ReportFormSubmitBtn'
 export { ReportFormSubmitFailure } from './ReportFormSubmitFailure'
 export { ReportFormSubmitSuccess } from './ReportFormSubmitSuccess'
 export { ReportFormSubmitting } from './ReportFormSubmitting'
-export { ReportFormSubmitState } from './constant'

@@ -1,28 +1,22 @@
-import {
-    FieldErrors,
-    FieldValues,
-    Path,
-    UseFormRegister,
-} from 'react-hook-form'
+import { FieldErrors, FieldValues, UseFormRegister } from 'react-hook-form'
 import {
     ReportFormStepContent,
     ReportFormStepErrorHint,
 } from './ReportFormStep'
 
-interface ReportFormDescProps<T extends FieldValues> {
-    register: UseFormRegister<T>
-    errors: FieldErrors<T>
+interface ReportFormDescProps {
+    register: UseFormRegister<FieldValues>
+    errors: FieldErrors<FieldValues>
 }
-export function ReportFormDesc<T extends FieldValues>({
-    register,
-    errors,
-}: ReportFormDescProps<T>) {
-    const registerId = 'desc' as Path<T>
-    const shouldShowErrorHint = errors[registerId]
+
+export const REGISTER_ID = 'desc'
+
+export function ReportFormDesc({ register, errors }: ReportFormDescProps) {
+    const shouldShowErrorHint = errors[REGISTER_ID]
     return (
         <ReportFormStepContent>
             <textarea
-                {...register(registerId, { required: true, minLength: 10 })}
+                {...register(REGISTER_ID, { required: true, minLength: 10 })}
                 className="w-full h-32 resize-none rounded-lg border border-gray-300 p-4 mb-[-5px]"
                 placeholder="請於此填寫檢舉原因，至少10個字"
             />

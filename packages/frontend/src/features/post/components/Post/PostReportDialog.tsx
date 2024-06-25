@@ -1,8 +1,10 @@
 import { Dialog } from '@/features/shared'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FieldValues, UseFormHandleSubmit } from 'react-hook-form'
+import { useReportForm } from '../../hooks/useReportForm'
 import { useReportPost } from '../../hooks/useReportPost'
 import {
+    REGISTER_ID_DESC,
+    REGISTER_ID_REASON,
     ReportFormCtn,
     ReportFormDesc,
     ReportFormIntro,
@@ -11,7 +13,6 @@ import {
     ReportFormStepLabel,
     ReportFormSubmitBtn,
     ReportFormSubmitFailure,
-    ReportFormSubmitState,
     ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
@@ -21,54 +22,44 @@ interface PostReportDialogProps {
     onClose: () => void
 }
 
-export interface PortReportFormData {
-    reason: number
-    desc: string
+const defaultValues = {
+    [`${REGISTER_ID_REASON}`]: -1,
+    [`${REGISTER_ID_DESC}`]: '',
 }
 
 export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
     const {
-        register,
         handleSubmit,
+        register,
+        errors,
         setValue,
         getValues,
         trigger,
-        reset,
-        formState: { errors },
-    } = useForm<PortReportFormData>({
-        defaultValues: {
-            reason: -1,
-            desc: '',
-        },
+        isSubmitFailure,
+        isSubmitting,
+        isSubmitSuccess,
+        isNotSubmitted,
+        resetToCurrentState,
+        resetAll,
+        updateStateToFailure,
+        updateStateToSuccess,
+        updateStateToSubmitting,
+    } = useReportForm(defaultValues)
+
+    const onSubmit = useSubmitReportFlow({
+        handleSubmit,
+        updateStateToSubmitting,
+        updateStateToFailure,
+        updateStateToSuccess,
     })
 
-    const [submitState, setSubmitState] = useState<ReportFormSubmitState>(
-        ReportFormSubmitState.NotSubmitted,
-    )
-
-    const { report } = useReportPost()
-    const onSubmit = async (data: any) => {
-        try {
-            setSubmitState(ReportFormSubmitState.Submitting)
-            await report(data)
-            setSubmitState(ReportFormSubmitState.Success)
-        } catch (e) {
-            setSubmitState(ReportFormSubmitState.Failure)
-        }
-    }
-
-    const shouldShowOriginalForm =
-        submitState === ReportFormSubmitState.NotSubmitted
-    const shouldShowSubmitting =
-        submitState === ReportFormSubmitState.Submitting
-    const shouldShowFail = submitState === ReportFormSubmitState.Failure
-    const shouldShowSuccess = submitState === ReportFormSubmitState.Success
+    const onCloseSuccess = useCloseSuccessDialogFlow({ resetAll, onClose })
 
     return (
         <>
-            {shouldShowOriginalForm && (
+            {isNotSubmitted && (
                 <Dialog isOpen={isOpen} onClose={onClose}>
-                    <ReportFormCtn onSubmit={handleSubmit(onSubmit)}>
+                    <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
                         <ReportFormStepGroup>
                             <ReportFormStepLabel
@@ -97,28 +88,50 @@ export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
                     </ReportFormCtn>
                 </Dialog>
             )}
-            {shouldShowSubmitting && (
-                <ReportFormSubmitting isOpen={shouldShowSubmitting} />
+            {isSubmitting && <ReportFormSubmitting />}
+            {isSubmitFailure && (
+                <ReportFormSubmitFailure onClose={resetToCurrentState} />
             )}
-            {shouldShowFail && (
-                <ReportFormSubmitFailure
-                    isOpen={shouldShowFail}
-                    onClose={() => {
-                        reset(getValues())
-                        setSubmitState(ReportFormSubmitState.NotSubmitted)
-                    }}
-                />
-            )}
-            {shouldShowSuccess && (
-                <ReportFormSubmitSuccess
-                    isOpen={shouldShowSuccess}
-                    onClose={() => {
-                        setSubmitState(ReportFormSubmitState.NotSubmitted)
-                        reset()
-                        onClose()
-                    }}
-                />
+            {isSubmitSuccess && (
+                <ReportFormSubmitSuccess onClose={onCloseSuccess} />
             )}
         </>
     )
+}
+
+function useSubmitReportFlow({
+    handleSubmit,
+    updateStateToSubmitting,
+    updateStateToFailure,
+    updateStateToSuccess,
+}: {
+    handleSubmit: UseFormHandleSubmit<FieldValues>
+    updateStateToSubmitting: () => void
+    updateStateToFailure: () => void
+    updateStateToSuccess: () => void
+}) {
+    const { report } = useReportPost()
+    const reportFlow = async (data: any) => {
+        try {
+            updateStateToSubmitting()
+            await report(data)
+            updateStateToSuccess()
+        } catch (e) {
+            updateStateToFailure()
+        }
+    }
+    return handleSubmit(reportFlow)
+}
+
+function useCloseSuccessDialogFlow({
+    resetAll,
+    onClose,
+}: {
+    resetAll: () => void
+    onClose: () => void
+}) {
+    return () => {
+        resetAll()
+        onClose()
+    }
 }
