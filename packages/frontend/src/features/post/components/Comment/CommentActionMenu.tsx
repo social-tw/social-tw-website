@@ -22,7 +22,10 @@ export function CommentActionMenu() {
         onClose: onReportDialogClose,
     } = useDialog()
     return (
-        <ActionMenuContainer onOpen={onActionMenuOpen}>
+        <ActionMenuContainer
+            onOpen={onActionMenuOpen}
+            onClose={onActionMenuClose}
+        >
             <ActionMenuDropdown
                 isOpen={isActionMenuOpen}
                 onClose={onActionMenuClose}

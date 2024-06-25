@@ -24,7 +24,10 @@ export function PostActionMenu() {
     } = useDialog()
 
     return (
-        <ActionMenuContainer onOpen={onActionMenuOpen}>
+        <ActionMenuContainer
+            onOpen={onActionMenuOpen}
+            onClose={onActionMenuClose}
+        >
             <ActionMenuDropdown
                 isOpen={isActionMenuOpen}
                 onClose={onActionMenuClose}
