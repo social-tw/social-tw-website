@@ -1,3 +1,4 @@
+import ResultSuccess from '@/assets/img/report-form-result-success.webp'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
 import { Backdrop } from '@/features/shared'
 import {
@@ -17,9 +18,14 @@ export function ReportFormSubmitSuccess({
             <Backdrop isOpen position="fixed" background="bg-black/70">
                 <div className="flex items-center justify-center min-h-full p-4">
                     <HeadlessDialogPanel
-                        className="relative block w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-white/90 shadow-base"
+                        className="flex flex-col items-center gap-0 relative w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-transparent shadow-base"
                         as="dialog"
                     >
+                        <img
+                            src={ResultSuccess}
+                            alt="report-form-result-success"
+                        />
+                        <HintWording />
                         <button
                             aria-label="close"
                             className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-[#051532]"
@@ -28,10 +34,18 @@ export function ReportFormSubmitSuccess({
                         >
                             <CloseIcon />
                         </button>
-                        <div>成功！</div>
                     </HeadlessDialogPanel>
                 </div>
             </Backdrop>
         </HeadlessDialog>
+    )
+}
+
+function HintWording() {
+    return (
+        <div className="flex flex-col items-center text-white text-[18px] leading-loose">
+            <div>您的檢舉報告傳送成功！</div>
+            <div>將由平台用戶們進行評判</div>
+        </div>
     )
 }
