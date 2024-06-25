@@ -2,12 +2,12 @@ import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { DB } from 'anondb/node'
 import { Contract, ethers } from 'ethers'
 import { APP_ADDRESS, MAX_FEE_PER_GAS } from '../../config'
-import { TransactionResult } from '../../types'
 import {
     NoDBConnectedError,
+    TransactionResult,
     UninitializedError,
     UserAlreadySignedUpError,
-} from '../../types/InternalError'
+} from '../../types'
 
 export class TransactionManager {
     appContract?: Contract

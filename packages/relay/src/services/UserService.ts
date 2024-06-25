@@ -1,21 +1,21 @@
 import { SignupProof } from '@unirep/circuits'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import TransactionManager from './utils/TransactionManager'
-import { TWITTER_USER_URL } from '../config'
-import TwitterClient from './utils/TwitterClient'
-import crypto from 'crypto'
-import { User } from '../types'
 import { DB } from 'anondb/node'
-import { UserRegisterStatus } from '../types'
+import crypto from 'crypto'
 import fetch from 'node-fetch'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { TWITTER_USER_URL } from '../config'
 import {
     InvalidHashUserIdError,
     InvalidProofError,
+    User,
     UserAlreadySignedUpError,
     UserLoginError,
-} from '../types/InternalError'
+    UserRegisterStatus,
+} from '../types'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
+import TransactionManager from './utils/TransactionManager'
+import TwitterClient from './utils/TwitterClient'
 
 const STATE = 'state'
 

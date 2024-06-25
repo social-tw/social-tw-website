@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 
 import Validator from '../services/utils/Validator'
-import { InvalidReportStatusError } from '../types/InternalError'
+import { InvalidReportStatusError } from '../types'
 
 export default (
     app: Express,

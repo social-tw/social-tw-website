@@ -1,10 +1,10 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
-import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { EPOCHKEYS_AMOUNT } from '../config'
-import { WrongEpochKeyNumberError } from '../types/InternalError'
 import { counterService } from '../services/CounterService'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import { WrongEpochKeyNumberError } from '../types'
 
 export default (
     app: Express,
