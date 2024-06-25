@@ -1,9 +1,4 @@
-import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
-import { Backdrop, Dialog } from '@/features/shared'
-import {
-    Dialog as HeadlessDialog,
-    DialogPanel as HeadlessDialogPanel,
-} from '@headlessui/react'
+import { Dialog } from '@/features/shared'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost'
@@ -15,6 +10,10 @@ import {
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
+    ReportFormSubmitFailure,
+    ReportFormSubmitState,
+    ReportFormSubmitSuccess,
+    ReportFormSubmitting,
 } from '../ReportForm'
 
 interface PostReportDialogProps {
@@ -25,13 +24,6 @@ interface PostReportDialogProps {
 export interface PortReportFormData {
     reason: number
     desc: string
-}
-
-enum SubmitState {
-    NotSubmitted = 'not-submitted',
-    Submitting = 'submitting',
-    Success = 'success',
-    Failure = 'failure',
 }
 
 export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
@@ -50,25 +42,27 @@ export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
         },
     })
 
-    const [submitState, setSubmitState] = useState<SubmitState>(
-        SubmitState.NotSubmitted,
+    const [submitState, setSubmitState] = useState<ReportFormSubmitState>(
+        ReportFormSubmitState.NotSubmitted,
     )
 
     const { report } = useReportPost()
     const onSubmit = async (data: any) => {
         try {
-            setSubmitState(SubmitState.Submitting)
+            setSubmitState(ReportFormSubmitState.Submitting)
             await report(data)
-            setSubmitState(SubmitState.Success)
+            setSubmitState(ReportFormSubmitState.Success)
         } catch (e) {
-            setSubmitState(SubmitState.Failure)
+            setSubmitState(ReportFormSubmitState.Failure)
         }
     }
 
-    const shouldShowOriginalForm = submitState === SubmitState.NotSubmitted
-    const shouldShowSubmitting = submitState === SubmitState.Submitting
-    const shouldShowFail = submitState === SubmitState.Failure
-    const shouldShowSuccess = submitState === SubmitState.Success
+    const shouldShowOriginalForm =
+        submitState === ReportFormSubmitState.NotSubmitted
+    const shouldShowSubmitting =
+        submitState === ReportFormSubmitState.Submitting
+    const shouldShowFail = submitState === ReportFormSubmitState.Failure
+    const shouldShowSuccess = submitState === ReportFormSubmitState.Success
 
     return (
         <>
@@ -104,118 +98,27 @@ export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
                 </Dialog>
             )}
             {shouldShowSubmitting && (
-                <Submitting isOpen={shouldShowSubmitting} />
+                <ReportFormSubmitting isOpen={shouldShowSubmitting} />
             )}
             {shouldShowFail && (
-                <SubmitFail
+                <ReportFormSubmitFailure
                     isOpen={shouldShowFail}
                     onClose={() => {
                         reset(getValues())
-                        setSubmitState(SubmitState.NotSubmitted)
+                        setSubmitState(ReportFormSubmitState.NotSubmitted)
                     }}
                 />
             )}
             {shouldShowSuccess && (
-                <SubmitSuccess
+                <ReportFormSubmitSuccess
                     isOpen={shouldShowSuccess}
                     onClose={() => {
-                        setSubmitState(SubmitState.NotSubmitted)
+                        setSubmitState(ReportFormSubmitState.NotSubmitted)
                         reset()
                         onClose()
                     }}
                 />
             )}
         </>
-    )
-}
-
-function Submitting({ isOpen }: { isOpen: boolean }) {
-    return (
-        <HeadlessDialog
-            className="relative z-40"
-            open={isOpen}
-            onClose={() => {}}
-        >
-            <Backdrop isOpen={isOpen} position="fixed" background="bg-black/70">
-                <div className="flex items-center justify-center min-h-full p-4">
-                    <HeadlessDialogPanel
-                        className="relative block w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-white/90 shadow-base"
-                        as="dialog"
-                    >
-                        <div>提交中...</div>
-                    </HeadlessDialogPanel>
-                </div>
-            </Backdrop>
-        </HeadlessDialog>
-    )
-}
-
-function SubmitFail({
-    isOpen,
-    onClose,
-}: {
-    isOpen: boolean
-    onClose: () => void
-}) {
-    return (
-        <HeadlessDialog
-            className="relative z-40"
-            open={isOpen}
-            onClose={onClose}
-        >
-            <Backdrop isOpen={isOpen} position="fixed" background="bg-black/70">
-                <div className="flex items-center justify-center min-h-full p-4">
-                    <HeadlessDialogPanel
-                        className="relative block w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-white/90 shadow-base"
-                        as="dialog"
-                    >
-                        <button
-                            aria-label="close"
-                            className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-[#051532]"
-                            type="submit"
-                            onClick={onClose}
-                        >
-                            <CloseIcon />
-                        </button>
-                        <div>失敗</div>
-                    </HeadlessDialogPanel>
-                </div>
-            </Backdrop>
-        </HeadlessDialog>
-    )
-}
-
-function SubmitSuccess({
-    isOpen,
-    onClose,
-}: {
-    isOpen: boolean
-    onClose: () => void
-}) {
-    return (
-        <HeadlessDialog
-            className="relative z-40"
-            open={isOpen}
-            onClose={onClose}
-        >
-            <Backdrop isOpen={isOpen} position="fixed" background="bg-black/70">
-                <div className="flex items-center justify-center min-h-full p-4">
-                    <HeadlessDialogPanel
-                        className="relative block w-11/12 max-w-xl p-0 pointer-events-auto rounded-xl bg-white/90 shadow-base"
-                        as="dialog"
-                    >
-                        <button
-                            aria-label="close"
-                            className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-[#051532]"
-                            type="submit"
-                            onClick={onClose}
-                        >
-                            <CloseIcon />
-                        </button>
-                        <div>成功！</div>
-                    </HeadlessDialogPanel>
-                </div>
-            </Backdrop>
-        </HeadlessDialog>
     )
 }
