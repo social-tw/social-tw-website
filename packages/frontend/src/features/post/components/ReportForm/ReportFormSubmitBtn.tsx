@@ -1,12 +1,8 @@
-interface ReportFormSubmitBtnProps {
-    onClick: () => void
-}
-
-export function ReportFormSubmitBtn({ onClick }: ReportFormSubmitBtnProps) {
+export function ReportFormSubmitBtn() {
     return (
         <button
-            className="w-full rounded-[8px] bg-[#FF892A] text-white py-3"
-            onClick={onClick}
+            className={`bg-[#FF892A] w-full rounded-[8px] text-white py-3`}
+            type="submit"
         >
             送出檢舉
         </button>

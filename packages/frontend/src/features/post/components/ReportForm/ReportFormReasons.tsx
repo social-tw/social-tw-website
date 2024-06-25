@@ -1,5 +1,19 @@
 import { useMemo, useState } from 'react'
+import {
+    FieldErrors,
+    FieldValues,
+    Path,
+    PathValue,
+    UseFormGetValues,
+    UseFormRegister,
+    UseFormSetValue,
+    UseFormTrigger,
+} from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import {
+    ReportFormStepContent,
+    ReportFormStepErrorHint,
+} from './ReportFormStep'
 
 class Option {
     constructor(
@@ -8,21 +22,46 @@ class Option {
     ) {}
 }
 
-export function ReportFormReasons() {
-    const [selected, setSelected] = useState<Option>(getDefaultOption())
+interface ReportFormReasonsProps<T extends FieldValues> {
+    register: UseFormRegister<T>
+    errors: FieldErrors<T>
+    setValue: UseFormSetValue<T>
+    getValues: UseFormGetValues<T>
+    trigger: UseFormTrigger<T>
+}
+
+export function ReportFormReasons<T extends FieldValues>({
+    register,
+    errors,
+    setValue,
+    getValues,
+    trigger,
+}: ReportFormReasonsProps<T>) {
+    const registerId = 'reason' as Path<T>
+    const shouldShowErrorHint = errors[registerId]
+    register(registerId, {
+        required: true,
+        validate: { positive: (x) => x > 0 },
+    })
+
+    const [selected, setSelected] = useState<Option>(
+        getDefaultOption(getValues(registerId)),
+    )
     const [isShowingOptionCtn, setIsShowingOptionCtn] = useState(false)
 
     const options = useMemo(() => getOptions(), [])
     const onClickOptionItem = (option: Option) => {
         setSelected(option)
         setIsShowingOptionCtn(false)
+        setValue(registerId, option.value as PathValue<T, Path<T>>)
+        trigger(registerId)
     }
     const onToggleOptionCtn = () => {
         setIsShowingOptionCtn(!isShowingOptionCtn)
     }
 
     return (
-        <div className="relative">
+        <ReportFormStepContent>
             <OptionController
                 option={selected}
                 isShowingOptionCtn={isShowingOptionCtn}
@@ -39,7 +78,10 @@ export function ReportFormReasons() {
                     ))}
                 </OptionContainer>
             )}
-        </div>
+            {shouldShowErrorHint && (
+                <ReportFormStepErrorHint msg={'此為必選欄位'} />
+            )}
+        </ReportFormStepContent>
     )
 }
 
@@ -72,7 +114,7 @@ function OptionController({
 
 function OptionContainer({ children }: { children: React.ReactNode }) {
     return (
-        <div className="max-h-[200px] overflow-y-scroll mt-1 flex flex-col gap-2 absolute border border-gray-300 bg-white py-4 px-2 rounded-lg">
+        <div className="z-10 max-h-[200px] overflow-y-scroll mt-1 flex flex-col gap-2 absolute border border-gray-300 bg-white py-4 px-2 rounded-lg">
             {children}
         </div>
     )
@@ -96,8 +138,12 @@ function OptionItem({
     )
 }
 
-function getDefaultOption() {
-    return new Option(-1, '請選擇檢舉原因')
+function getDefaultOption(index: number) {
+    if (index <= 0) {
+        return new Option(-1, '請選擇檢舉原因')
+    } else {
+        return getOptions()[index - 1]
+    }
 }
 
 function getOptions() {
