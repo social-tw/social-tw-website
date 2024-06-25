@@ -5,14 +5,14 @@ import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { CommentStatus } from '../src/types/Comment'
-import { Post } from '../src/types/Post'
 import {
+    CommentStatus,
+    Post,
     ReportCategory,
     ReportHistory,
     ReportStatus,
     ReportType,
-} from '../src/types/Report'
+} from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'

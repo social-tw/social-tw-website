@@ -1,13 +1,13 @@
-import { EpochKeyProof, EpochKeyLiteProof } from '@unirep/circuits'
-import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
+import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
+import { Synchronizer } from '@unirep/core'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     InvalidAttesterIdError,
     InvalidEpochError,
     InvalidProofError,
     InvalidStateTreeError,
-} from '../../types/InternalError'
-import { Synchronizer } from '@unirep/core'
+} from '../../types'
+import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
 
 class ProofHelper {
     async getAndVerifyEpochKeyProof(

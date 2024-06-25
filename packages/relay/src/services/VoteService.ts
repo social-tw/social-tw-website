@@ -1,10 +1,6 @@
 import { DB } from 'anondb'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { VoteAction } from '../types'
-import {
-    InvalidVoteActionError,
-    PostNotExistError,
-} from '../types/InternalError'
+import { InvalidVoteActionError, PostNotExistError, VoteAction } from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ActionCountManager from './utils/ActionCountManager'
 import ProofHelper from './utils/ProofHelper'

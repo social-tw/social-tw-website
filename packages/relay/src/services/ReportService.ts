@@ -3,8 +3,6 @@ import { nanoid } from 'nanoid'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { ReportHistory, ReportStatus, ReportType } from '../types'
-import { CommentStatus } from '../types/Comment'
 import {
     CommentNotExistError,
     CommentReportedError,
@@ -13,8 +11,12 @@ import {
     InvalidReportStatusError,
     PostNotExistError,
     PostReportedError,
+    ReportHistory,
     ReportObjectTypeNotExistsError,
-} from '../types/InternalError'
+    ReportStatus,
+    ReportType,
+} from '../types'
+import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
