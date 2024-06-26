@@ -6,7 +6,7 @@ export async function comment(
     server: ChaiHttp.Agent,
     userState: UserState,
     postId: string,
-    nonce: number
+    nonce: number,
 ): Promise<any> {
     const testContent = 'test content'
 
@@ -23,7 +23,7 @@ export async function comment(
                 postId: postId,
                 publicSignals: epochKeyProof.publicSignals,
                 proof: epochKeyProof.proof,
-            })
+            }),
         )
         .then((res) => {
             expect(res).to.have.status(200)

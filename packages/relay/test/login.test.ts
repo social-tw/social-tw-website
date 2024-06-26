@@ -53,7 +53,7 @@ describe('LOGIN /login', function () {
             prover,
             unirep,
             app,
-            synchronizer
+            synchronizer,
         )
     })
 
@@ -115,7 +115,7 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
 
         nock(`${CLIENT_URL}`)
@@ -145,17 +145,16 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
         const userState = await userStateFactory.createUserState(
             user,
             undefined,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
+        const { signupProof, publicSignals } =
+            await userStateFactory.genProof(userState)
         publicSignals[0] = wrongCommitment.toString()
         await express
             .post('/api/signup')
@@ -179,17 +178,16 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
         const userState = await userStateFactory.createUserState(
             user,
             tm.wallet,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
+        const { signupProof, publicSignals } =
+            await userStateFactory.genProof(userState)
 
         const txHash = await express
             .post('/api/signup')
@@ -220,18 +218,17 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
 
         const userState = await userStateFactory.createUserState(
             user,
             tm.wallet,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { publicSignals, signupProof } = await userStateFactory.genProof(
-            userState
-        )
+        const { publicSignals, signupProof } =
+            await userStateFactory.genProof(userState)
 
         await expect(
             userService.signup(
@@ -239,8 +236,8 @@ describe('LOGIN /login', function () {
                 signupProof._snarkProof,
                 user.hashUserId,
                 true,
-                this.synchronizer
-            )
+                this.synchronizer,
+            ),
         ).to.be.rejectedWith(Error)
 
         userState.stop()
@@ -251,18 +248,17 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId2,
-            'access-token'
+            'access-token',
         )
 
         const userState = await userStateFactory.createUserState(
             user,
             undefined,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { publicSignals, signupProof } = await userStateFactory.genProof(
-            userState
-        )
+        const { publicSignals, signupProof } =
+            await userStateFactory.genProof(userState)
 
         const anotherAppAddress = ethers.Wallet.createRandom().address
         const wrongControl =
@@ -291,17 +287,16 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId2,
-            'access-token'
+            'access-token',
         )
         const userState = await userStateFactory.createUserState(
             user,
             undefined,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { signupProof, publicSignals } = await userStateFactory.genProof(
-            userState
-        )
+        const { signupProof, publicSignals } =
+            await userStateFactory.genProof(userState)
 
         const txHash = await express
             .post('/api/signup')
@@ -331,17 +326,16 @@ describe('LOGIN /login', function () {
         const user = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
         const userState = await userStateFactory.createUserState(
             user,
             undefined,
-            false
+            false,
         )
         await userStateFactory.initUserState(userState)
-        const { publicSignals, signupProof } = await userStateFactory.genProof(
-            userState
-        )
+        const { publicSignals, signupProof } =
+            await userStateFactory.genProof(userState)
 
         await express
             .post('/api/signup')
@@ -364,7 +358,7 @@ describe('LOGIN /login', function () {
         const registeredUser = await userService.getLoginUser(
             anondb,
             mockUserId,
-            'access-token'
+            'access-token',
         )
         expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER)
     })
@@ -373,10 +367,10 @@ describe('LOGIN /login', function () {
         const registeredUser = await userService.getLoginUser(
             anondb,
             mockUserId2,
-            'access-token'
+            'access-token',
         )
         expect(registeredUser.status).to.equal(
-            UserRegisterStatus.REGISTERER_SERVER
+            UserRegisterStatus.REGISTERER_SERVER,
         )
     })
 })
@@ -384,7 +378,7 @@ describe('LOGIN /login', function () {
 function prepareUserLoginTwitterApiMock(
     userId: string,
     code: string,
-    accessToken: string
+    accessToken: string,
 ) {
     nock(TWITTER_API, { encodedQueryParams: true })
         .post('/2/oauth2/token')

@@ -44,7 +44,7 @@ describe('Synchronize Post Test', function () {
             prover,
             unirep,
             unirepApp,
-            synchronizer
+            synchronizer,
         )
 
         // Create users identity and signup users
@@ -54,7 +54,7 @@ describe('Synchronize Post Test', function () {
             let initUser = await userService.getLoginUser(
                 db,
                 i.toString(),
-                undefined
+                undefined,
             )
 
             let userState = await signUp(
@@ -62,7 +62,7 @@ describe('Synchronize Post Test', function () {
                 userStateFactory,
                 userService,
                 sync,
-                wallet
+                wallet,
             )
 
             users.push({
@@ -92,7 +92,7 @@ describe('Synchronize Post Test', function () {
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
                 helia,
-                'test content'
+                'test content',
             )
 
             await ethers.provider.waitForTransaction(result.txHash)
@@ -146,7 +146,7 @@ describe('Synchronize Comment Test', function () {
             prover,
             unirep,
             unirepApp,
-            synchronizer
+            synchronizer,
         )
 
         // Create users identity and signup users
@@ -156,7 +156,7 @@ describe('Synchronize Comment Test', function () {
             let initUser = await userService.getLoginUser(
                 db,
                 i.toString(),
-                undefined
+                undefined,
             )
 
             let userState = await signUp(
@@ -164,7 +164,7 @@ describe('Synchronize Comment Test', function () {
                 userStateFactory,
                 userService,
                 sync,
-                wallet
+                wallet,
             )
 
             users.push({
@@ -221,7 +221,7 @@ describe('Synchronize Comment Test', function () {
             })
 
             await expect(
-                unirepApp.leaveComment(publicSignals, proof, 0, commentContent)
+                unirepApp.leaveComment(publicSignals, proof, 0, commentContent),
             )
                 .to.emit(unirepApp, 'Comment')
                 .withArgs(publicSignals[0], 0, 0, 0, commentContent)
@@ -256,7 +256,7 @@ describe('Synchronize Comment Test', function () {
             await expect(
                 unirepApp.editComment(publicSignals, proof, 0, 0, newContent, {
                     gasLimit: 5000000,
-                })
+                }),
             )
                 .to.emit(unirepApp, 'UpdatedComment')
                 .withArgs(publicSignals[1], 0, 0, 0, newContent)
