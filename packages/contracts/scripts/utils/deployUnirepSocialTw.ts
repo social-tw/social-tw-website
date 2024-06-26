@@ -109,5 +109,12 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
     )
 
-    return { unirep, app }
+    return {
+        unirep,
+        app,
+        reportNegRepVHelper,
+        reportNullifierVHelper,
+        reportNegRepProofVerifier,
+        reportNullifierProofVerifier,
+    }
 }
