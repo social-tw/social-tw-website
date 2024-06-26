@@ -25,7 +25,7 @@ export class ReportService {
         reportData: ReportHistory,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.Post) {
@@ -34,7 +34,7 @@ export class ReportService {
 
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
-                db
+                db,
             )
             if (!post) throw PostNotExistError
             if (post.status === PostStatus.Reported) throw PostReportedError
@@ -44,7 +44,7 @@ export class ReportService {
                 throw InvalidCommentIdError
             const comment = await commentService.fetchSingleComment(
                 reportData.objectId.toString(),
-                db
+                db,
             )
             if (!comment) throw CommentNotExistError
             if (comment.status === CommentStatus.Reported)
@@ -57,7 +57,7 @@ export class ReportService {
         await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
         )
         return reportData
     }
@@ -82,13 +82,13 @@ export class ReportService {
             postService.updatePostStatus(
                 reportData.objectId,
                 PostStatus.Reported,
-                db
+                db,
             )
         } else if (reportData.type === ReportType.Comment) {
             commentService.updateCommentStatus(
                 reportData.objectId,
                 CommentStatus.Reported,
-                db
+                db,
             )
         }
     }

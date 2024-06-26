@@ -15,7 +15,7 @@ export class VoteService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB
+        db: DB,
     ): Promise<any[]> {
         return db.findMany('Vote', {
             where: {
@@ -50,13 +50,13 @@ export class VoteService {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         db: DB,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ) {
         // get valid epoch key
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
         )
 
         // find post which is voted
@@ -81,7 +81,7 @@ export class VoteService {
             epochKey,
             Number(epochKeyProof.epoch),
             post,
-            voteAction
+            voteAction,
         )
     }
 
@@ -136,7 +136,7 @@ export class VoteService {
         epochKey: string,
         epoch: number,
         post: any,
-        voteAction: VoteAction
+        voteAction: VoteAction,
     ): Promise<void> {
         const postId = post.postId
         let createVote = true
@@ -208,7 +208,7 @@ export class VoteService {
             db,
             epochKey,
             epoch,
-            actionCount
+            actionCount,
         )
     }
 }

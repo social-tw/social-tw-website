@@ -41,7 +41,7 @@ const genCircuitInput = (config: {
 
 const genProofAndVerify = async (
     circuit: Circuit | string,
-    circuitInputs: any
+    circuitInputs: any,
 ) => {
     const startTime = new Date().getTime()
     const { proof, publicSignals } =
@@ -49,13 +49,13 @@ const genProofAndVerify = async (
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000
-        )} s)`
+            (endTime - startTime) / 1000,
+        )} s)`,
     )
     const isValid = await defaultProver.verifyProof(
         circuit,
         publicSignals,
-        proof
+        proof,
     )
     return { isValid, proof, publicSignals }
 }
@@ -101,7 +101,7 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
         })
         const { isValid, publicSignals } = await genProofAndVerify(
             circuit,
-            circuitInputs
+            circuitInputs,
         )
         expect(isValid).to.be.true
         const epochKey = publicSignals[0]
@@ -112,9 +112,9 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
                     attesterId,
                     currentEpoch,
                     currentNonce,
-                    chainId
+                    chainId,
                 )
-                .toString()
+                .toString(),
         )
     })
 

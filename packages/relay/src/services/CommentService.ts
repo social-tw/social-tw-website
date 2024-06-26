@@ -30,7 +30,7 @@ export class CommentService {
     async fetchSingleComment(
         commentId: string,
         db: DB,
-        status?: number
+        status?: number,
     ): Promise<Comment> {
         const whereClause = {
             commentId,
@@ -53,7 +53,7 @@ export class CommentService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB
+        db: DB,
     ): Promise<Post[]> {
         return db.findMany('Comment', {
             where: {
@@ -72,12 +72,12 @@ export class CommentService {
         proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia
+        helia: Helia,
     ) {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
         )
 
         // store content into helia ipfs node with json plain
@@ -114,7 +114,7 @@ export class CommentService {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
-        db: DB
+        db: DB,
     ) {
         const comment: Comment = await db.findOne('Comment', {
             where: {
@@ -131,7 +131,7 @@ export class CommentService {
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 publicSignals,
                 proof,
-                synchronizer
+                synchronizer,
             )
 
         if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) {
