@@ -40,7 +40,7 @@ export default (
                 throw InvalidReportStatusError
             }
 
-            const reports = await reportService.fetchReport(
+            const reports = await reportService.fetchReports(
                 Number(status),
                 synchronizer,
                 db

@@ -10,8 +10,7 @@ import {
     Post,
     ReportCategory,
     ReportHistory,
-    ReportStatus,
-    ReportType,
+    ReportType
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
