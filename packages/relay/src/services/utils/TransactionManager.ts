@@ -224,9 +224,10 @@ export class TransactionManager {
             nonce,
             to,
             chainId,
-            gasPrice,
+            // gasPrice, // EIP-1559 use maxFeePerGas instead of gasPrice
             maxFeePerGas: MAX_FEE_PER_GAS,
             maxPriorityFeePerGas: MAX_FEE_PER_GAS,
+            type: 2, // 2 for EIP-1559
             ...args,
         })
         await this._db?.create('AccountTransaction', {
