@@ -96,49 +96,47 @@ export class ReportService {
         }
     }
 
-    async fetchReport(
+    async fetchReports(
         status: ReportStatus,
         synchronizer: UnirepSocialSynchronizer,
         db: DB
     ): Promise<ReportHistory[] | null> {
         const epoch = await synchronizer.loadCurrentEpoch()
-        let reports
 
-        switch (status) {
-            // VOTEING reports meet below condition
+        const statusCondition = {
+            // VOTING reports meet below condition
             // 1. reportEpoch = current Epoch - 1
             // 2. the result of adjudication is tie, should vote again
             // p.s. synchronizer would handle the adjudication result,
             // we can assume all reports whose status is VOTING are already handled by synchronizer
-            case ReportStatus.VOTING:
-                reports = await db.findMany('ReportHistory', {
-                    where: {
-                        AND: [
-                            { reportEpoch: { lt: epoch } },
-                            { status: ReportStatus.VOTING },
-                        ],
-                    },
-                })
-                break
+            [ReportStatus.VOTING]: {
+                where: {
+                    AND: [
+                        { reportEpoch: { lt: epoch } },
+                        { status: ReportStatus.VOTING },
+                    ],
+                },
+            },
             // WAITING_FOR_TRANSACTION is for client side to claim reputation use
             // reports whose report epoch is equal to current epoch are pending reports
             // the status should be always VOTING, so the where clause don't search
             // current epoch
-            case ReportStatus.WAITING_FOR_TRANSACTION:
-                reports = await db.findMany('ReportHistory', {
-                    where: {
-                        AND: [
-                            { reportEpoch: { lt: epoch } },
-                            { status: ReportStatus.WAITING_FOR_TRANSACTION },
-                        ],
-                    },
-                })
-                break
-            default:
-                throw InvalidReportStatusError
+            [ReportStatus.WAITING_FOR_TRANSACTION]: {
+                where: {
+                    AND: [
+                        { reportEpoch: { lt: epoch } },
+                        { status: ReportStatus.WAITING_FOR_TRANSACTION },
+                    ],
+                },
+            },
         }
 
-        return reports
+        const condition = statusCondition[status]
+        if (!condition) {
+            throw InvalidReportStatusError
+        }
+
+        return await db.findMany('ReportHistory', condition)
     }
 }
 

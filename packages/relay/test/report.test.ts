@@ -262,11 +262,17 @@ describe('POST /api/report', function () {
             })
     })
 
+    it('should get empty report list if reportEpoech is equal to currentEpoch', async function () {
+        await express.get('/api/report?status=0').then((res) => {
+            expect(res).to.have.status(200)
+            expect(res.body.length).equal(0)
+        })
+    })
+
     it('should fetch report whose reportEpoch is equal to currentEpoch - 1', async function () {
         // epoch transition
         await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
         await ethers.provider.send('evm_mine', [])
-        await sync.waitForSync()
 
         const reports = await express
             .get('/api/report?status=0')
@@ -314,8 +320,7 @@ describe('POST /api/report', function () {
         })
 
         // epoch transition
-        const remainingTime = sync.calcEpochRemainingTime()
-        await ethers.provider.send('evm_increaseTime', [remainingTime])
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
         await ethers.provider.send('evm_mine', [])
 
         const reports = await express
@@ -325,13 +330,16 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
+        // flatMap to [adjudicateValue1, adjucateValue2 ...]
+        // add all adjudicateValues (0: disagree, 1: agree)
         const adjudicateResult = reports[0].adjudicatorsNullifier
             .flatMap((nullifier) => nullifier.adjudicateValue)
             .reduce((acc, value) => {
+                // disagree
                 if (Number(value) == 0) {
                     return acc - 1
                 }
-
+                // agree
                 return acc + 1
             })
         expect(adjudicateResult).equal(0)
