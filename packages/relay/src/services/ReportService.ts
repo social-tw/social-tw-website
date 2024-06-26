@@ -5,8 +5,10 @@ import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import {
     AdjudicateValue,
+    Adjudicator,
     CommentNotExistError,
     CommentReportedError,
+    InvalidAdjudicateValueError,
     InvalidCommentIdError,
     InvalidPostIdError,
     InvalidReportError,
@@ -163,6 +165,9 @@ export class ReportService {
             adjudicateValue,
             report
         )
+        // default value is 0, but insert statement doesn't have this field
+        // if this field is undefined, assume no one has voted yet.
+        const adjudicateCount = report.adjudicateCount?? 0 
 
         // update adjudicatorsNullifier && adjudicateCount
         await db.update('ReportHistory', {
@@ -171,7 +176,8 @@ export class ReportService {
             },
             update: {
                 adjudicatorsNullifier: adjudicatorsNullifier,
-                adjudicateCount: report.adjudicateCount! + 1,
+
+                adjudicateCount: adjudicateCount + 1,
             },
         })
     }
@@ -180,7 +186,7 @@ export class ReportService {
         nullifier: string,
         adjudicateValue: AdjudicateValue,
         report: ReportHistory
-    ): AdjudicatorsNullifier {
+    ): Adjudicator[] {
         const adjudicator = {
             nullifier: nullifier,
             claimed: false,
@@ -199,27 +205,24 @@ export class ReportService {
 
         let adjudicatorsNullifier
         if (!report.adjudicatorsNullifier) {
-            // if this is the first time to vote on the report, create an adjudicatorsNullifier object
-            adjudicatorsNullifier = {
-                rows: [adjudicator],
-            }
+            // if this is the first time to vote on the report, create an adjudicatorsNullifier array
+            adjudicatorsNullifier = [adjudicator]
         } else {
-            // push the new adjudicator into adjudicatorsNullifier.rows
-            adjudicatorsNullifier = Object.assign(report.adjudicatorsNullifier)
-            adjudicatorsNullifier.rows.push(adjudicator)
+            // push the new adjudicator into adjudicatorsNullifier
+            adjudicatorsNullifier = report.adjudicatorsNullifier.push(adjudicator as Adjudicator)
         }
 
         return adjudicatorsNullifier
     }
 
     isVoted(nullifier: string, report: ReportHistory): boolean {
-        const adjudicators = (
-            report.adjudicatorsNullifier as AdjudicatorsNullifier
-        ).rows
+        // get all adjudicators from report
+        const adjudicators = report.adjudicatorsNullifier
         if (!adjudicators || adjudicators.length == 0) {
             return false
         }
 
+        // if nullifer is included in adjudicators, return true
         return adjudicators.some(
             (adjudicator) => adjudicator.nullifier == nullifier
         )
@@ -228,7 +231,7 @@ export class ReportService {
     async fetchSingleReport(id: string, db: DB): Promise<ReportHistory | null> {
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportId: id,
+                reportId: id
             },
         })
 
