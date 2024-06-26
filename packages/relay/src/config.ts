@@ -61,5 +61,5 @@ export const UPDATE_POST_ORDER_INTERVAL = 0.5 * 60 * 60 * 1000
 export const DAY_DIFF_STAEMENT = DB_PATH.startsWith('postgres')
     ? '(EXTRACT (DAY FROM NOW()::timestamp - TO_TIMESTAMP(publishedAt::bigint / 1000)::date))'
     : "FLOOR(JULIANDAY('now') - JULIANDAY(DATETIME(CAST(publishedAt AS INTEGER) / 1000, 'unixepoch')))"
-
-export const MAX_FEE_PER_GAS = ethers.utils.parseUnits('0.1', 'gwei')
+// L1 gasFee is higher so cannot set 0.1 gwei, otherwise the test won't pass
+export const MAX_FEE_PER_GAS = ethers.utils.parseUnits('10', 'gwei')
