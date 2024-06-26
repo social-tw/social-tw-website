@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import { Unirep } from "@unirep/contracts/Unirep.sol";
 import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
 import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
+import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
-
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
@@ -256,6 +256,23 @@ contract UnirepApp {
             signals.epoch,
             newContent
         );
+    }
+
+    /// @param publicSignals The public signals of the snark proof
+    /// @param proof The proof data of the snark proof
+    /// @param identifier sha256(verifier_contract_name)
+    /// @return signals The EpochKeySignals from BaseVerifierHelper
+    function verifyWithIdentifier(
+        uint256[] memory publicSignals,
+        uint256[8] memory proof,
+        bytes32 identifier
+    ) public view returns (BaseVerifierHelper.EpochKeySignals memory) {
+        BaseVerifierHelper.EpochKeySignals memory signal = verifierHelperManager.verifyProof(
+            publicSignals,
+            proof,
+            identifier
+        );
+        return signal;
     }
 
     function submitManyAttestations(
