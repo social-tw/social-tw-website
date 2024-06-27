@@ -7,6 +7,6 @@ export default (app: Express) => {
             UNIREP_ADDRESS,
             APP_ADDRESS,
             ETH_PROVIDER_URL,
-        }),
+        })
     )
 }

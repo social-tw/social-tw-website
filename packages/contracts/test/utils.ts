@@ -86,7 +86,7 @@ export async function genEpochKeyProof(config: {
         {
             data: [],
         },
-        config,
+        config
     )
     const data = [..._data, ...Array(FIELD_COUNT - _data.length).fill(0)]
     const _proof = tree.createProof(leafIndex)
@@ -104,13 +104,13 @@ export async function genEpochKeyProof(config: {
     }
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKey,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }
@@ -130,7 +130,7 @@ export async function genEpochKeyLiteProof(config: {
             {
                 data: [],
             },
-            config,
+            config
         )
     const circuitInputs = {
         identity_secret: id.secret,
@@ -144,13 +144,13 @@ export async function genEpochKeyLiteProof(config: {
 
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKeyLite,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyLiteProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }
@@ -165,6 +165,6 @@ export const randomData = () => [
         .map(
             () =>
                 poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** BigInt(253),
+                BigInt(2) ** BigInt(253)
         ),
 ]

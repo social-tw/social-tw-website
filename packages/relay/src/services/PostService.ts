@@ -129,7 +129,7 @@ export class PostService {
     async fetchPosts(
         epks: string[] | undefined,
         page: number,
-        db: DB,
+        db: DB
     ): Promise<Post[] | null> {
         let posts: Post[]
         if (!epks) {
@@ -175,7 +175,7 @@ export class PostService {
                 })
 
                 return { ...post, votes }
-            }),
+            })
         )
     }
 
@@ -183,7 +183,7 @@ export class PostService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB,
+        db: DB
     ): Promise<Post[]> {
         let posts: Post[]
         posts = await db.findMany('Post', {
@@ -204,7 +204,7 @@ export class PostService {
                 })
 
                 return { ...post, votes }
-            }),
+            })
         )
     }
 
@@ -214,12 +214,12 @@ export class PostService {
         proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia,
+        helia: Helia
     ): Promise<string> {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // post content
@@ -254,7 +254,7 @@ export class PostService {
     async fetchSinglePost(
         postId: string,
         db: DB,
-        status?: number,
+        status?: number
     ): Promise<Post | null> {
         const whereClause = {
             postId,
@@ -285,7 +285,7 @@ export class PostService {
     async updatePostStatus(
         postId: string,
         status: number,
-        db: DB,
+        db: DB
     ): Promise<void> {
         await db.update('Post', {
             where: { postId },
