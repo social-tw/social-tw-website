@@ -254,3 +254,11 @@ export async function genProofAndVerify(
     )
     return { isValid, proof, publicSignals }
 }
+
+export function genVHelperIdentifier(identifier: string): string {
+    const encodedId = ethers.utils.defaultAbiCoder.encode(
+        ['string'],
+        [identifier]
+    )
+    return ethers.utils.keccak256(encodedId)
+}
