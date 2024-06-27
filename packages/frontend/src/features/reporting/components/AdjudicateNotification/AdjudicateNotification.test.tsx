@@ -3,7 +3,7 @@ import { delay } from '@/utils/test-helpers'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { render, screen } from '@testing-library/react'
 import nock from 'nock'
-import AdjudicationNotification from './AdjudicationNotification'
+import AdjudicationNotification from './AdjudicateNotification'
 
 jest.mock('@/features/core/hooks/useEpoch/useEpoch', () => ({
     useEpoch: () => ({

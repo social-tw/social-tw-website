@@ -20,3 +20,8 @@ export const REPORT_CATEGORY_LABELS: Record<ReportCategory, string> = {
     [ReportCategory.NonSense]: '文章內容空泛或明顯無意義內容',
     [ReportCategory.Other]: '其他',
 }
+
+export enum AdjudicateValue {
+    Disagree = 0,
+    Agree = 1,
+}
