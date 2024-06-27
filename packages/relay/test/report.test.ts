@@ -96,7 +96,7 @@ describe('POST /api/report', function () {
         const resComment = await commentService.fetchSingleComment(
             '0',
             db,
-            CommentStatus.OnChain
+            CommentStatus.ON_CHAIN
         )
         expect(resComment).to.be.exist
 
@@ -205,7 +205,7 @@ describe('POST /api/report', function () {
         const comment = await commentService.fetchSingleComment(
             '0',
             db,
-            CommentStatus.Reported
+            CommentStatus.REPORTED
         )
         expect(comment).to.be.exist
     })
