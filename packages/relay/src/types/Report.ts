@@ -1,7 +1,7 @@
 export enum ReportStatus {
-    VOTING = 0,
-    WAITING_FOR_TRANSACTION = 1,
-    COMPLETED = 2,
+    VOTING,
+    WAITING_FOR_TRANSACTION,
+    COMPLETED,
 }
 
 export enum ReportCategory {
@@ -15,8 +15,8 @@ export enum ReportCategory {
 }
 
 export enum ReportType {
-    POST = 0,
-    COMMENT = 1,
+    POST,
+    COMMENT,
 }
 
 export type Adjudicator = {
