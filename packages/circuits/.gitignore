@@ -5,3 +5,11 @@ zksnarkBuild/*
 !*/dataProof.wasm
 !*/dataProof.zkey
 !*/dataProof_main.circom
+!*/reportNullifierProof.vkey.json
+!*/reportNullifierProof.wasm
+!*/reportNullifierProof.zkey
+!*/reportNullifierProof_main.circom
+!*/reportNegRepProof.vkey.json
+!*/reportNegRepProof.wasm
+!*/reportNegRepProof.zkey
+!*/reportNegRepProof_main.circom

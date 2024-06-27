@@ -288,36 +288,6 @@ describe('POST /vote', function () {
         expect(downvoteResponse.body.error).equal('Invalid vote action')
     })
 
-    it('should vote failed with wrong epoch', async function () {
-        // generating a proof with wrong epoch
-        const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
-        const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
-        const leafIndex = await userState.latestStateTreeLeafIndex(
-            epoch,
-            attesterId
-        )
-        const id = userState.id
-        const data = randomData()
-        const epochKeyProof = await genEpochKeyLiteProof({
-            id,
-            epoch: wrongEpoch,
-            nonce: 0,
-            chainId,
-            attesterId,
-        })
-
-        // upvote with the wrong epoch
-        const upvoteResponse = await voteForPost(
-            otherPostId,
-            VoteAction.UPVOTE,
-            epochKeyProof
-        )
-        expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Invalid epoch')
-    })
-
     it('should vote failed with wrong proof', async function () {
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,

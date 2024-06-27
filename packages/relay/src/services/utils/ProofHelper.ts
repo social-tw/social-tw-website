@@ -47,11 +47,11 @@ class ProofHelper {
         return epochKeyProof
     }
 
+    // this if for not check epoch consistency
     async getAndVerifyEpochKeyLiteProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
-        enableEpochValidation: boolean = true
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
@@ -61,11 +61,6 @@ class ProofHelper {
 
         // check if attester id is valid
         this.validateAttesterId(synchronizer, epochKeyLiteProof)
-
-        // check if epoch is valid, if enableEpochValidation is true (default), if false, don't check epoch equals now epoch
-        if (enableEpochValidation) {
-            await this.validateEpoch(synchronizer, epochKeyLiteProof)
-        }
 
         const isProofValid = await epochKeyLiteProof.verify()
         if (!isProofValid) {

@@ -1,6 +1,6 @@
+import { schema } from '@unirep/core'
 import { TableData } from 'anondb/node'
 import { nanoid } from 'nanoid'
-import { schema } from '@unirep/core'
 
 const _schema = [
     {
@@ -59,8 +59,6 @@ const _schema = [
                 type: 'Int',
                 default: () => 0,
             },
-            // status 0: haven't found the post on-chain
-            // status 1: found the post on-chain
             {
                 name: 'status',
                 type: 'Int',
@@ -97,7 +95,7 @@ const _schema = [
             ['content', 'String'],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
-            ['status', 'Int'], // 0: init, 1: success, 2: deleted
+            ['status', 'Int'],
         ],
     },
     {
@@ -139,6 +137,55 @@ const _schema = [
                 name: 'downVote',
                 type: 'Bool',
                 default: () => false,
+            },
+        ],
+    },
+    {
+        name: 'ReportHistory',
+        primaryKey: 'reportId',
+        rows: [
+            ['reportId', 'String'],
+            ['type', 'Int'],
+            ['objectId', 'String'], // PostId or CommentId
+            ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
+            {
+                name: 'reportorClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
+            ['respondentEpochKey', 'String'], // Epoch Key of the person who was reported
+            {
+                name: 'respondentClaimedRep',
+                type: 'Bool', // TRUE: claimed, FALSE: not claimed
+                default: () => false,
+            },
+            ['reason', 'String'], // Reason of the report
+            {
+                name: 'adjudicateCount', // Number of voters
+                type: 'Int',
+                default: () => 0,
+            },
+            {
+                name: 'adjudicatorsNullifier', // Nullifier of the voter who replied
+                type: 'Object',
+                // rows: [
+                //     ['nullifier', 'String'],
+                //     ['adjudicateValue', 'Int'],
+                //     ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
+                // ],
+                optional: true,
+            },
+            {
+                name: 'status',
+                type: 'Int',
+                default: () => 0,
+            },
+            ['category', 'Int'],
+            ['reportEpoch', 'Int'],
+            {
+                name: 'reportAt',
+                type: 'String',
+                default: () => (+new Date()).toString(),
             },
         ],
     },
