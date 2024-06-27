@@ -7,7 +7,7 @@ import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { describe } from 'node:test'
-import { deployApp } from '../scripts/utils/deployUnirepSocialTW'
+import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
