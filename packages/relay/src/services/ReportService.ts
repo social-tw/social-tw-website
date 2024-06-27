@@ -3,18 +3,21 @@ import { nanoid } from 'nanoid'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
-import { CommentStatus } from '../types/Comment'
 import {
     CommentNotExistError,
     CommentReportedError,
     InvalidCommentIdError,
     InvalidPostIdError,
+    InvalidReportStatusError,
     PostNotExistError,
     PostReportedError,
+    ReportHistory,
     ReportObjectTypeNotExistsError,
-} from '../types/InternalError'
+    ReportStatus,
+    ReportType,
+} from '../types'
+import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
-import { ReportHistory, ReportType } from '../types/Report'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
@@ -28,7 +31,7 @@ export class ReportService {
         synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
-        if (reportData.type === ReportType.Post) {
+        if (reportData.type === ReportType.POST) {
             if (!Validator.isValidNumber(reportData.objectId))
                 throw InvalidPostIdError
 
@@ -39,7 +42,7 @@ export class ReportService {
             if (!post) throw PostNotExistError
             if (post.status === PostStatus.Reported) throw PostReportedError
             reportData.respondentEpochKey = post.epochKey
-        } else if (reportData.type === ReportType.Comment) {
+        } else if (reportData.type === ReportType.COMMENT) {
             if (!Validator.isValidNumber(reportData.objectId))
                 throw InvalidCommentIdError
             const comment = await commentService.fetchSingleComment(
@@ -78,19 +81,62 @@ export class ReportService {
     }
 
     async updateObjectStatus(db: DB, reportData: ReportHistory) {
-        if (reportData.type === ReportType.Post) {
+        if (reportData.type === ReportType.POST) {
             postService.updatePostStatus(
                 reportData.objectId,
                 PostStatus.Reported,
                 db
             )
-        } else if (reportData.type === ReportType.Comment) {
+        } else if (reportData.type === ReportType.COMMENT) {
             commentService.updateCommentStatus(
                 reportData.objectId,
                 CommentStatus.Reported,
                 db
             )
         }
+    }
+
+    async fetchReports(
+        status: ReportStatus,
+        synchronizer: UnirepSocialSynchronizer,
+        db: DB
+    ): Promise<ReportHistory[] | null> {
+        const epoch = await synchronizer.loadCurrentEpoch()
+
+        const statusCondition = {
+            // VOTING reports meet below condition
+            // 1. reportEpoch = current Epoch - 1
+            // 2. the result of adjudication is tie, should vote again
+            // p.s. synchronizer would handle the adjudication result,
+            // we can assume all reports whose status is VOTING are already handled by synchronizer
+            [ReportStatus.VOTING]: {
+                where: {
+                    AND: [
+                        { reportEpoch: { lt: epoch } },
+                        { status: ReportStatus.VOTING },
+                    ],
+                },
+            },
+            // WAITING_FOR_TRANSACTION is for client side to claim reputation use
+            // reports whose report epoch is equal to current epoch are pending reports
+            // the status should be always VOTING, so the where clause don't search
+            // current epoch
+            [ReportStatus.WAITING_FOR_TRANSACTION]: {
+                where: {
+                    AND: [
+                        { reportEpoch: { lt: epoch } },
+                        { status: ReportStatus.WAITING_FOR_TRANSACTION },
+                    ],
+                },
+            },
+        }
+
+        const condition = statusCondition[status]
+        if (!condition) {
+            throw InvalidReportStatusError
+        }
+
+        return await db.findMany('ReportHistory', condition)
     }
 }
 

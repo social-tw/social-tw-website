@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { InternalError } from '../../types/InternalError'
+import { InternalError } from '../../types'
 
 export const errorHandler =
     (func: (req: Request, res: Response, next: NextFunction) => any) =>

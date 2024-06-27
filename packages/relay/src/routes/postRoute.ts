@@ -11,7 +11,7 @@ import {
     InvalidPageError,
     InvalidPostIdError,
     PostNotExistError,
-} from '../types/InternalError'
+} from '../types'
 
 export default (
     app: Express,
