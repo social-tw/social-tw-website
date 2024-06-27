@@ -10,7 +10,7 @@ import { InvalidReportStatusError } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/report',
@@ -22,14 +22,14 @@ export default (
                 _reportData,
                 publicSignals,
                 proof,
-                synchronizer,
+                synchronizer
             )
             // 2. Create a report
             const reportId = await reportService.createReport(db, reportData)
             // 3. Adjust Post / Comment Status
             await reportService.updateObjectStatus(db, reportData)
             res.json({ reportId })
-        }),
+        })
     )
 
     app.get(

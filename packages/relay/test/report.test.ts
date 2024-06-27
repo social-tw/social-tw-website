@@ -49,7 +49,7 @@ describe('POST /api/report', function () {
             prover,
             unirep,
             app,
-            synchronizer,
+            synchronizer
         )
 
         // initUserStatus
@@ -60,7 +60,7 @@ describe('POST /api/report', function () {
             userStateFactory,
             userService,
             synchronizer,
-            wallet,
+            wallet
         )
 
         await userState.waitForSync()
@@ -89,7 +89,7 @@ describe('POST /api/report', function () {
         const resComment = await commentService.fetchSingleComment(
             '0',
             db,
-            CommentStatus.OnChain,
+            CommentStatus.OnChain
         )
         expect(resComment).to.be.exist
 
@@ -121,7 +121,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then(async (res) => {
                 expect(res).to.have.status(200)
@@ -158,7 +158,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -187,7 +187,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -198,7 +198,7 @@ describe('POST /api/report', function () {
         const comment = await commentService.fetchSingleComment(
             '0',
             db,
-            CommentStatus.Reported,
+            CommentStatus.Reported
         )
         expect(comment).to.be.exist
     })
@@ -224,7 +224,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -253,7 +253,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)

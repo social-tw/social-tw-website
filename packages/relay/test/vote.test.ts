@@ -50,7 +50,7 @@ describe('POST /vote', function () {
             prover,
             unirep,
             app,
-            synchronizer,
+            synchronizer
         )
 
         const initUser = await userService.getLoginUser(db, '123', undefined)
@@ -58,7 +58,7 @@ describe('POST /vote', function () {
             initUser,
             userStateFactory,
             userService,
-            synchronizer,
+            synchronizer
         )
 
         await userState.waitForSync()
@@ -75,8 +75,8 @@ describe('POST /vote', function () {
         const postResponses = await Promise.all(postPromises)
         await Promise.all(
             postResponses.map((res) =>
-                ethers.provider.waitForTransaction(res.txHash),
-            ),
+                ethers.provider.waitForTransaction(res.txHash)
+            )
         )
         await sync.waitForSync()
         await pService.updateOrder(anondb)
@@ -115,7 +115,7 @@ describe('POST /vote', function () {
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
                     enableEpochValidation: true,
-                }),
+                })
             )
     }
 
@@ -150,7 +150,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(201)
         // check the post is upvoted only
@@ -160,7 +160,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(downvoteResponse).to.have.status(201)
 
@@ -179,7 +179,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid vote action')
@@ -190,7 +190,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -207,7 +207,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -218,7 +218,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
 
         expect(upvoteResponse).to.have.status(400)
@@ -236,7 +236,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(201)
         // check the post is neither upvoted nor downvoted
@@ -248,7 +248,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(downvoteResponse).to.have.status(201)
         // check the post is neither upvoted nor downvoted
@@ -268,7 +268,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid vote action')
@@ -279,7 +279,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -296,7 +296,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             otherPostId,
             VoteAction.UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Wrong attesterId')
@@ -311,7 +311,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             'invalid',
             VoteAction.UPVOTE,
-            epochKeyProof,
+            epochKeyProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid postId')

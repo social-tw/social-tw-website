@@ -14,7 +14,7 @@ import {
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/vote',
@@ -35,9 +35,9 @@ export default (
                 publicSignals,
                 proof,
                 db,
-                synchronizer,
+                synchronizer
             )
             res.status(201).json({})
-        }),
+        })
     )
 }

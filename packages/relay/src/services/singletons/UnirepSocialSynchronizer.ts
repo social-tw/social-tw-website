@@ -30,7 +30,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             unirepAddress: string
             genesisBlock?: number
         },
-        unirepSocialContract: ethers.Contract,
+        unirepSocialContract: ethers.Contract
     ) {
         tempUnirepSocialContract = unirepSocialContract
         super(config)
@@ -71,7 +71,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
         const fromServer = ethers.utils.defaultAbiCoder.decode(
             ['bool'],
-            event.topics[2],
+            event.topics[2]
         )[0]
         const status = fromServer
             ? UserRegisterStatus.REGISTERER_SERVER
@@ -129,8 +129,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 ? 2
                 : 1
             : content
-              ? 1
-              : 2
+            ? 1
+            : 2
 
         // Use upsert to either create a new comment or update an existing one
         db.upsert('Comment', {

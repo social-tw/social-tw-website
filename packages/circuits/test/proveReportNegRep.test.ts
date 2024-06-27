@@ -32,7 +32,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
             attesterId,
             reportedEpoch,
             reportedNonce,
-            chainId,
+            chainId
         )
 
         const circuitInputs = genReportNegRepCircuitInput({
@@ -47,7 +47,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
 
         const { isValid, publicSignals } = await genProofAndVerify(
             circuit,
-            circuitInputs,
+            circuitInputs
         )
         expect(isValid).to.be.true
         const epochKey = publicSignals[0]
@@ -58,9 +58,9 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
                     attesterId,
                     currentEpoch,
                     currentNonce,
-                    chainId,
+                    chainId
                 )
-                .toString(),
+                .toString()
         )
     })
 
@@ -78,7 +78,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
             attesterId,
             reportedEpoch,
             reportedNonce,
-            chainId,
+            chainId
         )
         const hashUserId = BigInt(123)
 
@@ -113,7 +113,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
             attesterId,
             correctReportedEpoch,
             reportedNonce,
-            chainId,
+            chainId
         )
         const reportedEpoch = 12
         const circuitInputs = genReportNegRepCircuitInput({
