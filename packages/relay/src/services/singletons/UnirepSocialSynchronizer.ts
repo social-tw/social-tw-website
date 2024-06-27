@@ -1,13 +1,13 @@
-import { DB, TransactionDB } from 'anondb'
-import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import schema from '../../db/schema'
-import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
-import { socketManager } from '../utils/SocketManager'
+import { DB, TransactionDB } from 'anondb'
+import { ethers } from 'ethers'
+import { ENV, RESET_DATABASE } from '../../config'
+import schema from '../../db/schema'
 import { UserRegisterStatus } from '../../types'
 import ActionCountManager from '../utils/ActionCountManager'
+import { socketManager } from '../utils/SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -234,6 +234,13 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 epoch: { lte: epoch },
             },
         })
+
+        // Settle reports
+        // Go through all the voting reports
+        // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
+        // Then update the status of the report to WaitingForTx
+        // Then update the status of the post or comment to Onchain or Disagreed
+
         return result
     }
 }
