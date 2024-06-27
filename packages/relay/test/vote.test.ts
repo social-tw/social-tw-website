@@ -18,7 +18,7 @@ import { signUp } from './utils/signUp'
 describe('POST /vote', function () {
     let socketClient: any
     let snapshot: any
-    let anondb: DB
+    let db: DB
     let express: ChaiHttp.Agent
     let userStateFactory: UserStateFactory
     let userState: UserState
@@ -34,13 +34,13 @@ describe('POST /vote', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, chaiServer, synchronizer, postService } =
+        const { db: _db, prover, provider, chaiServer, synchronizer, postService } =
             await startServer(unirep, app)
 
         // start socket client
         socketClient = io('http://localhost:3000')
 
-        anondb = db
+        db = _db
         express = chaiServer
         sync = synchronizer
         pService = postService
@@ -79,7 +79,7 @@ describe('POST /vote', function () {
             )
         )
         await sync.waitForSync()
-        await pService.updateOrder(anondb)
+        await pService.updateOrder(db)
         // get the post ids
         const posts = await express.get('/api/post?page=1').then((res) => {
             expect(res).to.have.status(200)
@@ -120,7 +120,7 @@ describe('POST /vote', function () {
     }
 
     async function verifyPostVote(postId, expectedUpCount, expectedDownCount) {
-        const post = await anondb.findOne('Post', {
+        const post = await db.findOne('Post', {
             where: { postId: postId },
         })
 

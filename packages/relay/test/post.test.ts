@@ -3,8 +3,7 @@ import { ethers } from 'hardhat'
 
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
-
-import { SQLiteConnector } from 'anondb/node'
+import { DB } from 'anondb'
 import { APP_ABI as abi } from '../src/config'
 import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
@@ -23,7 +22,7 @@ describe('POST /post', function () {
     let express: ChaiHttp.Agent
     let userState: UserState
     let sync: UnirepSocialSynchronizer
-    let sqlite: SQLiteConnector
+    let db: DB
     let pService: PostService
     let chainId: number
 
@@ -32,11 +31,11 @@ describe('POST /post', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, chaiServer, postService } =
+        const { db: _db, prover, provider, synchronizer, chaiServer, postService } =
             await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
-        sqlite = db as SQLiteConnector
+        db = _db
         pService = postService
 
         const userStateFactory = new UserStateFactory(
@@ -219,15 +218,15 @@ describe('POST /post', function () {
         // insert 9 mock posts into db
         const mockPosts = postData
         mockPosts.unshift(
-            await sqlite.findOne('Post', { where: { postId: '0' } })
+            await db.findOne('Post', { where: { postId: '0' } })
         )
-        await insertPosts(sqlite)
+        await insertPosts(db)
         // insert random amount of comments into db
-        await insertComments(sqlite)
+        await insertComments(db)
         // insert random amount of votes into db
-        await insertVotes(sqlite)
+        await insertVotes(db)
 
-        await pService.updateOrder(sqlite)
+        await pService.updateOrder(db)
 
         const posts = await express.get(`/api/post?page=1`).then((res) => {
             expect(res).to.have.status(200)
@@ -284,7 +283,7 @@ describe('POST /post', function () {
         const { txHash } = await post(express, userState)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
-        await pService.updateOrder(sqlite)
+        await pService.updateOrder(db)
 
         // one page will have 10 posts
         let posts = await express.get(`/api/post?page=1`).then((res) => {
@@ -307,7 +306,7 @@ describe('POST /post', function () {
         expect(posts.length).equal(0)
 
         // check the post is off-chain so the status must be 0
-        const offChainPost = await sqlite.findOne('Post', {
+        const offChainPost = await db.findOne('Post', {
             where: {
                 transactionHash: txHash,
             },

@@ -124,3 +124,5 @@ export const InvalidAdjudicateValueError = new InternalError(
 export const InvalidReportIdError = new InternalError('Invalid report id', 400)
 
 export const InvalidReportError = new InternalError('Invalid report', 400)
+
+export const NotVotingReportError = new InternalError('Not voting report', 400)

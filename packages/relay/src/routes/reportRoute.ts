@@ -5,7 +5,13 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 
 import Validator from '../services/utils/Validator'
-import { InvalidAdjudicateValueError, InvalidReportIdError, InvalidReportNullifierError, InvalidReportStatusError } from '../types'
+import {
+    AdjudicateValue,
+    InvalidAdjudicateValueError,
+    InvalidReportIdError,
+    InvalidReportNullifierError,
+    InvalidReportStatusError,
+} from '../types'
 
 export default (
     app: Express,
@@ -64,7 +70,10 @@ export default (
                 throw InvalidReportNullifierError
             }
 
-            if (!adjudicateValue) {
+            if (
+                !Validator.isValidNumber(adjudicateValue) ||
+                !(adjudicateValue in AdjudicateValue)
+            ) {
                 throw InvalidAdjudicateValueError
             }
 

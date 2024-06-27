@@ -8,11 +8,11 @@ import {
     Adjudicator,
     CommentNotExistError,
     CommentReportedError,
-    InvalidAdjudicateValueError,
     InvalidCommentIdError,
     InvalidPostIdError,
     InvalidReportError,
     InvalidReportStatusError,
+    NotVotingReportError,
     PostNotExistError,
     PostReportedError,
     ReportHistory,
@@ -155,6 +155,10 @@ export class ReportService {
             throw InvalidReportError
         }
 
+        if (report.status != ReportStatus.VOTING) {
+            throw NotVotingReportError
+        }
+
         // check if user voted or not
         if (this.isVoted(nullifier, report)) {
             throw UserAlreadyVotedError
@@ -167,7 +171,7 @@ export class ReportService {
         )
         // default value is 0, but insert statement doesn't have this field
         // if this field is undefined, assume no one has voted yet.
-        const adjudicateCount = report.adjudicateCount?? 0 
+        const adjudicateCount = report.adjudicateCount ?? 0
 
         // update adjudicatorsNullifier && adjudicateCount
         await db.update('ReportHistory', {
@@ -176,7 +180,6 @@ export class ReportService {
             },
             update: {
                 adjudicatorsNullifier: adjudicatorsNullifier,
-
                 adjudicateCount: adjudicateCount + 1,
             },
         })
@@ -187,32 +190,21 @@ export class ReportService {
         adjudicateValue: AdjudicateValue,
         report: ReportHistory
     ): Adjudicator[] {
-        const adjudicator = {
-            nullifier: nullifier,
-            claimed: false,
-        }
+        const adjudicator = [
+            {
+                nullifier: nullifier,
+                adjudicateValue: adjudicateValue,
+                claimed: false,
+            },
+        ]
 
-        switch (adjudicateValue) {
-            case AdjudicateValue.AGREE:
-                adjudicator[adjudicateValue] = 1
-                break
-            case AdjudicateValue.DISAGREE:
-                adjudicator[adjudicateValue] = 0
-                break
-            default:
-                throw InvalidAdjudicateValueError
-        }
-
-        let adjudicatorsNullifier
-        if (!report.adjudicatorsNullifier) {
-            // if this is the first time to vote on the report, create an adjudicatorsNullifier array
-            adjudicatorsNullifier = [adjudicator]
-        } else {
+        if (report.adjudicatorsNullifier) {
             // push the new adjudicator into adjudicatorsNullifier
-            adjudicatorsNullifier = report.adjudicatorsNullifier.push(adjudicator as Adjudicator)
+            return report.adjudicatorsNullifier.concat(adjudicator)
         }
 
-        return adjudicatorsNullifier
+        // this adjudicator is the first one to vote on the report
+        return adjudicator
     }
 
     isVoted(nullifier: string, report: ReportHistory): boolean {
@@ -231,7 +223,7 @@ export class ReportService {
     async fetchSingleReport(id: string, db: DB): Promise<ReportHistory | null> {
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportId: id
+                reportId: id,
             },
         })
 
