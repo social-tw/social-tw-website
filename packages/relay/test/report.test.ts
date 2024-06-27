@@ -520,4 +520,48 @@ describe('POST /api/report', function () {
                 expect(res.body.error).to.be.equal('User is already voted')
             })
     })
+
+    it('should fail if vote on the report whose status is not VOTING', async function () {
+        const watingForTxReport = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Not voting report')
+            })
+
+        // mock this report to be completed
+        await db.update('ReportHistory', {
+            where: {
+                reportId: watingForTxReport.reportId,
+            },
+            update: {
+                reportorClaimedRep: true,
+                respondentClaimedRep: true,
+                status: ReportStatus.COMPLETED,
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Not voting report')
+            })
+    })
 })
