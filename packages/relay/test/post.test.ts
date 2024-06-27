@@ -31,8 +31,14 @@ describe('POST /post', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db: _db, prover, provider, synchronizer, chaiServer, postService } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            synchronizer,
+            chaiServer,
+            postService,
+        } = await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
         db = _db
@@ -217,9 +223,7 @@ describe('POST /post', function () {
     it('should update post order periodically', async function () {
         // insert 9 mock posts into db
         const mockPosts = postData
-        mockPosts.unshift(
-            await db.findOne('Post', { where: { postId: '0' } })
-        )
+        mockPosts.unshift(await db.findOne('Post', { where: { postId: '0' } }))
         await insertPosts(db)
         // insert random amount of comments into db
         await insertComments(db)

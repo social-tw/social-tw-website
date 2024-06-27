@@ -34,8 +34,14 @@ describe('POST /vote', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db: _db, prover, provider, chaiServer, synchronizer, postService } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            chaiServer,
+            synchronizer,
+            postService,
+        } = await startServer(unirep, app)
 
         // start socket client
         socketClient = io('http://localhost:3000')

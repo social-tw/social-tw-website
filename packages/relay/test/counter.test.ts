@@ -26,8 +26,13 @@ describe('GET /counter', function () {
         // deploy contracts
         const contracts = await deployContracts(100000)
         // start server
-        const { db: _db, prover, provider, synchronizer, chaiServer } =
-            await startServer(contracts.unirep, contracts.app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(contracts.unirep, contracts.app)
         express = chaiServer
         sync = synchronizer
         unirep = contracts.unirep
