@@ -1,11 +1,8 @@
 import { DB } from 'anondb'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { CommentNotExistError, InvalidEpochKeyError } from '../types'
 import { Comment } from '../types/Comment'
-import {
-    CommentNotExistError,
-    InvalidEpochKeyError,
-} from '../types/InternalError'
 import { Post } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
@@ -39,8 +36,6 @@ export class CommentService {
         if (status) {
             whereClause['status'] = status
         }
-
-        console.log('whereClause:', whereClause)
 
         const comment = await db.findOne('Comment', {
             where: whereClause,

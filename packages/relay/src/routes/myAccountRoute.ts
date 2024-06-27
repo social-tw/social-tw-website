@@ -1,14 +1,14 @@
 import { DB } from 'anondb/node'
 import { Express, Request, Response } from 'express'
-import { errorHandler } from '../services/utils/ErrorHandler'
 import { commentService } from '../services/CommentService'
-import {
-    UnspecifiedEpochKeyError,
-    InvalidSortKeyError,
-    InvalidDirectionError,
-} from '../types/InternalError'
 import { postService } from '../services/PostService'
 import { voteService } from '../services/VoteService'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import {
+    InvalidDirectionError,
+    InvalidSortKeyError,
+    UnspecifiedEpochKeyError,
+} from '../types'
 
 export default (app: Express, db: DB) => {
     const handleMyAccountRequest = async (

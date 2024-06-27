@@ -1,22 +1,19 @@
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
 import { DB } from 'anondb'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 
 import { UserState } from '@unirep/core'
-import { deployContracts, startServer, stopServer } from './environment'
 import { stringifyBigInts } from '@unirep/utils'
+import { deployContracts, startServer, stopServer } from './environment'
 
+import { io } from 'socket.io-client'
+import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { EventType, VoteAction, VoteMsg } from '../src/types'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { signUp } from './utils/signUp'
 import { post } from './utils/post'
-import { VoteAction } from '../src/types'
-import { randomData } from './utils/genProof'
-import { PostService } from '../src/services/PostService'
-import { io } from 'socket.io-client'
-import { EventType, VoteMsg } from '../src/types/SocketTypes'
-import { genEpochKeyLiteProof } from '@unirep-app/contracts/test/utils'
+import { signUp } from './utils/signUp'
 
 describe('POST /vote', function () {
     let socketClient: any
