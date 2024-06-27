@@ -3,9 +3,17 @@ import { Synchronizer } from '@unirep/core'
 import { toDecString } from '@unirep/core/src/Synchronizer'
 import { DB, TransactionDB } from 'anondb'
 import { ethers } from 'ethers'
-import { ENV, RESET_DATABASE } from '../../config'
+import { ENV, REPORT_SETTLE_VOTE_THRESHOLD, RESET_DATABASE } from '../../config'
 import schema from '../../db/schema'
-import { UserRegisterStatus } from '../../types'
+import {
+    AdjudicateValue,
+    Adjudicator,
+    CommentStatus,
+    PostStatus,
+    ReportStatus,
+    ReportType,
+    UserRegisterStatus,
+} from '../../types'
 import ActionCountManager from '../utils/ActionCountManager'
 import { socketManager } from '../utils/SocketManager'
 
@@ -236,10 +244,58 @@ export class UnirepSocialSynchronizer extends Synchronizer {
         })
 
         // Settle reports
+        const votingReports = await this.db.findMany('ReportHistory', {
+            where: {
+                status: ReportStatus.VOTING,
+            },
+        })
         // Go through all the voting reports
-        // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
-        // Then update the status of the report to WaitingForTx
-        // Then update the status of the post or comment to Onchain or Disagreed
+        for (const report of votingReports) {
+            const adjudicators = report.adjudicatorsNullifier || []
+            const agreeVotes = adjudicators.filter(
+                (adj: Adjudicator) =>
+                    adj.adjudicateValue === AdjudicateValue.AGREE
+            ).length
+            const disagreeVotes = adjudicators.filter(
+                (adj: Adjudicator) =>
+                    adj.adjudicateValue === AdjudicateValue.DISAGREE
+            ).length
+            // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
+            if (
+                epoch > report.reportEpoch &&
+                report.adjudicateCount > REPORT_SETTLE_VOTE_THRESHOLD &&
+                agreeVotes !== disagreeVotes
+            ) {
+                // Then update the status of the report to WaitingForTx
+                await this.db.update('ReportHistory', {
+                    where: { reportId: report.reportId },
+                    update: {
+                        status: ReportStatus.WAITING_FOR_TRANSACTION,
+                    },
+                })
+                // Then update the status of the post or comment to Onchain or Disagreed
+                const newStatus =
+                    agreeVotes > disagreeVotes
+                        ? report.type === ReportType.POST
+                            ? PostStatus.ON_CHAIN
+                            : CommentStatus.ON_CHAIN
+                        : report.type === ReportType.POST
+                        ? PostStatus.DISAGREED
+                        : CommentStatus.DISAGREED
+
+                await this.db.update(
+                    report.type === ReportType.POST ? 'Post' : 'Comment',
+                    {
+                        where: {
+                            [report.type === ReportType.POST
+                                ? 'postId'
+                                : 'commentId']: report.objectId,
+                        },
+                        update: { status: newStatus },
+                    }
+                )
+            }
+        }
 
         return result
     }
