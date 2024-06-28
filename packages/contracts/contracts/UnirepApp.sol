@@ -11,7 +11,7 @@ import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.s
 
 interface IVerifier {
     function verifyProof(
-        uint256[7] calldata publicSignals,
+        uint256[] calldata publicSignals,
         uint256[8] calldata proof
     ) external view returns (bool);
 }
@@ -300,7 +300,7 @@ contract UnirepApp {
     }
 
     function verifyDataProof(
-        uint256[7] calldata publicSignals,
+        uint256[] calldata publicSignals,
         uint256[8] calldata proof
     ) public view returns (bool) {
         return dataVerifier.verifyProof(publicSignals, proof);
