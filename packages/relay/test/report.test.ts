@@ -580,4 +580,41 @@ describe('POST /api/report', function () {
                 expect(res.body.error).to.be.equal('Report voting has ended')
             })
     })
+
+    it('should fetch report category', async function () {
+        const reportCategories = await express
+            .get('/api/report/category')
+            .then((res) => res.body)
+        expect(reportCategories.length).equal(
+            Object.keys(ReportCategory).filter((category) =>
+                isNaN(Number(category))
+            ).length
+        )
+        expect(reportCategories[0].number).equal(ReportCategory.ATTACK)
+        expect(reportCategories[0].description).to.be.equal(
+            '對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論'
+        )
+        expect(reportCategories[1].number).equal(ReportCategory.SPAM)
+        expect(reportCategories[1].description).to.be.equal(
+            '張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等'
+        )
+        expect(reportCategories[2].number).equal(ReportCategory.R18)
+        expect(reportCategories[2].description).to.be.equal(
+            '張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限'
+        )
+        expect(reportCategories[3].number).equal(ReportCategory.VIOLATION)
+        expect(reportCategories[3].description).to.be.equal(
+            '違反政府法令之情事'
+        )
+        expect(reportCategories[4].number).equal(ReportCategory.DUPLICATE)
+        expect(reportCategories[4].description).to.be.equal(
+            '重複張貼他人已發表過且完全相同的內容'
+        )
+        expect(reportCategories[5].number).equal(ReportCategory.MEANINGLESS)
+        expect(reportCategories[5].description).to.be.equal(
+            '文章內容空泛或明顯無意義內容'
+        )
+        expect(reportCategories[6].number).equal(ReportCategory.OTHER)
+        expect(reportCategories[6].description).to.be.equal('其他')
+    })
 })
