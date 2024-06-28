@@ -12,7 +12,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
                 settings: {
                     numEpochKeyNoncePerEpoch: 3,
-                }
+                },
             },
         }),
     }),
@@ -37,7 +37,7 @@ describe('AdjudicationNotification', () => {
                 adjudicatorsNullifier: [],
                 createdAt: '2022-01-01T00:00:00.000Z',
                 updatedAt: '2022-01-01T00:00:00.000Z',
-            }
+            },
         ]
 
         const expectation = nock(SERVER)

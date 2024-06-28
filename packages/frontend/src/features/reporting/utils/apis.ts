@@ -30,7 +30,7 @@ export async function adjudicateReport({
             stringifyBigInts({
                 nullifier,
                 adjudicateValue,
-            })
+            }),
         ),
     })
 

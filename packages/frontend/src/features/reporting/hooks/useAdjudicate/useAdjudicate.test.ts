@@ -29,7 +29,6 @@ describe('useAdjudicate', () => {
             .post('/api/report/1', {
                 adjudicateValue: 1,
                 nullifier: getAdjudicateNullifier('0x123', '1').toString(),
-                
             })
             .reply(200, {})
 
@@ -39,7 +38,7 @@ describe('useAdjudicate', () => {
             reportId: '1',
             adjudicateValue: 1,
         })
-        
+
         await waitFor(() => expect(result.current.isSuccess).toBe(true))
         expect(result.current.isError).toBe(false)
         expectation.done()
@@ -50,7 +49,6 @@ describe('useAdjudicate', () => {
             .post('/api/report/1', {
                 adjudicateValue: 1,
                 nullifier: getAdjudicateNullifier('0x123', '1').toString(),
-                
             })
             .reply(400, {
                 error: 'Error',
@@ -62,7 +60,7 @@ describe('useAdjudicate', () => {
             reportId: '1',
             adjudicateValue: 1,
         })
-        
+
         await waitFor(() => expect(result.current.isSuccess).toBe(false))
         expectation.done()
     })
