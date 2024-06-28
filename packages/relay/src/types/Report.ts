@@ -15,11 +15,6 @@ export enum ReportType {
     COMMENT = 1,
 }
 
-export enum AdjudicateValue {
-    DISAGREE = 0,
-    AGREE = 1,
-}
-
 export type Adjudicator = {
     nullifier: string
     adjudicateValue: number // 1: agree, 0: disagree
@@ -41,4 +36,9 @@ export interface ReportHistory {
     category: number
     reportEpoch: number
     reportAt?: string
+}
+
+export enum AdjudicateValue {
+    DISAGREE,
+    AGREE,
 }

@@ -3,9 +3,11 @@ import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
+import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
+    AdjudicateValue,
     CommentStatus,
     Post,
     ReportCategory,
@@ -28,6 +30,10 @@ describe('POST /api/report', function () {
     let db: any
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
+    // TODO: need to update to real nullifier like poseidon(userId, reportId)
+    const AGREE_NULLIFIER = 'agree'
+    const DISAGREE_NULLIFIER = 'disagree'
+    const WRONGE_ADJUCATE_VALUE = 'wrong'
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -395,5 +401,183 @@ describe('POST /api/report', function () {
         const currentEpoch = await sync.loadCurrentEpoch()
         const epochDiff = currentEpoch - reports[0].reportEpoch
         expect(epochDiff).gt(1)
+    })
+
+    it('should vote agree on the report', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(201)
+            })
+
+        await reportService
+            .fetchSingleReport(report.reportId, db)
+            .then((res) => {
+                expect(res?.status).equal(ReportStatus.VOTING)
+                expect(res?.adjudicateCount).equal(1)
+                const adjudicator = res?.adjudicatorsNullifier![0]!
+                expect(adjudicator.adjudicateValue).equal(AdjudicateValue.AGREE)
+                expect(adjudicator.nullifier).equal(AGREE_NULLIFIER)
+            })
+    })
+
+    it('should vote disagree on the report', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: DISAGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.DISAGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(201)
+            })
+
+        await reportService
+            .fetchSingleReport(report.reportId, db)
+            .then((res) => {
+                expect(res?.status).equal(ReportStatus.VOTING)
+                expect(res?.adjudicateCount).equal(2)
+                const adjudicator = res?.adjudicatorsNullifier![1]!
+                expect(adjudicator.adjudicateValue).equal(
+                    AdjudicateValue.DISAGREE
+                )
+                expect(adjudicator.nullifier).to.be.equal(DISAGREE_NULLIFIER)
+            })
+    })
+
+    it('should fail if report does not exist', async function () {
+        const notExistReportId = 'NotExistReportId'
+        await express
+            .post(`/api/report/${notExistReportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report does not exist')
+            })
+    })
+
+    it('should fail if vote invalid adjudicate value', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: DISAGREE_NULLIFIER,
+                adjudicateValue: WRONGE_ADJUCATE_VALUE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid adjudicate value')
+            })
+    })
+
+    it('should fail if vote on the report without nullifier', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                adjudicateValue: AdjudicateValue.DISAGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid report nullifier')
+            })
+    })
+
+    it('should fail if vote on the report with same nullifier', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('User has already voted')
+            })
+    })
+
+    it('should fail if vote on the report whose status is not VOTING', async function () {
+        const watingForTxReport = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report voting has ended')
+            })
+
+        // mock this report to be completed
+        await db.update('ReportHistory', {
+            where: {
+                reportId: watingForTxReport.reportId,
+            },
+            update: {
+                reportorClaimedRep: true,
+                respondentClaimedRep: true,
+                status: ReportStatus.COMPLETED,
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report voting has ended')
+            })
     })
 })
