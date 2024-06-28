@@ -45,7 +45,7 @@ describe('useAdjudicate', () => {
     })
 
     it('should handle adjudication error', async () => {
-        const expectation = nock(SERVER)
+        nock(SERVER)
             .post('/api/report/1', {
                 adjudicateValue: 1,
                 nullifier: getAdjudicateNullifier('0x123', '1').toString(),
@@ -62,6 +62,5 @@ describe('useAdjudicate', () => {
         })
 
         await waitFor(() => expect(result.current.isSuccess).toBe(false))
-        expectation.done()
     })
 })
