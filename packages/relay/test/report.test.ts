@@ -3,9 +3,11 @@ import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
+import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
+    AdjudicateValue,
     CommentStatus,
     Post,
     ReportCategory,
@@ -27,6 +29,10 @@ describe('POST /api/report', function () {
     let db: any
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
+    // TODO: need to update to real nullifier like poseidon(userId, reportId)
+    const AGREE_NULLIFIER = 'agree'
+    const DISAGREE_NULLIFIER = 'disagree'
+    const WRONGE_ADJUCATE_VALUE = 'wrong'
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -258,6 +264,319 @@ describe('POST /api/report', function () {
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid postId')
+            })
+    })
+
+    it('should get empty report list if reportEpoech is equal to currentEpoch', async function () {
+        await express.get('/api/report?status=0').then((res) => {
+            expect(res).to.have.status(200)
+            expect(res.body.length).equal(0)
+        })
+    })
+
+    it('should fetch report whose reportEpoch is equal to currentEpoch - 1', async function () {
+        // epoch transition
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await ethers.provider.send('evm_mine', [])
+
+        const reports = await express
+            .get('/api/report?status=0')
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
+
+        const currentEpoch = await sync.loadCurrentEpoch()
+        const epochDiff = currentEpoch - reports[0].reportEpoch
+        // report on post and comment, so the result would be 2
+        expect(reports.length).equal(2)
+        expect(epochDiff).equal(1)
+    })
+
+    it('should fail to fetch report with wrong query status or without status query params', async function () {
+        await express.get('/api/report?status=6').then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).to.be.equal('Invalid report status')
+        })
+
+        await express.get('/api/report').then((res) => {
+            expect(res).to.have.status(400)
+            expect(res.body.error).to.be.equal('Invalid report status')
+        })
+    })
+
+    it('should fetch report whose adjudication result is tie', async function () {
+        // update mock value into report
+        db.update('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 0 },
+                    { adjudicateValue: 0 },
+                    { adjudicateValue: 0 },
+                ],
+                adjudicateCount: 6,
+            },
+        })
+
+        // epoch transition
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await ethers.provider.send('evm_mine', [])
+
+        const reports = await express
+            .get('/api/report?status=0')
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
+
+        // flatMap to [adjudicateValue1, adjucateValue2 ...]
+        // add all adjudicateValues (0: disagree, 1: agree)
+        const adjudicateResult = reports[0].adjudicatorsNullifier
+            .flatMap((nullifier) => nullifier.adjudicateValue)
+            .reduce((acc, value) => {
+                // disagree
+                if (Number(value) == 0) {
+                    return acc - 1
+                }
+                // agree
+                return acc + 1
+            })
+        expect(adjudicateResult).equal(0)
+        expect(reports[0].adjudicateCount).gt(5)
+    })
+
+    it('should fetch report whose adjudication count is less than 5', async function () {
+        // nobody vote on reports[1], it can be fetched on next epoch
+        const reports = await express
+            .get('/api/report?status=0')
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
+
+        expect(reports[1].adjudicateCount).lt(5)
+        expect(reports[1].status).equal(0)
+        const currentEpoch = await sync.loadCurrentEpoch()
+        const epochDiff = currentEpoch - reports[1].reportEpoch
+        expect(epochDiff).gt(1)
+    })
+
+    it('should fetch report whose status is waiting for transaction', async function () {
+        // insert mock value into report
+        db.update('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 1 },
+                    { adjudicateValue: 0 },
+                    { adjudicateValue: 0 },
+                    { adjudicateValue: 0 },
+                ],
+                adjudicateCount: 7,
+                status: ReportStatus.WAITING_FOR_TRANSACTION,
+            },
+        })
+
+        const reports = await express
+            .get('/api/report?status=1')
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
+
+        expect(reports[0].adjudicateCount).gt(5)
+        expect(reports[0].status).equal(1)
+        const currentEpoch = await sync.loadCurrentEpoch()
+        const epochDiff = currentEpoch - reports[0].reportEpoch
+        expect(epochDiff).gt(1)
+    })
+
+    it('should vote agree on the report', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(201)
+            })
+
+        await reportService
+            .fetchSingleReport(report.reportId, db)
+            .then((res) => {
+                expect(res?.status).equal(ReportStatus.VOTING)
+                expect(res?.adjudicateCount).equal(1)
+                const adjudicator = res?.adjudicatorsNullifier![0]!
+                expect(adjudicator.adjudicateValue).equal(AdjudicateValue.AGREE)
+                expect(adjudicator.nullifier).equal(AGREE_NULLIFIER)
+            })
+    })
+
+    it('should vote disagree on the report', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: DISAGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.DISAGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(201)
+            })
+
+        await reportService
+            .fetchSingleReport(report.reportId, db)
+            .then((res) => {
+                expect(res?.status).equal(ReportStatus.VOTING)
+                expect(res?.adjudicateCount).equal(2)
+                const adjudicator = res?.adjudicatorsNullifier![1]!
+                expect(adjudicator.adjudicateValue).equal(
+                    AdjudicateValue.DISAGREE
+                )
+                expect(adjudicator.nullifier).to.be.equal(DISAGREE_NULLIFIER)
+            })
+    })
+
+    it('should fail if report does not exist', async function () {
+        const notExistReportId = 'NotExistReportId'
+        await express
+            .post(`/api/report/${notExistReportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report does not exist')
+            })
+    })
+
+    it('should fail if vote invalid adjudicate value', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: DISAGREE_NULLIFIER,
+                adjudicateValue: WRONGE_ADJUCATE_VALUE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid adjudicate value')
+            })
+    })
+
+    it('should fail if vote on the report without nullifier', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                adjudicateValue: AdjudicateValue.DISAGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid report nullifier')
+            })
+    })
+
+    it('should fail if vote on the report with same nullifier', async function () {
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('User has already voted')
+            })
+    })
+
+    it('should fail if vote on the report whose status is not VOTING', async function () {
+        const watingForTxReport = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report voting has ended')
+            })
+
+        // mock this report to be completed
+        await db.update('ReportHistory', {
+            where: {
+                reportId: watingForTxReport.reportId,
+            },
+            update: {
+                reportorClaimedRep: true,
+                respondentClaimedRep: true,
+                status: ReportStatus.COMPLETED,
+            },
+        })
+
+        await express
+            .post(`/api/report/${watingForTxReport.reportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report voting has ended')
             })
     })
 })
