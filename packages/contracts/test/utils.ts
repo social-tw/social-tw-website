@@ -14,7 +14,7 @@ import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
 import { ethers } from 'hardhat'
-import { poseidon1 } from 'poseidon-lite'
+import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { IdentityObject } from './types'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
@@ -261,4 +261,21 @@ export function genVHelperIdentifier(identifier: string): string {
         [identifier]
     )
     return ethers.utils.keccak256(encodedId)
+}
+
+export function flattenProof(proof: any) {
+    return [
+        proof.pi_a[0],
+        proof.pi_a[1],
+        proof.pi_b[0][1],
+        proof.pi_b[0][0],
+        proof.pi_b[1][1],
+        proof.pi_b[1][0],
+        proof.pi_c[0],
+        proof.pi_c[1],
+    ]
+}
+
+export function genNullifier(hashUserId: string, postId: number | bigint) {
+    return poseidon2([hashUserId, postId])
 }
