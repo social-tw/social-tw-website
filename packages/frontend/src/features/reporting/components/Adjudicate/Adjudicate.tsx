@@ -1,7 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
+import { useAdjudicate } from '../../hooks/useAdjudicate/useAdjudicate'
 import AdjudicateDialog from './AdjudicateDialog'
 import AdjudicateFailure from './AdjudicateFailure'
-import { AdjudicateFormValues, ReportData } from './AdjudicateForm'
+import { ReportData } from './AdjudicateForm'
 import AdjudicatePending from './AdjudicatePending'
 import AdjudicateSuccess from './AdjudicateSuccess'
 
@@ -16,18 +16,7 @@ export default function Adjudicate({
 }) {
     const close = onClose
 
-    const { isPending, isSuccess, isError, reset, mutate } = useMutation({
-        mutationKey: [],
-        mutationFn: async (values: AdjudicateFormValues) => {
-            // TODO: implement this
-        },
-        onMutate: (variables) => {},
-        onError: (_error, _variables, context) => {},
-        onSuccess: (data, _variables, context) => {},
-        onSettled: () => {
-            close()
-        },
-    })
+    const { isPending, isSuccess, isError, reset, mutate } = useAdjudicate()
 
     if (!reportData) {
         return null
@@ -39,7 +28,10 @@ export default function Adjudicate({
                 reportData={reportData}
                 open={open}
                 onClose={close}
-                onSubmit={mutate}
+                onSubmit={(values) => {
+                    mutate(values)
+                    close()
+                }}
             />
             <AdjudicatePending open={isPending} onClose={reset} />
             <AdjudicateSuccess open={isSuccess} onClose={reset} />
