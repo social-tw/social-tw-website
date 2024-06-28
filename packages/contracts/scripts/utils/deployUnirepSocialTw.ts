@@ -59,7 +59,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
 
     // register verifierHelpers in vHelperManager
     console.log('Register vHelpers into vHelperManager')
-    
+
     // 1. create a mapping list for vHelper => hash value
     const vHelpers = [
         {
