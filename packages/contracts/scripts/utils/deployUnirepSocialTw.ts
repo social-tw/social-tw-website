@@ -59,8 +59,8 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
 
     // register verifierHelpers in vHelperManager
     console.log('Register vHelpers into vHelperManager')
+    
     // 1. create a mapping list for vHelper => hash value
-
     const vHelpers = [
         {
             identifier: 'reportNegRepProofVerifierHelper',
@@ -78,6 +78,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         const hashId = ethers.utils.keccak256(encodedId)
         return { identifier: hashId, address }
     })
+
     // 2. register address into vHelperManager
     for (const vHelper of vHelpers) {
         await vHelperManager.functions.verifierRegister(
@@ -112,8 +113,10 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     return {
         unirep,
         app,
+        // Verifier Helpers
         reportNegRepVHelper,
         reportNullifierVHelper,
+        // Verifiers
         reportNegRepProofVerifier,
         reportNullifierProofVerifier,
     }
