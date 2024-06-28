@@ -263,8 +263,8 @@ contract UnirepApp {
     /// @param identifier sha256(verifier_contract_name)
     /// @return signals The EpochKeySignals from BaseVerifierHelper
     function verifyWithIdentifier(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
         bytes32 identifier
     ) public view returns (BaseVerifierHelper.EpochKeySignals memory) {
         BaseVerifierHelper.EpochKeySignals memory signal = verifierHelperManager.verifyProof(

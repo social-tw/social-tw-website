@@ -6,6 +6,7 @@ import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifi
 
 contract VerifierHelperManager {
     mapping(bytes32 => address) public registeredVerifiers; // see verifierRegister
+    error IdentifierNotRegistered(bytes32);
 
     /// @dev register VerifierHelper Contract in Unirep Social-TW
     /// @param identifier sha256(verifier_contract_name)
@@ -22,10 +23,13 @@ contract VerifierHelperManager {
     /// @param identifier sha256(verifier_contract_name)
     /// @return signals The EpochKeySignals from BaseVerifierHelper
     function verifyProof(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
         bytes32 identifier
     ) public view returns (BaseVerifierHelper.EpochKeySignals memory) {
+        if (registeredVerifiers[identifier] == address(0)) {
+            revert IdentifierNotRegistered(identifier);
+        }
         address verifierAddr = registeredVerifiers[identifier];
         BaseVerifierHelper.EpochKeySignals memory signal = IVerifierHelper(verifierAddr).verifyAndCheck(publicSignals, proof);
         return signal; 
