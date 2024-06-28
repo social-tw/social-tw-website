@@ -13,7 +13,7 @@ export interface ReportData {
 
 export interface AdjudicateFormValues {
     reportId: string
-    value: AdjudicateValue
+    adjudicateValue: AdjudicateValue
 }
 
 export default function AdjudicateForm({
@@ -26,14 +26,14 @@ export default function AdjudicateForm({
     function onAgree() {
         onSubmit({
             reportId: reportData.id,
-            value: AdjudicateValue.Agree,
+            adjudicateValue: AdjudicateValue.Agree,
         })
     }
 
     function onDisagree() {
         onSubmit({
             reportId: reportData.id,
-            value: AdjudicateValue.Disagree,
+            adjudicateValue: AdjudicateValue.Disagree,
         })
     }
 
