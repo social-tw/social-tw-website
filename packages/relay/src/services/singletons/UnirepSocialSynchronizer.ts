@@ -233,15 +233,14 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             epoch: epoch,
         })
 
-        // if there's no data in EpochKeyAction then do nothing
-        if (rows == 0) return result
-
         // make sure all data whose epochs are before the current ended one is deleted as well
-        db.delete('EpochKeyAction', {
-            where: {
-                epoch: { lte: epoch },
-            },
-        })
+        if (rows) {
+            db.delete('EpochKeyAction', {
+                where: {
+                    epoch: { lte: epoch },
+                },
+            })
+        }
 
         // Settle reports
         const votingReports = await this.db.findMany('ReportHistory', {
@@ -262,12 +261,12 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             ).length
             // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
             if (
-                epoch > report.reportEpoch &&
+                epoch >= report.reportEpoch &&
                 report.adjudicateCount > REPORT_SETTLE_VOTE_THRESHOLD &&
                 agreeVotes !== disagreeVotes
             ) {
                 // Then update the status of the report to WaitingForTx
-                await this.db.update('ReportHistory', {
+                db.update('ReportHistory', {
                     where: { reportId: report.reportId },
                     update: {
                         status: ReportStatus.WAITING_FOR_TRANSACTION,
@@ -282,8 +281,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                         : report.type === ReportType.POST
                         ? PostStatus.DISAGREED
                         : CommentStatus.DISAGREED
-
-                await this.db.update(
+                db.update(
                     report.type === ReportType.POST ? 'Post' : 'Comment',
                     {
                         where: {
