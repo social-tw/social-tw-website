@@ -5,13 +5,13 @@ export enum ReportStatus {
 }
 
 export enum ReportCategory {
-    ATTACK = 0,
-    SPAM = 1,
-    R18 = 2,
-    VIOLATION = 3,
-    DUPLICATE = 4,
-    MEANINGLESS = 5,
-    OTHER = 6,
+    ATTACK,
+    SPAM,
+    R18,
+    VIOLATION,
+    DUPLICATE,
+    MEANINGLESS,
+    OTHER,
 }
 
 export enum ReportType {
