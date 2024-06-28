@@ -14,7 +14,6 @@ function useActiveAdjudication() {
     const { userState } = useUserState()
 
     const { data: reports } = usePendingReports()
-    console.log(reports)
 
     const activeReport = useMemo(() => {
         if (!reports || !userState) {
