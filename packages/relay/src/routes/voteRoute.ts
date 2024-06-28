@@ -1,15 +1,15 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { voteService } from '../services/VoteService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
-import { voteService } from '../services/VoteService'
 import {
     InvalidPostIdError,
     InvalidProofError,
     InvalidPublicSignalError,
     InvalidVoteActionError,
-} from '../types/InternalError'
+} from '../types'
 
 export default (
     app: Express,
