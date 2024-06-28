@@ -5,7 +5,7 @@ include "../../../node_modules/@unirep/circuits/circuits/hasher.circom";
 template ReportNullifierProof() {
     signal input report_nullifier; // stored in relay
     signal input hash_user_id;
-    signal input post_id;
+    signal input report_id;
     signal input current_epoch;
     signal input current_nonce; // action count
     signal input chain_id;
@@ -13,7 +13,7 @@ template ReportNullifierProof() {
     signal output current_epoch_key;
     
     /* Step 1: check if the nullifier is equal to the one stored in relayer */ 
-    signal nullifier <== Poseidon(2)([hash_user_id, post_id]);
+    signal nullifier <== Poseidon(2)([hash_user_id, report_id]);
     report_nullifier === nullifier;
 
     /* Step 2: output with current epoch key */

@@ -11,7 +11,7 @@ const circuit = 'reportNullifierProof'
 const genCircuitInput = (config: {
     reportNullifier: any
     hashUserId: string | bigint
-    postId: number | bigint
+    reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
     chainId: number | bigint
@@ -20,7 +20,7 @@ const genCircuitInput = (config: {
     const {
         reportNullifier,
         hashUserId,
-        postId,
+        reportId,
         currentEpoch,
         currentNonce,
         chainId,
@@ -30,7 +30,7 @@ const genCircuitInput = (config: {
     const circuitInputs = {
         report_nullifier: reportNullifier,
         hash_user_id: hashUserId,
-        post_id: postId,
+        report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
         chain_id: chainId,
@@ -69,8 +69,8 @@ const createRandomUserIdentity = (): IdentityObject => {
     return { hashUserId, id }
 }
 
-const genNullifier = (hashUserId: string, postId: number | bigint) => {
-    return poseidon2([hashUserId, postId])
+const genNullifier = (hashUserId: string, reportId: number | bigint) => {
+    return poseidon2([hashUserId, reportId])
 }
 
 describe('Prove report nullifier in Unirep Social-TW', function () {
@@ -78,22 +78,22 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
     /**
      * 1. should generate a nullifierProof and outputs an epoch key
      * 2. should revert with invalid userId
-     * 3. should revert with invalid postId
+     * 3. should revert with invalid reportId
      */
 
     const chainId = 31337
     const user = createRandomUserIdentity()
     it('should generate a report nullifier proof and output with correct epochKey', async () => {
         const hashUserId = user.hashUserId
-        const postId = 0
+        const reportId = 0
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const circuitInputs = genCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
@@ -119,16 +119,16 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
     })
 
     it('should revert with invalid hashUserId', async () => {
-        const postId = 0
+        const reportId = 0
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(user.hashUserId, postId)
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
         const hashUserId = BigInt(123)
         const circuitInputs = genCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
@@ -142,18 +142,18 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
         }
     })
 
-    it('should revert with invalid postId', async () => {
+    it('should revert with invalid reportId', async () => {
         const hashUserId = user.hashUserId
-        let postId = 1
+        let reportId = 1
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(user.hashUserId, postId)
-        postId = 2
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        reportId = 2
         const circuitInputs = genCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
