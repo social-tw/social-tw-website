@@ -10,7 +10,6 @@ jest.mock('@/features/core/hooks/useEpoch/useEpoch', () => ({
     }),
 }))
 
-
 describe('usePendingReports', () => {
     afterEach(() => {
         nock.restore()
@@ -28,18 +27,18 @@ describe('usePendingReports', () => {
                 adjudicatorsNullifier: [],
                 createdAt: '2022-01-01T00:00:00.000Z',
                 updatedAt: '2022-01-01T00:00:00.000Z',
-            }
+            },
         ]
 
         const expectation = nock(SERVER)
             .get('/api/report?status=0')
             .reply(200, reports)
-          
+
         const { result } = renderHook(usePendingReports, {
             wrapper,
         })
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
         expect(result.current.data).toEqual(reports)
 

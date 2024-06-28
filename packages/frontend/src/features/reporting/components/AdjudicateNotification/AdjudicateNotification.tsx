@@ -12,7 +12,7 @@ import AdjudicateButton from './AdjudicateButton'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
-    
+
     const { data: reports } = usePendingReports()
     console.log(reports)
 
@@ -22,16 +22,27 @@ function useActiveAdjudication() {
         }
 
         const waitingForAdjudicationReports = reports
-            .filter((report) => report?.reportorEpochKey 
-                ? !isMyEpochKey(userState, report.reportorEpochKey)
-                : true
+            .filter((report) =>
+                report?.reportorEpochKey
+                    ? !isMyEpochKey(userState, report.reportorEpochKey)
+                    : true,
             )
-            .filter((report) => report?.respondentEpochKey 
-                ? !isMyEpochKey(userState, report.respondentEpochKey) 
-                : true
+            .filter((report) =>
+                report?.respondentEpochKey
+                    ? !isMyEpochKey(userState, report.respondentEpochKey)
+                    : true,
             )
-            .filter((report) => !report?.adjudicatorsNullifier?.some((adjudicator) => isMyAdjudicateNullifier(userState, report.reportId, adjudicator.nullifier)))
-        
+            .filter(
+                (report) =>
+                    !report?.adjudicatorsNullifier?.some((adjudicator) =>
+                        isMyAdjudicateNullifier(
+                            userState,
+                            report.reportId,
+                            adjudicator.nullifier,
+                        ),
+                    ),
+            )
+
         if (waitingForAdjudicationReports.length === 0) {
             return null
         }
