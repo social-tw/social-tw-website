@@ -112,7 +112,7 @@ export const InvalidReportNullifierError = new InternalError(
 )
 
 export const UserAlreadyVotedError = new InternalError(
-    'User is already voted',
+    'User has already voted',
     400
 )
 
@@ -123,6 +123,12 @@ export const InvalidAdjudicateValueError = new InternalError(
 
 export const InvalidReportIdError = new InternalError('Invalid report id', 400)
 
-export const InvalidReportError = new InternalError('Invalid report', 400)
+export const ReportNotExistError = new InternalError(
+    'Report does not exist',
+    400
+)
 
-export const NotVotingReportError = new InternalError('Not voting report', 400)
+export const ReportVotingEndedError = new InternalError(
+    'Report voting has ended',
+    400
+)

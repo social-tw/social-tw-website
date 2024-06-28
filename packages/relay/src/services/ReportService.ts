@@ -10,15 +10,15 @@ import {
     CommentReportedError,
     InvalidCommentIdError,
     InvalidPostIdError,
-    InvalidReportError,
     InvalidReportStatusError,
-    NotVotingReportError,
     PostNotExistError,
     PostReportedError,
     ReportHistory,
+    ReportNotExistError,
     ReportObjectTypeNotExistsError,
     ReportStatus,
     ReportType,
+    ReportVotingEndedError,
     UserAlreadyVotedError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
@@ -145,24 +145,16 @@ export class ReportService {
     }
 
     async voteOnReport(
-        id: string,
+        reportId: string,
         nullifier: string,
         adjudicateValue: AdjudicateValue,
         db: DB
     ) {
-        const report = await this.fetchSingleReport(id, db)
-        if (!report) {
-            throw InvalidReportError
-        }
-
-        if (report.status != ReportStatus.VOTING) {
-            throw NotVotingReportError
-        }
-
+        const report = await this.fetchSingleReport(reportId, db)
+        if (!report) throw ReportNotExistError
+        if (report.status != ReportStatus.VOTING) throw ReportVotingEndedError
         // check if user voted or not
-        if (this.isVoted(nullifier, report)) {
-            throw UserAlreadyVotedError
-        }
+        if (this.isVoted(nullifier, report)) throw UserAlreadyVotedError
 
         const adjudicatorsNullifier = this.upsertAdjudicatorsNullifier(
             nullifier,
@@ -171,16 +163,16 @@ export class ReportService {
         )
         // default value is 0, but insert statement doesn't have this field
         // if this field is undefined, assume no one has voted yet.
-        const adjudicateCount = report.adjudicateCount ?? 0
+        const adjudicateCount = (report.adjudicateCount ?? 0) + 1
 
         // update adjudicatorsNullifier && adjudicateCount
         await db.update('ReportHistory', {
             where: {
-                reportId: id,
+                reportId,
             },
             update: {
-                adjudicatorsNullifier: adjudicatorsNullifier,
-                adjudicateCount: adjudicateCount + 1,
+                adjudicatorsNullifier,
+                adjudicateCount,
             },
         })
     }
@@ -190,40 +182,36 @@ export class ReportService {
         adjudicateValue: AdjudicateValue,
         report: ReportHistory
     ): Adjudicator[] {
-        const adjudicator = [
-            {
-                nullifier: nullifier,
-                adjudicateValue: adjudicateValue,
-                claimed: false,
-            },
-        ]
-
-        if (report.adjudicatorsNullifier) {
-            // push the new adjudicator into adjudicatorsNullifier
-            return report.adjudicatorsNullifier.concat(adjudicator)
+        const newAdjudicator = {
+            nullifier: nullifier,
+            adjudicateValue: adjudicateValue,
+            claimed: false,
         }
 
-        // this adjudicator is the first one to vote on the report
-        return adjudicator
+        return report.adjudicatorsNullifier
+            ? [...report.adjudicatorsNullifier, newAdjudicator]
+            : [newAdjudicator]
     }
 
     isVoted(nullifier: string, report: ReportHistory): boolean {
         // get all adjudicators from report
         const adjudicators = report.adjudicatorsNullifier
-        if (!adjudicators || adjudicators.length == 0) {
-            return false
-        }
 
         // if nullifer is included in adjudicators, return true
-        return adjudicators.some(
-            (adjudicator) => adjudicator.nullifier == nullifier
-        )
+        return adjudicators
+            ? adjudicators.some(
+                  (adjudicator) => adjudicator.nullifier == nullifier
+              )
+            : false
     }
 
-    async fetchSingleReport(id: string, db: DB): Promise<ReportHistory | null> {
+    async fetchSingleReport(
+        reportId: string,
+        db: DB
+    ): Promise<ReportHistory | null> {
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportId: id,
+                reportId,
             },
         })
 

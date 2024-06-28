@@ -30,6 +30,7 @@ describe('POST /api/report', function () {
     let db: any
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
+    // TODO: need to update to real nullifier like poseidon(userId, reportId)
     const AGREE_NULLIFIER = 'agree'
     const DISAGREE_NULLIFIER = 'disagree'
     const WRONGE_ADJUCATE_VALUE = 'wrong'
@@ -462,6 +463,21 @@ describe('POST /api/report', function () {
             })
     })
 
+    it('should fail if report does not exist', async function () {
+        const notExistReportId = 'NotExistReportId'
+        await express
+            .post(`/api/report/${notExistReportId}`)
+            .set('content-type', 'application/json')
+            .send({
+                nullifier: AGREE_NULLIFIER,
+                adjudicateValue: AdjudicateValue.AGREE,
+            })
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Report does not exist')
+            })
+    })
+
     it('should fail if vote invalid adjudicate value', async function () {
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -517,7 +533,7 @@ describe('POST /api/report', function () {
             })
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('User is already voted')
+                expect(res.body.error).to.be.equal('User has already voted')
             })
     })
 
@@ -537,7 +553,7 @@ describe('POST /api/report', function () {
             })
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Not voting report')
+                expect(res.body.error).to.be.equal('Report voting has ended')
             })
 
         // mock this report to be completed
@@ -561,7 +577,7 @@ describe('POST /api/report', function () {
             })
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Not voting report')
+                expect(res.body.error).to.be.equal('Report voting has ended')
             })
     })
 })
