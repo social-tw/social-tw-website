@@ -82,4 +82,12 @@ export default (
             res.status(201).json({})
         })
     )
+
+    app.get(
+        '/api/report/category',
+        errorHandler((req, res, next) => {
+            const reportCategories = reportService.fetchReportCategory()
+            res.json(reportCategories)
+        })
+    )
 }
