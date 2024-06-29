@@ -5,7 +5,7 @@ import { IVerifierHelper } from "../interfaces/IVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 
 contract VerifierHelperManager {
-    mapping(bytes32 => address) public registeredVerifiers; // see verifierRegister
+    mapping(bytes32 => address) public registeredVHelpers; // see verifierRegister
     error IdentifierNotRegistered(bytes32);
 
     /// @dev register VerifierHelper Contract in Unirep Social-TW
@@ -15,9 +15,10 @@ contract VerifierHelperManager {
         bytes32 identifier,
         address addr
     ) public {
-        registeredVerifiers[identifier] = addr;
+        registeredVHelpers[identifier] = addr;
     }
 
+    /// @dev calling specific the verifyProof function by sending identifier
     /// @param publicSignals The public signals of the snark proof
     /// @param proof The proof data of the snark proof
     /// @param identifier sha256(verifier_contract_name)
@@ -27,11 +28,11 @@ contract VerifierHelperManager {
         uint256[8] calldata proof,
         bytes32 identifier
     ) public view returns (BaseVerifierHelper.EpochKeySignals memory) {
-        if (registeredVerifiers[identifier] == address(0)) {
+        address vHelperAddr = registeredVHelpers[identifier];
+        if (vHelperAddr == address(0)) {
             revert IdentifierNotRegistered(identifier);
         }
-        address verifierAddr = registeredVerifiers[identifier];
-        BaseVerifierHelper.EpochKeySignals memory signal = IVerifierHelper(verifierAddr).verifyAndCheck(publicSignals, proof);
+        BaseVerifierHelper.EpochKeySignals memory signal = IVerifierHelper(vHelperAddr).verifyAndCheck(publicSignals, proof);
         return signal; 
     }
 }
