@@ -106,6 +106,7 @@ function OptionController({
     const icon = isShowingOptionCtn ? <IoIosArrowUp /> : <IoIosArrowDown />
     return (
         <div
+            data-testid="option-controller"
             className={`${textColor} flex gap-2 items-center justify-between p-4 rounded-lg bg-white border border-gray-300 cursor-pointer`}
             onClick={onClick}
         >
@@ -122,7 +123,10 @@ function OptionController({
 
 function OptionContainer({ children }: OptionContainerProps) {
     return (
-        <div className="z-10 max-h-[200px] overflow-y-scroll mt-1 flex flex-col gap-2 absolute border border-gray-300 bg-white py-4 px-2 rounded-lg">
+        <div
+            data-testid="option-container"
+            className="z-10 max-h-[200px] overflow-y-scroll mt-1 flex flex-col gap-2 absolute border border-gray-300 bg-white py-4 px-2 rounded-lg"
+        >
             {children}
         </div>
     )
