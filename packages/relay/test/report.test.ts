@@ -292,6 +292,9 @@ describe('POST /api/report', function () {
         // report on post and comment, so the result would be 2
         expect(reports.length).equal(2)
         expect(epochDiff).equal(1)
+        reports.forEach((report) => {
+            expect(report.object).to.be.exist
+        })
     })
 
     it('should fail to fetch report with wrong query status or without status query params', async function () {
