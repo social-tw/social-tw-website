@@ -132,7 +132,7 @@ export default function Post({
                         {subtitle}
                     </span>
                 </div>
-                <PostActionMenu />
+                <PostActionMenu postId={id} />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (

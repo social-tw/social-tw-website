@@ -1,4 +1,5 @@
 import { useReportForm } from '@/features/post/hooks/useReportForm'
+import { wrapper } from '@/utils/test-helpers/wrapper'
 import { render, screen } from '@testing-library/react'
 import { PostReportDialog } from '../PostReportDialog'
 
@@ -32,7 +33,10 @@ describe('PostReportDialog', () => {
             typeof useReportForm
         >
         mockUseReportForm.mockReturnValue({ ...mockValues })
-        render(<PostReportDialog isOpen={true} onClose={() => {}} />)
+        render(
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
+            { wrapper },
+        )
         expect(
             screen.getByText(
                 '若您確定要檢舉此內容，請選擇以下欄位中的原因，並填寫詳盡的檢舉描述。填寫完成後，您即可提交檢舉。',
@@ -49,7 +53,10 @@ describe('PostReportDialog', () => {
             isNotSubmitted: false,
             isSubmitting: true,
         })
-        render(<PostReportDialog isOpen={true} onClose={() => {}} />)
+        render(
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
+            { wrapper },
+        )
         expect(screen.getByText('您的檢舉報告正在送出中')).toBeInTheDocument()
     })
 
@@ -62,7 +69,10 @@ describe('PostReportDialog', () => {
             isNotSubmitted: false,
             isSubmitSuccess: true,
         })
-        render(<PostReportDialog isOpen={true} onClose={() => {}} />)
+        render(
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
+            { wrapper },
+        )
         expect(screen.getByText('您的檢舉報告傳送成功！')).toBeInTheDocument()
     })
 
@@ -75,7 +85,10 @@ describe('PostReportDialog', () => {
             isNotSubmitted: false,
             isSubmitFailure: true,
         })
-        render(<PostReportDialog isOpen={true} onClose={() => {}} />)
+        render(
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
+            { wrapper },
+        )
         expect(screen.getByText('導致傳送失敗。')).toBeInTheDocument()
     })
 })

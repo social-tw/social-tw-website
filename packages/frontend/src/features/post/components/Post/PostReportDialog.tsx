@@ -1,4 +1,5 @@
 import { Dialog } from '@/features/shared'
+import { ReportCategory, ReportType } from '@/types/Report'
 import { FieldValues, UseFormHandleSubmit } from 'react-hook-form'
 import { useReportForm } from '../../hooks/useReportForm'
 import { useReportPost } from '../../hooks/useReportPost'
@@ -18,6 +19,7 @@ import {
 } from '../ReportForm'
 
 interface PostReportDialogProps {
+    postId: string
     isOpen: boolean
     onClose: () => void
 }
@@ -27,7 +29,11 @@ const defaultValues = {
     [`${REGISTER_ID_DESC}`]: '',
 }
 
-export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
+export function PostReportDialog({
+    postId,
+    isOpen,
+    onClose,
+}: PostReportDialogProps) {
     const {
         handleSubmit,
         register,
@@ -47,6 +53,7 @@ export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
     } = useReportForm(defaultValues)
 
     const onSubmit = useSubmitReportFlow({
+        postId,
         handleSubmit,
         updateStateToSubmitting,
         updateStateToFailure,
@@ -100,21 +107,28 @@ export function PostReportDialog({ isOpen, onClose }: PostReportDialogProps) {
 }
 
 function useSubmitReportFlow({
+    postId,
     handleSubmit,
     updateStateToSubmitting,
     updateStateToFailure,
     updateStateToSuccess,
 }: {
+    postId: string
     handleSubmit: UseFormHandleSubmit<FieldValues>
     updateStateToSubmitting: () => void
     updateStateToFailure: () => void
     updateStateToSuccess: () => void
 }) {
-    const { report } = useReportPost()
-    const reportFlow = async (data: any) => {
+    const { reportPost } = useReportPost()
+    const reportFlow = async (data: FieldValues) => {
         try {
             updateStateToSubmitting()
-            await report(data)
+            await reportPost({
+                postId,
+                type: ReportType.POST,
+                category: ReportCategory.SPAM,
+                reason: data[`${REGISTER_ID_DESC}`],
+            })
             updateStateToSuccess()
         } catch (e) {
             updateStateToFailure()
