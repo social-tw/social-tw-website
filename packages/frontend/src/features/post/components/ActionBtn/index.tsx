@@ -1,10 +1,19 @@
-import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-w.svg'
 import { ReactComponent as EllipsisIcon } from '@/assets/svg/ellipsis.svg'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import { ReactEventHandler, useCallback, useState } from 'react'
+import { ReactEventHandler, cloneElement, useCallback, useState } from 'react'
 
-export default function ActionBtn() {
+interface ActionItem {
+    icon?: React.ReactElement
+    label: string
+    onClick?: () => void
+}
+
+interface ActionBtnProps {
+    items?: ActionItem[]
+}
+
+export default function ActionBtn({ items = [] }: ActionBtnProps) {
     const [isOpen, setIsOpen] = useState(false)
     const openActionMenu = useCallback(() => setIsOpen(true), [])
     const closeActionMenu = useCallback(() => setIsOpen(false), [])
@@ -17,34 +26,36 @@ export default function ActionBtn() {
     return (
         <div className="relative" onClick={(e) => e.preventDefault()}>
             <EllipsisIcon className="cursor-pointer" onClick={onClick} />
-            <ActionMenu isOpen={isOpen} onClose={closeActionMenu} />
+            <ActionMenu items={items} isOpen={isOpen} onClose={closeActionMenu} />
         </div>
     )
 }
 
 interface ActionMenuProps {
+    items: ActionItem[]
     isOpen: boolean
     onClose: () => void
 }
-function ActionMenu({ isOpen, onClose }: ActionMenuProps) {
+function ActionMenu({ items, isOpen, onClose }: ActionMenuProps) {
     const isStickOnBottom = useMediaQuery('only screen and (max-width : 768px)')
     return (
         <>
             {!isOpen && null}
             {isOpen && !isStickOnBottom && (
-                <ActionMenuFloat onClose={onClose} />
+                <ActionMenuFloat items={items} onClose={onClose} />
             )}
             {isOpen && isStickOnBottom && (
-                <ActionMenuBottom onClose={onClose} />
+                <ActionMenuBottom items={items} onClose={onClose} />
             )}
         </>
     )
 }
 
 interface ActionMenuFloatProps {
+    items: ActionItem[]
     onClose: () => void
 }
-function ActionMenuFloat({ onClose }: ActionMenuFloatProps) {
+function ActionMenuFloat({ items, onClose }: ActionMenuFloatProps) {
     return (
         <div
             className={`
@@ -61,23 +72,34 @@ function ActionMenuFloat({ onClose }: ActionMenuFloatProps) {
                 className={`w-3 h-3 absolute cursor-pointer top-2 right-3`}
                 onClick={onClose}
             />
-            <MenuItemFloat />
+            {items.map((item) => (
+                <MenuItemFloat
+                    key={item.label}
+                    icon={item.icon}
+                    label={item.label}
+                    onClick={item.onClick}
+                />
+            ))}
         </div>
     )
 }
 
-function MenuItemFloat() {
+function MenuItemFloat({ icon, label, onClick }: ActionItem) {
     return (
-        <div className="flex items-center gap-1 cursor-pointer text-white">
-            <BanIcon /> 檢舉貼文
-        </div>
+        <button
+            className="flex items-center gap-1 text-white cursor-pointer"
+            onClick={onClick}
+        >
+            {icon} {label}
+        </button>
     )
 }
 
 interface ActionMenuBottomProps {
+    items: ActionItem[]
     onClose: () => void
 }
-function ActionMenuBottom({ onClose }: ActionMenuBottomProps) {
+function ActionMenuBottom({ items, onClose }: ActionMenuBottomProps) {
     return (
         <div
             className={`
@@ -98,14 +120,24 @@ function ActionMenuBottom({ onClose }: ActionMenuBottomProps) {
                 className={`w-5 h-5 absolute cursor-pointer top-7 right-6`}
                 onClick={onClose}
             />
-            <MenuItemBottom />
+            {items.map((item) => (
+                <MenuItemBottom
+                    key={item.label}
+                    icon={item.icon}
+                    label={item.label}
+                    onClick={item.onClick}
+                />
+            ))}
         </div>
     )
 }
-function MenuItemBottom() {
+function MenuItemBottom({ icon, label, onClick }: ActionItem) {
     return (
-        <div className="flex items-center gap-4 cursor-pointer text-white">
-            <BanIcon className={`w-5 h-5`} /> 檢舉貼文
+        <div
+            className="flex items-center gap-4 text-white cursor-pointer"
+            onClick={onClick}
+        >
+            {icon && cloneElement(icon, { className: 'w-5 h-5' })} {label}
         </div>
     )
 }
