@@ -12,7 +12,7 @@ export async function fetchAllReports() {
                     epoch: 1,
                 },
             ]
-        }
+        },
     }))
     const data = await response.json()
 
