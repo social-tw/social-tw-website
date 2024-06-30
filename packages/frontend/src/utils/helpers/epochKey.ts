@@ -20,11 +20,11 @@ export function isMyEpochKey(userState: UserState, epochKey: string) {
 export function isMyEpochKeyOnEpoch(
     userState: UserState,
     epoch: number,
-    epochKey: string
+    epochKey: string,
 ) {
     const numEpochKeyNoncePerEpoch =
         userState.sync.settings.numEpochKeyNoncePerEpoch
-    
+
     for (let nonce = 0; nonce < numEpochKeyNoncePerEpoch; nonce++) {
         const myEpochKey = userState.getEpochKeys(epoch, nonce).toString()
 

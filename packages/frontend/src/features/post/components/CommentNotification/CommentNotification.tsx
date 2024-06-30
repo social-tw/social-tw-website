@@ -15,10 +15,14 @@ export default function CommentNotifications({
     postId,
 }: CommentNotificationsProps) {
     const { userState } = useUserState()
-    
+
     const { list, removeAt } = useCommentEvents(postId)
 
-    const newComments = list.filter(item => userState && !isMyEpochKeyOnEpoch(userState, item.epoch, item.epochKey))
+    const newComments = list.filter(
+        (item) =>
+            userState &&
+            !isMyEpochKeyOnEpoch(userState, item.epoch, item.epochKey),
+    )
 
     const renderNotification = (item: CommentMsg, index: number) => {
         const link = `/posts/${postId}#${item.id}`
@@ -58,7 +62,9 @@ export default function CommentNotifications({
         <div className="fixed w-screen bottom-28">
             <div className="flex flex-col max-w-sm gap-3 px-8 mx-auto">
                 <AnimatePresence>
-                    {newComments.map((comment, i) => renderNotification(comment, i))}
+                    {newComments.map((comment, i) =>
+                        renderNotification(comment, i),
+                    )}
                 </AnimatePresence>
             </div>
         </div>

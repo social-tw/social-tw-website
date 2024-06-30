@@ -26,7 +26,11 @@ export default function ActionBtn({ items = [] }: ActionBtnProps) {
     return (
         <div className="relative" onClick={(e) => e.preventDefault()}>
             <EllipsisIcon className="cursor-pointer" onClick={onClick} />
-            <ActionMenu items={items} isOpen={isOpen} onClose={closeActionMenu} />
+            <ActionMenu
+                items={items}
+                isOpen={isOpen}
+                onClose={closeActionMenu}
+            />
         </div>
     )
 }
