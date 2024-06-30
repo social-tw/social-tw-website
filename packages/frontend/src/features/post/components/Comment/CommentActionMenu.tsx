@@ -10,7 +10,11 @@ import {
 } from '../ActionMenu'
 import { CommentReportDialog } from './CommentReportDialog'
 
-export function CommentActionMenu() {
+interface CommentActionMenuProps {
+    commentId: string
+}
+
+export function CommentActionMenu({ commentId }: CommentActionMenuProps) {
     const {
         isOpen: isActionMenuOpen,
         onOpen: onActionMenuOpen,
@@ -47,6 +51,7 @@ export function CommentActionMenu() {
                 />
             </ActionMenuBottomSlide>
             <CommentReportDialog
+                commentId={commentId}
                 isOpen={isReportDialogOpen}
                 onClose={onReportDialogClose}
             />

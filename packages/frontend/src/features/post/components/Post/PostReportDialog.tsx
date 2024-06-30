@@ -1,8 +1,8 @@
 import { Dialog } from '@/features/shared'
-import { ReportCategory, ReportType } from '@/types/Report'
+import { ReportCategory } from '@/types/Report'
 import { FieldValues, UseFormHandleSubmit } from 'react-hook-form'
 import { useReportForm } from '../../hooks/useReportForm'
-import { useReportPost } from '../../hooks/useReportPost'
+import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
     REGISTER_ID_DESC,
     REGISTER_ID_REASON,
@@ -125,8 +125,7 @@ function useSubmitReportFlow({
             updateStateToSubmitting()
             await reportPost({
                 postId,
-                type: ReportType.POST,
-                category: ReportCategory.SPAM,
+                category: ReportCategory.SPAM, // TODO: should use real relay data report category
                 reason: data[`${REGISTER_ID_DESC}`],
             })
             updateStateToSuccess()

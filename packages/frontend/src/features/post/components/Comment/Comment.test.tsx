@@ -1,12 +1,16 @@
+import { CommentStatus } from '@/types/Comments'
+import { wrapper } from '@/utils/test-helpers/wrapper'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { wrapper } from '@/utils/test-helpers/wrapper'
-import { CommentStatus } from '@/types/Comments'
 import Comment from './Comment'
 
-jest.mock('@uidotdev/usehooks', () => ({
-    useMediaQuery: jest.fn().mockReturnValue(false),
-}))
+jest.mock('@uidotdev/usehooks', () => {
+    const original = jest.requireActual('@uidotdev/usehooks')
+    return {
+        ...original,
+        useMediaQuery: jest.fn().mockReturnValue(false),
+    }
+})
 
 describe('Comment', () => {
     const mockCommentInfo = {

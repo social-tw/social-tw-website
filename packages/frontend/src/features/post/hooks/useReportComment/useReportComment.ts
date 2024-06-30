@@ -5,20 +5,18 @@ import { relayReport } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation } from '@tanstack/react-query'
 
-export function useReportPost() {
+export function useReportComment() {
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
 
-    const { mutateAsync: reportPost } = useMutation({
-        mutationKey: [MutationKeys.CreateComment],
+    const { mutateAsync: reportComment } = useMutation({
+        mutationKey: [MutationKeys.ReportComment],
         mutationFn: async ({
-            postId,
-            type,
+            commentId,
             category,
             reason,
         }: {
-            postId: string
-            type: ReportType
+            commentId: string
             category: ReportCategory
             reason: string
         }) => {
@@ -29,8 +27,8 @@ export function useReportPost() {
             })
             await relayReport({
                 proof,
-                type,
-                objectId: postId,
+                type: ReportType.COMMENT,
+                objectId: commentId,
                 reportorEpochKey: proof.epochKey.toString(),
                 reason,
                 category,
@@ -39,5 +37,5 @@ export function useReportPost() {
         },
     })
 
-    return { reportPost }
+    return { reportComment }
 }

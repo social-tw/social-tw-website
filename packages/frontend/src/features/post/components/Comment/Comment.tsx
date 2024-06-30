@@ -111,7 +111,9 @@ export default function Comment({
                                     : formatDate(publishedAt)}
                             </span>
                         </div>
-                        <CommentActionMenu />
+                        {commentId && (
+                            <CommentActionMenu commentId={commentId} />
+                        )}
                     </div>
                     <div>
                         {status !== CommentStatus.Failure &&

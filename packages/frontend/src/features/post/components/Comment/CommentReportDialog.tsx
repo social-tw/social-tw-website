@@ -1,6 +1,7 @@
 import { Dialog } from '@/features/shared'
+import { ReportCategory } from '@/types/Report'
 import { FieldValues, UseFormHandleSubmit } from 'react-hook-form'
-import { useReportComment } from '../../hooks/useReportComment'
+import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import { useReportForm } from '../../hooks/useReportForm'
 import {
     REGISTER_ID_DESC,
@@ -18,6 +19,7 @@ import {
 } from '../ReportForm'
 
 interface CommentReportDialogProps {
+    commentId: string
     isOpen: boolean
     onClose: () => void
 }
@@ -28,6 +30,7 @@ const defaultValues = {
 }
 
 export function CommentReportDialog({
+    commentId,
     isOpen,
     onClose,
 }: CommentReportDialogProps) {
@@ -50,6 +53,7 @@ export function CommentReportDialog({
     } = useReportForm(defaultValues)
 
     const onSubmit = useSubmitCommentFlow({
+        commentId,
         handleSubmit,
         updateStateToSubmitting,
         updateStateToFailure,
@@ -103,21 +107,27 @@ export function CommentReportDialog({
 }
 
 function useSubmitCommentFlow({
+    commentId,
     handleSubmit,
     updateStateToSubmitting,
     updateStateToFailure,
     updateStateToSuccess,
 }: {
+    commentId: string
     handleSubmit: UseFormHandleSubmit<FieldValues>
     updateStateToSubmitting: () => void
     updateStateToFailure: () => void
     updateStateToSuccess: () => void
 }) {
-    const { report } = useReportComment()
-    const reportFlow = async (data: any) => {
+    const { reportComment } = useReportComment()
+    const reportFlow = async (data: FieldValues) => {
         try {
             updateStateToSubmitting()
-            await report(data)
+            await reportComment({
+                commentId,
+                category: ReportCategory.SPAM, // TODO: should use real relay data report category
+                reason: data[`${REGISTER_ID_DESC}`],
+            })
             updateStateToSuccess()
         } catch (e) {
             updateStateToFailure()
