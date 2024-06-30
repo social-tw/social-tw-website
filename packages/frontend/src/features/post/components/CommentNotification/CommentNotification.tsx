@@ -1,9 +1,11 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
 import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
+import { useUserState } from '@/features/core'
 import { useCommentEvents } from '@/features/post'
 import { CommentMsg } from '@/types/Comments'
+import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 interface CommentNotificationsProps {
     postId: string
@@ -12,7 +14,11 @@ interface CommentNotificationsProps {
 export default function CommentNotifications({
     postId,
 }: CommentNotificationsProps) {
+    const { userState } = useUserState()
+    
     const { list, removeAt } = useCommentEvents(postId)
+
+    const newComments = list.filter(item => userState && !isMyEpochKeyOnEpoch(userState, item.epoch, item.epochKey))
 
     const renderNotification = (item: CommentMsg, index: number) => {
         const link = `/posts/${postId}#${item.id}`
@@ -52,7 +58,7 @@ export default function CommentNotifications({
         <div className="fixed w-screen bottom-28">
             <div className="flex flex-col max-w-sm gap-3 px-8 mx-auto">
                 <AnimatePresence>
-                    {list.map((item, i) => renderNotification(item, i))}
+                    {newComments.map((comment, i) => renderNotification(comment, i))}
                 </AnimatePresence>
             </div>
         </div>

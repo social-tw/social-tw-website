@@ -16,3 +16,21 @@ export function isMyEpochKey(userState: UserState, epochKey: string) {
     }
     return false
 }
+
+export function isMyEpochKeyOnEpoch(
+    userState: UserState,
+    epoch: number,
+    epochKey: string
+) {
+    const numEpochKeyNoncePerEpoch =
+        userState.sync.settings.numEpochKeyNoncePerEpoch
+    
+    for (let nonce = 0; nonce < numEpochKeyNoncePerEpoch; nonce++) {
+        const myEpochKey = userState.getEpochKeys(epoch, nonce).toString()
+
+        if (myEpochKey === epochKey) {
+            return true
+        }
+    }
+    return false
+}
