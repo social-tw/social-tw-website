@@ -5,9 +5,13 @@ export enum ReportStatus {
 }
 
 export enum ReportCategory {
-    ATTACK = 0, // 對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論
-    SPAM = 1, // 張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等
-    R18 = 2, // 張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限
+    ATTACK,
+    SPAM,
+    R18,
+    VIOLATION,
+    DUPLICATE,
+    MEANINGLESS,
+    OTHER,
 }
 
 export enum ReportType {
