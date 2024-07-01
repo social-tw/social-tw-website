@@ -1,5 +1,5 @@
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 
 import { UserState } from '@unirep/core'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -7,8 +7,8 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { signUp } from './utils/signUp'
 import { post } from './utils/post'
+import { signUp } from './utils/signUp'
 
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
@@ -19,19 +19,24 @@ describe('GET /counter', function () {
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
-    let anondb: DB
+    let db: DB
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // deploy contracts
         const contracts = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(contracts.unirep, contracts.app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(contracts.unirep, contracts.app)
         express = chaiServer
         sync = synchronizer
         unirep = contracts.unirep
-        anondb = db
+        db = _db
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -107,7 +112,7 @@ describe('GET /counter', function () {
 
         await sync.waitForSync()
 
-        const rows = await anondb.count('EpochKeyAction', {
+        const rows = await db.count('EpochKeyAction', {
             epoch: { lte: epoch },
         })
 

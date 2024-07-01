@@ -4,6 +4,7 @@ import { ReportHistory } from './types'
 
 export async function fetchPendingReports(): Promise<ReportHistory[]> {
     const response = await fetch(`${SERVER}/api/report?status=0`)
+
     const data = await response.json()
 
     if (!response.ok) {
