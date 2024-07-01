@@ -1,4 +1,4 @@
-export { default as AdjudicationForm } from './components/AdjudicationForm/AdjudicationForm'
-export { default as AdjudicationNotification } from './components/AdjudicationNotification/AdjudicationNotification'
-export { useFetchReports } from './hooks/useFetchReports/useFetchReports'
-
+export { default as Adjudication } from './components/Adjudicate/AdjudicateForm'
+export { default as AdjudicationNotification } from './components/AdjudicateNotification/AdjudicateNotification'
+export { useAdjudicate } from './hooks/useAdjudicate/useAdjudicate'
+export { usePendingReports } from './hooks/usePendingReports/usePendingReports'
