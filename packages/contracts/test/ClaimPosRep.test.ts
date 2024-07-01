@@ -4,7 +4,12 @@ import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
-import { createRandomUserIdentity, genEpochKeyProof, genUserState, randomData } from './utils'
+import {
+    createRandomUserIdentity,
+    genEpochKeyProof,
+    genUserState,
+    randomData,
+} from './utils'
 
 describe('Claim Positive Reputation Test', function () {
     this.timeout(1000000)
@@ -41,42 +46,48 @@ describe('Claim Positive Reputation Test', function () {
         const userState = await genUserState(user.id, app)
         const { publicSignals, proof } = await userState.genUserSignUpProof()
         await app.userSignUp(publicSignals, proof, user.hashUserId, false)
-        await app.userRegistry(user.hashUserId).then((res) => expect(res).to.be.true)
+        await app
+            .userRegistry(user.hashUserId)
+            .then((res) => expect(res).to.be.true)
         userState.stop()
     })
     it('should succeed with valid inputs (correct epochKey, epoch, etc)', async () => {
         const userState = await genUserState(user.id, app)
         const { publicSignals, proof } = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
         const epoch = await userState.sync.loadCurrentEpoch()
 
         usedPublicSig = publicSignals
         usedProof = proof
-        
-        const tx = await app.claimReportPosRep(publicSignals, proof, posReputation)
-        await expect(tx)
-        .to.emit(app, 'ClaimPosRep')
-        .withArgs(
-            publicSignals[0],
-            epoch
+
+        const tx = await app.claimReportPosRep(
+            publicSignals,
+            proof,
+            posReputation
         )
+        await expect(tx)
+            .to.emit(app, 'ClaimPosRep')
+            .withArgs(publicSignals[0], epoch)
 
         userState.stop()
     })
 
     it('should revert with used epochKeyProof ProofHasUsed', async () => {
-        await expect(app.claimReportPosRep(usedPublicSig, usedProof, posReputation)).to.be.revertedWithCustomError(app, 'ProofHasUsed')
+        await expect(
+            app.claimReportPosRep(usedPublicSig, usedProof, posReputation)
+        ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
 
     it('should revert with wrong epochKeyProof', async () => {
         const userState = await genUserState(user.id, app)
         const { publicSignals, proof } = await userState.genEpochKeyProof({
-            nonce: 0
+            nonce: 0,
         })
         proof[0] = BigInt(0)
 
-        await expect(app.claimReportPosRep(publicSignals, proof, posReputation)).to.be.reverted
+        await expect(app.claimReportPosRep(publicSignals, proof, posReputation))
+            .to.be.reverted
 
         userState.stop()
     })
@@ -105,7 +116,9 @@ describe('Claim Positive Reputation Test', function () {
             data,
         })
 
-        await expect(app.claimReportPosRep(publicSignals, proof, posReputation)).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+        await expect(
+            app.claimReportPosRep(publicSignals, proof, posReputation)
+        ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
         userState.stop()
     })
@@ -134,7 +147,8 @@ describe('Claim Positive Reputation Test', function () {
             data,
         })
 
-        await expect(app.claimReportPosRep(publicSignals, proof, posReputation)).to.be.reverted
+        await expect(app.claimReportPosRep(publicSignals, proof, posReputation))
+            .to.be.reverted
 
         userState.stop()
     })

@@ -317,6 +317,12 @@ contract UnirepApp {
         return dataVerifier.verifyProof(publicSignals, proof);
     }
 
+    /**
+     * Claim the report positive reputation
+     * @param publicSignals: public signals
+     * @param proof: epochKeyProof
+     * @param change: reputation score
+     */
     function claimReportPosRep(
         uint256[] calldata publicSignals,
         uint256[8] calldata proof, // epochKeyProof
