@@ -10,3 +10,30 @@
         font-family: Inter, sans-serif;
     }
 }
+
+@layer utilities {
+    .gradient-border-4 {
+        @apply bg-white m-1;
+
+        &::before {
+            @apply content-[''] absolute top-0 right-0 bottom-0 left-0 -z-10;
+            border-radius: inherit;
+            background: linear-gradient(180deg, #52acbc 0%, #ff892a 100%);
+        }
+    }
+}
+
+@layer components {
+    .btn.btn-disabled,
+    .btn[disabled],
+    .btn:disabled {
+        @apply bg-[#8F8F8F] text-white border-opacity-0;
+    }
+    @media (hover: hover) {
+        .btn-disabled:hover,
+        .btn[disabled]:hover,
+        .btn:disabled:hover {
+            @apply bg-[#8F8F8F] text-white border-opacity-0;
+        }
+    }
+}

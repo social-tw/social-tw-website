@@ -1,17 +1,20 @@
 import { SERVER } from '@/constants/config'
-
 // TODO: Remove mock data
 export async function fetchAllReports() {
-    const response = await fetch(`${SERVER}/api/reports`)
-
-    // mock data
-    const data = (await response.json()) ?? [
-        {
-            category: 'Report',
-            reason: 'This is a report',
-            epoch: 1,
+    const response = await fetch(`${SERVER}/api/reports`).catch(() => ({
+        ok: true,
+        json() {
+            // mock data
+            return [
+                {
+                    category: 'Report',
+                    reason: 'This is a report',
+                    epoch: 1,
+                },
+            ]
         },
-    ]
+    }))
+    const data = await response.json()
 
     if (!response.ok) {
         throw Error(data.error)
