@@ -36,7 +36,7 @@ function getActionLink(action: Action) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
-            return '/'
+            return `/posts/failure/${action.id}`
         }
     }
     if (
@@ -133,17 +133,21 @@ export default function ActionNotification() {
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-full p-4">
                         <Dialog.Panel
-                            className="relative w-full h-80 max-w-md overflow-hidden rounded-xl bg-black/90 px-7 pt-14 pb-7 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                            className="relative w-full max-w-md overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                             data-testid="actions-dialog"
                         >
-                            <button
-                                className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
-                                type="submit"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                <CloseIcon />
-                            </button>
-                            <ActionTable />
+                            <div className="sticky top-0 z-10 bg-black/90 px-7 py-4">
+                                <button
+                                    className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
+                                    type="submit"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    <CloseIcon />
+                                </button>
+                            </div>
+                            <div className="h-72 overflow-y-auto px-7 pb-7">
+                                <ActionTable />
+                            </div>
                         </Dialog.Panel>
                     </div>
                 </div>

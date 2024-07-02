@@ -99,9 +99,9 @@ export default function ActionTable() {
     })
 
     return (
-        <div className="w-full overflow-auto">
+        <div className="h-64 overflow-y-auto">
             <table className="w-full table-auto">
-                <thead>
+                <thead className="sticky top-0 bg-black/90">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
@@ -137,22 +137,6 @@ export default function ActionTable() {
                         </tr>
                     ))}
                 </tbody>
-                <tfoot>
-                    {table.getFooterGroups().map((footerGroup) => (
-                        <tr key={footerGroup.id}>
-                            {footerGroup.headers.map((header) => (
-                                <th key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.footer,
-                                              header.getContext(),
-                                          )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </tfoot>
             </table>
         </div>
     )
