@@ -1,9 +1,9 @@
 export enum CommentStatus {
     NOT_ON_CHAIN,
     ON_CHAIN,
-    DELETED,
     REPORTED,
     DISAGREED,
+    DELETED,
 }
 
 export type Comment = {
