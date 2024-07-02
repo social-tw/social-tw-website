@@ -3,10 +3,14 @@ import { ActionType, addAction } from '@/features/core'
 import ActionTable from './ActionTable'
 import { useState } from 'react'
 
-describe('ActionTable', () => {
+const TestComponent = () => {
     const [, setIsOpen] = useState(false)
+    return <ActionTable onClose={() => setIsOpen(false)} />
+}
+
+describe('ActionTable', () => {
     it('should display action list', () => {
-        render(<ActionTable onClose={() => setIsOpen(false)} />)
+        render(<TestComponent />)
 
         const postData = {
             id: 'post-id-1',
