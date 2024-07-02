@@ -8,8 +8,6 @@ import schema from '../../db/schema'
 import {
     AdjudicateValue,
     Adjudicator,
-    CommentStatus,
-    PostStatus,
     ReportStatus,
     ReportType,
     UserRegisterStatus,
@@ -262,7 +260,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
             if (
                 epoch >= report.reportEpoch &&
-                report.adjudicateCount > REPORT_SETTLE_VOTE_THRESHOLD &&
+                report.adjudicateCount >= REPORT_SETTLE_VOTE_THRESHOLD &&
                 agreeVotes !== disagreeVotes
             ) {
                 // Then update the status of the report to WaitingForTx
@@ -273,25 +271,16 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                     },
                 })
                 // Then update the status of the post or comment to Onchain or Disagreed
-                const newStatus =
-                    agreeVotes > disagreeVotes
-                        ? report.type === ReportType.POST
-                            ? PostStatus.ON_CHAIN
-                            : CommentStatus.ON_CHAIN
-                        : report.type === ReportType.POST
-                        ? PostStatus.DISAGREED
-                        : CommentStatus.DISAGREED
-                db.update(
-                    report.type === ReportType.POST ? 'Post' : 'Comment',
-                    {
-                        where: {
-                            [report.type === ReportType.POST
-                                ? 'postId'
-                                : 'commentId']: report.objectId,
-                        },
-                        update: { status: newStatus },
-                    }
-                )
+                // 1: ON_CHAIN, 3: DISAGREED
+                const newStatus = agreeVotes > disagreeVotes ? 1 : 3
+                const tableName =
+                    report.type == ReportType.POST ? 'Post' : 'Comment'
+                db.update(tableName, {
+                    where: {
+                        [`${tableName.toLowerCase()}Id`]: report.objectId,
+                    },
+                    update: { status: newStatus },
+                })
             }
         }
 

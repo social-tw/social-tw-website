@@ -591,146 +591,139 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report voting has ended')
             })
-        it('should settle report and update object status', async function () {
-            // insert mock value into report
-            const prevEpoch = await sync.loadCurrentEpoch()
-            db.update('ReportHistory', {
-                where: {
-                    AND: [{ objectId: '0' }, { type: ReportType.POST }],
-                },
-                update: {
-                    adjudicatorsNullifier: [
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                    ],
-                    adjudicateCount: 7,
-                    status: ReportStatus.VOTING,
-                    reportEpoch: prevEpoch,
-                },
-            })
-            // epoch transition
-            await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-            await ethers.provider.send('evm_mine', [])
-            const curEpoch = await sync.loadCurrentEpoch()
-            expect(curEpoch).equal(prevEpoch + 1)
-            await unirep
-                .updateEpochIfNeeded(sync.attesterId)
-                .then((t) => t.wait())
-            await sync.waitForSync()
+    })
 
-            const report = await express
-                .get(
-                    `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}`
+    it('should settle report and update object status', async function () {
+        // insert mock value into report
+        const prevEpoch = await sync.loadCurrentEpoch()
+        db.update('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                ],
+                adjudicateCount: 7,
+                status: ReportStatus.VOTING,
+                reportEpoch: prevEpoch,
+            },
+        })
+        // epoch transition
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await ethers.provider.send('evm_mine', [])
+        const curEpoch = await sync.loadCurrentEpoch()
+        expect(curEpoch).equal(prevEpoch + 1)
+        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
+        await sync.waitForSync()
+
+        const report = await express
+            .get(`/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                const reports = res.body
+                expect(reports.length).to.be.equal(1)
+                expect(reports[0].status).to.be.equal(
+                    ReportStatus.WAITING_FOR_TRANSACTION
                 )
-                .then((res) => {
-                    expect(res).to.have.status(200)
-                    const reports = res.body
-                    expect(reports.length).to.be.equal(1)
-                    expect(reports[0].status).to.be.equal(
-                        ReportStatus.WAITING_FOR_TRANSACTION
-                    )
-                    return reports[0]
-                })
-
-            await express.get(`/api/post/${report.objectId}`).then((res) => {
-                expect(res).to.have.status(200)
-                const curPost = res.body as Post
-                expect(curPost.status).to.equal(PostStatus.DISAGREED)
+                return reports[0]
             })
+
+        await express.get(`/api/post/${report.objectId}`).then((res) => {
+            expect(res).to.have.status(200)
+            const curPost = res.body as Post
+            expect(curPost.status).to.equal(PostStatus.DISAGREED)
         })
+    })
 
-        it('should not settle report if the vote count is less than five', async function () {
-            // insert mock value into report
-            const prevEpoch = await sync.loadCurrentEpoch()
-            db.update('ReportHistory', {
-                where: {
-                    AND: [{ objectId: '0' }, { type: ReportType.POST }],
-                },
-                update: {
-                    adjudicatorsNullifier: [
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                    ],
-                    adjudicateCount: 3,
-                    status: ReportStatus.VOTING,
-                    reportEpoch: prevEpoch,
-                },
-            })
-            // epoch transition
-            await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-            await ethers.provider.send('evm_mine', [])
-            const curEpoch = await sync.loadCurrentEpoch()
-            expect(curEpoch).equal(prevEpoch + 1)
-            await unirep
-                .updateEpochIfNeeded(sync.attesterId)
-                .then((t) => t.wait())
-            await sync.waitForSync()
-
-            const report = await express
-                .get(`/api/report?status=${ReportStatus.VOTING}`)
-                .then((res) => {
-                    expect(res).to.have.status(200)
-                    const reports = res.body
-                    expect(reports.length).to.be.equal(2)
-                })
-
-            await express.get(`/api/post/${report[0].objectId}`).then((res) => {
-                expect(res).to.have.status(200)
-                const curPost = res.body as Post
-                expect(curPost.status).to.equal(PostStatus.REPORTED)
-            })
+    it('should not settle report if the vote count is less than five', async function () {
+        // insert mock value into report
+        const prevEpoch = await sync.loadCurrentEpoch()
+        db.update('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                ],
+                adjudicateCount: 3,
+                status: ReportStatus.VOTING,
+                reportEpoch: prevEpoch,
+            },
         })
+        // epoch transition
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await ethers.provider.send('evm_mine', [])
+        const curEpoch = await sync.loadCurrentEpoch()
+        expect(curEpoch).equal(prevEpoch + 1)
+        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
+        await sync.waitForSync()
 
-        it('should not settle report if the vote is tie', async function () {
-            // insert mock value into report
-            const prevEpoch = await sync.loadCurrentEpoch()
-            db.update('ReportHistory', {
-                where: {
-                    AND: [{ objectId: '0' }, { type: ReportType.POST }],
-                },
-                update: {
-                    adjudicatorsNullifier: [
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.AGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                        { adjudicateValue: AdjudicateValue.DISAGREE },
-                    ],
-                    adjudicateCount: 6,
-                    status: ReportStatus.VOTING,
-                    reportEpoch: prevEpoch,
-                },
-            })
-            // epoch transition
-            await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-            await ethers.provider.send('evm_mine', [])
-            const curEpoch = await sync.loadCurrentEpoch()
-            expect(curEpoch).equal(prevEpoch + 1)
-            await unirep
-                .updateEpochIfNeeded(sync.attesterId)
-                .then((t) => t.wait())
-            await sync.waitForSync()
-
-            const report = await express
-                .get(`/api/report?status=${ReportStatus.VOTING}`)
-                .then((res) => {
-                    expect(res).to.have.status(200)
-                    const reports = res.body
-                    expect(reports.length).to.be.equal(2)
-                })
-
-            await express.get(`/api/post/${report[0].objectId}`).then((res) => {
+        const report = await express
+            .get(`/api/report?status=${ReportStatus.VOTING}`)
+            .then((res) => {
                 expect(res).to.have.status(200)
-                const curPost = res.body as Post
-                expect(curPost.status).to.equal(PostStatus.REPORTED)
+                const reports = res.body
+                expect(reports.length).to.be.equal(2)
             })
+
+        await express.get(`/api/post/${report[0].objectId}`).then((res) => {
+            expect(res).to.have.status(200)
+            const curPost = res.body as Post
+            expect(curPost.status).to.equal(PostStatus.REPORTED)
+        })
+    })
+
+    it('should not settle report if the vote is tie', async function () {
+        // insert mock value into report
+        const prevEpoch = await sync.loadCurrentEpoch()
+        db.update('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.POST }],
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                    { adjudicateValue: AdjudicateValue.DISAGREE },
+                ],
+                adjudicateCount: 6,
+                status: ReportStatus.VOTING,
+                reportEpoch: prevEpoch,
+            },
+        })
+        // epoch transition
+        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await ethers.provider.send('evm_mine', [])
+        const curEpoch = await sync.loadCurrentEpoch()
+        expect(curEpoch).equal(prevEpoch + 1)
+        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
+        await sync.waitForSync()
+
+        const report = await express
+            .get(`/api/report?status=${ReportStatus.VOTING}`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                const reports = res.body
+                expect(reports.length).to.be.equal(2)
+            })
+
+        await express.get(`/api/post/${report[0].objectId}`).then((res) => {
+            expect(res).to.have.status(200)
+            const curPost = res.body as Post
+            expect(curPost.status).to.equal(PostStatus.REPORTED)
         })
     })
 
