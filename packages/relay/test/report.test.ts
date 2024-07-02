@@ -291,6 +291,17 @@ describe('POST /api/report', function () {
         // report on post and comment, so the result would be 2
         expect(reports.length).equal(2)
         expect(epochDiff).equal(1)
+        for (let i = 0; i < reports.length; i++) {
+            const report = reports[0]
+            const tableName =
+                report.reportType == ReportType.POST ? 'Post' : 'Comment'
+            const object = await db.findOne(tableName, {
+                where: {
+                    [`${tableName.toLocaleLowerCase()}Id`]: report.objectId,
+                },
+            })
+            expect(report.object.content).to.be.equal(object.content)
+        }
     })
 
     it('should fail to fetch report with wrong query status or without status query params', async function () {
