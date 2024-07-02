@@ -142,7 +142,20 @@ export class ReportService {
             throw InvalidReportStatusError
         }
 
-        return await db.findMany('ReportHistory', condition)
+        // fetch object(post / comment) and add into report
+        const reports = await db.findMany('ReportHistory', condition)
+        for (let i = 0; i < reports.length; i++) {
+            const report = reports[i]
+            const tableName =
+                report.type == ReportType.POST ? 'Post' : 'Comment'
+            const object = await db.findOne(tableName, {
+                where: {
+                    [`${tableName.toLocaleLowerCase()}Id`]: report.objectId,
+                },
+            })
+            reports[i].object = object
+        }
+        return reports
     }
 
     async voteOnReport(

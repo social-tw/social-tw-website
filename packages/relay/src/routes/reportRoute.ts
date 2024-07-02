@@ -38,6 +38,7 @@ export default (
         })
     )
 
+    // TODO: need to add a middleware for authentication
     app.get(
         '/api/report',
         errorHandler(async (req: Request, res: Response) => {
