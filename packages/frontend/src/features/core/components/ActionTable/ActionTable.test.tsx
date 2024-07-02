@@ -4,7 +4,7 @@ import ActionTable from './ActionTable'
 import { useState } from 'react'
 
 describe('ActionTable', () => {
-    const [isOpen, setIsOpen] = useState(false)
+    const [, setIsOpen] = useState(false)
     it('should display action list', () => {
         render(<ActionTable onClose={() => setIsOpen(false)} />)
 
