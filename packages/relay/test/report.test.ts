@@ -12,7 +12,8 @@ import {
     Post,
     ReportCategory,
     ReportHistory,
-    ReportType
+    ReportStatus,
+    ReportType,
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
@@ -113,7 +114,7 @@ describe('POST /api/report', function () {
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
-            reportEpoch: 1,
+            reportEpoch: sync.calcCurrentEpoch(),
         }
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
@@ -147,7 +148,7 @@ describe('POST /api/report', function () {
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
-            reportEpoch: 1,
+            reportEpoch: sync.calcCurrentEpoch(),
         }
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
@@ -179,7 +180,7 @@ describe('POST /api/report', function () {
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
-            reportEpoch: 1,
+            reportEpoch: sync.calcCurrentEpoch(),
         }
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
@@ -216,7 +217,7 @@ describe('POST /api/report', function () {
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
-            reportEpoch: 1,
+            reportEpoch: sync.calcCurrentEpoch(),
         }
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
@@ -245,7 +246,7 @@ describe('POST /api/report', function () {
             reportorEpochKey: 'epochKey1',
             reason: 'Non-existent post',
             category: ReportCategory.SPAM,
-            reportEpoch: 1,
+            reportEpoch: sync.calcCurrentEpoch(),
         }
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
