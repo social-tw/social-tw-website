@@ -146,7 +146,7 @@ export default function ActionNotification() {
                                 </button>
                             </div>
                             <div className="h-72 overflow-y-auto px-7 pb-7">
-                                <ActionTable />
+                                <ActionTable onClose={() => setIsOpen(false)} />
                             </div>
                         </Dialog.Panel>
                     </div>
