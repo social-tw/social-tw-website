@@ -89,7 +89,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
 
     // 3. check via reading from contract
     for (const vHelper of vHelpers) {
-        const x = await vHelperManager.registeredVerifiers(vHelper.identifier)
+        const x = await vHelperManager.registeredVHelpers(vHelper.identifier)
         assert.strictEqual(x, vHelper.address)
     }
 
