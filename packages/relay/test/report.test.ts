@@ -660,6 +660,14 @@ describe('POST /api/report', function () {
                 reportEpoch: prevEpoch,
             },
         })
+        db.update('Post', {
+            where: {
+                postId: '0',
+            },
+            update: {
+                status: PostStatus.REPORTED,
+            },
+        })
         // epoch transition
         await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
         await ethers.provider.send('evm_mine', [])
@@ -674,6 +682,7 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(200)
                 const reports = res.body
                 expect(reports.length).to.be.equal(2)
+                return reports
             })
 
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
@@ -718,6 +727,7 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(200)
                 const reports = res.body
                 expect(reports.length).to.be.equal(2)
+                return reports
             })
 
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
