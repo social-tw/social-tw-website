@@ -28,6 +28,7 @@ export default function ActionBtn({ items = [] }: ActionBtnProps) {
         <div className="relative" onClick={(e) => e.preventDefault()}>
             <button
                 className="flex items-center justify-center w-4 h-4"
+                data-testid="action-btn"
                 onClick={onClick}
             >
                 <EllipsisIcon />
