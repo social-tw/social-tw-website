@@ -4,8 +4,9 @@ import { useMediaQuery } from '@uidotdev/usehooks'
 import { ReactEventHandler, cloneElement, useCallback, useState } from 'react'
 
 interface ActionItem {
-    icon?: React.ReactElement
     label: string
+    icon?: React.ReactElement
+    disabled?: boolean
     onClick?: () => void
 }
 
@@ -25,7 +26,12 @@ export default function ActionBtn({ items = [] }: ActionBtnProps) {
 
     return (
         <div className="relative" onClick={(e) => e.preventDefault()}>
-            <EllipsisIcon className="cursor-pointer" onClick={onClick} />
+            <button
+                className="flex items-center justify-center w-4 h-4"
+                onClick={onClick}
+            >
+                <EllipsisIcon />
+            </button>
             <ActionMenu
                 items={items}
                 isOpen={isOpen}
@@ -66,14 +72,13 @@ function ActionMenuFloat({ items, onClose }: ActionMenuFloatProps) {
                 absolute
                 bg-[#363636]
                 rounded-[8px]
-                px-4
-                py-3
+                p-2
                 top-[-3px]
                 right-[-3px]
                 w-[150px]`}
         >
             <CloseIcon
-                className={`w-3 h-3 absolute cursor-pointer top-2 right-3`}
+                className={`w-4 h-4 p-0.5 absolute cursor-pointer top-2 right-3 z-10 box-border`}
                 onClick={onClose}
             />
             {items.map((item) => (
@@ -81,6 +86,7 @@ function ActionMenuFloat({ items, onClose }: ActionMenuFloatProps) {
                     key={item.label}
                     icon={item.icon}
                     label={item.label}
+                    disabled={item.disabled}
                     onClick={item.onClick}
                 />
             ))}
@@ -88,10 +94,16 @@ function ActionMenuFloat({ items, onClose }: ActionMenuFloatProps) {
     )
 }
 
-function MenuItemFloat({ icon, label, onClick }: ActionItem) {
+function MenuItemFloat({
+    icon,
+    label,
+    disabled = false,
+    onClick = () => {},
+}: ActionItem) {
     return (
         <button
-            className="flex items-center gap-1 text-white cursor-pointer"
+            className="flex items-center w-full gap-1 px-2 py-2 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
             onClick={onClick}
         >
             {icon} {label}
@@ -112,16 +124,16 @@ function ActionMenuBottom({ items, onClose }: ActionMenuBottomProps) {
                 bottom-0 
                 left-0
                 w-screen 
-                h-20
-                px-6
-                flex 
+                p-3
+                flex
+                flex-col
                 items-stretch 
                 rounded-t-3xl
                 bg-[#363636]
                 cursor-pointer`}
         >
             <CloseIcon
-                className={`w-5 h-5 absolute cursor-pointer top-7 right-6`}
+                className={`w-5 h-5 absolute cursor-pointer top-7 right-6 z-10`}
                 onClick={onClose}
             />
             {items.map((item) => (
@@ -129,19 +141,26 @@ function ActionMenuBottom({ items, onClose }: ActionMenuBottomProps) {
                     key={item.label}
                     icon={item.icon}
                     label={item.label}
+                    disabled={item.disabled}
                     onClick={item.onClick}
                 />
             ))}
         </div>
     )
 }
-function MenuItemBottom({ icon, label, onClick }: ActionItem) {
+function MenuItemBottom({
+    icon,
+    label,
+    disabled = false,
+    onClick = () => {},
+}: ActionItem) {
     return (
-        <div
-            className="flex items-center gap-4 text-white cursor-pointer"
+        <button
+            className="flex items-center gap-4 p-3 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
             onClick={onClick}
         >
             {icon && cloneElement(icon, { className: 'w-5 h-5' })} {label}
-        </div>
+        </button>
     )
 }

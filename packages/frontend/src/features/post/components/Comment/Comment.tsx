@@ -55,30 +55,22 @@ export default function Comment({
     const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
 
     const menuItems = [
-        ...(canDelete
-            ? [
-                  {
-                      label: '刪除留言',
-                      icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-                      onClick: () => {
-                          setIsDeletingDialogOpen(true)
-                      },
-                  },
-              ]
-            : []),
-        ...(canReport
-            ? [
-                  {
-                      label: '檢舉留言',
-                      icon: (
-                          <FaBan size={isSmallDevice ? 22 : 14} className="" />
-                      ),
-                      onClick: () => {
-                          setIsReporting(true)
-                      },
-                  },
-              ]
-            : []),
+        {
+            label: '刪除留言',
+            icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
+            disabled: !canDelete,
+            onClick: () => {
+                setIsDeletingDialogOpen(true)
+            },
+        },
+        {
+            label: '檢舉留言',
+            icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
+            disabled: !canReport,
+            onClick: () => {
+                setIsReporting(true)
+            },
+        },
     ]
 
     return (
