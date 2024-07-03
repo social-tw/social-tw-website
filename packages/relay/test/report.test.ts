@@ -1,6 +1,7 @@
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
+import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
@@ -29,7 +30,7 @@ describe('POST /api/report', function () {
     let userState: UserState
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
-    let db: any
+    let db: DB
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
     // TODO: need to update to real nullifier like poseidon(userId, reportId)
@@ -320,7 +321,7 @@ describe('POST /api/report', function () {
 
     it('should fetch report whose adjudication result is tie', async function () {
         // update mock value into report
-        db.update('ReportHistory', {
+        await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
@@ -382,7 +383,7 @@ describe('POST /api/report', function () {
 
     it('should fetch report whose status is waiting for transaction', async function () {
         // insert mock value into report
-        db.update('ReportHistory', {
+        await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
@@ -596,7 +597,7 @@ describe('POST /api/report', function () {
     it('should settle report and update object status', async function () {
         // insert mock value into report
         const prevEpoch = await sync.loadCurrentEpoch()
-        db.update('ReportHistory', {
+        await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
@@ -645,7 +646,7 @@ describe('POST /api/report', function () {
     it('should not settle report if the vote count is less than five', async function () {
         // insert mock value into report
         const prevEpoch = await sync.loadCurrentEpoch()
-        db.update('ReportHistory', {
+        await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
@@ -660,7 +661,7 @@ describe('POST /api/report', function () {
                 reportEpoch: prevEpoch,
             },
         })
-        db.update('Post', {
+        await db.update('Post', {
             where: {
                 postId: '0',
             },
@@ -695,7 +696,7 @@ describe('POST /api/report', function () {
     it('should not settle report if the vote is tie', async function () {
         // insert mock value into report
         const prevEpoch = await sync.loadCurrentEpoch()
-        db.update('ReportHistory', {
+        await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
