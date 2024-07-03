@@ -1,7 +1,8 @@
 export enum PostStatus {
-    NotOnChain = 0,
-    OnChain = 1,
-    Reported = 2,
+    NOT_ON_CHAIN,
+    ON_CHAIN,
+    REPORTED,
+    DISAGREED,
 }
 
 export type Post = {
