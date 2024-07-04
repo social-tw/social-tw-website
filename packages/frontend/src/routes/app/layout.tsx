@@ -1,13 +1,3 @@
-import clsx from 'clsx'
-import {
-    Link,
-    NavLink,
-    Outlet,
-    useLocation,
-    useMatch,
-    useNavigate,
-} from 'react-router-dom'
-import { useMediaQuery } from '@uidotdev/usehooks'
 import Logo from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
 import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
@@ -17,8 +7,29 @@ import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
 import { ErrorDialog } from '@/features/auth'
 import { ActionNotification, EpochInfo } from '@/features/core'
+import { AdjudicationNotification, CheckInNotification } from '@/features/reporting'
 import { MobileBottomNav } from '@/features/shared'
-import { AdjudicationNotification } from '@/features/reporting'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import clsx from 'clsx'
+import {
+    Link,
+    NavLink,
+    Outlet,
+    useLocation,
+    useMatch,
+    useNavigate,
+} from 'react-router-dom'
+
+function NotificationContainer({ children }: { children: React.ReactNode }) {
+    return (
+        <div
+            id="notifications"
+            className="fixed z-20 right-4 bottom-28 lg:right-10 lg:bottom-20"
+        >
+            {children}
+        </div>
+    )
+}
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -85,7 +96,10 @@ export default function AppLayout() {
                     <MobileBottomNav />
                     <ErrorDialog />
                 </div>
-                <AdjudicationNotification />
+                <NotificationContainer >
+                    <AdjudicationNotification />
+                    <CheckInNotification />
+                </NotificationContainer>
             </div>
         )
     } else {
@@ -210,7 +224,10 @@ export default function AppLayout() {
                     </section>
                     <ErrorDialog />
                 </div>
-                <AdjudicationNotification />
+                <NotificationContainer >
+                    <AdjudicationNotification />
+                    <CheckInNotification />
+                </NotificationContainer>
             </div>
         )
     }
