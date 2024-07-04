@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useFetchReportCategories } from '@/features/reporting'
+import { RelayRawReportCategory } from '@/types/Report'
+import { useState } from 'react'
 import {
     FieldErrors,
     FieldValues,
@@ -54,12 +56,13 @@ export function ReportFormReasons({
 }: ReportFormReasonsProps) {
     register(REGISTER_ID, { required: true, validate: getValidate() })
 
+    const { reportCategories } = useFetchReportCategories()
+    const options = parseOptions(reportCategories)
+
     const [selected, setSelected] = useState<Option>(
-        getDefaultOption(getValues(REGISTER_ID)),
+        getDefaultOption(getValues(REGISTER_ID), options),
     )
     const [isShowingOptionCtn, setIsShowingOptionCtn] = useState(false)
-
-    const options = useMemo(() => getOptions(), [])
 
     const onSelectOption = (option: Option) => {
         setSelected(option)
@@ -102,7 +105,9 @@ function OptionController({
     isShowingOptionCtn,
     onClick,
 }: OptionControllerProps) {
-    const textColor = option.value === -1 ? 'text-gray-400' : 'text-black'
+    const textColor = isPlaceholder(option.value)
+        ? 'text-gray-400'
+        : 'text-black'
     const icon = isShowingOptionCtn ? <IoIosArrowUp /> : <IoIosArrowDown />
     return (
         <div
@@ -111,7 +116,9 @@ function OptionController({
             onClick={onClick}
         >
             <div className="flex gap-1 flex-grow max-w-[90%]">
-                {option.value !== -1 ? <div>{option.value}.</div> : null}
+                {!isPlaceholder(option.value) && (
+                    <div>{displayValue(option.value)}.</div>
+                )}
                 <div className="w-full overflow-hidden whitespace-nowrap text-ellipsis">
                     {option.label}
                 </div>
@@ -138,39 +145,33 @@ function OptionItem({ option, onClick }: OptionItemProps) {
             className="flex gap-2 hover:bg-[#FF892A] hover:bg-opacity-30 p-2 rounded-[4px] cursor-pointer"
             onClick={() => onClick(option)}
         >
-            <div>{option.value}.</div>
+            <div>{displayValue(option.value)}.</div>
             <div>{option.label}</div>
         </div>
     )
 }
 
-function getDefaultOption(index: number) {
-    return index <= 0
-        ? new Option(-1, '請選擇檢舉原因')
-        : getOptions()[index - 1]
+function getDefaultOption(index: number, options: Option[]) {
+    if (index < 0 || index >= options.length) {
+        return new Option(-1, '請選擇檢舉原因')
+    }
+    return options[index]
 }
 
-function getOptions() {
-    return [
-        new Option(
-            1,
-            '對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論',
-        ),
-        new Option(
-            2,
-            '張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等',
-        ),
-        new Option(
-            3,
-            '張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限',
-        ),
-        new Option(4, '違反政府法令之情事'),
-        new Option(5, '重複張貼他人已發表過且完全相同的內容'),
-        new Option(6, '文章內容空泛或明顯無意義內容'),
-        new Option(7, '其他'),
-    ]
+function parseOptions(reportCategories: RelayRawReportCategory[]) {
+    return reportCategories.map(
+        (category) => new Option(category.number, category.description),
+    )
 }
 
 function getValidate() {
-    return { positive: (x: number) => x > 0 }
+    return { positive: (x: number) => x >= 0 }
+}
+
+function isPlaceholder(v: number) {
+    return v === -1
+}
+
+function displayValue(v: number) {
+    return v + 1
 }

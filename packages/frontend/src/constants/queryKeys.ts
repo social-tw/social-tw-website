@@ -8,6 +8,7 @@ export enum QueryKeys {
     ManyPosts = 'many_posts',
     SinglePost = 'single_post',
     ManyComments = 'many_comments',
+    ReportCategory = 'report_category',
 }
 
 export enum MutationKeys {

@@ -8,3 +8,8 @@ export enum ReportCategory {
     SPAM = 1,
     R18 = 2,
 }
+
+export interface RelayRawReportCategory {
+    number: number
+    description: string
+}
