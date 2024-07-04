@@ -5,15 +5,12 @@ export default function CheckInSnackbar({
     onConfirm = () => {},
     onCancel = () => {},
 }: {
-    onConfirm?: () => void,
-    onCancel?: () => void,
+    onConfirm?: () => void
+    onCancel?: () => void
 }) {
     return (
         <div className="relative">
-            <button
-                type="button"
-                onClick={onConfirm}
-            >
+            <button type="button" onClick={onConfirm}>
                 <img
                     className="h-auto w-36"
                     src={CheckInPromotion}

@@ -7,7 +7,10 @@ import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
 import { ErrorDialog } from '@/features/auth'
 import { ActionNotification, EpochInfo } from '@/features/core'
-import { AdjudicationNotification, CheckInNotification } from '@/features/reporting'
+import {
+    AdjudicationNotification,
+    CheckInNotification,
+} from '@/features/reporting'
 import { MobileBottomNav } from '@/features/shared'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
@@ -96,7 +99,7 @@ export default function AppLayout() {
                     <MobileBottomNav />
                     <ErrorDialog />
                 </div>
-                <NotificationContainer >
+                <NotificationContainer>
                     <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
@@ -224,7 +227,7 @@ export default function AppLayout() {
                     </section>
                     <ErrorDialog />
                 </div>
-                <NotificationContainer >
+                <NotificationContainer>
                     <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
