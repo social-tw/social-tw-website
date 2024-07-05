@@ -325,36 +325,37 @@ contract UnirepApp {
      */
     function claimReportPosRep(
         uint256[] calldata publicSignals,
-        uint256[8] calldata proof, // epochKeyProof
+        uint256[8] calldata proof, // report nullifier proof
+        bytes32 identifier,
         uint256 change
     ) public {
-		// check if proof is used before
+        // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
+
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
-            .decodeEpochKeySignals(publicSignals);
+        verifierHelperManager.verifyProof(publicSignals, proof, identifier);
 
+        uint256 epochKey = publicSignals[0];
+        // TODO: need to check corresponding indices of epoch & attesterId
         // check the epoch != current epoch (ppl can only post in current aepoch)
-        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
-        if (signals.epoch != epoch) {
+        uint48 epoch = unirep.attesterCurrentEpoch(uint160(publicSignals[2]));
+        if (publicSignals[1] != epoch) {
             revert InvalidEpoch();
         }
-        // check if the proof is valid
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
         // Attesting on Unirep contract:
         // Positive Reputation field index in Unirep social
         unirep.attest(
-            signals.epochKey,
+            epochKey,
             epoch,
             posRepFieldIndex, // field index: posRep
             change // should be 3
         );
 
-        emit ClaimPosRep(signals.epochKey, epoch);
+        emit ClaimPosRep(epochKey, epoch);
     }
 }
