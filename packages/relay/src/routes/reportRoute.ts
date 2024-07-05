@@ -38,6 +38,7 @@ export default (
         })
     )
 
+    // TODO: need to add a middleware for authentication
     app.get(
         '/api/report',
         errorHandler(async (req: Request, res: Response) => {
@@ -80,6 +81,14 @@ export default (
             await reportService.voteOnReport(id, nullifier, adjudicateValue, db)
 
             res.status(201).json({})
+        })
+    )
+
+    app.get(
+        '/api/report/category',
+        errorHandler((req, res, next) => {
+            const reportCategories = reportService.fetchReportCategory()
+            res.json(reportCategories)
         })
     )
 }

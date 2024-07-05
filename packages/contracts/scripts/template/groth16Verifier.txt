@@ -175,7 +175,7 @@ contract <%contract_name%> {
      *          above and the public inputs
      */
     function verifyProof(
-        uint256[<%vk_input_length%>] calldata input,
+        uint256[] calldata input,
         uint256[8] calldata _proof
     ) public view returns (bool) {
 

@@ -9,12 +9,14 @@ config()
 // Provide default values for process.env
 Object.assign(process.env, {
     UNIREP_ADDRESS: '0x83cB6AF63eAfEc7998cC601eC3f56d064892b386',
-    APP_ADDRESS: '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1',
+    APP_ADDRESS: '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44',
     ETH_PROVIDER_URL: 'http://127.0.0.1:8545',
     PRIVATE_KEY:
         process.env.PRIVATE_KEY ??
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     GENESIS_BLOCK: process.env.GENESIS_BLOCK ?? '0',
+    REPORT_SETTLE_VOTE_THRESHOLD:
+        process.env.REPORT_SETTLE_VOTE_THRESHOLD ?? '5',
     ...process.env,
 })
 
@@ -24,6 +26,7 @@ export const {
     ETH_PROVIDER_URL,
     PRIVATE_KEY,
     GENESIS_BLOCK,
+    REPORT_SETTLE_VOTE_THRESHOLD,
 } = process.env as any
 
 export const APP_ABI = ABI
