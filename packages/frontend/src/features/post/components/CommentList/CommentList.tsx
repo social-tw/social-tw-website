@@ -1,21 +1,21 @@
-import { useEffect, useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { QueryKeys } from '@/constants/queryKeys'
 import {
     ActionStatus,
-    commentActionsSelector,
     CommentData,
+    commentActionsSelector,
     removeActionById,
     useActionStore,
-    useUserState,
     useEpoch,
+    useUserState,
 } from '@/features/core'
 import { Comment, useCreateComment, useRemoveComment } from '@/features/post'
+import { CommentStatus } from '@/types/Comments'
+import { fetchCommentsByPostId } from '@/utils/api'
 import checkCommentIsMine from '@/utils/helpers/checkCommentIsMine'
 import getNonceFromEpochKey from '@/utils/helpers/getNonceFromEpochKey'
-import { fetchCommentsByPostId } from '@/utils/api'
-import { QueryKeys } from '@/constants/queryKeys'
-import { CommentStatus } from '@/types/Comments'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 
 export default function CommentList({ postId }: { postId: string }) {
     const { userState, getGuaranteedUserState } = useUserState()
