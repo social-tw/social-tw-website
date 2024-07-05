@@ -1,6 +1,7 @@
 import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { checkReputation } from '../middlewares/CheckReputationMiddleware'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
@@ -44,7 +45,8 @@ export default (
 
     app.post(
         '/api/post',
-        errorHandler(async (req, res, next) => {
+        errorHandler(checkReputation),
+        errorHandler(async (req, res) => {
             const { content, publicSignals, proof } = req.body
             if (!content) throw EmptyPostError
 
