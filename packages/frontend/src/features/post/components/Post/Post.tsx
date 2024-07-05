@@ -1,3 +1,4 @@
+import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
@@ -123,6 +124,14 @@ export default function Post({
         setIsAction(voteState.finalAction)
     }, [voteState])
 
+    const actionItems = [
+        {
+            label: '檢舉留言',
+            icon: <BanIcon />,
+            onClick: () => {},
+        },
+    ]
+
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center justify-between">
@@ -132,7 +141,7 @@ export default function Post({
                         {subtitle}
                     </span>
                 </div>
-                <ActionBtn />
+                <ActionBtn items={actionItems} />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (

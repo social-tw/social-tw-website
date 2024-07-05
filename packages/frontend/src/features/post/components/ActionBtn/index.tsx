@@ -1,10 +1,20 @@
-import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-w.svg'
 import { ReactComponent as EllipsisIcon } from '@/assets/svg/ellipsis.svg'
 import { useMediaQuery } from '@uidotdev/usehooks'
-import { ReactEventHandler, useCallback, useState } from 'react'
+import { ReactEventHandler, cloneElement, useCallback, useState } from 'react'
 
-export default function ActionBtn() {
+interface ActionItem {
+    label: string
+    icon?: React.ReactElement
+    disabled?: boolean
+    onClick?: () => void
+}
+
+interface ActionBtnProps {
+    items?: ActionItem[]
+}
+
+export default function ActionBtn({ items = [] }: ActionBtnProps) {
     const [isOpen, setIsOpen] = useState(false)
     const openActionMenu = useCallback(() => setIsOpen(true), [])
     const closeActionMenu = useCallback(() => setIsOpen(false), [])
@@ -16,68 +26,97 @@ export default function ActionBtn() {
 
     return (
         <div className="relative" onClick={(e) => e.preventDefault()}>
-            <EllipsisIcon className="cursor-pointer" onClick={onClick} />
-            <ActionMenu isOpen={isOpen} onClose={closeActionMenu} />
+            <button
+                className="flex items-center justify-center w-4 h-4"
+                data-testid="action-btn"
+                onClick={onClick}
+            >
+                <EllipsisIcon />
+            </button>
+            <ActionMenu
+                items={items}
+                isOpen={isOpen}
+                onClose={closeActionMenu}
+            />
         </div>
     )
 }
 
 interface ActionMenuProps {
+    items: ActionItem[]
     isOpen: boolean
     onClose: () => void
 }
-function ActionMenu({ isOpen, onClose }: ActionMenuProps) {
+function ActionMenu({ items, isOpen, onClose }: ActionMenuProps) {
     const isStickOnBottom = useMediaQuery('only screen and (max-width : 768px)')
     return (
         <>
             {!isOpen && null}
             {isOpen && !isStickOnBottom && (
-                <ActionMenuFloat onClose={onClose} />
+                <ActionMenuFloat items={items} onClose={onClose} />
             )}
             {isOpen && isStickOnBottom && (
-                <ActionMenuBottom onClose={onClose} />
+                <ActionMenuBottom items={items} onClose={onClose} />
             )}
         </>
     )
 }
 
 interface ActionMenuFloatProps {
+    items: ActionItem[]
     onClose: () => void
 }
-function ActionMenuFloat({ onClose }: ActionMenuFloatProps) {
+function ActionMenuFloat({ items, onClose }: ActionMenuFloatProps) {
     return (
         <div
             className={`
                 absolute
                 bg-[#363636]
                 rounded-[8px]
-                px-4
-                py-3
+                p-2
                 top-[-3px]
                 right-[-3px]
                 w-[150px]`}
         >
             <CloseIcon
-                className={`w-3 h-3 absolute cursor-pointer top-2 right-3`}
+                className={`w-4 h-4 p-0.5 absolute cursor-pointer top-2 right-3 z-10 box-border`}
                 onClick={onClose}
             />
-            <MenuItemFloat />
+            {items.map((item) => (
+                <MenuItemFloat
+                    key={item.label}
+                    icon={item.icon}
+                    label={item.label}
+                    disabled={item.disabled}
+                    onClick={item.onClick}
+                />
+            ))}
         </div>
     )
 }
 
-function MenuItemFloat() {
+function MenuItemFloat({
+    icon,
+    label,
+    disabled = false,
+    onClick = () => {},
+}: ActionItem) {
     return (
-        <div className="flex items-center gap-1 cursor-pointer text-white">
-            <BanIcon /> 檢舉貼文
-        </div>
+        <button
+            className="flex items-center w-full gap-1 px-2 py-2 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+            onClick={onClick}
+        >
+            {icon} {label}
+        </button>
     )
 }
 
 interface ActionMenuBottomProps {
+    items: ActionItem[]
     onClose: () => void
 }
-function ActionMenuBottom({ onClose }: ActionMenuBottomProps) {
+function ActionMenuBottom({ items, onClose }: ActionMenuBottomProps) {
     return (
         <div
             className={`
@@ -86,26 +125,43 @@ function ActionMenuBottom({ onClose }: ActionMenuBottomProps) {
                 bottom-0 
                 left-0
                 w-screen 
-                h-20
-                px-6
-                flex 
+                p-3
+                flex
+                flex-col
                 items-stretch 
                 rounded-t-3xl
                 bg-[#363636]
                 cursor-pointer`}
         >
             <CloseIcon
-                className={`w-5 h-5 absolute cursor-pointer top-7 right-6`}
+                className={`w-5 h-5 absolute cursor-pointer top-7 right-6 z-10`}
                 onClick={onClose}
             />
-            <MenuItemBottom />
+            {items.map((item) => (
+                <MenuItemBottom
+                    key={item.label}
+                    icon={item.icon}
+                    label={item.label}
+                    disabled={item.disabled}
+                    onClick={item.onClick}
+                />
+            ))}
         </div>
     )
 }
-function MenuItemBottom() {
+function MenuItemBottom({
+    icon,
+    label,
+    disabled = false,
+    onClick = () => {},
+}: ActionItem) {
     return (
-        <div className="flex items-center gap-4 cursor-pointer text-white">
-            <BanIcon className={`w-5 h-5`} /> 檢舉貼文
-        </div>
+        <button
+            className="flex items-center gap-4 p-3 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+            onClick={onClick}
+        >
+            {icon && cloneElement(icon, { className: 'w-5 h-5' })} {label}
+        </button>
     )
 }
