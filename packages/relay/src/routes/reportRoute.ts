@@ -4,10 +4,14 @@ import { reportService } from '../services/ReportService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import ProofHelper from '../services/utils/ProofHelper'
 import Validator from '../services/utils/Validator'
 import {
     AdjudicateValue,
     InvalidAdjudicateValueError,
+    InvalidProofError,
+    InvalidPublicSignalError,
     InvalidReportIdError,
     InvalidReportNullifierError,
     InvalidReportStatusError,
@@ -38,14 +42,27 @@ export default (
         })
     )
 
-    // TODO: need to add a middleware for authentication
     app.get(
         '/api/report',
         errorHandler(async (req: Request, res: Response) => {
-            const { status } = req.query
+            const { status, publicSignals, proof } = req.query
             if (!Validator.isValidNumber(status)) {
                 throw InvalidReportStatusError
             }
+
+            if (!publicSignals) {
+                throw InvalidPublicSignalError
+            }
+
+            if (!proof) {
+                throw InvalidProofError
+            }
+
+            await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                JSON.parse(publicSignals as string) as PublicSignals,
+                JSON.parse(proof as string) as Groth16Proof,
+                synchronizer
+            )
 
             const reports = await reportService.fetchReports(
                 Number(status),
