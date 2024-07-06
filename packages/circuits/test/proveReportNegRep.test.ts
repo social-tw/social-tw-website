@@ -2,6 +2,7 @@ import * as utils from '@unirep/utils'
 import { expect } from 'chai'
 import {
     createRandomUserIdentity,
+    decodeEpochKeyControl,
     genProofAndVerify,
     genReportNegRepCircuitInput,
 } from './utils'
@@ -62,6 +63,18 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
                 )
                 .toString()
         )
+        // decode other data
+        const controlData = decodeEpochKeyControl(BigInt(publicSignals[1]))
+        expect(controlData.epoch.toString()).to.be.equal(
+            currentEpoch.toString()
+        )
+        expect(controlData.attesterId.toString()).to.be.equal(
+            attesterId.toString()
+        )
+        expect(controlData.chainId.toString()).to.be.equal(chainId.toString())
+
+        // we don't reveal the nonce, so this is equal to BigInt(0)
+        expect(controlData.nonce.toString()).to.be.equal('0')
     })
 
     it('should revert with invalid hashUserId', async () => {

@@ -93,6 +93,7 @@ describe('Verifier Helper Manager Test', function () {
                 publicSignals,
                 flattenedProof
             )
+
             expect(signal.epochKey.toString()).to.be.equal(
                 genEpochKey(
                     BigInt(hashUserId),
@@ -102,6 +103,14 @@ describe('Verifier Helper Manager Test', function () {
                     chainId
                 ).toString()
             )
+            expect(signal.epoch.toString()).to.be.equal(currentEpoch.toString())
+            expect(signal.attesterId.toString()).to.be.equal(
+                attesterId.toString()
+            )
+            expect(signal.chainId.toString()).to.be.equal(chainId.toString())
+
+            // we don't reveal the nonce, so this is equal to BigInt(0)
+            expect(signal.nonce.toString()).to.be.equal('0')
         })
 
         it('should revert with invalid proof', async function () {
@@ -155,18 +164,18 @@ describe('Verifier Helper Manager Test', function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
             const hashUserId = user.hashUserId
-            const postId = 0
+            const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, postId)
+            const reportNullifier = genNullifier(hashUserId, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
                     hashUserId,
-                    postId,
+                    reportId,
                     currentEpoch,
                     currentNonce,
                     attesterId,
@@ -195,24 +204,41 @@ describe('Verifier Helper Manager Test', function () {
                     chainId
                 ).toString()
             )
+            expect(signal.epochKey.toString()).to.be.equal(
+                genEpochKey(
+                    BigInt(hashUserId),
+                    attesterId,
+                    currentEpoch,
+                    currentNonce,
+                    chainId
+                ).toString()
+            )
+            expect(signal.epoch.toString()).to.be.equal(currentEpoch.toString())
+            expect(signal.attesterId.toString()).to.be.equal(
+                attesterId.toString()
+            )
+            expect(signal.chainId.toString()).to.be.equal(chainId.toString())
+
+            // we don't reveal the nonce, so this is equal to BigInt(0)
+            expect(signal.nonce.toString()).to.be.equal('0')
         })
 
         it('should revert with invalid proof', async function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
             const hashUserId = user.hashUserId
-            const postId = 0
+            const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, postId)
+            const reportNullifier = genNullifier(hashUserId, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
                     hashUserId,
-                    postId,
+                    reportId,
                     currentEpoch,
                     currentNonce,
                     attesterId,

@@ -2,6 +2,7 @@ import * as utils from '@unirep/utils'
 import { expect } from 'chai'
 import {
     createRandomUserIdentity,
+    decodeEpochKeyControl,
     genNullifier,
     genProofAndVerify,
     genReportNullifierCircuitInput,
@@ -14,22 +15,22 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
     /**
      * 1. should generate a nullifierProof and outputs an epoch key
      * 2. should revert with invalid userId
-     * 3. should revert with invalid postId
+     * 3. should revert with invalid reportId
      */
 
     const chainId = 31337
     const user = createRandomUserIdentity()
     it('should generate a report nullifier proof and output with correct epochKey', async () => {
         const hashUserId = user.hashUserId
-        const postId = 0
+        const reportId = 0
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const circuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
@@ -52,19 +53,31 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
                 )
                 .toString()
         )
+        // decode other data
+        const controlData = decodeEpochKeyControl(BigInt(publicSignals[1]))
+        expect(controlData.epoch.toString()).to.be.equal(
+            currentEpoch.toString()
+        )
+        expect(controlData.attesterId.toString()).to.be.equal(
+            attesterId.toString()
+        )
+        expect(controlData.chainId.toString()).to.be.equal(chainId.toString())
+
+        // we don't reveal the nonce, so this is equal to BigInt(0)
+        expect(controlData.nonce.toString()).to.be.equal('0')
     })
 
     it('should revert with invalid hashUserId', async () => {
-        const postId = 0
+        const reportId = 0
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(user.hashUserId, postId)
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
         const hashUserId = BigInt(123)
         const circuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
@@ -78,18 +91,18 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
         }
     })
 
-    it('should revert with invalid postId', async () => {
+    it('should revert with invalid reportId', async () => {
         const hashUserId = user.hashUserId
-        let postId = 1
+        let reportId = 1
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
-        const reportNullifier = genNullifier(user.hashUserId, postId)
-        postId = 2
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        reportId = 2
         const circuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
