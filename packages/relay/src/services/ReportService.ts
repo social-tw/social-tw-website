@@ -46,7 +46,7 @@ export class ReportService {
                 db
             )
             if (!post) throw PostNotExistError
-            if (post.status === PostStatus.Reported) throw PostReportedError
+            if (post.status === PostStatus.REPORTED) throw PostReportedError
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.COMMENT) {
             if (!Validator.isValidNumber(reportData.objectId))
@@ -56,7 +56,7 @@ export class ReportService {
                 db
             )
             if (!comment) throw CommentNotExistError
-            if (comment.status === CommentStatus.Reported)
+            if (comment.status === CommentStatus.REPORTED)
                 throw CommentReportedError
             reportData.respondentEpochKey = comment.epochKey
         } else {
@@ -90,13 +90,13 @@ export class ReportService {
         if (reportData.type === ReportType.POST) {
             postService.updatePostStatus(
                 reportData.objectId,
-                PostStatus.Reported,
+                PostStatus.REPORTED,
                 db
             )
         } else if (reportData.type === ReportType.COMMENT) {
             commentService.updateCommentStatus(
                 reportData.objectId,
-                CommentStatus.Reported,
+                CommentStatus.REPORTED,
                 db
             )
         }
@@ -142,7 +142,20 @@ export class ReportService {
             throw InvalidReportStatusError
         }
 
-        return await db.findMany('ReportHistory', condition)
+        // fetch object(post / comment) and add into report
+        const reports = await db.findMany('ReportHistory', condition)
+        for (let i = 0; i < reports.length; i++) {
+            const report = reports[i]
+            const tableName =
+                report.type == ReportType.POST ? 'Post' : 'Comment'
+            const object = await db.findOne(tableName, {
+                where: {
+                    [`${tableName.toLocaleLowerCase()}Id`]: report.objectId,
+                },
+            })
+            reports[i].object = object
+        }
+        return reports
     }
 
     async voteOnReport(

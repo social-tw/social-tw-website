@@ -1,72 +1,12 @@
-import { expect } from 'chai'
 import * as utils from '@unirep/utils'
-import { Identity } from '@semaphore-protocol/identity'
-import { IdentityObject } from './types'
-import { Circuit } from '@unirep/circuits'
-import { defaultProver } from '../provers/defaultProver'
-import crypto from 'crypto'
+import { expect } from 'chai'
+import {
+    createRandomUserIdentity,
+    genProofAndVerify,
+    genReportNegRepCircuitInput,
+} from './utils'
+
 const circuit = 'reportNegRepProof'
-
-const genCircuitInput = (config: {
-    reportedEpochKey: any
-    hashUserId: string | bigint
-    reportedEpoch: number | bigint
-    currentEpoch: number | bigint
-    currentNonce: number | bigint
-    chainId: number | bigint
-    attesterId: number | bigint
-}) => {
-    const {
-        reportedEpochKey,
-        hashUserId,
-        reportedEpoch,
-        currentEpoch,
-        currentNonce,
-        chainId,
-        attesterId,
-    } = Object.assign(config)
-
-    const circuitInputs = {
-        reported_epoch_key: reportedEpochKey,
-        hash_user_id: hashUserId,
-        reported_epoch: reportedEpoch,
-        current_epoch: currentEpoch,
-        current_nonce: currentNonce,
-        chain_id: chainId,
-        attester_id: attesterId,
-    }
-    return utils.stringifyBigInts(circuitInputs)
-}
-
-const genProofAndVerify = async (
-    circuit: Circuit | string,
-    circuitInputs: any
-) => {
-    const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
-    const endTime = new Date().getTime()
-    console.log(
-        `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000
-        )} s)`
-    )
-    const isValid = await defaultProver.verifyProof(
-        circuit,
-        publicSignals,
-        proof
-    )
-    return { isValid, proof, publicSignals }
-}
-
-const createRandomUserIdentity = (): IdentityObject => {
-    const hash = crypto.createHash('sha3-224')
-    const hashUserId = `0x${hash
-        .update(new Identity().toString())
-        .digest('hex')}` as string
-    const id = new Identity(hashUserId) as Identity
-    return { hashUserId, id }
-}
 
 describe('Prove report negative reputation in Unirep Social-TW', function () {
     this.timeout(300000)
@@ -95,7 +35,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
             chainId
         )
 
-        const circuitInputs = genCircuitInput({
+        const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
             hashUserId,
             reportedEpoch,
@@ -142,7 +82,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         )
         const hashUserId = BigInt(123)
 
-        const circuitInputs = genCircuitInput({
+        const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
             hashUserId,
             reportedEpoch,
@@ -176,7 +116,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
             chainId
         )
         const reportedEpoch = 12
-        const circuitInputs = genCircuitInput({
+        const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
             hashUserId,
             reportedEpoch,

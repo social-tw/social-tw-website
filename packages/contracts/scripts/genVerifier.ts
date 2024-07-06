@@ -3,11 +3,13 @@ import fs from 'fs'
 
 import { config } from 'hardhat'
 
-const verifiersPath = path.join(config.paths.sources)
+const verifiersPath = path.join(`${config.paths.sources}/verifiers`)
 
 const zkFilesPath = path.join('../../circuits/zksnarkBuild')
 const Circuit = {
     dataProof: 'dataProof',
+    reportNegRepProof: 'reportNegRepProof',
+    reportNullifierProof: 'reportNullifierProof',
 }
 
 const main = async (): Promise<number> => {

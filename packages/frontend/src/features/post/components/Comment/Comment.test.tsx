@@ -40,7 +40,7 @@ describe('Comment', () => {
         render(<Comment {...mockCommentInfo} />, { wrapper })
 
         const user = userEvent.setup()
-        await user.click(screen.getByRole('button', { name: /more/i }))
+        await user.click(screen.getByTestId('action-btn'))
         await user.click(screen.getByText(/檢舉留言/i))
 
         expect(screen.getByText(/確認檢舉/i)).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('Comment', () => {
         render(<Comment {...mockCommentInfo} />, { wrapper })
 
         const user = userEvent.setup()
-        await user.click(screen.getByRole('button', { name: /more/i }))
+        await user.click(screen.getByTestId('action-btn'))
         await user.click(screen.getByText(/刪除留言/i))
         await user.click(screen.getByText(/確認刪除/i))
     })

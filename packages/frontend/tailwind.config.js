@@ -14,6 +14,13 @@ module.exports = {
             boxShadow: {
                 base: '0px 0px 20px 0px rgba(0,0,0,0.03)',
             },
+            backgroundImage: {
+                'dark-gradient':
+                    'linear-gradient(115.09deg, rgba(47, 24, 6, 0.9) 2.26%, rgba(0, 0, 0, 0.9) 51.07%, rgba(5, 40, 46, 0.9) 98.92%)',
+            },
+            lineHeight: {
+                'slightly-loose': '1.8',
+            },
         },
     },
     plugins: [require('@tailwindcss/typography'), require('daisyui')],
