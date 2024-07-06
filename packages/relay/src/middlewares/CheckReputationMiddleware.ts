@@ -1,6 +1,7 @@
 import { ReputationProof } from '@unirep/circuits'
 import Prover from '../services/utils/Prover'
 import {
+    InvalidAuthenticationError,
     InvalidReputationProofError,
     NegativeReputationUserError,
 } from '../types'
@@ -18,6 +19,10 @@ export const base64ToJson = (base64String) => {
 export const checkReputation = async function (req, _, next) {
     // decode authorization
     const authentication = req.headers.authentication
+    if (!authentication) {
+        throw InvalidAuthenticationError
+    }
+
     const { publicSignals, proof } = base64ToJson(authentication)
 
     // validate reputation proof
