@@ -320,12 +320,12 @@ contract UnirepApp {
     /**
      * Claim the report positive reputation
      * @param publicSignals: public signals
-     * @param proof: epochKeyProof
+     * @param proof: report nullifier proof
      * @param change: reputation score
      */
     function claimReportPosRep(
         uint256[] calldata publicSignals,
-        uint256[8] calldata proof, // report nullifier proof
+        uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
     ) public {
@@ -349,8 +349,7 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        // Attesting on Unirep contract:
-        // Positive Reputation field index in Unirep social
+        // attesting on Unirep contract:
         unirep.attest(
             signals.epochKey,
             epoch,
