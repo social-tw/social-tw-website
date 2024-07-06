@@ -20,7 +20,13 @@ contract ReportNullifierVHelper is BaseVerifierHelper, IVerifierHelper {
         EpochKeySignals memory signals;
         signals.epochKey = publicSignals[0];
 
-        // we don't have control data in our circuit
+        (
+            signals.nonce,
+            signals.epoch,
+            signals.attesterId,
+            signals.revealNonce,
+            signals.chainId
+        ) = super.decodeEpochKeyControl(publicSignals[1]);
         
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
 

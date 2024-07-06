@@ -206,7 +206,7 @@ export function genReportNegRepCircuitInput(config: {
 export function genReportNullifierCircuitInput(config: {
     reportNullifier: any
     hashUserId: string | bigint
-    postId: number | bigint
+    reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
     chainId: number | bigint
@@ -215,7 +215,7 @@ export function genReportNullifierCircuitInput(config: {
     const {
         reportNullifier,
         hashUserId,
-        postId,
+        reportId,
         currentEpoch,
         currentNonce,
         chainId,
@@ -225,7 +225,7 @@ export function genReportNullifierCircuitInput(config: {
     const circuitInputs = {
         report_nullifier: reportNullifier,
         hash_user_id: hashUserId,
-        post_id: postId,
+        report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
         chain_id: chainId,
@@ -276,6 +276,6 @@ export function flattenProof(proof: any) {
     ]
 }
 
-export function genNullifier(hashUserId: string, postId: number | bigint) {
-    return poseidon2([hashUserId, postId])
+export function genNullifier(hashUserId: string, reportId: number | bigint) {
+    return poseidon2([hashUserId, reportId])
 }
