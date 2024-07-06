@@ -12,6 +12,7 @@ interface ActionMenuDropdownItemProps {
     icon: ReactElement
     name: string
     onClick: () => void
+    disabled: boolean
 }
 
 interface DropdownItemIconProps {
@@ -41,11 +42,15 @@ export function ActionMenuDropdownItem({
     icon,
     name,
     onClick,
+    disabled,
 }: ActionMenuDropdownItemProps) {
+    const cursor = disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+    const opacity = disabled ? 'opacity-50' : 'opacity-100'
+    const handleClick = disabled ? () => {} : onClick
     return (
         <div
-            className="flex items-center gap-1 cursor-pointer text-white"
-            onClick={onClick}
+            className={`flex items-center gap-1 text-white ${cursor} ${opacity}`}
+            onClick={handleClick}
         >
             <DropdownItemIcon icon={icon} />
             {name}

@@ -40,6 +40,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                     icon={<BanIcon />}
                     name="檢舉貼文"
                     onClick={onReportDialogOpen}
+                    disabled={false}
                 />
             </ActionMenuDropdown>
             <ActionMenuBottomSlide
@@ -50,6 +51,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                     icon={<BanIcon />}
                     name="檢舉貼文"
                     onClick={onReportDialogOpen}
+                    disabled={false}
                 />
             </ActionMenuBottomSlide>
             <PostReportDialog

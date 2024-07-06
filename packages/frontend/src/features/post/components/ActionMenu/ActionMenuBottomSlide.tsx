@@ -12,6 +12,7 @@ interface ActionMenuBottomSlideItemProps {
     icon: ReactElement
     name: string
     onClick: () => void
+    disabled: boolean
 }
 
 interface BottomSlideItemIconProps {
@@ -41,11 +42,15 @@ export function ActionMenuBottomSlideItem({
     icon,
     name,
     onClick,
+    disabled,
 }: ActionMenuBottomSlideItemProps) {
+    const cursor = disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+    const opacity = disabled ? 'opacity-50' : 'opacity-100'
+    const handleClick = disabled ? () => {} : onClick
     return (
         <div
-            className="flex items-center gap-4 cursor-pointer text-white"
-            onClick={onClick}
+            className={`flex items-center gap-4 text-white ${cursor} ${opacity}`}
+            onClick={handleClick}
         >
             <BottomSlideItemIcon icon={icon} />
             {name}
