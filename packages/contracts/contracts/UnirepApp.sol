@@ -37,6 +37,12 @@ contract UnirepApp {
 
     mapping(uint256 => bool) public userRegistry;
 
+    // Positive Reputation field index in Unirep protocol
+    uint256 public immutable posRepFieldIndex = 0;
+
+    // Nagative Reputation field index in Unirep protocol
+    uint256 public immutable negRepFieldIndex = 1;
+
     event Post(
         uint256 indexed epochKey,
         uint256 indexed postId,
@@ -58,6 +64,11 @@ contract UnirepApp {
         uint256 indexed commentId,
         uint256 epoch,
         string newContent
+    );
+
+    event ClaimPosRep(
+        uint256 indexed epochKey,
+        uint256 epoch
     );
 
     uint160 immutable attesterId;
@@ -304,5 +315,48 @@ contract UnirepApp {
         uint256[8] calldata proof
     ) public view returns (bool) {
         return dataVerifier.verifyProof(publicSignals, proof);
+    }
+
+    /**
+     * Claim the report positive reputation
+     * @param publicSignals: public signals
+     * @param proof: report nullifier proof
+     * @param change: reputation score
+     */
+    function claimReportPosRep(
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
+        bytes32 identifier,
+        uint256 change
+    ) public {
+        // check if proof is used before
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        if (proofNullifier[nullifier]) {
+            revert ProofHasUsed();
+        }
+
+        proofNullifier[nullifier] = true;
+
+        BaseVerifierHelper.EpochKeySignals memory signals = verifierHelperManager.verifyProof(
+            publicSignals,
+            proof,
+            identifier
+        );
+
+        // check the epoch != current epoch (ppl can only claim in current epoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch > epoch) {
+            revert InvalidEpoch();
+        }
+
+        // attesting on Unirep contract:
+        unirep.attest(
+            signals.epochKey,
+            epoch,
+            posRepFieldIndex, // field index: posRep
+            change // should be 3
+        );
+
+        emit ClaimPosRep(signals.epochKey, epoch);
     }
 }
