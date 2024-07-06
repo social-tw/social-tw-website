@@ -66,7 +66,7 @@ describe('Claim Report Positive Reputation Test', function () {
     })
 
     it('should succeed with valid inputs (correct epochKey, epoch, etc)', async () => {
-        const postId = 0
+        const reportId = 0
         const currentNonce = 0
         const hashUserId = user.hashUserId
 
@@ -74,18 +74,18 @@ describe('Claim Report Positive Reputation Test', function () {
         const userState = await genUserState(user.id, app)
         const currentEpoch = await userState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
             chainId,
         })
 
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
+        const { publicSignals, proof } = await genProofAndVerify(
             circuit,
             reportNullifierCircuitInputs
         )
@@ -118,7 +118,7 @@ describe('Claim Report Positive Reputation Test', function () {
     })
 
     it('should revert with wrong epochKeyProof', async () => {
-        const postId = 1
+        const reportId = 1
         const currentNonce = 0
         const hashUserId = user.hashUserId
 
@@ -126,18 +126,18 @@ describe('Claim Report Positive Reputation Test', function () {
         const userState = await genUserState(user.id, app)
         const currentEpoch = await userState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
             chainId,
         })
 
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
+        const { publicSignals, proof } = await genProofAndVerify(
             circuit,
             reportNullifierCircuitInputs
         )
@@ -158,7 +158,7 @@ describe('Claim Report Positive Reputation Test', function () {
     })
 
     it('should revert with wrong epoch', async () => {
-        const postId = 1
+        const reportId = 1
         const currentNonce = 0
         const hashUserId = user.hashUserId
 
@@ -166,18 +166,18 @@ describe('Claim Report Positive Reputation Test', function () {
         const userState = await genUserState(user.id, app)
         const currentEpoch = 444
 
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId,
             chainId,
         })
 
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
+        const { publicSignals, proof } = await genProofAndVerify(
             circuit,
             reportNullifierCircuitInputs
         )
@@ -197,7 +197,7 @@ describe('Claim Report Positive Reputation Test', function () {
     })
 
     it('should revert with wrong attester InvalidAttester', async () => {
-        const postId = 1
+        const reportId = 1
         const currentNonce = 0
         const hashUserId = user.hashUserId
 
@@ -205,18 +205,18 @@ describe('Claim Report Positive Reputation Test', function () {
         const userState = await genUserState(user.id, app)
         const currentEpoch = await userState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, postId)
+        const reportNullifier = genNullifier(hashUserId, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
             hashUserId,
-            postId,
+            reportId,
             currentEpoch,
             currentNonce,
             attesterId: wrongAttester,
             chainId,
         })
 
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
+        const { publicSignals, proof } = await genProofAndVerify(
             circuit,
             reportNullifierCircuitInputs
         )

@@ -337,25 +337,27 @@ contract UnirepApp {
 
         proofNullifier[nullifier] = true;
 
-        verifierHelperManager.verifyProof(publicSignals, proof, identifier);
+        BaseVerifierHelper.EpochKeySignals memory signals = verifierHelperManager.verifyProof(
+            publicSignals,
+            proof,
+            identifier
+        );
 
-        uint256 epochKey = publicSignals[0];
-        // TODO: need to check corresponding indices of epoch & attesterId
-        // check the epoch != current epoch (ppl can only post in current aepoch)
-        uint48 epoch = unirep.attesterCurrentEpoch(uint160(publicSignals[2]));
-        if (publicSignals[1] != epoch) {
+        // check the epoch != current epoch (ppl can only claim in current epoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch > epoch) {
             revert InvalidEpoch();
         }
 
         // Attesting on Unirep contract:
         // Positive Reputation field index in Unirep social
         unirep.attest(
-            epochKey,
+            signals.epochKey,
             epoch,
             posRepFieldIndex, // field index: posRep
             change // should be 3
         );
 
-        emit ClaimPosRep(epochKey, epoch);
+        emit ClaimPosRep(signals.epochKey, epoch);
     }
 }
