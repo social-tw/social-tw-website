@@ -55,6 +55,7 @@ export const genReportNegRepCircuitInput = (config: {
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
+    type: number | bigint
 }) => {
     const {
         reportedEpochKey,
@@ -64,6 +65,7 @@ export const genReportNegRepCircuitInput = (config: {
         currentNonce,
         chainId,
         attesterId,
+        type,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -74,6 +76,7 @@ export const genReportNegRepCircuitInput = (config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
+        type,
     }
     return utils.stringifyBigInts(circuitInputs)
 }
