@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid'
 import { CommentActionMenu } from './CommentActionMenu'
 
 interface CommentProps {
+    postId: string
     commentId?: string
     epochKey?: string
     content: string
@@ -18,6 +19,7 @@ interface CommentProps {
 }
 
 export default function Comment({
+    postId,
     commentId,
     epochKey = nanoid(),
     content = '',
@@ -51,6 +53,7 @@ export default function Comment({
                     <div>
                         {commentId && (
                             <CommentActionMenu
+                                postId={postId}
                                 commentId={commentId}
                                 onDelete={onDelete}
                                 canDelete={canDelete}

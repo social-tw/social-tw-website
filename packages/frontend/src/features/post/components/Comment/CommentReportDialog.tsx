@@ -19,6 +19,7 @@ import {
 } from '../ReportForm'
 
 interface CommentReportDialogProps {
+    postId: string
     commentId: string
     isOpen: boolean
     onClose: () => void
@@ -30,6 +31,7 @@ const defaultValues = {
 }
 
 export function CommentReportDialog({
+    postId,
     commentId,
     isOpen,
     onClose,
@@ -53,6 +55,7 @@ export function CommentReportDialog({
     } = useReportForm(defaultValues)
 
     const onSubmit = useSubmitCommentFlow({
+        postId,
         commentId,
         handleSubmit,
         updateStateToSubmitting,
@@ -107,12 +110,14 @@ export function CommentReportDialog({
 }
 
 function useSubmitCommentFlow({
+    postId,
     commentId,
     handleSubmit,
     updateStateToSubmitting,
     updateStateToFailure,
     updateStateToSuccess,
 }: {
+    postId: string
     commentId: string
     handleSubmit: UseFormHandleSubmit<FieldValues>
     updateStateToSubmitting: () => void
@@ -124,6 +129,7 @@ function useSubmitCommentFlow({
         try {
             updateStateToSubmitting()
             await reportComment({
+                postId,
                 commentId,
                 category: ReportCategory.SPAM, // TODO: should use real relay data report category
                 reason: data[`${REGISTER_ID_DESC}`],

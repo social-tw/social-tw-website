@@ -13,6 +13,7 @@ import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
 
 interface CommentActionMenuProps {
+    postId: string
     commentId: string
     onDelete: () => void
     canDelete: boolean
@@ -20,6 +21,7 @@ interface CommentActionMenuProps {
 }
 
 export function CommentActionMenu({
+    postId,
     commentId,
     onDelete,
     canDelete,
@@ -59,7 +61,7 @@ export function CommentActionMenu({
                     icon={<BanIcon />}
                     name="檢舉留言"
                     onClick={onReportDialogOpen}
-                    disabled={!canReport}
+                    disabled={canReport}
                 />
             </ActionMenuDropdown>
             <ActionMenuBottomSlide
@@ -80,6 +82,7 @@ export function CommentActionMenu({
                 />
             </ActionMenuBottomSlide>
             <CommentReportDialog
+                postId={postId}
                 commentId={commentId}
                 isOpen={isReportDialogOpen}
                 onClose={onReportDialogClose}

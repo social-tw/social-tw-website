@@ -1,23 +1,25 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
 import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
 import {
     ActionStatus,
+    ActionTable,
     ActionType,
     latestActionSelector,
     pendingCountSelector,
     useActionStore,
-    ActionTable,
     type Action,
 } from '@/features/core'
 import { Dialog } from '@headlessui/react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function getActionMessage(type: ActionType) {
     const messages = {
         [ActionType.Post]: '貼文存取',
         [ActionType.Comment]: '留言存取',
         [ActionType.DeleteComment]: '刪除留言',
+        [ActionType.ReportPost]: '檢舉貼文',
+        [ActionType.ReportComment]: '檢舉留言',
     }
     return messages[type]
 }
@@ -27,6 +29,8 @@ function getActionSubject(type: ActionType) {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
         [ActionType.DeleteComment]: '留言',
+        [ActionType.ReportPost]: '檢舉',
+        [ActionType.ReportComment]: '檢舉',
     }
     return subjects[type]
 }

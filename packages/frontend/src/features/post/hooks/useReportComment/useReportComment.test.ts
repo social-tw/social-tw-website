@@ -33,10 +33,12 @@ jest.mock('@/features/core', () => ({
 describe('useReportPost', () => {
     it('should call relayReport api with proper params', async () => {
         const { result } = renderHook(useReportComment, { wrapper })
+        let mockPostId = 'mocked_postId'
         let mockCommentId = 'mocked_commentId'
         let mockCategory = ReportCategory.ATTACK
         let mockReason = 'mocked_reason'
         await result.current.reportComment({
+            postId: mockPostId,
             commentId: mockCommentId,
             category: mockCategory,
             reason: mockReason,
