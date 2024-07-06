@@ -20,6 +20,8 @@ jest.mock('@/utils/api', () => ({
 }))
 
 jest.mock('@/features/core', () => ({
+    ActionType: {},
+    addAction: jest.fn(),
     useUserState: () => ({
         getGuaranteedUserState: jest.fn().mockReturnValue({
             genEpochKeyProof: jest

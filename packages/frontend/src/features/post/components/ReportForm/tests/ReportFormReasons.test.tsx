@@ -1,3 +1,4 @@
+import { wrapper } from '@/utils/test-helpers/wrapper'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { FieldErrors } from 'react-hook-form'
 import { REGISTER_ID, ReportFormReasons } from '../ReportFormReasons'
@@ -25,6 +26,7 @@ describe('ReportFormReasons', () => {
                 getValues={mockGetValues}
                 trigger={mockTrigger}
             />,
+            { wrapper },
         )
         expect(screen.queryByTestId('option-container')).not.toBeInTheDocument()
     })
@@ -38,6 +40,7 @@ describe('ReportFormReasons', () => {
                 getValues={mockGetValues}
                 trigger={mockTrigger}
             />,
+            { wrapper },
         )
         fireEvent.click(screen.getByTestId('option-controller')!)
         expect(screen.getByTestId('option-container')).toBeInTheDocument()
@@ -52,6 +55,7 @@ describe('ReportFormReasons', () => {
                 getValues={mockGetValues}
                 trigger={mockTrigger}
             />,
+            { wrapper },
         )
         expect(screen.getByText('此為必選欄位')).toBeInTheDocument()
     })
