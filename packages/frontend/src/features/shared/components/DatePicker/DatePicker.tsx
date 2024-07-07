@@ -17,7 +17,7 @@ export default function DatePicker() {
         const [start, end] = dates
         setStartDate(start)
         setEndDate(end)
-        setIsDateSelected(true)
+        setIsDateSelected(!!start && !!end)
     }
     return (
         <div className="date-picker-wrapper">
