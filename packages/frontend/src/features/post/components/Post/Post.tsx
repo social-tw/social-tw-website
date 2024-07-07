@@ -10,6 +10,7 @@ import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import { PostActionMenu } from './PostActionMenu'
 import PostFooter from './PostFooter'
+import { PostReportedMask } from './PostReportedMask'
 
 export default function Post({
     id = '',
@@ -152,8 +153,10 @@ export default function Post({
         </div>
     )
 
+    const isReported = false
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
+            {isReported && <PostReportedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
