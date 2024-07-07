@@ -1,0 +1,84 @@
+.date-picker-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    border: 1.5px solid white;
+    border-radius: 5px;
+    font-size: 16px;
+    color: gray;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.custom-input__selected {
+    color: black;    
+}
+
+.custom-input:focus {
+    border-color: white;
+    box-shadow: 0 0 5px rgba(#FF892A, 0.5);
+    outline: none;
+}
+
+.calendar-icon {
+    position: absolute;
+    left: 10px;
+    color: gray;
+    pointer-events: none; 
+    z-index: 1;
+}
+
+.calendar-icon__selected {
+    color: black;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+/* date picker */
+.react-datepicker {
+    border-radius: 10px;
+    padding: 8px;
+    padding-bottom: 12px;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected, 
+.react-datepicker__day--in-range,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--selecting-range-start,
+.react-datepicker__day--selecting-range-end {
+    background-color: #FF892A !important; /* 修改为你想要的颜色 */
+    color: #fff !important; /* 如果需要，也可以修改字体颜色 */
+}
+
+.react-datepicker__day--outside-month {
+    color: rgba(170, 170, 170, 1);
+}
+
+/* header */
+.react-datepicker__header {
+    border-bottom: none;
+    background-color: white;
+}
+
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 0 10px;
+}
+
+/* day names */
+.react-datepicker__day-names {
+    font-weight: bold;
+}
