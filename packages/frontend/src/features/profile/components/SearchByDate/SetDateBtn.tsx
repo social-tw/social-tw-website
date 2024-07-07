@@ -9,21 +9,14 @@ function SetDateBtn({ onClick, name }: { onClick: () => void; name: string }) {
     )
 }
 
-export function SetTodayBtn() {
-    return <SetDateBtn name="今天" onClick={() => alert('set today')} />
+export function SetTodayBtn({ onClick }: { onClick: () => void }) {
+    return <SetDateBtn name="今天" onClick={onClick} />
 }
 
-export function SetPast7DaysBtn() {
-    return (
-        <SetDateBtn name="過去 7 天" onClick={() => alert('set past 7 days')} />
-    )
+export function SetPast7DaysBtn({ onClick }: { onClick: () => void }) {
+    return <SetDateBtn name="過去 7 天" onClick={onClick} />
 }
 
-export function SetPast30DaysBtn() {
-    return (
-        <SetDateBtn
-            name="過去 30 天"
-            onClick={() => alert('set past 30 days')}
-        />
-    )
+export function SetPast30DaysBtn({ onClick }: { onClick: () => void }) {
+    return <SetDateBtn name="過去 30 天" onClick={onClick} />
 }

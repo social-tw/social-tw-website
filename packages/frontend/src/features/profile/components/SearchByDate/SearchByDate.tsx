@@ -5,7 +5,15 @@ import SearchBtn from './SearchBtn'
 import { SetPast30DaysBtn, SetPast7DaysBtn, SetTodayBtn } from './SetDateBtn'
 
 export default function SearchByDate() {
-    const { startDate, endDate, isDateSelected, onChange } = useDatePicker()
+    const {
+        startDate,
+        endDate,
+        isDateSelected,
+        onChange,
+        setToday,
+        setPast7Days,
+        setPast30Days,
+    } = useDatePicker()
     return (
         <Wrapper>
             <RowWrapper>
@@ -26,9 +34,9 @@ export default function SearchByDate() {
                 <Group>
                     <Label name="快捷選項" />
                     <RowWrapper>
-                        <SetTodayBtn />
-                        <SetPast7DaysBtn />
-                        <SetPast30DaysBtn />
+                        <SetTodayBtn onClick={setToday} />
+                        <SetPast7DaysBtn onClick={setPast7Days} />
+                        <SetPast30DaysBtn onClick={setPast30Days} />
                     </RowWrapper>
                 </Group>
             </RowWrapper>
