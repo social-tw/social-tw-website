@@ -67,6 +67,7 @@ describe('Verifier Helper Manager Test', function () {
                 reportedNonce,
                 chainId
             )
+            const type = 0
             const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
                 reportedEpochKey,
                 hashUserId,
@@ -75,6 +76,7 @@ describe('Verifier Helper Manager Test', function () {
                 currentNonce,
                 chainId,
                 attesterId,
+                type,
             })
 
             // generating proof for report negative reputation proof
@@ -109,6 +111,7 @@ describe('Verifier Helper Manager Test', function () {
                 reportedNonce,
                 chainId
             )
+            const type = 0
             const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
                 reportedEpochKey,
                 hashUserId,
@@ -117,6 +120,7 @@ describe('Verifier Helper Manager Test', function () {
                 currentNonce,
                 chainId,
                 attesterId,
+                type,
             })
 
             // generating proof for report negative reputation proof
