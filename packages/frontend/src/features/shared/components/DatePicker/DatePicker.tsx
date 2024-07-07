@@ -1,6 +1,5 @@
 import { ReactComponent as Next } from '@/assets/svg/calendar-next.svg'
 import { ReactComponent as Prev } from '@/assets/svg/calendar-prev.svg'
-import { useState } from 'react'
 import DatePickerLib, {
     ReactDatePickerCustomHeaderProps,
 } from 'react-datepicker'
@@ -9,16 +8,19 @@ import { FaCalendarAlt } from 'react-icons/fa'
 import 'react-datepicker/dist/react-datepicker.css'
 import './CustomDatePicker.css'
 
-export default function DatePicker() {
-    const [startDate, setStartDate] = useState(undefined)
-    const [endDate, setEndDate] = useState(undefined)
-    const [isDateSelected, setIsDateSelected] = useState(false)
-    const onChange = (dates: any) => {
-        const [start, end] = dates
-        setStartDate(start)
-        setEndDate(end)
-        setIsDateSelected(!!start && !!end)
-    }
+interface DatePickerProps {
+    onChange: (dates: [Date | null, Date | null]) => void
+    startDate?: Date
+    endDate?: Date
+    isDateSelected: boolean
+}
+
+export default function DatePicker({
+    onChange,
+    startDate,
+    endDate,
+    isDateSelected,
+}: DatePickerProps) {
     return (
         <div className="date-picker-wrapper">
             <FaCalendarAlt

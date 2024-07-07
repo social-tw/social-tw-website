@@ -1,17 +1,24 @@
 import { DatePicker } from '@/features/shared'
+import { useDatePicker } from '@/features/shared/hooks/useDatePicker'
 import { ReactNode } from 'react'
 import SearchBtn from './SearchBtn'
 import { SetPast30DaysBtn, SetPast7DaysBtn, SetTodayBtn } from './SetDateBtn'
 
 export default function SearchByDate() {
+    const { startDate, endDate, isDateSelected, onChange } = useDatePicker()
     return (
         <Wrapper>
             <RowWrapper>
                 <Group>
                     <Label name="紀錄查詢日期區間" />
                     <RowWrapper>
-                        <DatePicker />
-                        <SearchBtn disabled={false} />
+                        <DatePicker
+                            startDate={startDate}
+                            endDate={endDate}
+                            isDateSelected={isDateSelected}
+                            onChange={onChange}
+                        />
+                        <SearchBtn disabled={!isDateSelected} />
                     </RowWrapper>
                 </Group>
             </RowWrapper>

@@ -10,6 +10,7 @@ export default function SearchBtn({ disabled }: SearchBtnProps) {
             className={clsx(
                 `rounded-[8px] text-white px-4 min-w-[80px]`,
                 `bg-[#FF892A] disabled:bg-slate-700`,
+                `cursor-pointer disabled:cursor-not-allowed`,
             )}
             disabled={disabled}
         >
