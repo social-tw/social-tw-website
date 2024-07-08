@@ -1,12 +1,9 @@
-import { Identity } from '@semaphore-protocol/identity'
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
-import crypto from 'crypto'
 import { ethers } from 'hardhat'
-import { poseidon2 } from 'poseidon-lite'
 import { commentService } from '../src/services/CommentService'
 import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
@@ -581,11 +578,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')}` as string
-        const nullifier = poseidon2([hashUserId, report.objectId])
+        const nullifier = genReportNullifier(report.objectId)
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -650,11 +643,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')}` as string
-        const nullifier = poseidon2([hashUserId, watingForTxReport.objectId])
+        const nullifier = genReportNullifier(watingForTxReport.objectId)
 
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
