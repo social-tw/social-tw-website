@@ -46,17 +46,9 @@ export default (
         '/api/report',
         errorHandler(async (req: Request, res: Response) => {
             const { status, publicSignals, proof } = req.query
-            if (!Validator.isValidNumber(status)) {
-                throw InvalidReportStatusError
-            }
-
-            if (!publicSignals) {
-                throw InvalidPublicSignalError
-            }
-
-            if (!proof) {
-                throw InvalidProofError
-            }
+            if (!Validator.isValidNumber(status)) throw InvalidReportStatusError
+            if (!publicSignals) throw InvalidPublicSignalError
+            if (!proof) throw InvalidProofError
 
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 JSON.parse(publicSignals as string) as PublicSignals,

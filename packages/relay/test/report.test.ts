@@ -24,6 +24,7 @@ import {
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'
+import { genReportNullifier } from './utils/genNullifier'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
@@ -36,9 +37,8 @@ describe('POST /api/report', function () {
     let db: DB
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
-    // TODO: need to update to real nullifier like poseidon(userId, reportId)
-    let agreeNullifier
-    let disagreeNullifier
+    let agreeNullifier: bigint
+    let disagreeNullifier: bigint
     const WRONGE_ADJUCATE_VALUE = 'wrong'
 
     let epochKeyLitePublicSignals
@@ -494,11 +494,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')}` as string
-        agreeNullifier = poseidon2([hashUserId, report.objectId])
+        agreeNullifier = genReportNullifier(report.objectId)
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -531,11 +527,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')}` as string
-        disagreeNullifier = poseidon2([hashUserId, report.objectId])
+        disagreeNullifier = genReportNullifier(report.objectId)
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -564,12 +556,8 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if report does not exist', async function () {
-        const notExistReportId = 444
-        const hash = crypto.createHash('sha3-224')
-        const hashUserId = `0x${hash
-            .update(new Identity().toString())
-            .digest('hex')}` as string
-        const nullifier = poseidon2([hashUserId, notExistReportId])
+        const notExistReportId = '444'
+        const nullifier = genReportNullifier(notExistReportId)
 
         await express
             .post(`/api/report/${notExistReportId}`)
