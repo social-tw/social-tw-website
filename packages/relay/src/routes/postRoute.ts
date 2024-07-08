@@ -8,14 +8,12 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
     EmptyPostError,
-    InternalError,
     InvalidEpochKeyError,
-    InvalidEpochRangeError,
     InvalidPageError,
     InvalidParametersError,
     InvalidPostIdError,
-    NoPostHistoryFoundError,
-    PostNotExistError,
+    NegativeReputationUserError,
+    PostNotExistError
 } from '../types'
 
 export default (
@@ -47,6 +45,10 @@ export default (
         '/api/post',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
+            if (!res.locals.isPositiveReputation) {
+                throw NegativeReputationUserError
+            }
+
             const { content, publicSignals, proof } = req.body
             if (!content) throw EmptyPostError
 

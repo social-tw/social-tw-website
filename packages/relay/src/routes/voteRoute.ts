@@ -10,6 +10,7 @@ import {
     InvalidProofError,
     InvalidPublicSignalError,
     InvalidVoteActionError,
+    NegativeReputationUserError,
 } from '../types'
 
 export default (
@@ -21,6 +22,10 @@ export default (
         '/api/vote',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
+            if (!res.locals.isPositiveReputation) {
+                throw NegativeReputationUserError
+            }
+
             //vote for post with _id
             const { postId, voteAction, publicSignals, proof } = req.body
             if (!Validator.isValidNumber(postId)) throw InvalidPostIdError

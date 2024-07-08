@@ -12,6 +12,7 @@ import {
     InternalError,
     InvalidParametersError,
     InvalidPostIdError,
+    NegativeReputationUserError,
     PostNotExistError,
 } from '../types'
 
@@ -47,6 +48,10 @@ export default (
         .post(
             errorHandler(checkReputation),
             errorHandler(async (req, res) => {
+                if (!res.locals.isPositiveReputation) {
+                    throw NegativeReputationUserError
+                }
+
                 const { content, postId, publicSignals, proof } = req.body
 
                 if (!content) throw EmptyCommentError
@@ -76,6 +81,10 @@ export default (
         .delete(
             errorHandler(checkReputation),
             errorHandler(async (req, res) => {
+                if (!res.locals.isPositiveReputation) {
+                    throw NegativeReputationUserError
+                }
+
                 const { commentId, postId, publicSignals, proof } = req.body
                 const txHash = await commentService.deleteComment(
                     commentId.toString(),

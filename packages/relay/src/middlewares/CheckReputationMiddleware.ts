@@ -3,7 +3,6 @@ import Prover from '../services/utils/Prover'
 import {
     InvalidAuthenticationError,
     InvalidReputationProofError,
-    NegativeReputationUserError,
 } from '../types'
 
 export const jsonToBase64 = (object) => {
@@ -16,7 +15,7 @@ export const base64ToJson = (base64String) => {
     return JSON.parse(json)
 }
 
-export const checkReputation = async function (req, _, next) {
+export const checkReputation = async function (req, res, next) {
     // decode authorization
     const authentication = req.headers.authentication
     if (!authentication) {
@@ -36,9 +35,8 @@ export const checkReputation = async function (req, _, next) {
     // check negative reputation
     const maxRep = data.maxRep
     const proveMaxRep = data.proveMaxRep
-    if (maxRep > 0 && proveMaxRep > 0) {
-        throw NegativeReputationUserError
-    }
+    res.locals.isPositiveReputation =
+        maxRep > 0 && proveMaxRep > 0 ? false : true
 
     next()
 }
