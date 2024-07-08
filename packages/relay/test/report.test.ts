@@ -21,6 +21,7 @@ import {
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'
+import { genReportNullifier } from './utils/genNullifier'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
@@ -33,10 +34,12 @@ describe('POST /api/report', function () {
     let db: DB
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
-    // TODO: need to update to real nullifier like poseidon(userId, reportId)
-    const AGREE_NULLIFIER = 'agree'
-    const DISAGREE_NULLIFIER = 'disagree'
+    let agreeNullifier: bigint
+    let disagreeNullifier: bigint
     const WRONGE_ADJUCATE_VALUE = 'wrong'
+
+    let epochKeyLitePublicSignals
+    let epochKeyLiteProof
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -138,9 +141,11 @@ describe('POST /api/report', function () {
             })
 
         // Verify that the post status is updated
-        await express.get(`/api/post/0?status=2`).then((res) => {
-            expect(res).to.have.status(200)
-        })
+        await express
+            .get(`/api/post/0?status=${PostStatus.REPORTED}`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+            })
     })
 
     it('should fail to create a report with invalid proof', async function () {
@@ -271,10 +276,24 @@ describe('POST /api/report', function () {
     })
 
     it('should get empty report list if reportEpoech is equal to currentEpoch', async function () {
-        await express.get('/api/report?status=0').then((res) => {
-            expect(res).to.have.status(200)
-            expect(res.body.length).equal(0)
-        })
+        const { publicSignals: _publicSignals, proof: _proof } =
+            await userState.genEpochKeyLiteProof({
+                nonce,
+            })
+
+        epochKeyLitePublicSignals = JSON.stringify(
+            stringifyBigInts(_publicSignals)
+        )
+        epochKeyLiteProof = JSON.stringify(stringifyBigInts(_proof))
+
+        await express
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
+            .then((res) => {
+                expect(res).to.have.status(200)
+                expect(res.body.length).equal(0)
+            })
     })
 
     it('should fetch report whose reportEpoch is equal to currentEpoch - 1', async function () {
@@ -283,7 +302,9 @@ describe('POST /api/report', function () {
         await ethers.provider.send('evm_mine', [])
 
         const reports = await express
-            .get('/api/report?status=0')
+            .get(
+                `/api/report?status=0&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -308,15 +329,56 @@ describe('POST /api/report', function () {
     })
 
     it('should fail to fetch report with wrong query status or without status query params', async function () {
-        await express.get('/api/report?status=6').then((res) => {
-            expect(res).to.have.status(400)
-            expect(res.body.error).to.be.equal('Invalid report status')
-        })
+        const wrongStatus = 6
+        await express
+            .get(
+                `/api/report?status=${wrongStatus}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid report status')
+            })
 
         await express.get('/api/report').then((res) => {
             expect(res).to.have.status(400)
             expect(res.body.error).to.be.equal('Invalid report status')
         })
+    })
+
+    it('should fail with invalid public signals or proof', async function () {
+        await express
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&proof=${epochKeyLiteProof}`
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid public signal')
+            })
+
+        await express
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}`
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid proof')
+            })
+
+        const wrongProof = JSON.parse(epochKeyLiteProof)
+        wrongProof[0] = '0'
+
+        await express
+            .get(
+                `/api/report?status=${
+                    ReportStatus.VOTING
+                }&publicSignals=${epochKeyLitePublicSignals}&proof=${JSON.stringify(
+                    wrongProof
+                )}`
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid proof')
+            })
     })
 
     it('should fetch report whose adjudication result is tie', async function () {
@@ -343,7 +405,9 @@ describe('POST /api/report', function () {
         await ethers.provider.send('evm_mine', [])
 
         const reports = await express
-            .get('/api/report?status=0')
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -368,7 +432,9 @@ describe('POST /api/report', function () {
     it('should fetch report whose adjudication count is less than 5', async function () {
         // nobody vote on reports[1], it can be fetched on next epoch
         const reports = await express
-            .get('/api/report?status=0')
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -403,7 +469,9 @@ describe('POST /api/report', function () {
         })
 
         const reports = await express
-            .get('/api/report?status=1')
+            .get(
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -423,13 +491,17 @@ describe('POST /api/report', function () {
             },
         })
 
+        agreeNullifier = genReportNullifier(report.objectId)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: AGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.AGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier: agreeNullifier,
+                    adjudicateValue: AdjudicateValue.AGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(201)
             })
@@ -441,7 +513,7 @@ describe('POST /api/report', function () {
                 expect(res?.adjudicateCount).equal(1)
                 const adjudicator = res?.adjudicatorsNullifier![0]!
                 expect(adjudicator.adjudicateValue).equal(AdjudicateValue.AGREE)
-                expect(adjudicator.nullifier).equal(AGREE_NULLIFIER)
+                expect(adjudicator.nullifier).equal(agreeNullifier)
             })
     })
 
@@ -452,13 +524,17 @@ describe('POST /api/report', function () {
             },
         })
 
+        disagreeNullifier = genReportNullifier(report.objectId)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: DISAGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.DISAGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier: disagreeNullifier,
+                    adjudicateValue: AdjudicateValue.DISAGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(201)
             })
@@ -472,19 +548,23 @@ describe('POST /api/report', function () {
                 expect(adjudicator.adjudicateValue).equal(
                     AdjudicateValue.DISAGREE
                 )
-                expect(adjudicator.nullifier).to.be.equal(DISAGREE_NULLIFIER)
+                expect(adjudicator.nullifier).to.be.equal(disagreeNullifier)
             })
     })
 
     it('should fail if report does not exist', async function () {
-        const notExistReportId = 'NotExistReportId'
+        const notExistReportId = '444'
+        const nullifier = genReportNullifier(notExistReportId)
+
         await express
             .post(`/api/report/${notExistReportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: AGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.AGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier: nullifier,
+                    adjudicateValue: AdjudicateValue.AGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report does not exist')
@@ -498,13 +578,17 @@ describe('POST /api/report', function () {
             },
         })
 
+        const nullifier = genReportNullifier(report.objectId)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: DISAGREE_NULLIFIER,
-                adjudicateValue: WRONGE_ADJUCATE_VALUE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier,
+                    adjudicateValue: WRONGE_ADJUCATE_VALUE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid adjudicate value')
@@ -540,10 +624,12 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: AGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.AGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier: agreeNullifier,
+                    adjudicateValue: AdjudicateValue.AGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('User has already voted')
@@ -557,13 +643,17 @@ describe('POST /api/report', function () {
             },
         })
 
+        const nullifier = genReportNullifier(watingForTxReport.objectId)
+
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: AGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.AGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier,
+                    adjudicateValue: AdjudicateValue.AGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report voting has ended')
@@ -584,10 +674,12 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
             .set('content-type', 'application/json')
-            .send({
-                nullifier: AGREE_NULLIFIER,
-                adjudicateValue: AdjudicateValue.AGREE,
-            })
+            .send(
+                stringifyBigInts({
+                    nullifier,
+                    adjudicateValue: AdjudicateValue.AGREE,
+                })
+            )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report voting has ended')
@@ -625,7 +717,9 @@ describe('POST /api/report', function () {
         await sync.waitForSync()
 
         const report = await express
-            .get(`/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}`)
+            .get(
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 const reports = res.body
@@ -678,7 +772,9 @@ describe('POST /api/report', function () {
         await sync.waitForSync()
 
         const report = await express
-            .get(`/api/report?status=${ReportStatus.VOTING}`)
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 const reports = res.body
@@ -723,7 +819,9 @@ describe('POST /api/report', function () {
         await sync.waitForSync()
 
         const report = await express
-            .get(`/api/report?status=${ReportStatus.VOTING}`)
+            .get(
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
             .then((res) => {
                 expect(res).to.have.status(200)
                 const reports = res.body
