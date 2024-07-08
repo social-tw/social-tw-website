@@ -366,6 +366,42 @@ contract UnirepApp {
     }
 
     /**
+     * Claim the daily login reputation
+     * @param publicSignals: public signals
+     * @param proof: epoch key lite proof
+     */
+    function claimDailyLoginRep(
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof
+    ) public {
+        // check if proof is used before
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        if (proofNullifier[nullifier]) {
+            revert ProofHasUsed();
+        }
+
+        proofNullifier[nullifier] = true;
+
+        EpochKeyLiteVerifierHelper.EpochKeySignals
+            memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(
+                publicSignals
+            );
+
+        // check the epoch != current epoch (ppl can only post in current aepoch)
+        uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
+        if (signals.epoch > epoch) {
+            revert InvalidEpoch();
+        }
+
+        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
+
+        emit ClaimPosRep(
+            signals.epochKey,
+            epoch
+        );
+    }
+
+    /**
      * Give the report negative reputation
      * @param publicSignals: public signals
      * @param proof: report negative reputation proof
