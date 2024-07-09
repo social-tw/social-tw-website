@@ -142,18 +142,18 @@ describe('Verifier Helper Manager Test', function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
             const hashUserId = user.hashUserId
-            const postId = 0
+            const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, postId)
+            const reportNullifier = genNullifier(hashUserId, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
                     hashUserId,
-                    postId,
+                    reportId,
                     currentEpoch,
                     currentNonce,
                     attesterId,
@@ -179,18 +179,18 @@ describe('Verifier Helper Manager Test', function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
             const hashUserId = user.hashUserId
-            const postId = 0
+            const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, postId)
+            const reportNullifier = genNullifier(hashUserId, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
                     hashUserId,
-                    postId,
+                    reportId,
                     currentEpoch,
                     currentNonce,
                     attesterId,
