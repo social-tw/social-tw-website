@@ -56,6 +56,13 @@ function getActionStatusLabel(status: ActionStatus) {
 }
 
 function ActionLink({ action }: { action: Action }) {
+    if (
+        action.type === ActionType.ReportComment ||
+        action.type === ActionType.ReportPost
+    ) {
+        return <span className="text-white">-</span>
+    }
+
     const link = getActionLink(action)
 
     if (action.status === ActionStatus.Pending) {
