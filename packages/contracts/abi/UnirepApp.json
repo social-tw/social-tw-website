@@ -84,7 +84,11 @@
                 "type": "uint256"
             }
         ],
+<<<<<<< HEAD
         "name": "ClaimNegRep",
+=======
+        "name": "ClaimDailyLoginRep",
+>>>>>>> e359672c (should claim daily login reputation done)
         "type": "event"
     },
     {
@@ -103,7 +107,11 @@
                 "type": "uint256"
             }
         ],
+<<<<<<< HEAD
         "name": "ClaimPosRep",
+=======
+        "name": "ClaimReportPosRep",
+>>>>>>> e359672c (should claim daily login reputation done)
         "type": "event"
     },
     {
@@ -229,6 +237,24 @@
         ],
         "name": "UserSignUp",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            }
+        ],
+        "name": "claimDailyLoginRep",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [

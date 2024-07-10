@@ -100,7 +100,7 @@ describe('Claim Report Positive Reputation Test', function () {
             posReputation
         )
         await expect(tx)
-            .to.emit(app, 'ClaimPosRep')
+            .to.emit(app, 'ClaimReportPosRep')
             .withArgs(publicSignals[0], currentEpoch)
 
         userState.stop()
