@@ -61,7 +61,7 @@ export function CommentActionMenu({
                     icon={<BanIcon />}
                     name="檢舉留言"
                     onClick={onReportDialogOpen}
-                    disabled={canReport}
+                    disabled={!canReport}
                 />
             </ActionMenuDropdown>
             <ActionMenuBottomSlide
