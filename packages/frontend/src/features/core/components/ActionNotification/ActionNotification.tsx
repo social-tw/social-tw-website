@@ -52,6 +52,18 @@ function getActionLink(action: Action) {
     return '#'
 }
 
+function isActionLinkExistWhenSuccess(action: Action) {
+    return action.type === ActionType.Post || action.type === ActionType.Comment
+}
+
+function isActionLinkExistWhenFailure(action: Action) {
+    return (
+        action.type === ActionType.Post ||
+        action.type === ActionType.Comment ||
+        action.type === ActionType.DeleteComment
+    )
+}
+
 function getActionStatusLabel(action: Action) {
     const message = getActionMessage(action.type)
     const subject = getActionSubject(action.type)
@@ -76,7 +88,7 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-white">
                         {message}交易成功!
                     </span>
-                    {action.type !== ActionType.DeleteComment && (
+                    {isActionLinkExistWhenSuccess(action) && (
                         <Link
                             className="text-xs text-secondary"
                             to={actionLink}
@@ -94,9 +106,14 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-primary">
                         {message}交易失敗!
                     </span>
-                    <Link className="text-xs text-secondary" to={actionLink}>
-                        前往查看{subject}
-                    </Link>
+                    {isActionLinkExistWhenFailure(action) && (
+                        <Link
+                            className="text-xs text-secondary"
+                            to={actionLink}
+                        >
+                            前往查看{subject}
+                        </Link>
+                    )}
                 </div>
             )
         }
