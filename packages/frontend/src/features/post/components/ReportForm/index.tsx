@@ -3,11 +3,11 @@ export {
     ReportFormCategories,
 } from './ReportFormCategories'
 export { ReportFormCtn } from './ReportFormCtn'
+export { ReportFormIntro } from './ReportFormIntro'
 export {
     REGISTER_ID as REGISTER_ID_DESC,
-    ReportFormDesc,
-} from './ReportFormDesc'
-export { ReportFormIntro } from './ReportFormIntro'
+    ReportFormReason,
+} from './ReportFormReason'
 export { ReportFormStepGroup, ReportFormStepLabel } from './ReportFormStep'
 export { ReportFormSubmitBtn } from './ReportFormSubmitBtn'
 export { ReportFormSubmitFailure } from './ReportFormSubmitFailure'

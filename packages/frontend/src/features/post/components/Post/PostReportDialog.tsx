@@ -8,8 +8,8 @@ import {
     REGISTER_ID_REASON,
     ReportFormCategories,
     ReportFormCtn,
-    ReportFormDesc,
     ReportFormIntro,
+    ReportFormReason,
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
@@ -86,7 +86,7 @@ export function PostReportDialog({
                                 title="2. 檢舉描述"
                                 isRequired
                             />
-                            <ReportFormDesc
+                            <ReportFormReason
                                 register={register}
                                 errors={errors}
                             />

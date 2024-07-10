@@ -4,14 +4,14 @@ import {
     ReportFormStepErrorHint,
 } from './ReportFormStep'
 
-interface ReportFormDescProps {
+interface ReportFormReasonProps {
     register: UseFormRegister<FieldValues>
     errors: FieldErrors<FieldValues>
 }
 
 export const REGISTER_ID = 'desc'
 
-export function ReportFormDesc({ register, errors }: ReportFormDescProps) {
+export function ReportFormReason({ register, errors }: ReportFormReasonProps) {
     const hasError = errors[REGISTER_ID]
     return (
         <ReportFormStepContent>
