@@ -34,7 +34,7 @@ export function ReportFormStepContent({
 }
 
 export function ReportFormStepErrorHint({ msg }: ReportFormStepErrorHintProps) {
-    return <div className="absolute text-red-500 text-[11px] left-2">{msg}</div>
+    return <div className="absolute text-red-500 text-xs left-2">{msg}</div>
 }
 
 export function ReportFormStepGroup({ children }: ReportFormStepGroupProps) {

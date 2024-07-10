@@ -43,7 +43,7 @@ export function ReportFormSubmitSuccess({
 
 function HintWording() {
     return (
-        <div className="flex flex-col items-center text-white text-[18px] leading-loose">
+        <div className="flex flex-col items-center text-white text-lg leading-loose">
             <div>您的檢舉報告傳送成功！</div>
             <div>將由平台用戶們進行評判</div>
         </div>
