@@ -4,9 +4,9 @@ import { render, screen } from '@testing-library/react'
 import { PostReportDialog } from '../PostReportDialog'
 
 jest.mock('../../../hooks/useReportForm')
-jest.mock('../../ReportForm/ReportFormReasons', () => ({
+jest.mock('../../ReportForm/ReportFormCategories', () => ({
     __esModule: true,
-    ReportFormReasons: () => <div data-testid="report-form-reasons" />,
+    ReportFormCategories: () => <div data-testid="report-form-categories" />,
 }))
 
 const mockValues = {

@@ -6,10 +6,10 @@ import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
     REGISTER_ID_DESC,
     REGISTER_ID_REASON,
+    ReportFormCategories,
     ReportFormCtn,
     ReportFormDesc,
     ReportFormIntro,
-    ReportFormReasons,
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
@@ -73,7 +73,7 @@ export function PostReportDialog({
                                 title="1. 檢舉原因"
                                 isRequired
                             />
-                            <ReportFormReasons
+                            <ReportFormCategories
                                 register={register}
                                 errors={errors}
                                 setValue={setValue}

@@ -22,7 +22,7 @@ class Option {
     ) {}
 }
 
-interface ReportFormReasonsProps {
+interface ReportFormCategoriesProps {
     register: UseFormRegister<FieldValues>
     errors: FieldErrors<FieldValues>
     setValue: UseFormSetValue<FieldValues>
@@ -47,13 +47,13 @@ interface OptionItemProps {
 
 export const REGISTER_ID = 'reason'
 
-export function ReportFormReasons({
+export function ReportFormCategories({
     register,
     errors,
     setValue,
     getValues,
     trigger,
-}: ReportFormReasonsProps) {
+}: ReportFormCategoriesProps) {
     register(REGISTER_ID, { required: true, validate: getValidate() })
 
     const { reportCategories } = useFetchReportCategories()

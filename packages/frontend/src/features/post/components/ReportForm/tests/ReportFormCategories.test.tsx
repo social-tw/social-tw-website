@@ -1,7 +1,7 @@
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { FieldErrors } from 'react-hook-form'
-import { REGISTER_ID, ReportFormReasons } from '../ReportFormReasons'
+import { REGISTER_ID, ReportFormCategories } from '../ReportFormCategories'
 
 let mockRegister: jest.Mock
 let mockError: FieldErrors
@@ -16,10 +16,10 @@ beforeEach(() => {
     mockTrigger = jest.fn()
 })
 
-describe('ReportFormReasons', () => {
+describe('ReportFormCategories', () => {
     it('should not render OptionContainer', () => {
         render(
-            <ReportFormReasons
+            <ReportFormCategories
                 register={mockRegister}
                 errors={mockError}
                 setValue={() => {}}
@@ -33,7 +33,7 @@ describe('ReportFormReasons', () => {
 
     it('should render OptionContainer', () => {
         render(
-            <ReportFormReasons
+            <ReportFormCategories
                 register={mockRegister}
                 errors={mockError}
                 setValue={() => {}}
@@ -48,7 +48,7 @@ describe('ReportFormReasons', () => {
 
     it('should render ReportFormStepErrorHint', () => {
         render(
-            <ReportFormReasons
+            <ReportFormCategories
                 register={mockRegister}
                 errors={mockError}
                 setValue={() => {}}

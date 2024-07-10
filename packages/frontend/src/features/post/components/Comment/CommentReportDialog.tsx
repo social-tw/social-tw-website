@@ -6,10 +6,10 @@ import { useReportForm } from '../../hooks/useReportForm'
 import {
     REGISTER_ID_DESC,
     REGISTER_ID_REASON,
+    ReportFormCategories,
     ReportFormCtn,
     ReportFormDesc,
     ReportFormIntro,
-    ReportFormReasons,
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
@@ -76,7 +76,7 @@ export function CommentReportDialog({
                                 title="1. 檢舉原因"
                                 isRequired
                             />
-                            <ReportFormReasons
+                            <ReportFormCategories
                                 register={register}
                                 errors={errors}
                                 setValue={setValue}
