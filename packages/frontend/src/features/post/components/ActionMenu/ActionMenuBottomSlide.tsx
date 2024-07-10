@@ -48,13 +48,13 @@ export function ActionMenuBottomSlideItem({
     const opacity = disabled ? 'opacity-50' : 'opacity-100'
     const handleClick = disabled ? () => {} : onClick
     return (
-        <div
+        <button
             className={`flex items-center gap-4 text-white ${cursor} ${opacity}`}
             onClick={handleClick}
         >
             <BottomSlideItemIcon icon={icon} />
             {name}
-        </div>
+        </button>
     )
 }
 

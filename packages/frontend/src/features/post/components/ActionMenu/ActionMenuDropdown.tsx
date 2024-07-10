@@ -48,13 +48,13 @@ export function ActionMenuDropdownItem({
     const opacity = disabled ? 'opacity-50' : 'opacity-100'
     const handleClick = disabled ? () => {} : onClick
     return (
-        <div
+        <button
             className={`flex items-center gap-1 text-white ${cursor} ${opacity}`}
             onClick={handleClick}
         >
             <DropdownItemIcon icon={icon} />
             {name}
-        </div>
+        </button>
     )
 }
 
