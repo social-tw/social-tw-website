@@ -1,5 +1,5 @@
-import { QueryKeys } from "@/constants/queryKeys";
-import { useQuery } from "@tanstack/react-query";
+import { QueryKeys } from '@/constants/queryKeys'
+import { useQuery } from '@tanstack/react-query'
 
 export function useReputationScore() {
     return useQuery({

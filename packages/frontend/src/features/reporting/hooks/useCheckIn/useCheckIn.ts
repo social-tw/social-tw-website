@@ -1,5 +1,5 @@
-import { MutationKeys } from "@/constants/queryKeys";
-import { useMutation } from "@tanstack/react-query";
+import { MutationKeys } from '@/constants/queryKeys'
+import { useMutation } from '@tanstack/react-query'
 
 export function useCheckIn() {
     return useMutation({

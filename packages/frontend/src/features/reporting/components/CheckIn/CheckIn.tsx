@@ -35,11 +35,7 @@ export default function CheckIn({
 
     return (
         <>
-            <CheckInDialog
-                open={open}
-                onClose={close}
-                onConfirm={checkIn}
-            />
+            <CheckInDialog open={open} onClose={close} onConfirm={checkIn} />
             <CheckInPending open={isPending} onClose={reset} />
             <CheckInSuccess
                 open={isSuccess}
