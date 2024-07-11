@@ -5,7 +5,7 @@ include "../../../node_modules/@unirep/circuits/circuits/epochKeyLite.circom";
 template ReportNegRepProof(MAX_EPOCH_KEY_NONCE, TYPE_LIMIT) {
     // inputs
     signal input reported_epoch_key; // (public) stored in relayer
-    signal input hash_user_id;
+    signal input identity_secret;
     signal input reported_epoch;
     signal input current_epoch;
     signal input current_nonce;
@@ -27,7 +27,7 @@ template ReportNegRepProof(MAX_EPOCH_KEY_NONCE, TYPE_LIMIT) {
     signal output control;
 
     var reveal_nonce = 0;
-    var sig_data = 1;
+    var sig_data = 0;
 
     /* Step 1: traverse 0~MAX_EPOCH_KEY_NONCE and check epochkey */
     signal recovered_epoch_key[3];
@@ -35,7 +35,7 @@ template ReportNegRepProof(MAX_EPOCH_KEY_NONCE, TYPE_LIMIT) {
     for (var nonce = 0; nonce < MAX_EPOCH_KEY_NONCE; nonce++) {
         // check one of the reported epoch key is matched
         recovered_epoch_key[nonce] <== EpochKeyHasher()(
-            hash_user_id,
+            identity_secret,
             attester_id, 
             reported_epoch,
             nonce,
@@ -51,11 +51,10 @@ template ReportNegRepProof(MAX_EPOCH_KEY_NONCE, TYPE_LIMIT) {
     signal result <-- type == 1 ? 1 : matched;
     result * 1 === 1;
 
-
     /* Step 3: output publicSignals with data and epochKey */ 
     (control, current_epoch_key) <== EpochKeyLite
     (MAX_EPOCH_KEY_NONCE) (
-        hash_user_id,
+        identity_secret,
         reveal_nonce,
         attester_id,
         current_epoch,

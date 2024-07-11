@@ -20,7 +20,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
     const chainId = 31337
     const user = createRandomUserIdentity()
     it('should generate a negative reputation proof with type 0 and output with correct epochKey', async () => {
-        const hashUserId = user.hashUserId
+        const identitySecret = user.id.secret
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
@@ -30,7 +30,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const reportedEpoch = 5
         const reportedNonce = 2
         const reportedEpochKey = utils.genEpochKey(
-            BigInt(hashUserId),
+            BigInt(identitySecret),
             attesterId,
             reportedEpoch,
             reportedNonce,
@@ -39,7 +39,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
 
         const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
-            hashUserId,
+            identitySecret,
             reportedEpoch,
             currentEpoch,
             currentNonce,
@@ -57,7 +57,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         expect(epochKey.toString()).to.be.equal(
             utils
                 .genEpochKey(
-                    BigInt(hashUserId),
+                    BigInt(identitySecret),
                     attesterId,
                     currentEpoch,
                     currentNonce,
@@ -80,7 +80,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
     })
 
     it('should generate a negative reputation proof with type 1 and output with correct epochKey', async () => {
-        const hashUserId = user.hashUserId
+        const identitySecret = user.id.secret
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
@@ -90,7 +90,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const reportedEpoch = 5
         const reportedNonce = 2
         const reportedEpochKey = utils.genEpochKey(
-            BigInt(hashUserId),
+            BigInt(identitySecret),
             attesterId,
             reportedEpoch,
             reportedNonce,
@@ -99,7 +99,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
 
         const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
-            hashUserId,
+            identitySecret,
             reportedEpoch,
             currentEpoch,
             currentNonce,
@@ -117,7 +117,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         expect(epochKey.toString()).to.be.equal(
             utils
                 .genEpochKey(
-                    BigInt(hashUserId),
+                    BigInt(identitySecret),
                     attesterId,
                     currentEpoch,
                     currentNonce,
@@ -140,7 +140,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
     })
 
     it('should revert with invalid type', async () => {
-        const hashUserId = user.hashUserId
+        const identitySecret = user.id.secret
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
@@ -150,7 +150,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const reportedEpoch = 5
         const reportedNonce = 2
         const reportedEpochKey = utils.genEpochKey(
-            BigInt(hashUserId),
+            BigInt(identitySecret),
             attesterId,
             reportedEpoch,
             reportedNonce,
@@ -159,7 +159,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
 
         const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
-            hashUserId,
+            identitySecret,
             reportedEpoch,
             currentEpoch,
             currentNonce,
@@ -176,8 +176,8 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         }
     })
 
-    it('should revert with invalid hashUserId', async () => {
-        const correctHashUserId = user.hashUserId
+    it('should revert with invalid identitySecret', async () => {
+        const correctidentitySecret = user.id.secret
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
@@ -187,17 +187,17 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const reportedEpoch = 5
         const reportedNonce = 2
         const reportedEpochKey = utils.genEpochKey(
-            BigInt(correctHashUserId),
+            BigInt(correctidentitySecret),
             attesterId,
             reportedEpoch,
             reportedNonce,
             chainId
         )
-        const hashUserId = BigInt(123)
+        const identitySecret = BigInt(123)
 
         const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
-            hashUserId,
+            identitySecret,
             reportedEpoch,
             currentEpoch,
             currentNonce,
@@ -214,7 +214,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
     })
 
     it('should revert with invalid reportedEpoch', async () => {
-        const hashUserId = user.hashUserId
+        const identitySecret = user.id.secret
         const currentEpoch = 20
         const currentNonce = 1
         const attesterId = BigInt(219090124810)
@@ -224,7 +224,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const correctReportedEpoch = 5
         const reportedNonce = 2
         const reportedEpochKey = utils.genEpochKey(
-            BigInt(hashUserId),
+            BigInt(identitySecret),
             attesterId,
             correctReportedEpoch,
             reportedNonce,
@@ -233,7 +233,7 @@ describe('Prove report negative reputation in Unirep Social-TW', function () {
         const reportedEpoch = 12
         const circuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
-            hashUserId,
+            identitySecret,
             reportedEpoch,
             currentEpoch,
             currentNonce,

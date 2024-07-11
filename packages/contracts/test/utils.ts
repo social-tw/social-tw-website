@@ -174,7 +174,7 @@ export const randomData = () => [
 
 export function genReportNegRepCircuitInput(config: {
     reportedEpochKey: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint | Identity
     reportedEpoch: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
@@ -184,7 +184,7 @@ export function genReportNegRepCircuitInput(config: {
 }) {
     const {
         reportedEpochKey,
-        hashUserId,
+        identitySecret,
         reportedEpoch,
         currentEpoch,
         currentNonce,
@@ -195,7 +195,7 @@ export function genReportNegRepCircuitInput(config: {
 
     const circuitInputs = {
         reported_epoch_key: reportedEpochKey,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         reported_epoch: reportedEpoch,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
