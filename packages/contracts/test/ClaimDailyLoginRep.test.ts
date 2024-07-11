@@ -7,7 +7,11 @@ import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
-import { createRandomUserIdentity, genUserState } from './utils'
+import {
+    createRandomUserIdentity,
+    genEpochKeyLiteProof,
+    genUserState,
+} from './utils'
 
 const checkSignals = (signals, proof) => {
     expect(signals.epochKey.toString()).equal(proof.epochKey.toString())
@@ -39,9 +43,6 @@ describe('Claim Report Positive Reputation Test', function () {
 
     let snapshot: any
     const epochLength = 300
-    const posReputation = 3
-    let usedPublicSig: any
-    let usedProof: any
 
     {
         before(async function () {
@@ -152,9 +153,6 @@ describe('Claim Report Positive Reputation Test', function () {
     })
 
     it('should claim daily login reputation', async () => {
-        const hashUserId = user.hashUserId
-
-        const attesterId = BigInt(app.address)
         const userState = await genUserState(user.id, app)
 
         const currentEpoch = await userState.sync.loadCurrentEpoch()
@@ -163,9 +161,39 @@ describe('Claim Report Positive Reputation Test', function () {
 
         const tx = await app.claimDailyLoginRep(publicSignals, proof)
         await expect(tx)
-            .to.emit(app, 'ClaimDailyLoginRep')
+            .to.emit(app, 'ClaimPosRep')
             .withArgs(publicSignals[1], currentEpoch)
     })
-    it('should revert with wrong proof', async () => {})
-    it('should revert with invalid epoch', async () => {})
+
+    it('should revert with wrong proof', async () => {
+        const userState = await genUserState(user.id, app)
+
+        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+
+        proof[0] = BigInt(0)
+
+        await expect(app.claimDailyLoginRep(publicSignals, proof)).to.be
+            .reverted
+    })
+
+    it('should revert with invalid epoch', async () => {
+        const nonce = 0
+        const attesterId = BigInt(app.address)
+        const userState = await genUserState(user.id, app)
+        const wrongEpoch = 444
+
+        const { publicSignals, proof } = await genEpochKeyLiteProof({
+            id: user.id,
+            epoch: wrongEpoch,
+            nonce,
+            attesterId,
+            chainId,
+        })
+
+        await expect(
+            app.claimDailyLoginRep(publicSignals, proof)
+        ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+
+        userState.stop()
+    })
 })
