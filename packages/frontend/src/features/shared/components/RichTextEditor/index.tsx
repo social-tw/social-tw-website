@@ -15,6 +15,9 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import nodes from './nodes'
 import ClearAllPlugin from './plugins/ClearAllPlugin'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { ActionStatus, ActionType, useActionStore } from '@/features/core'
 
 const theme = {
     text: {
@@ -35,6 +38,9 @@ export default function RichTextEditor({
     value,
     onValueChange,
     onError,
+    failedPostContent,
+    onFailedPostClear,
+    onClearFailedPost,
 }: {
     namespace?: string
     classes?: {
@@ -47,8 +53,49 @@ export default function RichTextEditor({
     value?: string
     onValueChange?: (md: string) => void
     onError?: (error: Error) => void
+    failedPostContent?: string
+    onFailedPostClear?: () => void
+    onClearFailedPost?: () => void
 }) {
-    const _editorState = () => $convertFromMarkdownString(value ?? '')
+    const [searchParams] = useSearchParams()
+    const failedPostId = searchParams.get('failedPostId')
+    const [localFailedPostContent, setLocalFailedPostContent] = useState<
+        string | undefined
+    >(undefined)
+    const actions = useActionStore((state) => state.entities)
+
+    useEffect(() => {
+        if (failedPostId) {
+            const failedPost = Object.values(actions).find(
+                (action) =>
+                    action.type === ActionType.Post &&
+                    action.status === ActionStatus.Failure &&
+                    action.id === failedPostId,
+            )
+            if (failedPost && 'content' in failedPost.data) {
+                setLocalFailedPostContent(failedPost.data.content)
+            }
+        }
+    }, [failedPostId, actions])
+
+    useEffect(() => {
+        if (localFailedPostContent) {
+            onValueChange?.(localFailedPostContent)
+        }
+    }, [localFailedPostContent, onValueChange])
+
+    useEffect(() => {
+        return () => {
+            if (localFailedPostContent && onClearFailedPost) {
+                onClearFailedPost()
+            }
+        }
+    }, [localFailedPostContent, onClearFailedPost])
+
+    const _editorState = () => {
+        const content = localFailedPostContent ?? value ?? ''
+        return $convertFromMarkdownString(content)
+    }
 
     const _onChange = (editorState: EditorState) => {
         editorState.read(() => {
@@ -73,9 +120,18 @@ export default function RichTextEditor({
         onError: _onError,
     }
 
+    useEffect(() => {
+        if (failedPostContent) {
+            onValueChange?.(failedPostContent)
+        }
+    }, [failedPostContent])
+
     return (
         <div className={classes?.root}>
-            <LexicalComposer initialConfig={initialConfig}>
+            <LexicalComposer
+                initialConfig={initialConfig}
+                key={localFailedPostContent}
+            >
                 {/* <ToolbarPlugin /> */}
                 <div className="relative">
                     <RichTextPlugin
@@ -104,7 +160,14 @@ export default function RichTextEditor({
                     <AutoFocusPlugin />
                     <HistoryPlugin />
                     <ClearEditorPlugin />
-                    <ClearAllPlugin value={value} />
+                    <ClearAllPlugin
+                        value={value}
+                        onClear={() => {
+                            onValueChange?.('')
+                            setLocalFailedPostContent(undefined)
+                            onFailedPostClear?.()
+                        }}
+                    />
                 </div>
             </LexicalComposer>
         </div>

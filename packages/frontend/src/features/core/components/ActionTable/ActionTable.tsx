@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
     createColumnHelper,
     flexRender,
@@ -28,7 +28,7 @@ function getActionLink(action: Action) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
-            return '/'
+            return `/?failedPostId=${action.id}`
         }
     }
     if (
@@ -60,14 +60,25 @@ function ActionLink({
     action: Action
     onClose: () => void
 }) {
+    const navigate = useNavigate()
     const link = getActionLink(action)
 
     if (action.status === ActionStatus.Pending) {
         return <span className="text-white">請稍候</span>
     }
 
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault()
+        onClose()
+        navigate(link)
+    }
+
     return (
-        <Link className="underline text-secondary" to={link}>
+        <Link
+            className="underline text-secondary"
+            to={link}
+            onClick={handleClick}
+        >
             前往查看
         </Link>
     )

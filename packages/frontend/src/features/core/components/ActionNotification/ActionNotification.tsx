@@ -36,7 +36,7 @@ function getActionLink(action: Action) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
-            return `/`
+            return `/?failedPostId=${action.id}`
         }
     }
     if (
