@@ -3,6 +3,9 @@ export { default as AdjudicationNotification } from './components/AdjudicateNoti
 export { default as CheckIn } from './components/CheckIn/CheckIn'
 export { default as CheckInNotification } from './components/CheckInNotification/CheckInNotification'
 export { useAdjudicate } from './hooks/useAdjudicate/useAdjudicate'
+export { useCheckIn } from './hooks/useCheckIn/useCheckIn'
 export { useFetchReportCategories } from './hooks/useFetchReportCategories/useFetchReportCategories'
+export { useNotifyCheckIn } from './hooks/useNotifyCheckIn/useNotifyCheckIn'
 export { usePendingReports } from './hooks/usePendingReports/usePendingReports'
+export { useReputationScore } from './hooks/useReputationScore/useReputationScore'
 

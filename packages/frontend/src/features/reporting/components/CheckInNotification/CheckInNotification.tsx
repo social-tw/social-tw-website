@@ -1,26 +1,37 @@
 import { useToggle } from '@uidotdev/usehooks'
-import { useState } from 'react'
+import { useNotifyCheckIn } from '../../hooks/useNotifyCheckIn/useNotifyCheckIn'
 import CheckIn from '../CheckIn/CheckIn'
+import DiscardCheckIn from '../DiscardCheckIn/DiscardCheckIn'
 import CheckInSnackbar from './CheckSnackbar'
 
 export default function CheckInNotification() {
-    const [cancel, setCancel] = useState(false)
-    const [open, toggle] = useToggle(false)
+    const [isOpenCheckIn, toggleCheckIn] = useToggle(false)
+    const [isOpenDiscardCheckIn, toggleDiscardCheckIn] = useToggle(false)
 
-    const onConfirm = () => {
-        setCancel(false)
-        toggle()
-    }
+    const { isOpen } = useNotifyCheckIn()
 
-    const onCancel = () => {
-        setCancel(true)
-        toggle()
+    if (!isOpen) {
+        return null
     }
 
     return (
         <div data-testid="check-in-notification">
-            <CheckInSnackbar onConfirm={onConfirm} onCancel={onCancel} />
-            <CheckIn cancel={cancel} open={open} onClose={toggle} />
+            <CheckInSnackbar
+                onConfirm={() => toggleCheckIn(true)}
+                onCancel={() => toggleDiscardCheckIn(true)}
+            />
+            <CheckIn
+                open={isOpenCheckIn}
+                onClose={() => toggleCheckIn(false)}
+            />
+            <DiscardCheckIn
+                open={isOpenDiscardCheckIn}
+                onClose={() => toggleDiscardCheckIn(false)}
+                onCheckIn={() => {
+                    toggleDiscardCheckIn(false)
+                    toggleCheckIn(true)
+                }}
+            />
         </div>
     )
 }
