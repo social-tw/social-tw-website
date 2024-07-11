@@ -1,10 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import CommentFormDesktop from './CommentFormDesktop'
+import { MemoryRouter } from 'react-router-dom'
 
 describe('CommentFormDesktop', () => {
     it('renders when open', async () => {
-        render(<CommentFormDesktop isOpen={true} />)
+        render(
+            <MemoryRouter>
+                <CommentFormDesktop isOpen={true} />
+            </MemoryRouter>
+        )
         await waitFor(() => {
             expect(screen.getByLabelText('comment editor')).toBeInTheDocument()
         })
