@@ -18,6 +18,7 @@ import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
 import { ErrorDialog } from '@/features/auth'
 import { ActionNotification, EpochInfo } from '@/features/core'
 import { MobileBottomNav } from '@/features/shared'
+import { AdjudicationNotification } from '@/features/reporting'
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
@@ -73,7 +74,7 @@ export default function AppLayout() {
                         </h1>
                     </header>
                     <section className="px-8 py-4 space-y-3">
-                        <div className="max-w-sm mx-auto">
+                        <div className="max-w-xs mx-auto">
                             <EpochInfo />
                         </div>
                         <ActionNotification />
@@ -84,12 +85,13 @@ export default function AppLayout() {
                     <MobileBottomNav />
                     <ErrorDialog />
                 </div>
+                <AdjudicationNotification />
             </div>
         )
     } else {
         return (
             <div className="max-w-7xl min-h-screen mx-auto before:content-[' '] before:fixed before:top-0 before:left-0 before:-z-10 before:w-screen before:h-screen before:bg-[linear-gradient(200deg,#FF892A_-10%,#000000_15%,#2B2B2B_50%,#000000_85%,#52ACBC_110%)]">
-                <div className="grid grid-cols-[1fr_24rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
+                <div className="grid grid-cols-[1fr_26rem] xl:grid-cols-[20rem_1fr_20rem] min-h-screen divide-x divide-neutral-600">
                     <section className="hidden xl:block">
                         <div className="fixed top-0 h-full px-10 pt-20">
                             <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
@@ -101,7 +103,7 @@ export default function AppLayout() {
                             </div>
                         </div>
                     </section>
-                    <section className="max-w-[40rem] px-10 pt-20 divide-y divide-neutral-600">
+                    <section className="px-10 pt-20 divide-y divide-neutral-600">
                         <div className="flex gap-5 pb-6">
                             <h2 className="text-2xl font-bold text-secondary">
                                 {headerTextOnDesktop}
@@ -208,6 +210,7 @@ export default function AppLayout() {
                     </section>
                     <ErrorDialog />
                 </div>
+                <AdjudicationNotification />
             </div>
         )
     }

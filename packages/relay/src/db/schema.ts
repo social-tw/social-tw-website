@@ -1,6 +1,6 @@
+import { schema } from '@unirep/core'
 import { TableData } from 'anondb/node'
 import { nanoid } from 'nanoid'
-import { schema } from '@unirep/core'
 
 const _schema = [
     {
@@ -59,8 +59,6 @@ const _schema = [
                 type: 'Int',
                 default: () => 0,
             },
-            // status 0: haven't found the post on-chain
-            // status 1: found the post on-chain
             {
                 name: 'status',
                 type: 'Int',
@@ -97,7 +95,7 @@ const _schema = [
             ['content', 'String'],
             ['epoch', 'Int'],
             ['epochKey', 'String'],
-            ['status', 'Int'], // 0: init, 1: success, 2: deleted
+            ['status', 'Int'],
         ],
     },
     {
@@ -147,7 +145,7 @@ const _schema = [
         primaryKey: 'reportId',
         rows: [
             ['reportId', 'String'],
-            ['type', 'Int'], // 0: Post, 1: Comment
+            ['type', 'Int'],
             ['objectId', 'String'], // PostId or CommentId
             ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
             {
@@ -172,14 +170,14 @@ const _schema = [
                 type: 'Object',
                 // rows: [
                 //     ['nullifier', 'String'],
-                //     ['adjudicateValue', 'Int'], // 1: agree, 0: disagree
+                //     ['adjudicateValue', 'Int'],
                 //     ['claimed', 'Bool'], // TRUE: claimed, FALSE: not claimed
                 // ],
                 optional: true,
             },
             {
                 name: 'status',
-                type: 'Int', // 0: Voting, 1: Waiting for Tx, 2: Completed
+                type: 'Int',
                 default: () => 0,
             },
             ['category', 'Int'],

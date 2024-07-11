@@ -1,3 +1,11 @@
+export enum CommentStatus {
+    NOT_ON_CHAIN,
+    ON_CHAIN,
+    REPORTED,
+    DISAGREED,
+    DELETED,
+}
+
 export type Comment = {
     commentId: string | undefined
     postId: string

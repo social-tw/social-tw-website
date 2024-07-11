@@ -1,13 +1,19 @@
-import { DB, TransactionDB } from 'anondb'
-import { ethers } from 'ethers'
 import { Prover } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import schema from '../../db/schema'
-import { ENV, RESET_DATABASE } from '../../config'
 import { toDecString } from '@unirep/core/src/Synchronizer'
-import { socketManager } from '../utils/SocketManager'
-import { UserRegisterStatus } from '../../types'
+import { DB, TransactionDB } from 'anondb'
+import { ethers } from 'ethers'
+import { ENV, REPORT_SETTLE_VOTE_THRESHOLD, RESET_DATABASE } from '../../config'
+import schema from '../../db/schema'
+import {
+    AdjudicateValue,
+    Adjudicator,
+    ReportStatus,
+    ReportType,
+    UserRegisterStatus,
+} from '../../types'
 import ActionCountManager from '../utils/ActionCountManager'
+import { socketManager } from '../utils/SocketManager'
 
 type EventHandlerArgs = {
     event: ethers.Event
@@ -225,15 +231,59 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             epoch: epoch,
         })
 
-        // if there's no data in EpochKeyAction then do nothing
-        if (rows == 0) return result
-
         // make sure all data whose epochs are before the current ended one is deleted as well
-        db.delete('EpochKeyAction', {
+        if (rows) {
+            db.delete('EpochKeyAction', {
+                where: {
+                    epoch: { lte: epoch },
+                },
+            })
+        }
+
+        // Settle reports
+        const votingReports = await this.db.findMany('ReportHistory', {
             where: {
-                epoch: { lte: epoch },
+                status: ReportStatus.VOTING,
             },
         })
+        // Go through all the voting reports
+        for (const report of votingReports) {
+            const adjudicators = report.adjudicatorsNullifier || []
+            const agreeVotes = adjudicators.filter(
+                (adj: Adjudicator) =>
+                    adj.adjudicateValue === AdjudicateValue.AGREE
+            ).length
+            const disagreeVotes = adjudicators.filter(
+                (adj: Adjudicator) =>
+                    adj.adjudicateValue === AdjudicateValue.DISAGREE
+            ).length
+            // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
+            if (
+                epoch >= report.reportEpoch &&
+                report.adjudicateCount >= REPORT_SETTLE_VOTE_THRESHOLD &&
+                agreeVotes !== disagreeVotes
+            ) {
+                // Then update the status of the report to WaitingForTx
+                db.update('ReportHistory', {
+                    where: { reportId: report.reportId },
+                    update: {
+                        status: ReportStatus.WAITING_FOR_TRANSACTION,
+                    },
+                })
+                // Then update the status of the post or comment to Onchain or Disagreed
+                // 1: ON_CHAIN, 3: DISAGREED
+                const newStatus = agreeVotes > disagreeVotes ? 1 : 3
+                const tableName =
+                    report.type == ReportType.POST ? 'Post' : 'Comment'
+                db.update(tableName, {
+                    where: {
+                        [`${tableName.toLowerCase()}Id`]: report.objectId,
+                    },
+                    update: { status: newStatus },
+                })
+            }
+        }
+
         return result
     }
 }

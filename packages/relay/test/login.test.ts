@@ -1,11 +1,11 @@
+import { Synchronizer } from '@unirep/core'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import nock from 'nock'
-import { Synchronizer } from '@unirep/core'
 import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
-import { TransactionManager } from '../src/services/utils/TransactionManager'
 import { userService } from '../src/services/UserService'
+import { TransactionManager } from '../src/services/utils/TransactionManager'
 import { UserRegisterStatus } from '../src/types'
 import { CLIENT_URL } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -22,7 +22,7 @@ const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 
 describe('LOGIN /login', function () {
     let snapshot: any
-    let anondb: DB
+    let db: DB
     let tm: TransactionManager
     let express: ChaiHttp.Agent
     let sync: Synchronizer
@@ -35,7 +35,7 @@ describe('LOGIN /login', function () {
         const { unirep, app } = await deployContracts(100000)
         // start server
         const {
-            db,
+            db: _db,
             prover,
             provider,
             TransactionManager,
@@ -43,7 +43,7 @@ describe('LOGIN /login', function () {
             chaiServer,
         } = await startServer(unirep, app)
 
-        anondb = db
+        db = _db
         tm = TransactionManager
         express = chaiServer
         sync = synchronizer
@@ -113,7 +113,7 @@ describe('LOGIN /login', function () {
     it('/api/user, init user', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -143,7 +143,7 @@ describe('LOGIN /login', function () {
     it('/api/signup, user sign up with wrong proof and return error', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -177,7 +177,7 @@ describe('LOGIN /login', function () {
     it('/api/signup, user sign up with wallet', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -218,7 +218,7 @@ describe('LOGIN /login', function () {
         // prepare the same commitment of using wallet sign up
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -249,7 +249,7 @@ describe('LOGIN /login', function () {
     it('/api/signup, sign up with different attesterId', async function () {
         prepareUserLoginTwitterApiMock(mockUserId2, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId2,
             'access-token'
         )
@@ -289,7 +289,7 @@ describe('LOGIN /login', function () {
     it('/api/signup, user sign up with server', async function () {
         prepareUserLoginTwitterApiMock(mockUserId2, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId2,
             'access-token'
         )
@@ -329,7 +329,7 @@ describe('LOGIN /login', function () {
     it('/api/signup, handle duplicate signup', async function () {
         prepareUserLoginTwitterApiMock(mockUserId, mockCode, 'access-token')
         const user = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -362,7 +362,7 @@ describe('LOGIN /login', function () {
 
     it('/api/login, registered user with own wallet', async function () {
         const registeredUser = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId,
             'access-token'
         )
@@ -371,7 +371,7 @@ describe('LOGIN /login', function () {
 
     it('/api/login, registered user with server wallet', async function () {
         const registeredUser = await userService.getLoginUser(
-            anondb,
+            db,
             mockUserId2,
             'access-token'
         )

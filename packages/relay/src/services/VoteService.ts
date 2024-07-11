@@ -1,15 +1,10 @@
 import { DB } from 'anondb'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { InvalidVoteActionError, PostNotExistError, VoteAction } from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import { VoteAction } from '../types'
 import ActionCountManager from './utils/ActionCountManager'
-import { socketManager } from './utils/SocketManager'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
 import ProofHelper from './utils/ProofHelper'
-import {
-    InvalidPostIdError,
-    InvalidVoteActionError,
-} from '../types/InternalError'
-import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
+import { socketManager } from './utils/SocketManager'
 
 export class VoteService {
     async fetchMyAccountVotes(
@@ -50,7 +45,6 @@ export class VoteService {
         voteAction: VoteAction,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        enableEpochValidation: boolean,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
@@ -58,19 +52,16 @@ export class VoteService {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer,
-            enableEpochValidation
+            synchronizer
         )
 
         // find post which is voted
-        const findPost = await db.findOne('Post', {
+        const post = await db.findOne('Post', {
             where: {
                 postId: postId,
             },
         })
-        if (!findPost) {
-            throw InvalidPostIdError
-        }
+        if (!post) throw PostNotExistError
 
         const epochKey = epochKeyProof.epochKey.toString()
         const findVote = await db.findOne('Vote', {
@@ -85,7 +76,7 @@ export class VoteService {
             db,
             epochKey,
             Number(epochKeyProof.epoch),
-            findPost,
+            post,
             voteAction
         )
     }

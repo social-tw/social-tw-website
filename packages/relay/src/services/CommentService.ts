@@ -1,15 +1,12 @@
 import { DB } from 'anondb'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import { Helia } from 'helia'
-import IpfsHelper from './utils/IpfsHelper'
-import ProofHelper from './utils/ProofHelper'
-import {
-    CommentNotExistError,
-    InvalidEpochKeyError,
-} from '../types/InternalError'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { CommentNotExistError, InvalidEpochKeyError } from '../types'
 import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import IpfsHelper from './utils/IpfsHelper'
+import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class CommentService {
@@ -25,6 +22,26 @@ export class CommentService {
         })
 
         return comments
+    }
+
+    async fetchSingleComment(
+        commentId: string,
+        db: DB,
+        status?: number
+    ): Promise<Comment> {
+        const whereClause = {
+            commentId,
+        }
+
+        if (status) {
+            whereClause['status'] = status
+        }
+
+        const comment = await db.findOne('Comment', {
+            where: whereClause,
+        })
+
+        return comment
     }
 
     async fetchMyAccountComments(
@@ -125,6 +142,17 @@ export class CommentService {
         ])
 
         return txHash
+    }
+
+    async updateCommentStatus(commentId: string, status: number, db: DB) {
+        await db.update('Comment', {
+            where: {
+                commentId,
+            },
+            update: {
+                status,
+            },
+        })
     }
 }
 

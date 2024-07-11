@@ -1,3 +1,4 @@
+import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
@@ -8,6 +9,7 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import ActionBtn from '../ActionBtn'
 import PostFooter from './PostFooter'
 
 export default function Post({
@@ -122,13 +124,24 @@ export default function Post({
         setIsAction(voteState.finalAction)
     }, [voteState])
 
+    const actionItems = [
+        {
+            label: '檢舉留言',
+            icon: <BanIcon />,
+            onClick: () => {},
+        },
+    ]
+
     const postInfo = (
         <div className="space-y-3">
-            <header className="flex items-center gap-4">
-                <Avatar name={epochKey ?? nanoid()} />
-                <span className="text-xs font-medium tracking-wide text-black/80">
-                    {subtitle}
-                </span>
+            <header className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Avatar name={epochKey ?? nanoid()} />
+                    <span className="text-xs font-medium tracking-wide text-black/80">
+                        {subtitle}
+                    </span>
+                </div>
+                <ActionBtn items={actionItems} />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (

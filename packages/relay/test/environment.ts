@@ -1,28 +1,28 @@
+import { deployApp } from '@unirep-app/contracts/scripts/utils/deployUnirepSocialTw'
+import { SQLiteConnector } from 'anondb/node.js'
+import express from 'express'
+import fs from 'fs'
 import { ethers } from 'hardhat'
 import path from 'path'
-import fs from 'fs'
-import express from 'express'
-import { SQLiteConnector } from 'anondb/node.js'
-import { deployApp } from '@unirep-app/contracts/scripts/utils'
 
 // libraries
-import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import prover from '../src/services/utils/Prover'
-import schema from '../src/db/schema'
-import TransactionManager from '../src/services/utils/TransactionManager'
+import { Synchronizer } from '@unirep/core'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
+import schema from '../src/db/schema'
+import { postService } from '../src/services/PostService'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import prover from '../src/services/utils/Prover'
 import {
     SocketManager,
     socketManager,
 } from '../src/services/utils/SocketManager'
-import { postService } from '../src/services/PostService'
-import { Synchronizer } from '@unirep/core'
+import TransactionManager from '../src/services/utils/TransactionManager'
 
-import chaiHttp from 'chai-http'
+import { Helia } from '@helia/interface'
 import chai from 'chai'
 import * as chaiAsPromise from 'chai-as-promised'
-import { Helia } from '@helia/interface'
+import chaiHttp from 'chai-http'
 
 __dirname = path.join(__dirname, '..', 'src')
 

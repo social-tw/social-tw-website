@@ -1,27 +1,24 @@
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
 import { DB } from 'anondb'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 
 import { UserState } from '@unirep/core'
-import { deployContracts, startServer, stopServer } from './environment'
 import { stringifyBigInts } from '@unirep/utils'
+import { deployContracts, startServer, stopServer } from './environment'
 
+import { io } from 'socket.io-client'
+import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { EventType, VoteAction, VoteMsg } from '../src/types'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { signUp } from './utils/signUp'
 import { post } from './utils/post'
-import { VoteAction } from '../src/types'
-import { randomData } from './utils/genProof'
-import { PostService } from '../src/services/PostService'
-import { io } from 'socket.io-client'
-import { EventType, VoteMsg } from '../src/types/SocketTypes'
-import { genEpochKeyLiteProof } from '@unirep-app/contracts/test/utils'
+import { signUp } from './utils/signUp'
 
 describe('POST /vote', function () {
     let socketClient: any
     let snapshot: any
-    let anondb: DB
+    let db: DB
     let express: ChaiHttp.Agent
     let userStateFactory: UserStateFactory
     let userState: UserState
@@ -37,13 +34,19 @@ describe('POST /vote', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, chaiServer, synchronizer, postService } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            chaiServer,
+            synchronizer,
+            postService,
+        } = await startServer(unirep, app)
 
         // start socket client
         socketClient = io('http://localhost:3000')
 
-        anondb = db
+        db = _db
         express = chaiServer
         sync = synchronizer
         pService = postService
@@ -82,7 +85,7 @@ describe('POST /vote', function () {
             )
         )
         await sync.waitForSync()
-        await pService.updateOrder(anondb)
+        await pService.updateOrder(db)
         // get the post ids
         const posts = await express.get('/api/post?page=1').then((res) => {
             expect(res).to.have.status(200)
@@ -123,7 +126,7 @@ describe('POST /vote', function () {
     }
 
     async function verifyPostVote(postId, expectedUpCount, expectedDownCount) {
-        const post = await anondb.findOne('Post', {
+        const post = await db.findOne('Post', {
             where: { postId: postId },
         })
 
@@ -286,36 +289,6 @@ describe('POST /vote', function () {
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
-    })
-
-    it('should vote failed with wrong epoch', async function () {
-        // generating a proof with wrong epoch
-        const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
-        const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
-        const leafIndex = await userState.latestStateTreeLeafIndex(
-            epoch,
-            attesterId
-        )
-        const id = userState.id
-        const data = randomData()
-        const epochKeyProof = await genEpochKeyLiteProof({
-            id,
-            epoch: wrongEpoch,
-            nonce: 0,
-            chainId,
-            attesterId,
-        })
-
-        // upvote with the wrong epoch
-        const upvoteResponse = await voteForPost(
-            otherPostId,
-            VoteAction.UPVOTE,
-            epochKeyProof
-        )
-        expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Invalid epoch')
     })
 
     it('should vote failed with wrong proof', async function () {

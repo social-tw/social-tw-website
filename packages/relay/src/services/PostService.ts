@@ -1,17 +1,17 @@
 import { DB } from 'anondb'
+import { PostgresConnector, SQLiteConnector } from 'anondb/node'
+import { Helia } from 'helia'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     DAY_DIFF_STAEMENT,
     DB_PATH,
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import { Helia } from 'helia'
-import { PublicSignals, Groth16Proof } from 'snarkjs'
-import ProofHelper from './utils/ProofHelper'
 import { Post } from '../types/Post'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
-import { PostgresConnector, SQLiteConnector } from 'anondb/node'
+import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
@@ -251,12 +251,21 @@ export class PostService {
         return txHash
     }
 
-    async fetchSinglePost(id: string, db: DB): Promise<Post | null> {
+    async fetchSinglePost(
+        postId: string,
+        db: DB,
+        status?: number
+    ): Promise<Post | null> {
+        const whereClause = {
+            postId,
+        }
+
+        if (status) {
+            whereClause['status'] = status
+        }
+
         const post = await db.findOne('Post', {
-            where: {
-                postId: id,
-                status: 1,
-            },
+            where: whereClause,
         })
 
         // Check if the post exists
@@ -267,10 +276,21 @@ export class PostService {
         // Fetch the votes for the post
         // Add the vote data to the post object
         post.votes = await db.findMany('Vote', {
-            where: { postId: id },
+            where: { postId },
         })
 
         return post
+    }
+
+    async updatePostStatus(
+        postId: string,
+        status: number,
+        db: DB
+    ): Promise<void> {
+        await db.update('Post', {
+            where: { postId },
+            update: { status },
+        })
     }
 }
 

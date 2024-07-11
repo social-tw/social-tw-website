@@ -1,9 +1,10 @@
-import { ethers } from 'hardhat'
 import * as fs from 'fs'
+import { ethers } from 'hardhat'
 import * as path from 'path'
-import { deployApp } from './utils'
-import * as hardhat from 'hardhat'
+import { deployApp } from './utils/deployUnirepSocialTw'
+// import { deployApp } from './utils'
 import * as envfile from 'envfile'
+import * as hardhat from 'hardhat'
 
 const epochLength = 300
 
