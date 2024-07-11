@@ -120,12 +120,6 @@ export default function RichTextEditor({
         onError: _onError,
     }
 
-    useEffect(() => {
-        if (failedPostContent) {
-            onValueChange?.(failedPostContent)
-        }
-    }, [failedPostContent])
-
     return (
         <div className={classes?.root}>
             <LexicalComposer
