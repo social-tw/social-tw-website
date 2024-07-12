@@ -49,31 +49,34 @@ export const genNullifier = (hashUserId: string, reportId: number | bigint) => {
 
 export const genReportNegRepCircuitInput = (config: {
     reportedEpochKey: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint
     reportedEpoch: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
+    type: number | bigint
 }) => {
     const {
         reportedEpochKey,
-        hashUserId,
+        identitySecret,
         reportedEpoch,
         currentEpoch,
         currentNonce,
         chainId,
         attesterId,
+        type,
     } = Object.assign(config)
 
     const circuitInputs = {
         reported_epoch_key: reportedEpochKey,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         reported_epoch: reportedEpoch,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
+        type,
     }
     return utils.stringifyBigInts(circuitInputs)
 }

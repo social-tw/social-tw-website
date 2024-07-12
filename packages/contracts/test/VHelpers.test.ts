@@ -53,7 +53,7 @@ describe('Verifier Helper Manager Test', function () {
     describe('report negative reputation proof verification tests', async function () {
         it('should verify with valid proof and public signal', async function () {
             chainId = 31337
-            const hashUserId = user.hashUserId
+            const identitySecret = user.id.secret
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
@@ -63,20 +63,22 @@ describe('Verifier Helper Manager Test', function () {
             const reportedEpoch = 5
             const reportedNonce = 2
             const reportedEpochKey = genEpochKey(
-                BigInt(hashUserId),
+                identitySecret,
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
                 chainId
             )
+            const type = 0
             const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
                 reportedEpochKey,
-                hashUserId,
+                identitySecret,
                 reportedEpoch,
                 currentEpoch,
                 currentNonce,
                 chainId,
                 attesterId,
+                type,
             })
 
             // generating proof for report negative reputation proof
@@ -96,7 +98,7 @@ describe('Verifier Helper Manager Test', function () {
 
             expect(signal.epochKey.toString()).to.be.equal(
                 genEpochKey(
-                    BigInt(hashUserId),
+                    identitySecret,
                     attesterId,
                     currentEpoch,
                     currentNonce,
@@ -115,7 +117,7 @@ describe('Verifier Helper Manager Test', function () {
 
         it('should revert with invalid proof', async function () {
             chainId = 31337
-            const hashUserId = user.hashUserId
+            const identitySecret = user.id.secret
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
@@ -125,20 +127,22 @@ describe('Verifier Helper Manager Test', function () {
             const reportedEpoch = 5
             const reportedNonce = 2
             const reportedEpochKey = genEpochKey(
-                BigInt(hashUserId),
+                identitySecret,
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
                 chainId
             )
+            const type = 0
             const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
                 reportedEpochKey,
-                hashUserId,
+                identitySecret,
                 reportedEpoch,
                 currentEpoch,
                 currentNonce,
                 chainId,
                 attesterId,
+                type,
             })
 
             // generating proof for report negative reputation proof

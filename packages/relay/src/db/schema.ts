@@ -189,6 +189,27 @@ const _schema = [
             },
         ],
     },
+    {
+        name: 'ReputationHistory',
+        primaryKey: 'transactionHash',
+        rows: [
+            ['transactionHash', 'String'],
+            ['epoch', 'Int'],
+            ['epochKey', 'String'],
+            ['score', 'Int'],
+            ['type', 'Int'],
+            ['reportId', 'String'],
+            {
+                name: 'report',
+                type: 'Object',
+                relation: {
+                    localField: 'reportId',
+                    foreignField: 'reportId',
+                    foreignTable: 'ReportHistory',
+                },
+            },
+        ],
+    },
 ]
 
 export default _schema

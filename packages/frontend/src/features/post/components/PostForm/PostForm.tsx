@@ -1,7 +1,14 @@
-import { clsx } from 'clsx'
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
+import {
+    removeAction,
+    useActionStore,
+    ActionType,
+    ActionStatus,
+} from '@/features/core'
 import { RichTextEditor } from '@/features/shared'
+import { clsx } from 'clsx'
+import { Controller, useForm } from 'react-hook-form'
+import { useEffect } from 'react'
 
 export interface PostFormValues {
     content: string
@@ -14,37 +21,59 @@ export default function PostForm({
 }: {
     onCancel?: () => void
     onSubmit?: (values: PostFormValues) => void
-    onSubmitCancel?: () => void
-    isSubmitCancellable?: boolean
-    isSubmitCancelled?: boolean
     disabled?: boolean
 }) {
-    const { handleSubmit, control, reset, formState } = useForm<PostFormValues>(
-        {
-            defaultValues: {
-                content: '',
-            },
+    const [searchParams, setSearchParams] = useSearchParams()
+    const failedPostId = searchParams.get('failedPostId')
+    const actions = useActionStore((state) => state.entities)
+
+    const { handleSubmit, control, reset, setValue } = useForm<PostFormValues>({
+        defaultValues: {
+            content: '',
         },
-    )
+    })
+    useEffect(() => {
+        if (failedPostId) {
+            const failedPost = Object.values(actions).find(
+                (action) =>
+                    action.type === ActionType.Post &&
+                    action.status === ActionStatus.Failure &&
+                    action.id === failedPostId,
+            )
+            if (failedPost && 'content' in failedPost.data) {
+                setValue('content', failedPost.data.content)
+            }
+        }
+    }, [failedPostId, actions, setValue])
 
-    const { isSubmitSuccessful } = formState
-
-    const _onSubmit = handleSubmit((values) => {
+    const _onSubmit = handleSubmit(async (values) => {
         const cache = { ...values }
-        reset({ content: '' })
-        onSubmit(cache)
+        try {
+            onSubmit(cache)
+            reset({ content: '' })
+            if (failedPostId) {
+                removeAction(failedPostId)
+                setSearchParams({}, { replace: true })
+            }
+        } catch (error) {
+            console.error('Failed to submit post:', error)
+        }
     })
 
     const _onCancel = () => {
         reset({ content: '' })
+        if (failedPostId) {
+            setSearchParams({}, { replace: true })
+        }
         onCancel()
     }
 
-    useEffect(() => {
-        if (isSubmitSuccessful) {
-            reset({ content: '' })
+    const handleClearFailedPost = () => {
+        if (failedPostId) {
+            removeAction(failedPostId)
+            setSearchParams({}, { replace: true })
         }
-    }, [isSubmitSuccessful, reset])
+    }
 
     return (
         <>
@@ -87,6 +116,7 @@ export default function PostForm({
                                         'min-h-[3rem] overflow-auto text-white text-xl tracking-wide',
                                     placeholder: 'text-gray-300 text-xl',
                                 }}
+                                onClearFailedPost={handleClearFailedPost}
                             />
                         )}
                     />

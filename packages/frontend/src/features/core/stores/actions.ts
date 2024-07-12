@@ -215,6 +215,15 @@ export function failActionById(
     })
 }
 
+export function removeAction(id: string) {
+    useActionStore.setState((state) => {
+        delete state.entities[id]
+        const index = state.list.findIndex((itemId) => itemId === id)
+        if (index !== -1) state.list.splice(index, 1)
+        if (state.latestId === id) state.latestId = undefined
+    })
+}
+
 export function removeActionById(id: string) {
     useActionStore.setState((state) => {
         delete state.entities[id]

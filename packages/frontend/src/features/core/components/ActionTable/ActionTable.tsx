@@ -12,7 +12,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function getActionTypeLabel(type: ActionType) {
     const typeLabels = {
@@ -30,7 +30,7 @@ function getActionLink(action: Action) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
-            return '/'
+            return `/?failedPostId=${action.id}`
         }
     }
     if (
@@ -55,22 +55,38 @@ function getActionStatusLabel(status: ActionStatus) {
     return actionStatusLabels[status]
 }
 
-function ActionLink({ action }: { action: Action }) {
+function ActionLink({
+    action,
+    onClose,
+}: {
+    action: Action
+    onClose: () => void
+}) {
     if (
         action.type === ActionType.ReportComment ||
         action.type === ActionType.ReportPost
     ) {
         return <span className="text-white">-</span>
     }
-
+    const navigate = useNavigate()
     const link = getActionLink(action)
 
     if (action.status === ActionStatus.Pending) {
         return <span className="text-white">請稍候</span>
     }
 
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault()
+        onClose()
+        navigate(link)
+    }
+
     return (
-        <Link className="underline text-secondary" to={link}>
+        <Link
+            className="underline text-secondary"
+            to={link}
+            onClick={handleClick}
+        >
             前往查看
         </Link>
     )
@@ -78,7 +94,7 @@ function ActionLink({ action }: { action: Action }) {
 
 const columnHelper = createColumnHelper<Action>()
 
-const columns = [
+const columns = (onClose: () => void) => [
     columnHelper.accessor('submittedAt', {
         header: 'Time',
         cell: (info) => dayjs(info.getValue()).format('HH:mm:ss'),
@@ -94,23 +110,25 @@ const columns = [
     columnHelper.display({
         id: 'link',
         header: 'Link',
-        cell: (props) => <ActionLink action={props.row.original} />,
+        cell: (props) => (
+            <ActionLink action={props.row.original} onClose={onClose} />
+        ),
     }),
 ]
 
-export default function ActionTable() {
+export default function ActionTable({ onClose }: { onClose: () => void }) {
     const data = useActionStore(actionsSelector)
 
     const table = useReactTable({
         data,
-        columns,
+        columns: columns(onClose),
         getCoreRowModel: getCoreRowModel(),
     })
 
     return (
-        <div className="w-full overflow-auto">
+        <div className="h-64 overflow-y-auto">
             <table className="w-full table-auto">
-                <thead>
+                <thead className="sticky top-0 bg-black/90">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
@@ -146,22 +164,6 @@ export default function ActionTable() {
                         </tr>
                     ))}
                 </tbody>
-                <tfoot>
-                    {table.getFooterGroups().map((footerGroup) => (
-                        <tr key={footerGroup.id}>
-                            {footerGroup.headers.map((header) => (
-                                <th key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.footer,
-                                              header.getContext(),
-                                          )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </tfoot>
             </table>
         </div>
     )
