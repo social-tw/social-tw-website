@@ -1,6 +1,7 @@
 import { DB } from 'anondb/node'
-import { postData } from '../mocks/posts'
 import { commentTemplate } from '../mocks/comment'
+import { postData } from '../mocks/posts'
+import { reputationData } from '../mocks/reputations'
 import { voteTemplate } from '../mocks/vote'
 
 export const getRandom = () => {
@@ -110,5 +111,11 @@ export const insertVotes = async (db: DB) => {
 
     for (let i = 0; i < votes.length; i++) {
         await db.create('Vote', votes[i])
+    }
+}
+
+export const insertReputationHistory = async (db: DB) => {
+    for (let i = 0; i < reputationData.length; i++) {
+        await db.create('ReputationHistory', reputationData[i])
     }
 }

@@ -3,6 +3,12 @@ import { ActionType, addAction } from '@/features/core'
 import ActionTable from './ActionTable'
 import * as router from 'react-router'
 import { TestWrapper } from '@/utils/test-helpers/wrapper'
+import { useState } from 'react'
+
+const ActionTableWrapper = () => {
+    const [, setIsOpen] = useState(false)
+    return <ActionTable onClose={() => setIsOpen(false)} />
+}
 
 describe('ActionTable', () => {
     const mockedUsedNavigate = jest.fn()
@@ -13,7 +19,7 @@ describe('ActionTable', () => {
     it('should display action list', () => {
         render(
             <TestWrapper>
-                <ActionTable />
+                <ActionTableWrapper />
             </TestWrapper>,
         )
 
