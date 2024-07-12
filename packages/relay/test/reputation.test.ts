@@ -65,7 +65,7 @@ describe('Reputation', () => {
     })
 
     it('should be able to get reputation history by fromEpoch and toEpoch', async () => {
-        //TODO: Update here, use actual claim feature to insert reputation history 
+        //TODO: Update here, use actual claim feature to insert reputation history
         await insertReputationHistory(db)
 
         const res = await express.get(
