@@ -526,6 +526,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier: agreeNullifier,
@@ -559,6 +560,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier: disagreeNullifier,
@@ -589,6 +591,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${notExistReportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier: nullifier,
@@ -613,6 +616,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier,
@@ -655,6 +659,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier: agreeNullifier,
@@ -679,6 +684,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier,
@@ -705,6 +711,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     nullifier,

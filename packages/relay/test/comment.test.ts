@@ -35,13 +35,8 @@ describe('COMMENT /comment', function () {
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const {
-            db,
-            prover,
-            provider,
-            synchronizer,
-            chaiServer,
-        } = await startServer(unirep, app)
+        const { db, prover, provider, synchronizer, chaiServer } =
+            await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
 

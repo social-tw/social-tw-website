@@ -28,7 +28,7 @@ export default (
         '/api/report',
         errorHandler(checkReputation),
         errorHandler(async (req: Request, res: Response) => {
-            if (!res.locals.isPositiveReputation) {
+            if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
             }
 
@@ -76,7 +76,7 @@ export default (
         '/api/report/:id',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
-            if (!res.locals.isPositiveReputation) {
+            if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
             }
 

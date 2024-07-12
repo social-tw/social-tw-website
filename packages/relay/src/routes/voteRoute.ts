@@ -22,7 +22,7 @@ export default (
         '/api/vote',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
-            if (!res.locals.isPositiveReputation) {
+            if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
             }
 

@@ -13,7 +13,7 @@ import {
     InvalidParametersError,
     InvalidPostIdError,
     NegativeReputationUserError,
-    PostNotExistError
+    PostNotExistError,
 } from '../types'
 
 export default (
@@ -45,7 +45,7 @@ export default (
         '/api/post',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
-            if (!res.locals.isPositiveReputation) {
+            if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
             }
 

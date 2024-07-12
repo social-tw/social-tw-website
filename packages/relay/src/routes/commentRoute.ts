@@ -48,7 +48,7 @@ export default (
         .post(
             errorHandler(checkReputation),
             errorHandler(async (req, res) => {
-                if (!res.locals.isPositiveReputation) {
+                if (res.locals.isNegativeReputation) {
                     throw NegativeReputationUserError
                 }
 
@@ -81,7 +81,7 @@ export default (
         .delete(
             errorHandler(checkReputation),
             errorHandler(async (req, res) => {
-                if (!res.locals.isPositiveReputation) {
+                if (res.locals.isNegativeReputation) {
                     throw NegativeReputationUserError
                 }
 
