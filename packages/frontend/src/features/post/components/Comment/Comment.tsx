@@ -4,6 +4,7 @@ import formatDate from '@/utils/helpers/formatDate'
 import clsx from 'clsx'
 import { nanoid } from 'nanoid'
 import { CommentActionMenu } from './CommentActionMenu'
+import { CommentReportedMask } from './CommentReportedMask'
 
 interface CommentProps {
     postId: string
@@ -30,6 +31,7 @@ export default function Comment({
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
+    const isReported = false
     return (
         <>
             <article
@@ -37,8 +39,10 @@ export default function Comment({
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30',
+                    'relative',
                 )}
             >
+                {isReported && <CommentReportedMask />}
                 <header className="grid grid-cols-[1fr_auto] items-center">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-5">
