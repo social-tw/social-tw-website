@@ -131,8 +131,6 @@ describe('Claim Report Negative Reputation Test', function () {
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
         expect(currentEpoch).to.be.equal(5)
 
-        const circuit = 'reportNegRepProof'
-
         const type = 0
         const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
@@ -175,6 +173,7 @@ describe('Claim Report Negative Reputation Test', function () {
             )
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
+
     it('should succeed with valid input with type 1 (punishing reporter)', async () => {
         const reporterState = await genUserState(reporter.id, app)
         const identitySecret = reporter.id.secret
@@ -186,8 +185,6 @@ describe('Claim Report Negative Reputation Test', function () {
         const currentNonce = 0
         const currentEpoch = await reporterState.sync.loadCurrentEpoch()
         expect(currentEpoch).to.be.equal(10)
-
-        const circuit = 'reportNegRepProof'
 
         const type = 1
         const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
@@ -221,6 +218,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         reporterState.stop()
     })
+
     it('should revert with used proof (for reporter punishment)', async () => {
         await expect(
             app.claimReportPosRep(
@@ -231,6 +229,7 @@ describe('Claim Report Negative Reputation Test', function () {
             )
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
+
     it('should revert with wrong proof', async () => {
         const posterState = await genUserState(poster.id, app)
         const identitySecret = poster.id.secret
@@ -242,8 +241,6 @@ describe('Claim Report Negative Reputation Test', function () {
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
         expect(currentEpoch).to.be.equal(15)
-
-        const circuit = 'reportNegRepProof'
 
         const type = 0
         const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
@@ -275,6 +272,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         posterState.stop()
     })
+
     it('should revert with wrong epoch', async () => {
         const posterState = await genUserState(poster.id, app)
         const identitySecret = poster.id.secret
@@ -285,8 +283,6 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = BigInt(44444) // correct epoch = 20
-
-        const circuit = 'reportNegRepProof'
 
         const type = 0
         const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
@@ -332,8 +328,6 @@ describe('Claim Report Negative Reputation Test', function () {
         expect(currentEpoch).to.be.equal(25)
         const wrongAttester = BigInt(444444)
 
-        const circuit = 'reportNegRepProof'
-
         const type = 0
         const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
             reportedEpochKey,
@@ -346,7 +340,7 @@ describe('Claim Report Negative Reputation Test', function () {
             type,
         })
 
-        // this will be
+        // this will not generate a proof since the attesterId would change the epochkey
         try {
             await genProofAndVerify(circuit, reportNegRepCircuitInputs)
         } catch (e) {
