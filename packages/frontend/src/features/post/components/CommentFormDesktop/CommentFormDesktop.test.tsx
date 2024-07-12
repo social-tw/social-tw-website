@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@/utils/test-helpers/render'
 import userEvent from '@testing-library/user-event'
 import CommentFormDesktop from './CommentFormDesktop'
+import { waitFor } from '@testing-library/react'
 
 describe('CommentFormDesktop', () => {
     it('renders when open', async () => {
