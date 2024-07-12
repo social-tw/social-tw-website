@@ -1,9 +1,9 @@
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { deployContracts, startServer, stopServer } from './environment'
 
-import ActionCountManager from '../src/services/utils/ActionCountManager'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import ActionCountManager from '../src/services/utils/ActionCountManager'
 
 describe('My Account Page', function () {
     let snapshot: any
