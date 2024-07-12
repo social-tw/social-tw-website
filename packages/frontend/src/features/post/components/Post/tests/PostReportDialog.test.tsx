@@ -1,38 +1,29 @@
-import { useReportForm } from '@/features/post/hooks/useReportForm'
+import { useReportPost } from '@/features/post/hooks/useReportPost/useReportPost'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { render, screen } from '@testing-library/react'
 import { PostReportDialog } from '../PostReportDialog'
 
-jest.mock('../../../hooks/useReportForm')
+jest.mock('../../../hooks/useReportPost/useReportPost')
 jest.mock('../../ReportForm/ReportFormCategories', () => ({
     __esModule: true,
     ReportFormCategories: () => <div data-testid="report-form-categories" />,
 }))
 
 const mockValues = {
-    handleSubmit: jest.fn(),
-    register: jest.fn(),
-    errors: {},
-    setValue: jest.fn(),
-    getValues: jest.fn(),
-    trigger: jest.fn(),
-    isSubmitFailure: false,
-    isSubmitting: false,
-    isSubmitSuccess: false,
-    isNotSubmitted: true,
-    resetToCurrentState: jest.fn(),
-    resetAll: jest.fn(),
-    updateStateToFailure: jest.fn(),
-    updateStateToSuccess: jest.fn(),
-    updateStateToSubmitting: jest.fn(),
+    isPending: false,
+    isIdle: false,
+    isSuccess: false,
+    isError: false,
+    reset: jest.fn(),
+    reportPost: jest.fn(),
 }
 
 describe('PostReportDialog', () => {
-    it('should render isNotSubmitted content', () => {
-        const mockUseReportForm = useReportForm as jest.MockedFunction<
-            typeof useReportForm
+    it('should render isIdle content', () => {
+        const mockUseReportPost = useReportPost as jest.MockedFunction<
+            typeof useReportPost
         >
-        mockUseReportForm.mockReturnValue({ ...mockValues })
+        mockUseReportPost.mockReturnValue({ ...mockValues, isIdle: true })
         render(
             <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
@@ -44,15 +35,11 @@ describe('PostReportDialog', () => {
         ).toBeInTheDocument()
     })
 
-    it('should render isSubmitting content', () => {
-        const mockUseReportForm = useReportForm as jest.MockedFunction<
-            typeof useReportForm
+    it('should render isPending content', () => {
+        const mockUseReportPost = useReportPost as jest.MockedFunction<
+            typeof useReportPost
         >
-        mockUseReportForm.mockReturnValue({
-            ...mockValues,
-            isNotSubmitted: false,
-            isSubmitting: true,
-        })
+        mockUseReportPost.mockReturnValue({ ...mockValues, isPending: true })
         render(
             <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
@@ -60,15 +47,11 @@ describe('PostReportDialog', () => {
         expect(screen.getByText('您的檢舉報告正在送出中')).toBeInTheDocument()
     })
 
-    it('should render isSubmitSuccess content', () => {
-        const mockUseReportForm = useReportForm as jest.MockedFunction<
-            typeof useReportForm
+    it('should render isSuccess content', () => {
+        const mockUseReportPost = useReportPost as jest.MockedFunction<
+            typeof useReportPost
         >
-        mockUseReportForm.mockReturnValue({
-            ...mockValues,
-            isNotSubmitted: false,
-            isSubmitSuccess: true,
-        })
+        mockUseReportPost.mockReturnValue({ ...mockValues, isSuccess: true })
         render(
             <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
@@ -76,15 +59,11 @@ describe('PostReportDialog', () => {
         expect(screen.getByText('您的檢舉報告傳送成功！')).toBeInTheDocument()
     })
 
-    it('should render isSubmitFailure content', () => {
-        const mockUseReportForm = useReportForm as jest.MockedFunction<
-            typeof useReportForm
+    it('should render isError content', () => {
+        const mockUseReportPost = useReportPost as jest.MockedFunction<
+            typeof useReportPost
         >
-        mockUseReportForm.mockReturnValue({
-            ...mockValues,
-            isNotSubmitted: false,
-            isSubmitFailure: true,
-        })
+        mockUseReportPost.mockReturnValue({ ...mockValues, isError: true })
         render(
             <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },

@@ -1,7 +1,6 @@
 import { Dialog } from '@/features/shared'
 import { ReportCategory } from '@/types/Report'
-import { FieldValues, UseFormHandleSubmit } from 'react-hook-form'
-import { useReportForm } from '../../hooks/useReportForm'
+import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
     REGISTER_ID_DESC,
@@ -35,36 +34,49 @@ export function PostReportDialog({
     onClose,
 }: PostReportDialogProps) {
     const {
-        handleSubmit,
         register,
-        errors,
+        handleSubmit,
         setValue,
         getValues,
         trigger,
-        isSubmitFailure,
-        isSubmitting,
-        isSubmitSuccess,
-        isNotSubmitted,
-        resetToCurrentState,
-        resetAll,
-        updateStateToFailure,
-        updateStateToSuccess,
-        updateStateToSubmitting,
-    } = useReportForm(defaultValues)
+        reset: resetForm,
+        formState: { errors },
+    } = useForm<FieldValues>({ defaultValues })
 
-    const onSubmit = useSubmitReportFlow({
-        postId,
-        handleSubmit,
-        updateStateToSubmitting,
-        updateStateToFailure,
-        updateStateToSuccess,
+    const {
+        isIdle,
+        isPending,
+        isError,
+        isSuccess,
+        reportPost,
+        reset: resetState,
+    } = useReportPost()
+
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            await reportPost({
+                postId,
+                category: ReportCategory.SPAM,
+                reason: data[`${REGISTER_ID_DESC}`],
+            })
+        } catch (error) {}
     })
 
-    const onCloseSuccess = useCloseSuccessDialogFlow({ resetAll, onClose })
+    const onCloseFailure = useCloseFailureDialogFlow({
+        resetForm,
+        resetState,
+        getValues,
+    })
+
+    const onCloseSuccess = useCloseSuccessDialogFlow({
+        resetForm,
+        resetState,
+        onClose,
+    })
 
     return (
         <>
-            {isNotSubmitted && (
+            {isIdle && (
                 <Dialog isOpen={isOpen} onClose={onClose}>
                     <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
@@ -95,56 +107,40 @@ export function PostReportDialog({
                     </ReportFormCtn>
                 </Dialog>
             )}
-            {isSubmitting && <ReportFormSubmitting />}
-            {isSubmitFailure && (
-                <ReportFormSubmitFailure onClose={resetToCurrentState} />
-            )}
-            {isSubmitSuccess && (
-                <ReportFormSubmitSuccess onClose={onCloseSuccess} />
-            )}
+            {isPending && <ReportFormSubmitting />}
+            {isError && <ReportFormSubmitFailure onClose={onCloseFailure} />}
+            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseSuccess} />}
         </>
     )
 }
 
-function useSubmitReportFlow({
-    postId,
-    handleSubmit,
-    updateStateToSubmitting,
-    updateStateToFailure,
-    updateStateToSuccess,
-}: {
-    postId: string
-    handleSubmit: UseFormHandleSubmit<FieldValues>
-    updateStateToSubmitting: () => void
-    updateStateToFailure: () => void
-    updateStateToSuccess: () => void
-}) {
-    const { reportPost } = useReportPost()
-    const reportFlow = async (data: FieldValues) => {
-        try {
-            updateStateToSubmitting()
-            await reportPost({
-                postId,
-                category: ReportCategory.SPAM, // TODO: should use real relay data report category
-                reason: data[`${REGISTER_ID_DESC}`],
-            })
-            updateStateToSuccess()
-        } catch (e) {
-            updateStateToFailure()
-        }
-    }
-    return handleSubmit(reportFlow)
-}
-
 function useCloseSuccessDialogFlow({
-    resetAll,
+    resetForm,
+    resetState,
     onClose,
 }: {
-    resetAll: () => void
+    resetForm: () => void
+    resetState: () => void
     onClose: () => void
 }) {
     return () => {
-        resetAll()
+        resetForm()
+        resetState()
         onClose()
+    }
+}
+
+function useCloseFailureDialogFlow({
+    resetForm,
+    resetState,
+    getValues,
+}: {
+    resetForm: (values: FieldValues) => void
+    resetState: () => void
+    getValues: UseFormGetValues<FieldValues>
+}) {
+    return () => {
+        resetForm(getValues())
+        resetState()
     }
 }

@@ -18,7 +18,14 @@ export function useReportPost() {
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
 
-    const { mutateAsync: reportPost } = useMutation({
+    const {
+        mutateAsync: reportPost,
+        isIdle,
+        isPending,
+        isSuccess,
+        isError,
+        reset,
+    } = useMutation({
         mutationKey: [MutationKeys.ReportPost],
         mutationFn: async ({
             postId,
@@ -79,5 +86,5 @@ export function useReportPost() {
         },
     })
 
-    return { reportPost }
+    return { reportPost, isIdle, isPending, isSuccess, isError, reset }
 }
