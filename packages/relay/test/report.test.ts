@@ -4,6 +4,7 @@ import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { commentService } from '../src/services/CommentService'
 import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
@@ -22,6 +23,7 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'
 import { genReportNullifier } from './utils/genNullifier'
+import { ReputationType, genProveReputationProof } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
@@ -37,6 +39,7 @@ describe('POST /api/report', function () {
     let agreeNullifier: bigint
     let disagreeNullifier: bigint
     const WRONGE_ADJUCATE_VALUE = 'wrong'
+    let authentication: string
 
     let epochKeyLitePublicSignals
     let epochKeyLiteProof
@@ -82,11 +85,31 @@ describe('POST /api/report', function () {
 
         expect(hasSignedUp).equal(true)
 
-        await post(chaiServer, userState, nonce).then(async (res) => {
-            await ethers.provider.waitForTransaction(res.txHash)
-            await sync.waitForSync()
-            nonce++
-        })
+        const chainId = await unirep.chainid()
+
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
+
+        await post(chaiServer, userState, authentication, nonce).then(
+            async (res) => {
+                await ethers.provider.waitForTransaction(res.txHash)
+                await sync.waitForSync()
+                nonce++
+            }
+        )
 
         await chaiServer.get('/api/post/0').then((res) => {
             expect(res).to.have.status(200)
@@ -94,11 +117,13 @@ describe('POST /api/report', function () {
             expect(curPost.status).to.equal(1)
         })
 
-        await comment(chaiServer, userState, '0', nonce).then(async (res) => {
-            await ethers.provider.waitForTransaction(res.txHash)
-            await sync.waitForSync()
-            nonce++
-        })
+        await comment(chaiServer, userState, authentication, '0', nonce).then(
+            async (res) => {
+                await ethers.provider.waitForTransaction(res.txHash)
+                await sync.waitForSync()
+                nonce++
+            }
+        )
 
         const resComment = await commentService.fetchSingleComment(
             '0',
@@ -128,6 +153,7 @@ describe('POST /api/report', function () {
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
@@ -167,6 +193,7 @@ describe('POST /api/report', function () {
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
@@ -196,6 +223,7 @@ describe('POST /api/report', function () {
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
@@ -233,6 +261,7 @@ describe('POST /api/report', function () {
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
@@ -262,6 +291,7 @@ describe('POST /api/report', function () {
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
@@ -605,6 +635,7 @@ describe('POST /api/report', function () {
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send({
                 adjudicateValue: AdjudicateValue.DISAGREE,
             })

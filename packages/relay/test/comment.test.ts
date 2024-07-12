@@ -4,6 +4,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
 import { APP_ABI as abi } from '../src/config'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
@@ -11,10 +12,14 @@ import { Post } from '../src/types'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { genEpochKeyProof, randomData } from './utils/genProof'
+import {
+    ReputationType,
+    genEpochKeyProof,
+    genProveReputationProof,
+    randomData,
+} from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
-import { DB } from 'anondb'
 
 describe('COMMENT /comment', function () {
     let snapshot: any
@@ -23,7 +28,7 @@ describe('COMMENT /comment', function () {
     let sync: UnirepSocialSynchronizer
     let chainId: number
     let testContent: String
-    let db: DB
+    let authentication: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -31,7 +36,7 @@ describe('COMMENT /comment', function () {
         const { unirep, app } = await deployContracts(100000)
         // start server
         const {
-            db: _db,
+            db,
             prover,
             provider,
             synchronizer,
@@ -39,7 +44,7 @@ describe('COMMENT /comment', function () {
         } = await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
-        db = _db
+
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -65,7 +70,23 @@ describe('COMMENT /comment', function () {
 
         expect(hasSignedUp).equal(true)
 
-        const result = await post(chaiServer, userState)
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
+
+        const result = await post(chaiServer, userState, authentication)
         await ethers.provider.waitForTransaction(result.txHash)
         await sync.waitForSync()
 
@@ -108,6 +129,7 @@ describe('COMMENT /comment', function () {
         const txHash = await express
             .post('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -178,6 +200,7 @@ describe('COMMENT /comment', function () {
         await express
             .post('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -219,6 +242,7 @@ describe('COMMENT /comment', function () {
         await express
             .post('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -268,6 +292,7 @@ describe('COMMENT /comment', function () {
         await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,
@@ -291,6 +316,7 @@ describe('COMMENT /comment', function () {
         const txHash = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,

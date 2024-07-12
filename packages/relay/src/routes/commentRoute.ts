@@ -46,8 +46,7 @@ export default (
 
         .post(
             errorHandler(checkReputation),
-            errorHandler(
-                async (req, res) => {
+            errorHandler(async (req, res) => {
                 const { content, postId, publicSignals, proof } = req.body
 
                 if (!content) throw EmptyCommentError

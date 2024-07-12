@@ -152,7 +152,7 @@ export const InvalidReputationProofError = new InternalError(
     400
 )
 
-export const NonNegativeReputationUserError = new InternalError(
-    'Non negative reputation user',
+export const NegativeReputationUserError = new InternalError(
+    'Negative reputation user',
     400
 )
