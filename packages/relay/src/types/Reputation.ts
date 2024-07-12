@@ -1,10 +1,11 @@
 import { ReportHistory } from './Report'
 
 export enum ReputationType {
-    SUCCESSFULL_REPORTER,
-    FAILED_REPORTER,
-    RESPONDENT,
-    ADJUDICATOR,
+    REPORT_SUCCESS,
+    REPORT_FAILURE,
+    BE_REPORTED,
+    ADJUDICATE,
+    CHECK_IN,
 }
 
 export interface ReputationHistory {
