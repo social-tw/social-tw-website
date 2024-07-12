@@ -33,7 +33,7 @@ const checkSignals = (signals, proof) => {
     expect(signals.data.toString()).equal(proof.data.toString())
 }
 
-describe('Claim Report Positive Reputation Test', function () {
+describe('Claim Daily Login Reputation Test', function () {
     this.timeout(1000000)
     let unirep: Unirep
     let app: UnirepApp

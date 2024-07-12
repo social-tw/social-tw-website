@@ -84,11 +84,7 @@
                 "type": "uint256"
             }
         ],
-<<<<<<< HEAD
         "name": "ClaimNegRep",
-=======
-        "name": "ClaimDailyLoginRep",
->>>>>>> e359672c (should claim daily login reputation done)
         "type": "event"
     },
     {
@@ -107,11 +103,7 @@
                 "type": "uint256"
             }
         ],
-<<<<<<< HEAD
         "name": "ClaimPosRep",
-=======
-        "name": "ClaimReportPosRep",
->>>>>>> e359672c (should claim daily login reputation done)
         "type": "event"
     },
     {
