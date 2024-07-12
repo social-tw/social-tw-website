@@ -163,6 +163,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         posterState.stop()
     })
+
     it('should revert with used proof (for poster punishment)', async () => {
         await expect(
             app.claimReportPosRep(
