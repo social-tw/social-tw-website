@@ -1,8 +1,7 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
-
 import { UserState } from '@unirep/core'
 import { DB } from 'anondb'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -66,6 +65,7 @@ describe('Reputation', () => {
     })
 
     it('should be able to get reputation history by fromEpoch and toEpoch', async () => {
+        //TODO: Update here, use actual claim feature to insert reputation history 
         await insertReputationHistory(db)
 
         const res = await express.get(
