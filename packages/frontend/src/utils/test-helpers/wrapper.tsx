@@ -1,6 +1,11 @@
 import { type ReactNode } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+interface TestWrapperProps {
+    children: ReactNode
+    initialEntries?: string[]
+}
 
 export function wrapper({ children }: { children: ReactNode }) {
     const queryClient = new QueryClient()
@@ -10,3 +15,14 @@ export function wrapper({ children }: { children: ReactNode }) {
         </QueryClientProvider>
     )
 }
+
+export const TestWrapper: React.FC<TestWrapperProps> = ({
+    children,
+    initialEntries = ['/'],
+}) => (
+    <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+            <Route path="*" element={children} />
+        </Routes>
+    </MemoryRouter>
+)

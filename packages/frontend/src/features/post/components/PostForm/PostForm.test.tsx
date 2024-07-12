@@ -1,5 +1,6 @@
 import { expect } from '@jest/globals'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import PostForm from './PostForm'
 
 jest.mock('@uidotdev/usehooks', () => ({
@@ -10,7 +11,11 @@ test('<PostForm /> should render and handle interactions', () => {
     const mockOnCancel = jest.fn()
     const mockOnSubmit = jest.fn()
 
-    render(<PostForm onCancel={mockOnCancel} onSubmit={mockOnSubmit} />)
+    render(
+        <MemoryRouter>
+            <PostForm onCancel={mockOnCancel} onSubmit={mockOnSubmit} />
+        </MemoryRouter>,
+    )
 
     // @ts-ignore
     expect(screen.getByTitle('cancel a post')).toBeInTheDocument()
