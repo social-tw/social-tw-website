@@ -57,8 +57,13 @@ export default function RichTextEditor({
     onFailedPostClear?: () => void
     onClearFailedPost?: () => void
 }) {
-    const [searchParams] = useSearchParams()
-    const failedPostId = searchParams.get('failedPostId')
+    let searchParams: URLSearchParams | null = null
+    try {
+        ;[searchParams] = useSearchParams()
+    } catch (e) {
+        console.warn('RichTextEditor is not within a Router context')
+    }
+    const failedPostId = searchParams?.get('failedPostId') || null
     const [localFailedPostContent, setLocalFailedPostContent] = useState<
         string | undefined
     >(undefined)
