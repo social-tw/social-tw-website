@@ -8,7 +8,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: 3,
-        type: ReputationType.SUCCESSFULL_REPORTER,
+        type: ReputationType.REPORT_SUCCESS,
         reportId: '1',
     },
     {
@@ -18,7 +18,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: -1,
-        type: ReputationType.FAILED_REPORTER,
+        type: ReputationType.REPORT_FAILURE,
         reportId: '1',
     },
     {
@@ -28,7 +28,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: -5,
-        type: ReputationType.RESPONDENT,
+        type: ReputationType.BE_REPORTED,
         reportId: '1',
     },
     {
@@ -38,7 +38,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: 1,
-        type: ReputationType.ADJUDICATOR,
+        type: ReputationType.ADJUDICATE,
         reportId: '1',
     },
     {
@@ -48,7 +48,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: 1,
-        type: ReputationType.ADJUDICATOR,
+        type: ReputationType.ADJUDICATE,
         reportId: '1',
     },
     {
@@ -58,7 +58,7 @@ export const reputationData = [
         epochKey:
             '8863230909908831784895190891539701510633570126451149109726982561814983587699',
         score: 1,
-        type: ReputationType.ADJUDICATOR,
+        type: ReputationType.ADJUDICATE,
         reportId: '1',
     },
 ]
