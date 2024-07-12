@@ -2,10 +2,15 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ActionType, addAction } from '@/features/core'
 import ActionNotification from './ActionNotification'
+import { TestWrapper } from '@/utils/test-helpers/wrapper'
 
 describe('ActionNotification', () => {
     it('should display nothing if no actions', () => {
-        render(<ActionNotification />)
+        render(
+            <TestWrapper>
+                <ActionNotification />
+            </TestWrapper>,
+        )
 
         const countButton = screen.queryByTestId('action-count-button')
         expect(countButton).toBeNull()
@@ -19,7 +24,11 @@ describe('ActionNotification', () => {
             transactionHash: 'hash',
         }
 
-        render(<ActionNotification />)
+        render(
+            <TestWrapper>
+                <ActionNotification />
+            </TestWrapper>,
+        )
 
         act(() => {
             addAction(ActionType.Post, postData)
@@ -37,7 +46,11 @@ describe('ActionNotification', () => {
             transactionHash: 'hash',
         }
 
-        render(<ActionNotification />)
+        render(
+            <TestWrapper>
+                <ActionNotification />
+            </TestWrapper>,
+        )
 
         act(() => {
             addAction(ActionType.Post, postData)

@@ -9,7 +9,7 @@ describe('CommentFormDesktop', () => {
         render(
             <MemoryRouter>
                 <CommentFormDesktop isOpen={true} />
-            </MemoryRouter>
+            </MemoryRouter>,
         )
         await waitFor(() => {
             expect(screen.getByLabelText('comment editor')).toBeInTheDocument()
