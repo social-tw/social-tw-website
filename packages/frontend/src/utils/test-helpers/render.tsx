@@ -1,32 +1,27 @@
-import { render as rtlRender } from '@testing-library/react'
-import {
-    ReactElement,
-    JSXElementConstructor,
-    ReactNode,
-    ReactPortal,
-    Component,
-} from 'react'
+import { render as rtlRender, RenderOptions } from '@testing-library/react'
+import { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
+interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+    route?: string
+    useRouter?: boolean
+}
+
 function render(
-    ui:
-        | string
-        | number
-        | boolean
-        | ReactElement<any, string | JSXElementConstructor<any>>
-        | Iterable<ReactNode>
-        | ReactPortal
-        | null
-        | undefined,
-    { route = '/', ...renderOptions } = {},
+    ui: ReactElement,
+    {
+        route = '/',
+        useRouter = true,
+        ...renderOptions
+    }: CustomRenderOptions = {},
 ) {
-    class Wrapper extends Component<{ children: any }> {
-        render() {
-            let { children } = this.props
+    function Wrapper({ children }: { children: React.ReactNode }) {
+        if (useRouter) {
             return (
                 <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
             )
         }
+        return <>{children}</>
     }
 
     return rtlRender(ui, { wrapper: Wrapper, ...renderOptions })
