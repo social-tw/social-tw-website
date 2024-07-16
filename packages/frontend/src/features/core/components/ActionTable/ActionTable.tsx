@@ -62,14 +62,15 @@ function ActionLink({
     action: Action
     onClose: () => void
 }) {
+    const navigate = useNavigate()
+    const link = getActionLink(action)
+
     if (
         action.type === ActionType.ReportComment ||
         action.type === ActionType.ReportPost
     ) {
         return <span className="text-white">-</span>
     }
-    const navigate = useNavigate()
-    const link = getActionLink(action)
 
     if (action.status === ActionStatus.Pending) {
         return <span className="text-white">請稍候</span>
