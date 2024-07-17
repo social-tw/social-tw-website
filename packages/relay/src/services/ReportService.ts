@@ -27,6 +27,8 @@ import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
+import { ethers } from 'ethers'
+import express from 'express'
 
 export class ReportService {
     async verifyReportData(
@@ -266,6 +268,108 @@ export class ReportService {
                 description: '其他',
             },
         ]
+    }
+
+    async claimPositiveReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        const { publicSignals, proof, change } = req.body
+
+        if (!publicSignals || !proof || change === undefined) {
+            return res.status(400).json({ message: 'lose some param' })
+        }
+
+        try {
+            // use synchronizer's contract instance to call claimReportPosRep
+            const tx =
+                await synchronizer.unirepSocialContract.claimReportPosRep(
+                    publicSignals,
+                    proof,
+                    ethers.utils.id('ReportNullifierVHelper'),
+                    change
+                )
+            await tx.wait()
+
+            // decode public signals to get epochKey
+            const decodedSignals =
+                await synchronizer.unirepContract.verifyWithIdentifier(
+                    publicSignals,
+                    proof,
+                    ethers.utils.id('ReportNullifierVHelper')
+                )
+            const epochKey = decodedSignals.epochKey.toString()
+
+            // update reputation status in database
+            await this.updateReputationStatus(epochKey, 'positive', true, db)
+
+            res.status(200).json({ message: 'Success get Positive Reputation' })
+        } catch (error) {
+            console.error('Get Positive Reputation error:', error)
+            res.status(500).json({ message: 'Get Positive Reputation error' })
+        }
+    }
+
+    async claimNegativeReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        const { publicSignals, proof, change } = req.body
+
+        if (!publicSignals || !proof || change === undefined) {
+            return res.status(400).json({ message: 'lose some param' })
+        }
+
+        try {
+            // use synchronizer's contract instance to call claimReportNegRep
+            const tx =
+                await synchronizer.unirepSocialContract.claimReportNegRep(
+                    publicSignals,
+                    proof,
+                    ethers.utils.id('ReportNegRepVHelper'),
+                    change
+                )
+            await tx.wait()
+
+            // decode public signals to get epochKey
+            const decodedSignals =
+                await synchronizer.unirepContract.verifyWithIdentifier(
+                    publicSignals,
+                    proof,
+                    ethers.utils.id('ReportNegRepVHelper')
+                )
+            const epochKey = decodedSignals.epochKey.toString()
+
+            // update reputation status in database
+            await this.updateReputationStatus(epochKey, 'negative', true, db)
+
+            res.status(200).json({ message: 'Success get Negative Reputation' })
+        } catch (error) {
+            console.error('Get Negative Reputation error:', error)
+            res.status(500).json({ message: 'Get Negative Reputation error' })
+        }
+    }
+
+    private async updateReputationStatus(
+        epochKey: string,
+        type: 'positive' | 'negative',
+        claimed: boolean,
+        db: DB
+    ) {
+        await db.update('ReportHistory', {
+            where: {
+                [type === 'positive'
+                    ? 'reportorEpochKey'
+                    : 'respondentEpochKey']: epochKey,
+            },
+            update: {
+                [`${type}ReputationClaimed`]: claimed,
+            },
+        })
     }
 }
 

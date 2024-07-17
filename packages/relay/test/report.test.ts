@@ -3,7 +3,7 @@ import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
+import hardhat_1, { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
 import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
@@ -24,6 +24,7 @@ import { comment } from './utils/comment'
 import { genReportNullifier } from './utils/genNullifier'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
+import { Identity } from '@semaphore-protocol/identity'
 
 describe('POST /api/report', function () {
     let snapshot: any
@@ -871,5 +872,174 @@ describe('POST /api/report', function () {
         )
         expect(reportCategories[6].number).equal(ReportCategory.OTHER)
         expect(reportCategories[6].description).to.be.equal('其他')
+    })
+})
+
+describe('Reputation Claiming', function () {
+    let userState: UserState
+    let sync: UnirepSocialSynchronizer
+    let db: DB
+    let express: ChaiHttp.Agent
+    let snapshot: any
+
+    before(async function () {
+        const { unirep, app } = await deployContracts(100000)
+        const {
+            db: _db,
+            prover,
+            provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, app)
+
+        snapshot = await hardhat_1.ethers.provider.send('evm_snapshot', [])
+        express = chaiServer
+        sync = synchronizer
+        db = _db
+
+        const id = new Identity()
+        userState = new UserState({
+            synchronizer,
+            id,
+            prover: prover,
+            provider: ethers.provider,
+        })
+
+        await userState.start()
+        await userState.waitForSync()
+
+        const hasSignedUp = await userState.hasSignedUp()
+        expect(hasSignedUp).equal(true)
+    })
+
+    after(async function () {
+        userState.stop()
+        await stopServer('reputation', snapshot, sync, express)
+    })
+
+    it('should claim positive reputation successfully', async function () {
+        const epoch = await sync.loadCurrentEpoch()
+        const nonce = 0
+        const change = 10
+
+        const { publicSignals, proof } = await userState.genEpochKeyProof({
+            nonce,
+            epoch,
+            data: BigInt(change),
+        })
+
+        await express
+            .post('/api/reports/claimPositiveReputation')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof,
+                    change,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(200)
+                expect(res.body.message).to.equal(
+                    'Success get Positive Reputation'
+                )
+            })
+
+        const epochKey = userState.getEpochKeys(epoch, nonce) as bigint
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                reportorEpochKey: epochKey.toString(),
+            },
+        })
+        expect(report.positiveReputationClaimed).to.be.true
+    })
+
+    it('should claim negative reputation successfully', async function () {
+        const epoch = await sync.loadCurrentEpoch()
+        const nonce = 1
+        const change = 5
+
+        const { publicSignals, proof } = await userState.genEpochKeyProof({
+            nonce,
+            epoch,
+            data: BigInt(change),
+        })
+
+        await express
+            .post('/api/reports/claimNegativeReputation')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof,
+                    change,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(200)
+                expect(res.body.message).to.equal(
+                    'Success get Negative Reputation'
+                )
+            })
+
+        const epochKey = userState.getEpochKeys(epoch, nonce) as bigint
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                respondentEpochKey: epochKey.toString(),
+            },
+        })
+        expect(report.negativeReputationClaimed).to.be.true
+    })
+
+    it('should fail to claim reputation with invalid proof', async function () {
+        const epoch = await sync.loadCurrentEpoch()
+        const nonce = 2
+        const change = 10
+
+        const { publicSignals, proof } = await userState.genEpochKeyProof({
+            nonce,
+            epoch,
+            data: BigInt(change),
+        })
+
+        // Invalidate the proof
+        proof[0] = BigInt(0)
+
+        await express
+            .post('/api/reports/claimPositiveReputation')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof,
+                    change,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(500)
+                expect(res.body.message).to.equal(
+                    'Get Positive Reputation error'
+                )
+            })
+    })
+
+    it('should fail to claim reputation without required parameters', async function () {
+        await express
+            .post('/api/reports/claimPositiveReputation')
+            .set('content-type', 'application/json')
+            .send({})
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.message).to.equal('lose some param')
+            })
+
+        await express
+            .post('/api/reports/claimNegativeReputation')
+            .set('content-type', 'application/json')
+            .send({})
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.message).to.equal('lose some param')
+            })
     })
 })
