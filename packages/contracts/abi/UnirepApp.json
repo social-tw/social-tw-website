@@ -84,6 +84,25 @@
                 "type": "uint256"
             }
         ],
+        "name": "ClaimNegRep",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "epochKey",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "epoch",
+                "type": "uint256"
+            }
+        ],
         "name": "ClaimPosRep",
         "type": "event"
     },
@@ -210,6 +229,48 @@
         ],
         "name": "UserSignUp",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            }
+        ],
+        "name": "claimDailyLoginRep",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "publicSignals",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256[8]",
+                "name": "proof",
+                "type": "uint256[8]"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "identifier",
+                "type": "bytes32"
+            },
+            { "internalType": "uint256", "name": "change", "type": "uint256" }
+        ],
+        "name": "claimReportNegRep",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [
