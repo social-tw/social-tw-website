@@ -13,6 +13,10 @@ import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
+import {
+    InvalidEpochRangeError,
+    NoPostHistoryFoundError,
+} from '../types/InternalError'
 
 export class PostService {
     // TODO: modify the cache data structure to avoid memory leak
@@ -291,6 +295,29 @@ export class PostService {
             where: { postId },
             update: { status },
         })
+    }
+
+    async getPostHistory(
+        fromEpoch: number,
+        toEpoch: number,
+        db: DB
+    ): Promise<Post[]> {
+        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0) {
+            throw InvalidEpochRangeError
+        }
+        const posts = await db.findMany('Post', {
+            where: {
+                epoch: { gte: fromEpoch, lte: toEpoch },
+            },
+            orderBy: {
+                epoch: 'asc',
+            },
+        })
+        if (posts.length === 0) {
+            throw NoPostHistoryFoundError
+        }
+
+        return posts
     }
 }
 

@@ -7,9 +7,13 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
     EmptyPostError,
+    InternalError,
     InvalidEpochKeyError,
+    InvalidEpochRangeError,
     InvalidPageError,
+    InvalidParametersError,
     InvalidPostIdError,
+    NoPostHistoryFoundError,
     PostNotExistError,
 } from '../types'
 
@@ -56,6 +60,33 @@ export default (
             res.json({ txHash })
         })
     )
+
+    app.get('/api/post/postHistory', async (req, res) => {
+        try {
+            const fromEpoch = parseInt(req.query.from_epoch as string)
+            const toEpoch = parseInt(req.query.to_epoch as string)
+            if (isNaN(fromEpoch) || isNaN(toEpoch)) {
+                throw InvalidParametersError
+            }
+
+            const history = await postService.getPostHistory(
+                fromEpoch,
+                toEpoch,
+                db
+            )
+            res.status(200).json(history)
+        } catch (error) {
+            if (error === InvalidEpochRangeError) {
+                res.status(400).json({ error: 'Invalid epoch range' })
+            } else if (error === NoPostHistoryFoundError) {
+                res.status(404).json({
+                    error: 'No post history found for the given epoch range',
+                })
+            } else {
+                res.status(500).json({ error: 'Internal server error' })
+            }
+        }
+    })
 
     app.get(
         '/api/post/:postId',
