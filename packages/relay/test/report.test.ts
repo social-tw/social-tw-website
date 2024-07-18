@@ -112,8 +112,10 @@ describe('POST /api/report', function () {
         await userState.waitForSync()
 
         const currentEpoch = await sync.loadCurrentEpoch()
-        if (await userState.latestTransitionedEpoch() < currentEpoch) {
-            await userState.genUserStateTransitionProof({ toEpoch: currentEpoch })
+        if ((await userState.latestTransitionedEpoch()) < currentEpoch) {
+            await userState.genUserStateTransitionProof({
+                toEpoch: currentEpoch,
+            })
             await userState.waitForSync()
         }
 
@@ -122,7 +124,8 @@ describe('POST /api/report', function () {
 
     beforeEach(async function () {
         const currentEpoch = await sync.loadCurrentEpoch()
-        const latestTransitionedEpoch = await userState.latestTransitionedEpoch()
+        const latestTransitionedEpoch =
+            await userState.latestTransitionedEpoch()
 
         if (latestTransitionedEpoch < currentEpoch) {
             await userState.waitForSync()
@@ -920,7 +923,9 @@ describe('POST /api/report', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(200)
-                expect(res.body.message).to.equal('Success get Positive Reputation')
+                expect(res.body.message).to.equal(
+                    'Success get Positive Reputation'
+                )
             })
 
         const epochKey = userState.getEpochKeys(epoch, nonce) as bigint
@@ -958,7 +963,9 @@ describe('POST /api/report', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(200)
-                expect(res.body.message).to.equal('Success get Negative Reputation')
+                expect(res.body.message).to.equal(
+                    'Success get Negative Reputation'
+                )
             })
 
         const epochKey = userState.getEpochKeys(epoch, nonce) as bigint
@@ -999,7 +1006,9 @@ describe('POST /api/report', function () {
             )
             .then((res) => {
                 expect(res).to.have.status(500)
-                expect(res.body.message).to.equal('Get Positive Reputation error')
+                expect(res.body.message).to.equal(
+                    'Get Positive Reputation error'
+                )
             })
     })
 
