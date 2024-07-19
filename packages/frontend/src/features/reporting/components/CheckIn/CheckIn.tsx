@@ -12,7 +12,8 @@ export default function CheckIn({
     open?: boolean
     onClose?: () => void
 }) {
-    const { isIdle, isPending, isSuccess, isError, reset, mutate } = useCheckIn()
+    const { isIdle, isPending, isSuccess, isError, reset, mutate } =
+        useCheckIn()
 
     const close = () => {
         reset()
@@ -42,25 +43,14 @@ export default function CheckIn({
 
     return (
         <>
-            <CheckInDialog
-                open={isIdle}
-                onClose={close}
-                onConfirm={checkIn}
-            />
-            <CheckInPending
-                open={isPending}
-                onClose={close}
-            />
+            <CheckInDialog open={isIdle} onClose={close} onConfirm={checkIn} />
+            <CheckInPending open={isPending} onClose={close} />
             <CheckInSuccess
                 open={isSuccess}
                 onClose={close}
                 onCheckout={gotoProfilePage}
             />
-            <CheckInFailure
-                open={isError}
-                onClose={close}
-                onRetry={retry}
-            />
+            <CheckInFailure open={isError} onClose={close} onRetry={retry} />
         </>
     )
 }

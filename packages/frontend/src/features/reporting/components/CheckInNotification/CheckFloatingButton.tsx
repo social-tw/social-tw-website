@@ -13,7 +13,7 @@ export default function CheckInFloatingButton({
     if (!show) {
         return null
     }
-    
+
     return (
         <div className="relative">
             <button type="button" onClick={onConfirm}>
