@@ -5,6 +5,7 @@ import { expect } from 'chai'
 export async function post(
     server: ChaiHttp.Agent,
     userState: UserState,
+    authentication: string,
     nonce?: number
 ): Promise<any> {
     const testContent = 'test content'
@@ -16,6 +17,7 @@ export async function post(
     const res = await server
         .post('/api/post')
         .set('content-type', 'application/json')
+        .set('authentication', authentication)
         .send(
             stringifyBigInts({
                 content: testContent,

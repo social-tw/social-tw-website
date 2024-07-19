@@ -7,11 +7,13 @@ import { stringifyBigInts } from '@unirep/utils'
 import { deployContracts, startServer, stopServer } from './environment'
 
 import { io } from 'socket.io-client'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
 import { UserStateFactory } from './utils/UserStateFactory'
+import { ReputationType, genProveReputationProof } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 
@@ -28,6 +30,7 @@ describe('POST /vote', function () {
     let otherPostId: string
     let pService: PostService
     let chainId: number
+    let authentication: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -71,11 +74,28 @@ describe('POST /vote', function () {
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
 
+        chainId = await unirep.chainid()
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
+
         // produce three posts
         const postPromises = [
-            post(express, userState),
-            post(express, userState),
-            post(express, userState),
+            post(express, userState, authentication),
+            post(express, userState, authentication),
+            post(express, userState, authentication),
         ]
 
         const postResponses = await Promise.all(postPromises)
@@ -102,8 +122,6 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost.postId
         downvotePostId = downVotePost.postId
         otherPostId = otherPost.postId
-
-        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -114,6 +132,7 @@ describe('POST /vote', function () {
         return express
             .post('/api/vote')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     postId: postId,

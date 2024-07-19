@@ -5,6 +5,7 @@ import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { APP_ABI as abi } from '../src/config'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { PostService } from '../src/services/PostService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
@@ -12,7 +13,12 @@ import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
 import { postData } from './mocks/posts'
 import { UserStateFactory } from './utils/UserStateFactory'
-import { genEpochKeyProof, randomData } from './utils/genProof'
+import {
+    ReputationType,
+    genEpochKeyProof,
+    genProveReputationProof,
+    randomData,
+} from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
@@ -25,6 +31,7 @@ describe('POST /post', function () {
     let db: DB
     let pService: PostService
     let chainId: number
+    let authentication: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -69,6 +76,22 @@ describe('POST /post', function () {
         expect(hasSignedUp).equal(true)
 
         chainId = await unirep.chainid()
+
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
     })
 
     after(async function () {
@@ -92,6 +115,7 @@ describe('POST /post', function () {
         const res = await express
             .post('/api/post')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -166,6 +190,7 @@ describe('POST /post', function () {
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -207,6 +232,7 @@ describe('POST /post', function () {
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
@@ -284,7 +310,7 @@ describe('POST /post', function () {
 
     it('should fetch posts which are already on-chain', async function () {
         // send a post
-        const { txHash } = await post(express, userState)
+        const { txHash } = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
         await pService.updateOrder(db)

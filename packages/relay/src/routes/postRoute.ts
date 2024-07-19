@@ -1,19 +1,18 @@
 import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { checkReputation } from '../middlewares/CheckReputationMiddleware'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
     EmptyPostError,
-    InternalError,
     InvalidEpochKeyError,
-    InvalidEpochRangeError,
     InvalidPageError,
     InvalidParametersError,
     InvalidPostIdError,
-    NoPostHistoryFoundError,
+    NegativeReputationUserError,
     PostNotExistError,
 } from '../types'
 
@@ -44,7 +43,12 @@ export default (
 
     app.post(
         '/api/post',
-        errorHandler(async (req, res, next) => {
+        errorHandler(checkReputation),
+        errorHandler(async (req, res) => {
+            if (res.locals.isNegativeReputation) {
+                throw NegativeReputationUserError
+            }
+
             const { content, publicSignals, proof } = req.body
             if (!content) throw EmptyPostError
 
