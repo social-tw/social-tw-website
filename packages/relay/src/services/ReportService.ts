@@ -9,6 +9,7 @@ import {
     CommentNotExistError,
     CommentReportedError,
     InvalidCommentIdError,
+    InvalidParametersError,
     InvalidPostIdError,
     InvalidReportStatusError,
     PostNotExistError,
@@ -21,6 +22,7 @@ import {
     ReportType,
     ReportVotingEndedError,
     UserAlreadyVotedError,
+    InvalidAttesterIdError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
@@ -29,6 +31,11 @@ import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
 import { ethers } from 'ethers'
 import express from 'express'
+import {
+    ClaimHelpers,
+    ClaimMethods,
+    ReputationDirection,
+} from '../types/Reputation'
 
 export class ReportService {
     async verifyReportData(
@@ -276,40 +283,15 @@ export class ReportService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        const { publicSignals, proof, change } = req.body
-
-        if (!publicSignals || !proof || change === undefined) {
-            return res.status(400).json({ message: 'lose some param' })
-        }
-
-        try {
-            // use synchronizer's contract instance to call claimReportPosRep
-            const tx =
-                await synchronizer.unirepSocialContract.claimReportPosRep(
-                    publicSignals,
-                    proof,
-                    ethers.utils.id('ReportNullifierVHelper'),
-                    change
-                )
-            await tx.wait()
-
-            // decode public signals to get epochKey
-            const decodedSignals =
-                await synchronizer.unirepContract.verifyWithIdentifier(
-                    publicSignals,
-                    proof,
-                    ethers.utils.id('ReportNullifierVHelper')
-                )
-            const epochKey = decodedSignals.epochKey.toString()
-
-            // update reputation status in database
-            await this.updateReputationStatus(epochKey, 'positive', true, db)
-
-            res.status(200).json({ message: 'Success get Positive Reputation' })
-        } catch (error) {
-            console.error('Get Positive Reputation error:', error)
-            res.status(500).json({ message: 'Get Positive Reputation error' })
-        }
+        await this.claimReputation(
+            req,
+            res,
+            db,
+            synchronizer,
+            ClaimMethods.CLAIM_POSITIVE_REP,
+            ClaimHelpers.POSITIVE_REP_HELPER,
+            ReputationDirection.POSITIVE
+        )
     }
 
     async claimNegativeReputation(
@@ -318,53 +300,93 @@ export class ReportService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        const { publicSignals, proof, change } = req.body
+        await this.claimReputation(
+            req,
+            res,
+            db,
+            synchronizer,
+            ClaimMethods.CLAIM_NEGATIVE_REP,
+            ClaimHelpers.NEGATIVE_REP_HELPER,
+            ReputationDirection.NEGATIVE
+        )
+    }
 
-        if (!publicSignals || !proof || change === undefined) {
-            return res.status(400).json({ message: 'lose some param' })
-        }
-
+    async claimReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer,
+        claimMethod: ClaimMethods,
+        helper: ClaimHelpers,
+        direction: ReputationDirection
+    ) {
         try {
-            // use synchronizer's contract instance to call claimReportNegRep
-            const tx =
-                await synchronizer.unirepSocialContract.claimReportNegRep(
-                    publicSignals,
-                    proof,
-                    ethers.utils.id('ReportNegRepVHelper'),
-                    change
-                )
+            const { publicSignals, proof, change } = req.body
+
+            if (!publicSignals || !proof || change === undefined)
+                throw InvalidParametersError
+
+            // Verify the proof
+            const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
+
+            // Now we can use the verified epoch from the proof
+            const epoch = Number(epochKeyProof.epoch)
+            const epochKey = epochKeyProof.epochKey.toString()
+
+            // Check attesterId
+            const attesterId = BigInt(synchronizer.attesterId)
+            if (attesterId !== BigInt(publicSignals[3])) {
+                throw InvalidAttesterIdError
+            }
+
+            // use synchronizer's contract instance to call claim method
+            const tx = await synchronizer.unirepSocialContract[claimMethod](
+                publicSignals,
+                proof,
+                ethers.utils.id(helper),
+                change
+            )
             await tx.wait()
 
-            // decode public signals to get epochKey
-            const decodedSignals =
-                await synchronizer.unirepContract.verifyWithIdentifier(
-                    publicSignals,
-                    proof,
-                    ethers.utils.id('ReportNegRepVHelper')
-                )
-            const epochKey = decodedSignals.epochKey.toString()
-
             // update reputation status in database
-            await this.updateReputationStatus(epochKey, 'negative', true, db)
+            await this.updateReputationStatus(
+                epochKey,
+                direction,
+                true,
+                db,
+                epoch
+            )
 
-            res.status(200).json({ message: 'Success get Negative Reputation' })
-        } catch (error) {
-            console.error('Get Negative Reputation error:', error)
-            res.status(500).json({ message: 'Get Negative Reputation error' })
+            res.status(200).json({
+                message: `Success get ${direction} Reputation`,
+            })
+        } catch (error: any) {
+            console.error(`Get ${direction} Reputation error:`, error)
+            res.status(500).json({
+                message: `Get ${direction} Reputation error`,
+                error: error.message,
+                stack: error.stack,
+            })
         }
     }
 
     private async updateReputationStatus(
         epochKey: string,
-        type: 'positive' | 'negative',
+        type: ReputationDirection,
         claimed: boolean,
-        db: DB
+        db: DB,
+        epoch: number
     ) {
         await db.update('ReportHistory', {
             where: {
-                [type === 'positive'
+                [type === ReputationDirection.POSITIVE
                     ? 'reportorEpochKey'
                     : 'respondentEpochKey']: epochKey,
+                reportEpoch: epoch,
             },
             update: {
                 [`${type}ReputationClaimed`]: claimed,

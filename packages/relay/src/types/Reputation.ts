@@ -8,6 +8,11 @@ export enum ReputationType {
     CHECK_IN,
 }
 
+export enum ReputationDirection {
+    POSITIVE,
+    NEGATIVE,
+}
+
 export interface ReputationHistory {
     transactionHash: string
     epoch: number
@@ -16,4 +21,14 @@ export interface ReputationHistory {
     type: ReputationType
     reportId: string
     report: ReportHistory
+}
+
+export enum ClaimMethods {
+    CLAIM_POSITIVE_REP = 'claimReportPosRep',
+    CLAIM_NEGATIVE_REP = 'claimReportNegRep',
+}
+
+export enum ClaimHelpers {
+    POSITIVE_REP_HELPER = 'ReportNullifierVHelper',
+    NEGATIVE_REP_HELPER = 'ReportNegRepVHelper',
 }
