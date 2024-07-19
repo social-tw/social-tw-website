@@ -1,7 +1,12 @@
 import { DB } from 'anondb'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { CommentNotExistError, InvalidEpochKeyError } from '../types'
+import {
+    CommentNotExistError,
+    InvalidEpochKeyError,
+    InvalidEpochRangeError,
+    NoCommentHistoryFoundError,
+} from '../types'
 import { Comment } from '../types/Comment'
 import { Post } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -153,6 +158,28 @@ export class CommentService {
                 status,
             },
         })
+    }
+
+    async getCommentHistory(
+        fromEpoch: number,
+        toEpoch: number,
+        db: DB
+    ): Promise<Comment[]> {
+        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
+            throw InvalidEpochRangeError
+
+        const comments = await db.findMany('Comment', {
+            where: {
+                epoch: { gte: fromEpoch, lte: toEpoch },
+            },
+            orderBy: {
+                epoch: 'asc',
+            },
+        })
+
+        if (comments.length === 0) throw NoCommentHistoryFoundError
+
+        return comments
     }
 }
 

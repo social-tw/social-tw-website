@@ -331,4 +331,29 @@ describe('POST /post', function () {
             expect(res.body.error).equal('Invalid page: page is undefined')
         })
     })
+    it('should get correct records from PostHistory', async function () {
+        const res = await express.get(
+            '/api/post/postHistory?from_epoch=0&to_epoch=5'
+        )
+        expect(res).to.have.status(200)
+        expect(res.body).to.be.an('array').that.has.lengthOf(11)
+    })
+
+    it('should revert with invalid epoch range', async function () {
+        const res = await express.get(
+            '/api/post/postHistory?from_epoch=2&to_epoch=1'
+        )
+        expect(res).to.have.status(400)
+        expect(res.body.error).to.equal('Invalid epoch range')
+    })
+
+    it('should return 404 when no posts found in the given epoch range', async function () {
+        const res = await express.get(
+            '/api/post/postHistory?from_epoch=100&to_epoch=101'
+        )
+        expect(res).to.have.status(404)
+        expect(res.body.error).to.equal(
+            'No post history found for the given epoch range'
+        )
+    })
 })

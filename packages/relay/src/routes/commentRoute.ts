@@ -8,6 +8,8 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
     EmptyCommentError,
+    InternalError,
+    InvalidParametersError,
     InvalidPostIdError,
     PostNotExistError,
 } from '../types'
@@ -83,4 +85,21 @@ export default (
                 res.json({ txHash })
             })
         )
+
+    app.get(
+        '/api/comment/commentHistory',
+        errorHandler(async (req, res) => {
+            const fromEpoch = parseInt(req.query.from_epoch as string)
+            const toEpoch = parseInt(req.query.to_epoch as string)
+
+            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
+
+            const history = await commentService.getCommentHistory(
+                fromEpoch,
+                toEpoch,
+                db
+            )
+            res.status(200).json(history)
+        })
+    )
 }
