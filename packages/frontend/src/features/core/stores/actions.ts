@@ -7,6 +7,8 @@ export enum ActionType {
     Post = 'post',
     Comment = 'comment',
     DeleteComment = 'deleteComment',
+    ReportPost = 'reportPost',
+    ReportComment = 'reportComment',
 }
 
 export enum ActionStatus {
@@ -37,6 +39,18 @@ export interface DeleteCommentData {
     epoch: number
 }
 
+export interface ReportPostData {
+    postId: string
+    epoch?: number
+    epochKey?: string
+}
+
+export interface ReportCommentData {
+    commentId: string
+    epoch?: number
+    epochKey?: string
+}
+
 export interface BaseAction<Type, Data> {
     id: string
     type: Type
@@ -49,6 +63,8 @@ export type Action =
     | BaseAction<ActionType.Post, PostData>
     | BaseAction<ActionType.Comment, CommentData>
     | BaseAction<ActionType.DeleteComment, DeleteCommentData>
+    | BaseAction<ActionType.ReportPost, ReportPostData>
+    | BaseAction<ActionType.ReportComment, ReportCommentData>
 
 export interface ActionState {
     entities: Record<string, Action>
@@ -142,7 +158,12 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
 
 export function createAction(
     type: ActionType,
-    data: PostData | CommentData | DeleteCommentData,
+    data:
+        | PostData
+        | CommentData
+        | DeleteCommentData
+        | ReportPostData
+        | ReportCommentData,
 ): Action {
     return {
         id: nanoid(),
@@ -155,7 +176,12 @@ export function createAction(
 
 export function addAction(
     type: ActionType,
-    data: PostData | CommentData | DeleteCommentData,
+    data:
+        | PostData
+        | CommentData
+        | DeleteCommentData
+        | ReportPostData
+        | ReportCommentData,
 ) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {

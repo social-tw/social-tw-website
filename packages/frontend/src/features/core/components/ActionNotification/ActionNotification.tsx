@@ -1,23 +1,25 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
 import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
 import {
     ActionStatus,
+    ActionTable,
     ActionType,
     latestActionSelector,
     pendingCountSelector,
     useActionStore,
-    ActionTable,
     type Action,
 } from '@/features/core'
 import { Dialog } from '@headlessui/react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function getActionMessage(type: ActionType) {
     const messages = {
         [ActionType.Post]: '貼文存取',
         [ActionType.Comment]: '留言存取',
         [ActionType.DeleteComment]: '刪除留言',
+        [ActionType.ReportPost]: '檢舉貼文',
+        [ActionType.ReportComment]: '檢舉留言',
     }
     return messages[type]
 }
@@ -27,6 +29,8 @@ function getActionSubject(type: ActionType) {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
         [ActionType.DeleteComment]: '留言',
+        [ActionType.ReportPost]: '檢舉',
+        [ActionType.ReportComment]: '檢舉',
     }
     return subjects[type]
 }
@@ -46,6 +50,18 @@ function getActionLink(action: Action) {
         return `/posts/${action.data.postId}#${action.data.commentId}`
     }
     return '#'
+}
+
+function isActionLinkExistWhenSuccess(action: Action) {
+    return action.type === ActionType.Post || action.type === ActionType.Comment
+}
+
+function isActionLinkExistWhenFailure(action: Action) {
+    return (
+        action.type === ActionType.Post ||
+        action.type === ActionType.Comment ||
+        action.type === ActionType.DeleteComment
+    )
 }
 
 function getActionStatusLabel(action: Action) {
@@ -72,7 +88,7 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-white">
                         {message}交易成功!
                     </span>
-                    {action.type !== ActionType.DeleteComment && (
+                    {isActionLinkExistWhenSuccess(action) && (
                         <Link
                             className="text-xs text-secondary"
                             to={actionLink}
@@ -90,9 +106,14 @@ function getActionStatusLabel(action: Action) {
                     <span className="text-xs text-primary">
                         {message}交易失敗!
                     </span>
-                    <Link className="text-xs text-secondary" to={actionLink}>
-                        前往查看{subject}
-                    </Link>
+                    {isActionLinkExistWhenFailure(action) && (
+                        <Link
+                            className="text-xs text-secondary"
+                            to={actionLink}
+                        >
+                            前往查看{subject}
+                        </Link>
+                    )}
                 </div>
             )
         }

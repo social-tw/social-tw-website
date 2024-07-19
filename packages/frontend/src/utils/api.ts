@@ -1,32 +1,33 @@
 import { RelayRawComment } from '@/types/Comments'
-import { stringifyBigInts } from '@unirep/utils'
+import { RelayRawPost } from '@/types/Post'
+import { ReportCategory, ReportType } from '@/types/Report'
+import { VoteAction } from '@/types/Vote'
 import {
-    UserStateTransitionProof,
-    SignupProof,
-    EpochKeyProof,
     EpochKeyLiteProof,
+    EpochKeyProof,
+    SignupProof,
+    UserStateTransitionProof,
 } from '@unirep/circuits'
+import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '../constants/config'
 import {
     Directions,
     FetchCommentsByEpochKeysParams,
     FetchCommentsByEpochKeysResponse,
+    FetchCounterResponse,
     FetchPostsByEpochKeysParams,
     FetchPostsByEpochKeysResponse,
     FetchRelayConfigResponse,
     FetchVotesByEpochKeysParams,
     FetchVotesByEpochKeysResponse,
-    SortKeys,
-    RelayUserStateTransitionResponse,
-    RelaySignUpResponse,
     RelayCreateCommentResponse,
-    RelayRemoveCommentResponse,
     RelayCreatePostResponse,
+    RelayRemoveCommentResponse,
     RelayRequestDataResponse,
-    FetchCounterResponse,
+    RelaySignUpResponse,
+    RelayUserStateTransitionResponse,
+    SortKeys,
 } from '../types/api'
-import { RelayRawPost } from '@/types/Post'
-import { VoteAction } from '@/types/Vote'
 
 export async function fetchRelayConfig(): Promise<FetchRelayConfigResponse> {
     const response = await fetch(`${SERVER}/api/config`)
@@ -279,6 +280,48 @@ export async function relayVote(
 
     if (!response.ok) {
         throw Error(`Vote failed with status: ${data}`)
+    }
+    return data
+}
+
+export async function relayReport({
+    proof,
+    type,
+    objectId,
+    reportorEpochKey,
+    reason,
+    category,
+    reportEpoch,
+}: {
+    proof: EpochKeyLiteProof
+    type: ReportType
+    objectId: string
+    reportorEpochKey: string
+    reason: string
+    category: ReportCategory
+    reportEpoch: number
+}) {
+    const response = await fetch(`${SERVER}/api/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+            stringifyBigInts({
+                _reportData: {
+                    type,
+                    objectId,
+                    reportorEpochKey,
+                    reason,
+                    category,
+                    reportEpoch,
+                },
+                publicSignals: proof.publicSignals,
+                proof: proof.proof,
+            }),
+        ),
+    })
+    const data = await response.json()
+    if (!response.ok) {
+        throw Error(data.error)
     }
     return data
 }

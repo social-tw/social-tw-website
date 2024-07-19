@@ -14,6 +14,7 @@ import { UserStateFactory } from './utils/UserStateFactory'
 import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
+import { DB } from 'anondb'
 
 describe('COMMENT /comment', function () {
     let snapshot: any
@@ -22,16 +23,23 @@ describe('COMMENT /comment', function () {
     let sync: UnirepSocialSynchronizer
     let chainId: number
     let testContent: String
+    let db: DB
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep, app } = await deployContracts(100000)
         // start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover,
+            provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
+        db = _db
         const userStateFactory = new UserStateFactory(
             db,
             provider,
@@ -149,6 +157,14 @@ describe('COMMENT /comment', function () {
             expect(comments[0].content).equal(testContent)
             expect(comments[0].status).equal(1)
         })
+    })
+
+    it('should get correct records from CommentHistory', async function () {
+        const res = await express.get(
+            '/api/comment/commentHistory?from_epoch=0&to_epoch=5'
+        )
+        expect(res).to.have.status(200)
+        expect(res.body).to.be.an('array').that.has.lengthOf(1)
     })
 
     it('should comment failed with wrong proof', async function () {
@@ -297,5 +313,23 @@ describe('COMMENT /comment', function () {
             const comments = res.body
             expect(comments.length).equal(0)
         })
+    })
+
+    it('should revert with invalid epoch range', async function () {
+        const res = await express.get(
+            '/api/comment/commentHistory?from_epoch=2&to_epoch=1'
+        )
+        expect(res).to.have.status(400)
+        expect(res.body.error).to.equal('Invalid epoch range')
+    })
+
+    it('should return 404 when no comments found in the given epoch range', async function () {
+        const res = await express.get(
+            '/api/comment/commentHistory?from_epoch=100&to_epoch=101'
+        )
+        expect(res).to.have.status(404)
+        expect(res.body.error).to.equal(
+            'No comment history found for the given epoch range'
+        )
     })
 })
