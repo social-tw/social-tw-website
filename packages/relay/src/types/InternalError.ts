@@ -132,3 +132,18 @@ export const ReportVotingEndedError = new InternalError(
     'Report voting has ended',
     400
 )
+
+export const InvalidEpochRangeError = new InternalError(
+    'Invalid epoch range',
+    400
+)
+
+export const NoPostHistoryFoundError = new InternalError(
+    'No post history found for the given epoch range',
+    404
+)
+
+export const NoCommentHistoryFoundError = new InternalError(
+    'No comment history found for the given epoch range',
+    404
+)
