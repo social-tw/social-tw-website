@@ -1,4 +1,3 @@
-import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
 import { Avatar } from '@/features/shared'
@@ -9,8 +8,9 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
-import ActionBtn from '../ActionBtn'
+import { PostActionMenu } from './PostActionMenu'
 import PostFooter from './PostFooter'
+import { PostReportedMask } from './PostReportedMask'
 
 export default function Post({
     id = '',
@@ -124,14 +124,6 @@ export default function Post({
         setIsAction(voteState.finalAction)
     }, [voteState])
 
-    const actionItems = [
-        {
-            label: '檢舉留言',
-            icon: <BanIcon />,
-            onClick: () => {},
-        },
-    ]
-
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center justify-between">
@@ -141,7 +133,7 @@ export default function Post({
                         {subtitle}
                     </span>
                 </div>
-                <ActionBtn items={actionItems} />
+                <PostActionMenu postId={id} />
             </header>
             <section className="text-sm font-medium tracking-wider text-black/90">
                 {compact ? (
@@ -161,8 +153,10 @@ export default function Post({
         </div>
     )
 
+    const isReported = false
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
+            {isReported && <PostReportedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (

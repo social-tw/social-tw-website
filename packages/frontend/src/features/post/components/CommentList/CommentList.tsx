@@ -110,6 +110,7 @@ export default function CommentList({ postId }: { postId: string }) {
             {comments.map((comment) => (
                 <li key={comment.transactionHash}>
                     <Comment
+                        postId={comment.postId}
                         commentId={comment.commentId}
                         epochKey={comment.epochKey}
                         content={comment.content}
@@ -131,6 +132,7 @@ export default function CommentList({ postId }: { postId: string }) {
             {localComments.map((comment) => (
                 <li key={`local-comment-${comment.actionId}`}>
                     <Comment
+                        postId={comment.postId}
                         commentId={comment.commentId}
                         epochKey={comment.epochKey}
                         content={comment.content}

@@ -8,6 +8,7 @@ export enum QueryKeys {
     ManyPosts = 'many_posts',
     SinglePost = 'single_post',
     ManyComments = 'many_comments',
+    ReportCategory = 'report_category',
     PendingReports = 'pending_reports',
 }
 
@@ -26,5 +27,7 @@ export enum MutationKeys {
     CreateComment = 'create_comment',
     RemoveComment = 'remove_comment',
     Vote = 'vote',
+    ReportPost = 'report_post',
+    ReportComment = 'report_comment',
     Adjudicate = 'adjudicate',
 }

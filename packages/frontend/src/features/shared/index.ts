@@ -5,3 +5,5 @@ export { default as ErrorBoundary } from './components/ErrorBoundary/ErrorBounda
 export { default as MobileBottomNav } from './components/MobileBottomNav/MobileBottomNav'
 export { default as ResetStorage } from './components/ResetStorage/ResetStorage'
 export { default as RichTextEditor } from './components/RichTextEditor'
+
+export { default as useDialog } from './hooks/useDialog'

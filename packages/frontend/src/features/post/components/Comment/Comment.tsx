@@ -1,15 +1,13 @@
-import { CommentDeleteDialog, CommentReportDialog } from '@/features/post'
 import { Avatar } from '@/features/shared'
 import { CommentStatus } from '@/types/Comments'
 import formatDate from '@/utils/helpers/formatDate'
-import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
 import { nanoid } from 'nanoid'
-import { useState } from 'react'
-import { FaBan, FaTrashCan } from 'react-icons/fa6'
-import ActionBtn from '../ActionBtn'
+import { CommentActionMenu } from './CommentActionMenu'
+import { CommentReportedMask } from './CommentReportedMask'
 
 interface CommentProps {
+    postId: string
     commentId?: string
     epochKey?: string
     content: string
@@ -22,6 +20,7 @@ interface CommentProps {
 }
 
 export default function Comment({
+    postId,
     commentId,
     epochKey = nanoid(),
     content = '',
@@ -32,47 +31,7 @@ export default function Comment({
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
-    const [isDeletingDialogOpen, setIsDeletingDialogOpen] = useState(false)
-    const [isReporting, setIsReporting] = useState(false)
-
-    const _onRepublish = async () => {
-        onRepublish()
-    }
-
-    const _onDelete = async () => {
-        setIsDeletingDialogOpen(false)
-        onDelete()
-    }
-
-    const onCancelDelete = () => {
-        setIsDeletingDialogOpen(false)
-    }
-
-    const onCancelReport = () => {
-        setIsReporting(false)
-    }
-
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
-
-    const menuItems = [
-        {
-            label: '刪除留言',
-            icon: <FaTrashCan size={isSmallDevice ? 22 : 14} />,
-            disabled: !canDelete,
-            onClick: () => {
-                setIsDeletingDialogOpen(true)
-            },
-        },
-        {
-            label: '檢舉留言',
-            icon: <FaBan size={isSmallDevice ? 22 : 14} className="" />,
-            disabled: !canReport,
-            onClick: () => {
-                setIsReporting(true)
-            },
-        },
-    ]
-
+    const isReported = false
     return (
         <>
             <article
@@ -80,8 +39,10 @@ export default function Comment({
                 className={clsx(
                     'pt-4 pb-6 space-y-2',
                     status !== CommentStatus.Success && 'opacity-30',
+                    'relative',
                 )}
             >
+                {isReported && <CommentReportedMask />}
                 <header className="grid grid-cols-[1fr_auto] items-center">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-5">
@@ -92,7 +53,17 @@ export default function Comment({
                                     : formatDate(publishedAt)}
                             </span>
                         </div>
-                        <ActionBtn items={menuItems} />
+                    </div>
+                    <div>
+                        {commentId && (
+                            <CommentActionMenu
+                                postId={postId}
+                                commentId={commentId}
+                                onDelete={onDelete}
+                                canDelete={canDelete}
+                                canReport={canReport}
+                            />
+                        )}
                     </div>
                 </header>
                 <p className="text-sm font-medium text-white">{content}</p>
@@ -101,21 +72,12 @@ export default function Comment({
                 <div className="mb-6">
                     <button
                         className="h-10 border-2 btn btn-sm btn-outline btn-primary"
-                        onClick={_onRepublish}
+                        onClick={onRepublish}
                     >
                         再次發佈這則留言
                     </button>
                 </div>
             )}
-            <CommentDeleteDialog
-                open={isDeletingDialogOpen}
-                onClose={onCancelDelete}
-                onConfirm={() => _onDelete()}
-            />
-            <CommentReportDialog
-                isOpen={isReporting}
-                onClose={onCancelReport}
-            />
         </>
     )
 }

@@ -1,11 +1,3 @@
-import dayjs from 'dayjs'
-import { Link, useNavigate } from 'react-router-dom'
-import {
-    createColumnHelper,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
 import {
     actionsSelector,
     ActionStatus,
@@ -13,12 +5,22 @@ import {
     useActionStore,
     type Action,
 } from '@/features/core'
+import {
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from '@tanstack/react-table'
+import dayjs from 'dayjs'
+import { Link, useNavigate } from 'react-router-dom'
 
 function getActionTypeLabel(type: ActionType) {
     const typeLabels = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
         [ActionType.DeleteComment]: '刪除留言',
+        [ActionType.ReportPost]: '檢舉貼文',
+        [ActionType.ReportComment]: '檢舉留言',
     }
     return typeLabels[type]
 }
@@ -62,6 +64,13 @@ function ActionLink({
 }) {
     const navigate = useNavigate()
     const link = getActionLink(action)
+
+    if (
+        action.type === ActionType.ReportComment ||
+        action.type === ActionType.ReportPost
+    ) {
+        return <span className="text-white">-</span>
+    }
 
     if (action.status === ActionStatus.Pending) {
         return <span className="text-white">請稍候</span>
