@@ -1,13 +1,19 @@
 import CheckInPromotion from '@/assets/img/check-in-promotion.png'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
 
-export default function CheckInSnackbar({
+export default function CheckInFloatingButton({
+    show = false,
     onConfirm = () => {},
     onCancel = () => {},
 }: {
+    show?: boolean
     onConfirm?: () => void
     onCancel?: () => void
 }) {
+    if (!show) {
+        return null
+    }
+    
     return (
         <div className="relative">
             <button type="button" onClick={onConfirm}>

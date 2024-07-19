@@ -2,7 +2,7 @@ import { useToggle } from '@uidotdev/usehooks'
 import { useNotifyCheckIn } from '../../hooks/useNotifyCheckIn/useNotifyCheckIn'
 import CheckIn from '../CheckIn/CheckIn'
 import DiscardCheckIn from '../DiscardCheckIn/DiscardCheckIn'
-import CheckInSnackbar from './CheckSnackbar'
+import CheckInFloatingButton from './CheckFloatingButton'
 
 export default function CheckInNotification() {
     const [isOpenCheckIn, toggleCheckIn] = useToggle(false)
@@ -16,7 +16,8 @@ export default function CheckInNotification() {
 
     return (
         <div data-testid="check-in-notification">
-            <CheckInSnackbar
+            <CheckInFloatingButton
+                show={isOpen && !isOpenCheckIn && !isOpenDiscardCheckIn}
                 onConfirm={() => toggleCheckIn(true)}
                 onCancel={() => toggleDiscardCheckIn(true)}
             />
