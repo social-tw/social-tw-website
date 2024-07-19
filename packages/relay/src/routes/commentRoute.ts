@@ -1,6 +1,7 @@
 import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { checkReputation } from '../middlewares/CheckReputationMiddleware'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
@@ -11,6 +12,7 @@ import {
     InternalError,
     InvalidParametersError,
     InvalidPostIdError,
+    NegativeReputationUserError,
     PostNotExistError,
 } from '../types'
 
@@ -44,7 +46,12 @@ export default (
         )
 
         .post(
+            errorHandler(checkReputation),
             errorHandler(async (req, res) => {
+                if (res.locals.isNegativeReputation) {
+                    throw NegativeReputationUserError
+                }
+
                 const { content, postId, publicSignals, proof } = req.body
 
                 if (!content) throw EmptyCommentError
@@ -72,7 +79,12 @@ export default (
         )
 
         .delete(
+            errorHandler(checkReputation),
             errorHandler(async (req, res) => {
+                if (res.locals.isNegativeReputation) {
+                    throw NegativeReputationUserError
+                }
+
                 const { commentId, postId, publicSignals, proof } = req.body
                 const txHash = await commentService.deleteComment(
                     commentId.toString(),

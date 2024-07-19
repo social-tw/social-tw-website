@@ -3,14 +3,16 @@ import { UserState } from '@unirep/core'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { userService } from '../src/services/UserService'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
+import { UserStateFactory } from './utils/UserStateFactory'
+import { ReputationType, genProveReputationProof } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signUp'
-import { UserStateFactory } from './utils/UserStateFactory'
 
 describe('Synchronize Post Test', function () {
     let snapshot: any
@@ -23,6 +25,7 @@ describe('Synchronize Post Test', function () {
         wallet: any
         userState: UserState
     }[] = []
+    let authentication: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -78,6 +81,23 @@ describe('Synchronize Post Test', function () {
         let hasSignUp_2 = await users[1].userState.hasSignedUp()
         expect(hasSignUp_1).equal(true)
         expect(hasSignUp_2).equal(true)
+
+        const chainId = await unirep.chainid()
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: users[0].userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
     })
 
     after(async function () {
@@ -87,7 +107,7 @@ describe('Synchronize Post Test', function () {
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
             const userState = users[0].userState
-            const result = await post(express, userState)
+            const result = await post(express, userState, authentication)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
@@ -125,6 +145,7 @@ describe('Synchronize Comment Test', function () {
         wallet: any
         userState: UserState
     }[] = []
+    let authentication: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -180,6 +201,23 @@ describe('Synchronize Comment Test', function () {
         let hasSignUp_2 = await users[1].userState.hasSignedUp()
         expect(hasSignUp_1).equal(true)
         expect(hasSignUp_2).equal(true)
+
+        const chainId = await unirep.chainid()
+        const epoch = await sync.loadCurrentEpoch()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: users[0].userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
     })
 
     after(async function () {
@@ -189,7 +227,7 @@ describe('Synchronize Comment Test', function () {
     describe('Synchronize Comment', async function () {
         before(async function () {
             const userState = users[0].userState
-            const result = await post(express, userState)
+            const result = await post(express, userState, authentication)
             await ethers.provider.waitForTransaction(result.txHash)
             await sync.waitForSync()
 

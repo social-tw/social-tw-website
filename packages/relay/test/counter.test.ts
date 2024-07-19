@@ -12,6 +12,8 @@ import { signUp } from './utils/signUp'
 
 import { Unirep } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
+import { ReputationType, genProveReputationProof } from './utils/genProof'
 
 describe('GET /counter', function () {
     let snapshot: any
@@ -20,6 +22,8 @@ describe('GET /counter', function () {
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
     let db: DB
+    let authentication: string
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
@@ -58,6 +62,23 @@ describe('GET /counter', function () {
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
+
+        const epoch = await sync.loadCurrentEpoch()
+        const chainId = await unirep.chainid()
+
+        const reputationProof = await genProveReputationProof(
+            ReputationType.POSITIVE,
+            {
+                id: userState.id,
+                epoch,
+                nonce: 1,
+                attesterId: sync.attesterId,
+                chainId,
+                revealNonce: 0,
+            }
+        )
+
+        authentication = jsonToBase64(reputationProof)
     })
 
     after(async function () {
@@ -65,7 +86,7 @@ describe('GET /counter', function () {
     })
 
     it('should add the counter number increment after the user posted', async function () {
-        let res = await post(express, userState)
+        let res = await post(express, userState, authentication)
         await ethers.provider.waitForTransaction(res.txHash)
         await sync.waitForSync()
 
