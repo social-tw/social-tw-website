@@ -1,5 +1,6 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
+import { checkReputation } from '../middlewares/CheckReputationMiddleware'
 import { voteService } from '../services/VoteService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
@@ -9,6 +10,7 @@ import {
     InvalidProofError,
     InvalidPublicSignalError,
     InvalidVoteActionError,
+    NegativeReputationUserError,
 } from '../types'
 
 export default (
@@ -18,7 +20,12 @@ export default (
 ) => {
     app.post(
         '/api/vote',
-        errorHandler(async (req, res, _) => {
+        errorHandler(checkReputation),
+        errorHandler(async (req, res) => {
+            if (res.locals.isNegativeReputation) {
+                throw NegativeReputationUserError
+            }
+
             //vote for post with _id
             const { postId, voteAction, publicSignals, proof } = req.body
             if (!Validator.isValidNumber(postId)) throw InvalidPostIdError

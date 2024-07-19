@@ -83,10 +83,7 @@ export default function AdjudicationNotification() {
     }
 
     return (
-        <div
-            className="fixed z-20 right-4 bottom-28 lg:right-10 lg:bottom-20"
-            data-testid="adjudication-notification"
-        >
+        <div data-testid="adjudication-notification">
             <AdjudicateButton onClick={toggle} />
             <Adjudicate
                 reportData={activeAdjudication}
