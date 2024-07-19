@@ -165,9 +165,8 @@ export class CommentService {
         toEpoch: number,
         db: DB
     ): Promise<Comment[]> {
-        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0) {
+        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
             throw InvalidEpochRangeError
-        }
 
         const comments = await db.findMany('Comment', {
             where: {
@@ -178,9 +177,7 @@ export class CommentService {
             },
         })
 
-        if (comments.length === 0) {
-            throw NoCommentHistoryFoundError
-        }
+        if (comments.length === 0) throw NoCommentHistoryFoundError
 
         return comments
     }

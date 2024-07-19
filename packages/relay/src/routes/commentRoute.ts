@@ -86,16 +86,13 @@ export default (
             })
         )
 
-    app.get('/api/comment/commentHistory', async (req, res) => {
-        try {
+    app.get(
+        '/api/comment/commentHistory',
+        errorHandler(async (req, res) => {
             const fromEpoch = parseInt(req.query.from_epoch as string)
             const toEpoch = parseInt(req.query.to_epoch as string)
 
-            if (isNaN(fromEpoch) || isNaN(toEpoch)) {
-                return res
-                    .status(400)
-                    .json({ error: 'Invalid epoch parameters' })
-            }
+            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
 
             const history = await commentService.getCommentHistory(
                 fromEpoch,
@@ -103,12 +100,6 @@ export default (
                 db
             )
             res.status(200).json(history)
-        } catch (error) {
-            if (error instanceof InternalError) {
-                res.status(error.httpStatusCode).json({ error: error.message })
-            } else {
-                res.status(500).json({ error: 'Internal server error' })
-            }
-        }
-    })
+        })
+    )
 }

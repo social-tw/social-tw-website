@@ -302,9 +302,8 @@ export class PostService {
         toEpoch: number,
         db: DB
     ): Promise<Post[]> {
-        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0) {
+        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
             throw InvalidEpochRangeError
-        }
         const posts = await db.findMany('Post', {
             where: {
                 epoch: { gte: fromEpoch, lte: toEpoch },
@@ -313,9 +312,7 @@ export class PostService {
                 epoch: 'asc',
             },
         })
-        if (posts.length === 0) {
-            throw NoPostHistoryFoundError
-        }
+        if (posts.length === 0) throw NoPostHistoryFoundError
 
         return posts
     }
