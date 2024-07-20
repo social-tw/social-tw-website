@@ -269,7 +269,7 @@ describe('POST /api/report', function () {
         // Add checks for other expected properties
 
         // Optionally, verify that the comment is still accessible but filtered when fetching all comments for a post
-        const allCommentsResponse = await express.get(`/api/comment/postId=${afterReportComment?.postId}`);
+        const allCommentsResponse = await express.get(`/api/comment?postId=${afterReportComment?.postId}`);
         expect(allCommentsResponse).to.have.status(200);
         const reportedComment = allCommentsResponse.body.find(comment => comment.commentId === commentId);
         expect(reportedComment).to.exist;
