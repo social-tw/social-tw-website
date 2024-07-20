@@ -27,9 +27,8 @@ export class CommentService {
     async fetchComments(postId: string, db: DB): Promise<Partial<Comment>[]> {
         const comments = await db.findMany('Comment', {
             where: {
-                status: {
-                    $in: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
-                },
+                status: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
+
                 postId: postId,
             },
             orderBy: {
@@ -63,13 +62,11 @@ export class CommentService {
         const comments = await db.findMany('Comment', {
             where: {
                 epochKey: epks,
-                status: {
-                    $in: [
-                        CommentStatus.NOT_ON_CHAIN,
-                        CommentStatus.ON_CHAIN,
-                        CommentStatus.REPORTED,
-                    ],
-                },
+                status: [
+                    CommentStatus.NOT_ON_CHAIN,
+                    CommentStatus.ON_CHAIN,
+                    CommentStatus.REPORTED,
+                ],
             },
             orderBy: {
                 [sortKey]: direction,

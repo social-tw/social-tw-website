@@ -8,15 +8,15 @@ import {
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
+import {
+    InvalidEpochRangeError,
+    NoPostHistoryFoundError,
+} from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
-import {
-    InvalidEpochRangeError,
-    NoPostHistoryFoundError,
-} from '../types/InternalError'
 
 export class PostService {
     // TODO: modify the cache data structure to avoid memory leak
@@ -169,9 +169,7 @@ export class PostService {
             posts = await db.findMany('Post', {
                 where: {
                     epochKey: epks,
-                    status: {
-                        $in: [PostStatus.ON_CHAIN, PostStatus.REPORTED],
-                    },
+                    status: [PostStatus.ON_CHAIN, PostStatus.REPORTED],
                 },
                 limit: LOAD_POST_COUNT,
             })
@@ -201,9 +199,7 @@ export class PostService {
         if (status !== undefined) {
             whereClause.status = status
         } else {
-            whereClause.status = {
-                $in: [PostStatus.ON_CHAIN, PostStatus.REPORTED],
-            }
+            whereClause.status = [PostStatus.ON_CHAIN, PostStatus.REPORTED]
         }
 
         const post = await db.findOne('Post', {
