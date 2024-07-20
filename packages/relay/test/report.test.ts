@@ -257,24 +257,38 @@ describe('POST /api/report', function () {
             })
 
         // Verify that the comment status is updated and content is filtered
-        const afterReportComment = await commentService.fetchSingleComment(commentId, db, CommentStatus.REPORTED);
-        expect(afterReportComment).to.exist;
-        expect(afterReportComment).to.not.have.property('content');
-        expect(afterReportComment).to.have.property('status', CommentStatus.REPORTED);
+        const afterReportComment = await commentService.fetchSingleComment(
+            commentId,
+            db,
+            CommentStatus.REPORTED
+        )
+        expect(afterReportComment).to.exist
+        expect(afterReportComment).to.not.have.property('content')
+        expect(afterReportComment).to.have.property(
+            'status',
+            CommentStatus.REPORTED
+        )
 
         // Verify that other properties are still present
-        expect(afterReportComment).to.have.property('commentId');
-        expect(afterReportComment).to.have.property('publishedAt');
-        expect(afterReportComment).to.have.property('epochKey');
+        expect(afterReportComment).to.have.property('commentId')
+        expect(afterReportComment).to.have.property('publishedAt')
+        expect(afterReportComment).to.have.property('epochKey')
         // Add checks for other expected properties
 
         // Optionally, verify that the comment is still accessible but filtered when fetching all comments for a post
-        const allCommentsResponse = await express.get(`/api/comment?postId=${afterReportComment?.postId}`);
-        expect(allCommentsResponse).to.have.status(200);
-        const reportedComment = allCommentsResponse.body.find(comment => comment.commentId === commentId);
-        expect(reportedComment).to.exist;
-        expect(reportedComment).to.not.have.property('content');
-        expect(reportedComment).to.have.property('status', CommentStatus.REPORTED);
+        const allCommentsResponse = await express.get(
+            `/api/comment?postId=${afterReportComment?.postId}`
+        )
+        expect(allCommentsResponse).to.have.status(200)
+        const reportedComment = allCommentsResponse.body.find(
+            (comment) => comment.commentId === commentId
+        )
+        expect(reportedComment).to.exist
+        expect(reportedComment).to.not.have.property('content')
+        expect(reportedComment).to.have.property(
+            'status',
+            CommentStatus.REPORTED
+        )
     })
 
     it('should fail to create a report on the same post / comment', async function () {
