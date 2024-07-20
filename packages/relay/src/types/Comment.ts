@@ -15,5 +15,5 @@ export type Comment = {
     cid: string | undefined
     epoch: number
     epochKey: string
-    status: number
+    status: CommentStatus
 }

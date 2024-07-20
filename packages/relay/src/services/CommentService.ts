@@ -7,18 +7,29 @@ import {
     InvalidEpochRangeError,
     NoCommentHistoryFoundError,
 } from '../types'
-import { Comment } from '../types/Comment'
-import { Post } from '../types/Post'
+import { Comment, CommentStatus } from '../types/Comment'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class CommentService {
-    async fetchComments(postId: string, db: DB): Promise<Comment[]> {
+    private filterCommentContent(comment: Comment): Partial<Comment> {
+        if (comment.status === CommentStatus.ON_CHAIN) {
+            return comment
+        } else if (comment.status === CommentStatus.REPORTED) {
+            const { content, ...restOfComment } = comment
+            return restOfComment
+        }
+        return {}
+    }
+
+    async fetchComments(postId: string, db: DB): Promise<Partial<Comment>[]> {
         const comments = await db.findMany('Comment', {
             where: {
-                status: 1,
+                status: {
+                    $in: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
+                },
                 postId: postId,
             },
             orderBy: {
@@ -26,27 +37,21 @@ export class CommentService {
             },
         })
 
-        return comments
+        return comments.map((comment) => this.filterCommentContent(comment))
     }
 
     async fetchSingleComment(
         commentId: string,
         db: DB,
-        status?: number
-    ): Promise<Comment> {
-        const whereClause = {
-            commentId,
+        status?: CommentStatus
+    ): Promise<Partial<Comment> | null> {
+        const whereClause: any = { commentId }
+        if (status !== undefined) {
+            whereClause.status = status
         }
 
-        if (status) {
-            whereClause['status'] = status
-        }
-
-        const comment = await db.findOne('Comment', {
-            where: whereClause,
-        })
-
-        return comment
+        const comment = await db.findOne('Comment', { where: whereClause })
+        return comment ? this.filterCommentContent(comment) : {}
     }
 
     async fetchMyAccountComments(
@@ -54,15 +59,24 @@ export class CommentService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Post[]> {
-        return db.findMany('Comment', {
+    ): Promise<Partial<Comment>[]> {
+        const comments = await db.findMany('Comment', {
             where: {
                 epochKey: epks,
+                status: {
+                    $in: [
+                        CommentStatus.NOT_ON_CHAIN,
+                        CommentStatus.ON_CHAIN,
+                        CommentStatus.REPORTED,
+                    ],
+                },
             },
             orderBy: {
                 [sortKey]: direction,
             },
         })
+
+        return comments.map((comment) => this.filterCommentContent(comment))
     }
 
     async leaveComment(
