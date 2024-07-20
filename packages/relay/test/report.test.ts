@@ -182,10 +182,8 @@ describe('POST /api/report', function () {
         expect(afterReportResponse.body).to.have.property('postId')
         expect(afterReportResponse.body).to.have.property('publishedAt')
         expect(afterReportResponse.body).to.have.property('epochKey')
-        // Add checks for other expected properties
-
-        // Optionally, verify that the post is still accessible but filtered when fetching all posts
-        const allPostsResponse = await express.get('/api/posts')
+        // Verify that the post is still accessible but filtered when fetching all posts
+        const allPostsResponse = await express.get('/api/post')
         expect(allPostsResponse).to.have.status(200)
         const reportedPost = allPostsResponse.body.find(
             (post) => post.postId === postId
@@ -229,9 +227,10 @@ describe('POST /api/report', function () {
     })
 
     it('should create a report and update comment status', async function () {
+        const commentId = '0'
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
-            objectId: '0',
+            objectId: commentId,
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
@@ -257,13 +256,25 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the comment status is updated
-        const comment = await commentService.fetchSingleComment(
-            '0',
-            db,
-            CommentStatus.REPORTED
-        )
-        expect(comment).to.be.exist
+        // Verify that the comment status is updated and content is filtered
+        const afterReportComment = await commentService.fetchSingleComment(commentId, db, CommentStatus.REPORTED);
+        expect(afterReportComment).to.exist;
+        expect(afterReportComment).to.not.have.property('content');
+        expect(afterReportComment).to.have.property('status', CommentStatus.REPORTED);
+
+        // Verify that other properties are still present
+        expect(afterReportComment).to.have.property('commentId');
+        expect(afterReportComment).to.have.property('publishedAt');
+        expect(afterReportComment).to.have.property('epochKey');
+        // Add checks for other expected properties
+
+        // Optionally, verify that the comment is still accessible but filtered when fetching all comments for a post
+        const allCommentsResponse = await express.get(`/api/comment/postId=${afterReportComment?.postId}`);
+        expect(allCommentsResponse).to.have.status(200);
+        const reportedComment = allCommentsResponse.body.find(comment => comment.commentId === commentId);
+        expect(reportedComment).to.exist;
+        expect(reportedComment).to.not.have.property('content');
+        expect(reportedComment).to.have.property('status', CommentStatus.REPORTED);
     })
 
     it('should fail to create a report on the same post / comment', async function () {
@@ -790,9 +801,8 @@ describe('POST /api/report', function () {
             })
 
         await express.get(`/api/post/${report.objectId}`).then((res) => {
-            expect(res).to.have.status(200)
-            const curPost = res.body as Post
-            expect(curPost.status).to.equal(PostStatus.DISAGREED)
+            expect(res).to.have.status(400)
+            expect(res.body.error).to.be.equal('Post does not exist')
         })
     })
 
