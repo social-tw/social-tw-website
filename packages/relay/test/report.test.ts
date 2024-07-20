@@ -138,9 +138,10 @@ describe('POST /api/report', function () {
     })
 
     it('should create a report and update post status', async function () {
+        const postId = '0'
         const reportData: ReportHistory = {
             type: ReportType.POST,
-            objectId: '0',
+            objectId: postId,
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
@@ -166,12 +167,32 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the post status is updated
-        await express
-            .get(`/api/post/0?status=${PostStatus.REPORTED}`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-            })
+        // Verify that the post status is updated and content is filtered
+        const afterReportResponse = await express.get(
+            `/api/post/${postId}?status=${PostStatus.REPORTED}`
+        )
+        expect(afterReportResponse).to.have.status(200)
+        expect(afterReportResponse.body).to.not.have.property('content')
+        expect(afterReportResponse.body).to.have.property(
+            'status',
+            PostStatus.REPORTED
+        )
+
+        // Verify that other properties are still present
+        expect(afterReportResponse.body).to.have.property('postId')
+        expect(afterReportResponse.body).to.have.property('publishedAt')
+        expect(afterReportResponse.body).to.have.property('epochKey')
+        // Add checks for other expected properties
+
+        // Optionally, verify that the post is still accessible but filtered when fetching all posts
+        const allPostsResponse = await express.get('/api/posts')
+        expect(allPostsResponse).to.have.status(200)
+        const reportedPost = allPostsResponse.body.find(
+            (post) => post.postId === postId
+        )
+        expect(reportedPost).to.exist
+        expect(reportedPost).to.not.have.property('content')
+        expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
     })
 
     it('should fail to create a report with invalid proof', async function () {
