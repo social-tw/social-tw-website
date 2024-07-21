@@ -1,9 +1,22 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import {
+    EpochDateService,
+    FromToEpoch,
+    InvalidFromToEpoch,
+} from '../services/EpochDateService'
 
 export function useDatePicker() {
     const [startDate, setStartDate] = useState<undefined | Date>(undefined)
     const [endDate, setEndDate] = useState<undefined | Date>(undefined)
     const [isDateSelected, setIsDateSelected] = useState(false)
+    const [fromToEpoch, setFromToEpoch] = useState<FromToEpoch>(
+        new InvalidFromToEpoch(),
+    )
+    const updateFromToEpoch = useCallback(() => {
+        setFromToEpoch(
+            EpochDateService.createFromToEpochByDateRange(startDate, endDate),
+        )
+    }, [startDate, endDate])
     const onChange = (dates: any) => {
         const [start, end] = dates
         setStartDate(start)
@@ -40,5 +53,7 @@ export function useDatePicker() {
         setToday,
         setPast7Days,
         setPast30Days,
+        fromToEpoch,
+        updateFromToEpoch,
     }
 }

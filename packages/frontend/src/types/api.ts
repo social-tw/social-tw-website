@@ -12,6 +12,15 @@ export enum SortKeys {
     VoteSum = 'voteSum',
 }
 
+export type FetchReputationHistoryResponse = {
+    score: string
+    report: {
+        reason: string
+        reportorEpochKey: string
+        reportAt: string
+    }
+}[]
+
 export interface FetchRelayConfigResponse {
     UNIREP_ADDRESS: string
     APP_ADDRESS: string

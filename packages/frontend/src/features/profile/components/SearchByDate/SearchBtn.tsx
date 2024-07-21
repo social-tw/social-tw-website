@@ -2,9 +2,10 @@ import clsx from 'clsx'
 
 interface SearchBtnProps {
     disabled: boolean
+    onClick: () => void
 }
 
-export default function SearchBtn({ disabled }: SearchBtnProps) {
+export default function SearchBtn({ disabled, onClick }: SearchBtnProps) {
     return (
         <button
             className={clsx(
@@ -13,6 +14,7 @@ export default function SearchBtn({ disabled }: SearchBtnProps) {
                 `cursor-pointer disabled:cursor-not-allowed`,
             )}
             disabled={disabled}
+            onClick={onClick}
         >
             查詢
         </button>

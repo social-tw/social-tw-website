@@ -6,14 +6,43 @@ import {
     type BodyCellData,
     type HeaderCellData,
 } from '@/features/shared'
+import { useDatePicker } from '@/features/shared/hooks/useDatePicker'
+import { FromToEpoch } from '@/features/shared/services/EpochDateService'
+import { FetchReputationHistoryResponse } from '@/types/api'
 import { ReactNode } from 'react'
-import { SearchByDate } from '../SearchByDate'
+import { useReputationHistory } from '../../hooks/useReputationHistory/useReputationHistory'
+import SearchByDate from '../SearchByDate/SearchByDate'
+
+interface ReputationTableProps {
+    fromToEpoch: FromToEpoch
+}
 
 export default function ReputationHistory() {
+    const {
+        startDate,
+        endDate,
+        isDateSelected,
+        onChange,
+        setToday,
+        setPast7Days,
+        setPast30Days,
+        fromToEpoch,
+        updateFromToEpoch,
+    } = useDatePicker()
+
     return (
         <Wrapper>
-            <SearchByDate />
-            <ReputationTable />
+            <SearchByDate
+                startDate={startDate}
+                endDate={endDate}
+                isDateSelected={isDateSelected}
+                onChange={onChange}
+                onClickSearch={updateFromToEpoch}
+                setToday={setToday}
+                setPast7Days={setPast7Days}
+                setPast30Days={setPast30Days}
+            />
+            <ReputationTable fromToEpoch={fromToEpoch} />
         </Wrapper>
     )
 }
@@ -22,16 +51,18 @@ function Wrapper({ children }: { children: ReactNode }) {
     return <div className={`mb-8 flex flex-col gap-8`}>{children}</div>
 }
 
-function ReputationTable() {
+function ReputationTable({ fromToEpoch }: ReputationTableProps) {
+    const { isFetchingReputationHistory, reputationHistory } =
+        useReputationHistory(fromToEpoch)
     const headerData = getHeaderData()
-    const bodyData = getBodyData()
+    const bodyData = parseReputationHistoryToBodyData(reputationHistory || [])
     return (
         <TableContainer>
             <TableHeader data={headerData} />
             <TableBody
                 data={bodyData}
                 noDataHint="此日期區間尚無紀錄，請另行查詢"
-                isLoading={false}
+                isLoading={isFetchingReputationHistory}
                 isInit={true}
             />
         </TableContainer>
@@ -47,15 +78,15 @@ function getHeaderData(): HeaderCellData[] {
     ]
 }
 
-function getBodyData(): BodyCellData[][] {
-    return Array(0)
-        .fill(0)
-        .map(() => {
-            return [
-                { type: BodyCellType.Text, content: '2024/07/23' },
-                { type: BodyCellType.Text, content: 'mock reason' },
-                { type: BodyCellType.Text, content: 'mock epoch key' },
-                { type: BodyCellType.Text, content: '+3' },
-            ]
-        })
+function parseReputationHistoryToBodyData(
+    reputationHistoryData: FetchReputationHistoryResponse,
+): BodyCellData[][] {
+    return reputationHistoryData.map((v) => {
+        return [
+            { type: BodyCellType.Text, content: v.report.reportAt },
+            { type: BodyCellType.Text, content: v.report.reason },
+            { type: BodyCellType.Text, content: v.report.reportorEpochKey },
+            { type: BodyCellType.Text, content: v.score },
+        ]
+    })
 }

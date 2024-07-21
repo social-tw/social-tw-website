@@ -1,19 +1,34 @@
 import { DatePicker } from '@/features/shared'
-import { useDatePicker } from '@/features/shared/hooks/useDatePicker'
 import { ReactNode } from 'react'
 import SearchBtn from './SearchBtn'
 import { SetPast30DaysBtn, SetPast7DaysBtn, SetTodayBtn } from './SetDateBtn'
 
-export default function SearchByDate() {
-    const {
-        startDate,
-        endDate,
-        isDateSelected,
-        onChange,
-        setToday,
-        setPast7Days,
-        setPast30Days,
-    } = useDatePicker()
+interface SearchByDateProps {
+    startDate: Date | undefined
+    endDate: Date | undefined
+    isDateSelected: boolean
+    onChange: (dates: any) => void
+    onClickSearch: () => void
+    setToday: () => void
+    setPast7Days: () => void
+    setPast30Days: () => void
+}
+
+export interface DateRange {
+    startDate: Date | undefined
+    endDate: Date | undefined
+}
+
+export default function SearchByDate({
+    startDate,
+    endDate,
+    isDateSelected,
+    onChange,
+    onClickSearch,
+    setToday,
+    setPast7Days,
+    setPast30Days,
+}: SearchByDateProps) {
     return (
         <Wrapper>
             <RowWrapper>
@@ -26,7 +41,10 @@ export default function SearchByDate() {
                             isDateSelected={isDateSelected}
                             onChange={onChange}
                         />
-                        <SearchBtn disabled={!isDateSelected} />
+                        <SearchBtn
+                            disabled={!isDateSelected}
+                            onClick={onClickSearch}
+                        />
                     </RowWrapper>
                 </Group>
             </RowWrapper>
