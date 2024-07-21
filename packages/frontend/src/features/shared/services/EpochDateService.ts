@@ -1,3 +1,5 @@
+import { Synchronizer } from '@unirep/core'
+
 export class EpochDateService {
     static isValidDateRange(start: Date, end: Date) {
         return start.getTime() <= end.getTime()
@@ -6,10 +8,37 @@ export class EpochDateService {
     static createFromToEpochByDateRange(
         start: Date | undefined,
         end: Date | undefined,
+        synchoronizer: Synchronizer,
     ) {
-        return !!start && !!end && EpochDateService.isValidDateRange(start, end)
-            ? new ValidFromToEpoch(start, end)
-            : new InvalidFromToEpoch()
+        if (!!start && !!end && EpochDateService.isValidDateRange(start, end)) {
+            const [from, to] = EpochDateService.calcEpochsByDates(
+                [start, end],
+                synchoronizer,
+            )
+            return new ValidFromToEpoch(from, to)
+        }
+        return new InvalidFromToEpoch()
+    }
+
+    static calcEpochsByDates(dates: Date[], synchoronizer: Synchronizer) {
+        const now = Date.now()
+        return dates.map((date) =>
+            EpochDateService.calcEpochByDate(now, date, synchoronizer),
+        )
+    }
+
+    static calcEpochByDate(
+        now: number,
+        date: Date,
+        synchoronizer: Synchronizer,
+    ) {
+        const epochLength = 300000
+        const currentEpoch = synchoronizer.calcCurrentEpoch()
+        const remainingTime = synchoronizer.calcEpochRemainingTime() * 1000
+        const currentEpochStartTime = now - (epochLength - remainingTime)
+        const serviceStartTime =
+            currentEpochStartTime - epochLength * currentEpoch
+        return Math.floor((date.getTime() - serviceStartTime) / epochLength)
     }
 }
 
@@ -28,16 +57,8 @@ export class InvalidFromToEpoch implements FromToEpoch {
 }
 
 export class ValidFromToEpoch implements FromToEpoch {
-    from: number
-    to: number
-    constructor(startDate: Date, endDate: Date) {
-        if (!EpochDateService.isValidDateRange(startDate, endDate)) {
-            throw Error('Invalid date range')
-        }
-        this.from = this.getEpochByDate(startDate)
-        this.to = this.getEpochByDate(endDate)
-    }
-    private getEpochByDate(date: Date) {
-        return 2
-    }
+    constructor(
+        public from: number,
+        public to: number,
+    ) {}
 }
