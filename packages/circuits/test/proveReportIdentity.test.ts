@@ -1,5 +1,6 @@
 import { CircuitConfig } from '@unirep/circuits'
 import * as utils from '@unirep/utils'
+import { IncrementalMerkleTree as zkIncrementalMerkleTree } from '@zk-kit/incremental-merkle-tree'
 import { expect } from 'chai'
 import { poseidon2 } from 'poseidon-lite'
 import {
@@ -42,6 +43,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
     tree.insert(leaf)
     const leafIndex = tree.indexOf(leaf)
     const proof = tree.createProof(leafIndex)
+    const stateTreeRoot = tree.root
 
     it('should succeed with valid inputs', async () => {
         const identitySecret = user.id.secret
@@ -59,6 +61,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             chainId,
             stateTreeElements: proof.siblings,
             stateTreeIndices: proof.pathIndices,
+            stateTreeRoot,
         })
         const { isValid, publicSignals } = await genProofAndVerify(
             circuit,
@@ -71,57 +74,108 @@ describe('Prove report identity in Unirep Social-TW', function () {
         )
     })
 
-    it('should revert with invalid identity', async () => {})
-    it('should revert with wrong userId', async () => {})
-    it('should revert with wrong reportId', async () => {})
-    it('should revert with arbitrary nullifier', async () => {})
+    it('should revert with invalid identity', async () => {
+        const wrongIdentitySecret = BigInt(444)
+        const hashUserId = user.hashUserId
+        const reportId = 0
+        const reportNullifier = genNullifier(hashUserId, reportId)
+        const circuitInputs = genReportIdentityCircuitInput({
+            reportNullifier,
+            identitySecret: wrongIdentitySecret,
+            hashUserId,
+            reportId,
+            data,
+            attesterId,
+            epoch,
+            chainId,
+            stateTreeElements: proof.siblings,
+            stateTreeIndices: proof.pathIndices,
+            stateTreeRoot,
+        })
+        try {
+            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
+            expect(isValid).to.be.false
+        } catch (error) {
+            console.log('Expected error occurred:\n\n', error)
+        }
+    })
 
-    // it('should revert with invalid hashUserId', async () => {
-    //     const reportId = 0
-    //     const currentEpoch = 20
-    //     const currentNonce = 1
-    //     const attesterId = BigInt(219090124810)
-    //     const reportNullifier = genNullifier(user.hashUserId, reportId)
-    //     const hashUserId = BigInt(123)
-    //     const circuitInputs = genReportNullifierCircuitInput({
-    //         reportNullifier,
-    //         hashUserId,
-    //         reportId,
-    //         currentEpoch,
-    //         currentNonce,
-    //         attesterId,
-    //         chainId,
-    //     })
-    //     try {
-    //         const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-    //         expect(isValid).to.be.false
-    //     } catch (error) {
-    //         console.log('Expected error occurred:\n\n', error)
-    //     }
-    // })
+    it('should revert with wrong hashUserId', async () => {
+        const identitySecret = user.id.secret
+        const reportId = 0
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        const hashUserId = BigInt(123)
+        const circuitInputs = genReportIdentityCircuitInput({
+            reportNullifier,
+            identitySecret,
+            hashUserId,
+            reportId,
+            data,
+            attesterId,
+            epoch,
+            chainId,
+            stateTreeElements: proof.siblings,
+            stateTreeIndices: proof.pathIndices,
+            stateTreeRoot,
+        })
+        try {
+            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
+            expect(isValid).to.be.false
+        } catch (error) {
+            console.log('Expected error occurred:\n\n', error)
+        }
+    })
 
-    // it('should revert with invalid reportId', async () => {
-    //     const hashUserId = user.hashUserId
-    //     let reportId = 1
-    //     const currentEpoch = 20
-    //     const currentNonce = 1
-    //     const attesterId = BigInt(219090124810)
-    //     const reportNullifier = genNullifier(user.hashUserId, reportId)
-    //     reportId = 2
-    //     const circuitInputs = genReportNullifierCircuitInput({
-    //         reportNullifier,
-    //         hashUserId,
-    //         reportId,
-    //         currentEpoch,
-    //         currentNonce,
-    //         attesterId,
-    //         chainId,
-    //     })
-    //     try {
-    //         const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-    //         expect(isValid).to.be.false
-    //     } catch (error) {
-    //         console.log('Expected error occurred:\n\n', error)
-    //     }
-    // })
+    it('should revert with wrong reportId', async () => {
+        const identitySecret = user.id.secret
+        const hashUserId = user.hashUserId
+        const reportId = 0
+        const wrongReportId = 444
+        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        const circuitInputs = genReportIdentityCircuitInput({
+            reportNullifier,
+            identitySecret,
+            hashUserId,
+            reportId: wrongReportId,
+            data,
+            attesterId,
+            epoch,
+            chainId,
+            stateTreeElements: proof.siblings,
+            stateTreeIndices: proof.pathIndices,
+            stateTreeRoot,
+        })
+        try {
+            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
+            expect(isValid).to.be.false
+        } catch (error) {
+            console.log('Expected error occurred:\n\n', error)
+        }
+    })
+
+    it('should revert with arbitrary nullifier', async () => {
+        const identitySecret = user.id.secret
+        const hashUserId = user.hashUserId
+        const reportId = 0
+        const wrongReportNullifier = BigInt(444)
+        const circuitInputs = genReportIdentityCircuitInput({
+            reportNullifier: wrongReportNullifier,
+            identitySecret,
+            hashUserId,
+            reportId,
+            data,
+            attesterId,
+            epoch,
+            chainId,
+            stateTreeElements: proof.siblings,
+            stateTreeIndices: proof.pathIndices,
+            stateTreeRoot,
+        })
+        try {
+            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
+            expect(isValid).to.be.false
+        } catch (error) {
+            console.log('Expected error occurred:\n\n', error)
+        }
+    })
 })

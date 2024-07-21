@@ -15,6 +15,7 @@ template ReportIdentityProof(STATE_TREE_DEPTH, FIELD_COUNT) {
     signal input chain_id;
     signal input state_tree_indices[STATE_TREE_DEPTH];
     signal input state_tree_elements[STATE_TREE_DEPTH];
+    signal input state_tree_root;
     
     /* Step 1. Check if user exists in the state tree */
     signal leaf_hasher;
@@ -31,6 +32,8 @@ template ReportIdentityProof(STATE_TREE_DEPTH, FIELD_COUNT) {
         state_tree_indices,
         state_tree_elements
     );
+
+    state_tree_root === state_merkletree_root;
 
     /* Step 2: check nullifier */
     signal nullifier <== Poseidon(2)([hash_user_id, report_id]);

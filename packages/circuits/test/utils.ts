@@ -123,6 +123,7 @@ export const genReportIdentityCircuitInput = (config: {
     chainId: number | bigint
     stateTreeIndices: number[] | bigint[]
     stateTreeElements: number[] | bigint[]
+    stateTreeRoot: number | bigint
 }) => {
     const {
         reportNullifier,
@@ -135,6 +136,7 @@ export const genReportIdentityCircuitInput = (config: {
         chainId,
         stateTreeIndices,
         stateTreeElements,
+        stateTreeRoot,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -148,6 +150,7 @@ export const genReportIdentityCircuitInput = (config: {
         chain_id: chainId,
         state_tree_indices: stateTreeIndices,
         state_tree_elements: stateTreeElements,
+        state_tree_root: stateTreeRoot,
     }
     return utils.stringifyBigInts(circuitInputs)
 }
