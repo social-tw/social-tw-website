@@ -24,7 +24,7 @@ export class CommentService {
         return {}
     }
 
-    async fetchComments(postId: string, db: DB): Promise<Partial<Comment>[]> {
+    async fetchComments(postId: string, db: DB): Promise<Partial<Comment>[] | null> {
         const comments = await db.findMany('Comment', {
             where: {
                 status: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
@@ -36,7 +36,7 @@ export class CommentService {
             },
         })
 
-        return comments.map((comment) => this.filterCommentContent(comment))
+        return comments ? comments.map((comment) => this.filterCommentContent(comment)) : null
     }
 
     async fetchSingleComment(
@@ -50,7 +50,7 @@ export class CommentService {
         }
 
         const comment = await db.findOne('Comment', { where: whereClause })
-        return comment ? this.filterCommentContent(comment) : {}
+        return comment ? this.filterCommentContent(comment) : null
     }
 
     async fetchMyAccountComments(
@@ -58,7 +58,7 @@ export class CommentService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Partial<Comment>[]> {
+    ): Promise<Partial<Comment>[] | null> {
         const comments = await db.findMany('Comment', {
             where: {
                 epochKey: epks,
@@ -73,7 +73,7 @@ export class CommentService {
             },
         })
 
-        return comments.map((comment) => this.filterCommentContent(comment))
+        return comments ? comments.map((comment) => this.filterCommentContent(comment)) : null
     }
 
     async leaveComment(
@@ -134,9 +134,7 @@ export class CommentService {
                 postId: postId,
             },
         })
-        if (!comment) {
-            throw CommentNotExistError
-        }
+        if (!comment) throw CommentNotExistError
 
         const epochKeyLiteProof =
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
@@ -145,9 +143,7 @@ export class CommentService {
                 synchronizer
             )
 
-        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) {
-            throw InvalidEpochKeyError
-        }
+        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) throw InvalidEpochKeyError
 
         const txHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
