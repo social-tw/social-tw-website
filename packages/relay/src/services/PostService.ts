@@ -175,9 +175,7 @@ export class PostService {
             })
         }
 
-        if (!posts) {
-            return null
-        }
+        if (!posts) return null
 
         return await Promise.all(
             posts.map(async (post) => {
@@ -206,9 +204,7 @@ export class PostService {
             where: whereClause,
         })
 
-        if (!post) {
-            return null
-        }
+        if (!post) return null
 
         const filteredPost = this.filterPostContent(post)
 
@@ -224,23 +220,23 @@ export class PostService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Partial<Post>[]> {
+    ): Promise<Partial<Post>[] | null> {
         const posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
-                status: {
-                    $in: [
-                        PostStatus.NOT_ON_CHAIN,
-                        PostStatus.ON_CHAIN,
-                        PostStatus.REPORTED,
-                    ],
-                },
+                status: [
+                    PostStatus.NOT_ON_CHAIN,
+                    PostStatus.ON_CHAIN,
+                    PostStatus.REPORTED,
+                ],
             },
             orderBy: {
                 [sortKey]: direction,
             },
             limit: LOAD_POST_COUNT,
         })
+
+        if (!posts) return null
 
         return await Promise.all(
             posts.map(async (post) => {
