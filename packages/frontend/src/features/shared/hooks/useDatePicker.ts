@@ -55,6 +55,13 @@ export function useDatePicker() {
         setEndDate(today)
         setIsDateSelected(true)
     }
+
+    const reset = () => {
+        setStartDate(undefined)
+        setEndDate(undefined)
+        setIsDateSelected(false)
+    }
+
     return {
         startDate,
         endDate,
@@ -65,5 +72,6 @@ export function useDatePicker() {
         setPast30Days,
         fromToEpoch,
         updateFromToEpoch,
+        reset,
     }
 }

@@ -12,6 +12,7 @@ import { FetchReputationHistoryResponse } from '@/types/api'
 import { ReactNode } from 'react'
 import { useReputationHistory } from '../../hooks/useReputationHistory/useReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
+import { SearchDayLimitDialog } from './SearchDayLimitDialog'
 
 interface ReputationTableProps {
     fromToEpoch: FromToEpoch
@@ -28,7 +29,11 @@ export default function ReputationHistory() {
         setPast30Days,
         fromToEpoch,
         updateFromToEpoch,
+        reset,
     } = useDatePicker()
+
+    const shouldShow30DaysLimit =
+        !!startDate && !!endDate && !isWithin30Days(startDate, endDate)
 
     return (
         <Wrapper>
@@ -43,6 +48,10 @@ export default function ReputationHistory() {
                 setPast30Days={setPast30Days}
             />
             <ReputationTable fromToEpoch={fromToEpoch} />
+            <SearchDayLimitDialog
+                isOpen={shouldShow30DaysLimit}
+                onClose={reset}
+            />
         </Wrapper>
     )
 }
@@ -89,4 +98,13 @@ function parseReputationHistoryToBodyData(
             { type: BodyCellType.Text, content: v.score },
         ]
     })
+}
+
+function isWithin30Days(startDate: Date | null, endDate: Date | null) {
+    if (!startDate || !endDate) return false
+    const startTimestamp = startDate.getTime()
+    const endTimestamp = endDate.getTime()
+    const difference = Math.abs(endTimestamp - startTimestamp)
+    const daysDifference = difference / (1000 * 60 * 60 * 24)
+    return daysDifference <= 30
 }
