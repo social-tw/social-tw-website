@@ -13,3 +13,7 @@ zksnarkBuild/*
 !*/reportNegRepProof.wasm
 !*/reportNegRepProof.zkey
 !*/reportNegRepProof_main.circom
+!*/reportIdentityProof.vkey.json
+!*/reportIdentityProof.wasm
+!*/reportIdentityProof.zkey
+!*/reportIdentityProof.circom
