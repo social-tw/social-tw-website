@@ -16,12 +16,12 @@
 }
 
 .custom-input__selected {
-    color: black;    
+    color: black;
 }
 
 .custom-input:focus {
     border-color: white;
-    box-shadow: 0 0 5px rgba(#FF892A, 0.5);
+    box-shadow: 0 0 5px rgba(#ff892a, 0.5);
     outline: none;
 }
 
@@ -29,7 +29,7 @@
     position: absolute;
     left: 10px;
     color: gray;
-    pointer-events: none; 
+    pointer-events: none;
     z-index: 1;
 }
 
@@ -49,12 +49,12 @@
 }
 
 .react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected, 
+.react-datepicker__day--keyboard-selected,
 .react-datepicker__day--in-range,
 .react-datepicker__day--in-selecting-range,
 .react-datepicker__day--selecting-range-start,
 .react-datepicker__day--selecting-range-end {
-    background-color: #FF892A !important; /* 修改为你想要的颜色 */
+    background-color: #ff892a !important; /* 修改为你想要的颜色 */
     color: #fff !important; /* 如果需要，也可以修改字体颜色 */
 }
 

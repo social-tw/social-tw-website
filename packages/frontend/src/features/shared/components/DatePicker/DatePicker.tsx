@@ -24,7 +24,9 @@ export default function DatePicker({
     return (
         <div className="date-picker-wrapper">
             <FaCalendarAlt
-                className={`calendar-icon w-4 h-4 ${isDateSelected ? 'calendar-icon__selected' : ''}`}
+                className={`calendar-icon w-4 h-4 ${
+                    isDateSelected ? 'calendar-icon__selected' : ''
+                }`}
             />
             <DatePickerLib
                 selected={startDate}
@@ -33,7 +35,9 @@ export default function DatePicker({
                 endDate={endDate}
                 selectsRange
                 placeholderText="YYYY/MM/DD - YYYY/MM/DD"
-                className={`custom-input ${isDateSelected ? 'custom-input__selected' : ''}`}
+                className={`custom-input ${
+                    isDateSelected ? 'custom-input__selected' : ''
+                }`}
                 renderCustomHeader={CustomHeader}
             />
         </div>
