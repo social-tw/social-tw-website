@@ -7,7 +7,8 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 import {
     InvalidDirectionError,
     InvalidSortKeyError,
-    UnspecifiedEpochKeyError,
+    NoDataFoundError,
+    UnspecifiedEpochKeyError
 } from '../types'
 
 export default (app: Express, db: DB) => {
@@ -19,7 +20,7 @@ export default (app: Express, db: DB) => {
             sortKey: 'publishedAt' | 'voteSum',
             direction: 'asc' | 'desc',
             db: DB
-        ) => Promise<any[]>
+        ) => Promise<any[] | null>
     ) => {
         const epks = req.query.epks as string | undefined
         const parsedEpks = epks?.split('_') || []
@@ -38,6 +39,7 @@ export default (app: Express, db: DB) => {
         }
 
         const data = await fetchData(parsedEpks, sortKey, direction, db)
+        if (data === null) throw NoDataFoundError
         res.json(data)
     }
 
@@ -47,7 +49,7 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                postService.fetchMyAccountPosts
+                (epks, sortKey, direction, db) => postService.fetchMyAccountPosts(epks, sortKey, direction, db)
             )
         })
     )
@@ -58,7 +60,7 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                commentService.fetchMyAccountComments
+                (epks, sortKey, direction, db) => commentService.fetchMyAccountComments(epks, sortKey, direction, db)
             )
         })
     )
@@ -69,7 +71,7 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                voteService.fetchMyAccountVotes
+                (epks, sortKey, direction, db) => voteService.fetchMyAccountVotes(epks, sortKey, direction, db)
             )
         })
     )
