@@ -6,11 +6,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import {
-    ReportStatus,
-    ReportType,
-    AdjudicateValue,
-} from '../src/types'
+import { ReportStatus, ReportType, AdjudicateValue } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { UserStateFactory } from './utils/UserStateFactory'
 import { signUp } from './utils/signUp'
@@ -43,7 +39,9 @@ describe('Reputation Claim', function () {
     const posReputation = 3
     const negReputation = 5
     const circuit = 'reportNullifierProof'
-    const identifier = genVHelperIdentifier('reportNullifierProofVerifierHelper')
+    const identifier = genVHelperIdentifier(
+        'reportNullifierProofVerifierHelper'
+    )
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -72,11 +70,29 @@ describe('Reputation Claim', function () {
         chainId = await unirep.chainid()
 
         // Create three users: poster, reporter, and voter
-        poster = await signUp(await userService.getLoginUser(db, 'poster', undefined), userStateFactory, userService, synchronizer, ethers.Wallet.createRandom())
-        reporter = await signUp(await userService.getLoginUser(db, 'reporter', undefined), userStateFactory, userService, synchronizer, ethers.Wallet.createRandom())
-        voter = await signUp(await userService.getLoginUser(db, 'voter', undefined), userStateFactory, userService, synchronizer, ethers.Wallet.createRandom())
+        poster = await signUp(
+            await userService.getLoginUser(db, 'poster', undefined),
+            userStateFactory,
+            userService,
+            synchronizer,
+            ethers.Wallet.createRandom()
+        )
+        reporter = await signUp(
+            await userService.getLoginUser(db, 'reporter', undefined),
+            userStateFactory,
+            userService,
+            synchronizer,
+            ethers.Wallet.createRandom()
+        )
+        voter = await signUp(
+            await userService.getLoginUser(db, 'voter', undefined),
+            userStateFactory,
+            userService,
+            synchronizer,
+            ethers.Wallet.createRandom()
+        )
 
-        await Promise.all([poster, reporter, voter].map(u => u.waitForSync()))
+        await Promise.all([poster, reporter, voter].map((u) => u.waitForSync()))
 
         // Simulate post creation
         const postId = '1'
@@ -112,11 +128,11 @@ describe('Reputation Claim', function () {
                         nullifier: voter.id.toString(),
                         adjudicateValue: AdjudicateValue.AGREE,
                         claimed: false,
-                    }
+                    },
                 ],
                 adjudicateCount: 1,
                 status: ReportStatus.WAITING_FOR_TRANSACTION,
-            }
+            },
         })
 
         // Transition to next epoch to make the report claimable
@@ -133,7 +149,7 @@ describe('Reputation Claim', function () {
     beforeEach(async function () {
         const currentEpoch = await sync.loadCurrentEpoch()
         for (const user of [poster, reporter, voter]) {
-            if (await user.latestTransitionedEpoch() < currentEpoch) {
+            if ((await user.latestTransitionedEpoch()) < currentEpoch) {
                 await user.genUserStateTransitionProof({
                     toEpoch: currentEpoch,
                 })
@@ -152,11 +168,13 @@ describe('Reputation Claim', function () {
         const res = await express
             .post('/api/reports/claimPositiveReputation')
             .set('content-type', 'application/json')
-            .send(stringifyBigInts({
-                publicSignals,
-                proof: flattenProof(proof),
-                change: posReputation,
-            }))
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof: flattenProof(proof),
+                    change: posReputation,
+                })
+            )
 
         expect(res).to.have.status(200)
         expect(res.body.message).to.equal('Success get Positive Reputation')
@@ -180,11 +198,13 @@ describe('Reputation Claim', function () {
         const res = await express
             .post('/api/reports/claimNegativeReputation')
             .set('content-type', 'application/json')
-            .send(stringifyBigInts({
-                publicSignals,
-                proof: flattenProof(proof),
-                change: negReputation,
-            }))
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof: flattenProof(proof),
+                    change: negReputation,
+                })
+            )
 
         expect(res).to.have.status(200)
         expect(res.body.message).to.equal('Success get Negative Reputation')
@@ -211,11 +231,13 @@ describe('Reputation Claim', function () {
         const res = await express
             .post('/api/reports/claimPositiveReputation')
             .set('content-type', 'application/json')
-            .send(stringifyBigInts({
-                publicSignals,
-                proof: invalidProof,
-                change: posReputation,
-            }))
+            .send(
+                stringifyBigInts({
+                    publicSignals,
+                    proof: invalidProof,
+                    change: posReputation,
+                })
+            )
 
         expect(res).to.have.status(500)
         expect(res.body.message).to.equal('Get Positive Reputation error')

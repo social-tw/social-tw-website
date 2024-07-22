@@ -934,5 +934,4 @@ describe('POST /api/report', function () {
         expect(reportCategories[6].number).equal(ReportCategory.OTHER)
         expect(reportCategories[6].description).to.be.equal('其他')
     })
-
 })
