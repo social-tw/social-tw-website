@@ -389,7 +389,9 @@ export class ReportService {
                 reportEpoch: epoch,
             },
             update: {
-                [`${type}ReputationClaimed`]: claimed,
+                [type === ReputationDirection.POSITIVE
+                    ? 'reportorClaimedRep'
+                    : 'respondentClaimedRep']: claimed,
             },
         })
     }
