@@ -68,9 +68,12 @@ describe('Prove report identity in Unirep Social-TW', function () {
             circuitInputs
         )
         expect(isValid).to.be.true
-        const nullifier = publicSignals[0]
-        expect(nullifier.toString()).to.be.equal(
+        expect(publicSignals[0].toString()).to.be.equal(
             poseidon2([hashUserId, reportId]).toString()
+        )
+        expect(publicSignals[1].toString()).to.be.equal(epoch.toString())
+        expect(publicSignals[2].toString()).to.be.equal(
+            stateTreeRoot.toString()
         )
     })
 
