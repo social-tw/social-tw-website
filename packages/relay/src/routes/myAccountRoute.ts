@@ -8,7 +8,7 @@ import {
     InvalidDirectionError,
     InvalidSortKeyError,
     NoDataFoundError,
-    UnspecifiedEpochKeyError
+    UnspecifiedEpochKeyError,
 } from '../types'
 
 export default (app: Express, db: DB) => {
@@ -49,7 +49,13 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                (epks, sortKey, direction, db) => postService.fetchMyAccountPosts(epks, sortKey, direction, db)
+                (epks, sortKey, direction, db) =>
+                    postService.fetchMyAccountPosts(
+                        epks,
+                        sortKey,
+                        direction,
+                        db
+                    )
             )
         })
     )
@@ -60,7 +66,13 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                (epks, sortKey, direction, db) => commentService.fetchMyAccountComments(epks, sortKey, direction, db)
+                (epks, sortKey, direction, db) =>
+                    commentService.fetchMyAccountComments(
+                        epks,
+                        sortKey,
+                        direction,
+                        db
+                    )
             )
         })
     )
@@ -71,7 +83,13 @@ export default (app: Express, db: DB) => {
             return await handleMyAccountRequest(
                 req,
                 res,
-                (epks, sortKey, direction, db) => voteService.fetchMyAccountVotes(epks, sortKey, direction, db)
+                (epks, sortKey, direction, db) =>
+                    voteService.fetchMyAccountVotes(
+                        epks,
+                        sortKey,
+                        direction,
+                        db
+                    )
             )
         })
     )

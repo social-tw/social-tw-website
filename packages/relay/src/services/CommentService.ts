@@ -24,7 +24,10 @@ export class CommentService {
         return {}
     }
 
-    async fetchComments(postId: string, db: DB): Promise<Partial<Comment>[] | null> {
+    async fetchComments(
+        postId: string,
+        db: DB
+    ): Promise<Partial<Comment>[] | null> {
         const comments = await db.findMany('Comment', {
             where: {
                 status: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
@@ -36,7 +39,9 @@ export class CommentService {
             },
         })
 
-        return comments ? comments.map((comment) => this.filterCommentContent(comment)) : null
+        return comments
+            ? comments.map((comment) => this.filterCommentContent(comment))
+            : null
     }
 
     async fetchSingleComment(
@@ -73,7 +78,9 @@ export class CommentService {
             },
         })
 
-        return comments ? comments.map((comment) => this.filterCommentContent(comment)) : null
+        return comments
+            ? comments.map((comment) => this.filterCommentContent(comment))
+            : null
     }
 
     async leaveComment(
@@ -143,7 +150,8 @@ export class CommentService {
                 synchronizer
             )
 
-        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey) throw InvalidEpochKeyError
+        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey)
+            throw InvalidEpochKeyError
 
         const txHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
