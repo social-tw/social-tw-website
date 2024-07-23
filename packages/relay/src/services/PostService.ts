@@ -54,7 +54,7 @@ export class PostService {
         //      1. use CASE to cal scores by different groups (posts <= 2 days | posts > 2 days)
         //      2. use Join to cal daily upVotes & downVotes for the posts
         //      3. use Join to cal daily comments for the posts
-        //      4. filter posts whose are already on-chain (status = 1)
+        //      4. filter posts whose are already on-chain (status = ON_CHAIN || REPORTED)
         //      5. order by
         //         a. CASE posts <= 2 days = 0 | posts > 2 days first = 1
         //         b. sorting_score
@@ -97,7 +97,7 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
-            WHERE p.status = 1
+            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED})
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
