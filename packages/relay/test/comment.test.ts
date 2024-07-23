@@ -39,6 +39,7 @@ describe('COMMENT /comment', function () {
             await startServer(unirep, app)
         express = chaiServer
         sync = synchronizer
+        chainId = await unirep.chainid()
 
         const userStateFactory = new UserStateFactory(
             db,
@@ -89,8 +90,6 @@ describe('COMMENT /comment', function () {
         expect(res).to.have.status(200)
         const curPost = res.body as Post
         expect(curPost.status).to.equal(1)
-
-        chainId = await unirep.chainid()
     })
 
     after(async function () {
@@ -264,6 +263,7 @@ describe('COMMENT /comment', function () {
         await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
+            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,

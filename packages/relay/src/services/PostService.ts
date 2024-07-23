@@ -8,15 +8,15 @@ import {
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
-import { Post } from '../types/Post'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import IpfsHelper from './utils/IpfsHelper'
-import ProofHelper from './utils/ProofHelper'
-import TransactionManager from './utils/TransactionManager'
 import {
     InvalidEpochRangeError,
     NoPostHistoryFoundError,
 } from '../types/InternalError'
+import { Post, PostStatus } from '../types/Post'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import IpfsHelper from './utils/IpfsHelper'
+import ProofHelper from './utils/ProofHelper'
+import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
     // TODO: modify the cache data structure to avoid memory leak
@@ -54,7 +54,7 @@ export class PostService {
         //      1. use CASE to cal scores by different groups (posts <= 2 days | posts > 2 days)
         //      2. use Join to cal daily upVotes & downVotes for the posts
         //      3. use Join to cal daily comments for the posts
-        //      4. filter posts whose are already on-chain (status = 1)
+        //      4. filter posts whose are already on-chain (status = ON_CHAIN || REPORTED)
         //      5. order by
         //         a. CASE posts <= 2 days = 0 | posts > 2 days first = 1
         //         b. sorting_score
@@ -97,7 +97,7 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
-            WHERE p.status = 1
+            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED})
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
@@ -125,6 +125,16 @@ export class PostService {
         }
     }
 
+    private filterPostContent(post: Post): Partial<Post> {
+        if (post.status === PostStatus.ON_CHAIN) {
+            return post
+        } else if (post.status === PostStatus.REPORTED) {
+            const { content, ...restOfPost } = post
+            return restOfPost
+        }
+        return {}
+    }
+
     // returns the LOAD_POST_COUNT posts of the given page
     // page 1
     // start = (1 - 1) * LOAD_POST_COUNT = 0 ... start index
@@ -134,16 +144,14 @@ export class PostService {
         epks: string[] | undefined,
         page: number,
         db: DB
-    ): Promise<Post[] | null> {
+    ): Promise<Partial<Post>[] | null> {
         let posts: Post[]
         if (!epks) {
             const start = (page - 1) * LOAD_POST_COUNT
             if (this.cache.length == 0) {
-                // anondb doesn't have offset property to
-                // implement pagination
                 const statement = `
                     SELECT * FROM Post 
-                    WHERE status = 1 
+                    WHERE status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED})
                     ORDER BY CAST(publishedAt AS INTEGER) DESC 
                     LIMIT ${LOAD_POST_COUNT} OFFSET ${start}
                 `
@@ -155,32 +163,56 @@ export class PostService {
                     posts = await sq.db.all(statement)
                 }
             } else {
-                // query the posts from the cache with given page
                 posts = this.cache.slice(start, start + LOAD_POST_COUNT)
             }
         } else {
             posts = await db.findMany('Post', {
                 where: {
                     epochKey: epks,
+                    status: [PostStatus.ON_CHAIN, PostStatus.REPORTED],
                 },
                 limit: LOAD_POST_COUNT,
             })
         }
 
-        if (!posts) {
-            return posts
-        }
+        if (!posts) return null
 
-        // Fetch votes for each post and add to post object
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-
-                return { ...post, votes }
+                const filteredPost = this.filterPostContent(post)
+                return { ...filteredPost, votes }
             })
         )
+    }
+
+    async fetchSinglePost(
+        postId: string,
+        db: DB,
+        status?: PostStatus
+    ): Promise<Partial<Post> | null> {
+        const whereClause: any = { postId }
+        if (status !== undefined) {
+            whereClause.status = status
+        } else {
+            whereClause.status = [PostStatus.ON_CHAIN, PostStatus.REPORTED]
+        }
+
+        const post = await db.findOne('Post', {
+            where: whereClause,
+        })
+
+        if (!post) return null
+
+        const filteredPost = this.filterPostContent(post)
+
+        filteredPost.votes = await db.findMany('Vote', {
+            where: { postId },
+        })
+
+        return filteredPost
     }
 
     async fetchMyAccountPosts(
@@ -188,11 +220,15 @@ export class PostService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Post[]> {
-        let posts: Post[]
-        posts = await db.findMany('Post', {
+    ): Promise<Partial<Post>[] | null> {
+        const posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
+                status: [
+                    PostStatus.NOT_ON_CHAIN,
+                    PostStatus.ON_CHAIN,
+                    PostStatus.REPORTED,
+                ],
             },
             orderBy: {
                 [sortKey]: direction,
@@ -200,14 +236,15 @@ export class PostService {
             limit: LOAD_POST_COUNT,
         })
 
-        // Fetch votes for each post and add to post object
+        if (!posts) return null
+
         return await Promise.all(
             posts.map(async (post) => {
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-
-                return { ...post, votes }
+                const filteredPost = this.filterPostContent(post)
+                return { ...filteredPost, votes }
             })
         )
     }
@@ -253,37 +290,6 @@ export class PostService {
         })
 
         return txHash
-    }
-
-    async fetchSinglePost(
-        postId: string,
-        db: DB,
-        status?: number
-    ): Promise<Post | null> {
-        const whereClause = {
-            postId,
-        }
-
-        if (status) {
-            whereClause['status'] = status
-        }
-
-        const post = await db.findOne('Post', {
-            where: whereClause,
-        })
-
-        // Check if the post exists
-        if (!post) {
-            return post // Return null if no post is found
-        }
-
-        // Fetch the votes for the post
-        // Add the vote data to the post object
-        post.votes = await db.findMany('Vote', {
-            where: { postId },
-        })
-
-        return post
     }
 
     async updatePostStatus(

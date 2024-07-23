@@ -54,6 +54,9 @@ export const InvalidDirectionError = new InternalError(
     400
 )
 
+// general fetching error
+export const NoDataFoundError = new InternalError('No data found', 404)
+
 // post related error
 export const InvalidPostIdError = new InternalError('Invalid postId', 400)
 export const PostNotExistError = new InternalError('Post does not exist', 400)

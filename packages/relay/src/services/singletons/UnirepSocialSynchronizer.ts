@@ -8,6 +8,7 @@ import schema from '../../db/schema'
 import {
     AdjudicateValue,
     Adjudicator,
+    CommentStatus,
     ReportStatus,
     ReportType,
     UserRegisterStatus,
@@ -196,7 +197,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             },
             update: {
                 content: newContent,
-                status: 2, // 2 is deleted
+                status: CommentStatus.DELETED,
             },
         })
 
