@@ -6,6 +6,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { commentService } from '../src/services/CommentService'
+import { postService } from '../src/services/PostService'
 import { reportService } from '../src/services/ReportService'
 import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
@@ -162,9 +163,10 @@ describe('POST /api/report', function () {
     })
 
     it('should create a report and update post status', async function () {
+        const postId = '0'
         const reportData: ReportHistory = {
             type: ReportType.POST,
-            objectId: '0',
+            objectId: postId,
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
@@ -190,12 +192,31 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the post status is updated
-        await express
-            .get(`/api/post/0?status=${PostStatus.REPORTED}`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-            })
+        await postService.updateOrder(db)
+        // Verify that the post status is updated and content is filtered
+        const afterReportResponse = await express.get(
+            `/api/post/${postId}?status=${PostStatus.REPORTED}`
+        )
+        expect(afterReportResponse).to.have.status(200)
+        expect(afterReportResponse.body).to.not.have.property('content')
+        expect(afterReportResponse.body).to.have.property(
+            'status',
+            PostStatus.REPORTED
+        )
+
+        // Verify that other properties are still present
+        expect(afterReportResponse.body).to.have.property('postId')
+        expect(afterReportResponse.body).to.have.property('publishedAt')
+        expect(afterReportResponse.body).to.have.property('epochKey')
+        // Verify that the post is still accessible but filtered when fetching all posts
+        const allPostsResponse = await express.get('/api/post')
+        expect(allPostsResponse).to.have.status(200)
+        const reportedPost = allPostsResponse.body.find(
+            (post) => post.postId === postId
+        )
+        expect(reportedPost).to.exist
+        expect(reportedPost).to.not.have.property('content')
+        expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
     })
 
     it('should fail to create a report with invalid proof', async function () {
@@ -232,9 +253,10 @@ describe('POST /api/report', function () {
     })
 
     it('should create a report and update comment status', async function () {
+        const commentId = '0'
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
-            objectId: '0',
+            objectId: commentId,
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
@@ -260,13 +282,39 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the comment status is updated
-        const comment = await commentService.fetchSingleComment(
-            '0',
+        // Verify that the comment status is updated and content is filtered
+        const afterReportComment = await commentService.fetchSingleComment(
+            commentId,
             db,
             CommentStatus.REPORTED
         )
-        expect(comment).to.be.exist
+        expect(afterReportComment).to.exist
+        expect(afterReportComment).to.not.have.property('content')
+        expect(afterReportComment).to.have.property(
+            'status',
+            CommentStatus.REPORTED
+        )
+
+        // Verify that other properties are still present
+        expect(afterReportComment).to.have.property('commentId')
+        expect(afterReportComment).to.have.property('publishedAt')
+        expect(afterReportComment).to.have.property('epochKey')
+        // Add checks for other expected properties
+
+        // Optionally, verify that the comment is still accessible but filtered when fetching all comments for a post
+        const allCommentsResponse = await express.get(
+            `/api/comment?postId=${afterReportComment?.postId}`
+        )
+        expect(allCommentsResponse).to.have.status(200)
+        const reportedComment = allCommentsResponse.body.find(
+            (comment) => comment.commentId === commentId
+        )
+        expect(reportedComment).to.exist
+        expect(reportedComment).to.not.have.property('content')
+        expect(reportedComment).to.have.property(
+            'status',
+            CommentStatus.REPORTED
+        )
     })
 
     it('should fail to create a report on the same post / comment', async function () {
@@ -792,10 +840,10 @@ describe('POST /api/report', function () {
                 return reports[0]
             })
 
+        await postService.updateOrder(db)
         await express.get(`/api/post/${report.objectId}`).then((res) => {
-            expect(res).to.have.status(200)
-            const curPost = res.body as Post
-            expect(curPost.status).to.equal(PostStatus.DISAGREED)
+            expect(res).to.have.status(400)
+            expect(res.body.error).to.be.equal('Post does not exist')
         })
     })
 
@@ -844,6 +892,7 @@ describe('POST /api/report', function () {
                 return reports
             })
 
+        await postService.updateOrder(db)
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post
@@ -891,6 +940,7 @@ describe('POST /api/report', function () {
                 return reports
             })
 
+        await postService.updateOrder(db)
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post

@@ -1,5 +1,5 @@
 import { Identity } from '@semaphore-protocol/identity'
-import { Circuit } from '@unirep/circuits'
+import { Circuit, CircuitConfig } from '@unirep/circuits'
 import * as utils from '@unirep/utils'
 import {
     ATTESTER_ID_BITS,
@@ -9,7 +9,7 @@ import {
     REVEAL_NONCE_BITS,
 } from '@unirep/utils'
 import crypto from 'crypto'
-import { poseidon2 } from 'poseidon-lite'
+import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { defaultProver } from '../provers/defaultProver'
 import { EpochKeyControl, IdentityObject } from './types'
 
@@ -112,6 +112,49 @@ export const genReportNullifierCircuitInput = (config: {
     return utils.stringifyBigInts(circuitInputs)
 }
 
+export const genReportIdentityCircuitInput = (config: {
+    reportNullifier: any
+    identitySecret: string | bigint
+    hashUserId: string | bigint
+    reportId: number | bigint
+    data: string[] | bigint[]
+    attesterId: string | bigint
+    epoch: number | bigint
+    chainId: number | bigint
+    stateTreeIndices: number[] | bigint[]
+    stateTreeElements: number[] | bigint[]
+    stateTreeRoot: number | bigint
+}) => {
+    const {
+        reportNullifier,
+        identitySecret,
+        hashUserId,
+        reportId,
+        data,
+        attesterId,
+        epoch,
+        chainId,
+        stateTreeIndices,
+        stateTreeElements,
+        stateTreeRoot,
+    } = Object.assign(config)
+
+    const circuitInputs = {
+        report_nullifier: reportNullifier,
+        identity_secret: identitySecret,
+        hash_user_id: hashUserId,
+        report_id: reportId,
+        data,
+        attester_id: attesterId,
+        from_epoch: epoch,
+        chain_id: chainId,
+        state_tree_indices: stateTreeIndices,
+        state_tree_elements: stateTreeElements,
+        state_tree_root: stateTreeRoot,
+    }
+    return utils.stringifyBigInts(circuitInputs)
+}
+
 export const shiftBits = (
     data: bigint,
     shiftBits: bigint,
@@ -140,3 +183,19 @@ export const decodeEpochKeyControl = (control: bigint): EpochKeyControl => {
         chainId,
     }
 }
+
+export const randomData = () => [
+    ...Array(CircuitConfig.default.SUM_FIELD_COUNT)
+        .fill(0)
+        .map(() => poseidon1([Math.floor(Math.random() * 199191919)])),
+    ...Array(
+        CircuitConfig.default.FIELD_COUNT -
+            CircuitConfig.default.SUM_FIELD_COUNT
+    )
+        .fill(0)
+        .map(
+            () =>
+                poseidon1([Math.floor(Math.random() * 199191919)]) %
+                BigInt(2) ** CircuitConfig.default.MAX_SAFE_BITS
+        ),
+]
