@@ -9,8 +9,8 @@ export enum ReputationType {
 }
 
 export enum ReputationDirection {
-    POSITIVE,
-    NEGATIVE,
+    POSITIVE = 'Positive',
+    NEGATIVE = 'Negative',
 }
 
 export interface ReputationHistory {
@@ -29,6 +29,20 @@ export enum ClaimMethods {
 }
 
 export enum ClaimHelpers {
-    POSITIVE_REP_HELPER = 'ReportNullifierVHelper',
-    NEGATIVE_REP_HELPER = 'ReportNegRepVHelper',
+    POSITIVE_REP_HELPER = 'reportNullifierProofVerifierHelper',
+    NEGATIVE_REP_HELPER = 'reportNegRepProofVerifierHelper',
+}
+
+// Reputation change amount
+export enum RepChangeType {
+    REPORTER_REP = 3,
+    POSTER_REP = 5,
+    FAILED_REPORTER_REP = 1,
+}
+
+// Reputation user type
+export enum RepUserType {
+    REPORTER,
+    VOTER,
+    POSTER,
 }

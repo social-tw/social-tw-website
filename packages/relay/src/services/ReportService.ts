@@ -22,20 +22,25 @@ import {
     ReportType,
     ReportVotingEndedError,
     UserAlreadyVotedError,
-    InvalidAttesterIdError,
+    UserAlreadyClaimedError,
+    InternalError,
+    InvalidReportNullifierError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
-import { ethers } from 'ethers'
 import express from 'express'
 import {
     ClaimHelpers,
     ClaimMethods,
+    RepChangeType,
+    RepUserType,
     ReputationDirection,
 } from '../types/Reputation'
+import { genVHelperIdentifier } from '../services/utils/IpfsHelper'
+import TransactionManager from './utils/TransactionManager'
 
 export class ReportService {
     async verifyReportData(
@@ -321,79 +326,225 @@ export class ReportService {
         direction: ReputationDirection
     ) {
         try {
-            const { publicSignals, proof, change } = req.body
+            const {
+                publicSignals,
+                proof,
+                claimSignals,
+                claimProof,
+                repUserType,
+                nullifier,
+            } = req.body
+            let change: RepChangeType
 
-            if (!publicSignals || !proof || change === undefined)
+            const identifier = genVHelperIdentifier(helper)
+
+            if (
+                !publicSignals ||
+                !proof ||
+                !claimSignals ||
+                !claimProof ||
+                repUserType === undefined
+            )
+                throw InvalidParametersError
+
+            // check repUserType belong to RepUserType
+            if (!Object.values(RepUserType).includes(repUserType))
                 throw InvalidParametersError
 
             // Verify the proof
-            const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
-                publicSignals,
-                proof,
-                synchronizer
-            )
+            const epochKeyProof =
+                await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                    publicSignals,
+                    proof,
+                    synchronizer
+                )
 
             // Now we can use the verified epoch from the proof
             const epoch = Number(epochKeyProof.epoch)
             const epochKey = epochKeyProof.epochKey.toString()
 
-            // Check attesterId
-            const attesterId = BigInt(synchronizer.attesterId)
-            if (attesterId !== BigInt(publicSignals[3])) {
-                throw InvalidAttesterIdError
+            // check if user has claimed reputation
+            if (claimMethod === ClaimMethods.CLAIM_NEGATIVE_REP) {
+                if (repUserType === RepUserType.REPORTER) {
+                    const report = await db.findOne('ReportHistory', {
+                        where: {
+                            status: ReportStatus.COMPLETED,
+                            reportorEpochKey: epochKey,
+                            reportEpoch: epoch,
+                        },
+                    })
+                    if (!report) throw ReportNotExistError
+                    // check if user has claimed reputation
+                    if (report.reportorClaimedRep) throw UserAlreadyClaimedError
+                    change = RepChangeType.FAILED_REPORTER_REP
+                } else if (repUserType === RepUserType.POSTER) {
+                    const report = await db.findOne('ReportHistory', {
+                        where: {
+                            status: ReportStatus.COMPLETED,
+                            respondentEpochKey: epochKey,
+                            reportEpoch: epoch,
+                        },
+                    })
+                    if (!report) throw ReportNotExistError
+                    // check if user has claimed reputation
+                    if (report.respondentClaimedRep)
+                        throw UserAlreadyClaimedError
+                    change = RepChangeType.POSTER_REP
+                }
+                change = RepChangeType.POSTER_REP
+            } else {
+                // if claimMethod is CLAIM_POSITIVE_REP, check if user is voter or reporter
+                if (repUserType === RepUserType.REPORTER) {
+                    const report = await db.findOne('ReportHistory', {
+                        where: {
+                            status: ReportStatus.COMPLETED,
+                            reportorEpochKey: epochKey,
+                            reportEpoch: epoch,
+                        },
+                    })
+                    if (!report) throw ReportNotExistError
+                    // check if user has claimed reputation
+                    if (report.reportorClaimedRep) throw UserAlreadyClaimedError
+                } else if (repUserType === RepUserType.VOTER) {
+                    if (!nullifier) throw InvalidParametersError
+                    console.log('nullifier:', nullifier)
+                    const report = await this.findReportWithNullifier(
+                        db,
+                        epoch,
+                        nullifier,
+                        ReportStatus.COMPLETED
+                    )
+                    console.log('report:', report)
+                    if (!report) throw InvalidReportNullifierError
+                    // check if user has claimed reputation
+                    if (
+                        report.adjudicatorsNullifier.some(
+                            (adj) => adj.nullifier === nullifier && adj.claimed
+                        )
+                    )
+                        throw UserAlreadyClaimedError
+                }
+                change = RepChangeType.REPORTER_REP
             }
 
-            // use synchronizer's contract instance to call claim method
-            const tx = await synchronizer.unirepSocialContract[claimMethod](
-                publicSignals,
-                proof,
-                ethers.utils.id(helper),
-                change
-            )
-            await tx.wait()
+            const txHash = await TransactionManager.callContract(claimMethod, [
+                claimSignals,
+                claimProof,
+                identifier,
+                change,
+            ])
 
             // update reputation status in database
             await this.updateReputationStatus(
-                epochKey,
-                direction,
-                true,
                 db,
-                epoch
+                direction,
+                epochKey,
+                epoch,
+                nullifier,
+                repUserType
             )
 
             res.status(200).json({
-                message: `Success get ${direction} Reputation`,
+                message: `Success get ${direction} Reputation, txHash: ${txHash}`,
             })
         } catch (error: any) {
             console.error(`Get ${direction} Reputation error:`, error)
-            res.status(500).json({
-                message: `Get ${direction} Reputation error`,
-                error: error.message,
-                stack: error.stack,
-            })
+            if (error instanceof InternalError) {
+                res.status(error.httpStatusCode).json({
+                    message: error.message,
+                    error: error.message,
+                })
+            } else {
+                res.status(500).json({
+                    message: `Get ${direction} Reputation error`,
+                    error: error.message,
+                    stack: error.stack,
+                })
+            }
         }
     }
 
     private async updateReputationStatus(
-        epochKey: string,
-        type: ReputationDirection,
-        claimed: boolean,
         db: DB,
-        epoch: number
+        type: ReputationDirection,
+        epochKey: string,
+        epoch: number,
+        nullifier?: string,
+        repUserType?: RepUserType
     ) {
-        await db.update('ReportHistory', {
+        if (type === ReputationDirection.POSITIVE && nullifier) {
+            const report = await this.findReportWithNullifier(
+                db,
+                epoch,
+                nullifier,
+                ReportStatus.COMPLETED
+            )
+
+            if (report) {
+                const updatedAdjudicators = report.adjudicatorsNullifier.map(
+                    (adj) =>
+                        adj.nullifier === nullifier
+                            ? { ...adj, claimed: true }
+                            : adj
+                )
+
+                await db.update('ReportHistory', {
+                    where: { _id: report._id },
+                    update: {
+                        adjudicatorsNullifier: updatedAdjudicators,
+                    },
+                })
+            }
+        } else {
+            let updateField: string
+            let whereField: string
+
+            if (type === ReputationDirection.POSITIVE) {
+                updateField = 'reportorClaimedRep'
+                whereField = 'reportorEpochKey'
+            } else {
+                if (repUserType === RepUserType.REPORTER) {
+                    updateField = 'reportorClaimedRep'
+                    whereField = 'reportorEpochKey'
+                } else if (repUserType === RepUserType.POSTER) {
+                    updateField = 'respondentClaimedRep'
+                    whereField = 'respondentEpochKey'
+                } else {
+                    throw new Error(
+                        'Invalid repUserType for negative reputation'
+                    )
+                }
+            }
+
+            const updateQuery = { [updateField]: true }
+            await db.update('ReportHistory', {
+                where: {
+                    [whereField]: epochKey,
+                    reportEpoch: epoch,
+                },
+                update: updateQuery,
+            })
+        }
+    }
+
+    async findReportWithNullifier(
+        db: DB,
+        epoch: number,
+        nullifier: string,
+        status: ReportStatus
+    ) {
+        const reports = await db.findMany('ReportHistory', {
             where: {
-                [type === ReputationDirection.POSITIVE
-                    ? 'reportorEpochKey'
-                    : 'respondentEpochKey']: epochKey,
                 reportEpoch: epoch,
-            },
-            update: {
-                [type === ReputationDirection.POSITIVE
-                    ? 'reportorClaimedRep'
-                    : 'respondentClaimedRep']: claimed,
+                status: status,
             },
         })
+
+        return reports.find((report) =>
+            report.adjudicatorsNullifier.some(
+                (adj) => adj.nullifier === nullifier
+            )
+        )
     }
 }
 
