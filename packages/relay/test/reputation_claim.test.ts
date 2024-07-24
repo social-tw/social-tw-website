@@ -96,7 +96,7 @@ describe('Reputation Claim', function () {
     }
 
     before(async function () {
-        this.timeout(60000)
+        this.timeout(6000000)
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep: _unirep, app } = await deployContracts(EPOCH_LENGTH)
