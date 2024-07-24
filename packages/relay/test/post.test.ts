@@ -72,7 +72,7 @@ describe('POST /post', function () {
         expect(hasSignedUp).equal(true)
 
         chainId = await unirep.chainid()
-        const epoch = await synchronizer.loadCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.POSITIVE,
@@ -80,7 +80,7 @@ describe('POST /post', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: synchronizer.attesterId,
+                attesterId: sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }
@@ -317,7 +317,7 @@ describe('POST /post', function () {
     it('should fetch posts which are already on-chain', async function () {
         const userState = await genUserState(user.id, app, db, prover)
         // send a post
-        const { txHash } = await post(express, userState, authentication)
+        const txHash = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
         await postService.updateOrder(db)

@@ -54,7 +54,7 @@ describe('CheckReputation', function () {
             false,
             sync
         )
-        await ethers.provider.waitForTransaction(txHash)
+        await provider.waitForTransaction(txHash)
 
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
@@ -87,10 +87,10 @@ describe('CheckReputation', function () {
         )
 
         const authentication = jsonToBase64(reputationProof)
-        await post(express, userState, authentication).then(async (res) => {
-            await ethers.provider.waitForTransaction(res.txHash)
-            await userState.waitForSync()
-        })
+        const txHash = await post(express, userState, authentication)
+        await ethers.provider.waitForTransaction(txHash)
+        await userState.waitForSync()
+
         await express.get('/api/post/0').then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post

@@ -151,8 +151,8 @@ describe('POST /api/report', function () {
         authentication = jsonToBase64(reputationProof)
 
         await post(chaiServer, userState, authentication, nonce).then(
-            async (res) => {
-                await ethers.provider.waitForTransaction(res.txHash)
+            async (txHash) => {
+                await provider.waitForTransaction(txHash)
                 await sync.waitForSync()
                 nonce++
             }
@@ -166,7 +166,7 @@ describe('POST /api/report', function () {
 
         await comment(chaiServer, userState, authentication, '0', nonce).then(
             async (res) => {
-                await ethers.provider.waitForTransaction(res.txHash)
+                await provider.waitForTransaction(res.txHash)
                 await sync.waitForSync()
                 nonce++
             }
@@ -1017,8 +1017,8 @@ describe('POST /api/report', function () {
             },
         })
         // epoch transition
-        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await ethers.provider.send('evm_mine', [])
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
         const curEpoch = await sync.loadCurrentEpoch()
         expect(curEpoch).equal(prevEpoch + 1)
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
@@ -1072,8 +1072,8 @@ describe('POST /api/report', function () {
             },
         })
         // epoch transition
-        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await ethers.provider.send('evm_mine', [])
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
         const curEpoch = await sync.loadCurrentEpoch()
         expect(curEpoch).equal(prevEpoch + 1)
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
@@ -1120,8 +1120,8 @@ describe('POST /api/report', function () {
             },
         })
         // epoch transition
-        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await ethers.provider.send('evm_mine', [])
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
         const curEpoch = await sync.loadCurrentEpoch()
         expect(curEpoch).equal(prevEpoch + 1)
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())

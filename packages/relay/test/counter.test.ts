@@ -56,7 +56,7 @@ describe('GET /counter', function () {
             proof,
             user.hashUserId,
             false,
-            synchronizer
+            sync
         )
         await provider.waitForTransaction(txHash)
 
@@ -64,7 +64,7 @@ describe('GET /counter', function () {
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
 
-        const epoch = await synchronizer.loadCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
         const chainId = await unirep.chainid()
 
         const reputationProof = await genProveReputationProof(
@@ -73,7 +73,7 @@ describe('GET /counter', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: synchronizer.attesterId,
+                attesterId: sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }
@@ -90,15 +90,15 @@ describe('GET /counter', function () {
 
     it('should add the counter number increment after the user posted', async function () {
         const userState = await genUserState(user.id, app, db, prover)
-        let res = await post(express, userState, authentication)
-        await ethers.provider.waitForTransaction(res.txHash)
-        await userState.sync.waitForSync()
+        let txHash = await post(express, userState, authentication)
+        await provider.waitForTransaction(txHash)
+        await userState.waitForSync()
 
         const epochKeys = (userState.getEpochKeys() as bigint[])
             .map((epk) => epk.toString())
             .reduce((acc, epk) => `${acc}_${epk}`)
 
-        res = await express
+        const res = await express
             .get(`/api/counter?epks=${epochKeys}`)
             .set('content-type', 'application/json')
 

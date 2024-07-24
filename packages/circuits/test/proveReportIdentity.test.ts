@@ -71,8 +71,9 @@ describe('Prove report identity in Unirep Social-TW', function () {
         expect(publicSignals[0].toString()).to.be.equal(
             poseidon2([hashUserId, reportId]).toString()
         )
-        expect(publicSignals[1].toString()).to.be.equal(epoch.toString())
-        expect(publicSignals[2].toString()).to.be.equal(
+        expect(publicSignals[1].toString()).to.be.equal(attesterId.toString())
+        expect(publicSignals[2].toString()).to.be.equal(epoch.toString())
+        expect(publicSignals[3].toString()).to.be.equal(
             stateTreeRoot.toString()
         )
     })

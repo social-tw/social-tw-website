@@ -9,7 +9,7 @@ import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { userService } from '../src/services/UserService'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
-import { Post } from '../src/types'
+import { Post, PostStatus } from '../src/types'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
 import {
@@ -35,13 +35,15 @@ describe('COMMENT /comment', function () {
     let db: DB
     let sync: UnirepSocialSynchronizer
 
+    const EPOCH_LENGTH = 100000
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app: _app } = await deployContracts(100000)
+        const { unirep, app: _app } = await deployContracts(EPOCH_LENGTH)
         // start server
         const {
-            db,
+            db: _db,
             prover: _prover,
             provider: _provider,
             synchronizer,
@@ -49,6 +51,7 @@ describe('COMMENT /comment', function () {
         } = await startServer(unirep, _app)
         express = chaiServer
         app = _app
+        db = _db
         prover = _prover
         provider = _provider
         sync = synchronizer
@@ -58,7 +61,7 @@ describe('COMMENT /comment', function () {
         const userState = await genUserState(user.id, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
-        const txHash = await userService.signup(
+        let txHash = await userService.signup(
             stringifyBigInts(publicSignals),
             proof,
             user.hashUserId,
@@ -73,7 +76,6 @@ describe('COMMENT /comment', function () {
         expect(hasSignedUp).equal(true)
 
         const epoch = await sync.loadCurrentEpoch()
-        chainId = await unirep.chainid()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.POSITIVE,
@@ -89,14 +91,14 @@ describe('COMMENT /comment', function () {
 
         authentication = jsonToBase64(reputationProof)
 
-        const result = await post(express, userState, authentication)
-        await provider.waitForTransaction(result.txHash)
+        txHash = await post(express, userState, authentication)
+        await provider.waitForTransaction(txHash)
         await userState.waitForSync()
 
         const res = await express.get('/api/post/0')
         expect(res).to.have.status(200)
         const curPost = res.body as Post
-        expect(curPost.status).to.equal(1)
+        expect(curPost.status).to.equal(PostStatus.ON_CHAIN)
 
         userState.stop()
     })
@@ -173,7 +175,7 @@ describe('COMMENT /comment', function () {
             expect(commentEvent[4]).equal(testContentHash)
         }
 
-        await userState.sync.waitForSync()
+        await userState.waitForSync()
 
         // comment on the post
         await express.get(`/api/comment?postId=0`).then((res) => {
@@ -351,7 +353,7 @@ describe('COMMENT /comment', function () {
             })
 
         await provider.waitForTransaction(txHash)
-        await userState.sync.waitForSync()
+        await userState.waitForSync()
 
         // check comment exist
         await express.get(`/api/comment?postId=0`).then((res) => {

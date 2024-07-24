@@ -114,7 +114,7 @@ describe('Synchronize Post Test', function () {
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
             const userState = await genUserState(users[0].id, app, db, prover)
-            const result = await post(express, userState, authentication)
+            const txHash = await post(express, userState, authentication)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
@@ -122,7 +122,7 @@ describe('Synchronize Post Test', function () {
                 'test content'
             )
 
-            await provider.waitForTransaction(result.txHash)
+            await provider.waitForTransaction(txHash)
             await sync.waitForSync()
 
             // check db if the post is synchronized
@@ -241,8 +241,8 @@ describe('Synchronize Comment Test', function () {
     describe('Synchronize Comment', async function () {
         before(async function () {
             const userState = await genUserState(users[0].id, app, db, prover)
-            const result = await post(express, userState, authentication)
-            await ethers.provider.waitForTransaction(result.txHash)
+            const txHash = await post(express, userState, authentication)
+            await provider.waitForTransaction(txHash)
             await sync.waitForSync()
 
             // check db if the post is synchronized
