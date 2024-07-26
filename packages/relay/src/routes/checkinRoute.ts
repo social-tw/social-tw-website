@@ -16,21 +16,22 @@ export default (
         '/api/checkin',
         errorHandler(checkReputation),
         errorHandler(async (req, res) => {
-            if (!res.locals.isNegativeReputation) throw PositiveReputationUserError
+            if (!res.locals.isNegativeReputation)
+                throw PositiveReputationUserError
 
             const { publicSignals, proof } = req.body
 
             const epochKeyLiteProof =
-            await ProofHelper.getAndVerifyEpochKeyLiteProof(
-                publicSignals,
-                proof,
-                synchronizer
-            )
+                await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                    publicSignals,
+                    proof,
+                    synchronizer
+                )
 
-            const txHash = await TransactionManager.callContract('claimDailyLoginRep', [
-                epochKeyLiteProof.publicSignals,
-                epochKeyLiteProof.proof,
-            ])
+            const txHash = await TransactionManager.callContract(
+                'claimDailyLoginRep',
+                [epochKeyLiteProof.publicSignals, epochKeyLiteProof.proof]
+            )
 
             res.json({ txHash })
         })
