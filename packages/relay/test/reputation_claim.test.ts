@@ -657,7 +657,6 @@ describe('Reputation Claim', function () {
     it('should fail when poster tries to claim negative reputation twice', async function () {
         const identitySecret = posterUserState.id.secret
         const currentNonce = 0
-        const hashUserId = poster.hashUserId
 
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()

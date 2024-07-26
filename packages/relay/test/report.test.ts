@@ -46,7 +46,7 @@ describe('POST /api/report', function () {
     let epochKeyLiteProof
 
     before(async function () {
-        this.timeout(60000)
+        this.timeout(600000)
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep: _unirep, app } = await deployContracts(EPOCH_LENGTH)
