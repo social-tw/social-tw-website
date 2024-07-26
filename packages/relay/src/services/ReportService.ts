@@ -339,111 +339,38 @@ export class ReportService {
                 nullifier,
             } = req.body
 
-            let change: RepChangeType
+            this.validateInputs(reportId, claimSignals, claimProof, repUserType)
 
+            const epochKeyProof = await this.verifyEpochKeyProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
+            const { epoch, epochKey } = this.getEpochInfo(epochKeyProof)
+
+            const report = await this.getReport(
+                db,
+                reportId,
+                epoch,
+                epochKey,
+                repUserType,
+                direction,
+                nullifier
+            )
+
+            this.checkReputationClaim(report, repUserType, direction, nullifier)
+
+            const change = this.getReputationChange(direction, repUserType)
             const identifier = genVHelperIdentifier(helper)
 
-            if (
-                !reportId ||
-                !claimSignals ||
-                !claimProof ||
-                repUserType === undefined
-            )
-                throw InvalidParametersError
-            // check repUserType belong to RepUserType
-            if (!Object.values(RepUserType).includes(repUserType))
-                throw InvalidParametersError
-
-            // Verify the proof
-            const epochKeyProof =
-                await ProofHelper.getAndVerifyEpochKeyLiteProof(
-                    publicSignals,
-                    proof,
-                    synchronizer
-                )
-
-            // Now we can use the verified epoch from the proof
-            const epoch = Number(epochKeyProof.epoch)
-            const epochKey = epochKeyProof.epochKey.toString()
-
-            // check if user has claimed reputation
-            if (claimMethod === ClaimMethods.CLAIM_NEGATIVE_REP) {
-                if (repUserType === RepUserType.REPORTER) {
-                    const report = await db.findOne('ReportHistory', {
-                        where: {
-                            reportId,
-                            status: ReportStatus.COMPLETED,
-                            reportorEpochKey: epochKey,
-                            reportEpoch: epoch,
-                        },
-                    })
-                    if (!report) throw ReportNotExistError
-                    // check if user has claimed reputation
-                    if (report.reportorClaimedRep) throw UserAlreadyClaimedError
-                    change = RepChangeType.FAILED_REPORTER_REP
-                } else if (repUserType === RepUserType.POSTER) {
-                    const report = await db.findOne('ReportHistory', {
-                        where: {
-                            reportId,
-                            status: ReportStatus.COMPLETED,
-                            respondentEpochKey: epochKey,
-                            reportEpoch: epoch,
-                        },
-                    })
-                    if (!report) throw ReportNotExistError
-                    // check if user has claimed reputation
-                    if (report.respondentClaimedRep)
-                        throw UserAlreadyClaimedError
-                    change = RepChangeType.POSTER_REP
-                } else {
-                    throw NegativeReputationUserError
-                }
-            } else {
-                // if claimMethod is CLAIM_POSITIVE_REP, check if user is voter or reporter
-                if (repUserType === RepUserType.REPORTER) {
-                    const report = await db.findOne('ReportHistory', {
-                        where: {
-                            reportId,
-                            status: ReportStatus.COMPLETED,
-                            reportorEpochKey: epochKey,
-                            reportEpoch: epoch,
-                        },
-                    })
-                    if (!report) throw ReportNotExistError
-                    // check if user has claimed reputation
-                    if (report.reportorClaimedRep) throw UserAlreadyClaimedError
-                    change = RepChangeType.REPORTER_REP
-                } else if (repUserType === RepUserType.VOTER) {
-                    if (!nullifier) throw InvalidParametersError
-                    const report = await this.findReportWithNullifier(
-                        db,
-                        reportId,
-                        epoch,
-                        nullifier,
-                        ReportStatus.COMPLETED
-                    )
-                    if (!report) throw InvalidReportNullifierError
-                    // check if user has claimed reputation
-                    if (
-                        report.adjudicatorsNullifier.some(
-                            (adj) => adj.nullifier === nullifier && adj.claimed
-                        )
-                    )
-                        throw UserAlreadyClaimedError
-                    change = RepChangeType.VOTER_REP
-                } else {
-                    throw PositiveReputationUserError
-                }
-            }
-
-            const txHash = await TransactionManager.callContract(claimMethod, [
+            const txHash = await this.executeContractCall(
+                claimMethod,
                 claimSignals,
                 claimProof,
                 identifier,
-                change,
-            ])
+                change
+            )
 
-            // update reputation status in database
             await this.updateReputationStatus(
                 db,
                 direction,
@@ -455,40 +382,251 @@ export class ReportService {
             )
 
             const repType = this.getReputationType(direction, repUserType)
-
-            await db.create('ReputationHistory', {
-                transactionHash: txHash,
+            await this.createReputationHistory(
+                db,
+                txHash,
                 epoch,
                 epochKey,
-                score: change,
-                type: repType,
-                reportId,
-            })
+                change,
+                repType,
+                reportId
+            )
 
-            res.status(200).json({
-                message: {
-                    txHash: txHash,
-                    reportId: reportId,
-                    epoch: epoch,
-                    epochKey: epochKey,
-                    type: repType,
-                    score: change,
-                },
-            })
+            this.sendSuccessResponse(
+                res,
+                txHash,
+                reportId,
+                epoch,
+                epochKey,
+                repType,
+                change
+            )
         } catch (error: any) {
-            console.error(`Get ${direction} Reputation error:`, error)
-            if (error instanceof InternalError) {
-                res.status(error.httpStatusCode).json({
-                    message: error.message,
-                    error: error.message,
-                })
-            } else {
-                res.status(500).json({
-                    message: `Get ${direction} Reputation error`,
-                    error: error.message,
-                    stack: error.stack,
-                })
+            this.handleError(res, error, direction)
+        }
+    }
+
+    private validateInputs(
+        reportId: string,
+        claimSignals: any,
+        claimProof: any,
+        repUserType: RepUserType
+    ) {
+        if (
+            !reportId ||
+            !claimSignals ||
+            !claimProof ||
+            repUserType === undefined
+        ) {
+            throw InvalidParametersError
+        }
+        if (!Object.values(RepUserType).includes(repUserType)) {
+            throw InvalidParametersError
+        }
+    }
+
+    private async verifyEpochKeyProof(
+        publicSignals: any,
+        proof: any,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        return await ProofHelper.getAndVerifyEpochKeyLiteProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
+    }
+
+    private getEpochInfo(epochKeyProof: any) {
+        return {
+            epoch: Number(epochKeyProof.epoch),
+            epochKey: epochKeyProof.epochKey.toString(),
+        }
+    }
+
+    private async getReport(
+        db: DB,
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repUserType: RepUserType,
+        direction: ReputationDirection,
+        nullifier?: string
+    ) {
+        if (repUserType === RepUserType.VOTER) {
+            if (!nullifier) throw InvalidParametersError
+            return this.findReportWithNullifier(
+                db,
+                reportId,
+                epoch,
+                nullifier,
+                ReportStatus.WAITING_FOR_TRANSACTION
+            )
+        } else {
+            const whereClause = this.getReportWhereClause(
+                reportId,
+                epoch,
+                epochKey,
+                repUserType,
+                direction
+            )
+            const report = await db.findOne('ReportHistory', {
+                where: whereClause,
+            })
+            if (!report) throw ReportNotExistError
+            return report
+        }
+    }
+
+    private getReportWhereClause(
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repUserType: RepUserType,
+        direction: ReputationDirection
+    ) {
+        const baseClause = {
+            reportId,
+            status: ReportStatus.WAITING_FOR_TRANSACTION,
+            reportEpoch: epoch,
+        }
+
+        if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.REPORTER
+                ? { ...baseClause, reportorEpochKey: epochKey }
+                : { ...baseClause, respondentEpochKey: epochKey }
+        } else {
+            return repUserType === RepUserType.REPORTER
+                ? { ...baseClause, reportorEpochKey: epochKey }
+                : baseClause // For voters, we don't include epochKey in the where clause
+        }
+    }
+
+    private checkReputationClaim(
+        report: any,
+        repUserType: RepUserType,
+        direction: ReputationDirection,
+        nullifier?: string
+    ) {
+        if (direction === ReputationDirection.NEGATIVE) {
+            if (
+                repUserType === RepUserType.REPORTER &&
+                report.reportorClaimedRep
+            )
+                throw UserAlreadyClaimedError
+            if (
+                repUserType === RepUserType.POSTER &&
+                report.respondentClaimedRep
+            )
+                throw UserAlreadyClaimedError
+        } else {
+            if (
+                repUserType === RepUserType.REPORTER &&
+                report.reportorClaimedRep
+            )
+                throw UserAlreadyClaimedError
+            if (repUserType === RepUserType.VOTER) {
+                if (!nullifier) throw InvalidParametersError
+                if (!report) throw InvalidReportNullifierError
+                if (
+                    report.adjudicatorsNullifier.some(
+                        (adj: any) => adj.nullifier === nullifier && adj.claimed
+                    )
+                ) {
+                    throw UserAlreadyClaimedError
+                }
             }
+        }
+    }
+
+    private getReputationChange(
+        direction: ReputationDirection,
+        repUserType: RepUserType
+    ): RepChangeType {
+        if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.REPORTER
+                ? RepChangeType.FAILED_REPORTER_REP
+                : RepChangeType.POSTER_REP
+        } else {
+            if (repUserType === RepUserType.VOTER) {
+                return RepChangeType.VOTER_REP
+            }
+            return RepChangeType.REPORTER_REP
+        }
+    }
+
+    private async executeContractCall(
+        claimMethod: ClaimMethods,
+        claimSignals: any,
+        claimProof: any,
+        identifier: string,
+        change: RepChangeType
+    ) {
+        return await TransactionManager.callContract(claimMethod, [
+            claimSignals,
+            claimProof,
+            identifier,
+            change,
+        ])
+    }
+
+    private async createReputationHistory(
+        db: DB,
+        txHash: string,
+        epoch: number,
+        epochKey: string,
+        change: RepChangeType,
+        repType: ReputationType,
+        reportId: string
+    ) {
+        await db.create('ReputationHistory', {
+            transactionHash: txHash,
+            epoch,
+            epochKey,
+            score: change,
+            type: repType,
+            reportId,
+        })
+    }
+
+    private sendSuccessResponse(
+        res: express.Response,
+        txHash: string,
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repType: ReputationType,
+        change: RepChangeType
+    ) {
+        res.status(200).json({
+            message: {
+                txHash,
+                reportId,
+                epoch,
+                epochKey,
+                type: repType,
+                score: change,
+            },
+        })
+    }
+
+    private handleError(
+        res: express.Response,
+        error: any,
+        direction: ReputationDirection
+    ) {
+        console.error(`Get ${direction} Reputation error:`, error)
+        if (error instanceof InternalError) {
+            res.status(error.httpStatusCode).json({
+                message: error.message,
+                error: error.message,
+            })
+        } else {
+            res.status(500).json({
+                message: `Get ${direction} Reputation error`,
+                error: error.message,
+                stack: error.stack,
+            })
         }
     }
 
@@ -507,7 +645,7 @@ export class ReportService {
                 reportId,
                 epoch,
                 nullifier,
-                ReportStatus.COMPLETED
+                ReportStatus.WAITING_FOR_TRANSACTION
             )
 
             if (report) {

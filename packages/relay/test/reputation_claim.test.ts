@@ -230,7 +230,7 @@ describe('Reputation Claim', function () {
             update: {
                 adjudicatorsNullifier,
                 adjudicateCount,
-                status: ReportStatus.COMPLETED,
+                status: ReportStatus.WAITING_FOR_TRANSACTION,
             },
         })
     })
