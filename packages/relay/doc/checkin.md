@@ -20,4 +20,4 @@ In the current test, we evaluate the check-in process with the following cases:
 
 ## Todo
 
-- [ ] Add new circuit to check if two epoch keys come from the same user and prevent users from claiming multiple times in a single day.
+-   [ ] Add new circuit to check if two epoch keys come from the same user and prevent users from claiming multiple times in a single day.
