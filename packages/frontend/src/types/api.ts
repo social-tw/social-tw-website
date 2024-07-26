@@ -13,7 +13,7 @@ export enum SortKeys {
 }
 
 export type FetchReputationHistoryResponse = {
-    score: string
+    score: number
     report: {
         reason: string
         reportorEpochKey: string

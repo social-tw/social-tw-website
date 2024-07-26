@@ -95,7 +95,7 @@ function parseReputationHistoryToBodyData(
             { type: BodyCellType.Text, content: v.report.reportAt },
             { type: BodyCellType.Text, content: v.report.reason },
             { type: BodyCellType.Text, content: v.report.reportorEpochKey },
-            { type: BodyCellType.Text, content: v.score },
+            { type: BodyCellType.Text, content: String(v.score) },
         ]
     })
 }
