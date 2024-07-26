@@ -407,14 +407,12 @@ export class ReportService {
                     if (report.reportorClaimedRep) throw UserAlreadyClaimedError
                 } else if (repUserType === RepUserType.VOTER) {
                     if (!nullifier) throw InvalidParametersError
-                    console.log('nullifier:', nullifier)
                     const report = await this.findReportWithNullifier(
                         db,
                         epoch,
                         nullifier,
                         ReportStatus.COMPLETED
                     )
-                    console.log('report:', report)
                     if (!report) throw InvalidReportNullifierError
                     // check if user has claimed reputation
                     if (
