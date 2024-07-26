@@ -9,7 +9,11 @@ import { useQuery } from '@tanstack/react-query'
 export function useReputationHistory(fromToEpoch: FromToEpoch) {
     const { isFetching: isFetchingReputationHistory, data: reputationHistory } =
         useQuery({
-            queryKey: [QueryKeys.HasSignedUp, fromToEpoch.from, fromToEpoch.to],
+            queryKey: [
+                QueryKeys.ReputationHistory,
+                fromToEpoch.from,
+                fromToEpoch.to,
+            ],
             queryFn: async () => {
                 return await fetchReputationHistory(
                     fromToEpoch.from,
