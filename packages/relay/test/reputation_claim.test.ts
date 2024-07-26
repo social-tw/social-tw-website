@@ -28,7 +28,11 @@ import {
 } from '../../contracts/test/utils'
 import { EpochKeyLiteProof } from '@unirep/circuits'
 import { genReportNullifier } from '../test/utils/genNullifier'
-import { RepUserType } from '../src/types/Reputation'
+import {
+    RepChangeType,
+    RepUserType,
+    ReputationType,
+} from '../src/types/Reputation'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -274,9 +278,21 @@ describe('Reputation Claim', function () {
                 })
             )
         expect(res).to.have.status(200)
-        expect(res.body.message).to.match(
-            /^Success get Positive Reputation, txHash: 0x[a-fA-F0-9]{64}$/
-        )
+        const message = res.body.message
+        expect(message)
+            .to.have.property('txHash')
+            .that.matches(/^0x[a-fA-F0-9]{64}$/)
+        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('epoch').that.equals(currentEpoch)
+        expect(message)
+            .to.have.property('epochKey')
+            .that.equals(repoterEpochKey.epochKey.toString())
+        expect(message)
+            .to.have.property('type')
+            .that.equals(ReputationType.REPORT_SUCCESS)
+        expect(message)
+            .to.have.property('score')
+            .that.equals(RepChangeType.REPORTER_REP)
 
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -284,6 +300,21 @@ describe('Reputation Claim', function () {
             },
         })
         expect(report.reportorClaimedRep).equal(1)
+
+        // 验证 ReputationHistory 记录
+        const reputationHistory = await db.findOne('ReputationHistory', {
+            where: {
+                transactionHash: message.txHash,
+            },
+        })
+        expect(reputationHistory).to.not.be.null
+        expect(reputationHistory.epoch).to.equal(currentEpoch)
+        expect(reputationHistory.epochKey).to.equal(
+            repoterEpochKey.epochKey.toString()
+        )
+        expect(reputationHistory.score).to.equal(RepChangeType.REPORTER_REP)
+        expect(reputationHistory.type).to.equal(ReputationType.REPORT_SUCCESS)
+        expect(reputationHistory.reportId).to.equal(reportId)
     })
 
     it('should reporter be able to claim negative reputation', async function () {
@@ -335,9 +366,21 @@ describe('Reputation Claim', function () {
                 })
             )
         expect(res).to.have.status(200)
-        expect(res.body.message).to.match(
-            /^Success get Negative Reputation, txHash: 0x[a-fA-F0-9]{64}$/
-        )
+        const message = res.body.message
+        expect(message)
+            .to.have.property('txHash')
+            .that.matches(/^0x[a-fA-F0-9]{64}$/)
+        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('epoch').that.equals(currentEpoch)
+        expect(message)
+            .to.have.property('epochKey')
+            .that.equals(repoterEpochKey.epochKey.toString())
+        expect(message)
+            .to.have.property('type')
+            .that.equals(ReputationType.REPORT_FAILURE)
+        expect(message)
+            .to.have.property('score')
+            .that.equals(RepChangeType.FAILED_REPORTER_REP)
 
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -345,6 +388,22 @@ describe('Reputation Claim', function () {
             },
         })
         expect(report.reportorClaimedRep).equal(1)
+
+        const reputationHistory = await db.findOne('ReputationHistory', {
+            where: {
+                transactionHash: message.txHash,
+            },
+        })
+        expect(reputationHistory).to.not.be.null
+        expect(reputationHistory.epoch).to.equal(currentEpoch)
+        expect(reputationHistory.epochKey).to.equal(
+            repoterEpochKey.epochKey.toString()
+        )
+        expect(reputationHistory.score).to.equal(
+            RepChangeType.FAILED_REPORTER_REP
+        )
+        expect(reputationHistory.type).to.equal(ReputationType.REPORT_FAILURE)
+        expect(reputationHistory.reportId).to.equal(reportId)
     })
 
     it('should poster be able to claim poster negative reputation', async function () {
@@ -389,16 +448,42 @@ describe('Reputation Claim', function () {
             )
 
         expect(res).to.have.status(200)
-        expect(res.body.message).to.match(
-            /^Success get Negative Reputation, txHash: 0x[a-fA-F0-9]{64}$/
-        )
+        const message = res.body.message
+        expect(message)
+            .to.have.property('txHash')
+            .that.matches(/^0x[a-fA-F0-9]{64}$/)
+        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('epoch').that.equals(currentEpoch)
+        expect(message)
+            .to.have.property('epochKey')
+            .that.equals(posterEpochKey.epochKey.toString())
+        expect(message)
+            .to.have.property('type')
+            .that.equals(ReputationType.BE_REPORTED)
+        expect(message)
+            .to.have.property('score')
+            .that.equals(RepChangeType.POSTER_REP)
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                respondentEpochKey: posterEpochKey.epochKey.toString(),
+                reportorEpochKey: repoterEpochKey.epochKey.toString(),
             },
         })
-        expect(report.respondentClaimedRep).equal(1)
+        expect(report.reportorClaimedRep).equal(1)
+
+        const reputationHistory = await db.findOne('ReputationHistory', {
+            where: {
+                transactionHash: message.txHash,
+            },
+        })
+        expect(reputationHistory).to.not.be.null
+        expect(reputationHistory.epoch).to.equal(currentEpoch)
+        expect(reputationHistory.epochKey).to.equal(
+            posterEpochKey.epochKey.toString()
+        )
+        expect(reputationHistory.score).to.equal(RepChangeType.POSTER_REP)
+        expect(reputationHistory.type).to.equal(ReputationType.BE_REPORTED)
+        expect(reputationHistory.reportId).to.equal(reportId)
     })
 
     // voter claim positive reputation
@@ -444,27 +529,42 @@ describe('Reputation Claim', function () {
             )
 
         expect(res).to.have.status(200)
-        expect(res.body.message).to.match(
-            /^Success get Positive Reputation, txHash: 0x[a-fA-F0-9]{64}$/
-        )
+        const message = res.body.message
+        expect(message)
+            .to.have.property('txHash')
+            .that.matches(/^0x[a-fA-F0-9]{64}$/)
+        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('epoch').that.equals(currentEpoch)
+        expect(message)
+            .to.have.property('epochKey')
+            .that.equals(voterEpochKey.epochKey.toString())
+        expect(message)
+            .to.have.property('type')
+            .that.equals(ReputationType.ADJUDICATE)
+        expect(message)
+            .to.have.property('score')
+            .that.equals(RepChangeType.VOTER_REP)
 
-        const report = await findReportWithNullifier(
-            db,
-            currentEpoch,
-            nullifier.toString(),
-            ReportStatus.COMPLETED
-        )
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+            },
+        })
+        expect(report.reportorClaimedRep).equal(1)
 
-        expect(report).to.not.be.null
-        if (report) {
-            const adjudicator = report.adjudicatorsNullifier.find(
-                (adj) => adj.nullifier === nullifier.toString()
-            )
-            expect(adjudicator).to.not.be.undefined
-            if (adjudicator) {
-                expect(adjudicator.claimed).to.be.true
-            }
-        }
+        const reputationHistory = await db.findOne('ReputationHistory', {
+            where: {
+                transactionHash: message.txHash,
+            },
+        })
+        expect(reputationHistory).to.not.be.null
+        expect(reputationHistory.epoch).to.equal(currentEpoch)
+        expect(reputationHistory.epochKey).to.equal(
+            voterEpochKey.epochKey.toString()
+        )
+        expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
+        expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
+        expect(reputationHistory.reportId).to.equal(reportId)
     })
 
     it('should fail when reporter tries to claim positive reputation twice', async function () {

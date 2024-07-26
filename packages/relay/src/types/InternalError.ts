@@ -160,6 +160,11 @@ export const NegativeReputationUserError = new InternalError(
     400
 )
 
+export const PositiveReputationUserError = new InternalError(
+    'Positive reputation user',
+    400
+)
+
 export const InvalidAuthenticationError = new InternalError(
     'Invalid authentication',
     400

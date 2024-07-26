@@ -25,6 +25,8 @@ import {
     UserAlreadyClaimedError,
     InternalError,
     InvalidReportNullifierError,
+    NegativeReputationUserError,
+    PositiveReputationUserError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
@@ -38,6 +40,7 @@ import {
     RepChangeType,
     RepUserType,
     ReputationDirection,
+    ReputationType,
 } from '../types/Reputation'
 import { genVHelperIdentifier } from '../services/utils/IpfsHelper'
 import TransactionManager from './utils/TransactionManager'
@@ -335,6 +338,7 @@ export class ReportService {
                 repUserType,
                 nullifier,
             } = req.body
+
             let change: RepChangeType
 
             const identifier = genVHelperIdentifier(helper)
@@ -391,8 +395,9 @@ export class ReportService {
                     if (report.respondentClaimedRep)
                         throw UserAlreadyClaimedError
                     change = RepChangeType.POSTER_REP
+                } else {
+                    throw NegativeReputationUserError
                 }
-                change = RepChangeType.POSTER_REP
             } else {
                 // if claimMethod is CLAIM_POSITIVE_REP, check if user is voter or reporter
                 if (repUserType === RepUserType.REPORTER) {
@@ -407,6 +412,7 @@ export class ReportService {
                     if (!report) throw ReportNotExistError
                     // check if user has claimed reputation
                     if (report.reportorClaimedRep) throw UserAlreadyClaimedError
+                    change = RepChangeType.REPORTER_REP
                 } else if (repUserType === RepUserType.VOTER) {
                     if (!nullifier) throw InvalidParametersError
                     const report = await this.findReportWithNullifier(
@@ -424,8 +430,10 @@ export class ReportService {
                         )
                     )
                         throw UserAlreadyClaimedError
+                    change = RepChangeType.VOTER_REP
+                } else {
+                    throw PositiveReputationUserError
                 }
-                change = RepChangeType.REPORTER_REP
             }
 
             const txHash = await TransactionManager.callContract(claimMethod, [
@@ -446,8 +454,26 @@ export class ReportService {
                 repUserType
             )
 
+            const repType = this.getReputationType(direction, repUserType)
+
+            await db.create('ReputationHistory', {
+                transactionHash: txHash,
+                epoch,
+                epochKey,
+                score: change,
+                type: repType,
+                reportId,
+            })
+
             res.status(200).json({
-                message: `Success get ${direction} Reputation, txHash: ${txHash}`,
+                message: {
+                    txHash: txHash,
+                    reportId: reportId,
+                    epoch: epoch,
+                    epochKey: epochKey,
+                    type: repType,
+                    score: change,
+                },
             })
         } catch (error: any) {
             console.error(`Get ${direction} Reputation error:`, error)
@@ -552,6 +578,23 @@ export class ReportService {
                 (adj) => adj.nullifier === nullifier
             )
         )
+    }
+
+    private getReputationType(
+        direction: ReputationDirection,
+        repUserType: RepUserType
+    ): ReputationType {
+        if (direction === ReputationDirection.POSITIVE) {
+            return repUserType === RepUserType.VOTER
+                ? ReputationType.ADJUDICATE
+                : ReputationType.REPORT_SUCCESS
+        } else if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.POSTER
+                ? ReputationType.BE_REPORTED
+                : ReputationType.REPORT_FAILURE
+        } else {
+            throw new Error('Invalid ReputationDirection')
+        }
     }
 }
 
