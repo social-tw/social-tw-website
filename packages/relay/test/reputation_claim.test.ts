@@ -265,6 +265,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: repoterEpochKey.publicSignals,
                     proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -325,6 +326,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: repoterEpochKey.publicSignals,
                     proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -377,6 +379,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: posterEpochKey.publicSignals,
                     proof: posterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -430,6 +433,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: voterEpochKey.publicSignals,
                     proof: voterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -493,6 +497,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: repoterEpochKey.publicSignals,
                     proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -535,6 +540,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: voterEpochKey.publicSignals,
                     proof: voterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -581,6 +587,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: posterEpochKey.publicSignals,
                     proof: posterEpochKey.proof,
                     claimSignals: usedPublicSig,
@@ -601,6 +608,7 @@ describe('Reputation Claim', function () {
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
+                    reportId: reportId,
                     publicSignals: voterEpochKey.publicSignals,
                     proof: voterEpochKey.proof,
                     claimSignals: usedPublicSig,

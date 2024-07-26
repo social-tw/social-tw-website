@@ -327,6 +327,7 @@ export class ReportService {
     ) {
         try {
             const {
+                reportId,
                 publicSignals,
                 proof,
                 claimSignals,
@@ -339,14 +340,12 @@ export class ReportService {
             const identifier = genVHelperIdentifier(helper)
 
             if (
-                !publicSignals ||
-                !proof ||
+                !reportId ||
                 !claimSignals ||
                 !claimProof ||
                 repUserType === undefined
             )
                 throw InvalidParametersError
-
             // check repUserType belong to RepUserType
             if (!Object.values(RepUserType).includes(repUserType))
                 throw InvalidParametersError
@@ -368,6 +367,7 @@ export class ReportService {
                 if (repUserType === RepUserType.REPORTER) {
                     const report = await db.findOne('ReportHistory', {
                         where: {
+                            reportId,
                             status: ReportStatus.COMPLETED,
                             reportorEpochKey: epochKey,
                             reportEpoch: epoch,
@@ -380,6 +380,7 @@ export class ReportService {
                 } else if (repUserType === RepUserType.POSTER) {
                     const report = await db.findOne('ReportHistory', {
                         where: {
+                            reportId,
                             status: ReportStatus.COMPLETED,
                             respondentEpochKey: epochKey,
                             reportEpoch: epoch,
@@ -397,6 +398,7 @@ export class ReportService {
                 if (repUserType === RepUserType.REPORTER) {
                     const report = await db.findOne('ReportHistory', {
                         where: {
+                            reportId,
                             status: ReportStatus.COMPLETED,
                             reportorEpochKey: epochKey,
                             reportEpoch: epoch,
@@ -409,6 +411,7 @@ export class ReportService {
                     if (!nullifier) throw InvalidParametersError
                     const report = await this.findReportWithNullifier(
                         db,
+                        reportId,
                         epoch,
                         nullifier,
                         ReportStatus.COMPLETED
@@ -438,6 +441,7 @@ export class ReportService {
                 direction,
                 epochKey,
                 epoch,
+                reportId,
                 nullifier,
                 repUserType
             )
@@ -467,12 +471,14 @@ export class ReportService {
         type: ReputationDirection,
         epochKey: string,
         epoch: number,
+        reportId: string,
         nullifier?: string,
         repUserType?: RepUserType
     ) {
         if (type === ReputationDirection.POSITIVE && nullifier) {
             const report = await this.findReportWithNullifier(
                 db,
+                reportId,
                 epoch,
                 nullifier,
                 ReportStatus.COMPLETED
@@ -517,6 +523,7 @@ export class ReportService {
             const updateQuery = { [updateField]: true }
             await db.update('ReportHistory', {
                 where: {
+                    reportId,
                     [whereField]: epochKey,
                     reportEpoch: epoch,
                 },
@@ -527,12 +534,14 @@ export class ReportService {
 
     async findReportWithNullifier(
         db: DB,
+        reportId: string,
         epoch: number,
         nullifier: string,
         status: ReportStatus
     ) {
         const reports = await db.findMany('ReportHistory', {
             where: {
+                reportId,
                 reportEpoch: epoch,
                 status: status,
             },
