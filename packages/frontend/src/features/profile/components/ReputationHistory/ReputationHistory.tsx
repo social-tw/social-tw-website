@@ -93,7 +93,7 @@ function parseReputationHistoryToBodyData(
     return reputationHistoryData.map((v) => {
         return [
             { type: BodyCellType.Text, content: v.report.reportAt },
-            { type: BodyCellType.Text, content: v.report.reason },
+            { type: BodyCellType.Text, content: getReputationTypeText(v.type) },
             { type: BodyCellType.Text, content: v.report.reportorEpochKey },
             { type: BodyCellType.Text, content: String(v.score) },
         ]
@@ -107,4 +107,21 @@ function isWithin30Days(startDate: Date | null, endDate: Date | null) {
     const difference = Math.abs(endTimestamp - startTimestamp)
     const daysDifference = difference / (1000 * 60 * 60 * 24)
     return daysDifference <= 30
+}
+
+function getReputationTypeText(type: number) {
+    switch (type) {
+        case 0:
+            return '檢舉成功'
+        case 1:
+            return '檢舉失敗'
+        case 2:
+            return '被檢舉成功'
+        case 3:
+            return '協助檢舉判定'
+        case 4:
+            return '登入'
+        default:
+            return ''
+    }
 }
