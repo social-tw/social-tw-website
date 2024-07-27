@@ -60,3 +60,8 @@ export class YetLoginError extends Error {
             '親愛的用戶：您還沒登入 / 註冊唷，請先登入 / 註冊再執行此動作，感謝您！'
     }
 }
+
+export class ReputationTooLowError extends Error {
+    name = 'ErrorReputationTooLow'
+    message = 'reputation too low'
+}

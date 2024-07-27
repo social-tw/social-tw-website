@@ -1,9 +1,6 @@
-import { UserState } from '@unirep/core'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
-import { useUserState } from '@/features/core'
+import { PATHS } from '@/constants/paths'
 import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
+import { useUserState } from '@/features/core'
 import {
     PostFailureDialog,
     PostForm,
@@ -12,7 +9,11 @@ import {
     type PostFormValues,
 } from '@/features/post'
 import { useProfileHistoryStore } from '@/features/profile'
-import { PATHS } from '@/constants/paths'
+import { ReputationTooLowError } from '@/utils/errors'
+import { useQueryClient } from '@tanstack/react-query'
+import { UserState } from '@unirep/core'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function WritePostPage() {
     const { userState } = useUserState()
@@ -70,7 +71,10 @@ export default function WritePostPage() {
         <div className="p-4">
             <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
             <PostPublishTransition isOpen={isSubmitting} />
-            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
+            <PostFailureDialog
+                isOpen={!!error && !(error instanceof ReputationTooLowError)}
+                onClose={() => reset()}
+            />
         </div>
     )
 }

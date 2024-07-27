@@ -12,6 +12,7 @@ import {
 } from '@/features/core'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { fetchUserReputation, relayCreatePost } from '@/utils/api'
+import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
@@ -70,7 +71,7 @@ export function useCreatePost() {
             const reputation = await fetchUserReputation()
             if (reputation < 0) {
                 openForbidActionDialog()
-                throw new ErrorReputationTooLow()
+                throw new ReputationTooLowError()
             }
             const postData: PostData = {
                 postId: undefined,
@@ -109,9 +110,4 @@ export function useCreatePost() {
         reset,
         createPost,
     }
-}
-
-export class ErrorReputationTooLow extends Error {
-    name = 'ErrorReputationTooLow'
-    message = 'reputation too low'
 }
