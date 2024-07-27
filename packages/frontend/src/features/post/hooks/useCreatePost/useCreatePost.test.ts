@@ -1,8 +1,8 @@
-import nock from 'nock'
-import { act, renderHook } from '@testing-library/react'
-import { wrapper } from '@/utils/test-helpers/wrapper'
 import { SERVER } from '@/constants/config'
 import * as actionLib from '@/features/core/stores/actions'
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { act, renderHook } from '@testing-library/react'
+import nock from 'nock'
 import { useCreatePost } from './useCreatePost'
 
 jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -52,6 +52,15 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
+const mockFetchUserReputation = jest.fn()
+jest.mock('@/utils/api', () => {
+    const original = jest.requireActual('@/utils/api')
+    return {
+        ...original,
+        fetchUserReputation: () => mockFetchUserReputation(),
+    }
+})
+
 describe('useCreatePost', () => {
     afterEach(() => {
         nock.cleanAll()
@@ -59,6 +68,7 @@ describe('useCreatePost', () => {
     })
 
     it('succeed to create a post', async () => {
+        mockFetchUserReputation.mockReturnValue(100)
         const expectation = nock(SERVER)
             .get('/api/counter?epks=epochKey-1_epochKey-2')
             .reply(200, { counter: 1 })
