@@ -12,6 +12,11 @@ import {
     CheckInNotification,
 } from '@/features/reporting'
 import { MobileBottomNav } from '@/features/shared'
+import { ForbidActionDialog } from '@/features/shared/components/Dialog/ForbidActionDialog'
+import {
+    closeForbidActionDialog,
+    useDialogStore,
+} from '@/features/shared/stores/dialog'
 import { useMediaQuery } from '@uidotdev/usehooks'
 import clsx from 'clsx'
 import {
@@ -63,6 +68,10 @@ export default function AppLayout() {
         location.pathname !== '/profile/reputation' &&
         location.pathname !== '/profile/history'
 
+    const isForbidActionDialogOpen = useDialogStore(
+        (state) => state.forbidAction,
+    )
+
     if (isSmallDevice) {
         return (
             <div className="max-w-7xl min-h-screen mx-auto before:content-[' '] before:fixed before:top-0 before:left-0 before:-z-10 before:w-screen before:h-screen before:bg-[linear-gradient(200deg,#FF892A_-10%,#000000_15%,#2B2B2B_50%,#000000_85%,#52ACBC_110%)]">
@@ -103,6 +112,10 @@ export default function AppLayout() {
                     <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
+                <ForbidActionDialog
+                    isOpen={isForbidActionDialogOpen}
+                    onClose={closeForbidActionDialog}
+                />
             </div>
         )
     } else {
@@ -231,6 +244,10 @@ export default function AppLayout() {
                     <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
+                <ForbidActionDialog
+                    isOpen={isForbidActionDialogOpen}
+                    onClose={closeForbidActionDialog}
+                />
             </div>
         )
     }

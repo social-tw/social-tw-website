@@ -1,8 +1,16 @@
 import Dialog from './Dialog'
 
-export function ForbidActionDialog() {
+interface ForbidActionDialogProps {
+    isOpen: boolean
+    onClose: () => void
+}
+
+export function ForbidActionDialog({
+    isOpen,
+    onClose,
+}: ForbidActionDialogProps) {
     return (
-        <Dialog isOpen={true} onClose={() => {}}>
+        <Dialog isOpen={isOpen} onClose={onClose}>
             <div className="px-6 py-12 md:px-12 flex flex-col gap-6">
                 <div>親愛的用戶：</div>
                 <div className="leading-loose">

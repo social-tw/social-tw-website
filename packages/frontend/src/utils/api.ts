@@ -30,6 +30,10 @@ import {
     SortKeys,
 } from '../types/api'
 
+export async function fetchUserReputation() {
+    return -3
+}
+
 export async function fetchReputationHistory(
     fromEpoch: number,
     toEpoch: number,
