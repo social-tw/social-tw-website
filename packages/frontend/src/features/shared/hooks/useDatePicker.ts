@@ -1,4 +1,5 @@
 import { useUserState } from '@/features/core'
+import dayjs from 'dayjs'
 import { useCallback, useState } from 'react'
 import {
     EpochDateService,
@@ -27,32 +28,30 @@ export function useDatePicker() {
             ),
         )
     }, [startDate, endDate, userState])
-    const onChange = (dates: any) => {
+    const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates
-        setStartDate(start)
-        setEndDate(end)
+        setStartDate(start ? dayjs(start).startOf('day').toDate() : undefined)
+        setEndDate(end ? dayjs(end).endOf('day').toDate() : undefined)
         setIsDateSelected(!!start && !!end)
     }
     const setToday = () => {
-        const today = new Date()
-        setStartDate(today)
-        setEndDate(today)
+        const now = dayjs()
+        setStartDate(now.startOf('day').toDate())
+        setEndDate(now.endOf('day').toDate())
         setIsDateSelected(true)
     }
     const setPast7Days = () => {
-        const today = new Date()
-        const past7Days = new Date(today.getTime())
-        past7Days.setDate(today.getDate() - 7)
-        setStartDate(past7Days)
-        setEndDate(today)
+        const today = dayjs()
+        const past7Date = today.subtract(7, 'day')
+        setStartDate(past7Date.startOf('day').toDate())
+        setEndDate(today.endOf('day').toDate())
         setIsDateSelected(true)
     }
     const setPast30Days = () => {
-        const today = new Date()
-        const past30Days = new Date(today.getTime())
-        past30Days.setDate(today.getDate() - 30)
-        setStartDate(past30Days)
-        setEndDate(today)
+        const today = dayjs()
+        const past30Date = today.subtract(30, 'day')
+        setStartDate(past30Date.startOf('day').toDate())
+        setEndDate(today.endOf('day').toDate())
         setIsDateSelected(true)
     }
 

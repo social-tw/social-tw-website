@@ -9,6 +9,7 @@ import {
 import { useDatePicker } from '@/features/shared/hooks/useDatePicker'
 import { FromToEpoch } from '@/features/shared/services/EpochDateService'
 import { FetchReputationHistoryResponse } from '@/types/api'
+import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { useReputationHistory } from '../../hooks/useReputationHistory/useReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
@@ -102,10 +103,9 @@ function parseReputationHistoryToBodyData(
 
 function isWithin30Days(startDate: Date | null, endDate: Date | null) {
     if (!startDate || !endDate) return false
-    const startTimestamp = startDate.getTime()
-    const endTimestamp = endDate.getTime()
-    const difference = Math.abs(endTimestamp - startTimestamp)
-    const daysDifference = difference / (1000 * 60 * 60 * 24)
+    const start = dayjs(startDate)
+    const end = dayjs(endDate)
+    const daysDifference = end.diff(start, 'day')
     return daysDifference <= 30
 }
 
