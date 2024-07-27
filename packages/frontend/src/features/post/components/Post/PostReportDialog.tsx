@@ -62,13 +62,13 @@ export function PostReportDialog({
         } catch (error) {}
     })
 
-    const onCloseFailure = useCloseFailureDialogFlow({
+    const onFailureResubmit = useFailureResubmitDialogFlow({
         resetForm,
         resetState,
         getValues,
     })
 
-    const onCloseSuccess = useCloseSuccessDialogFlow({
+    const onCloseDialog = useCloseDialogFlow({
         resetForm,
         resetState,
         onClose,
@@ -108,13 +108,18 @@ export function PostReportDialog({
                 </Dialog>
             )}
             {isPending && <ReportFormSubmitting />}
-            {isError && <ReportFormSubmitFailure onClose={onCloseFailure} />}
-            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseSuccess} />}
+            {isError && (
+                <ReportFormSubmitFailure
+                    onClose={onCloseDialog}
+                    onResubmit={onFailureResubmit}
+                />
+            )}
+            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseDialog} />}
         </>
     )
 }
 
-function useCloseSuccessDialogFlow({
+function useCloseDialogFlow({
     resetForm,
     resetState,
     onClose,
@@ -130,7 +135,7 @@ function useCloseSuccessDialogFlow({
     }
 }
 
-function useCloseFailureDialogFlow({
+function useFailureResubmitDialogFlow({
     resetForm,
     resetState,
     getValues,

@@ -28,7 +28,7 @@ export function ReportFormSubmitSuccess({
                         <HintWording />
                         <button
                             aria-label="close"
-                            className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-[#051532]"
+                            className="absolute top-[-40px] right-[40px] btn btn-sm btn-circle btn-ghost text-white"
                             type="submit"
                             onClick={onClose}
                         >
