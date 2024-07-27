@@ -1,18 +1,20 @@
-import { ethers } from 'ethers'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
-    useActionCount,
-    useWeb3Provider,
-    useUserState,
-    useUserStateTransition,
     ActionType,
     addAction,
     failActionById,
     succeedActionById,
+    useActionCount,
+    useUserState,
+    useUserStateTransition,
+    useWeb3Provider,
 } from '@/features/core'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
+import { fetchUserReputation, relayCreateComment } from '@/utils/api'
+import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
-import { relayCreateComment } from '@/utils/api'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ethers } from 'ethers'
 
 export function useCreateComment() {
     const queryClient = useQueryClient()
@@ -73,7 +75,12 @@ export function useCreateComment() {
                 epochKey,
             }
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
+            const reputation = await fetchUserReputation()
+            if (reputation < 0) {
+                openForbidActionDialog()
+                throw new ReputationTooLowError()
+            }
             const commentData = {
                 commentId: undefined,
                 postId: variables.postId,
