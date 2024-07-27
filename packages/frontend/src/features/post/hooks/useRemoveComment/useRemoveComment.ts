@@ -1,15 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
-    useWeb3Provider,
-    useUserState,
-    useUserStateTransition,
     ActionType,
     addAction,
     failActionById,
     succeedActionById,
+    useUserState,
+    useUserStateTransition,
+    useWeb3Provider,
 } from '@/features/core'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { relayRemoveComment } from '@/utils/api'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
+import { fetchUserReputation, relayRemoveComment } from '@/utils/api'
+import { ReputationTooLowError } from '@/utils/errors'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useRemoveComment() {
     const queryClient = useQueryClient()
@@ -55,7 +57,12 @@ export function useRemoveComment() {
             await provider.waitForTransaction(txHash)
             await userState.waitForSync()
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
+            const reputation = await fetchUserReputation()
+            if (reputation < 0) {
+                openForbidActionDialog()
+                throw new ReputationTooLowError()
+            }
             const actionId = addAction(ActionType.DeleteComment, {
                 postId: variables.postId,
                 commentId: variables.commentId,
