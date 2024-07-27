@@ -1,10 +1,15 @@
-import { EpochKeyLiteProof, EpochKeyProof } from '@unirep/circuits'
+import {
+    EpochKeyLiteProof,
+    EpochKeyProof,
+    ReputationProof,
+} from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     InvalidAttesterIdError,
     InvalidEpochError,
     InvalidProofError,
+    InvalidReputationProofError,
     InvalidStateTreeError,
 } from '../../types'
 import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
@@ -68,6 +73,28 @@ class ProofHelper {
         }
 
         return epochKeyLiteProof
+    }
+
+    async getAndVerifyReputationProof(
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<ReputationProof> {
+        const reputationProof = new ReputationProof(
+            publicSignals,
+            proof,
+            synchronizer.prover
+        )
+
+        this.validateAttesterId(synchronizer, reputationProof)
+        await this.validateEpoch(synchronizer, reputationProof)
+
+        const isProofValid = await reputationProof.verify()
+        if (!isProofValid) {
+            throw InvalidReputationProofError
+        }
+
+        return reputationProof
     }
 
     /**

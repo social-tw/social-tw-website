@@ -1,9 +1,6 @@
-import { ReputationProof } from '@unirep/circuits'
-import Prover from '../services/utils/Prover'
-import {
-    InvalidAuthenticationError,
-    InvalidReputationProofError,
-} from '../types'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import ProofHelper from '../services/utils/ProofHelper'
+import { InvalidAuthenticationError } from '../types'
 
 export const jsonToBase64 = (object) => {
     const json = JSON.stringify(object)
@@ -15,28 +12,33 @@ export const base64ToJson = (base64String) => {
     return JSON.parse(json)
 }
 
-export const checkReputation = async function (req, res, next) {
-    // decode authorization
-    const authentication = req.headers.authentication
-    if (!authentication) {
-        throw InvalidAuthenticationError
+export const createCheckReputationMiddleware = (
+    synchronizer: UnirepSocialSynchronizer
+) =>
+    async function (req, res, next) {
+        const authentication = req.headers.authentication
+        if (!authentication) {
+            throw InvalidAuthenticationError
+        }
+
+        // decode authorization
+        const { publicSignals, proof } = JSON.parse(atob(authentication))
+
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
+        console.log('---checking reputation---')
+        console.log('publicSignals', publicSignals)
+        console.log('proof', proof)
+
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+        res.locals.isNegativeReputation =
+            maxRep > 0 && proveMaxRep > 0 ? true : false
+
+        next()
     }
-
-    const { publicSignals, proof } = base64ToJson(authentication)
-
-    // validate reputation proof
-    const isValid = await Prover.verifyProof('reputation', publicSignals, proof)
-    if (!isValid) {
-        throw InvalidReputationProofError
-    }
-
-    const data = new ReputationProof(publicSignals, proof)
-
-    // check negative reputation
-    const maxRep = data.maxRep
-    const proveMaxRep = data.proveMaxRep
-    res.locals.isNegativeReputation =
-        maxRep > 0 && proveMaxRep > 0 ? true : false
-
-    next()
-}

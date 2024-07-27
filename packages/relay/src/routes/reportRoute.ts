@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { checkReputation } from '../middlewares/CheckReputationMiddleware'
+import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
 import ProofHelper from '../services/utils/ProofHelper'
 import Validator from '../services/utils/Validator'
 import {
@@ -26,7 +26,7 @@ export default (
 ) => {
     app.post(
         '/api/report',
-        errorHandler(checkReputation),
+        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req: Request, res: Response) => {
             if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
@@ -74,7 +74,7 @@ export default (
 
     app.post(
         '/api/report/:id',
-        errorHandler(checkReputation),
+        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
             if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError

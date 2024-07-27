@@ -1,19 +1,19 @@
-import { ethers } from 'ethers'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
-    useActionCount,
-    useWeb3Provider,
-    useUserState,
-    useUserStateTransition,
     ActionType,
     addAction,
     failActionById,
     PostData,
+    PostService,
     succeedActionById,
+    useActionCount,
+    useUserState,
+    useUserStateTransition,
+    useWeb3Provider,
 } from '@/features/core'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
-import { relayCreatePost } from '@/utils/api'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ethers } from 'ethers'
 
 export function useCreatePost() {
     const queryClient = useQueryClient()
@@ -41,14 +41,11 @@ export function useCreatePost() {
 
             const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
-            const proof = await userState.genEpochKeyProof({
+            const postService = new PostService(userState)
+            const { txHash, epoch, epochKey } = await postService.createPost(
+                content,
                 nonce,
-            })
-
-            const epoch = Number(proof.epoch)
-            const epochKey = proof.epochKey.toString()
-
-            const { txHash } = await relayCreatePost(proof, content)
+            )
 
             const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(

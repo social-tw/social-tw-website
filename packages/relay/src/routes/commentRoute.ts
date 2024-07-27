@@ -1,7 +1,7 @@
 import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { checkReputation } from '../middlewares/CheckReputationMiddleware'
+import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
@@ -9,7 +9,6 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
     EmptyCommentError,
-    InternalError,
     InvalidParametersError,
     InvalidPostIdError,
     NegativeReputationUserError,
@@ -46,7 +45,7 @@ export default (
         )
 
         .post(
-            errorHandler(checkReputation),
+            errorHandler(createCheckReputationMiddleware(synchronizer)),
             errorHandler(async (req, res) => {
                 if (res.locals.isNegativeReputation) {
                     throw NegativeReputationUserError
@@ -79,7 +78,7 @@ export default (
         )
 
         .delete(
-            errorHandler(checkReputation),
+            errorHandler(createCheckReputationMiddleware(synchronizer)),
             errorHandler(async (req, res) => {
                 if (res.locals.isNegativeReputation) {
                     throw NegativeReputationUserError
