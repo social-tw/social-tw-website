@@ -1,19 +1,20 @@
-import { ethers } from 'ethers'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
-    useActionCount,
-    useWeb3Provider,
-    useUserState,
-    useUserStateTransition,
     ActionType,
     addAction,
     failActionById,
     PostData,
     succeedActionById,
+    useActionCount,
+    useUserState,
+    useUserStateTransition,
+    useWeb3Provider,
 } from '@/features/core'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
+import { fetchUserReputation, relayCreatePost } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
-import { relayCreatePost } from '@/utils/api'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ethers } from 'ethers'
 
 export function useCreatePost() {
     const queryClient = useQueryClient()
@@ -65,7 +66,12 @@ export function useCreatePost() {
                 epochKey,
             }
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
+            const reputation = await fetchUserReputation()
+            if (reputation < 0) {
+                openForbidActionDialog()
+                throw new ErrorReputationTooLow()
+            }
             const postData: PostData = {
                 postId: undefined,
                 content: variables.content,
@@ -103,4 +109,9 @@ export function useCreatePost() {
         reset,
         createPost,
     }
+}
+
+export class ErrorReputationTooLow extends Error {
+    name = 'ErrorReputationTooLow'
+    message = 'reputation too low'
 }

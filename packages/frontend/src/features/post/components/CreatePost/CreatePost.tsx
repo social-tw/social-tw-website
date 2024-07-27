@@ -1,16 +1,17 @@
-import toast from 'react-hot-toast'
-import { useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { UserState } from '@unirep/core'
 import { useUserState } from '@/features/core'
 import {
     type PostFormValues,
+    PostFailureDialog,
     PostForm,
     PostPublishTransition,
-    PostFailureDialog,
     useCreatePost,
 } from '@/features/post'
 import { useProfileHistoryStore } from '@/features/profile'
+import { useQueryClient } from '@tanstack/react-query'
+import { UserState } from '@unirep/core'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { ErrorReputationTooLow } from '../../hooks/useCreatePost/useCreatePost'
 
 export default function CreatePost({
     disabled = false,
@@ -61,7 +62,10 @@ export default function CreatePost({
         <>
             <PostForm disabled={disabled} onSubmit={onSubmit} />
             <PostPublishTransition isOpen={isSubmitting} />
-            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
+            <PostFailureDialog
+                isOpen={!!error && !(error instanceof ErrorReputationTooLow)}
+                onClose={() => reset()}
+            />
         </>
     )
 }
