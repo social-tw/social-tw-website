@@ -90,7 +90,10 @@ export function CommentActionMenu({
             <CommentDeleteDialog
                 open={isDeleteDialogOpen}
                 onClose={onDeleteDialogClose}
-                onConfirm={onDelete}
+                onConfirm={() => {
+                    onDelete()
+                    onDeleteDialogClose()
+                }}
             />
         </ActionMenuContainer>
     )

@@ -1,15 +1,16 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
-    useWeb3Provider,
-    useUserState,
-    useUserStateTransition,
     ActionType,
     addAction,
+    CommentService,
     failActionById,
     succeedActionById,
+    useUserState,
+    useUserStateTransition,
+    useWeb3Provider,
 } from '@/features/core'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { relayRemoveComment } from '@/utils/api'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { delay } from 'lodash'
 
 export function useRemoveComment() {
     const queryClient = useQueryClient()
@@ -42,16 +43,9 @@ export function useRemoveComment() {
 
             await stateTransition()
 
-            const proof = await userState.genEpochKeyLiteProof({
-                epoch,
-                nonce,
-            })
+            const commentService = new CommentService(userState)
+            const { txHash } = await commentService.removeComment(commentId, postId, epoch, nonce)
 
-            const { txHash } = await relayRemoveComment(
-                proof,
-                postId,
-                commentId,
-            )
             await provider.waitForTransaction(txHash)
             await userState.waitForSync()
         },
@@ -72,13 +66,15 @@ export function useRemoveComment() {
         onSuccess: (_data, variables, context) => {
             succeedActionById(context.actionId)
 
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.ManyComments, variables.postId],
-            })
-
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.SinglePost, variables.postId],
-            })
+            delay(async() => {
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.ManyComments, variables.postId],
+                })
+    
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.SinglePost, variables.postId],
+                })
+            }, 1000)
         },
     })
 
