@@ -38,8 +38,11 @@ export class EpochDateService {
         const currentEpochStartTime = now - (epochLength - remainingTime)
         const serviceStartTime =
             currentEpochStartTime - epochLength * currentEpoch
-        
-        return Math.max(0 ,Math.floor((date.getTime() - serviceStartTime) / epochLength))
+
+        return Math.max(
+            0,
+            Math.floor((date.getTime() - serviceStartTime) / epochLength),
+        )
     }
 }
 

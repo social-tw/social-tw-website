@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function WritePostPage() {
-
     const { isLoggedIn } = useAuthStatus()
 
     const navigate = useNavigate()

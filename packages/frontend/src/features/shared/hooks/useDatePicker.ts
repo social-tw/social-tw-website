@@ -47,7 +47,7 @@ export function useDatePicker() {
         setStartDate(past7Date.startOf('day').toDate())
         setEndDate(today.endOf('day').toDate())
     }
-    
+
     const setPast30Days = () => {
         const today = dayjs()
         const past30Date = today.subtract(30, 'day')
