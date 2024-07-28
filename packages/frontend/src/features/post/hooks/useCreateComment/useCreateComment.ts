@@ -45,18 +45,18 @@ export function useCreateComment() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
             const commentService = new CommentService(userState)
             const {
                 txHash,
                 epoch,
                 epochKey,
-            } = await commentService.createComment(
+            } = await commentService.createComment({
                 content,
                 postId,
-                nonce,
-            )
+                identityNonce,
+            })
 
             const receipt = await provider.waitForTransaction(txHash)
 

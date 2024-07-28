@@ -44,7 +44,12 @@ export function useRemoveComment() {
             await stateTransition()
 
             const commentService = new CommentService(userState)
-            const { txHash } = await commentService.removeComment(commentId, postId, epoch, nonce)
+            const { txHash } = await commentService.removeComment({
+                commentId,
+                postId,
+                epoch,
+                identityNonce: nonce,
+            })
 
             await provider.waitForTransaction(txHash)
             await userState.waitForSync()

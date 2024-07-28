@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useActionCount, useUserState } from '@/features/core'
-import { useProfileHistoryStore } from '@/features/profile'
-import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { relayVote } from '@/utils/api'
+import { useActionCount, useUserState, VoteService } from '@/features/core'
+import { useProfileHistoryStore } from '@/features/profile'
 import { VoteAction } from '@/types/Vote'
+import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useVotes() {
     const queryClient = useQueryClient()
@@ -35,19 +34,19 @@ export function useVotes() {
             votedEpoch: number | null
         }) => {
             const userState = await getGuaranteedUserState()
-            let epochKeyProof
-            // If user has voted before, generate proof for canceling the vote, if true will don't check epoch equals now epoch
-            if (votedNonce !== null && votedEpoch !== null) {
-                epochKeyProof = await userState.genEpochKeyLiteProof({
-                    nonce: votedNonce,
-                    epoch: votedEpoch,
-                })
-            } else {
-                const nonce = getEpochKeyNonce(actionCount)
-                epochKeyProof = await userState.genEpochKeyLiteProof({ nonce })
-            }
 
-            await relayVote(epochKeyProof, id, voteAction)
+            const voteService = new VoteService(userState)
+
+            const epoch = votedEpoch ?? undefined
+            const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
+            
+            await voteService.createVote({
+                postId: id,
+                voteAction,
+                epoch,
+                identityNonce: nonce,
+            })
+
             await userState.waitForSync()
             await invokeFetchHistoryVotesFlow(userState)
 

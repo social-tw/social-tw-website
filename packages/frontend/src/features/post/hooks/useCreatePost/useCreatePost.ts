@@ -39,13 +39,13 @@ export function useCreatePost() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
             const postService = new PostService(userState)
-            const { txHash, epoch, epochKey } = await postService.createPost(
+            const { txHash, epoch, epochKey } = await postService.createPost({
                 content,
-                nonce,
-            )
+                identityNonce,
+            })
 
             const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(

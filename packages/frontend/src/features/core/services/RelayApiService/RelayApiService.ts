@@ -30,7 +30,7 @@ export class RelayApiService {
         return client
     }
 
-    getClientWithPositiveReputation() {
+    getAuthClient() {
         const userState = this.getUserState()
 
         const client = axios.create({

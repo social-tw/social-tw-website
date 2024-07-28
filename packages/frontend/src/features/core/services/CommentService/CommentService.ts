@@ -10,8 +10,16 @@ export class CommentService extends RelayApiService {
         return response.data
     }
 
-    async createComment(content: string, postId: string, identityNonce: number) {
-        const client = this.getClientWithPositiveReputation()
+    async createComment({
+        content,
+        postId,
+        identityNonce,
+    }: {
+        content: string,
+        postId: string,
+        identityNonce: number
+    }) {
+        const client = this.getAuthClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epoch, epochKey } =
@@ -37,8 +45,18 @@ export class CommentService extends RelayApiService {
         }
     }
 
-    async removeComment(commentId: string, postId: string, epoch: number, identityNonce: number) {
-        const client = this.getClientWithPositiveReputation()
+    async removeComment({
+        commentId,
+        postId,
+        epoch,
+        identityNonce,
+    }: {
+        commentId: string,
+        postId: string,
+        epoch: number,
+        identityNonce: number
+    }) {
+        const client = this.getAuthClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epochKey } =

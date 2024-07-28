@@ -13,5 +13,6 @@ export { useWeb3Provider } from './hooks/useWeb3Provider/useWeb3Provider'
 export { CommentService } from './services/CommentService/CommentService'
 export { PostService } from './services/PostService/PostService'
 export { RelayApiService } from './services/RelayApiService/RelayApiService'
+export { VoteService } from './services/VoteService/VoteService'
 export * from './stores/actions'
 

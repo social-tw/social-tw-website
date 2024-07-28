@@ -16,8 +16,14 @@ export class PostService extends RelayApiService {
         return response.data
     }
 
-    async createPost(content: string, identityNonce: number) {
-        const client = this.getClientWithPositiveReputation()
+    async createPost({
+        content,
+        identityNonce,
+    }: {
+        content: string,
+        identityNonce: number
+    }) {
+        const client = this.getAuthClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epoch, epochKey } =
