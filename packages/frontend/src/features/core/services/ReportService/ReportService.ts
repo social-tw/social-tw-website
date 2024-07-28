@@ -18,8 +18,8 @@ export class ReportService extends RelayApiService {
 
         const searchParams = new URLSearchParams()
         searchParams.append('status', '0')
-        searchParams.append('publicSignals', stringifyBigInts(publicSignals))
-        searchParams.append('proof', stringifyBigInts(proof))
+        searchParams.append('publicSignals', JSON.stringify(stringifyBigInts(publicSignals)))
+        searchParams.append('proof', JSON.stringify(stringifyBigInts(proof)))
         const response = await client.get<ReportHistory[]>(
             `/report?${searchParams.toString()}`,
         )
