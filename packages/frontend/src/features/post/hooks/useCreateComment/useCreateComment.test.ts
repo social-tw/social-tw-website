@@ -1,8 +1,8 @@
-import nock from 'nock'
-import { act, renderHook } from '@testing-library/react'
-import { wrapper } from '@/utils/test-helpers/wrapper'
 import { SERVER } from '@/constants/config'
 import * as actionLib from '@/features/core/stores/actions'
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { act, renderHook } from '@testing-library/react'
+import nock from 'nock'
 import { useCreateComment } from './useCreateComment'
 
 jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
@@ -40,6 +40,12 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
                 epochKey: 'mocked_epockKey',
             }),
             genUserStateTransitionProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+            genProveReputationProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
                 proof: 'mocked_proof',
                 epoch: 0,

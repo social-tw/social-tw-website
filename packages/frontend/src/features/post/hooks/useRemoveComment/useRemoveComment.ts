@@ -71,11 +71,11 @@ export function useRemoveComment() {
         onSuccess: (_data, variables, context) => {
             succeedActionById(context.actionId)
 
-            delay(async() => {
+            delay(async () => {
                 await queryClient.invalidateQueries({
                     queryKey: [QueryKeys.ManyComments, variables.postId],
                 })
-    
+
                 await queryClient.invalidateQueries({
                     queryKey: [QueryKeys.SinglePost, variables.postId],
                 })

@@ -20,7 +20,7 @@ export class PostService extends RelayApiService {
         content,
         identityNonce,
     }: {
-        content: string,
+        content: string
         identityNonce: number
     }) {
         const client = this.getAuthClient()

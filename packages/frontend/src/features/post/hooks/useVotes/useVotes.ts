@@ -39,7 +39,7 @@ export function useVotes() {
 
             const epoch = votedEpoch ?? undefined
             const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
-            
+
             await voteService.createVote({
                 postId: id,
                 voteAction,

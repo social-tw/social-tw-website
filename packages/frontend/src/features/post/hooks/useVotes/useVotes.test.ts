@@ -1,9 +1,9 @@
-import nock from 'nock'
-import { act, renderHook } from '@testing-library/react'
-import { wrapper } from '@/utils/test-helpers/wrapper'
-import { useVotes } from './useVotes'
 import { SERVER } from '@/constants/config'
 import { VoteAction } from '@/types/Vote'
+import { wrapper } from '@/utils/test-helpers/wrapper'
+import { act, renderHook } from '@testing-library/react'
+import nock from 'nock'
+import { useVotes } from './useVotes'
 
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
@@ -39,6 +39,12 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
                 proof: 'mocked_proof',
                 epoch: 1,
                 epochKey: 'mocked_epochKeyLite',
+            }),
+            genProveReputationProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
             }),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),

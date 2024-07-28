@@ -1,12 +1,17 @@
-import { RelayCreateCommentResponse, RelayRemoveCommentResponse } from "@/types/api";
-import { RelayRawComment } from "@/types/Comments";
-import { stringifyBigInts } from '@unirep/utils';
-import { RelayApiService } from "../RelayApiService/RelayApiService";
+import {
+    RelayCreateCommentResponse,
+    RelayRemoveCommentResponse,
+} from '@/types/api'
+import { RelayRawComment } from '@/types/Comments'
+import { stringifyBigInts } from '@unirep/utils'
+import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class CommentService extends RelayApiService {
     async fetchCommentsByPostId(postId: string) {
         const client = this.getClient()
-        const response = await client.get<RelayRawComment[]>(`/comment?postId=${postId}`)
+        const response = await client.get<RelayRawComment[]>(
+            `/comment?postId=${postId}`,
+        )
         return response.data
     }
 
@@ -15,8 +20,8 @@ export class CommentService extends RelayApiService {
         postId,
         identityNonce,
     }: {
-        content: string,
-        postId: string,
+        content: string
+        postId: string
         identityNonce: number
     }) {
         const client = this.getAuthClient()
@@ -26,15 +31,15 @@ export class CommentService extends RelayApiService {
             await userState.genEpochKeyProof({
                 nonce: identityNonce,
             })
-        
+
         const response = await client.post<RelayCreateCommentResponse>(
-            "/comment",
+            '/comment',
             stringifyBigInts({
                 publicSignals,
                 proof,
                 postId,
                 content,
-            })
+            }),
         )
         const { txHash } = response.data
 
@@ -51,19 +56,19 @@ export class CommentService extends RelayApiService {
         epoch,
         identityNonce,
     }: {
-        commentId: string,
-        postId: string,
-        epoch: number,
+        commentId: string
+        postId: string
+        epoch: number
         identityNonce: number
     }) {
         const client = this.getAuthClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epochKey } =
-        await userState.genEpochKeyLiteProof({
-            epoch,
-            nonce: identityNonce,
-        })
+            await userState.genEpochKeyLiteProof({
+                epoch,
+                nonce: identityNonce,
+            })
 
         const response = await client.delete<RelayRemoveCommentResponse>(
             `/comment`,
@@ -73,8 +78,8 @@ export class CommentService extends RelayApiService {
                     proof,
                     commentId,
                     postId,
-                })
-            }
+                }),
+            },
         )
         const { txHash } = response.data
 

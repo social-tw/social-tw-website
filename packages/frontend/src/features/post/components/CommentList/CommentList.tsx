@@ -103,7 +103,9 @@ export default function CommentList({ postId }: { postId: string }) {
         const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
         if (nonce === undefined || nonce === null) return
 
-        await removeComment({ postId, commentId, epoch, nonce }).catch(() => null)
+        await removeComment({ postId, commentId, epoch, nonce }).catch(
+            () => null,
+        )
     }
 
     return (

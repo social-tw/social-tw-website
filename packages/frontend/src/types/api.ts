@@ -79,3 +79,7 @@ export interface RelayRemoveCommentResponse {
 export interface RelayCreateVoteResponse {
     txHash: string
 }
+
+export interface RelayCreateReportResponse {
+    reportId: string
+}

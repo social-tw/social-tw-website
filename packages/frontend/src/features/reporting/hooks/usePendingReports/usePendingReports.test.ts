@@ -1,8 +1,31 @@
 import { SERVER } from '@/constants/config'
+import { delay } from '@/utils/test-helpers'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { renderHook, waitFor } from '@testing-library/react'
 import nock from 'nock'
 import { usePendingReports } from './usePendingReports'
+
+jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
+    useUserState: () => ({
+        getGuaranteedUserState: () => ({
+            id: {
+                secret: '0x123',
+            },
+            genProveReputationProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+        }),
+    }),
+}))
 
 jest.mock('@/features/core/hooks/useEpoch/useEpoch', () => ({
     useEpoch: () => ({
@@ -31,12 +54,16 @@ describe('usePendingReports', () => {
         ]
 
         const expectation = nock(SERVER)
-            .get('/api/report?status=0')
+            .get(
+                '/api/report?status=0&publicSignals=mocked_signals&proof=mocked_proof',
+            )
             .reply(200, reports)
 
         const { result } = renderHook(usePendingReports, {
             wrapper,
         })
+
+        await delay(2000)
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true))
 

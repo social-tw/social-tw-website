@@ -48,15 +48,12 @@ export function useCreateComment() {
             const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
             const commentService = new CommentService(userState)
-            const {
-                txHash,
-                epoch,
-                epochKey,
-            } = await commentService.createComment({
-                content,
-                postId,
-                identityNonce,
-            })
+            const { txHash, epoch, epochKey } =
+                await commentService.createComment({
+                    content,
+                    postId,
+                    identityNonce,
+                })
 
             const receipt = await provider.waitForTransaction(txHash)
 
@@ -98,12 +95,12 @@ export function useCreateComment() {
                 epochKey: data.epochKey,
                 transactionHash: data.transactionHash,
             })
-            
+
             delay(async () => {
                 await queryClient.invalidateQueries({
                     queryKey: [QueryKeys.ManyComments, variables.postId],
                 })
-    
+
                 await queryClient.invalidateQueries({
                     queryKey: [QueryKeys.SinglePost, variables.postId],
                 })
