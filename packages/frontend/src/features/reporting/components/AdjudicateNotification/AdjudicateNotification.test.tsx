@@ -57,7 +57,7 @@ describe('AdjudicationNotification', () => {
 
         const expectation = nock(SERVER)
             .get(
-                '/api/report?status=0&publicSignals=mocked_signals&proof=mocked_proof',
+                '/api/report?status=0&publicSignals=%22mocked_signals%22&proof=%22mocked_proof%22',
             )
             .reply(200, reports)
 
@@ -70,7 +70,7 @@ describe('AdjudicationNotification', () => {
     it('should hide notification if reports are empty', async () => {
         const expectation = nock(SERVER)
             .get(
-                '/api/report?status=0&publicSignals=mocked_signals&proof=mocked_proof',
+                '/api/report?status=0&publicSignals=%22mocked_signals%22&proof=%22mocked_proof%22',
             )
             .reply(400, { error: 'Error' })
 
