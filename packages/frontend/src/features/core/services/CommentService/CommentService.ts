@@ -1,8 +1,10 @@
 import {
+    FetchCommentHistoryResponse,
     RelayCreateCommentResponse,
     RelayRemoveCommentResponse,
 } from '@/types/api'
 import { RelayRawComment } from '@/types/Comments'
+import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
@@ -13,6 +15,24 @@ export class CommentService extends RelayApiService {
             `/comment?postId=${postId}`,
         )
         return response.data
+    }
+
+    async fetchCommentHistory(fromEpoch: number, toEpoch: number) {
+        const client = this.getClient()
+        const searchParams = new URLSearchParams()
+        searchParams.append('from_epoch', fromEpoch.toString())
+        searchParams.append('to_epoch', toEpoch.toString())
+        const response = await client.get<FetchCommentHistoryResponse>(
+            `/comment/commentHistory?${searchParams.toString()}`,
+        )
+
+        return response.data
+    }
+
+    async fetchMyCommentHistory(fromEpoch: number, toEpoch: number) {
+        const userState = this.getUserState()
+        const comments = await this.fetchCommentHistory(fromEpoch, toEpoch)
+        return comments.filter((comment) => isMyEpochKeyOnEpoch(userState, comment.epoch, comment.epochKey))
     }
 
     async createComment({
