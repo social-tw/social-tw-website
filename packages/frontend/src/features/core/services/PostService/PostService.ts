@@ -1,12 +1,19 @@
-import { FetchPostHistoryResponse, FetchPostResponse, FetchPostsResponse, RelayCreatePostResponse } from '@/types/api';
-import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey';
-import { stringifyBigInts } from '@unirep/utils';
-import { RelayApiService } from '../RelayApiService/RelayApiService';
+import {
+    FetchPostHistoryResponse,
+    FetchPostResponse,
+    FetchPostsResponse,
+    RelayCreatePostResponse,
+} from '@/types/api'
+import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { stringifyBigInts } from '@unirep/utils'
+import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class PostService extends RelayApiService {
     async fetchPosts(page: number) {
         const client = this.getClient()
-        const response = await client.get<FetchPostsResponse>(`/post?page=${page}`)
+        const response = await client.get<FetchPostsResponse>(
+            `/post?page=${page}`,
+        )
         return response.data
     }
 
@@ -31,7 +38,9 @@ export class PostService extends RelayApiService {
     async fetchMyPostHistory(fromEpoch: number, toEpoch: number) {
         const userState = this.getUserState()
         const posts = await this.fetchPostHistory(fromEpoch, toEpoch)
-        return posts.filter((post) => isMyEpochKeyOnEpoch(userState, post.epoch, post.epochKey))
+        return posts.filter((post) =>
+            isMyEpochKeyOnEpoch(userState, post.epoch, post.epochKey),
+        )
     }
 
     async createPost({

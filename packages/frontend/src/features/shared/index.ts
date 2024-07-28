@@ -10,5 +10,9 @@ export * from './components/Table'
 
 export { useDatePicker } from './hooks/useDatePicker'
 export { default as useDialog } from './hooks/useDialog'
-export { EpochDateService, InvalidFromToEpoch, ValidFromToEpoch, type FromToEpoch } from './services/EpochDateService'
-
+export {
+    EpochDateService,
+    InvalidFromToEpoch,
+    ValidFromToEpoch,
+    type FromToEpoch,
+} from './services/EpochDateService'

@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 
 export function useMyCommentHistory(fromToEpoch: FromToEpoch) {
     const { userState } = useUserState()
-    
+
     return useQuery({
         queryKey: [
             QueryKeys.CommentHistory,

@@ -8,7 +8,7 @@ export class VoteService extends RelayApiService {
     static isUpVote(vote: RelayRawVote) {
         return vote.upVote === 1
     }
-    
+
     static isDownVote(vote: RelayRawVote) {
         return vote.downVote === 1
     }
@@ -28,7 +28,9 @@ export class VoteService extends RelayApiService {
     async fetchMyVoteHistory(fromEpoch: number, toEpoch: number) {
         const userState = this.getUserState()
         const votes = await this.fetchVoteHistory(fromEpoch, toEpoch)
-        return votes.filter((vote) => isMyEpochKeyOnEpoch(userState, vote.epoch, vote.epochKey))
+        return votes.filter((vote) =>
+            isMyEpochKeyOnEpoch(userState, vote.epoch, vote.epochKey),
+        )
     }
 
     async createVote({

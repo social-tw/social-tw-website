@@ -1,17 +1,22 @@
-import { BodyCellData, BodyCellType, FromToEpoch, HeaderCellData, TableBody, TableContainer, TableHeader } from "@/features/shared"
-import { FetchPostHistoryResponse } from "@/types/api"
-import dayjs from "dayjs"
-import { useMyPostHistory } from "../../hooks/useMyPostHistory/useMyPostHistory"
+import {
+    BodyCellData,
+    BodyCellType,
+    FromToEpoch,
+    HeaderCellData,
+    TableBody,
+    TableContainer,
+    TableHeader,
+} from '@/features/shared'
+import { FetchPostHistoryResponse } from '@/types/api'
+import dayjs from 'dayjs'
+import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory'
 
 interface PostTableProps {
     fromToEpoch: FromToEpoch
 }
 
-export function PostTable({
-    fromToEpoch,
-}: PostTableProps) {
-    const { isFetching, data } =
-        useMyPostHistory(fromToEpoch)
+export function PostTable({ fromToEpoch }: PostTableProps) {
+    const { isFetching, data } = useMyPostHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parsePostHistoryToBodyData(data || [])
     return (
@@ -41,10 +46,17 @@ function parsePostHistoryToBodyData(
 ): BodyCellData[][] {
     return data.map((item) => {
         return [
-            { type: BodyCellType.Text, content: formatPostDate(item.publishedAt) },
+            {
+                type: BodyCellType.Text,
+                content: formatPostDate(item.publishedAt),
+            },
             { type: BodyCellType.Text, content: item.content },
             { type: BodyCellType.Text, content: item.epochKey },
-            { type: BodyCellType.Link, content: '前往查看', url: generatePostLink(item.postId) },
+            {
+                type: BodyCellType.Link,
+                content: '前往查看',
+                url: generatePostLink(item.postId),
+            },
         ]
     })
 }

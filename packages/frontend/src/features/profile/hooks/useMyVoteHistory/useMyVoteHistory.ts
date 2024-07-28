@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 
 export function useMyVoteHistory(fromToEpoch: FromToEpoch) {
     const { userState } = useUserState()
-    
+
     return useQuery({
         queryKey: [
             QueryKeys.VoteHistory,

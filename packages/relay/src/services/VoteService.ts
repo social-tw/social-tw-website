@@ -1,6 +1,13 @@
 import { DB } from 'anondb'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { InvalidEpochRangeError, InvalidVoteActionError, NoVoteHistoryFoundError, PostNotExistError, Vote, VoteAction } from '../types'
+import {
+    InvalidEpochRangeError,
+    InvalidVoteActionError,
+    NoVoteHistoryFoundError,
+    PostNotExistError,
+    Vote,
+    VoteAction,
+} from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ActionCountManager from './utils/ActionCountManager'
 import ProofHelper from './utils/ProofHelper'

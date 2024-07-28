@@ -1,20 +1,25 @@
 import Downvote from '@/assets/img/downvote.png'
 import Upvote from '@/assets/img/upvote.png'
-import { VoteService } from "@/features/core"
-import { BodyCellData, BodyCellType, FromToEpoch, HeaderCellData, TableBody, TableContainer, TableHeader } from "@/features/shared"
-import { FetchVoteHistoryResponse } from "@/types/api"
-import dayjs from "dayjs"
-import { useMyVoteHistory } from "../../hooks/useMyVoteHistory/useMyVoteHistory"
+import { VoteService } from '@/features/core'
+import {
+    BodyCellData,
+    BodyCellType,
+    FromToEpoch,
+    HeaderCellData,
+    TableBody,
+    TableContainer,
+    TableHeader,
+} from '@/features/shared'
+import { FetchVoteHistoryResponse } from '@/types/api'
+import dayjs from 'dayjs'
+import { useMyVoteHistory } from '../../hooks/useMyVoteHistory/useMyVoteHistory'
 
 interface VoteTableProps {
     fromToEpoch: FromToEpoch
 }
 
-export function VoteTable({
-    fromToEpoch,
-}: VoteTableProps) {
-    const { isFetching, data } =
-        useMyVoteHistory(fromToEpoch)
+export function VoteTable({ fromToEpoch }: VoteTableProps) {
+    const { isFetching, data } = useMyVoteHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parseVoteHistoryToBodyData(data || [])
     return (
@@ -46,10 +51,17 @@ function parseVoteHistoryToBodyData(
         const imgSrc = VoteService.isUpVote(item) ? Upvote : Downvote
         const imgAlt = VoteService.isUpVote(item) ? 'Upvote' : 'Downvote'
         return [
-            { type: BodyCellType.Text, content: formatVoteDate(item.publishedAt) },
+            {
+                type: BodyCellType.Text,
+                content: formatVoteDate(item.publishedAt),
+            },
             { type: BodyCellType.Img, src: imgSrc, alt: imgAlt },
             { type: BodyCellType.Text, content: item.epochKey },
-            { type: BodyCellType.Link, content: '前往查看', url: generatePostLink(item.postId) },
+            {
+                type: BodyCellType.Link,
+                content: '前往查看',
+                url: generatePostLink(item.postId),
+            },
         ]
     })
 }

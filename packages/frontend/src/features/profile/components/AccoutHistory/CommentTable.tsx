@@ -1,17 +1,22 @@
-import { BodyCellData, BodyCellType, FromToEpoch, HeaderCellData, TableBody, TableContainer, TableHeader } from "@/features/shared"
-import { FetchCommentHistoryResponse } from "@/types/api"
-import dayjs from "dayjs"
-import { useMyCommentHistory } from "../../hooks/useMyCommentHistory/useMyCommentHistory"
+import {
+    BodyCellData,
+    BodyCellType,
+    FromToEpoch,
+    HeaderCellData,
+    TableBody,
+    TableContainer,
+    TableHeader,
+} from '@/features/shared'
+import { FetchCommentHistoryResponse } from '@/types/api'
+import dayjs from 'dayjs'
+import { useMyCommentHistory } from '../../hooks/useMyCommentHistory/useMyCommentHistory'
 
 interface CommentTableProps {
     fromToEpoch: FromToEpoch
 }
 
-export function CommentTable({
-    fromToEpoch,
-}: CommentTableProps) {
-    const { isFetching, data } =
-        useMyCommentHistory(fromToEpoch)
+export function CommentTable({ fromToEpoch }: CommentTableProps) {
+    const { isFetching, data } = useMyCommentHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parseCommentHistoryToBodyData(data || [])
     return (
@@ -41,10 +46,17 @@ function parseCommentHistoryToBodyData(
 ): BodyCellData[][] {
     return data.map((item) => {
         return [
-            { type: BodyCellType.Text, content: formatCommentDate(item.publishedAt) },
+            {
+                type: BodyCellType.Text,
+                content: formatCommentDate(item.publishedAt),
+            },
             { type: BodyCellType.Text, content: item.content },
             { type: BodyCellType.Text, content: item.epochKey },
-            { type: BodyCellType.Link, content: '前往查看', url: generateCommentLink(item.postId, item.commentId) },
+            {
+                type: BodyCellType.Link,
+                content: '前往查看',
+                url: generateCommentLink(item.postId, item.commentId),
+            },
         ]
     })
 }

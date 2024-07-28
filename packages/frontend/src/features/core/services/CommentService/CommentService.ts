@@ -32,7 +32,9 @@ export class CommentService extends RelayApiService {
     async fetchMyCommentHistory(fromEpoch: number, toEpoch: number) {
         const userState = this.getUserState()
         const comments = await this.fetchCommentHistory(fromEpoch, toEpoch)
-        return comments.filter((comment) => isMyEpochKeyOnEpoch(userState, comment.epoch, comment.epochKey))
+        return comments.filter((comment) =>
+            isMyEpochKeyOnEpoch(userState, comment.epoch, comment.epochKey),
+        )
     }
 
     async createComment({
