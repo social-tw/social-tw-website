@@ -190,6 +190,17 @@ describe('Claim Daily Login Reputation Test', function () {
         expect(data[0]).equal(POS_REP + 1)
     })
 
+    it('should revert with non owner', async () => {
+        const notOwner = await ethers.getSigners().then((signers) => signers[1])
+        const userState = await genUserState(user.id, app)
+
+        const { publicSignals, proof } = await userState.genEpochKeyProof()
+
+        await expect(
+            app.connect(notOwner).claimDailyLoginRep(publicSignals, proof)
+        ).to.be.reverted
+    })
+
     it('should revert with wrong proof', async () => {
         const userState = await genUserState(user.id, app)
 
