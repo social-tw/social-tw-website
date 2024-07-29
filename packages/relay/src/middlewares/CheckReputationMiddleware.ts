@@ -30,9 +30,6 @@ export const createCheckReputationMiddleware = (
             proof,
             synchronizer
         )
-        console.log('---checking reputation---')
-        console.log('publicSignals', publicSignals)
-        console.log('proof', proof)
 
         // check negative reputation
         const maxRep = reputationProof.maxRep
