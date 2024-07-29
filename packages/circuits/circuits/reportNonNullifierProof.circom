@@ -2,7 +2,7 @@ pragma circom 2.1.8;
 
 include "../../../node_modules/@unirep/circuits/circuits/epochKeyLite.circom";
 
-template ReportNonNullifierProof(MAX_EPOCH_KEY_NONCE, TYPE_LIMIT) {
+template ReportNonNullifierProof(MAX_EPOCH_KEY_NONCE) {
     // inputs
     signal input reported_epoch_key; // (public) stored in relayer; either reporter/poster's epk
     signal input identity_secret;
