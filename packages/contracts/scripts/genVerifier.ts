@@ -8,7 +8,7 @@ const verifiersPath = path.join(`${config.paths.sources}/verifiers`)
 const zkFilesPath = path.join('../../circuits/zksnarkBuild')
 const Circuit = {
     dataProof: 'dataProof',
-    reportNegRepProof: 'reportNegRepProof',
+    reportNonNullifierProof: 'reportNonNullifierProof',
     reportNullifierProof: 'reportNullifierProof',
 }
 
