@@ -35,8 +35,7 @@ export const checkReputation = async function (req, res, next) {
     // check negative reputation
     const maxRep = data.maxRep
     const proveMaxRep = data.proveMaxRep
-    res.locals.isNegativeReputation =
-        maxRep > 0 && proveMaxRep > 0 ? true : false
+    res.locals.isNegativeReputation = maxRep > 0 && proveMaxRep > 0
 
     next()
 }

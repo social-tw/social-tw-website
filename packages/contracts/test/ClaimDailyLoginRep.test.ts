@@ -9,7 +9,7 @@ import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
-    genEpochKeyLiteProof,
+    genEpochKeyProof,
     genUserState,
 } from './utils'
 
@@ -43,6 +43,9 @@ describe('Claim Daily Login Reputation Test', function () {
 
     let snapshot: any
     const epochLength = 300
+
+    const POS_REP = 5
+    const REG_REP = 10
 
     {
         before(async function () {
@@ -107,12 +110,12 @@ describe('Claim Daily Login Reputation Test', function () {
 
             // setting posRep to 5
             await app
-                .submitAttestation(epochKey, epoch, 0, 5)
+                .submitAttestation(epochKey, epoch, 0, POS_REP)
                 .then((t) => t.wait())
 
             // setting negRep to 10
             await app
-                .submitAttestation(epochKey, epoch, 1, 10)
+                .submitAttestation(epochKey, epoch, 1, REG_REP)
                 .then((t) => t.wait())
 
             await ethers.provider.send('evm_increaseTime', [epochLength])
@@ -157,18 +160,40 @@ describe('Claim Daily Login Reputation Test', function () {
 
         const currentEpoch = await userState.sync.loadCurrentEpoch()
 
-        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+        const { publicSignals, proof } = await userState.genEpochKeyProof()
 
         const tx = await app.claimDailyLoginRep(publicSignals, proof)
         await expect(tx)
             .to.emit(app, 'ClaimPosRep')
-            .withArgs(publicSignals[1], currentEpoch)
+            .withArgs(publicSignals[0], currentEpoch)
+
+        // user transition to get updated data
+        await ethers.provider.send('evm_increaseTime', [epochLength])
+        await ethers.provider.send('evm_mine', [])
+
+        const toEpoch = await unirep.attesterCurrentEpoch(app.address)
+        {
+            await userState.waitForSync()
+            const { publicSignals, proof } =
+                await userState.genUserStateTransitionProof({
+                    toEpoch,
+                })
+            await unirep
+                .userStateTransition(publicSignals, proof)
+                .then((t) => t.wait())
+        }
+
+        await userState.waitForSync()
+
+        const data = await userState.getData()
+        // data[0] positive reputation
+        expect(data[0]).equal(POS_REP + 1)
     })
 
     it('should revert with wrong proof', async () => {
         const userState = await genUserState(user.id, app)
 
-        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+        const { publicSignals, proof } = await userState.genEpochKeyProof()
 
         proof[0] = BigInt(0)
 
@@ -177,17 +202,28 @@ describe('Claim Daily Login Reputation Test', function () {
     })
 
     it('should revert with invalid epoch', async () => {
+        const id = user.id
         const nonce = 0
         const attesterId = BigInt(app.address)
         const userState = await genUserState(user.id, app)
         const wrongEpoch = 444
+        const data = await userState.getData()
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
 
-        const { publicSignals, proof } = await genEpochKeyLiteProof({
-            id: user.id,
+        const { publicSignals, proof } = await genEpochKeyProof({
+            id,
+            tree,
+            leafIndex,
             epoch: wrongEpoch,
             nonce,
-            attesterId,
             chainId,
+            attesterId,
+            data,
         })
 
         await expect(
