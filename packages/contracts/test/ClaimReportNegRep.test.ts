@@ -12,6 +12,7 @@ import {
     genReportNonNullifierCircuitInput,
     genUserState,
     genVHelperIdentifier,
+    userStateTransition,
 } from './utils'
 
 describe('Claim Report Negative Reputation Test', function () {
@@ -116,7 +117,6 @@ describe('Claim Report Negative Reputation Test', function () {
     })
 
     /**
-<<<<<<< HEAD
      * 1. succeed to punish poster
      * 2. revert with used proof
      * 3. succeed with punish reporter
@@ -124,16 +124,6 @@ describe('Claim Report Negative Reputation Test', function () {
      * 4. revert with invalid proof
      * 5. revert with wrong epoch
      * 6. revert with invalid attesterId
-=======
-     * 1. succeed with type 0 (punishing poster)
-     * 2. revert with not owner
-     * 3. revert with used type-0 proof
-     * 4. succeed with type 1 (punishing reporter)
-     * 5. revert with used type-1 proof
-     * 6. revert with invalid proof
-     * 7. revert with wrong epoch
-     * 8. revert with invalid attesterId
->>>>>>> c2736235 (add not owner test to all claim methods)
      */
     it('should succeed with valid input to punish poster', async () => {
         const posterState = await genUserState(poster.id, app)
@@ -176,14 +166,14 @@ describe('Claim Report Negative Reputation Test', function () {
             .to.emit(app, 'ClaimNegRep')
             .withArgs(publicSignals[0], currentEpoch)
 
+        await userStateTransition(posterState, unirep, app)
+        const data = await posterState.getProvableData()
+        // data[0] positive reputation
+        console.log('Neg Rep Data:', data)
         posterState.stop()
     })
 
-<<<<<<< HEAD
-    it('should revert with non owner', async () => {
-=======
     it('should revert with not owner', async () => {
->>>>>>> c2736235 (add not owner test to all claim methods)
         const notOwner = await ethers.getSigners().then((signers) => signers[1])
         await expect(
             app
