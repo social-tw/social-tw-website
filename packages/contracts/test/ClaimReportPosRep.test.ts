@@ -153,7 +153,11 @@ describe('Claim Report Positive Reputation Test', function () {
         upvoterState.stop()
     })
 
+<<<<<<< HEAD
     it('should revert with non owner', async () => {
+=======
+    it('should revert with not owner', async () => {
+>>>>>>> c2736235 (add not owner test to all claim methods)
         const notOwner = await ethers.getSigners().then((signers) => signers[1])
         await expect(
             app
@@ -161,7 +165,11 @@ describe('Claim Report Positive Reputation Test', function () {
                 .claimReportPosRep(
                     usedPublicSig,
                     usedProof,
+<<<<<<< HEAD
                     nullifierIdentifier,
+=======
+                    identifier,
+>>>>>>> c2736235 (add not owner test to all claim methods)
                     posReputation
                 )
         ).to.be.reverted

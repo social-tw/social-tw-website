@@ -190,7 +190,11 @@ describe('Claim Daily Login Reputation Test', function () {
         expect(data[0]).equal(POS_REP + 1)
     })
 
+<<<<<<< HEAD
     it('should revert with non owner', async () => {
+=======
+    it('should revert with not owner', async () => {
+>>>>>>> c2736235 (add not owner test to all claim methods)
         const notOwner = await ethers.getSigners().then((signers) => signers[1])
         const userState = await genUserState(user.id, app)
 
