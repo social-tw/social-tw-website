@@ -5,11 +5,11 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { userService } from '../src/services/UserService'
 import { Post } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { genProveReputationProof, ReputationType } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
@@ -44,22 +44,13 @@ describe('CheckReputation', function () {
         sync = synchronizer
 
         user = createRandomUserIdentity()
-        const userState = await genUserState(user.id, app, db, prover)
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genUserSignUpProof()
-        const txHash = await userService.signup(
-            stringifyBigInts(publicSignals),
-            proof,
-            user.hashUserId,
-            false,
-            sync
-        )
-        await provider.waitForTransaction(txHash)
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-
-        expect(hasSignedUp).equal(true)
+        const userState = await signUp(user, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
 
@@ -89,7 +80,7 @@ describe('CheckReputation', function () {
         const authentication = jsonToBase64(reputationProof)
         const txHash = await post(express, userState, authentication)
         await ethers.provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         await express.get('/api/post/0').then((res) => {
             expect(res).to.have.status(200)
@@ -102,7 +93,7 @@ describe('CheckReputation', function () {
 
     it('should fail the check reputation middleware with negative reputation', async function () {
         const userState = await genUserState(user.id, app, db, prover)
-        const epoch = await userState.sync.loadCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.NEGATIVE,
@@ -110,7 +101,7 @@ describe('CheckReputation', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: userState.sync.attesterId,
+                attesterId: sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }
@@ -143,7 +134,7 @@ describe('CheckReputation', function () {
 
     it('should fail the check reputation middleware with wrong reputation proof', async function () {
         const userState = await genUserState(user.id, app, db, prover)
-        const epoch = await userState.sync.loadCurrentEpoch()
+        const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.POSITIVE,
@@ -151,7 +142,7 @@ describe('CheckReputation', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: userState.sync.attesterId,
+                attesterId: sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }

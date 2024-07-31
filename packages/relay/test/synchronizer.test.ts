@@ -1,18 +1,16 @@
 import { UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { UserState } from '@unirep/core'
-import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
 import { genProveReputationProof, ReputationType } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 import { createUserIdentities, genUserState } from './utils/userHelper'
 
@@ -49,41 +47,23 @@ describe('Synchronize Post Test', function () {
 
         // Create users identity and signup users
         users = createUserIdentities(2)
-        let userState: UserState
+        const userState = await signUp(users[0], {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
+
+        // signup in another block to prevent timeout
         {
-            userState = await genUserState(users[0].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[0].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
-        }
-
-        {
-            const userState = await genUserState(users[1].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[1].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
+            const userState = await signUp(users[1], {
+                app,
+                db,
+                prover,
+                provider,
+                sync,
+            })
             userState.stop()
         }
 
@@ -176,41 +156,23 @@ describe('Synchronize Comment Test', function () {
 
         // Create users identity and signup users
         users = createUserIdentities(2)
-        let userState: UserState
+        const userState = await signUp(users[0], {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
+
+        // signup in another block to prevent timeout
         {
-            userState = await genUserState(users[0].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[0].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
-        }
-
-        {
-            const userState = await genUserState(users[1].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[1].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
+            const userState = await signUp(users[1], {
+                app,
+                db,
+                prover,
+                provider,
+                sync,
+            })
             userState.stop()
         }
 

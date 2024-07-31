@@ -1,5 +1,4 @@
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
@@ -8,7 +7,6 @@ import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { commentService } from '../src/services/CommentService'
 import { postService } from '../src/services/PostService'
 import { reportService } from '../src/services/ReportService'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
     AdjudicateValue,
@@ -30,6 +28,7 @@ import {
     userStateTransition,
 } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { resetReportResult } from './utils/sqlHelper'
 import { IdentityObject } from './utils/types'
 import { createUserIdentities, genUserState } from './utils/userHelper'
@@ -75,61 +74,32 @@ describe('POST /api/report', function () {
         provider = _provider
 
         users = createUserIdentities(3)
-        let userState: UserState
+        const userState = await signUp(users[0], {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
+
+        // signup in another block to prevent timeout
         {
-            userState = await genUserState(users[0].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[0].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
-        }
-
-        {
-            const userState = await genUserState(users[1].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[1].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
-            userState.stop()
-        }
-
-        {
-            const userState = await genUserState(users[2].id, app, db, prover)
-            const { publicSignals, _snarkProof: proof } =
-                await userState.genUserSignUpProof()
-            const txHash = await userService.signup(
-                stringifyBigInts(publicSignals),
-                proof,
-                users[2].hashUserId,
-                false,
-                sync
-            )
-            await provider.waitForTransaction(txHash)
-
-            await userState.waitForSync()
-            let hasSignedUp = await userState.hasSignedUp()
-            expect(hasSignedUp).equal(true)
-            userState.stop()
+            const userState1 = await signUp(users[1], {
+                app,
+                db,
+                prover,
+                provider,
+                sync,
+            })
+            userState1.stop()
+            const userState2 = await signUp(users[2], {
+                app,
+                db,
+                prover,
+                provider,
+                sync,
+            })
+            userState2.stop()
         }
 
         chainId = await unirep.chainid()
@@ -150,34 +120,38 @@ describe('POST /api/report', function () {
 
         authentication = jsonToBase64(reputationProof)
 
-        await post(chaiServer, userState, authentication, nonce).then(
-            async (txHash) => {
-                await provider.waitForTransaction(txHash)
-                await sync.waitForSync()
-                nonce++
-            }
-        )
+        {
+            await post(express, userState, authentication, nonce).then(
+                async (txHash) => {
+                    await provider.waitForTransaction(txHash)
+                    await sync.waitForSync()
+                    nonce++
+                }
+            )
 
-        await chaiServer.get('/api/post/0').then((res) => {
-            expect(res).to.have.status(200)
-            const curPost = res.body as Post
-            expect(curPost.status).to.equal(1)
-        })
+            await express.get('/api/post/0').then((res) => {
+                expect(res).to.have.status(200)
+                const curPost = res.body as Post
+                expect(curPost.status).to.equal(1)
+            })
+        }
 
-        await comment(chaiServer, userState, authentication, '0', nonce).then(
-            async (res) => {
-                await provider.waitForTransaction(res.txHash)
-                await sync.waitForSync()
-                nonce++
-            }
-        )
+        {
+            await comment(express, userState, authentication, '0', nonce).then(
+                async (res) => {
+                    await provider.waitForTransaction(res.txHash)
+                    await sync.waitForSync()
+                    nonce++
+                }
+            )
 
-        const resComment = await commentService.fetchSingleComment(
-            '0',
-            db,
-            CommentStatus.ON_CHAIN
-        )
-        expect(resComment).to.be.exist
+            const resComment = await commentService.fetchSingleComment(
+                '0',
+                db,
+                CommentStatus.ON_CHAIN
+            )
+            expect(resComment).to.be.exist
+        }
 
         userState.stop()
     })

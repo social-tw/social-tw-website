@@ -8,7 +8,6 @@ import nock from 'nock'
 import { TWITTER_CLIENT_ID, TWITTER_CLIENT_KEY } from '../src/config'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { userService } from '../src/services/UserService'
-import { TransactionManager } from '../src/services/utils/TransactionManager'
 import { UserRegisterStatus } from '../src/types'
 import { CLIENT_URL } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -25,7 +24,6 @@ const token = btoa(`${TWITTER_CLIENT_ID}:${TWITTER_CLIENT_KEY}`)
 describe('LOGIN /login', function () {
     let snapshot: any
     let db: DB
-    let tm: TransactionManager
     let express: ChaiHttp.Agent
     let sync: UnirepSocialSynchronizer
     let prover: any
@@ -43,13 +41,11 @@ describe('LOGIN /login', function () {
             db: _db,
             prover: _prover,
             provider: _provider,
-            TransactionManager,
             synchronizer,
             chaiServer,
         } = await startServer(unirep, _app)
 
         db = _db
-        tm = TransactionManager
         express = chaiServer
         sync = synchronizer
         prover = _prover
@@ -196,7 +192,7 @@ describe('LOGIN /login', function () {
                 return res.body.txHash
             })
         await provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         userState.stop()
     })
@@ -287,7 +283,7 @@ describe('LOGIN /login', function () {
                 return res.body.txHash
             })
         await provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         userState.stop()
     })

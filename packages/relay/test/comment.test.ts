@@ -7,7 +7,6 @@ import { io } from 'socket.io-client'
 import { APP_ABI as abi } from '../src/config'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { userService } from '../src/services/UserService'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { Post, PostStatus } from '../src/types'
 import { HTTP_SERVER } from './configs'
@@ -19,6 +18,7 @@ import {
     ReputationType,
 } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
@@ -58,22 +58,13 @@ describe('COMMENT /comment', function () {
         chainId = await unirep.chainid()
 
         user = createRandomUserIdentity()
-        const userState = await genUserState(user.id, app, db, prover)
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genUserSignUpProof()
-        let txHash = await userService.signup(
-            stringifyBigInts(publicSignals),
-            proof,
-            user.hashUserId,
-            false,
-            sync
-        )
-        await provider.waitForTransaction(txHash)
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-
-        expect(hasSignedUp).equal(true)
+        const userState = await signUp(user, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         const epoch = await sync.loadCurrentEpoch()
 
@@ -91,9 +82,9 @@ describe('COMMENT /comment', function () {
 
         authentication = jsonToBase64(reputationProof)
 
-        txHash = await post(express, userState, authentication)
+        const txHash = await post(express, userState, authentication)
         await provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         const res = await express.get('/api/post/0')
         expect(res).to.have.status(200)
@@ -175,7 +166,7 @@ describe('COMMENT /comment', function () {
             expect(commentEvent[4]).equal(testContentHash)
         }
 
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         // comment on the post
         await express.get(`/api/comment?postId=0`).then((res) => {
@@ -231,9 +222,9 @@ describe('COMMENT /comment', function () {
         testContent = 'comment with wrong epoch'
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
+        const attesterId = sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId
@@ -353,7 +344,7 @@ describe('COMMENT /comment', function () {
             })
 
         await provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         // check comment exist
         await express.get(`/api/comment?postId=0`).then((res) => {

@@ -8,7 +8,6 @@ import { APP_ABI as abi } from '../src/config'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { userService } from '../src/services/UserService'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
 import { postData } from './mocks/posts'
@@ -19,6 +18,7 @@ import {
     ReputationType,
 } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
 import { IdentityObject } from './utils/types'
 import { createRandomUserIdentity, genUserState } from './utils/userHelper'
@@ -55,21 +55,13 @@ describe('POST /post', function () {
         sync = synchronizer
 
         user = createRandomUserIdentity()
-        const userState = await genUserState(user.id, app, db, prover)
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genUserSignUpProof()
-        const txHash = await userService.signup(
-            stringifyBigInts(publicSignals),
-            proof,
-            user.hashUserId,
-            false,
-            sync
-        )
-        await provider.waitForTransaction(txHash)
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+        const userState = await signUp(user, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
         const epoch = await sync.loadCurrentEpoch()
@@ -150,7 +142,7 @@ describe('POST /post', function () {
             expect(postEvent[3]).equal(testContentHash)
         }
 
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         let posts = await express
             .get(`/api/post?epks=${epochKeyProof.epochKey}`)
@@ -213,9 +205,9 @@ describe('POST /post', function () {
 
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
+        const attesterId = sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId

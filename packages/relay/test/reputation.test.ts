@@ -19,7 +19,6 @@ describe('Reputation', () => {
         const {
             db: _db,
             prover: _prover,
-            provider,
             synchronizer,
             chaiServer,
         } = await startServer(unirep, app)

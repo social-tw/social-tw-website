@@ -9,11 +9,11 @@ import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { io } from 'socket.io-client'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { postService } from '../src/services/PostService'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
 import { genProveReputationProof, ReputationType } from './utils/genProof'
 import { post } from './utils/post'
+import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
@@ -57,21 +57,13 @@ describe('POST /vote', function () {
         provider = _provider
 
         user = createRandomUserIdentity()
-        const userState = await genUserState(user.id, app, db, prover)
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genUserSignUpProof()
-        const txHash = await userService.signup(
-            stringifyBigInts(publicSignals),
-            proof,
-            user.hashUserId,
-            false,
-            sync
-        )
-        await provider.waitForTransaction(txHash)
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+        const userState = await signUp(user, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
         const epoch = await sync.loadCurrentEpoch()

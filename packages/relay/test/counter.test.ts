@@ -1,8 +1,6 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-import { stringifyBigInts } from '@unirep/utils'
-import { userService } from '../src/services/UserService'
 import { deployContracts, startServer, stopServer } from './environment'
 import { post } from './utils/post'
 import { createRandomUserIdentity, genUserState } from './utils/userHelper'
@@ -12,6 +10,7 @@ import { DB } from 'anondb'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 
 describe('GET /counter', function () {
@@ -48,21 +47,13 @@ describe('GET /counter', function () {
         sync = synchronizer
 
         user = createRandomUserIdentity()
-        const userState = await genUserState(user.id, app, db, prover)
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genUserSignUpProof()
-        const txHash = await userService.signup(
-            stringifyBigInts(publicSignals),
-            proof,
-            user.hashUserId,
-            false,
-            sync
-        )
-        await provider.waitForTransaction(txHash)
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+        const userState = await signUp(user, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         const epoch = await sync.loadCurrentEpoch()
         const chainId = await unirep.chainid()
@@ -92,7 +83,7 @@ describe('GET /counter', function () {
         const userState = await genUserState(user.id, app, db, prover)
         let txHash = await post(express, userState, authentication)
         await provider.waitForTransaction(txHash)
-        await userState.waitForSync()
+        await sync.waitForSync()
 
         const epochKeys = (userState.getEpochKeys() as bigint[])
             .map((epk) => epk.toString())
