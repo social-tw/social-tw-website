@@ -1,8 +1,13 @@
-import { BaseProof, Prover } from '@unirep/circuits'
+import { Prover } from '@unirep/circuits'
 import { Groth16Proof } from 'snarkjs'
+import { UnirepSocialCircuit } from '../test/types'
+import { UnirepSocialBaseProof } from './UnirepSocialBaseProof'
 
-export class ReportIdentityProof extends BaseProof {
-    readonly idx = {
+/**
+ * Verify the voter identity for voting the report
+ */
+export class ReportIdentityProof extends UnirepSocialBaseProof {
+    readonly input = {
         reportNullifier: 0,
         attesterId: 1,
         epoch: 2,
@@ -20,10 +25,10 @@ export class ReportIdentityProof extends BaseProof {
         prover?: Prover
     ) {
         super(publicSignals, proof, prover)
-        this.reportNullifier = this.publicSignals[this.idx.reportNullifier]
-        this.attesterId = this.publicSignals[this.idx.attesterId]
-        this.epoch = this.publicSignals[this.idx.epoch]
-        this.stateTreeRoot = this.publicSignals[this.idx.stateTreeRoot]
-        ;(this as any).circuit = 'reportIdentityProof'
+        this.reportNullifier = this.publicSignals[this.input.reportNullifier]
+        this.attesterId = this.publicSignals[this.input.attesterId]
+        this.epoch = this.publicSignals[this.input.epoch]
+        this.stateTreeRoot = this.publicSignals[this.input.stateTreeRoot]
+        this.unirepSocialCircuit = UnirepSocialCircuit.reportIdentityProof
     }
 }

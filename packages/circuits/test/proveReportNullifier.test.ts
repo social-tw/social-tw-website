@@ -1,15 +1,16 @@
 import * as utils from '@unirep/utils'
 import { expect } from 'chai'
+import { ReportNullifierProof } from '../src'
 import { ProofGenerationError } from './error'
+import { UnirepSocialCircuit } from './types'
 import {
     createRandomUserIdentity,
-    decodeEpochKeyControl,
     genNullifier,
     genProofAndVerify,
     genReportNullifierCircuitInput,
 } from './utils'
 
-const circuit = 'reportNullifierProof'
+const circuit = UnirepSocialCircuit.reportNullifierProof
 
 describe('Prove report nullifier in Unirep Social-TW', function () {
     this.timeout(300000)
@@ -37,38 +38,42 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             attesterId,
             chainId,
         })
-        const { isValid, publicSignals } = await genProofAndVerify(
+        const { isValid, proof, publicSignals } = await genProofAndVerify(
             circuit,
             circuitInputs
         )
+
+        const reportNullifierProof = new ReportNullifierProof(
+            publicSignals,
+            proof
+        )
+
         expect(isValid).to.be.true
         // decode other data
-        const controlData = decodeEpochKeyControl(BigInt(publicSignals[0]))
-        expect(controlData.epoch.toString()).to.be.equal(
+        expect(reportNullifierProof.epoch.toString()).to.be.equal(
             currentEpoch.toString()
         )
-        expect(controlData.attesterId.toString()).to.be.equal(
+        expect(reportNullifierProof.attesterId.toString()).to.be.equal(
             attesterId.toString()
         )
-        expect(controlData.chainId.toString()).to.be.equal(chainId.toString())
+        expect(reportNullifierProof.chainId.toString()).to.be.equal(
+            chainId.toString()
+        )
 
         // we don't reveal the nonce, so this is equal to BigInt(0)
-        expect(controlData.nonce.toString()).to.be.equal('0')
+        expect(reportNullifierProof.nonce).to.be.equal(BigInt(0))
 
-        const epochKey = publicSignals[1]
-        expect(epochKey.toString()).to.be.equal(
-            utils
-                .genEpochKey(
-                    BigInt(identitySecret),
-                    attesterId,
-                    currentEpoch,
-                    currentNonce,
-                    chainId
-                )
-                .toString()
+        expect(reportNullifierProof.currentEpochKey).to.be.equal(
+            utils.genEpochKey(
+                BigInt(identitySecret),
+                attesterId,
+                currentEpoch,
+                currentNonce,
+                chainId
+            )
         )
-        expect(publicSignals[2].toString()).to.be.equal(
-            reportNullifier.toString()
+        expect(reportNullifierProof.reportNullifier).to.be.equal(
+            reportNullifier
         )
     })
 

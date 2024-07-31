@@ -3,7 +3,6 @@ pragma circom 2.1.8;
 include "../../../node_modules/@unirep/circuits/circuits/epochKeyLite.circom";
 
 template ReportNullifierProof(MAX_EPOCH_KEY_NONCE) {
-    // inputs
     signal input report_nullifier; // stored in relay
     signal input identity_secret;
     signal input report_id;
@@ -12,7 +11,6 @@ template ReportNullifierProof(MAX_EPOCH_KEY_NONCE) {
     signal input chain_id;
     signal input attester_id;
     
-    // outputs
     signal output control;
     signal output current_epoch_key;
 

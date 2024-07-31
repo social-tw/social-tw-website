@@ -3,6 +3,9 @@ import * as utils from '@unirep/utils'
 import { IncrementalMerkleTree as zkIncrementalMerkleTree } from '@zk-kit/incremental-merkle-tree'
 import { expect } from 'chai'
 import { poseidon2 } from 'poseidon-lite'
+import { ReportIdentityProof } from '../src'
+import { ProofGenerationError } from './error'
+import { UnirepSocialCircuit } from './types'
 import {
     createRandomUserIdentity,
     genNullifier,
@@ -10,9 +13,8 @@ import {
     genReportIdentityCircuitInput,
     randomData,
 } from './utils'
-import { ProofGenerationError } from './error'
 
-const circuit = 'reportIdentityProof'
+const circuit = UnirepSocialCircuit.reportIdentityProof
 
 describe('Prove report identity in Unirep Social-TW', function () {
     this.timeout(300000)
@@ -43,7 +45,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
     )
     tree.insert(leaf)
     const leafIndex = tree.indexOf(leaf)
-    const proof = tree.createProof(leafIndex)
+    const leafProof = tree.createProof(leafIndex)
     const stateTreeRoot = tree.root
 
     it('should succeed with valid inputs', async () => {
@@ -58,23 +60,27 @@ describe('Prove report identity in Unirep Social-TW', function () {
             attesterId,
             epoch,
             chainId,
-            stateTreeElements: proof.siblings,
-            stateTreeIndices: proof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            stateTreeIndices: leafProof.pathIndices,
             stateTreeRoot,
         })
-        const { isValid, publicSignals } = await genProofAndVerify(
+        const { isValid, proof, publicSignals } = await genProofAndVerify(
             circuit,
             circuitInputs
         )
+
+        const reportIdentityProof = new ReportIdentityProof(
+            publicSignals,
+            proof
+        )
+
         expect(isValid).to.be.true
-        expect(publicSignals[0].toString()).to.be.equal(
+        expect(reportIdentityProof.reportNullifier.toString()).to.be.equal(
             poseidon2([identitySecret, reportId]).toString()
         )
-        expect(publicSignals[1].toString()).to.be.equal(attesterId.toString())
-        expect(publicSignals[2].toString()).to.be.equal(epoch.toString())
-        expect(publicSignals[3].toString()).to.be.equal(
-            stateTreeRoot.toString()
-        )
+        expect(reportIdentityProof.attesterId).to.be.equal(attesterId)
+        expect(reportIdentityProof.epoch).to.be.equal(epoch)
+        expect(reportIdentityProof.stateTreeRoot).to.be.equal(stateTreeRoot)
     })
 
     it('should revert with invalid identity', async () => {
@@ -89,8 +95,8 @@ describe('Prove report identity in Unirep Social-TW', function () {
             attesterId,
             epoch,
             chainId,
-            stateTreeElements: proof.siblings,
-            stateTreeIndices: proof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            stateTreeIndices: leafProof.pathIndices,
             stateTreeRoot,
         })
 
@@ -118,8 +124,8 @@ describe('Prove report identity in Unirep Social-TW', function () {
             attesterId,
             epoch,
             chainId,
-            stateTreeElements: proof.siblings,
-            stateTreeIndices: proof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            stateTreeIndices: leafProof.pathIndices,
             stateTreeRoot,
         })
 
@@ -146,8 +152,8 @@ describe('Prove report identity in Unirep Social-TW', function () {
             attesterId,
             epoch,
             chainId,
-            stateTreeElements: proof.siblings,
-            stateTreeIndices: proof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            stateTreeIndices: leafProof.pathIndices,
             stateTreeRoot,
         })
 
