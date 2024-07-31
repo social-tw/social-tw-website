@@ -1,4 +1,4 @@
-import { Identity } from '@semaphore-protocol/identity'
+import { Identity } from '@semaphore-protocol/identity';
 
 export type IdentityObject = { hashUserId: string; id: Identity }
 
@@ -8,4 +8,12 @@ export type EpochKeyControl = {
     attesterId: bigint
     revealNonce: bigint
     chainId: bigint
+}
+
+declare module '@unirep/circuits' {
+    export enum Circuit {
+        reportIdentityProof = 'reportIdentityProof',
+        reportNullifierProof = 'reportNullifierProof',
+        reportNegRepProof = 'reportNegRepProof',
+    }
 }
