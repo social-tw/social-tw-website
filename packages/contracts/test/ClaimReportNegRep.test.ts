@@ -12,7 +12,6 @@ import {
     genReportNonNullifierCircuitInput,
     genUserState,
     genVHelperIdentifier,
-    userStateTransition,
 } from './utils'
 
 describe('Claim Report Negative Reputation Test', function () {
@@ -166,10 +165,6 @@ describe('Claim Report Negative Reputation Test', function () {
             .to.emit(app, 'ClaimNegRep')
             .withArgs(publicSignals[0], currentEpoch)
 
-        await userStateTransition(posterState, unirep, app)
-        const data = await posterState.getProvableData()
-        // data[0] positive reputation
-        console.log('Neg Rep Data:', data)
         posterState.stop()
     })
 
