@@ -17,7 +17,12 @@ export function ActionMenuContainer({
     useClickAway(ref, onClose)
     return (
         <div className="relative" onClick={(e) => e.preventDefault()} ref={ref}>
-            <EllipsisIcon className="cursor-pointer" onClick={onOpen} />
+            <button
+                onClick={onOpen}
+                className="w-6 h-6 flex items-center justify-center"
+            >
+                <EllipsisIcon className="cursor-pointer" />
+            </button>
             {children}
         </div>
     )

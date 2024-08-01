@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom'
 import AvatarIcon from '@/assets/img/avatar.png'
+import { Outlet } from 'react-router-dom'
 
 function Avatar() {
     return (
@@ -11,10 +11,6 @@ function Avatar() {
             `}
             >
                 <img src={AvatarIcon} alt="Avatar" />
-            </div>
-            <div className="text-white md:hidden">
-                <div>Next Epoch in</div>
-                <div className="text-4xl">04:11</div>
             </div>
         </div>
     )

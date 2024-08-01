@@ -4,6 +4,7 @@ import {
     Dialog as HeadlessDialog,
     DialogPanel as HeadlessDialogPanel,
 } from '@headlessui/react'
+import './reportFormSubmitting.css'
 
 export function ReportFormSubmitting() {
     return (
@@ -15,7 +16,7 @@ export function ReportFormSubmitting() {
                         as="dialog"
                     >
                         <img
-                            className="shrink-0"
+                            className="shrink-0 float-animation"
                             src={SubmittingImg}
                             alt="report-form-submitting"
                         />

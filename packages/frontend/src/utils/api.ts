@@ -18,6 +18,7 @@ import {
     FetchPostsByEpochKeysParams,
     FetchPostsByEpochKeysResponse,
     FetchRelayConfigResponse,
+    FetchReputationHistoryResponse,
     FetchVotesByEpochKeysParams,
     FetchVotesByEpochKeysResponse,
     RelayCreateCommentResponse,
@@ -28,6 +29,15 @@ import {
     RelayUserStateTransitionResponse,
     SortKeys,
 } from '../types/api'
+
+export async function fetchReputationHistory(
+    fromEpoch: number,
+    toEpoch: number,
+): Promise<FetchReputationHistoryResponse> {
+    const url = `${SERVER}/api/reputation/history?fromEpoch=${fromEpoch}&toEpoch=${toEpoch}`
+    const response = await fetch(url)
+    return response.json()
+}
 
 export async function fetchRelayConfig(): Promise<FetchRelayConfigResponse> {
     const response = await fetch(`${SERVER}/api/config`)

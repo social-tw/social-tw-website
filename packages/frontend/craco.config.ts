@@ -1,5 +1,5 @@
-import path from 'path'
 import type { CracoConfig } from '@craco/types'
+import path from 'path'
 
 const config: CracoConfig = {
     webpack: {
@@ -28,6 +28,7 @@ const config: CracoConfig = {
             }
             jestConfig.moduleNameMapper = {
                 '@/(.*)$': '<rootDir>/src/$1',
+                '(.*)react-datepicker.css': '<rootDir>/empty-module.js',
             }
             jestConfig.transformIgnorePatterns = [
                 'node_modules/(?!@uidotdev/usehooks|nanoid/)',
