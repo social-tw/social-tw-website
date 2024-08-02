@@ -335,3 +335,61 @@ export async function relayReport({
     }
     return data
 }
+
+export async function relayClaimPositiveReputation(
+    proof: EpochKeyLiteProof,
+    reportId: string,
+    repUserType: string,
+    nullifier?: string,
+) {
+    const response = await fetch(`${SERVER}/api/claim-positive-reputation`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            stringifyBigInts({
+                publicSignals: proof.publicSignals,
+                proof: proof.proof,
+                reportId,
+                repUserType,
+                nullifier,
+            }),
+        ),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(`Claim positive reputation failed: ${data.error}`)
+    }
+    return data
+}
+
+export async function relayClaimNegativeReputation(
+    proof: EpochKeyLiteProof,
+    reportId: string,
+    repUserType: string,
+) {
+    const response = await fetch(`${SERVER}/api/claim-negative-reputation`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            stringifyBigInts({
+                publicSignals: proof.publicSignals,
+                proof: proof.proof,
+                reportId,
+                repUserType,
+            }),
+        ),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(`Claim negative reputation failed: ${data.error}`)
+    }
+    return data
+}

@@ -12,6 +12,7 @@ export enum QueryKeys {
     PendingReports = 'pending_reports',
     ReputationScore = 'reputation_score',
     ReputationHistory = 'reputation_history',
+    ReportHistory = 'ReportHistory',
 }
 
 export enum MutationKeys {
@@ -33,4 +34,5 @@ export enum MutationKeys {
     ReportComment = 'report_comment',
     Adjudicate = 'adjudicate',
     CheckIn = 'check_in',
+    ClaimReputation = 'claim_reputation',
 }
