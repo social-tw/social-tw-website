@@ -79,8 +79,6 @@ describe('POST /post', function () {
         )
 
         authentication = jsonToBase64(reputationProof)
-
-        userState.stop()
     })
 
     after(async function () {
@@ -88,7 +86,7 @@ describe('POST /post', function () {
     })
 
     it('should create a post', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content #0'
         // cid of test content
@@ -166,12 +164,10 @@ describe('POST /post', function () {
         })
 
         expect(posts.length).equal(0)
-
-        userState.stop()
     })
 
     it('should post failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const testContent = 'test content'
 
         var epochKeyProof = await userState.genEpochKeyProof({
@@ -195,12 +191,10 @@ describe('POST /post', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid proof')
             })
-
-        userState.stop()
     })
 
     it('should post failed with wrong epoch', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const testContent = 'invalid epoch'
 
         // generating a proof with wrong epoch
@@ -240,8 +234,6 @@ describe('POST /post', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid epoch')
             })
-
-        userState.stop()
     })
 
     it('should update post order periodically', async function () {
@@ -307,7 +299,7 @@ describe('POST /post', function () {
     })
 
     it('should fetch posts which are already on-chain', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         // send a post
         const txHash = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10
@@ -342,8 +334,6 @@ describe('POST /post', function () {
         })
 
         expect(offChainPost.status).equal(0)
-
-        userState.stop()
     })
 
     it('should fetch post failed with incorrect input', async function () {

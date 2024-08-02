@@ -2,7 +2,6 @@ import { Identity } from '@semaphore-protocol/identity'
 import { UserState } from '@unirep/core'
 import crypto from 'crypto'
 import { ethers } from 'hardhat'
-import { UnirepSocialSynchronizer } from '../../src/services/singletons/UnirepSocialSynchronizer'
 import { IdentityObject } from './types'
 
 export function createRandomUserIdentity(): IdentityObject {
@@ -23,23 +22,13 @@ export function createUserIdentities(size: number): IdentityObject[] {
     return result
 }
 
-export async function genUserState(id, app, db, prover) {
+export async function genUserState(id, sync, app, db, prover) {
     // generate a user state
     const unirepAddress = await app.unirep()
     const attesterId = BigInt(app.address)
-    const synchronizer = new UnirepSocialSynchronizer(
-        {
-            db,
-            attesterId,
-            prover,
-            provider: ethers.provider,
-            unirepAddress,
-        },
-        app
-    )
 
     const userState = new UserState({
-        synchronizer,
+        synchronizer: sync,
         db,
         prover,
         unirepAddress,

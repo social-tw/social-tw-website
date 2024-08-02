@@ -62,7 +62,7 @@ describe('CheckReputation', function () {
     })
 
     it('should pass the check reputation middleware with positive reputation', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
@@ -92,7 +92,7 @@ describe('CheckReputation', function () {
     })
 
     it('should fail the check reputation middleware with negative reputation', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
@@ -133,7 +133,7 @@ describe('CheckReputation', function () {
     })
 
     it('should fail the check reputation middleware with wrong reputation proof', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
@@ -171,12 +171,10 @@ describe('CheckReputation', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.be.equal('Invalid reputation proof')
-
-        userState.stop()
     })
 
     it('should fail the check reputation middleware without authentication', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -196,7 +194,5 @@ describe('CheckReputation', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.be.equal('Invalid authentication')
-
-        userState.stop()
     })
 })

@@ -57,14 +57,13 @@ describe('Synchronize Post Test', function () {
 
         // signup in another block to prevent timeout
         {
-            const userState = await signUp(users[1], {
+            await signUp(users[1], {
                 app,
                 db,
                 prover,
                 provider,
                 sync,
             })
-            userState.stop()
         }
 
         const chainId = await unirep.chainid()
@@ -83,8 +82,6 @@ describe('Synchronize Post Test', function () {
         )
 
         authentication = jsonToBase64(reputationProof)
-
-        userState.stop()
     })
 
     after(async function () {
@@ -93,7 +90,13 @@ describe('Synchronize Post Test', function () {
 
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
-            const userState = await genUserState(users[0].id, app, db, prover)
+            const userState = await genUserState(
+                users[0].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const txHash = await post(express, userState, authentication)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
@@ -117,8 +120,6 @@ describe('Synchronize Post Test', function () {
             expect(record.content).equal('test content')
             expect(record.cid).equal(contentHash)
             expect(record.status).equal(1)
-
-            userState.stop()
         })
     })
 })
@@ -166,14 +167,13 @@ describe('Synchronize Comment Test', function () {
 
         // signup in another block to prevent timeout
         {
-            const userState = await signUp(users[1], {
+            await signUp(users[1], {
                 app,
                 db,
                 prover,
                 provider,
                 sync,
             })
-            userState.stop()
         }
 
         const chainId = await unirep.chainid()
@@ -192,8 +192,6 @@ describe('Synchronize Comment Test', function () {
         )
 
         authentication = jsonToBase64(reputationProof)
-
-        userState.stop()
     })
 
     after(async function () {
@@ -202,7 +200,13 @@ describe('Synchronize Comment Test', function () {
 
     describe('Synchronize Comment', async function () {
         before(async function () {
-            const userState = await genUserState(users[0].id, app, db, prover)
+            const userState = await genUserState(
+                users[0].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const txHash = await post(express, userState, authentication)
             await provider.waitForTransaction(txHash)
             await sync.waitForSync()
@@ -212,15 +216,19 @@ describe('Synchronize Comment Test', function () {
             expect(record).to.be.not.null
             expect(record.length).equal(1)
             expect(record[0].postId).equal('0')
-
-            userState.stop()
         })
 
         it('should synchronize comment', async function () {
             // User 1 post a comment on the thread
             const commentContent = "I'm a comment"
 
-            const userState = await genUserState(users[1].id, app, db, prover)
+            const userState = await genUserState(
+                users[1].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const epoch = await sync.loadCurrentEpoch()
             const { publicSignals, proof } = await userState.genEpochKeyProof({
                 epoch,
@@ -245,7 +253,7 @@ describe('Synchronize Comment Test', function () {
             await sync.waitForSync()
 
             // Check if the comment is synchronized
-            let record = await db.findMany('Comment', { where: {} })
+            const record = await db.findMany('Comment', { where: {} })
             expect(record).to.be.not.null
             expect(record.length).equal(1)
             expect(record[0].commentId).equal('0')
@@ -253,20 +261,24 @@ describe('Synchronize Comment Test', function () {
             expect(record[0].content).equal(commentContent)
 
             // Check if the comment count is synchronized
-            let postRecord = await db.findOne('Post', {
+            const postRecord = await db.findOne('Post', {
                 where: {
                     postId: record[0].postId,
                 },
             })
             expect(postRecord).to.be.not.null
             expect(postRecord.commentCount).equal(1)
-
-            userState.stop()
         })
 
         it('should update comment', async function () {
             // User 1 edit the comment
-            const userState = await genUserState(users[1].id, app, db, prover)
+            const userState = await genUserState(
+                users[1].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const newContent = "I'm not a comment what you want"
             const { publicSignals, proof } =
                 await userState.genEpochKeyLiteProof()
@@ -282,14 +294,12 @@ describe('Synchronize Comment Test', function () {
             await sync.waitForSync()
 
             // Check if the comment is synchronized
-            let record = await db.findMany('Comment', { where: {} })
+            const record = await db.findMany('Comment', { where: {} })
             expect(record).to.be.not.null
             expect(record.length).equal(1)
             expect(record[0].commentId).equal('0')
             expect(record[0].postId).equal('0')
             expect(record[0].content).equal(newContent)
-
-            userState.stop()
         })
     })
 })

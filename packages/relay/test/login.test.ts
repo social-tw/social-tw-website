@@ -140,7 +140,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
         const identity = new Identity(user.hashUserId)
-        const userState = await genUserState(identity, app, db, prover)
+        const userState = await genUserState(identity, sync, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -161,15 +161,13 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(400)
             })
-
-        userState.stop()
     })
 
     it('/api/signup, user sign up with wallet', async function () {
         const userId = users[0].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[0].id, app, db, prover)
+        const userState = await genUserState(users[0].id, sync, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -193,8 +191,6 @@ describe('LOGIN /login', function () {
             })
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
-
-        userState.stop()
     })
 
     it('/api/signup, sign up with the same commitment', async function () {
@@ -203,7 +199,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
 
-        const userState = await genUserState(users[0].id, app, db, prover)
+        const userState = await genUserState(users[0].id, sync, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -216,8 +212,6 @@ describe('LOGIN /login', function () {
                 this.synchronizer
             )
         ).to.be.rejectedWith(Error)
-
-        userState.stop()
     })
 
     it('/api/signup, sign up with different attesterId', async function () {
@@ -225,7 +219,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
 
-        const userState = await genUserState(users[1].id, app, db, prover)
+        const userState = await genUserState(users[1].id, sync, app, db, prover)
         const {
             publicSignals,
             _snarkProof: proof,
@@ -252,15 +246,13 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(400)
             })
-
-        userState.stop()
     })
 
     it('/api/signup, user sign up with server', async function () {
         const userId = users[1].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[1].id, app, db, prover)
+        const userState = await genUserState(users[1].id, sync, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -284,15 +276,13 @@ describe('LOGIN /login', function () {
             })
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
-
-        userState.stop()
     })
 
     it('/api/signup, handle duplicate signup', async function () {
         const userId = users[0].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[0].id, app, db, prover)
+        const userState = await genUserState(users[0].id, sync, app, db, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -311,8 +301,6 @@ describe('LOGIN /login', function () {
             .then((res) => {
                 expect(res).to.have.status(400)
             })
-
-        userState.stop()
     })
 
     it('/api/login, registered user with own wallet', async function () {

@@ -71,8 +71,6 @@ describe('GET /counter', function () {
         )
 
         authentication = jsonToBase64(reputationProof)
-
-        userState.stop()
     })
 
     after(async function () {
@@ -80,7 +78,7 @@ describe('GET /counter', function () {
     })
 
     it('should add the counter number increment after the user posted', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         let txHash = await post(express, userState, authentication)
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
@@ -94,12 +92,10 @@ describe('GET /counter', function () {
             .set('content-type', 'application/json')
 
         expect(res.body.counter).equal(1)
-
-        userState.stop()
     })
 
     it('should counter failed if number of epks is not 3', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         // one epoch key
         const epochKeys = (
             userState.getEpochKeys(undefined, 0) as bigint
@@ -112,8 +108,6 @@ describe('GET /counter', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Wrong number of epoch keys')
             })
-
-        userState.stop()
     })
 
     // TODO: add vote test & comment test after the apis are done

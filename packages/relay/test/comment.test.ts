@@ -90,8 +90,6 @@ describe('COMMENT /comment', function () {
         expect(res).to.have.status(200)
         const curPost = res.body as Post
         expect(curPost.status).to.equal(PostStatus.ON_CHAIN)
-
-        userState.stop()
     })
 
     after(async function () {
@@ -99,7 +97,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should create a comment', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'create comment'
         const { createHelia } = await eval("import('helia')")
         const helia = await createHelia()
@@ -176,8 +174,6 @@ describe('COMMENT /comment', function () {
             expect(comments[0].content).equal(testContent)
             expect(comments[0].status).equal(1)
         })
-
-        userState.stop()
     })
 
     it('should get correct records from CommentHistory', async function () {
@@ -189,7 +185,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'comment with wrong proof'
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 2,
@@ -213,12 +209,10 @@ describe('COMMENT /comment', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid proof')
             })
-
-        userState.stop()
     })
 
     it('should comment failed with wrong epoch', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'comment with wrong epoch'
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
@@ -258,12 +252,10 @@ describe('COMMENT /comment', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid epoch')
             })
-
-        userState.stop()
     })
 
     it('delete the comment failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
@@ -288,12 +280,10 @@ describe('COMMENT /comment', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid proof')
             })
-
-        userState.stop()
     })
 
     it('delete the comment failed with wrong epoch key', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 2,
         })
@@ -315,12 +305,10 @@ describe('COMMENT /comment', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Invalid epoch key')
             })
-
-        userState.stop()
     })
 
     it('delete the comment success', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
@@ -352,8 +340,6 @@ describe('COMMENT /comment', function () {
             const comments = res.body
             expect(comments.length).equal(0)
         })
-
-        userState.stop()
     })
 
     it('should revert with invalid epoch range', async function () {

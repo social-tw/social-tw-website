@@ -111,8 +111,6 @@ describe('POST /vote', function () {
         upvotePostId = upVotePost.postId
         downvotePostId = downVotePost.postId
         otherPostId = otherPost.postId
-
-        userState.stop()
     })
 
     after(async function () {
@@ -146,7 +144,7 @@ describe('POST /vote', function () {
     }
 
     it('should vote for post', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -183,12 +181,10 @@ describe('POST /vote', function () {
 
         // check the post is downvoted only
         await verifyPostVote(downvotePostId, 0, 1)
-
-        userState.stop()
     })
 
     it('should vote failed when vote again with the same type', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -214,12 +210,10 @@ describe('POST /vote', function () {
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
-
-        userState.stop()
     })
 
     it('should vote failed when vote again with different type', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -246,12 +240,10 @@ describe('POST /vote', function () {
 
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid vote action')
-
-        userState.stop()
     })
 
     it('should cancel vote for post', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -280,12 +272,11 @@ describe('POST /vote', function () {
         // check the post is neither upvoted nor downvoted
         await verifyPostVote(downvotePostId, 0, 0)
 
-        userState.stop()
         // TODO: need to setup response otherwise won't get anything from res
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -311,12 +302,10 @@ describe('POST /vote', function () {
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
-
-        userState.stop()
     })
 
     it('should vote failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -331,12 +320,10 @@ describe('POST /vote', function () {
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Wrong attesterId')
-
-        userState.stop()
     })
 
     it('should vote failed with invalid post', async function () {
-        const userState = await genUserState(user.id, app, db, prover)
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -349,7 +336,5 @@ describe('POST /vote', function () {
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid postId')
-
-        userState.stop()
     })
 })
