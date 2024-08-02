@@ -1,4 +1,5 @@
 import { UnirepApp } from '@unirep-app/contracts/typechain-types'
+import { Circuit } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
@@ -7,7 +8,7 @@ import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { Post } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
-import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { genProofAndVerify, genReputationCircuitInput } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -64,20 +65,30 @@ describe('CheckReputation', function () {
     it('should pass the check reputation middleware with positive reputation', async function () {
         const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
+        const minRep = 2
+        const proveMinRep = 1
+        const startBalance = [5, 1]
+        const circuitInputs = genReputationCircuitInput({
+            id: userState.id,
+            epoch,
+            nonce: 1,
+            startBalance,
+            attesterId: sync.attesterId,
+            chainId,
+            minRep,
+            proveMinRep,
+            revealNonce: 0,
+        })
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
+        const { isValid, publicSignals, proof } = await genProofAndVerify(
+            Circuit.reputation,
+            circuitInputs
         )
 
-        const authentication = jsonToBase64(reputationProof)
+        const authentication = jsonToBase64({
+            publicSignals,
+            proof,
+        })
         const txHash = await post(express, userState, authentication)
         await ethers.provider.waitForTransaction(txHash)
         await sync.waitForSync()
@@ -94,20 +105,31 @@ describe('CheckReputation', function () {
     it('should fail the check reputation middleware with negative reputation', async function () {
         const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
+        const maxRep = 4
+        const proveMaxRep = 1
+        const startBalance = [5, 10]
+        const circuitInputs = genReputationCircuitInput({
+            id: userState.id,
+            epoch,
+            nonce: 1,
+            startBalance,
+            attesterId: sync.attesterId,
+            chainId,
+            maxRep,
+            proveMaxRep,
+            revealNonce: 0,
+        })
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.NEGATIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
+        const { isValid, publicSignals, proof } = await genProofAndVerify(
+            Circuit.reputation,
+            circuitInputs
         )
 
-        const authentication = jsonToBase64(reputationProof)
+        const authentication = jsonToBase64({
+            publicSignals,
+            proof,
+        })
+
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -135,22 +157,32 @@ describe('CheckReputation', function () {
     it('should fail the check reputation middleware with wrong reputation proof', async function () {
         const userState = await genUserState(user.id, sync, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
+        const minRep = 2
+        const proveMinRep = 1
+        const startBalance = [5, 1]
+        const circuitInputs = genReputationCircuitInput({
+            id: userState.id,
+            epoch,
+            nonce: 1,
+            startBalance,
+            attesterId: sync.attesterId,
+            chainId,
+            minRep,
+            proveMinRep,
+            revealNonce: 0,
+        })
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
+        const { isValid, publicSignals, proof } = await genProofAndVerify(
+            Circuit.reputation,
+            circuitInputs
         )
 
-        reputationProof.proof.pi_a[0] = '0'
+        proof.pi_a[0] = '0'
 
-        const authentication = jsonToBase64(reputationProof)
+        const authentication = jsonToBase64({
+            publicSignals,
+            proof,
+        })
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({

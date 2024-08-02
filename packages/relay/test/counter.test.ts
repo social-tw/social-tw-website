@@ -7,9 +7,8 @@ import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 
@@ -55,22 +54,7 @@ describe('GET /counter', function () {
             sync,
         })
 
-        const epoch = await sync.loadCurrentEpoch()
-        const chainId = await unirep.chainid()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {

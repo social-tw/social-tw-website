@@ -5,18 +5,13 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
 import { APP_ABI as abi } from '../src/config'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { Post, PostStatus } from '../src/types'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import {
-    genEpochKeyProof,
-    genProveReputationProof,
-    randomData,
-    ReputationType,
-} from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
+import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -66,21 +61,7 @@ describe('COMMENT /comment', function () {
             sync,
         })
 
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
 
         const txHash = await post(express, userState, authentication)
         await provider.waitForTransaction(txHash)

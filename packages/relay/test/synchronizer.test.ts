@@ -3,12 +3,11 @@ import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -66,22 +65,7 @@ describe('Synchronize Post Test', function () {
             })
         }
 
-        const chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -176,22 +160,7 @@ describe('Synchronize Comment Test', function () {
             })
         }
 
-        const chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -207,10 +176,12 @@ describe('Synchronize Comment Test', function () {
                 db,
                 prover
             )
-            const txHash = await post(express, userState, authentication)
-            await provider.waitForTransaction(txHash)
-            await sync.waitForSync()
 
+            {
+                const txHash = await post(express, userState, authentication)
+                await provider.waitForTransaction(txHash)
+                await sync.waitForSync()
+            }
             // check db if the post is synchronized
             let record = await sync.db.findMany('Post', { where: {} })
             expect(record).to.be.not.null

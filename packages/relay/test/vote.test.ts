@@ -7,11 +7,10 @@ import { deployContracts, startServer, stopServer } from './environment'
 
 import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { io } from 'socket.io-client'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
-import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -66,21 +65,8 @@ describe('POST /vote', function () {
         })
 
         chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
 
         // produce three posts
         const postPromises = [

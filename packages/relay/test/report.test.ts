@@ -3,7 +3,6 @@ import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { commentService } from '../src/services/CommentService'
 import { postService } from '../src/services/PostService'
 import { reportService } from '../src/services/ReportService'
@@ -20,13 +19,9 @@ import {
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { comment } from './utils/comment'
+import { genAuthentication } from './utils/genAuthentication'
 import { genReportNullifier } from './utils/genNullifier'
-import {
-    genProveReputationProof,
-    genReportIdentityProof,
-    ReputationType,
-    userStateTransition,
-} from './utils/genProof'
+import { genReportIdentityProof, userStateTransition } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { resetReportResult } from './utils/sqlHelper'
@@ -42,7 +37,6 @@ describe('POST /api/report', function () {
     let nonce: number = 0
     let chainId: number
     const EPOCH_LENGTH = 100000
-    let authentication: string
     let users: IdentityObject[]
     let app: UnirepApp
     let prover: any
@@ -102,21 +96,7 @@ describe('POST /api/report', function () {
 
         chainId = await unirep.chainid()
 
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        const authentication = await genAuthentication(userState)
 
         {
             await post(express, userState, authentication, nonce).then(
@@ -170,6 +150,7 @@ describe('POST /api/report', function () {
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
         })
+        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
@@ -231,6 +212,8 @@ describe('POST /api/report', function () {
         // Invalidate the proof
         epochKeyProof.publicSignals[0] = BigInt(0)
 
+        const authentication = await genAuthentication(userState)
+
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
@@ -262,6 +245,8 @@ describe('POST /api/report', function () {
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
         })
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
@@ -328,6 +313,8 @@ describe('POST /api/report', function () {
             nonce,
         })
 
+        const authentication = await genAuthentication(userState)
+
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
@@ -358,6 +345,8 @@ describe('POST /api/report', function () {
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce,
         })
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
@@ -611,6 +600,8 @@ describe('POST /api/report', function () {
             }
         )
 
+        const authentication = await genAuthentication(userState)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
@@ -664,6 +655,8 @@ describe('POST /api/report', function () {
                 reportId: report.reportId,
             }
         )
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -724,6 +717,8 @@ describe('POST /api/report', function () {
 
         publicSignals[0] = '0'
 
+        const authentication = await genAuthentication(userState)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
@@ -761,6 +756,8 @@ describe('POST /api/report', function () {
                 reportId: notExistReportId,
             }
         )
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post(`/api/report/${notExistReportId}`)
@@ -807,6 +804,8 @@ describe('POST /api/report', function () {
             }
         )
 
+        const authentication = await genAuthentication(userState)
+
         await express
             .post(`/api/report/${report.reportId}`)
             .set('content-type', 'application/json')
@@ -848,6 +847,8 @@ describe('POST /api/report', function () {
                 reportId: report.reportId,
             }
         )
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -894,6 +895,8 @@ describe('POST /api/report', function () {
                 reportId: watingForTxReport.reportId,
             }
         )
+
+        const authentication = await genAuthentication(userState)
 
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)

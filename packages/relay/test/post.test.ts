@@ -5,18 +5,13 @@ import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { APP_ABI as abi } from '../src/config'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
 import { postData } from './mocks/posts'
-import {
-    genEpochKeyProof,
-    genProveReputationProof,
-    randomData,
-    ReputationType,
-} from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
+import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
@@ -64,21 +59,8 @@ describe('POST /post', function () {
         })
 
         chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {

@@ -87,7 +87,7 @@ export enum ReputationType {
     NEGATIVE,
 }
 
-const genReputationCircuitInput = (config: {
+export const genReputationCircuitInput = (config: {
     id: Identity
     epoch: number
     nonce: number
