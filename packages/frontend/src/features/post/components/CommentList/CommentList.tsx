@@ -2,6 +2,7 @@ import { QueryKeys } from '@/constants/queryKeys'
 import {
     ActionStatus,
     CommentData,
+    CommentService,
     commentActionsSelector,
     removeActionById,
     useActionStore,
@@ -10,7 +11,6 @@ import {
 } from '@/features/core'
 import { Comment, useCreateComment, useRemoveComment } from '@/features/post'
 import { CommentStatus } from '@/types/Comments'
-import { fetchCommentsByPostId } from '@/utils/api'
 import checkCommentIsMine from '@/utils/helpers/checkCommentIsMine'
 import getNonceFromEpochKey from '@/utils/helpers/getNonceFromEpochKey'
 import { useQuery } from '@tanstack/react-query'
@@ -25,7 +25,8 @@ export default function CommentList({ postId }: { postId: string }) {
     const { data } = useQuery({
         queryKey: [QueryKeys.ManyComments, postId],
         queryFn: async () => {
-            const comments = await fetchCommentsByPostId(postId)
+            const commentService = new CommentService()
+            const comments = await commentService.fetchCommentsByPostId(postId)
             return comments
                 .sort((a, b) => Number(a.publishedAt) - Number(b.publishedAt))
                 .map((comment) => ({
@@ -100,9 +101,11 @@ export default function CommentList({ postId }: { postId: string }) {
     ) => {
         const _userState = await getGuaranteedUserState()
         const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
-        if (!nonce) return
+        if (nonce === undefined || nonce === null) return
 
-        await removeComment({ postId, commentId, epoch, nonce })
+        await removeComment({ postId, commentId, epoch, nonce }).catch(
+            () => null,
+        )
     }
 
     return (

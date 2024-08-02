@@ -1,11 +1,14 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { fetchReportCategories } from '@/features/reporting/utils/apis'
+import { ReportService } from '@/features/core'
 import { useQuery } from '@tanstack/react-query'
 
 export function useFetchReportCategories() {
     const { data } = useQuery({
         queryKey: [QueryKeys.ReportCategory],
-        queryFn: fetchReportCategories,
+        queryFn: async () => {
+            const reportService = new ReportService()
+            return reportService.fetchReportCategories()
+        },
     })
     return {
         reportCategories: data || [],
