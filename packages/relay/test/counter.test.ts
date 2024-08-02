@@ -1,69 +1,70 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-import { UserState } from '@unirep/core'
-import { deployContracts, startServer, stopServer } from './environment'
-
+import { stringifyBigInts } from '@unirep/utils'
 import { userService } from '../src/services/UserService'
-import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { UserStateFactory } from './utils/UserStateFactory'
+import { deployContracts, startServer, stopServer } from './environment'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
-import { Unirep } from '@unirep-app/contracts/typechain-types'
+import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
+import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { genProveReputationProof, ReputationType } from './utils/genProof'
+import { IdentityObject } from './utils/types'
 
 describe('GET /counter', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
     let unirep: Unirep
+    let app: UnirepApp
     let db: DB
     let authentication: string
+    let user: IdentityObject
+    let prover: any
+    let provider: any
+    let sync: UnirepSocialSynchronizer
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // deploy contracts
-        const contracts = await deployContracts(100000)
+        const { unirep: _unirep, app: _app } = await deployContracts(100000)
         // start server
         const {
             db: _db,
-            prover,
-            provider,
+            prover: _prover,
+            provider: _provider,
             synchronizer,
             chaiServer,
-        } = await startServer(contracts.unirep, contracts.app)
+        } = await startServer(_unirep, _app)
         express = chaiServer
-        sync = synchronizer
-        unirep = contracts.unirep
+        unirep = _unirep
         db = _db
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
-            contracts.app,
-            synchronizer
-        )
+        app = _app
+        prover = _prover
+        provider = _provider
+        sync = synchronizer
 
-        // initUserStatus
-        const initUser = await userService.getLoginUser(db, '123', undefined)
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
+        user = createRandomUserIdentity()
+        const userState = await genUserState(user.id, app, db, prover)
+        const { publicSignals, _snarkProof: proof } =
+            await userState.genUserSignUpProof()
+        const txHash = await userService.signup(
+            stringifyBigInts(publicSignals),
+            proof,
+            user.hashUserId,
+            false,
             synchronizer
         )
+        await provider.waitForTransaction(txHash)
 
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
         expect(hasSignedUp).equal(true)
 
-        const epoch = await sync.loadCurrentEpoch()
+        const epoch = await synchronizer.loadCurrentEpoch()
         const chainId = await unirep.chainid()
 
         const reputationProof = await genProveReputationProof(
@@ -72,13 +73,15 @@ describe('GET /counter', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: sync.attesterId,
+                attesterId: synchronizer.attesterId,
                 chainId,
                 revealNonce: 0,
             }
         )
 
         authentication = jsonToBase64(reputationProof)
+
+        userState.stop()
     })
 
     after(async function () {
@@ -86,9 +89,10 @@ describe('GET /counter', function () {
     })
 
     it('should add the counter number increment after the user posted', async function () {
+        const userState = await genUserState(user.id, app, db, prover)
         let res = await post(express, userState, authentication)
         await ethers.provider.waitForTransaction(res.txHash)
-        await sync.waitForSync()
+        await userState.sync.waitForSync()
 
         const epochKeys = (userState.getEpochKeys() as bigint[])
             .map((epk) => epk.toString())
@@ -99,9 +103,12 @@ describe('GET /counter', function () {
             .set('content-type', 'application/json')
 
         expect(res.body.counter).equal(1)
+
+        userState.stop()
     })
 
     it('should counter failed if number of epks is not 3', async function () {
+        const userState = await genUserState(user.id, app, db, prover)
         // one epoch key
         const epochKeys = (
             userState.getEpochKeys(undefined, 0) as bigint
@@ -114,6 +121,8 @@ describe('GET /counter', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).equal('Wrong number of epoch keys')
             })
+
+        userState.stop()
     })
 
     // TODO: add vote test & comment test after the apis are done
@@ -125,9 +134,7 @@ describe('GET /counter', function () {
         const epochRemainingTime = sync.calcEpochRemainingTime()
 
         // add epoch time to make sure this epoch ended
-        await ethers.provider.send('evm_increaseTime', [
-            epochRemainingTime + 1000,
-        ])
+        await provider.send('evm_increaseTime', [epochRemainingTime + 1000])
 
         await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
 

@@ -1,13 +1,17 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { useEpoch } from '@/features/core'
+import { ReportService, useEpoch, useUserState } from '@/features/core'
 import { useQuery } from '@tanstack/react-query'
-import { fetchPendingReports } from '../../utils/apis'
 
 export function usePendingReports() {
+    const { getGuaranteedUserState } = useUserState()
     const { currentEpoch } = useEpoch()
 
     return useQuery({
         queryKey: [QueryKeys.PendingReports, currentEpoch],
-        queryFn: fetchPendingReports,
+        queryFn: async () => {
+            const userState = await getGuaranteedUserState()
+            const reportService = new ReportService(userState)
+            return reportService.fetchPendingReports()
+        },
     })
 }

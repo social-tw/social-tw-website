@@ -36,7 +36,7 @@ export const WrongEpochKeyNumberError = new InternalError(
 export const InvalidAttesterIdError = new InternalError('Wrong attesterId', 400)
 export const InvalidProofError = new InternalError('Invalid proof', 400)
 export const InvalidStateTreeError = new InternalError(
-    'Invalid State Tree',
+    'Invalid state tree',
     400
 )
 export const InvalidPublicSignalError = new InternalError(

@@ -1,55 +1,60 @@
-import { UserState } from '@unirep/core'
+import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
+import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
+import { userService } from '../src/services/UserService'
 import { Post } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
+import { genProveReputationProof, ReputationType } from './utils/genProof'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { IdentityObject } from './utils/types'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 describe('CheckReputation', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
     let chainId: number
+    let user: IdentityObject
+    let prover: any
+    let app: UnirepApp
+    let db: DB
+    let sync: UnirepSocialSynchronizer
 
     const EPOCH_LENGTH = 100000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(EPOCH_LENGTH)
+        const { unirep, app: _app } = await deployContracts(EPOCH_LENGTH)
         // start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover: _prover,
+            provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, _app)
         express = chaiServer
+        prover = _prover
+        app = _app
+        db = _db
         sync = synchronizer
 
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
-            app,
-            synchronizer
+        user = createRandomUserIdentity()
+        const userState = await genUserState(user.id, app, db, prover)
+        const { publicSignals, _snarkProof: proof } =
+            await userState.genUserSignUpProof()
+        const txHash = await userService.signup(
+            stringifyBigInts(publicSignals),
+            proof,
+            user.hashUserId,
+            false,
+            sync
         )
-
-        // initUserStatus
-        let initUser = await userService.getLoginUser(db, '123', undefined)
-        const wallet = ethers.Wallet.createRandom()
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
+        await ethers.provider.waitForTransaction(txHash)
 
         await userState.waitForSync()
         const hasSignedUp = await userState.hasSignedUp()
@@ -57,6 +62,8 @@ describe('CheckReputation', function () {
         expect(hasSignedUp).equal(true)
 
         chainId = await unirep.chainid()
+
+        userState.stop()
     })
 
     after(async function () {
@@ -64,6 +71,7 @@ describe('CheckReputation', function () {
     })
 
     it('should pass the check reputation middleware with positive reputation', async function () {
+        const userState = await genUserState(user.id, app, db, prover)
         const epoch = await sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
@@ -81,17 +89,20 @@ describe('CheckReputation', function () {
         const authentication = jsonToBase64(reputationProof)
         await post(express, userState, authentication).then(async (res) => {
             await ethers.provider.waitForTransaction(res.txHash)
-            await sync.waitForSync()
+            await userState.waitForSync()
         })
         await express.get('/api/post/0').then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post
             expect(curPost.status).to.equal(1)
         })
+
+        userState.stop()
     })
 
     it('should fail the check reputation middleware with negative reputation', async function () {
-        const epoch = await sync.loadCurrentEpoch()
+        const userState = await genUserState(user.id, app, db, prover)
+        const epoch = await userState.sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.NEGATIVE,
@@ -99,7 +110,7 @@ describe('CheckReputation', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: sync.attesterId,
+                attesterId: userState.sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }
@@ -126,10 +137,13 @@ describe('CheckReputation', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.be.equal('Negative reputation user')
+
+        userState.stop()
     })
 
     it('should fail the check reputation middleware with wrong reputation proof', async function () {
-        const epoch = await sync.loadCurrentEpoch()
+        const userState = await genUserState(user.id, app, db, prover)
+        const epoch = await userState.sync.loadCurrentEpoch()
 
         const reputationProof = await genProveReputationProof(
             ReputationType.POSITIVE,
@@ -137,7 +151,7 @@ describe('CheckReputation', function () {
                 id: userState.id,
                 epoch,
                 nonce: 1,
-                attesterId: sync.attesterId,
+                attesterId: userState.sync.attesterId,
                 chainId,
                 revealNonce: 0,
             }
@@ -166,9 +180,12 @@ describe('CheckReputation', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.be.equal('Invalid reputation proof')
+
+        userState.stop()
     })
 
     it('should fail the check reputation middleware without authentication', async function () {
+        const userState = await genUserState(user.id, app, db, prover)
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({
@@ -188,5 +205,7 @@ describe('CheckReputation', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.be.equal('Invalid authentication')
+
+        userState.stop()
     })
 })

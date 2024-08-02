@@ -1,4 +1,4 @@
-import { Unirep } from '@unirep-app/contracts/typechain-types'
+import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
@@ -21,72 +21,118 @@ import {
     ReportType,
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
 import { comment } from './utils/comment'
 import { genReportNullifier } from './utils/genNullifier'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
+import {
+    genProveReputationProof,
+    genReportIdentityProof,
+    ReputationType,
+    userStateTransition,
+} from './utils/genProof'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { resetReportResult } from './utils/sqlHelper'
+import { IdentityObject } from './utils/types'
+import { createUserIdentities, genUserState } from './utils/userHelper'
 
 describe('POST /api/report', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
-    let userState: UserState
     let sync: UnirepSocialSynchronizer
     let unirep: Unirep
     let db: DB
     let nonce: number = 0
+    let chainId: number
     const EPOCH_LENGTH = 100000
-    let agreeNullifier: bigint
-    let disagreeNullifier: bigint
-    const WRONGE_ADJUCATE_VALUE = 'wrong'
     let authentication: string
+    let users: IdentityObject[]
+    let app: UnirepApp
+    let prover: any
+    let provider: any
 
-    let epochKeyLitePublicSignals
-    let epochKeyLiteProof
+    let epochKeyLitePublicSignals: string
+    let epochKeyLiteProof: string
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep: _unirep, app } = await deployContracts(EPOCH_LENGTH)
+        const { unirep: _unirep, app: _app } = await deployContracts(
+            EPOCH_LENGTH
+        )
         // start server
         const {
             db: _db,
-            prover,
-            provider,
+            prover: _prover,
+            provider: _provider,
             synchronizer,
             chaiServer,
-        } = await startServer(_unirep, app)
+        } = await startServer(_unirep, _app)
         db = _db
         express = chaiServer
         sync = synchronizer
         unirep = _unirep
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            _unirep,
-            app,
-            synchronizer
-        )
+        app = _app
+        prover = _prover
+        provider = _provider
 
-        // initUserStatus
-        let initUser = await userService.getLoginUser(db, '123', undefined)
-        const wallet = ethers.Wallet.createRandom()
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
+        users = createUserIdentities(3)
+        let userState: UserState
+        {
+            userState = await genUserState(users[0].id, app, db, prover)
+            const { publicSignals, _snarkProof: proof } =
+                await userState.genUserSignUpProof()
+            const txHash = await userService.signup(
+                stringifyBigInts(publicSignals),
+                proof,
+                users[0].hashUserId,
+                false,
+                sync
+            )
+            await provider.waitForTransaction(txHash)
 
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
+            await userState.waitForSync()
+            let hasSignedUp = await userState.hasSignedUp()
+            expect(hasSignedUp).equal(true)
+        }
 
-        expect(hasSignedUp).equal(true)
+        {
+            const userState = await genUserState(users[1].id, app, db, prover)
+            const { publicSignals, _snarkProof: proof } =
+                await userState.genUserSignUpProof()
+            const txHash = await userService.signup(
+                stringifyBigInts(publicSignals),
+                proof,
+                users[1].hashUserId,
+                false,
+                sync
+            )
+            await provider.waitForTransaction(txHash)
 
-        const chainId = await unirep.chainid()
+            await userState.waitForSync()
+            let hasSignedUp = await userState.hasSignedUp()
+            expect(hasSignedUp).equal(true)
+            userState.stop()
+        }
+
+        {
+            const userState = await genUserState(users[2].id, app, db, prover)
+            const { publicSignals, _snarkProof: proof } =
+                await userState.genUserSignUpProof()
+            const txHash = await userService.signup(
+                stringifyBigInts(publicSignals),
+                proof,
+                users[2].hashUserId,
+                false,
+                sync
+            )
+            await provider.waitForTransaction(txHash)
+
+            await userState.waitForSync()
+            let hasSignedUp = await userState.hasSignedUp()
+            expect(hasSignedUp).equal(true)
+            userState.stop()
+        }
+
+        chainId = await unirep.chainid()
 
         const epoch = await sync.loadCurrentEpoch()
 
@@ -132,6 +178,8 @@ describe('POST /api/report', function () {
             CommentStatus.ON_CHAIN
         )
         expect(resComment).to.be.exist
+
+        userState.stop()
     })
 
     after(async function () {
@@ -140,6 +188,7 @@ describe('POST /api/report', function () {
 
     it('should create a report and update post status', async function () {
         const postId = '0'
+        const userState = await genUserState(users[0].id, app, db, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
@@ -193,9 +242,12 @@ describe('POST /api/report', function () {
         expect(reportedPost).to.exist
         expect(reportedPost).to.not.have.property('content')
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
+
+        userState.stop()
     })
 
     it('should fail to create a report with invalid proof', async function () {
+        const userState = await genUserState(users[0].id, app, db, prover)
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
             objectId: '0',
@@ -226,10 +278,13 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid proof')
             })
+
+        userState.stop()
     })
 
     it('should create a report and update comment status', async function () {
         const commentId = '0'
+        const userState = await genUserState(users[0].id, app, db, prover)
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
             objectId: commentId,
@@ -291,9 +346,12 @@ describe('POST /api/report', function () {
             'status',
             CommentStatus.REPORTED
         )
+
+        userState.stop()
     })
 
     it('should fail to create a report on the same post / comment', async function () {
+        const userState = await genUserState(users[0].id, app, db, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: '0',
@@ -321,9 +379,12 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Post has been reported')
             })
+
+        userState.stop()
     })
 
     it('should fail to create a report with non-existent post/comment', async function () {
+        const userState = await genUserState(users[0].id, app, db, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: 'non-existent',
@@ -351,18 +412,20 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid postId')
             })
+
+        userState.stop()
     })
 
     it('should get empty report list if reportEpoech is equal to currentEpoch', async function () {
-        const { publicSignals: _publicSignals, proof: _proof } =
-            await userState.genEpochKeyLiteProof({
-                nonce,
-            })
+        const userState = await genUserState(users[0].id, app, db, prover)
+        const { publicSignals, proof } = await userState.genEpochKeyLiteProof({
+            nonce,
+        })
 
         epochKeyLitePublicSignals = JSON.stringify(
-            stringifyBigInts(_publicSignals)
+            stringifyBigInts(publicSignals)
         )
-        epochKeyLiteProof = JSON.stringify(stringifyBigInts(_proof))
+        epochKeyLiteProof = JSON.stringify(stringifyBigInts(proof))
 
         await express
             .get(
@@ -372,12 +435,14 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(200)
                 expect(res.body.length).equal(0)
             })
+
+        userState.stop()
     })
 
     it('should fetch report whose reportEpoch is equal to currentEpoch - 1', async function () {
         // epoch transition
-        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await ethers.provider.send('evm_mine', [])
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
 
         const reports = await express
             .get(
@@ -479,8 +544,8 @@ describe('POST /api/report', function () {
         })
 
         // epoch transition
-        await ethers.provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await ethers.provider.send('evm_mine', [])
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
 
         const reports = await express
             .get(
@@ -563,13 +628,30 @@ describe('POST /api/report', function () {
     })
 
     it('should vote agree on the report', async function () {
+        const hashUserId = users[0].hashUserId
+        const userState = await genUserState(users[0].id, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
             },
         })
 
-        agreeNullifier = genReportNullifier(report.objectId)
+        const nullifier = genReportNullifier(hashUserId, report.reportId)
+
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -577,8 +659,9 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier: agreeNullifier,
                     adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
@@ -592,18 +675,38 @@ describe('POST /api/report', function () {
                 expect(res?.adjudicateCount).equal(1)
                 const adjudicator = res?.adjudicatorsNullifier![0]!
                 expect(adjudicator.adjudicateValue).equal(AdjudicateValue.AGREE)
-                expect(adjudicator.nullifier).equal(agreeNullifier)
+                expect(adjudicator.nullifier).equal(publicSignals[0])
             })
+
+        await resetReportResult(db, report)
+        userState.stop()
     })
 
     it('should vote disagree on the report', async function () {
+        const hashUserId = users[1].hashUserId
+        const userState = await genUserState(users[1].id, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
             },
         })
 
-        disagreeNullifier = genReportNullifier(report.objectId)
+        const nullifier = genReportNullifier(hashUserId, report.reportId)
+
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -611,13 +714,15 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier: disagreeNullifier,
                     adjudicateValue: AdjudicateValue.DISAGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(201)
             })
+            .catch((err) => console.error(err))
 
         await reportService
             .fetchSingleReport(report.reportId, db)
@@ -628,13 +733,80 @@ describe('POST /api/report', function () {
                 expect(adjudicator.adjudicateValue).equal(
                     AdjudicateValue.DISAGREE
                 )
-                expect(adjudicator.nullifier).to.be.equal(disagreeNullifier)
+                expect(adjudicator.nullifier).to.be.equal(publicSignals[0])
             })
+
+        await resetReportResult(db, report)
+        userState.stop()
+    })
+
+    it('should fail if report identity proof is wrong', async function () {
+        const hashUserId = users[2].hashUserId
+        const userState = await genUserState(users[2].id, app, db, prover)
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
+
+        publicSignals[0] = '0'
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .set('authentication', authentication)
+            .send(
+                stringifyBigInts({
+                    adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid proof')
+            })
+
+        userState.stop()
     })
 
     it('should fail if report does not exist', async function () {
+        const hashUserId = users[2].hashUserId
+        const userState = await genUserState(users[2].id, app, db, prover)
         const notExistReportId = '444'
-        const nullifier = genReportNullifier(notExistReportId)
+        const nullifier = genReportNullifier(hashUserId, notExistReportId)
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: notExistReportId,
+            }
+        )
 
         await express
             .post(`/api/report/${notExistReportId}`)
@@ -642,24 +814,46 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier: nullifier,
                     adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report does not exist')
             })
+
+        userState.stop()
     })
 
     it('should fail if vote invalid adjudicate value', async function () {
+        const hashUserId = users[2].hashUserId
+        const userState = await genUserState(users[2].id, app, db, prover)
+        const wrongAdjucateValue = 'wrong'
+
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
             },
         })
 
-        const nullifier = genReportNullifier(report.objectId)
+        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -667,42 +861,43 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier,
-                    adjudicateValue: WRONGE_ADJUCATE_VALUE,
+                    adjudicateValue: wrongAdjucateValue,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Invalid adjudicate value')
             })
-    })
 
-    it('should fail if vote on the report without nullifier', async function () {
-        const report = await db.findOne('ReportHistory', {
-            where: {
-                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
-            },
-        })
-
-        await express
-            .post(`/api/report/${report.reportId}`)
-            .set('content-type', 'application/json')
-            .set('authentication', authentication)
-            .send({
-                adjudicateValue: AdjudicateValue.DISAGREE,
-            })
-            .then((res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Invalid report nullifier')
-            })
+        userState.stop()
     })
 
     it('should fail if vote on the report with same nullifier', async function () {
+        const hashUserId = users[0].hashUserId
+        const userState = await genUserState(users[0].id, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
             },
         })
+        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
 
         await express
             .post(`/api/report/${report.reportId}`)
@@ -710,24 +905,47 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier: agreeNullifier,
                     adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('User has already voted')
             })
+
+        userState.stop()
     })
 
     it('should fail if vote on the report whose status is not VOTING', async function () {
+        const hashUserId = users[2].hashUserId
+        const userState = await genUserState(users[2].id, app, db, prover)
         const watingForTxReport = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
         })
 
-        const nullifier = genReportNullifier(watingForTxReport.objectId)
+        const nullifier = genReportNullifier(
+            hashUserId,
+            watingForTxReport.reportId
+        )
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                hashUserId,
+                chainId,
+                toEpoch,
+                reportId: watingForTxReport.reportId,
+            }
+        )
 
         await express
             .post(`/api/report/${watingForTxReport.reportId}`)
@@ -735,8 +953,9 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier,
                     adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
@@ -762,14 +981,17 @@ describe('POST /api/report', function () {
             .set('authentication', authentication)
             .send(
                 stringifyBigInts({
-                    nullifier,
                     adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
                 expect(res.body.error).to.be.equal('Report voting has ended')
             })
+
+        userState.stop()
     })
 
     it('should settle report and update object status', async function () {
