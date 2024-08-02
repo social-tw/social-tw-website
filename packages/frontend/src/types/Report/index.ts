@@ -13,3 +13,16 @@ export interface RelayRawReportCategory {
     number: number
     description: string
 }
+
+export enum RepUserType {
+    REPORTER = 'REPORTER',
+    POSTER = 'POSTER',
+    VOTER = 'VOTER',
+}
+
+export enum ReputationType {
+    REPORT_SUCCESS = 'REPORT_SUCCESS',
+    REPORT_FAILURE = 'REPORT_FAILURE',
+    BE_REPORTED = 'BE_REPORTED',
+    ADJUDICATE = 'ADJUDICATE',
+}
