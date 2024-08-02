@@ -34,8 +34,7 @@ export const createCheckReputationMiddleware = (
         // check negative reputation
         const maxRep = reputationProof.maxRep
         const proveMaxRep = reputationProof.proveMaxRep
-        res.locals.isNegativeReputation =
-            maxRep > 0 && proveMaxRep > 0 ? true : false
+        res.locals.isNegativeReputation = maxRep > 0 && proveMaxRep > 0
 
         next()
     }
