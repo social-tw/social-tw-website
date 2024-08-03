@@ -6,6 +6,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
+    InvalidParametersError,
     InvalidPostIdError,
     InvalidProofError,
     InvalidPublicSignalError,
@@ -45,6 +46,23 @@ export default (
                 synchronizer
             )
             res.status(201).json({})
+        })
+    )
+
+    app.get(
+        '/api/vote/voteHistory',
+        errorHandler(async (req, res) => {
+            const fromEpoch = parseInt(req.query.from_epoch as string)
+            const toEpoch = parseInt(req.query.to_epoch as string)
+
+            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
+
+            const history = await voteService.getVoteHistory(
+                fromEpoch,
+                toEpoch,
+                db
+            )
+            res.status(200).json(history)
         })
     )
 }

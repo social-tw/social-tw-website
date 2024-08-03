@@ -1,19 +1,46 @@
-import { RelayCreatePostResponse } from '@/types/api'
-import { RelayRawPost } from '@/types/Post'
+import {
+    FetchPostHistoryResponse,
+    FetchPostResponse,
+    FetchPostsResponse,
+    RelayCreatePostResponse,
+} from '@/types/api'
+import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class PostService extends RelayApiService {
     async fetchPosts(page: number) {
         const client = this.getClient()
-        const response = await client.get<RelayRawPost[]>(`/post?page=${page}`)
+        const response = await client.get<FetchPostsResponse>(
+            `/post?page=${page}`,
+        )
         return response.data
     }
 
     async fetchPostById(id: string) {
         const client = this.getClient()
-        const response = await client.get<RelayRawPost>(`/post/${id}`)
+        const response = await client.get<FetchPostResponse>(`/post/${id}`)
         return response.data
+    }
+
+    async fetchPostHistory(fromEpoch: number, toEpoch: number) {
+        const client = this.getClient()
+        const searchParams = new URLSearchParams()
+        searchParams.append('from_epoch', fromEpoch.toString())
+        searchParams.append('to_epoch', toEpoch.toString())
+        const response = await client.get<FetchPostHistoryResponse>(
+            `/post/postHistory?${searchParams.toString()}`,
+        )
+
+        return response.data
+    }
+
+    async fetchMyPostHistory(fromEpoch: number, toEpoch: number) {
+        const userState = this.getUserState()
+        const posts = await this.fetchPostHistory(fromEpoch, toEpoch)
+        return posts.filter((post) =>
+            isMyEpochKeyOnEpoch(userState, post.epoch, post.epochKey),
+        )
     }
 
     async createPost({
