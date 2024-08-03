@@ -48,10 +48,10 @@ export default function PostForm({
         }
     }, [failedPostId, actions, setValue])
 
-    const { reputationScore } = useReputationScore()
+    const { isValidReputationScore } = useReputationScore()
     const _onSubmit = handleSubmit(async (values) => {
         const cache = { ...values }
-        if (!reputationScore || reputationScore < 0) {
+        if (!isValidReputationScore) {
             openForbidActionDialog()
             return
         }
