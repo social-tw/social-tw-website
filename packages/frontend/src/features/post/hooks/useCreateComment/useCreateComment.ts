@@ -2,6 +2,7 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
     ActionType,
     addAction,
+    CommentService,
     failActionById,
     succeedActionById,
     useActionCount,
@@ -10,11 +11,12 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { fetchUserReputation, relayCreateComment } from '@/utils/api'
+import { fetchUserReputation } from '@/utils/api'
 import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
+import { delay } from 'lodash'
 
 export function useCreateComment() {
     const queryClient = useQueryClient()
@@ -46,17 +48,15 @@ export function useCreateComment() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
-            const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
-            const epoch = Number(epochKeyProof.epoch)
-            const epochKey = epochKeyProof.epochKey.toString()
-
-            const { txHash } = await relayCreateComment(
-                epochKeyProof,
-                postId,
-                content,
-            )
+            const commentService = new CommentService(userState)
+            const { txHash, epoch, epochKey } =
+                await commentService.createComment({
+                    content,
+                    postId,
+                    identityNonce,
+                })
 
             const receipt = await provider.waitForTransaction(txHash)
 
@@ -104,13 +104,15 @@ export function useCreateComment() {
                 transactionHash: data.transactionHash,
             })
 
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.ManyComments, variables.postId],
-            })
+            delay(async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.ManyComments, variables.postId],
+                })
 
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.SinglePost, variables.postId],
-            })
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.SinglePost, variables.postId],
+                })
+            }, 1000)
         },
     })
 

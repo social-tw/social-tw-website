@@ -2,6 +2,7 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
     ActionType,
     addAction,
+    CommentService,
     failActionById,
     succeedActionById,
     useUserState,
@@ -9,9 +10,10 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { fetchUserReputation, relayRemoveComment } from '@/utils/api'
+import { fetchUserReputation } from '@/utils/api'
 import { ReputationTooLowError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { delay } from 'lodash'
 
 export function useRemoveComment() {
     const queryClient = useQueryClient()
@@ -44,16 +46,14 @@ export function useRemoveComment() {
 
             await stateTransition()
 
-            const proof = await userState.genEpochKeyLiteProof({
+            const commentService = new CommentService(userState)
+            const { txHash } = await commentService.removeComment({
+                commentId,
+                postId,
                 epoch,
-                nonce,
+                identityNonce: nonce,
             })
 
-            const { txHash } = await relayRemoveComment(
-                proof,
-                postId,
-                commentId,
-            )
             await provider.waitForTransaction(txHash)
             await userState.waitForSync()
         },
@@ -79,13 +79,15 @@ export function useRemoveComment() {
         onSuccess: (_data, variables, context) => {
             succeedActionById(context.actionId)
 
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.ManyComments, variables.postId],
-            })
+            delay(async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.ManyComments, variables.postId],
+                })
 
-            queryClient.invalidateQueries({
-                queryKey: [QueryKeys.SinglePost, variables.postId],
-            })
+                await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.SinglePost, variables.postId],
+                })
+            }, 1000)
         },
     })
 

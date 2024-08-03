@@ -1,9 +1,9 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { useActionCount, useUserState } from '@/features/core'
+import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { useProfileHistoryStore } from '@/features/profile'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { VoteAction } from '@/types/Vote'
-import { fetchUserReputation, relayVote } from '@/utils/api'
+import { fetchUserReputation } from '@/utils/api'
 import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -37,19 +37,19 @@ export function useVotes() {
             votedEpoch: number | null
         }) => {
             const userState = await getGuaranteedUserState()
-            let epochKeyProof
-            // If user has voted before, generate proof for canceling the vote, if true will don't check epoch equals now epoch
-            if (votedNonce !== null && votedEpoch !== null) {
-                epochKeyProof = await userState.genEpochKeyLiteProof({
-                    nonce: votedNonce,
-                    epoch: votedEpoch,
-                })
-            } else {
-                const nonce = getEpochKeyNonce(actionCount)
-                epochKeyProof = await userState.genEpochKeyLiteProof({ nonce })
-            }
 
-            await relayVote(epochKeyProof, id, voteAction)
+            const voteService = new VoteService(userState)
+
+            const epoch = votedEpoch ?? undefined
+            const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
+
+            await voteService.createVote({
+                postId: id,
+                voteAction,
+                epoch,
+                identityNonce: nonce,
+            })
+
             await userState.waitForSync()
             await invokeFetchHistoryVotesFlow(userState)
 

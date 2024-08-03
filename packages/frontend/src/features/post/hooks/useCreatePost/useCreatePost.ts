@@ -4,6 +4,7 @@ import {
     addAction,
     failActionById,
     PostData,
+    PostService,
     succeedActionById,
     useActionCount,
     useUserState,
@@ -41,16 +42,13 @@ export function useCreatePost() {
 
             await stateTransition()
 
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 
-            const proof = await userState.genEpochKeyProof({
-                nonce,
+            const postService = new PostService(userState)
+            const { txHash, epoch, epochKey } = await postService.createPost({
+                content,
+                identityNonce,
             })
-
-            const epoch = Number(proof.epoch)
-            const epochKey = proof.epochKey.toString()
-
-            const { txHash } = await relayCreatePost(proof, content)
 
             const receipt = await provider.waitForTransaction(txHash)
             const postId = ethers.BigNumber.from(

@@ -368,7 +368,7 @@ contract UnirepApp {
     /**
      * Claim the daily login reputation
      * @param publicSignals: public signals
-     * @param proof: epoch key lite proof
+     * @param proof: epoch key proof
      */
     function claimDailyLoginRep(
         uint256[] calldata publicSignals,
@@ -382,8 +382,8 @@ contract UnirepApp {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyLiteVerifierHelper.EpochKeySignals
-            memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(
+        EpochKeyVerifierHelper.EpochKeySignals
+            memory signals = epkHelper.decodeEpochKeySignals(
                 publicSignals
             );
 
@@ -393,7 +393,15 @@ contract UnirepApp {
             revert InvalidEpoch();
         }
 
-        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
+        epkHelper.verifyAndCheckCaller(publicSignals, proof);
+
+        // attesting on Unirep contract:
+        unirep.attest(
+            signals.epochKey,
+            epoch,
+            posRepFieldIndex, // field index: posRep
+            1
+        );
 
         emit ClaimPosRep(
             signals.epochKey,

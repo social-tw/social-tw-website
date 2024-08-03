@@ -31,7 +31,7 @@ const config: CracoConfig = {
                 '(.*)react-datepicker.css': '<rootDir>/empty-module.js',
             }
             jestConfig.transformIgnorePatterns = [
-                'node_modules/(?!@uidotdev/usehooks|nanoid/)',
+                'node_modules/(?!@uidotdev/usehooks|nanoid|axios/)',
             ]
             return jestConfig
         },
