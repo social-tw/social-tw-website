@@ -112,10 +112,6 @@ export default function AppLayout() {
                     <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
-                <ForbidActionDialog
-                    isOpen={isForbidActionDialogOpen}
-                    onClose={closeForbidActionDialog}
-                />
             </div>
         )
     } else {

@@ -1,14 +1,16 @@
-import { useSearchParams } from 'react-router-dom'
 import {
+    ActionStatus,
+    ActionType,
     removeAction,
     useActionStore,
-    ActionType,
-    ActionStatus,
 } from '@/features/core'
+import { useReputationScore } from '@/features/reporting'
 import { RichTextEditor } from '@/features/shared'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { clsx } from 'clsx'
-import { Controller, useForm } from 'react-hook-form'
 import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
 
 export interface PostFormValues {
     content: string
@@ -46,8 +48,13 @@ export default function PostForm({
         }
     }, [failedPostId, actions, setValue])
 
+    const { reputationScore } = useReputationScore()
     const _onSubmit = handleSubmit(async (values) => {
         const cache = { ...values }
+        if (!reputationScore || reputationScore < 0) {
+            openForbidActionDialog()
+            return
+        }
         try {
             onSubmit(cache)
             reset({ content: '' })

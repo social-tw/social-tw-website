@@ -2,10 +2,14 @@ import { QueryKeys } from '@/constants/queryKeys'
 import { useQuery } from '@tanstack/react-query'
 
 export function useReputationScore() {
-    return useQuery({
+    const { data: reputationScore } = useQuery({
         queryKey: [QueryKeys.ReputationScore],
         queryFn: async () => {
             return -1
         },
     })
+
+    return {
+        reputationScore,
+    }
 }
