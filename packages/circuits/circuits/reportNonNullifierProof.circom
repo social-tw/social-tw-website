@@ -20,7 +20,7 @@ template ReportNonNullifierProof(MAX_EPOCH_KEY_NONCE) {
     var sig_data = 0;
 
     /* Step 1: traverse 0~MAX_EPOCH_KEY_NONCE and check epochkey */
-    signal recovered_epoch_key[3];
+    signal recovered_epoch_key[MAX_EPOCH_KEY_NONCE];
     var matched = 0;
     for (var nonce = 0; nonce < MAX_EPOCH_KEY_NONCE; nonce++) {
         // check one of the reported epoch key is matched
