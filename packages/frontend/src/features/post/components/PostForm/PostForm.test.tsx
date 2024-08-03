@@ -5,6 +5,7 @@ import PostForm from './PostForm'
 
 jest.mock('@uidotdev/usehooks', () => ({
     useIsFirstRender: jest.fn().mockReturnValue(false),
+    useLocalStorage: () => [],
 }))
 
 test('<PostForm /> should render and handle interactions', () => {
