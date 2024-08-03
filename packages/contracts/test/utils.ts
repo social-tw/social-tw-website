@@ -16,6 +16,7 @@ import crypto from 'crypto'
 import { ethers } from 'hardhat'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { IdentityObject } from './types'
+import { InvalidProofInputError } from '@unirep-app/circuits/src'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
 
@@ -239,8 +240,16 @@ export async function genProofAndVerify(
     circuitInputs: any
 ) {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        throw InvalidProofInputError
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(

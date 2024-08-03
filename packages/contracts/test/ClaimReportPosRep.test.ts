@@ -14,6 +14,7 @@ import {
     genUserState,
     genVHelperIdentifier,
 } from './utils'
+import { ProofGenerationError } from '@unirep-app/circuits/src'
 
 describe('Claim Report Positive Reputation Test', function () {
     this.timeout(1000000)
@@ -454,12 +455,13 @@ describe('Claim Report Positive Reputation Test', function () {
 
         // this will not generate a proof since the attesterId would change the epochkey
         try {
-            await genProofAndVerify(
-                nonNullifierCircuit,
-                reportNonNullifierCircuitInputs
+            await genProofAndVerify(nonNullifierCircuit, nonNullifierCircuit)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
             )
-        } catch (e) {
-            console.log(e)
         }
     })
 })
