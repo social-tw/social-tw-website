@@ -1,22 +1,23 @@
-import { BigNumberish } from '@ethersproject/bignumber';
-import { BaseProof, Prover } from '@unirep/circuits';
+import { Prover } from '@unirep/circuits';
 import { Groth16Proof, PublicSignals } from 'snarkjs';
+import { UnirepSocialCircuit } from '../test/types';
+import { UnirepSocialBaseProof } from './UnirepSocialBaseProof';
 
 /**
- * The ReportNegRepProof structure that helps to query the public signals
+ *  Verify the reporter / poster identity for claiming reputation
  */
-export class ReportNegRepProof extends BaseProof {
+export class ReportNegRepProof extends UnirepSocialBaseProof {
     /**
      * Index mapping for public signals
      */
     readonly idx = {
         reportedEpochKey: 0,
-    };
+    }
 
     /**
      * The reported epoch key, stored in the relayer and used for matching.
      */
-    public reportedEpochKey: BigNumberish;
+    public reportedEpochKey: bigint
 
     /**
      * @param _publicSignals The public signals of the report negative reputation proof that can be verified by the prover
@@ -28,8 +29,8 @@ export class ReportNegRepProof extends BaseProof {
         _proof: Groth16Proof,
         prover?: Prover
     ) {
-        super(_publicSignals, _proof, prover);
-        this.reportedEpochKey = _publicSignals[this.idx.reportedEpochKey];
-        (this as any).circuit = 'reportNegRepProof';
+        super(_publicSignals, _proof, prover)
+        this.reportedEpochKey = BigInt(_publicSignals[this.idx.reportedEpochKey])
+        this.unirepSocialCircuit = UnirepSocialCircuit.reportNegRepProof
     }
 }

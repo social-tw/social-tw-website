@@ -10,10 +10,8 @@ export type EpochKeyControl = {
     chainId: bigint
 }
 
-declare module '@unirep/circuits' {
-    export enum Circuit {
-        reportIdentityProof = 'reportIdentityProof',
-        reportNullifierProof = 'reportNullifierProof',
-        reportNegRepProof = 'reportNegRepProof',
-    }
+export enum UnirepSocialCircuit {
+    reportIdentityProof= 'reportIdentityProof',
+    reportNullifierProof= 'reportNullifierProof',
+    reportNegRepProof= 'reportNegRepProof'
 }
