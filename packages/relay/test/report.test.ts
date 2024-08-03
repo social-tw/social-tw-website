@@ -1,4 +1,4 @@
-import { Unirep } from '@unirep-app/contracts/typechain-types'
+import { unirep, Unirep } from '@unirep-app/contracts/typechain-types'
 import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
@@ -46,6 +46,7 @@ describe('POST /api/report', function () {
     let epochKeyLiteProof
 
     before(async function () {
+        this.timeout(600000)
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
         const { unirep: _unirep, app } = await deployContracts(EPOCH_LENGTH)
@@ -132,6 +133,29 @@ describe('POST /api/report', function () {
             CommentStatus.ON_CHAIN
         )
         expect(resComment).to.be.exist
+
+        await userState.start()
+        await userState.waitForSync()
+
+        const currentEpoch = await sync.loadCurrentEpoch()
+        if ((await userState.latestTransitionedEpoch()) < currentEpoch) {
+            await userState.genUserStateTransitionProof({
+                toEpoch: currentEpoch,
+            })
+            await userState.waitForSync()
+        }
+
+        expect(hasSignedUp).equal(true)
+    })
+
+    beforeEach(async function () {
+        const currentEpoch = await sync.loadCurrentEpoch()
+        const latestTransitionedEpoch =
+            await userState.latestTransitionedEpoch()
+
+        if (latestTransitionedEpoch < currentEpoch) {
+            await userState.waitForSync()
+        }
     })
 
     after(async function () {

@@ -9,6 +9,7 @@ import {
     CommentNotExistError,
     CommentReportedError,
     InvalidCommentIdError,
+    InvalidParametersError,
     InvalidPostIdError,
     InvalidReportStatusError,
     PostNotExistError,
@@ -21,12 +22,28 @@ import {
     ReportType,
     ReportVotingEndedError,
     UserAlreadyVotedError,
+    UserAlreadyClaimedError,
+    InternalError,
+    InvalidReportNullifierError,
+    NegativeReputationUserError,
+    PositiveReputationUserError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
+import express from 'express'
+import {
+    ClaimHelpers,
+    ClaimMethods,
+    RepChangeType,
+    RepUserType,
+    ReputationDirection,
+    ReputationType,
+} from '../types/Reputation'
+import { genVHelperIdentifier } from '../services/utils/IpfsHelper'
+import TransactionManager from './utils/TransactionManager'
 
 export class ReportService {
     async verifyReportData(
@@ -266,6 +283,456 @@ export class ReportService {
                 description: '其他',
             },
         ]
+    }
+
+    async claimPositiveReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        await this.claimReputation(
+            req,
+            res,
+            db,
+            synchronizer,
+            ClaimMethods.CLAIM_POSITIVE_REP,
+            ClaimHelpers.POSITIVE_REP_HELPER,
+            ReputationDirection.POSITIVE
+        )
+    }
+
+    async claimNegativeReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        await this.claimReputation(
+            req,
+            res,
+            db,
+            synchronizer,
+            ClaimMethods.CLAIM_NEGATIVE_REP,
+            ClaimHelpers.NEGATIVE_REP_HELPER,
+            ReputationDirection.NEGATIVE
+        )
+    }
+
+    async claimReputation(
+        req: express.Request,
+        res: express.Response,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer,
+        claimMethod: ClaimMethods,
+        helper: ClaimHelpers,
+        direction: ReputationDirection
+    ) {
+        try {
+            const {
+                reportId,
+                publicSignals,
+                proof,
+                claimSignals,
+                claimProof,
+                repUserType,
+                nullifier,
+            } = req.body
+
+            this.validateInputs(reportId, claimSignals, claimProof, repUserType)
+
+            const epochKeyProof = await this.verifyEpochKeyProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
+            const { epoch, epochKey } = this.getEpochInfo(epochKeyProof)
+
+            const report = await this.getReport(
+                db,
+                reportId,
+                epoch,
+                epochKey,
+                repUserType,
+                direction,
+                nullifier
+            )
+
+            this.checkReputationClaim(report, repUserType, direction, nullifier)
+
+            const change = this.getReputationChange(direction, repUserType)
+            const identifier = genVHelperIdentifier(helper)
+
+            const txHash = await this.executeContractCall(
+                claimMethod,
+                claimSignals,
+                claimProof,
+                identifier,
+                change
+            )
+
+            await this.updateReputationStatus(
+                db,
+                direction,
+                epochKey,
+                epoch,
+                reportId,
+                nullifier,
+                repUserType
+            )
+
+            const repType = this.getReputationType(direction, repUserType)
+            await this.createReputationHistory(
+                db,
+                txHash,
+                epoch,
+                epochKey,
+                change,
+                repType,
+                reportId
+            )
+
+            this.sendSuccessResponse(
+                res,
+                txHash,
+                reportId,
+                epoch,
+                epochKey,
+                repType,
+                change
+            )
+        } catch (error: any) {
+            this.handleError(res, error, direction)
+        }
+    }
+
+    private validateInputs(
+        reportId: string,
+        claimSignals: any,
+        claimProof: any,
+        repUserType: RepUserType
+    ) {
+        if (
+            !reportId ||
+            !claimSignals ||
+            !claimProof ||
+            repUserType === undefined
+        ) {
+            throw InvalidParametersError
+        }
+        if (!Object.values(RepUserType).includes(repUserType)) {
+            throw InvalidParametersError
+        }
+    }
+
+    private async verifyEpochKeyProof(
+        publicSignals: any,
+        proof: any,
+        synchronizer: UnirepSocialSynchronizer
+    ) {
+        return await ProofHelper.getAndVerifyEpochKeyLiteProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
+    }
+
+    private getEpochInfo(epochKeyProof: any) {
+        return {
+            epoch: Number(epochKeyProof.epoch),
+            epochKey: epochKeyProof.epochKey.toString(),
+        }
+    }
+
+    private async getReport(
+        db: DB,
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repUserType: RepUserType,
+        direction: ReputationDirection,
+        nullifier?: string
+    ) {
+        if (repUserType === RepUserType.VOTER) {
+            if (!nullifier) throw InvalidParametersError
+            return this.findReportWithNullifier(
+                db,
+                reportId,
+                epoch,
+                nullifier,
+                ReportStatus.WAITING_FOR_TRANSACTION
+            )
+        } else {
+            const whereClause = this.getReportWhereClause(
+                reportId,
+                epoch,
+                epochKey,
+                repUserType,
+                direction
+            )
+            const report = await db.findOne('ReportHistory', {
+                where: whereClause,
+            })
+            if (!report) throw ReportNotExistError
+            return report
+        }
+    }
+
+    private getReportWhereClause(
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repUserType: RepUserType,
+        direction: ReputationDirection
+    ) {
+        const baseClause = {
+            reportId,
+            status: ReportStatus.WAITING_FOR_TRANSACTION,
+            reportEpoch: epoch,
+        }
+
+        if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.REPORTER
+                ? { ...baseClause, reportorEpochKey: epochKey }
+                : { ...baseClause, respondentEpochKey: epochKey }
+        } else {
+            return repUserType === RepUserType.REPORTER
+                ? { ...baseClause, reportorEpochKey: epochKey }
+                : baseClause // For voters, we don't include epochKey in the where clause
+        }
+    }
+
+    private checkReputationClaim(
+        report: any,
+        repUserType: RepUserType,
+        direction: ReputationDirection,
+        nullifier?: string
+    ) {
+        if (direction === ReputationDirection.NEGATIVE) {
+            if (
+                repUserType === RepUserType.REPORTER &&
+                report.reportorClaimedRep
+            )
+                throw UserAlreadyClaimedError
+            if (
+                repUserType === RepUserType.POSTER &&
+                report.respondentClaimedRep
+            )
+                throw UserAlreadyClaimedError
+        } else {
+            if (
+                repUserType === RepUserType.REPORTER &&
+                report.reportorClaimedRep
+            )
+                throw UserAlreadyClaimedError
+            if (repUserType === RepUserType.VOTER) {
+                if (!nullifier) throw InvalidParametersError
+                if (!report) throw InvalidReportNullifierError
+                if (
+                    report.adjudicatorsNullifier.some(
+                        (adj: any) => adj.nullifier === nullifier && adj.claimed
+                    )
+                ) {
+                    throw UserAlreadyClaimedError
+                }
+            }
+        }
+    }
+
+    private getReputationChange(
+        direction: ReputationDirection,
+        repUserType: RepUserType
+    ): RepChangeType {
+        if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.REPORTER
+                ? RepChangeType.FAILED_REPORTER_REP
+                : RepChangeType.POSTER_REP
+        } else {
+            if (repUserType === RepUserType.VOTER) {
+                return RepChangeType.VOTER_REP
+            }
+            return RepChangeType.REPORTER_REP
+        }
+    }
+
+    private async executeContractCall(
+        claimMethod: ClaimMethods,
+        claimSignals: any,
+        claimProof: any,
+        identifier: string,
+        change: RepChangeType
+    ) {
+        return await TransactionManager.callContract(claimMethod, [
+            claimSignals,
+            claimProof,
+            identifier,
+            change,
+        ])
+    }
+
+    private async createReputationHistory(
+        db: DB,
+        txHash: string,
+        epoch: number,
+        epochKey: string,
+        change: RepChangeType,
+        repType: ReputationType,
+        reportId: string
+    ) {
+        await db.create('ReputationHistory', {
+            transactionHash: txHash,
+            epoch,
+            epochKey,
+            score: change,
+            type: repType,
+            reportId,
+        })
+    }
+
+    private sendSuccessResponse(
+        res: express.Response,
+        txHash: string,
+        reportId: string,
+        epoch: number,
+        epochKey: string,
+        repType: ReputationType,
+        change: RepChangeType
+    ) {
+        res.status(200).json({
+            message: {
+                txHash,
+                reportId,
+                epoch,
+                epochKey,
+                type: repType,
+                score: change,
+            },
+        })
+    }
+
+    private handleError(
+        res: express.Response,
+        error: any,
+        direction: ReputationDirection
+    ) {
+        console.error(`Get ${direction} Reputation error:`, error)
+        if (error instanceof InternalError) {
+            res.status(error.httpStatusCode).json({
+                message: error.message,
+                error: error.message,
+            })
+        } else {
+            res.status(500).json({
+                message: `Get ${direction} Reputation error`,
+                error: error.message,
+                stack: error.stack,
+            })
+        }
+    }
+
+    private async updateReputationStatus(
+        db: DB,
+        type: ReputationDirection,
+        epochKey: string,
+        epoch: number,
+        reportId: string,
+        nullifier?: string,
+        repUserType?: RepUserType
+    ) {
+        if (type === ReputationDirection.POSITIVE && nullifier) {
+            const report = await this.findReportWithNullifier(
+                db,
+                reportId,
+                epoch,
+                nullifier,
+                ReportStatus.WAITING_FOR_TRANSACTION
+            )
+
+            if (report) {
+                const updatedAdjudicators = report.adjudicatorsNullifier.map(
+                    (adj) =>
+                        adj.nullifier === nullifier
+                            ? { ...adj, claimed: true }
+                            : adj
+                )
+
+                await db.update('ReportHistory', {
+                    where: { _id: report._id },
+                    update: {
+                        adjudicatorsNullifier: updatedAdjudicators,
+                    },
+                })
+            }
+        } else {
+            let updateField: string
+            let whereField: string
+
+            if (type === ReputationDirection.POSITIVE) {
+                updateField = 'reportorClaimedRep'
+                whereField = 'reportorEpochKey'
+            } else {
+                if (repUserType === RepUserType.REPORTER) {
+                    updateField = 'reportorClaimedRep'
+                    whereField = 'reportorEpochKey'
+                } else if (repUserType === RepUserType.POSTER) {
+                    updateField = 'respondentClaimedRep'
+                    whereField = 'respondentEpochKey'
+                } else {
+                    throw new Error(
+                        'Invalid repUserType for negative reputation'
+                    )
+                }
+            }
+
+            const updateQuery = { [updateField]: true }
+            await db.update('ReportHistory', {
+                where: {
+                    reportId,
+                    [whereField]: epochKey,
+                    reportEpoch: epoch,
+                },
+                update: updateQuery,
+            })
+        }
+    }
+
+    async findReportWithNullifier(
+        db: DB,
+        reportId: string,
+        epoch: number,
+        nullifier: string,
+        status: ReportStatus
+    ) {
+        const reports = await db.findMany('ReportHistory', {
+            where: {
+                reportId,
+                reportEpoch: epoch,
+                status: status,
+            },
+        })
+
+        return reports.find((report) =>
+            report.adjudicatorsNullifier.some(
+                (adj) => adj.nullifier === nullifier
+            )
+        )
+    }
+
+    private getReputationType(
+        direction: ReputationDirection,
+        repUserType: RepUserType
+    ): ReputationType {
+        if (direction === ReputationDirection.POSITIVE) {
+            return repUserType === RepUserType.VOTER
+                ? ReputationType.ADJUDICATE
+                : ReputationType.REPORT_SUCCESS
+        } else if (direction === ReputationDirection.NEGATIVE) {
+            return repUserType === RepUserType.POSTER
+                ? ReputationType.BE_REPORTED
+                : ReputationType.REPORT_FAILURE
+        } else {
+            throw new Error('Invalid ReputationDirection')
+        }
     }
 }
 
