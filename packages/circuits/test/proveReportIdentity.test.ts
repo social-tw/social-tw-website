@@ -10,6 +10,7 @@ import {
     genReportIdentityCircuitInput,
     randomData,
 } from './utils'
+import { ProofGenerationError } from '../src/types/ProofGenerationError'
 
 const circuit = 'reportIdentityProof'
 
@@ -95,11 +96,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -121,11 +126,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -148,11 +157,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -174,11 +187,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 })

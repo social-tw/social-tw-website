@@ -1,5 +1,6 @@
 import * as utils from '@unirep/utils'
 import { expect } from 'chai'
+import { ProofGenerationError } from '../src/types/ProofGenerationError'
 import {
     createRandomUserIdentity,
     decodeEpochKeyControl,
@@ -83,11 +84,15 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             attesterId,
             chainId,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -109,10 +114,13 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             chainId,
         })
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 })

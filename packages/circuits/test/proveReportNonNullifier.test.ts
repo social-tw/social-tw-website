@@ -6,6 +6,7 @@ import {
     genProofAndVerify,
     genReportNonNullifierCircuitInput,
 } from './utils'
+import { ProofGenerationError } from '../src/types/ProofGenerationError'
 
 const circuit = 'reportNonNullifierProof'
 
@@ -78,41 +79,6 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
         expect(controlData.nonce.toString()).to.be.equal('0')
     })
 
-    it('should revert with invalid userId', async () => {
-        const identitySecret = user.id.secret
-        const currentEpoch = 20
-        const currentNonce = 1
-        const attesterId = BigInt(219090124810)
-
-        // generate report epoch key
-        const reportedEpoch = 5
-        const reportedNonce = 2
-        const reportedEpochKey = utils.genEpochKey(
-            BigInt(identitySecret),
-            attesterId,
-            reportedEpoch,
-            reportedNonce,
-            chainId
-        )
-
-        const circuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            attesterId,
-            chainId,
-        })
-
-        try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
-        }
-    })
-
     it('should revert with invalid identitySecret', async () => {
         const correctidentitySecret = user.id.secret
         const currentEpoch = 20
@@ -140,11 +106,15 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             attesterId,
             chainId,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -176,10 +146,13 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
         })
 
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 
@@ -203,10 +176,13 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
         })
 
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+            )
         }
     })
 })

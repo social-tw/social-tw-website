@@ -11,6 +11,7 @@ import {
 import crypto from 'crypto'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { defaultProver } from '../provers/defaultProver'
+import { InvalidProofInputError } from '../src/types/ProofGenerationError'
 import { EpochKeyControl, IdentityObject } from './types'
 
 export const genProofAndVerify = async (
@@ -18,8 +19,16 @@ export const genProofAndVerify = async (
     circuitInputs: any
 ) => {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        throw InvalidProofInputError
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
