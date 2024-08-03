@@ -11,9 +11,6 @@ import {
     useUserStateTransition,
     useWeb3Provider,
 } from '@/features/core'
-import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { fetchUserReputation } from '@/utils/api'
-import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
@@ -66,11 +63,6 @@ export function useCreatePost() {
             }
         },
         onMutate: async (variables) => {
-            const reputation = await fetchUserReputation()
-            if (reputation < 0) {
-                openForbidActionDialog()
-                throw new ReputationTooLowError()
-            }
             const postData: PostData = {
                 postId: undefined,
                 content: variables.content,

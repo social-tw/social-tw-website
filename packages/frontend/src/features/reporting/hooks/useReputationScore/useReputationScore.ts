@@ -5,7 +5,7 @@ export function useReputationScore() {
     const { data: reputationScore } = useQuery({
         queryKey: [QueryKeys.ReputationScore],
         queryFn: async () => {
-            return -1
+            return 10
         },
     })
 

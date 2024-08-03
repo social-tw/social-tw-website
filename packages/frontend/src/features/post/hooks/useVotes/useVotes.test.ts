@@ -53,15 +53,6 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
-const mockFetchUserReputation = jest.fn()
-jest.mock('@/utils/api', () => {
-    const original = jest.requireActual('@/utils/api')
-    return {
-        ...original,
-        fetchUserReputation: () => mockFetchUserReputation(),
-    }
-})
-
 describe('useVotes', () => {
     afterEach(() => {
         nock.cleanAll()
@@ -69,7 +60,6 @@ describe('useVotes', () => {
     })
 
     it('succeed to vote a post', async () => {
-        mockFetchUserReputation.mockReturnValue(100)
         const expectation = nock(SERVER)
             .get('/api/counter?epks=epochKey-1_epochKey-2')
             .reply(200, { counter: 1 })

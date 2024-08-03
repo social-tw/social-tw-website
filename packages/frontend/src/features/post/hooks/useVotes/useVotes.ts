@@ -1,10 +1,7 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { useProfileHistoryStore } from '@/features/profile'
-import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { VoteAction } from '@/types/Vote'
-import { fetchUserReputation } from '@/utils/api'
-import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -54,13 +51,6 @@ export function useVotes() {
             await invokeFetchHistoryVotesFlow(userState)
 
             return true
-        },
-        onMutate: async () => {
-            const reputation = await fetchUserReputation()
-            if (reputation < 0) {
-                openForbidActionDialog()
-                throw new ReputationTooLowError()
-            }
         },
         onSuccess: (_data, variables, _context) => {
             queryClient.invalidateQueries({

@@ -9,9 +9,6 @@ import {
     useUserStateTransition,
     useWeb3Provider,
 } from '@/features/core'
-import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { fetchUserReputation } from '@/utils/api'
-import { ReputationTooLowError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { delay } from 'lodash'
 
@@ -58,11 +55,6 @@ export function useRemoveComment() {
             await userState.waitForSync()
         },
         onMutate: async (variables) => {
-            const reputation = await fetchUserReputation()
-            if (reputation < 0) {
-                openForbidActionDialog()
-                throw new ReputationTooLowError()
-            }
             const actionId = addAction(ActionType.DeleteComment, {
                 postId: variables.postId,
                 commentId: variables.commentId,

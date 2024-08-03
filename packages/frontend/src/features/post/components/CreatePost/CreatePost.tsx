@@ -7,7 +7,6 @@ import {
     useCreatePost,
 } from '@/features/post'
 import { useProfileHistoryStore } from '@/features/profile'
-import { ReputationTooLowError } from '@/utils/errors'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
@@ -62,10 +61,7 @@ export default function CreatePost({
         <>
             <PostForm disabled={disabled} onSubmit={onSubmit} />
             <PostPublishTransition isOpen={isSubmitting} />
-            <PostFailureDialog
-                isOpen={!!error && !(error instanceof ReputationTooLowError)}
-                onClose={() => reset()}
-            />
+            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </>
     )
 }

@@ -9,7 +9,6 @@ import {
     type PostFormValues,
 } from '@/features/post'
 import { useProfileHistoryStore } from '@/features/profile'
-import { ReputationTooLowError } from '@/utils/errors'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
@@ -71,10 +70,7 @@ export default function WritePostPage() {
         <div className="p-4">
             <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
             <PostPublishTransition isOpen={isSubmitting} />
-            <PostFailureDialog
-                isOpen={!!error && !(error instanceof ReputationTooLowError)}
-                onClose={() => reset()}
-            />
+            <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </div>
     )
 }
