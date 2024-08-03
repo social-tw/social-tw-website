@@ -1,6 +1,5 @@
 import { PATHS } from '@/constants/paths'
 import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
-import { useUserState } from '@/features/core'
 import {
     PostFailureDialog,
     PostForm,
@@ -8,20 +7,12 @@ import {
     useCreatePost,
     type PostFormValues,
 } from '@/features/post'
-import { useProfileHistoryStore } from '@/features/profile'
 import { useQueryClient } from '@tanstack/react-query'
-import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function WritePostPage() {
-    const { userState } = useUserState()
-
     const { isLoggedIn } = useAuthStatus()
-
-    const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
-        (state) => state.invokeFetchHistoryPostsFlow,
-    )
 
     const navigate = useNavigate()
 
@@ -36,7 +27,6 @@ export default function WritePostPage() {
 
         try {
             await createPost(values)
-            await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
         } catch {
             queryClient.setQueryData(['post'], previousPostsData)
         }

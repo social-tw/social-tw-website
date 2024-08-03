@@ -1,5 +1,4 @@
 import { SERVER } from '@/constants/config'
-import { delay } from '@/utils/test-helpers'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { renderHook, waitFor } from '@testing-library/react'
 import nock from 'nock'
@@ -62,8 +61,6 @@ describe('usePendingReports', () => {
         const { result } = renderHook(usePendingReports, {
             wrapper,
         })
-
-        await delay(2000)
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true))
 

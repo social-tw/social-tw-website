@@ -29,6 +29,14 @@ export interface FetchRelayConfigResponse {
 
 export type FetchPostsResponse = RelayRawPost[]
 
+export type FetchPostResponse = RelayRawPost
+
+export type FetchPostHistoryResponse = RelayRawPost[]
+
+export type FetchCommentHistoryResponse = RelayRawComment[]
+
+export type FetchVoteHistoryResponse = RelayRawVote[]
+
 export interface FetchPostsByEpochKeysParams {
     epochKeys: bigint[]
 }

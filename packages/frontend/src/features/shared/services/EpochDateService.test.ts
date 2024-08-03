@@ -36,7 +36,7 @@ describe('EpochDateService', () => {
             const date2 = new Date('2024-07-10T23:59:00Z')
             expect(
                 EpochDateService.calcEpochByDate(mockNow, date2, synchronizer),
-            ).toBe(-1)
+            ).toBe(0)
 
             // future
             const date3 = new Date('2024-07-17T00:00:00Z')

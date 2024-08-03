@@ -1,6 +1,13 @@
 import { DB } from 'anondb'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { InvalidVoteActionError, PostNotExistError, VoteAction } from '../types'
+import {
+    InvalidEpochRangeError,
+    InvalidVoteActionError,
+    NoVoteHistoryFoundError,
+    PostNotExistError,
+    Vote,
+    VoteAction,
+} from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ActionCountManager from './utils/ActionCountManager'
 import ProofHelper from './utils/ProofHelper'
@@ -24,6 +31,26 @@ export class VoteService {
                 post: true,
             },
         })
+    }
+
+    async getVoteHistory(
+        fromEpoch: number,
+        toEpoch: number,
+        db: DB
+    ): Promise<Vote[]> {
+        if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
+            throw InvalidEpochRangeError
+        const votes = await db.findMany('Vote', {
+            where: {
+                epoch: { gte: fromEpoch, lte: toEpoch },
+            },
+            orderBy: {
+                epoch: 'asc',
+            },
+        })
+        if (votes.length === 0) throw NoVoteHistoryFoundError
+
+        return votes
     }
 
     // TODO: should check if user voted to the same post before with other epochKey

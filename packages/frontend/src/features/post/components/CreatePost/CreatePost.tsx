@@ -1,4 +1,3 @@
-import { useUserState } from '@/features/core'
 import {
     type PostFormValues,
     PostFailureDialog,
@@ -6,9 +5,7 @@ import {
     PostPublishTransition,
     useCreatePost,
 } from '@/features/post'
-import { useProfileHistoryStore } from '@/features/profile'
 import { useQueryClient } from '@tanstack/react-query'
-import { UserState } from '@unirep/core'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -17,12 +14,6 @@ export default function CreatePost({
 }: {
     disabled?: boolean
 }) {
-    const { userState } = useUserState()
-
-    const invokeFetchHistoryPostsFlow = useProfileHistoryStore(
-        (state) => state.invokeFetchHistoryPostsFlow,
-    )
-
     const queryClient = useQueryClient()
 
     const { isPending, error, reset, createPost } = useCreatePost()
@@ -34,7 +25,6 @@ export default function CreatePost({
 
         try {
             await createPost(values)
-            await invokeFetchHistoryPostsFlow(userState as unknown as UserState)
             toast('貼文成功送出')
         } catch {
             setIsSubmitting(false)
