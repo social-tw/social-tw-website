@@ -12,7 +12,7 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { fetchUserReputation, relayCreatePost } from '@/utils/api'
+import { fetchUserReputation } from '@/utils/api'
 import { ReputationTooLowError } from '@/utils/errors'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
