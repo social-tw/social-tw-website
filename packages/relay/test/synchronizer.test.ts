@@ -1,103 +1,71 @@
-import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { UserState } from '@unirep/core'
+import { UnirepApp } from '@unirep-app/contracts/typechain-types'
+import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
+import { IdentityObject } from './utils/types'
+import { createUserIdentities, genUserState } from './utils/userHelper'
 
 describe('Synchronize Post Test', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let sync: UnirepSocialSynchronizer
-    let unirep: Unirep
-    let unirepApp: UnirepApp
-    let users: {
-        hashUserId: String
-        wallet: any
-        userState: UserState
-    }[] = []
+    let users: IdentityObject[]
     let authentication: string
+    let app: UnirepApp
+    let prover: any
+    let provider: any
+    let db: DB
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // Deploy contract
-        const contracts = await deployContracts(100000)
-        unirepApp = contracts.app
-        unirep = contracts.unirep
-
+        const { unirep, app: _app } = await deployContracts(100000)
         // Start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(unirep, unirepApp)
+        const {
+            db: _db,
+            prover: _prover,
+            provider: _provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, _app)
         express = chaiServer
         sync = synchronizer
-
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
-            unirepApp,
-            synchronizer
-        )
+        app = _app
+        provider = _provider
+        prover = _prover
+        db = _db
 
         // Create users identity and signup users
-        for (let i = 0; i < 2; i++) {
-            const wallet = ethers.Wallet.createRandom()
+        users = createUserIdentities(2)
+        const userState = await signUp(users[0], {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
-            let initUser = await userService.getLoginUser(
+        // signup in another block to prevent timeout
+        {
+            await signUp(users[1], {
+                app,
                 db,
-                i.toString(),
-                undefined
-            )
-
-            let userState = await signUp(
-                initUser,
-                userStateFactory,
-                userService,
+                prover,
+                provider,
                 sync,
-                wallet
-            )
-
-            users.push({
-                hashUserId: initUser.hashUserId,
-                wallet: wallet,
-                userState: userState,
             })
         }
 
-        // Ensure users are signed up
-        await synchronizer.waitForSync()
-        let hasSignUp_1 = await users[0].userState.hasSignedUp()
-        let hasSignUp_2 = await users[1].userState.hasSignedUp()
-        expect(hasSignUp_1).equal(true)
-        expect(hasSignUp_2).equal(true)
-
-        const chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: users[0].userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -106,8 +74,14 @@ describe('Synchronize Post Test', function () {
 
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
-            const userState = users[0].userState
-            const result = await post(express, userState, authentication)
+            const userState = await genUserState(
+                users[0].id,
+                sync,
+                app,
+                db,
+                prover
+            )
+            const txHash = await post(express, userState, authentication)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
@@ -115,7 +89,7 @@ describe('Synchronize Post Test', function () {
                 'test content'
             )
 
-            await ethers.provider.waitForTransaction(result.txHash)
+            await provider.waitForTransaction(txHash)
             await sync.waitForSync()
 
             // check db if the post is synchronized
@@ -138,86 +112,55 @@ describe('Synchronize Comment Test', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
     let sync: UnirepSocialSynchronizer
-    let unirep: Unirep
-    let unirepApp: UnirepApp
-    let users: {
-        hashUserId: String
-        wallet: any
-        userState: UserState
-    }[] = []
+    let users: IdentityObject[]
     let authentication: string
+    let app: UnirepApp
+    let prover: any
+    let provider: any
+    let db: DB
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
 
         // Deploy contract
-        const contracts = await deployContracts(100000)
-        unirepApp = contracts.app
-        unirep = contracts.unirep
-
+        const { unirep, app: _app } = await deployContracts(100000)
         // Start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(unirep, unirepApp)
+        const {
+            db: _db,
+            prover: _prover,
+            provider: _provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, _app)
         express = chaiServer
         sync = synchronizer
-
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
-            unirepApp,
-            synchronizer
-        )
+        app = _app
+        provider = _provider
+        prover = _prover
+        db = _db
 
         // Create users identity and signup users
-        for (let i = 0; i < 2; i++) {
-            const wallet = ethers.Wallet.createRandom()
+        users = createUserIdentities(2)
+        const userState = await signUp(users[0], {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
-            let initUser = await userService.getLoginUser(
+        // signup in another block to prevent timeout
+        {
+            await signUp(users[1], {
+                app,
                 db,
-                i.toString(),
-                undefined
-            )
-
-            let userState = await signUp(
-                initUser,
-                userStateFactory,
-                userService,
+                prover,
+                provider,
                 sync,
-                wallet
-            )
-
-            users.push({
-                hashUserId: initUser.hashUserId,
-                wallet: wallet,
-                userState: userState,
             })
         }
 
-        // Ensure users are signed up
-        await synchronizer.waitForSync()
-        let hasSignUp_1 = await users[0].userState.hasSignedUp()
-        let hasSignUp_2 = await users[1].userState.hasSignedUp()
-        expect(hasSignUp_1).equal(true)
-        expect(hasSignUp_2).equal(true)
-
-        const chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: users[0].userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -226,11 +169,19 @@ describe('Synchronize Comment Test', function () {
 
     describe('Synchronize Comment', async function () {
         before(async function () {
-            const userState = users[0].userState
-            const result = await post(express, userState, authentication)
-            await ethers.provider.waitForTransaction(result.txHash)
-            await sync.waitForSync()
+            const userState = await genUserState(
+                users[0].id,
+                sync,
+                app,
+                db,
+                prover
+            )
 
+            {
+                const txHash = await post(express, userState, authentication)
+                await provider.waitForTransaction(txHash)
+                await sync.waitForSync()
+            }
             // check db if the post is synchronized
             let record = await sync.db.findMany('Post', { where: {} })
             expect(record).to.be.not.null
@@ -242,7 +193,13 @@ describe('Synchronize Comment Test', function () {
             // User 1 post a comment on the thread
             const commentContent = "I'm a comment"
 
-            const userState = users[1].userState
+            const userState = await genUserState(
+                users[1].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const epoch = await sync.loadCurrentEpoch()
             const { publicSignals, proof } = await userState.genEpochKeyProof({
                 epoch,
@@ -259,15 +216,15 @@ describe('Synchronize Comment Test', function () {
             })
 
             await expect(
-                unirepApp.leaveComment(publicSignals, proof, 0, commentContent)
+                app.leaveComment(publicSignals, proof, 0, commentContent)
             )
-                .to.emit(unirepApp, 'Comment')
+                .to.emit(app, 'Comment')
                 .withArgs(publicSignals[0], 0, 0, 0, commentContent)
 
             await sync.waitForSync()
 
             // Check if the comment is synchronized
-            let record = await sync.db.findMany('Comment', { where: {} })
+            const record = await db.findMany('Comment', { where: {} })
             expect(record).to.be.not.null
             expect(record.length).equal(1)
             expect(record[0].commentId).equal('0')
@@ -275,7 +232,7 @@ describe('Synchronize Comment Test', function () {
             expect(record[0].content).equal(commentContent)
 
             // Check if the comment count is synchronized
-            let postRecord = await sync.db.findOne('Post', {
+            const postRecord = await db.findOne('Post', {
                 where: {
                     postId: record[0].postId,
                 },
@@ -286,23 +243,29 @@ describe('Synchronize Comment Test', function () {
 
         it('should update comment', async function () {
             // User 1 edit the comment
-            const userState = users[1].userState
+            const userState = await genUserState(
+                users[1].id,
+                sync,
+                app,
+                db,
+                prover
+            )
             const newContent = "I'm not a comment what you want"
             const { publicSignals, proof } =
                 await userState.genEpochKeyLiteProof()
 
             await expect(
-                unirepApp.editComment(publicSignals, proof, 0, 0, newContent, {
+                app.editComment(publicSignals, proof, 0, 0, newContent, {
                     gasLimit: 5000000,
                 })
             )
-                .to.emit(unirepApp, 'UpdatedComment')
+                .to.emit(app, 'UpdatedComment')
                 .withArgs(publicSignals[1], 0, 0, 0, newContent)
 
             await sync.waitForSync()
 
             // Check if the comment is synchronized
-            let record = await sync.db.findMany('Comment', { where: {} })
+            const record = await db.findMany('Comment', { where: {} })
             expect(record).to.be.not.null
             expect(record.length).equal(1)
             expect(record[0].commentId).equal('0')
