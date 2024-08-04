@@ -150,6 +150,12 @@ export const NoCommentHistoryFoundError = new InternalError(
     'No comment history found for the given epoch range',
     404
 )
+
+export const NoVoteHistoryFoundError = new InternalError(
+    'No vote history found for the given epoch range',
+    404
+)
+
 export const InvalidReputationProofError = new InternalError(
     'Invalid reputation proof',
     400

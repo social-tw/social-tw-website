@@ -1,6 +1,5 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { useActionCount, useUserState, VoteService } from '@/features/core'
-import { useProfileHistoryStore } from '@/features/profile'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -9,10 +8,6 @@ export function useVotes() {
     const queryClient = useQueryClient()
 
     const { getGuaranteedUserState } = useUserState()
-
-    const invokeFetchHistoryVotesFlow = useProfileHistoryStore(
-        (state) => state.invokeFetchHistoryVotesFlow,
-    )
 
     const actionCount = useActionCount()
 
@@ -48,7 +43,6 @@ export function useVotes() {
             })
 
             await userState.waitForSync()
-            await invokeFetchHistoryVotesFlow(userState)
 
             return true
         },

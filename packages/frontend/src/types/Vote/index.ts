@@ -1,4 +1,7 @@
-import { VoteType } from '@/features/profile/utils/types'
+export enum VoteType {
+    Upvote = 'Upvote',
+    Downvote = 'Downvote',
+}
 
 export enum VoteAction {
     UPVOTE,
