@@ -23,7 +23,7 @@ export async function signUp(
     await provider.waitForTransaction(txHash)
 
     await sync.waitForSync()
-    let hasSignedUp = await userState.hasSignedUp()
+    const hasSignedUp = await userState.hasSignedUp()
     expect(hasSignedUp).equal(true)
 
     return userState
