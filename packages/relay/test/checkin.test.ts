@@ -66,16 +66,12 @@ describe('POST /api/checkin', function () {
 
     it('should allow users with negative reputation to claim reputation', async function () {
         const userState = await genUserState(users[0].id, sync, app, db, prover)
-        // const epochKeyProof0 = await userState.genEpochKeyProof()
-        // const tx = await app.claimDailyLoginRep(epochKeyProof0.publicSignals, epochKeyProof0.proof)
-        // console.log(tx)
-
-        await airdropReputation(false, 1, userState, unirep, app, provider, EPOCH_LENGTH)
+        await airdropReputation(false, 1, userState, unirep, express, provider)
 
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ maxRep: 1 })
 
-        const epochKeyProof = await userState.genEpochKeyProof()
+        const epochKeyProof = await userState.genEpochKeyProof({nonce})
 
         await express
             .post('/api/checkin')
@@ -96,29 +92,29 @@ describe('POST /api/checkin', function () {
         userState.stop()
     })
 
-    // it('should fail if users with non-negative reputation tries to claim reputation', async function () {
-    //     const userState = await genUserState(users[0].id, sync, app, db, prover)
-    //     await airdropReputation(true, 2, userState, nonce, unirep, app, EPOCH_LENGTH)
-    //     const epochKeyProof = await userState.genEpochKeyProof({
-    //         nonce,
-    //     })
-    //     const authentication = await genAuthentication(userState)
+    it('should fail if users with non-negative reputation tries to claim reputation', async function () {
+        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        await airdropReputation(true, 2, userState, unirep, express, provider)
+        const { publicSignals, _snarkProof: proof } =
+            await userState.genProveReputationProof({ minRep: 1 })
 
-    //     await express
-    //         .post('/api/checkin')
-    //         .set('content-type', 'application/json')
-    //         .set('authentication', authentication)
-    //         .send(
-    //             stringifyBigInts({
-    //                 publicSignals: epochKeyProof.publicSignals,
-    //                 proof: epochKeyProof.proof,
-    //             })
-    //         )
-    //         .then(async (res) => {
-    //             expect(res).to.have.status(400)
-    //             expect(res.body.error).to.be.equal('Positive reputation user')
-    //         })
+        const epochKeyProof = await userState.genEpochKeyProof({nonce})
 
-    //     userState.stop()
-    // })
+        await express
+            .post('/api/checkin')
+            .set('content-type', 'application/json')
+            .set('authentication', jsonToBase64(stringifyBigInts({publicSignals, proof})))
+            .send(
+                stringifyBigInts({
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
+                })
+            )
+            .then(async (res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Positive reputation user')
+            })
+
+        userState.stop()
+    })
 })
