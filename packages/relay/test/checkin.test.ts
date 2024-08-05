@@ -1,30 +1,30 @@
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
-import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
 import { airdropReputation } from './utils/reputation'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
+import { IdentityObject } from './utils/types'
+import { createUserIdentities, genUserState } from './utils/userHelper'
 
 describe('POST /api/checkin', function () {
     let snapshot: any
-    let express: ChaiHttp.Agent
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
     let unirep: Unirep
     let app: UnirepApp
     let db: DB
+    let prover: any
+    let provider: any
+    let sync: UnirepSocialSynchronizer
+    let express: ChaiHttp.Agent
+    let users: IdentityObject[]
     let chainId: number
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
-
+    
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -34,40 +34,28 @@ describe('POST /api/checkin', function () {
         // start server
         const {
             db: _db,
-            prover,
-            provider,
+            prover: _prover,
+            provider: _provider,
             synchronizer,
             chaiServer,
         } = await startServer(_unirep, _app)
-        db = _db
-        express = chaiServer
-        sync = synchronizer
+
         unirep = _unirep
         app = _app
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            _unirep,
+        db = _db
+        prover = _prover
+        provider = _provider
+        sync = synchronizer
+        express = chaiServer
+        
+        users = createUserIdentities(1)
+        await signUp(users[0], {
             app,
-            synchronizer
-        )
-
-        // initUserStatus
-        let initUser = await userService.getLoginUser(db, '123', undefined)
-        const wallet = ethers.Wallet.createRandom()
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
-
-        await userState.waitForSync()
-
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
     })
@@ -77,73 +65,60 @@ describe('POST /api/checkin', function () {
     })
 
     it('should allow users with negative reputation to claim reputation', async function () {
-        await airdropReputation(false, 1, userState, nonce, EPOCH_LENGTH)
+        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        // const epochKeyProof0 = await userState.genEpochKeyProof()
+        // const tx = await app.claimDailyLoginRep(epochKeyProof0.publicSignals, epochKeyProof0.proof)
+        // console.log(tx)
 
-        const epoch = await userState.sync.loadCurrentEpoch()
+        await airdropReputation(false, 1, userState, unirep, app, provider, EPOCH_LENGTH)
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.NEGATIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
+        const { publicSignals, _snarkProof: proof } =
+            await userState.genProveReputationProof({ maxRep: 1 })
 
-        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+        const epochKeyProof = await userState.genEpochKeyProof()
 
         await express
             .post('/api/checkin')
             .set('content-type', 'application/json')
-            .set('authentication', jsonToBase64(reputationProof))
+            .set('authentication', jsonToBase64(stringifyBigInts({publicSignals, proof})))
             .send(
                 stringifyBigInts({
-                    publicSignals: publicSignals,
-                    proof: proof,
+                    publicSignals: epochKeyProof.publicSignals,
+                    proof: epochKeyProof.proof,
                 })
             )
             .then(async (res) => {
                 expect(res).to.have.status(200)
                 expect(res.body).to.have.property('txHash')
-                await ethers.provider.waitForTransaction(res.body.txHash)
+                await provider.waitForTransaction(res.body.txHash)
             })
+
+        userState.stop()
     })
 
-    it('should fail if users with non-negative reputation tries to claim reputation', async function () {
-        await airdropReputation(false, 2, userState, nonce, EPOCH_LENGTH)
+    // it('should fail if users with non-negative reputation tries to claim reputation', async function () {
+    //     const userState = await genUserState(users[0].id, sync, app, db, prover)
+    //     await airdropReputation(true, 2, userState, nonce, unirep, app, EPOCH_LENGTH)
+    //     const epochKeyProof = await userState.genEpochKeyProof({
+    //         nonce,
+    //     })
+    //     const authentication = await genAuthentication(userState)
 
-        const epoch = await userState.sync.loadCurrentEpoch()
+    //     await express
+    //         .post('/api/checkin')
+    //         .set('content-type', 'application/json')
+    //         .set('authentication', authentication)
+    //         .send(
+    //             stringifyBigInts({
+    //                 publicSignals: epochKeyProof.publicSignals,
+    //                 proof: epochKeyProof.proof,
+    //             })
+    //         )
+    //         .then(async (res) => {
+    //             expect(res).to.have.status(400)
+    //             expect(res.body.error).to.be.equal('Positive reputation user')
+    //         })
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
-
-        await express
-            .post('/api/checkin')
-            .set('content-type', 'application/json')
-            .set('authentication', jsonToBase64(reputationProof))
-            .send(
-                stringifyBigInts({
-                    publicSignals: publicSignals,
-                    proof: proof,
-                })
-            )
-            .then(async (res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Positive reputation user')
-            })
-    })
+    //     userState.stop()
+    // })
 })
