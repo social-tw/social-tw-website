@@ -1,6 +1,6 @@
 import * as utils from '@unirep/utils'
 import { expect } from 'chai'
-import { ProofGenerationError } from '../src/types/ProofGenerationError'
+import { ProofGenerationError } from './error'
 import {
     createRandomUserIdentity,
     decodeEpochKeyControl,
@@ -91,7 +91,7 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 24\n'
             )
         }
     })
@@ -119,7 +119,7 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 24\n'
             )
         }
     })

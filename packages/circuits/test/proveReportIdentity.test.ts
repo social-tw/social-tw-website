@@ -10,7 +10,7 @@ import {
     genReportIdentityCircuitInput,
     randomData,
 } from './utils'
-import { ProofGenerationError } from '../src/types/ProofGenerationError'
+import { ProofGenerationError } from './error'
 
 const circuit = 'reportIdentityProof'
 
@@ -103,7 +103,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 36\n'
             )
         }
     })
@@ -133,7 +133,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
             )
         }
     })
@@ -164,7 +164,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
             )
         }
     })
@@ -194,7 +194,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
             )
         }
     })

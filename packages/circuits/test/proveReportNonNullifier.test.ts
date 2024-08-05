@@ -6,7 +6,7 @@ import {
     genProofAndVerify,
     genReportNonNullifierCircuitInput,
 } from './utils'
-import { ProofGenerationError } from '../src/types/ProofGenerationError'
+import { ProofGenerationError } from './error'
 
 const circuit = 'reportNonNullifierProof'
 
@@ -113,7 +113,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
     })
@@ -151,7 +151,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
     })
@@ -181,7 +181,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
     })

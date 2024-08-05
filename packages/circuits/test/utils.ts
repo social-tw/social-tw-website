@@ -11,7 +11,7 @@ import {
 import crypto from 'crypto'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { defaultProver } from '../provers/defaultProver'
-import { InvalidProofInputError } from '../src/types/ProofGenerationError'
+import { ProofGenerationError } from './error'
 import { EpochKeyControl, IdentityObject } from './types'
 
 export const genProofAndVerify = async (
@@ -27,7 +27,11 @@ export const genProofAndVerify = async (
                 circuitInputs
             ))
     } catch (error) {
-        throw InvalidProofInputError
+        if (error instanceof Error) {
+            throw new ProofGenerationError(error?.message)
+        } else {
+            throw new Error(`Unknown Error...`)
+        }
     }
     const endTime = new Date().getTime()
     console.log(
