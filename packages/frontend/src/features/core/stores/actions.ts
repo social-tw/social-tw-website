@@ -9,6 +9,7 @@ export enum ActionType {
     DeleteComment = 'deleteComment',
     ReportPost = 'reportPost',
     ReportComment = 'reportComment',
+    CheckIn = 'checkIn',
 }
 
 export enum ActionStatus {
@@ -65,6 +66,7 @@ export type Action =
     | BaseAction<ActionType.DeleteComment, DeleteCommentData>
     | BaseAction<ActionType.ReportPost, ReportPostData>
     | BaseAction<ActionType.ReportComment, ReportCommentData>
+    | BaseAction<ActionType.CheckIn, undefined>
 
 export interface ActionState {
     entities: Record<string, Action>
@@ -163,7 +165,8 @@ export function createAction(
         | CommentData
         | DeleteCommentData
         | ReportPostData
-        | ReportCommentData,
+        | ReportCommentData
+        | undefined,
 ): Action {
     return {
         id: nanoid(),
@@ -181,7 +184,8 @@ export function addAction(
         | CommentData
         | DeleteCommentData
         | ReportPostData
-        | ReportCommentData,
+        | ReportCommentData
+        | undefined,
 ) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {
@@ -195,22 +199,26 @@ export function addAction(
 
 export function succeedActionById(
     id: string,
-    data: Partial<PostData | CommentData> = {},
+    data?: Partial<PostData | CommentData>,
 ) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Success
-        state.entities[id].data = { ...state.entities[id].data, ...data }
+        state.entities[id].data = state.entities[id].data
+            ? { ...state.entities[id].data, ...data }
+            : undefined
         state.latestId = id
     })
 }
 
 export function failActionById(
     id: string,
-    data: Partial<PostData | CommentData> = {},
+    data?: Partial<PostData | CommentData>,
 ) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Failure
-        state.entities[id].data = { ...state.entities[id].data, ...data }
+        state.entities[id].data = state.entities[id].data
+            ? { ...state.entities[id].data, ...data }
+            : undefined
         state.latestId = id
     })
 }
