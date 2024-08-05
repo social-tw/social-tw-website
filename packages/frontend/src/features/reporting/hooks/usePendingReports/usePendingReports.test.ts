@@ -4,6 +4,28 @@ import { renderHook, waitFor } from '@testing-library/react'
 import nock from 'nock'
 import { usePendingReports } from './usePendingReports'
 
+jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
+    useUserState: () => ({
+        getGuaranteedUserState: () => ({
+            id: {
+                secret: '0x123',
+            },
+            genProveReputationProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+        }),
+    }),
+}))
+
 jest.mock('@/features/core/hooks/useEpoch/useEpoch', () => ({
     useEpoch: () => ({
         currentEpoch: 2,
@@ -31,7 +53,9 @@ describe('usePendingReports', () => {
         ]
 
         const expectation = nock(SERVER)
-            .get('/api/report?status=0')
+            .get(
+                '/api/report?status=0&publicSignals=%22mocked_signals%22&proof=%22mocked_proof%22',
+            )
             .reply(200, reports)
 
         const { result } = renderHook(usePendingReports, {

@@ -8,6 +8,21 @@ import AdjudicationNotification from './AdjudicateNotification'
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         getGuaranteedUserState: () => ({
+            id: {
+                secret: '0x123',
+            },
+            genProveReputationProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
+            genEpochKeyLiteProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
                 settings: {
@@ -41,7 +56,9 @@ describe('AdjudicationNotification', () => {
         ]
 
         const expectation = nock(SERVER)
-            .get('/api/report?status=0')
+            .get(
+                '/api/report?status=0&publicSignals=%22mocked_signals%22&proof=%22mocked_proof%22',
+            )
             .reply(200, reports)
 
         render(<AdjudicationNotification />, { wrapper })
@@ -52,7 +69,9 @@ describe('AdjudicationNotification', () => {
 
     it('should hide notification if reports are empty', async () => {
         const expectation = nock(SERVER)
-            .get('/api/report?status=0')
+            .get(
+                '/api/report?status=0&publicSignals=%22mocked_signals%22&proof=%22mocked_proof%22',
+            )
             .reply(400, { error: 'Error' })
 
         render(<AdjudicationNotification />, { wrapper })

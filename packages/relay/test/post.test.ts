@@ -1,97 +1,66 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-import { UserState } from '@unirep/core'
+import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { APP_ABI as abi } from '../src/config'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { PostService } from '../src/services/PostService'
-import { userService } from '../src/services/UserService'
+import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
 import { postData } from './mocks/posts'
-import { UserStateFactory } from './utils/UserStateFactory'
-import {
-    ReputationType,
-    genEpochKeyProof,
-    genProveReputationProof,
-    randomData,
-} from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
+import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
+import { IdentityObject } from './utils/types'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 describe('POST /post', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
     let db: DB
-    let pService: PostService
     let chainId: number
     let authentication: string
+    let user: IdentityObject
+    let app: UnirepApp
+    let prover: any
+    let provider: any
+    let sync: UnirepSocialSynchronizer
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app: _app } = await deployContracts(100000)
         // start server
         const {
             db: _db,
-            prover,
-            provider,
+            prover: _prover,
+            provider: _provider,
             synchronizer,
             chaiServer,
-            postService,
-        } = await startServer(unirep, app)
+        } = await startServer(unirep, _app)
         express = chaiServer
-        sync = synchronizer
         db = _db
-        pService = postService
+        app = _app
+        prover = _prover
+        provider = _provider
+        sync = synchronizer
 
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
+        user = createRandomUserIdentity()
+        const userState = await signUp(user, {
             app,
-            synchronizer
-        )
-
-        // initUserStatus
-        var initUser = await userService.getLoginUser(db, '123', undefined)
-        const wallet = ethers.Wallet.createRandom()
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
 
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -99,6 +68,7 @@ describe('POST /post', function () {
     })
 
     it('should create a post', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content #0'
         // cid of test content
@@ -137,7 +107,7 @@ describe('POST /post', function () {
         //  string cid        [3]   String
         // }
         const epk = epochKeyProof.epochKey as bigint
-        const receipt = await ethers.provider.waitForTransaction(res.txHash)
+        const receipt = await provider.waitForTransaction(res.txHash)
         const unirepAppInterface = new ethers.utils.Interface(abi)
         const rawEvent = receipt.logs
             .map((log) => unirepAppInterface.parseLog(log))
@@ -179,6 +149,7 @@ describe('POST /post', function () {
     })
 
     it('should post failed with wrong proof', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const testContent = 'test content'
 
         var epochKeyProof = await userState.genEpochKeyProof({
@@ -205,13 +176,14 @@ describe('POST /post', function () {
     })
 
     it('should post failed with wrong epoch', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const testContent = 'invalid epoch'
 
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
+        const attesterId = sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId
@@ -256,7 +228,7 @@ describe('POST /post', function () {
         // insert random amount of votes into db
         await insertVotes(db)
 
-        await pService.updateOrder(db)
+        await postService.updateOrder(db)
 
         const posts = await express.get(`/api/post?page=1`).then((res) => {
             expect(res).to.have.status(200)
@@ -309,11 +281,12 @@ describe('POST /post', function () {
     })
 
     it('should fetch posts which are already on-chain', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         // send a post
-        const { txHash } = await post(express, userState, authentication)
+        const txHash = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
-        await pService.updateOrder(db)
+        await postService.updateOrder(db)
 
         // one page will have 10 posts
         let posts = await express.get(`/api/post?page=1`).then((res) => {

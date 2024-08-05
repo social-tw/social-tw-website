@@ -1,11 +1,12 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { checkReputation } from '../middlewares/CheckReputationMiddleware'
+import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
 import { voteService } from '../services/VoteService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
 import {
+    InvalidParametersError,
     InvalidPostIdError,
     InvalidProofError,
     InvalidPublicSignalError,
@@ -20,7 +21,7 @@ export default (
 ) => {
     app.post(
         '/api/vote',
-        errorHandler(checkReputation),
+        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
             if (res.locals.isNegativeReputation) {
                 throw NegativeReputationUserError
@@ -45,6 +46,23 @@ export default (
                 synchronizer
             )
             res.status(201).json({})
+        })
+    )
+
+    app.get(
+        '/api/vote/voteHistory',
+        errorHandler(async (req, res) => {
+            const fromEpoch = parseInt(req.query.from_epoch as string)
+            const toEpoch = parseInt(req.query.to_epoch as string)
+
+            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
+
+            const history = await voteService.getVoteHistory(
+                fromEpoch,
+                toEpoch,
+                db
+            )
+            res.status(200).json(history)
         })
     )
 }

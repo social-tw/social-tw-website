@@ -1,20 +1,19 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { QueryKeys } from '@/constants/queryKeys'
 import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
-import { useUserState } from '@/features/core'
+import { PostService, useUserState } from '@/features/core'
 import {
-    CommentNotification,
     CommentList,
+    CommentNotification,
     CreateComment,
     Post,
     useVotes,
 } from '@/features/post'
-import { fetchSinglePost } from '@/utils/api'
-import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
-import { QueryKeys } from '@/constants/queryKeys'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
+import { useQuery } from '@tanstack/react-query'
+import React, { useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
@@ -35,7 +34,8 @@ const PostDetailsPage: React.FC = () => {
         queryKey: [QueryKeys.SinglePost, id],
         queryFn: async () => {
             if (!id) return undefined
-            const post = await fetchSinglePost(id)
+            const postService = new PostService()
+            const post = await postService.fetchPostById(id)
             return {
                 id: post._id,
                 postId: post.postId,

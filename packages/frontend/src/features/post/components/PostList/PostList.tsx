@@ -1,7 +1,17 @@
-import { nanoid } from 'nanoid'
-import { Fragment, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useIntersectionObserver } from '@uidotdev/usehooks'
+import { QueryKeys } from '@/constants/queryKeys'
+import {
+    ActionStatus,
+    postActionsSelector,
+    PostData,
+    PostService,
+    useActionStore,
+    useUserState,
+} from '@/features/core'
+import { Post, useVoteEvents, useVotes } from '@/features/post'
+import { PostInfo, PostStatus } from '@/types/Post'
+import { VoteAction } from '@/types/Vote'
+import { handleVoteEvent } from '@/utils/handleVoteEvent'
+import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import {
     DefaultError,
     InfiniteData,
@@ -9,21 +19,10 @@ import {
     useInfiniteQuery,
     useQueryClient,
 } from '@tanstack/react-query'
-import {
-    ActionStatus,
-    postActionsSelector,
-    PostData,
-    useActionStore,
-    useUserState,
-} from '@/features/core'
-import { Post, useVoteEvents, useVotes } from '@/features/post'
-import { SERVER } from '@/constants/config'
-import { QueryKeys } from '@/constants/queryKeys'
-import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
-import { FetchPostsResponse } from '@/types/api'
-import { PostInfo, PostStatus } from '@/types/Post'
-import { handleVoteEvent } from '@/utils/handleVoteEvent'
-import { VoteAction } from '@/types/Vote'
+import { useIntersectionObserver } from '@uidotdev/usehooks'
+import { nanoid } from 'nanoid'
+import { Fragment, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function PostList() {
     const { userState } = useUserState()
@@ -39,9 +38,10 @@ export default function PostList() {
     >({
         queryKey: [QueryKeys.ManyPosts],
         queryFn: async ({ pageParam }) => {
-            const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
-            const jsonData = (await res.json()) as FetchPostsResponse
-            return jsonData.map((item) => {
+            const postService = new PostService()
+            const data = await postService.fetchPosts(pageParam)
+
+            return data.map((item) => {
                 const voteCheck = userState
                     ? checkVoteIsMine(item.votes, userState)
                     : {
