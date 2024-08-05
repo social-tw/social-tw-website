@@ -14,7 +14,7 @@ import {
     genUserState,
     genVHelperIdentifier,
 } from './utils'
-import { ProofGenerationError } from '@unirep-app/circuits/src'
+import { ProofGenerationError } from './error'
 
 describe('Claim Report Positive Reputation Test', function () {
     this.timeout(1000000)
@@ -107,9 +107,9 @@ describe('Claim Report Positive Reputation Test', function () {
      * 5. revert with invalid reportNullifierProof
      * 6. revert with wrong epoch for reportNullifierProof
      * 7. revert with invalid attesterId for reportNullifierProof
-     * 8. revert with invalid reportNullifierProof
-     * 9. revert with wrong epoch for reportNullifierProof
-     * 10. revert with invalid attesterId for reportNullifierProof
+     * 8. revert with invalid reportNonNullifierProof
+     * 9. revert with wrong epoch for reportNonNullifierProof
+     * 10. revert with invalid attesterId for reportNonNullifierProof
      */
 
     it('should succeed to claim reputation to upvoter', async () => {
@@ -455,12 +455,15 @@ describe('Claim Report Positive Reputation Test', function () {
 
         // this will not generate a proof since the attesterId would change the epochkey
         try {
-            await genProofAndVerify(nonNullifierCircuit, nonNullifierCircuit)
+            await genProofAndVerify(
+                nonNullifierCircuit,
+                reportNonNullifierCircuitInputs
+            )
         } catch (error: unknown) {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
     })

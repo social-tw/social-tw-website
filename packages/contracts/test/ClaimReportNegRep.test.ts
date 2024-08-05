@@ -12,7 +12,7 @@ import {
     genUserState,
     genVHelperIdentifier,
 } from './utils'
-import { ProofGenerationError } from '@unirep-app/circuits/src'
+import { ProofGenerationError } from './error'
 
 describe('Claim Report Negative Reputation Test', function () {
     this.timeout(1000000)
@@ -367,7 +367,7 @@ describe('Claim Report Negative Reputation Test', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Proof Generation Error: the proof cannot be generated since the inputs are invalid'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
 
