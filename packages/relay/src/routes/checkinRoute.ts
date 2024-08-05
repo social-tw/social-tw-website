@@ -21,12 +21,11 @@ export default (
 
             const { publicSignals, proof } = req.body
 
-            const epochKeyProof =
-                await ProofHelper.getAndVerifyEpochKeyProof(
-                    publicSignals,
-                    proof,
-                    synchronizer
-                )
+            const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
 
             const txHash = await TransactionManager.callContract(
                 'claimDailyLoginRep',

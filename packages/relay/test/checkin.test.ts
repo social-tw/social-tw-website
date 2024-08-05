@@ -24,7 +24,7 @@ describe('POST /api/checkin', function () {
     let chainId: number
     let nonce: number = 0
     const EPOCH_LENGTH = 100000
-    
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
@@ -47,7 +47,7 @@ describe('POST /api/checkin', function () {
         provider = _provider
         sync = synchronizer
         express = chaiServer
-        
+
         users = createUserIdentities(1)
         await signUp(users[0], {
             app,
@@ -71,12 +71,15 @@ describe('POST /api/checkin', function () {
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ maxRep: 1 })
 
-        const epochKeyProof = await userState.genEpochKeyProof({nonce})
+        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
         await express
             .post('/api/checkin')
             .set('content-type', 'application/json')
-            .set('authentication', jsonToBase64(stringifyBigInts({publicSignals, proof})))
+            .set(
+                'authentication',
+                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
+            )
             .send(
                 stringifyBigInts({
                     publicSignals: epochKeyProof.publicSignals,
@@ -98,12 +101,15 @@ describe('POST /api/checkin', function () {
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ minRep: 1 })
 
-        const epochKeyProof = await userState.genEpochKeyProof({nonce})
+        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
 
         await express
             .post('/api/checkin')
             .set('content-type', 'application/json')
-            .set('authentication', jsonToBase64(stringifyBigInts({publicSignals, proof})))
+            .set(
+                'authentication',
+                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
+            )
             .send(
                 stringifyBigInts({
                     publicSignals: epochKeyProof.publicSignals,
