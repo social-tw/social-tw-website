@@ -1,7 +1,7 @@
-import { expect } from 'chai'
 //@ts-ignore
-import { CircuitConfig } from '@unirep/circuits'
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
+import { CircuitConfig } from '@unirep/circuits'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'

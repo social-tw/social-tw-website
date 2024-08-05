@@ -1,7 +1,7 @@
-import { expect } from 'chai'
 //@ts-ignore
-import { genEpochKey } from '@unirep/utils'
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
+import { genEpochKey } from '@unirep/utils'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'

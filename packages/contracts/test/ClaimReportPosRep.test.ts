@@ -1,6 +1,6 @@
 // @ts-ignore
-import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
