@@ -10,11 +10,11 @@ import {
 export default function CheckInSuccess({
     open = false,
     onClose = () => {},
-    onCheckout = () => {},
+    onCheckOut = () => {},
 }: {
     open?: boolean
     onClose?: () => void
-    onCheckout?: () => void
+    onCheckOut?: () => void
 }) {
     return (
         <Dialog className="relative z-50" open={open} onClose={onClose}>
@@ -54,7 +54,7 @@ export default function CheckInSuccess({
                         <div className="flex justify-center">
                             <button
                                 className="px-8 mx-auto text-xl font-bold tracking-widest text-white btn btn-secondary h-14"
-                                onClick={onCheckout}
+                                onClick={onCheckOut}
                             >
                                 前往查看聲譽分數紀錄
                             </button>
