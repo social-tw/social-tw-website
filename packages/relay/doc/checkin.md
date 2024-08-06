@@ -6,7 +6,7 @@ This document describes the check-in process in the Relay.
 
 1. Generate a Reputation Proof to prove that the user has negative reputation.
 
-2. Generate an Epoch Key Lite Proof to prove that the user holds an epoch key.
+2. Generate an Epoch Key Proof to prove that the user holds an epoch key.
 
 ## Test
 
