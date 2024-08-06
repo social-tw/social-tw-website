@@ -53,7 +53,20 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             circuitInputs
         )
         expect(isValid).to.be.true
-        const epochKey = publicSignals[0]
+        // decode other data
+        const controlData = decodeEpochKeyControl(BigInt(publicSignals[0]))
+        expect(controlData.epoch.toString()).to.be.equal(
+            currentEpoch.toString()
+        )
+        expect(controlData.attesterId.toString()).to.be.equal(
+            attesterId.toString()
+        )
+        expect(controlData.chainId.toString()).to.be.equal(chainId.toString())
+
+        // we don't reveal the nonce, so this is equal to BigInt(0)
+        expect(controlData.nonce.toString()).to.be.equal('0')
+
+        const epochKey = publicSignals[1]
         expect(epochKey.toString()).to.be.equal(
             utils
                 .genEpochKey(
@@ -65,18 +78,9 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
                 )
                 .toString()
         )
-        // decode other data
-        const controlData = decodeEpochKeyControl(BigInt(publicSignals[1]))
-        expect(controlData.epoch.toString()).to.be.equal(
-            currentEpoch.toString()
+        expect(publicSignals[2].toString()).to.be.equal(
+            reportedEpochKey.toString()
         )
-        expect(controlData.attesterId.toString()).to.be.equal(
-            attesterId.toString()
-        )
-        expect(controlData.chainId.toString()).to.be.equal(chainId.toString())
-
-        // we don't reveal the nonce, so this is equal to BigInt(0)
-        expect(controlData.nonce.toString()).to.be.equal('0')
     })
 
     it('should revert with invalid identitySecret', async () => {

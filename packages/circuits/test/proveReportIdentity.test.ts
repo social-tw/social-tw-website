@@ -50,7 +50,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const identitySecret = user.id.secret
         const hashUserId = user.hashUserId
         const reportId = 0
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
@@ -70,7 +70,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         )
         expect(isValid).to.be.true
         expect(publicSignals[0].toString()).to.be.equal(
-            poseidon2([hashUserId, reportId]).toString()
+            poseidon2([identitySecret, reportId]).toString()
         )
         expect(publicSignals[1].toString()).to.be.equal(attesterId.toString())
         expect(publicSignals[2].toString()).to.be.equal(epoch.toString())
@@ -83,7 +83,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const wrongIdentitySecret = BigInt(444)
         const hashUserId = user.hashUserId
         const reportId = 0
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret: wrongIdentitySecret,
@@ -112,7 +112,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
     it('should revert with wrong hashUserId', async () => {
         const identitySecret = user.id.secret
         const reportId = 0
-        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const hashUserId = BigInt(123)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
@@ -144,7 +144,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const hashUserId = user.hashUserId
         const reportId = 0
         const wrongReportId = 444
-        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,

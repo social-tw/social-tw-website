@@ -36,6 +36,6 @@ template ReportIdentityProof(STATE_TREE_DEPTH, FIELD_COUNT) {
     state_tree_root === state_merkletree_root;
 
     /* Step 2: check nullifier */
-    signal nullifier <== Poseidon(2)([hash_user_id, report_id]);
+    signal nullifier <== Poseidon(2)([identity_secret, report_id]);
     nullifier === report_nullifier;
 }

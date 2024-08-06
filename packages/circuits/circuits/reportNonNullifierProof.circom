@@ -13,8 +13,8 @@ template ReportNonNullifierProof(MAX_EPOCH_KEY_NONCE) {
     signal input attester_id;
 
     // outputs
-    signal output current_epoch_key;
     signal output control;
+    signal output current_epoch_key;
 
     var reveal_nonce = 0;
     var sig_data = 0;
