@@ -10,6 +10,7 @@ import {
     genReportIdentityCircuitInput,
     randomData,
 } from './utils'
+import { ProofGenerationError } from './error'
 
 const circuit = 'reportIdentityProof'
 
@@ -96,11 +97,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 36\n'
+            )
         }
     })
 
@@ -122,11 +127,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+            )
         }
     })
 
@@ -149,11 +158,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+            )
         }
     })
 
@@ -175,11 +188,15 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: proof.pathIndices,
             stateTreeRoot,
         })
+
         try {
-            const { isValid } = await genProofAndVerify(circuit, circuitInputs)
-            expect(isValid).to.be.false
-        } catch (error) {
-            console.log('Expected error occurred:\n\n', error)
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+            )
         }
     })
 })

@@ -1,7 +1,7 @@
-import { expect } from 'chai'
 //@ts-ignore
-import { genEpochKey } from '@unirep/utils'
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
+import { genEpochKey } from '@unirep/utils'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
@@ -11,7 +11,7 @@ import {
     flattenProof,
     genNullifier,
     genProofAndVerify,
-    genReportNegRepCircuitInput,
+    genReportNonNullifierCircuitInput,
     genReportNullifierCircuitInput,
     genVHelperIdentifier,
 } from './utils'
@@ -46,14 +46,14 @@ describe('Verifier Helper Manager Test', function () {
         user = createRandomUserIdentity()
     })
 
-    describe('report negative reputation proof verification tests', async function () {
+    describe('report non nullifier proof verification tests', async function () {
         it('should verify with valid proof and public signal', async function () {
             chainId = 31337
             const identitySecret = user.id.secret
             const currentEpoch = 20
             const currentNonce = 2
             const attesterId = BigInt(app.address)
-            const circuit = 'reportNegRepProof'
+            const circuit = 'reportNonNullifierProof'
             // generate report epoch key
             const reportedEpoch = 5
             const reportedNonce = 2
@@ -64,22 +64,21 @@ describe('Verifier Helper Manager Test', function () {
                 reportedNonce,
                 chainId
             )
-            const type = 0
-            const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-                reportedEpochKey,
-                identitySecret,
-                reportedEpoch,
-                currentEpoch,
-                currentNonce,
-                chainId,
-                attesterId,
-                type,
-            })
 
-            // generating proof for report negative reputation proof
+            const reportNonNullifierCircuitInputs =
+                genReportNonNullifierCircuitInput({
+                    reportedEpochKey,
+                    identitySecret,
+                    reportedEpoch,
+                    currentEpoch,
+                    currentNonce,
+                    chainId,
+                    attesterId,
+                })
+
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNegRepCircuitInputs
+                reportNonNullifierCircuitInputs
             )
 
             expect(isValid).to.be.equal(true)
@@ -87,7 +86,7 @@ describe('Verifier Helper Manager Test', function () {
             const currentEpochKey = publicSignals[0]
             // generate identifier
             const identifier = genVHelperIdentifier(
-                'reportNegRepProofVerifierHelper'
+                'reportNonNullifierProofVerifierHelper'
             )
 
             // get verifier from identifier in unirepApp.vHelpManager
@@ -122,7 +121,7 @@ describe('Verifier Helper Manager Test', function () {
             const currentEpoch = 20
             const currentNonce = 2
             const attesterId = BigInt(app.address)
-            const circuit = 'reportNegRepProof'
+            const circuit = 'reportNonNullifierProof'
             // generate report epoch key
             const reportedEpoch = 5
             const reportedNonce = 2
@@ -133,29 +132,28 @@ describe('Verifier Helper Manager Test', function () {
                 reportedNonce,
                 chainId
             )
-            const type = 0
-            const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-                reportedEpochKey,
-                identitySecret,
-                reportedEpoch,
-                currentEpoch,
-                currentNonce,
-                chainId,
-                attesterId,
-                type,
-            })
 
-            // generating proof for report negative reputation proof
+            const reportNonNullifierCircuitInputs =
+                genReportNonNullifierCircuitInput({
+                    reportedEpochKey,
+                    identitySecret,
+                    reportedEpoch,
+                    currentEpoch,
+                    currentNonce,
+                    chainId,
+                    attesterId,
+                })
+
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNegRepCircuitInputs
+                reportNonNullifierCircuitInputs
             )
 
             expect(isValid).to.be.equal(true)
 
             // generate identifier
             const identifier = genVHelperIdentifier(
-                'reportNegRepProofVerifierHelper'
+                'reportNonNullifierProofVerifierHelper'
             )
 
             // get verifier from identifier in unirepApp.vHelpManager
@@ -197,7 +195,6 @@ describe('Verifier Helper Manager Test', function () {
                 }
             )
 
-            // generating proof for report negative reputation proof
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
                 reportNullifierCircuitInputs
@@ -259,7 +256,6 @@ describe('Verifier Helper Manager Test', function () {
                 }
             )
 
-            // generating proof for report negative reputation proof
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
                 reportNullifierCircuitInputs

@@ -412,8 +412,8 @@ contract UnirepApp {
     /**
      * Give the report negative reputation
      * @param publicSignals: public signals
-     * @param proof: report negative reputation proof
-     * @param change: reputation score (type 0: (5), type 1: (1))
+     * @param proof: report non nullifier proof
+     * @param change: reputation score
      */
     function claimReportNegRep(
         uint256[] calldata publicSignals,
@@ -442,8 +442,8 @@ contract UnirepApp {
         }
 
         // attesting on Unirep contract:
-        // type 0: punishing poster   (5)
-        // type 1: punishing reporter (1)
+        // 1. punishing poster   (5)
+        // 2. punishing reporter (1)
         unirep.attest(
             signals.epochKey,
             epoch,

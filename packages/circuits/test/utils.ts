@@ -11,6 +11,7 @@ import {
 import crypto from 'crypto'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { defaultProver } from '../provers/defaultProver'
+import { ProofGenerationError } from './error'
 import { EpochKeyControl, IdentityObject } from './types'
 
 export const genProofAndVerify = async (
@@ -18,8 +19,20 @@ export const genProofAndVerify = async (
     circuitInputs: any
 ) => {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new ProofGenerationError(error?.message)
+        } else {
+            throw new Error(`Unknown Error...`)
+        }
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
@@ -47,7 +60,7 @@ export const genNullifier = (hashUserId: string, reportId: number | bigint) => {
     return poseidon2([hashUserId, reportId])
 }
 
-export const genReportNegRepCircuitInput = (config: {
+export const genReportNonNullifierCircuitInput = (config: {
     reportedEpochKey: any
     identitySecret: string | bigint
     reportedEpoch: number | bigint
@@ -55,7 +68,6 @@ export const genReportNegRepCircuitInput = (config: {
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
-    type: number | bigint
 }) => {
     const {
         reportedEpochKey,
@@ -65,7 +77,6 @@ export const genReportNegRepCircuitInput = (config: {
         currentNonce,
         chainId,
         attesterId,
-        type,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -76,7 +87,6 @@ export const genReportNegRepCircuitInput = (config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
-        type,
     }
     return utils.stringifyBigInts(circuitInputs)
 }
