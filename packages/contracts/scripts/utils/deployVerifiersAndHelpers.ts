@@ -21,6 +21,11 @@ export async function deploySingleContract(
             deployer
         )
 
+        // TODO: uncomment this line after
+        // Unirep && UnirepApp upgrade the open zeppelin lib to 5
+        // Apply global factory modifications
+        // const ContractFactory = await globalFactory(_ContractFactory)
+
         // Deploy the contract with constructor arguments
         const contract = await ContractFactory.deploy(...constructorArgs)
 
