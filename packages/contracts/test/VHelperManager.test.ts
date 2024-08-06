@@ -175,18 +175,18 @@ describe('Verifier Helper Manager Test', function () {
         it('should verify with valid proof and public signal', async function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
-            const hashUserId = user.hashUserId
+            const identitySecret = user.id.secret
             const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, reportId)
+            const reportNullifier = genNullifier(user.id, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
-                    hashUserId,
+                    identitySecret,
                     reportId,
                     currentEpoch,
                     currentNonce,
@@ -216,7 +216,7 @@ describe('Verifier Helper Manager Test', function () {
             )
             expect(signal.epochKey.toString()).to.be.equal(
                 genEpochKey(
-                    BigInt(hashUserId),
+                    BigInt(identitySecret),
                     attesterId,
                     currentEpoch,
                     currentNonce,
@@ -236,18 +236,18 @@ describe('Verifier Helper Manager Test', function () {
         it('should revert with invalid proof', async function () {
             const circuit = 'reportNullifierProof'
             chainId = 31337
-            const hashUserId = user.hashUserId
+            const identitySecret = user.id.secret
             const reportId = 0
 
             const currentEpoch = 20
             const currentNonce = 1
             const attesterId = BigInt(app.address)
-            const reportNullifier = genNullifier(hashUserId, reportId)
+            const reportNullifier = genNullifier(user.id, reportId)
 
             const reportNullifierCircuitInputs = genReportNullifierCircuitInput(
                 {
                     reportNullifier,
-                    hashUserId,
+                    identitySecret,
                     reportId,
                     currentEpoch,
                     currentNonce,
