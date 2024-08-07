@@ -65,10 +65,7 @@ describe('Verifier Helper Manager Test', function () {
         ).to.be.reverted
     })
 
-    describe('report non nullifier proof verification tests', async function () {})
-
-
-    describe('report negative reputation proof verification tests', async function () {
+    describe('report non nullifier proof verification tests', async function () {
         it('should verify with valid proof and public signal', async function () {
             chainId = 31337
             const identitySecret = user.id.secret

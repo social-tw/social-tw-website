@@ -13,7 +13,7 @@ import {
     genReportNonNullifierCircuitInput,
     genReportNullifierCircuitInput,
     genUserState,
-    genVHelperIdentifier
+    genVHelperIdentifier,
 } from './utils'
 
 describe('Claim Report Positive Reputation Test', function () {

@@ -6,7 +6,6 @@ import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifi
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract VerifierHelperManager is Ownable {
-    address public app;
     mapping(bytes32 => address) public registeredVHelpers; // see verifierRegister
     error IdentifierNotRegistered(bytes32);
 
