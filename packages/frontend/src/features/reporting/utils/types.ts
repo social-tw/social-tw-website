@@ -1,5 +1,5 @@
-import { RelayRawComment } from "@/types/Comments"
-import { RelayRawPost } from "@/types/Post"
+import { RelayRawComment } from '@/types/Comments'
+import { RelayRawPost } from '@/types/Post'
 
 export type Adjudicator = {
     nullifier: string

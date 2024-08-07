@@ -52,7 +52,7 @@ export default function CommentList({ postId }: { postId: string }) {
                     status: CommentStatus.Success,
                     isReported: item.status === RelayRawCommentStatus.REPORTED,
                     canDelete,
-                    canReport
+                    canReport,
                 }
             })
     }, [data, userState, currentEpoch, postId])

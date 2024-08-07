@@ -35,7 +35,7 @@ const PostDetailsPage: React.FC = () => {
         queryFn: async () => {
             if (!id) return undefined
             const postService = new PostService()
-            return postService.fetchPostById(id)   
+            return postService.fetchPostById(id)
         },
     })
 
@@ -58,7 +58,7 @@ const PostDetailsPage: React.FC = () => {
             downCount: data.downCount,
             isReported: data.status === RelayRawPostStatus.REPORTED,
             isMine: voteCheck ? voteCheck.isMine : false,
-            finalAction: voteCheck ? voteCheck.finalAction: null,
+            finalAction: voteCheck ? voteCheck.finalAction : null,
             votedNonce: voteCheck ? voteCheck.votedNonce : null,
             votedEpoch: voteCheck ? voteCheck.votedEpoch : null,
             status: PostStatus.Success,
