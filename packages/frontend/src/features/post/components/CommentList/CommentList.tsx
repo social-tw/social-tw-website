@@ -39,7 +39,7 @@ export default function CommentList({ postId }: { postId: string }) {
                     : false
 
                 const canDelete = isMine && item.epoch === currentEpoch
-                const canReport = !isMine
+                const canReport = true
 
                 return {
                     postId: postId,
