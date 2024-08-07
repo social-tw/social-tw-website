@@ -583,7 +583,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const nullifier = genReportNullifier(users[0].id, report.reportId)
 
         const toEpoch = await userStateTransition(userState, {
             express,
@@ -639,7 +639,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const nullifier = genReportNullifier(users[1].id, report.reportId)
 
         const toEpoch = await userStateTransition(userState, {
             express,
@@ -698,7 +698,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const nullifier = genReportNullifier(users[2].id, report.reportId)
         const toEpoch = await userStateTransition(userState, {
             express,
             unirep,
@@ -740,7 +740,7 @@ describe('POST /api/report', function () {
         const hashUserId = users[2].hashUserId
         const userState = await genUserState(users[2].id, sync, app, db, prover)
         const notExistReportId = '444'
-        const nullifier = genReportNullifier(hashUserId, notExistReportId)
+        const nullifier = genReportNullifier(users[2].id, notExistReportId)
         const toEpoch = await userStateTransition(userState, {
             express,
             unirep,
@@ -787,7 +787,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const nullifier = genReportNullifier(users[2].id, report.reportId)
         const toEpoch = await userStateTransition(userState, {
             express,
             unirep,
@@ -831,7 +831,7 @@ describe('POST /api/report', function () {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
             },
         })
-        const nullifier = genReportNullifier(hashUserId, report.reportId)
+        const nullifier = genReportNullifier(users[0].id, report.reportId)
         const toEpoch = await userStateTransition(userState, {
             express,
             unirep,
@@ -877,7 +877,7 @@ describe('POST /api/report', function () {
         })
 
         const nullifier = genReportNullifier(
-            hashUserId,
+            users[2].id,
             watingForTxReport.reportId
         )
         const toEpoch = await userStateTransition(userState, {
