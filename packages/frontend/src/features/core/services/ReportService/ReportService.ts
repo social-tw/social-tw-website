@@ -1,5 +1,4 @@
 import { RelayApiService } from '@/features/core'
-import { getAdjudicateNullifier } from '@/features/reporting/utils/helpers'
 import { ReportHistory } from '@/features/reporting/utils/types'
 import { RelayCreateReportResponse } from '@/types/api'
 import {
@@ -8,6 +7,7 @@ import {
     ReportType,
 } from '@/types/Report'
 import { stringifyBigInts } from '@unirep/utils'
+import { genReportIdentityProof } from '../../utils/genReportIdentityProof'
 
 export class ReportService extends RelayApiService {
     async fetchPendingReports() {
@@ -91,12 +91,17 @@ export class ReportService extends RelayApiService {
     }) {
         const client = this.getAuthClient()
         const userState = this.getUserState()
-        const nullifier = getAdjudicateNullifier(userState.id.secret, reportId)
+
+        const { publicSignals, proof } = genReportIdentityProof(userState, {
+            reportId,
+        })
+
         const response = await client.post<{}>(
             `/report/${reportId}`,
             stringifyBigInts({
-                nullifier,
                 adjudicateValue,
+                publicSignals,
+                proof,
             }),
         )
         return response.data
