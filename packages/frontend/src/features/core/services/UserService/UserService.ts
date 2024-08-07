@@ -3,7 +3,7 @@ import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class UserService extends RelayApiService {
     async checkIn({ identityNonce = 0 }: { identityNonce: number }) {
-        const client = this.getClient()
+        const client = this.getAuthClient()
 
         const userState = this.getUserState()
 
