@@ -1,7 +1,9 @@
 //@ts-ignore
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
+import { Circuit } from '@unirep/circuits'
+import { deployVerifierHelper } from '@unirep/contracts/deploy/index.js'
 import { genEpochKey } from '@unirep/utils'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
@@ -19,6 +21,7 @@ import {
 describe('Verifier Helper Manager Test', function () {
     let unirep: Unirep
     let app: UnirepApp
+    let vHelperManager: any
     let chainId: number
     let user: IdentityObject
 
@@ -43,7 +46,23 @@ describe('Verifier Helper Manager Test', function () {
         const contracts = await deployApp(deployer, epochLength)
         unirep = contracts.unirep
         app = contracts.app
+        vHelperManager = contracts.vHelperManager
         user = createRandomUserIdentity()
+    })
+
+    it('should revert with not unirep app', async function () {
+        const [deployer, notOwner] = await ethers.getSigners()
+        const epkHelper = await deployVerifierHelper(
+            unirep.address,
+            deployer,
+            Circuit.epochKey
+        )
+        const identifier = genVHelperIdentifier('epochKeyVerifierHelper')
+        await expect(
+            vHelperManager
+                .connect(notOwner)
+                .verifierRegister(identifier, epkHelper.address)
+        ).to.be.reverted
     })
 
     describe('report non nullifier proof verification tests', async function () {

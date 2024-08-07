@@ -80,12 +80,16 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         return { identifier: hashId, address }
     })
 
+    await vHelperManager
+        .owner()
+        .then((owner) =>
+            console.log('Owner of verifier helper manager:', owner)
+        )
     // 2. register address into vHelperManager
     for (const vHelper of vHelpers) {
-        await vHelperManager.functions.verifierRegister(
-            vHelper.identifier,
-            vHelper.address
-        )
+        await vHelperManager
+            .connect(deployer)
+            .functions.verifierRegister(vHelper.identifier, vHelper.address)
     }
 
     // 3. check via reading from contract
@@ -114,6 +118,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     return {
         unirep,
         app,
+        vHelperManager,
         // Verifier Helpers
         reportNonNullifierVHelper,
         reportNullifierVHelper,

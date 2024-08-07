@@ -6,6 +6,8 @@ import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochK
 import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
@@ -16,7 +18,7 @@ interface IVerifier {
     ) external view returns (bool);
 }
 
-contract UnirepApp {
+contract UnirepApp is Ownable {
     struct postVote {
         uint256 upVote;
         uint256 downVote;
@@ -333,7 +335,7 @@ contract UnirepApp {
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -373,7 +375,7 @@ contract UnirepApp {
     function claimDailyLoginRep(
         uint256[] calldata publicSignals,
         uint256[8] calldata proof
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -420,7 +422,7 @@ contract UnirepApp {
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
