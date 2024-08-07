@@ -316,3 +316,22 @@ export const userStateTransition = async (
 
     await userState.waitForSync()
 }
+
+export const userStateTransition = async (userState, unirep, app) => {
+    const latestEpoch = await unirep.attesterCurrentEpoch(app.address)
+    const remainingTime = await unirep.attesterEpochRemainingTime(app.address)
+    // epoch transition
+    await ethers.provider.send('evm_increaseTime', [remainingTime])
+    await ethers.provider.send('evm_mine', [])
+
+    const toEpoch = latestEpoch + 1
+    await userState.waitForSync()
+    const { publicSignals, proof } =
+        await userState.genUserStateTransitionProof({
+            toEpoch,
+        })
+    const tx = await unirep.userStateTransition(publicSignals, proof)
+    await tx.wait()
+
+    await userState.waitForSync()
+}

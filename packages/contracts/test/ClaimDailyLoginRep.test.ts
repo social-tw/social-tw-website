@@ -1,9 +1,9 @@
 // @ts-ignore
-import { ethers } from 'hardhat'
 import { Circuit } from '@unirep/circuits'
 import { deployVerifierHelper } from '@unirep/contracts/deploy/index.js'
 import { genEpochKey } from '@unirep/utils'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
@@ -11,6 +11,7 @@ import {
     createRandomUserIdentity,
     genEpochKeyProof,
     genUserState,
+    userStateTransition,
 } from './utils'
 
 const checkSignals = (signals, proof) => {
@@ -167,27 +168,22 @@ describe('Claim Daily Login Reputation Test', function () {
             .to.emit(app, 'ClaimPosRep')
             .withArgs(publicSignals[0], currentEpoch)
 
-        // user transition to get updated data
-        await ethers.provider.send('evm_increaseTime', [epochLength])
-        await ethers.provider.send('evm_mine', [])
-
-        const toEpoch = await unirep.attesterCurrentEpoch(app.address)
-        {
-            await userState.waitForSync()
-            const { publicSignals, proof } =
-                await userState.genUserStateTransitionProof({
-                    toEpoch,
-                })
-            await unirep
-                .userStateTransition(publicSignals, proof)
-                .then((t) => t.wait())
-        }
-
-        await userState.waitForSync()
+        await userStateTransition(userState, unirep, app)
 
         const data = await userState.getData()
         // data[0] positive reputation
         expect(data[0]).equal(POS_REP + 1)
+    })
+
+    it('should revert with not owner', async () => {
+        const notOwner = await ethers.getSigners().then((signers) => signers[1])
+        const userState = await genUserState(user.id, app)
+
+        const { publicSignals, proof } = await userState.genEpochKeyProof()
+
+        await expect(
+            app.connect(notOwner).claimDailyLoginRep(publicSignals, proof)
+        ).to.be.reverted
     })
 
     it('should revert with wrong proof', async () => {

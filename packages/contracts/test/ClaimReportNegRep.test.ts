@@ -1,8 +1,9 @@
 // @ts-ignore
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
+import { ProofGenerationError } from './error'
 import { IdentityObject } from './types'
 import {
     createMultipleUserIdentity,
@@ -13,7 +14,6 @@ import {
     genVHelperIdentifier,
     userStateTransition,
 } from './utils'
-import { ProofGenerationError } from './error'
 
 describe('Claim Report Negative Reputation Test', function () {
     this.timeout(1000000)
@@ -173,6 +173,20 @@ describe('Claim Report Negative Reputation Test', function () {
         const data = await posterState.getData()
         expect(data[1]).to.be.equal(BigInt(posterPunishment))
         posterState.stop()
+    })
+
+    it('should revert with not owner', async () => {
+        const notOwner = await ethers.getSigners().then((signers) => signers[1])
+        await expect(
+            app
+                .connect(notOwner)
+                .claimReportPosRep(
+                    usedPublicSig,
+                    usedProof,
+                    identifier,
+                    posterPunishment
+                )
+        ).to.be.reverted
     })
 
     it('should revert with used proof from poster', async () => {
