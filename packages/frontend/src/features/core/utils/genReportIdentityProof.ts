@@ -4,7 +4,7 @@ import { toDecString } from '@unirep/core/src/Synchronizer'
 import { stringifyBigInts } from '@unirep/utils'
 import { poseidon2 } from 'poseidon-lite'
 
-export async function genReportNullifier(id: bigint, reportId: string) {
+export function genReportNullifier(id: bigint, reportId: string) {
     return poseidon2([id, reportId])
 }
 

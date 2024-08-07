@@ -20,6 +20,6 @@ export class ReportIdentityProof extends BaseProof {
         this.attesterId = this.publicSignals[1]
         this.epoch = this.publicSignals[2]
         this.stateTreeRoot = this.publicSignals[3]
-        ;(this as any).circuit = 'reportIndentityProof'
+        ;(this as any).circuit = 'reportIdentityProof'
     }
 }

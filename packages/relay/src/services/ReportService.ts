@@ -175,7 +175,7 @@ export class ReportService {
 
         if (!report) throw ReportNotExistError
         if (report.status != ReportStatus.VOTING) throw ReportVotingEndedError
-        await ProofHelper.verifyReportIdentityProof(
+        await ProofHelper.getAndVerifyReportIdentityProof(
             publicSignals,
             proof,
             synchronizer
