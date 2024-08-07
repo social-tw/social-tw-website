@@ -92,7 +92,7 @@ export class ReportService extends RelayApiService {
         const client = this.getAuthClient()
         const userState = this.getUserState()
 
-        const { publicSignals, proof } = genReportIdentityProof(userState, {
+        const { publicSignals, proof } = await genReportIdentityProof(userState, {
             reportId,
         })
 
