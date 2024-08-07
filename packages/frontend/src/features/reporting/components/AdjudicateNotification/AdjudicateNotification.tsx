@@ -1,8 +1,5 @@
-import { QueryKeys } from '@/constants/queryKeys'
 import { useUserState } from '@/features/core'
-import { fetchSinglePost } from '@/utils/api'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { useQuery } from '@tanstack/react-query'
 import { useToggle } from '@uidotdev/usehooks'
 import { useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
@@ -49,18 +46,8 @@ function useActiveAdjudication() {
         return waitingForAdjudicationReports[0]
     }, [reports, userState])
 
-    const { data: reportedObject } = useQuery({
-        queryKey: [QueryKeys.SinglePost, activeReport?.objectId],
-        queryFn: async () => {
-            if (!activeReport?.objectId) {
-                return null
-            }
-            return fetchSinglePost(activeReport.objectId)
-        },
-    })
-
     return useMemo(() => {
-        if (!activeReport || !reportedObject) {
+        if (!activeReport) {
             return null
         }
 
@@ -68,9 +55,9 @@ function useActiveAdjudication() {
             id: activeReport.reportId!,
             category: activeReport.category,
             reason: activeReport.reason,
-            content: reportedObject.content,
+            content: activeReport.object.content,
         }
-    }, [activeReport, reportedObject])
+    }, [activeReport])
 }
 
 export default function AdjudicationNotification() {

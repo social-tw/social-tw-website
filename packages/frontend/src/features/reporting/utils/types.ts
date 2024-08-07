@@ -1,3 +1,6 @@
+import { RelayRawComment } from '@/types/Comments'
+import { RelayRawPost } from '@/types/Post'
+
 export type Adjudicator = {
     nullifier: string
     adjudicateValue: number // 1: agree, 0: disagree
@@ -8,6 +11,7 @@ export interface ReportHistory {
     reportId: string
     type: number // 0: Post, 1: Comment
     objectId: string // PostId or CommentId
+    object: RelayRawPost | RelayRawComment
     reportorEpochKey: string // Epoch Key of the person who reported
     reportorClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed
     respondentEpochKey?: string // Epoch Key of the person who was reported
