@@ -1,16 +1,13 @@
-import toast from 'react-hot-toast'
-import { UserState } from '@unirep/core'
-import { useEffect, useState } from 'react'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { useUserState } from '@/features/core'
 import {
-    CommentPublishTransition,
     CommentFormDesktop,
     CommentFormMobile,
+    CommentPublishTransition,
     useCreateComment,
     type CommentFormValues,
 } from '@/features/post'
-import { useProfileHistoryStore } from '@/features/profile'
+import { useMediaQuery } from '@uidotdev/usehooks'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 export default function CreateComment({
     postId,
@@ -21,19 +18,13 @@ export default function CreateComment({
     isOpen?: boolean
     onClose?: () => void
 }) {
-    const { userState } = useUserState()
-
-    const invokeFetchHistoryCommentsFlow = useProfileHistoryStore(
-        (state) => state.invokeFetchHistoryCommentsFlow,
-    )
-
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const { isPending, createComment, reset } = useCreateComment()
 
     const onSubmit = async (values: CommentFormValues) => {
         try {
-            if (!postId || !userState) return
+            if (!postId) return
             onClose()
 
             const { content } = values
@@ -42,10 +33,6 @@ export default function CreateComment({
                 postId,
                 content,
             })
-
-            await invokeFetchHistoryCommentsFlow(
-                userState as unknown as UserState,
-            )
 
             toast('留言成功送出')
         } catch {

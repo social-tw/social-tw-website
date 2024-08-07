@@ -2,10 +2,10 @@ import { ethers } from 'ethers'
 import globalFactory from 'global-factory'
 
 import DataProofVerifier from '../../artifacts/contracts/verifiers/DataProofVerifier.sol/DataProofVerifier.json'
-import ReportNegRepProofVerifier from '../../artifacts/contracts/verifiers/ReportNegRepProofVerifier.sol/ReportNegRepProofVerifier.json'
+import ReportNonNullifierProofVerifier from '../../artifacts/contracts/verifiers/ReportNonNullifierProofVerifier.sol/ReportNonNullifierProofVerifier.json'
 import ReportNullifierProofVerifier from '../../artifacts/contracts/verifiers/ReportNullifierProofVerifier.sol/ReportNullifierProofVerifier.json'
 
-import ReportNegRepVHelper from '../../artifacts/contracts/verifierHelpers/ReportNegRepVHelper.sol/ReportNegRepVHelper.json'
+import ReportNonNullifierVHelper from '../../artifacts/contracts/verifierHelpers/ReportNonNullifierVHelper.sol/ReportNonNullifierVHelper.json'
 import ReportNullifierVHelper from '../../artifacts/contracts/verifierHelpers/ReportNullifierVHelper.sol/ReportNullifierVHelper.json'
 
 export async function deploySingleContract(
@@ -45,10 +45,10 @@ export async function deployVerifiers(deployer: ethers.Signer) {
         DataProofVerifier.bytecode,
         deployer
     )
-    /// deploy reportNegRepProofVerifier
-    const reportNegRepProofVerifier = await deploySingleContract(
-        ReportNegRepProofVerifier.abi,
-        ReportNegRepProofVerifier.bytecode,
+    /// deploy reportNonNullifierProofVerifier
+    const reportNonNullifierProofVerifier = await deploySingleContract(
+        ReportNonNullifierProofVerifier.abi,
+        ReportNonNullifierProofVerifier.bytecode,
         deployer
     )
     /// deploy reportNullifierProofVerifier
@@ -60,7 +60,7 @@ export async function deployVerifiers(deployer: ethers.Signer) {
 
     return {
         dataProofVerifier,
-        reportNegRepProofVerifier,
+        reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
     }
 }
@@ -69,19 +69,20 @@ export async function deployVHelpers(
     deployer: ethers.Signer,
     unirep: any,
     verifiers: {
-        reportNegRepProofVerifier: any
+        reportNonNullifierProofVerifier: any
         reportNullifierProofVerifier: any
     }
 ) {
-    const reportNegRepProofVerifier = verifiers.reportNegRepProofVerifier
+    const reportNonNullifierProofVerifier =
+        verifiers.reportNonNullifierProofVerifier
     const reportNullifierProofVerifier = verifiers.reportNullifierProofVerifier
 
-    /// deploy reportNegRepProofVHelper
-    const reportNegRepVHelper = await deploySingleContract(
-        ReportNegRepVHelper.abi,
-        ReportNegRepVHelper.bytecode,
+    /// deploy reportNonNullifierProofVHelper
+    const reportNonNullifierVHelper = await deploySingleContract(
+        ReportNonNullifierVHelper.abi,
+        ReportNonNullifierVHelper.bytecode,
         deployer,
-        [unirep, reportNegRepProofVerifier]
+        [unirep, reportNonNullifierProofVerifier]
     )
 
     /// deploy reportNullifierProofVHelper
@@ -93,7 +94,7 @@ export async function deployVHelpers(
     )
 
     return {
-        reportNegRepVHelper,
+        reportNonNullifierVHelper,
         reportNullifierVHelper,
     }
 }

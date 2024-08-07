@@ -1,5 +1,4 @@
 import { DB } from 'anondb'
-import { nanoid } from 'nanoid'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
@@ -89,7 +88,11 @@ export class ReportService {
     }
 
     async createReport(db: DB, reportData: ReportHistory): Promise<string> {
-        const reportId = nanoid()
+        // get the latest reportId
+        const reportId = await db
+            .count('ReportHistory', {})
+            .then((count) => count.toString())
+
         await db.create('ReportHistory', {
             reportId: reportId,
             type: reportData.type,
@@ -100,6 +103,7 @@ export class ReportService {
             category: reportData.category,
             reportEpoch: reportData.reportEpoch,
         })
+
         return reportId
     }
 
@@ -177,13 +181,22 @@ export class ReportService {
 
     async voteOnReport(
         reportId: string,
-        nullifier: string,
         adjudicateValue: AdjudicateValue,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer,
         db: DB
     ) {
         const report = await this.fetchSingleReport(reportId, db)
+        const nullifier = publicSignals[0]
+
         if (!report) throw ReportNotExistError
         if (report.status != ReportStatus.VOTING) throw ReportVotingEndedError
+        await ProofHelper.verifyReportIdentityProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
         // check if user voted or not
         if (this.isVoted(nullifier, report)) throw UserAlreadyVotedError
 

@@ -13,6 +13,7 @@ import {
     InvalidStateTreeError,
 } from '../../types'
 import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
+import Prover from './Prover'
 
 class ProofHelper {
     async getAndVerifyEpochKeyProof(
@@ -95,6 +96,48 @@ class ProofHelper {
         }
 
         return reputationProof
+    }
+
+    // TODO: when ReportIdentityProof type is created, need to modify
+    // ReportIndentityProof rip = new ReportIdentityProof(publicSignals, proof)
+    async verifyReportIdentityProof(
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<void> {
+        const isProofValid = await Prover.verifyProof(
+            'reportIdentityProof',
+            publicSignals,
+            proof
+        )
+        if (!isProofValid) {
+            throw InvalidProofError
+        }
+
+        const attesterId = publicSignals[1]
+        const epoch = publicSignals[2]
+        const stateTreeRoot = publicSignals[3]
+
+        // check if epoch is valid
+        const currentEpoch = await synchronizer.loadCurrentEpoch()
+        if (!(epoch.toString() === currentEpoch.toString())) {
+            throw InvalidEpochError
+        }
+
+        // check state root is valid
+        const isStateTreeValid = await synchronizer.stateTreeRootExists(
+            stateTreeRoot,
+            Number(epoch),
+            attesterId
+        )
+        if (!isStateTreeValid) {
+            throw InvalidStateTreeError
+        }
+
+        // check if attesterId is valid
+        if (!(synchronizer.attesterId === BigInt(attesterId))) {
+            throw InvalidAttesterIdError
+        }
     }
 
     /**

@@ -14,6 +14,7 @@ export function useDatePicker() {
     const [fromToEpoch, setFromToEpoch] = useState<FromToEpoch>(
         new InvalidFromToEpoch(),
     )
+
     const updateFromToEpoch = useCallback(async () => {
         if (!userState) {
             setFromToEpoch(new InvalidFromToEpoch())
@@ -27,22 +28,26 @@ export function useDatePicker() {
             ),
         )
     }, [startDate, endDate, userState])
+
     const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates
         setStartDate(start ? dayjs(start).startOf('day').toDate() : undefined)
         setEndDate(end ? dayjs(end).endOf('day').toDate() : undefined)
     }
+
     const setToday = () => {
         const now = dayjs()
         setStartDate(now.startOf('day').toDate())
         setEndDate(now.endOf('day').toDate())
     }
+
     const setPast7Days = () => {
         const today = dayjs()
         const past7Date = today.subtract(7, 'day')
         setStartDate(past7Date.startOf('day').toDate())
         setEndDate(today.endOf('day').toDate())
     }
+
     const setPast30Days = () => {
         const today = dayjs()
         const past30Date = today.subtract(30, 'day')

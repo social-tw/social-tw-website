@@ -1,3 +1,5 @@
+//@ts-ignore
+import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import {
     defaultProver,
@@ -13,9 +15,9 @@ import { UserState, schema } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
-import { ethers } from 'hardhat'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { IdentityObject } from './types'
+import { ProofGenerationError } from './error'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
 
@@ -172,7 +174,7 @@ export const randomData = () => [
         ),
 ]
 
-export function genReportNegRepCircuitInput(config: {
+export function genReportNonNullifierCircuitInput(config: {
     reportedEpochKey: any
     identitySecret: string | bigint | Identity
     reportedEpoch: number | bigint
@@ -180,7 +182,6 @@ export function genReportNegRepCircuitInput(config: {
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
-    type: number | bigint
 }) {
     const {
         reportedEpochKey,
@@ -190,7 +191,6 @@ export function genReportNegRepCircuitInput(config: {
         currentNonce,
         chainId,
         attesterId,
-        type,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -201,7 +201,6 @@ export function genReportNegRepCircuitInput(config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
-        type,
     }
     return stringifyBigInts(circuitInputs)
 }
@@ -242,8 +241,20 @@ export async function genProofAndVerify(
     circuitInputs: any
 ) {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new ProofGenerationError(error.message)
+        } else {
+            throw new Error('Unknown Error...')
+        }
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(

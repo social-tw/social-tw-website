@@ -28,5 +28,5 @@ export async function post(
 
     expect(res).to.have.status(200)
 
-    return res.body
+    return res.body.txHash
 }

@@ -1,11 +1,11 @@
 //@ts-ignore
+import { ethers } from 'hardhat'
 import { DataProof } from '@unirep-app/circuits'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { Circuit, CircuitConfig } from '@unirep/circuits'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { IdentityObject } from './types'

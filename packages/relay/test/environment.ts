@@ -6,11 +6,9 @@ import { ethers } from 'hardhat'
 import path from 'path'
 
 // libraries
-import { Synchronizer } from '@unirep/core'
 import http from 'http'
 import { PRIVATE_KEY } from '../src/config'
 import schema from '../src/db/schema'
-import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import prover from '../src/services/utils/Prover'
 import {
@@ -20,6 +18,7 @@ import {
 import TransactionManager from '../src/services/utils/TransactionManager'
 
 import { Helia } from '@helia/interface'
+import { Synchronizer } from '@unirep/core'
 import chai from 'chai'
 import * as chaiAsPromise from 'chai-as-promised'
 import chaiHttp from 'chai-http'
@@ -92,7 +91,6 @@ export const startServer = async (unirep: any, unirepApp: any) => {
         TransactionManager,
         synchronizer,
         chaiServer,
-        postService,
         socketManager,
     }
 }

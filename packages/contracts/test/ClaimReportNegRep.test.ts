@@ -1,6 +1,6 @@
-import { expect } from 'chai'
 // @ts-ignore
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
@@ -8,10 +8,11 @@ import {
     createMultipleUserIdentity,
     flattenProof,
     genProofAndVerify,
-    genReportNegRepCircuitInput,
+    genReportNonNullifierCircuitInput,
     genUserState,
     genVHelperIdentifier,
 } from './utils'
+import { ProofGenerationError } from './error'
 
 describe('Claim Report Negative Reputation Test', function () {
     this.timeout(1000000)
@@ -22,15 +23,19 @@ describe('Claim Report Negative Reputation Test', function () {
     let users: IdentityObject[]
     let poster: IdentityObject
     let reporter: IdentityObject
-    let reportedEpoch: number
-    let reportedEpochKey: bigint
+    let posterEpoch: number
+    let posterEpochKey: bigint
+    let reporterEpoch: number
+    let reporterEpochKey: bigint
 
     let snapshot: any
     const epochLength = 300
     const posterPunishment = 5
     const reporterPunishment = 1
-    const circuit = 'reportNegRepProof'
-    const identifier = genVHelperIdentifier('reportNegRepProofVerifierHelper')
+    const circuit = 'reportNonNullifierProof'
+    const identifier = genVHelperIdentifier(
+        'reportNonNullifierProofVerifierHelper'
+    )
     let usedPublicSig: any
     let usedProof: any
 
@@ -100,8 +105,8 @@ describe('Claim Report Negative Reputation Test', function () {
                     revealNonce: false,
                     attesterId,
                 })
-            reportedEpochKey = postPubSig[0]
-            reportedEpoch = await posterState.sync.loadCurrentEpoch()
+            posterEpochKey = postPubSig[0]
+            posterEpoch = await posterState.sync.loadCurrentEpoch()
 
             await app.post(postPubSig, postPf, content)
             posterState.stop()
@@ -111,15 +116,15 @@ describe('Claim Report Negative Reputation Test', function () {
     })
 
     /**
-     * 1. succeed with type 0 (punishing poster)
-     * 2. revert with used type-0 proof
-     * 3. succeed with type 1 (punishing reporter)
-     * 4. revert with used type-1 proof
+     * 1. succeed to punish poster
+     * 2. revert with used proof
+     * 3. succeed with punish reporter
+     * 4. revert with used proof
      * 4. revert with invalid proof
      * 5. revert with wrong epoch
      * 6. revert with invalid attesterId
      */
-    it('should succeed with valid input with type 0 (punishing poster)', async () => {
+    it('should succeed with valid input to punish poster', async () => {
         const posterState = await genUserState(poster.id, app)
         const identitySecret = poster.id.secret
 
@@ -129,23 +134,22 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(5)
+        expect(currentEpoch).to.be.equal(10)
 
-        const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-            type,
-        })
+        const reportNonNullifierCircuitInputs =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: posterEpochKey,
+                identitySecret,
+                reportedEpoch: posterEpoch,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInputs
         )
 
         usedPublicSig = publicSignals
@@ -164,7 +168,7 @@ describe('Claim Report Negative Reputation Test', function () {
         posterState.stop()
     })
 
-    it('should revert with used proof (for poster punishment)', async () => {
+    it('should revert with used proof from poster', async () => {
         await expect(
             app.claimReportPosRep(
                 usedPublicSig,
@@ -175,7 +179,26 @@ describe('Claim Report Negative Reputation Test', function () {
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
 
-    it('should succeed with valid input with type 1 (punishing reporter)', async () => {
+    before(async () => {
+        // reporter report the poster at this moment
+        const reporterState = await genUserState(reporter.id, app)
+        const { publicSignals: reporterPubSig, proof: reporterPf } =
+            await reporterState.genEpochKeyProof({
+                nonce: 0,
+                epoch: 0,
+                data: BigInt(0),
+                revealNonce: false,
+                attesterId,
+            })
+        reporterEpochKey = reporterPubSig[0]
+        reporterEpoch = await reporterState.sync.loadCurrentEpoch()
+
+        // elapsing 5 epoch
+        await ethers.provider.send('evm_increaseTime', [epochLength * 5])
+        await ethers.provider.send('evm_mine', [])
+    })
+
+    it('should succeed with valid input to punish reporter', async () => {
         const reporterState = await genUserState(reporter.id, app)
         const identitySecret = reporter.id.secret
 
@@ -185,23 +208,22 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await reporterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(10)
+        expect(currentEpoch).to.be.equal(15)
 
-        const type = 1
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-            type,
-        })
+        const reportNonNullifierCircuitInputs =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: reporterEpochKey,
+                identitySecret,
+                reportedEpoch: reporterEpoch,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInputs
         )
 
         usedPublicSig = publicSignals
@@ -220,7 +242,7 @@ describe('Claim Report Negative Reputation Test', function () {
         reporterState.stop()
     })
 
-    it('should revert with used proof (for reporter punishment)', async () => {
+    it('should revert with used proof from reporter', async () => {
         await expect(
             app.claimReportPosRep(
                 usedPublicSig,
@@ -241,23 +263,22 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(15)
+        expect(currentEpoch).to.be.equal(20)
 
-        const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-            type,
-        })
+        const reportNonNullifierCircuitInputs =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: posterEpochKey,
+                identitySecret,
+                reportedEpoch: posterEpoch,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInputs
         )
         const flattenedProof = flattenProof(proof)
         flattenedProof[0] = BigInt(0)
@@ -285,21 +306,20 @@ describe('Claim Report Negative Reputation Test', function () {
         const currentNonce = 0
         const currentEpoch = BigInt(44444) // correct epoch = 20
 
-        const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-            type,
-        })
+        const reportNonNullifierCircuitInputs =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: posterEpochKey,
+                identitySecret,
+                reportedEpoch: posterEpoch,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInputs
         )
 
         const flattenedProof = flattenProof(proof)
@@ -316,7 +336,7 @@ describe('Claim Report Negative Reputation Test', function () {
         posterState.stop()
     })
 
-    it('should revert with wrong attester InvalidAttester', async () => {
+    it('should revert with wrong attester', async () => {
         const posterState = await genUserState(poster.id, app)
         const identitySecret = poster.id.secret
 
@@ -326,26 +346,29 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(25)
+        expect(currentEpoch).to.be.equal(30)
         const wrongAttester = BigInt(444444)
 
-        const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId: wrongAttester,
-            type,
-        })
+        const reportNonNullifierCircuitInputs =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: posterEpochKey,
+                identitySecret,
+                reportedEpoch: posterEpoch,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId: wrongAttester,
+            })
 
         // this will not generate a proof since the attesterId would change the epochkey
         try {
-            await genProofAndVerify(circuit, reportNegRepCircuitInputs)
-        } catch (e) {
-            console.log(e)
+            await genProofAndVerify(circuit, reportNonNullifierCircuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+            )
         }
 
         posterState.stop()
