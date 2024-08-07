@@ -54,7 +54,7 @@ export function useRemoveComment() {
             await provider.waitForTransaction(txHash)
             await userState.waitForSync()
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
             const actionId = addAction(ActionType.DeleteComment, {
                 postId: variables.postId,
                 commentId: variables.commentId,

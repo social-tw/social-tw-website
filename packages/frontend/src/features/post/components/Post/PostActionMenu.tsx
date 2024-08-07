@@ -1,5 +1,7 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
+import { useReputationScore } from '@/features/reporting'
 import { useDialog } from '@/features/shared'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import {
     ActionMenuBottomSlide,
     ActionMenuBottomSlideItem,
@@ -27,6 +29,11 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
         onClose: onReportDialogClose,
     } = useDialog()
 
+    const { isValidReputationScore } = useReputationScore()
+    const handleReportPost = isValidReputationScore
+        ? onReportDialogOpen
+        : openForbidActionDialog
+
     return (
         <ActionMenuContainer
             onOpen={onActionMenuOpen}
@@ -39,7 +46,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReportDialogOpen}
+                    onClick={handleReportPost}
                     disabled={false}
                 />
             </ActionMenuDropdown>
@@ -50,7 +57,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReportDialogOpen}
+                    onClick={handleReportPost}
                     disabled={false}
                 />
             </ActionMenuBottomSlide>

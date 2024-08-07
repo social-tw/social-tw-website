@@ -72,7 +72,7 @@ export function useCreateComment() {
                 epochKey,
             }
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
             const commentData = {
                 commentId: undefined,
                 postId: variables.postId,

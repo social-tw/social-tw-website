@@ -1,4 +1,5 @@
 import ReputationHistory from '@/features/profile/components/ReputationHistory/ReputationHistory'
+import { useReputationScore } from '@/features/reporting'
 
 const CONTENT =
     '為維護匿名平台的抗審查及自治特性，Reputation 代表著您在此平台上的信用分數，每位用戶在註冊時的分數都為０，當分數為負數時，平台將限制您的行為使您無法發文、留言、投票，若希望提高分數，請參閱平台政策。此分數受您的在平台上的行為所影響，若您受到他人檢舉，並且檢舉被判斷為有效時，您將會被扣分；若您檢舉他人成功、或是幫助平台裁定檢舉，您將會被加分。平台方保有最終解釋權'
@@ -12,7 +13,8 @@ function Hint() {
 }
 
 function Score() {
-    const myScore = 0
+    const { reputationScore } = useReputationScore()
+    const myScore = reputationScore || 0
     const myScoreStyle = getScoreStyle(myScore)
     const hint = getHintByScore(myScore)
     const subHint = '＊聲譽分數會在每個 Epoch 開始時更新'
