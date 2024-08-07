@@ -21,6 +21,7 @@ function getActionTypeLabel(type: ActionType) {
         [ActionType.DeleteComment]: '刪除留言',
         [ActionType.ReportPost]: '檢舉貼文',
         [ActionType.ReportComment]: '檢舉留言',
+        [ActionType.CheckIn]: '每日簽到',
     }
     return typeLabels[type]
 }
