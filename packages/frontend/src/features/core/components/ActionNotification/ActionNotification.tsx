@@ -20,6 +20,7 @@ function getActionMessage(type: ActionType) {
         [ActionType.DeleteComment]: '刪除留言',
         [ActionType.ReportPost]: '檢舉貼文',
         [ActionType.ReportComment]: '檢舉留言',
+        [ActionType.CheckIn]: '每日簽到',
     }
     return messages[type]
 }
@@ -31,6 +32,7 @@ function getActionSubject(type: ActionType) {
         [ActionType.DeleteComment]: '留言',
         [ActionType.ReportPost]: '檢舉',
         [ActionType.ReportComment]: '檢舉',
+        [ActionType.CheckIn]: '簽到',
     }
     return subjects[type]
 }
@@ -157,7 +159,7 @@ export default function ActionNotification() {
                             className="relative w-full max-w-md overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                             data-testid="actions-dialog"
                         >
-                            <div className="sticky top-0 z-10 bg-black/90 px-7 py-4">
+                            <div className="sticky top-0 z-10 py-4 bg-black/90 px-7">
                                 <button
                                     className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
                                     type="submit"
@@ -166,7 +168,7 @@ export default function ActionNotification() {
                                     <CloseIcon />
                                 </button>
                             </div>
-                            <div className="h-72 overflow-y-auto px-7 pb-7">
+                            <div className="overflow-y-auto h-72 px-7 pb-7">
                                 <ActionTable onClose={() => setIsOpen(false)} />
                             </div>
                         </Dialog.Panel>
