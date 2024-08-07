@@ -12,6 +12,7 @@ interface CommentProps {
     epochKey?: string
     content: string
     publishedAt: Date
+    isReported?: boolean
     status: CommentStatus
     canDelete: boolean
     canReport: boolean
@@ -25,13 +26,13 @@ export default function Comment({
     epochKey = nanoid(),
     content = '',
     publishedAt,
+    isReported = false,
     status = CommentStatus.Success,
     canDelete = true,
     canReport = true,
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
-    const isReported = false
     return (
         <>
             <article

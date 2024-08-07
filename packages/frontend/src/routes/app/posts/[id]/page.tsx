@@ -8,7 +8,7 @@ import {
     Post,
     useVotes,
 } from '@/features/post'
-import { PostStatus } from '@/types/Post'
+import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
@@ -35,40 +35,35 @@ const PostDetailsPage: React.FC = () => {
         queryFn: async () => {
             if (!id) return undefined
             const postService = new PostService()
-            const post = await postService.fetchPostById(id)
-            return {
-                id: post._id,
-                postId: post.postId,
-                epochKey: post.epochKey,
-                content: post.content,
-                publishedAt: new Date(Number(post.publishedAt)),
-                commentCount: post.commentCount,
-                upCount: post.upCount,
-                downCount: post.downCount,
-                isMine: false,
-                finalAction: null,
-                votedNonce: null,
-                votedEpoch: null,
-                status: PostStatus.Success,
-                votes: post.votes,
-            }
+            return postService.fetchPostById(id)
         },
     })
 
     const post = useMemo(() => {
-        if (data && userState) {
-            const voteCheck = checkVoteIsMine(data.votes, userState)
-            const isMine = voteCheck.isMine
-            const finalAction = voteCheck.finalAction
-            return {
-                ...data,
-                isMine: isMine,
-                finalAction: finalAction,
-                votedNonce: voteCheck.votedNonce,
-                votedEpoch: voteCheck.votedEpoch,
-            }
+        if (!data) return undefined
+
+        let voteCheck
+        if (userState) {
+            voteCheck = checkVoteIsMine(data?.votes, userState)
         }
-        return data
+
+        return {
+            id: data._id,
+            postId: data.postId,
+            epochKey: data.epochKey,
+            content: data.content,
+            publishedAt: new Date(Number(data.publishedAt)),
+            commentCount: data.commentCount,
+            upCount: data.upCount,
+            downCount: data.downCount,
+            isReported: data.status === RelayRawPostStatus.REPORTED,
+            isMine: voteCheck ? voteCheck.isMine : false,
+            finalAction: voteCheck ? voteCheck.finalAction : null,
+            votedNonce: voteCheck ? voteCheck.votedNonce : null,
+            votedEpoch: voteCheck ? voteCheck.votedEpoch : null,
+            status: PostStatus.Success,
+            votes: data.votes,
+        }
     }, [data, userState])
 
     const [isOpenComment, setIsOpenCommnet] = useState(false)
@@ -134,6 +129,7 @@ const PostDetailsPage: React.FC = () => {
                         upCount={post.upCount}
                         downCount={post.downCount}
                         onComment={onWriteComment}
+                        isReported={post.isReported}
                         isMine={post.isMine}
                         finalAction={post.finalAction}
                         votedNonce={post.votedNonce}

@@ -9,8 +9,28 @@ jest.mock('@/utils/helpers/getEpochKeyNonce', () => ({
     getEpochKeyNonce: jest.fn(),
 }))
 
+jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
+    useWeb3Provider: () => ({
+        getGuaranteedProvider: () => ({
+            waitForTransaction: jest.fn().mockResolvedValue({
+                logs: [
+                    {
+                        topics: ['', '', '1111', ''],
+                    },
+                ],
+            }),
+        }),
+    }),
+}))
+
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
+        userState: {
+            sync: {
+                calcCurrentEpoch: jest.fn().mockReturnValue(2),
+                calcEpochRemainingTime: jest.fn().mockReturnValue(120),
+            },
+        },
         getGuaranteedUserState: () => ({
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
@@ -32,6 +52,9 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
                 epoch: 0,
                 epochKey: 'mocked_epockKey',
             }),
+            sync: {
+                calcCurrentEpoch: jest.fn().mockReturnValue(2),
+            },
         }),
     }),
 }))
@@ -39,6 +62,8 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
 describe('useReportPost', () => {
     it('should call relayReport api', async () => {
         const expectation = nock(SERVER)
+            .post('/api/transition')
+            .reply(200, { hash: '0xhash' })
             .post('/api/report')
             .reply(200, { reportId: '123' })
 
