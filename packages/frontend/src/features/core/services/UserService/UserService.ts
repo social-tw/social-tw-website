@@ -13,7 +13,7 @@ export class UserService extends RelayApiService {
             })
 
         const response = await client.post(
-            '/check-in',
+            '/checkin',
             stringifyBigInts({
                 publicSignals,
                 proof,

@@ -197,10 +197,7 @@ export function addAction(
     return action.id
 }
 
-export function succeedActionById(
-    id: string,
-    data?: Partial<PostData | CommentData>,
-) {
+export function succeedActionById(id: string, data?: any) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Success
         state.entities[id].data = state.entities[id].data
@@ -210,10 +207,7 @@ export function succeedActionById(
     })
 }
 
-export function failActionById(
-    id: string,
-    data?: Partial<PostData | CommentData>,
-) {
+export function failActionById(id: string, data?: any) {
     useActionStore.setState((state) => {
         state.entities[id].status = ActionStatus.Failure
         state.entities[id].data = state.entities[id].data

@@ -1,14 +1,14 @@
-import { useSearchParams } from 'react-router-dom'
 import {
+    ActionStatus,
+    ActionType,
     removeAction,
     useActionStore,
-    ActionType,
-    ActionStatus,
 } from '@/features/core'
 import { RichTextEditor } from '@/features/shared'
 import { clsx } from 'clsx'
-import { Controller, useForm } from 'react-hook-form'
 import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
 
 export interface PostFormValues {
     content: string
@@ -40,7 +40,7 @@ export default function PostForm({
                     action.status === ActionStatus.Failure &&
                     action.id === failedPostId,
             )
-            if (failedPost && 'content' in failedPost.data) {
+            if (!!failedPost?.data && 'content' in failedPost.data) {
                 setValue('content', failedPost.data.content)
             }
         }
