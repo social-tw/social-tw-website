@@ -19,6 +19,7 @@ export interface PostInfo {
     upCount: number
     downCount: number
     isMine: boolean
+    isReported: boolean
     finalAction: VoteAction | null
     votedNonce: number | null
     votedEpoch: number | null
@@ -36,6 +37,13 @@ export interface PostHistoryMetaData {
     url: string
 }
 
+export enum RelayRawPostStatus {
+    NOT_ON_CHAIN,
+    ON_CHAIN,
+    REPORTED,
+    DISAGREED,
+}
+
 export interface RelayRawPost {
     cid: string | null | undefined
     _id: string
@@ -48,7 +56,7 @@ export interface RelayRawPost {
     epoch: number
     upCount: number
     downCount: number
-    status: number
+    status: RelayRawPostStatus
     commentCount: number
     votes: RelayRawVote[]
 }
