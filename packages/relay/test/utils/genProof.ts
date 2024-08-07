@@ -279,7 +279,6 @@ export async function genReportIdentityProof(userState, config) {
     const circuitInput = {
         report_nullifier: config.nullifier,
         identity_secret: identitySecret,
-        hash_user_id: config.hashUserId,
         report_id: config.reportId,
         data,
         attester_id: attesterId,

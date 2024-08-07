@@ -7,7 +7,6 @@ template ReportIdentityProof(STATE_TREE_DEPTH, FIELD_COUNT) {
     // inputs
     signal input report_nullifier;
     signal input identity_secret;
-    signal input hash_user_id;
     signal input report_id;
     signal input data[FIELD_COUNT];
     signal input attester_id;

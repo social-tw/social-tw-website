@@ -54,7 +54,6 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -81,13 +80,11 @@ describe('Prove report identity in Unirep Social-TW', function () {
 
     it('should revert with invalid identity', async () => {
         const wrongIdentitySecret = BigInt(444)
-        const hashUserId = user.hashUserId
         const reportId = 0
         const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret: wrongIdentitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -104,7 +101,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 36\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 35\n'
             )
         }
     })
@@ -113,11 +110,9 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const identitySecret = user.id.secret
         const reportId = 0
         const reportNullifier = genNullifier(user.id, reportId)
-        const hashUserId = BigInt(123)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -134,21 +129,19 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
             )
         }
     })
 
     it('should revert with wrong reportId', async () => {
         const identitySecret = user.id.secret
-        const hashUserId = user.hashUserId
         const reportId = 0
         const wrongReportId = 444
         const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
-            hashUserId,
             reportId: wrongReportId,
             data,
             attesterId,
@@ -165,20 +158,18 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
             )
         }
     })
 
     it('should revert with arbitrary nullifier', async () => {
         const identitySecret = user.id.secret
-        const hashUserId = user.hashUserId
         const reportId = 0
         const wrongReportNullifier = BigInt(444)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier: wrongReportNullifier,
             identitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -195,7 +186,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
             )
         }
     })

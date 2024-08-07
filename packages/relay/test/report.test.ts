@@ -575,7 +575,6 @@ describe('POST /api/report', function () {
     })
 
     it('should vote agree on the report', async function () {
-        const hashUserId = users[0].hashUserId
         const userState = await genUserState(users[0].id, sync, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -593,7 +592,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
@@ -631,7 +629,6 @@ describe('POST /api/report', function () {
     })
 
     it('should vote disagree on the report', async function () {
-        const hashUserId = users[1].hashUserId
         const userState = await genUserState(users[1].id, sync, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -649,7 +646,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
@@ -690,7 +686,6 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if report identity proof is wrong', async function () {
-        const hashUserId = users[2].hashUserId
         const userState = await genUserState(users[2].id, sync, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -708,7 +703,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
@@ -737,7 +731,6 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if report does not exist', async function () {
-        const hashUserId = users[2].hashUserId
         const userState = await genUserState(users[2].id, sync, app, db, prover)
         const notExistReportId = '444'
         const nullifier = genReportNullifier(users[2].id, notExistReportId)
@@ -750,7 +743,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: notExistReportId,
@@ -777,7 +769,6 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote invalid adjudicate value', async function () {
-        const hashUserId = users[2].hashUserId
         const userState = await genUserState(users[2].id, sync, app, db, prover)
         const wrongAdjucateValue = 'wrong'
 
@@ -797,7 +788,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
@@ -824,7 +814,6 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote on the report with same nullifier', async function () {
-        const hashUserId = users[0].hashUserId
         const userState = await genUserState(users[0].id, sync, app, db, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -841,7 +830,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
@@ -868,7 +856,6 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote on the report whose status is not VOTING', async function () {
-        const hashUserId = users[2].hashUserId
         const userState = await genUserState(users[2].id, sync, app, db, prover)
         const watingForTxReport = await db.findOne('ReportHistory', {
             where: {
@@ -889,7 +876,6 @@ describe('POST /api/report', function () {
             userState,
             {
                 nullifier,
-                hashUserId,
                 chainId,
                 toEpoch,
                 reportId: watingForTxReport.reportId,

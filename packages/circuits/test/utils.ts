@@ -125,7 +125,6 @@ export const genReportNullifierCircuitInput = (config: {
 export const genReportIdentityCircuitInput = (config: {
     reportNullifier: any
     identitySecret: string | bigint
-    hashUserId: string | bigint
     reportId: number | bigint
     data: string[] | bigint[]
     attesterId: string | bigint
@@ -138,7 +137,6 @@ export const genReportIdentityCircuitInput = (config: {
     const {
         reportNullifier,
         identitySecret,
-        hashUserId,
         reportId,
         data,
         attesterId,
@@ -152,7 +150,6 @@ export const genReportIdentityCircuitInput = (config: {
     const circuitInputs = {
         report_nullifier: reportNullifier,
         identity_secret: identitySecret,
-        hash_user_id: hashUserId,
         report_id: reportId,
         data,
         attester_id: attesterId,
