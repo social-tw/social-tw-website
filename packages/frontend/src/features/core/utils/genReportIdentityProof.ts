@@ -14,10 +14,7 @@ export async function genReportIdentityProof(
         reportId: string
     },
     options: {
-        nonce?: number
         epoch?: number
-        data?: bigint
-        revealNonce?: boolean
         attesterId?: bigint | string
     } = {},
 ) {
@@ -42,7 +39,6 @@ export async function genReportIdentityProof(
     const circuitInputs = {
         report_nullifier: reportNuillifier,
         identity_secret: identitySecret,
-        hash_user_id: identitySecret,
         report_id: reportId,
         data,
         attester_id: attesterId,
