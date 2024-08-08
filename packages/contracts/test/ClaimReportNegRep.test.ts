@@ -12,6 +12,7 @@ import {
     genReportNonNullifierCircuitInput,
     genUserState,
     genVHelperIdentifier,
+    userStateTransition,
 } from './utils'
 
 describe('Claim Report Negative Reputation Test', function () {
@@ -30,8 +31,8 @@ describe('Claim Report Negative Reputation Test', function () {
 
     let snapshot: any
     const epochLength = 300
-    const posterPunishment = 5
-    const reporterPunishment = 1
+    const posterPunishment: number = 5
+    const reporterPunishment: number = 1
     const circuit = 'reportNonNullifierProof'
     const identifier = genVHelperIdentifier(
         'reportNonNullifierProofVerifierHelper'
@@ -107,7 +108,6 @@ describe('Claim Report Negative Reputation Test', function () {
                 })
             posterEpochKey = postPubSig[0]
             posterEpoch = await posterState.sync.loadCurrentEpoch()
-
             await app.post(postPubSig, postPf, content)
             posterState.stop()
         } catch (err) {
@@ -132,9 +132,11 @@ describe('Claim Report Negative Reputation Test', function () {
         await ethers.provider.send('evm_increaseTime', [epochLength * 5])
         await ethers.provider.send('evm_mine', [])
 
+        // user transition
+        await userStateTransition(posterState, unirep, app)
+
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(10)
 
         const reportNonNullifierCircuitInputs =
             genReportNonNullifierCircuitInput({
@@ -163,8 +165,13 @@ describe('Claim Report Negative Reputation Test', function () {
         )
         await expect(tx)
             .to.emit(app, 'ClaimNegRep')
-            .withArgs(publicSignals[0], currentEpoch)
+            .withArgs(publicSignals[1], currentEpoch)
 
+        await userStateTransition(posterState, unirep, app)
+
+        // check if reputation is claimed
+        const data = await posterState.getData()
+        expect(data[1]).to.be.equal(BigInt(posterPunishment))
         posterState.stop()
     })
 
@@ -206,23 +213,19 @@ describe('Claim Report Negative Reputation Test', function () {
             })
         reporterEpochKey = reporterPubSig[0]
         reporterEpoch = await reporterState.sync.loadCurrentEpoch()
-
-        // elapsing 5 epoch
-        await ethers.provider.send('evm_increaseTime', [epochLength * 5])
-        await ethers.provider.send('evm_mine', [])
     })
 
     it('should succeed with valid input to punish reporter', async () => {
         const reporterState = await genUserState(reporter.id, app)
-        const identitySecret = reporter.id.secret
 
         // elapsing 5 epoch
         await ethers.provider.send('evm_increaseTime', [epochLength * 5])
         await ethers.provider.send('evm_mine', [])
+        await userStateTransition(reporterState, unirep, app)
 
+        const identitySecret = reporter.id.secret
         const currentNonce = 0
         const currentEpoch = await reporterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(15)
 
         const reportNonNullifierCircuitInputs =
             genReportNonNullifierCircuitInput({
@@ -251,8 +254,13 @@ describe('Claim Report Negative Reputation Test', function () {
         )
         await expect(tx)
             .to.emit(app, 'ClaimNegRep')
-            .withArgs(publicSignals[0], currentEpoch)
+            .withArgs(publicSignals[1], currentEpoch)
 
+        await userStateTransition(reporterState, unirep, app)
+
+        // check if reputation is claimed
+        const data = await reporterState.getData()
+        expect(data[1]).to.be.equal(BigInt(reporterPunishment))
         reporterState.stop()
     })
 
@@ -277,7 +285,6 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(20)
 
         const reportNonNullifierCircuitInputs =
             genReportNonNullifierCircuitInput({
@@ -360,7 +367,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const currentNonce = 0
         const currentEpoch = await posterState.sync.loadCurrentEpoch()
-        expect(currentEpoch).to.be.equal(30)
+
         const wrongAttester = BigInt(444444)
 
         const reportNonNullifierCircuitInputs =

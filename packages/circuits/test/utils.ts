@@ -56,8 +56,8 @@ export const createRandomUserIdentity = (): IdentityObject => {
     return { hashUserId, id }
 }
 
-export const genNullifier = (hashUserId: string, reportId: number | bigint) => {
-    return poseidon2([hashUserId, reportId])
+export const genNullifier = (identity: Identity, reportId: number | bigint) => {
+    return poseidon2([identity.secret, reportId])
 }
 
 export const genReportNonNullifierCircuitInput = (config: {
@@ -93,7 +93,7 @@ export const genReportNonNullifierCircuitInput = (config: {
 
 export const genReportNullifierCircuitInput = (config: {
     reportNullifier: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint
     reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
@@ -102,7 +102,7 @@ export const genReportNullifierCircuitInput = (config: {
 }) => {
     const {
         reportNullifier,
-        hashUserId,
+        identitySecret,
         reportId,
         currentEpoch,
         currentNonce,
@@ -112,7 +112,7 @@ export const genReportNullifierCircuitInput = (config: {
 
     const circuitInputs = {
         report_nullifier: reportNullifier,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
@@ -125,7 +125,6 @@ export const genReportNullifierCircuitInput = (config: {
 export const genReportIdentityCircuitInput = (config: {
     reportNullifier: any
     identitySecret: string | bigint
-    hashUserId: string | bigint
     reportId: number | bigint
     data: string[] | bigint[]
     attesterId: string | bigint
@@ -138,7 +137,6 @@ export const genReportIdentityCircuitInput = (config: {
     const {
         reportNullifier,
         identitySecret,
-        hashUserId,
         reportId,
         data,
         attesterId,
@@ -152,7 +150,6 @@ export const genReportIdentityCircuitInput = (config: {
     const circuitInputs = {
         report_nullifier: reportNullifier,
         identity_secret: identitySecret,
-        hash_user_id: hashUserId,
         report_id: reportId,
         data,
         attester_id: attesterId,

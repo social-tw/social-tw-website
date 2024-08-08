@@ -207,7 +207,7 @@ export function genReportNonNullifierCircuitInput(config: {
 
 export function genReportNullifierCircuitInput(config: {
     reportNullifier: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint
     reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
@@ -216,7 +216,7 @@ export function genReportNullifierCircuitInput(config: {
 }) {
     const {
         reportNullifier,
-        hashUserId,
+        identitySecret,
         reportId,
         currentEpoch,
         currentNonce,
@@ -226,7 +226,7 @@ export function genReportNullifierCircuitInput(config: {
 
     const circuitInputs = {
         report_nullifier: reportNullifier,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
@@ -290,11 +290,15 @@ export function flattenProof(proof: any) {
     ]
 }
 
-export function genNullifier(hashUserId: string, reportId: number | bigint) {
-    return poseidon2([hashUserId, reportId])
+export function genNullifier(identity: Identity, reportId: number | bigint) {
+    return poseidon2([identity.secret, reportId])
 }
 
-export const userStateTransition = async (userState, unirep, app) => {
+export async function userStateTransition(
+    userState: UserState,
+    unirep: any,
+    app: any
+) {
     const latestEpoch = await unirep.attesterCurrentEpoch(app.address)
     const remainingTime = await unirep.attesterEpochRemainingTime(app.address)
     // epoch transition
