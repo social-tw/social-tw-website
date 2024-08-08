@@ -1,5 +1,4 @@
-import { RelayApiService } from '@/features/core'
-import { genReportIdentityProof } from '@/features/core/utils/genReportIdentityProof'
+import { RelayApiService, genReportIdentityProof } from '@/features/core'
 import { ReportHistory } from '@/features/reporting/utils/types'
 import { RelayCreateReportResponse } from '@/types/api'
 import {
@@ -92,11 +91,12 @@ export class ReportService extends RelayApiService {
         const client = this.getAuthClient()
         const userState = this.getUserState()
 
-        const reportIdentityProof = await genReportIdentityProof(userState, {
-            reportId,
-        })
-        console.log(reportIdentityProof)
-        const { publicSignals, proof } = reportIdentityProof
+        const { publicSignals, proof } = await genReportIdentityProof(
+            userState,
+            {
+                reportId,
+            },
+        )
 
         const response = await client.post<{}>(
             `/report/${reportId}`,

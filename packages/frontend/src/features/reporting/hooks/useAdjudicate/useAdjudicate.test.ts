@@ -49,7 +49,7 @@ jest.mock('@/features/core/utils/genReportIdentityProof', () => ({
         proof: 'mocked_proof',
         epoch: 2,
         epochKey: 'mocked_epockKey',
-    })
+    }),
 }))
 
 describe('useAdjudicate', () => {
