@@ -1,9 +1,6 @@
 import { BaseProof, Prover } from '@unirep/circuits'
 import { Groth16Proof } from 'snarkjs'
 
-/**
- * A class representing an [epoch key proof](https://developer.unirep.io/docs/circuits-api/classes/src.EpochKeyProof). Each of the following properties are public signals for the proof.
- */
 export class ReportIdentityProof extends BaseProof {
     public reportNullifier: bigint
     public attesterId: bigint
