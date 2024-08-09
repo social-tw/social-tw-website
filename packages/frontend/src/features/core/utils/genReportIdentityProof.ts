@@ -4,8 +4,8 @@ import { toDecString } from '@unirep/core/src/Synchronizer'
 import { stringifyBigInts } from '@unirep/utils'
 import { poseidon2 } from 'poseidon-lite'
 
-export function genReportNullifier(id: bigint, reportId: string) {
-    return poseidon2([id, reportId])
+export function genReportNullifier(idSecret: bigint, reportId: string) {
+    return poseidon2([idSecret, reportId])
 }
 
 export async function genReportIdentityProof(
