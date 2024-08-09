@@ -69,7 +69,7 @@ export function useReportPost() {
                 failActionById(context.actionId)
             }
         },
-        onSuccess: (data, _variables, context) => {
+        onSuccess: async (data, _variables, context) => {
             if (context?.actionId) {
                 succeedActionById(context.actionId, {
                     postId: data.postId,
@@ -77,7 +77,12 @@ export function useReportPost() {
                     epochKey: data.epochKey,
                 })
             }
-            queryClient.invalidateQueries({
+
+            await queryClient.invalidateQueries({
+                queryKey: [QueryKeys.ManyPosts],
+            })
+
+            await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
         },
