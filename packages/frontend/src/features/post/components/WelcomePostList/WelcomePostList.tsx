@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useRef } from 'react'
-import Post from '@/features/post/components/Post/Post'
 import { SERVER } from '@/constants/config'
+import Post from '@/features/post/components/Post/Post'
 import { FetchPostsResponse } from '@/types/api'
+import { PostInfo, PostStatus, RelayRawPostStatus } from '@/types/Post'
 import {
     DefaultError,
     InfiniteData,
@@ -9,8 +9,8 @@ import {
     useInfiniteQuery,
 } from '@tanstack/react-query'
 import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
-import { PostInfo, PostStatus } from '@/types/Post'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { Fragment, useEffect, useRef } from 'react'
 
 function WelcomePost({
     id = '',
@@ -72,23 +72,25 @@ export default function WelcomePostList() {
         queryFn: async ({ pageParam }) => {
             const res = await fetch(`${SERVER}/api/post?page=` + pageParam)
             const jsonData = (await res.json()) as FetchPostsResponse
-            return jsonData.map((item) => {
-                return {
-                    id: item.transactionHash!,
-                    postId: item.postId,
-                    epochKey: item.epochKey,
-                    content: item.content,
-                    publishedAt: new Date(Number(item.publishedAt)),
-                    commentCount: item.commentCount,
-                    upCount: item.upCount,
-                    downCount: item.downCount,
-                    isMine: false,
-                    finalAction: null,
-                    votedNonce: null, // Ensure these fields are included
-                    votedEpoch: null, // Ensure these fields are included
-                    status: PostStatus.Success,
-                }
-            }) as PostInfo[] // Cast to PostInfo[]
+            return jsonData
+                .filter((item) => item.status === RelayRawPostStatus.ON_CHAIN)
+                .map((item) => {
+                    return {
+                        id: item.transactionHash!,
+                        postId: item.postId,
+                        epochKey: item.epochKey,
+                        content: item.content,
+                        publishedAt: new Date(Number(item.publishedAt)),
+                        commentCount: item.commentCount,
+                        upCount: item.upCount,
+                        downCount: item.downCount,
+                        isMine: false,
+                        finalAction: null,
+                        votedNonce: null, // Ensure these fields are included
+                        votedEpoch: null, // Ensure these fields are included
+                        status: PostStatus.Success,
+                    }
+                }) as PostInfo[] // Cast to PostInfo[]
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages, lastPageParam) => {

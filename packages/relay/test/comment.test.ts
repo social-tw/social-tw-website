@@ -1,95 +1,76 @@
-import { UserState } from '@unirep/core'
+import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
+import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { io } from 'socket.io-client'
 import { APP_ABI as abi } from '../src/config'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
-import { Post } from '../src/types'
+import { Post, PostStatus } from '../src/types'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
-import {
-    ReputationType,
-    genEpochKeyProof,
-    genProveReputationProof,
-    randomData,
-} from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
+import { genEpochKeyProof, randomData } from './utils/genProof'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
+import { IdentityObject } from './utils/types'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 describe('COMMENT /comment', function () {
     let snapshot: any
     let express: ChaiHttp.Agent
-    let userState: UserState
-    let sync: UnirepSocialSynchronizer
+    let user: IdentityObject
     let chainId: number
     let testContent: String
     let authentication: string
+    let app: UnirepApp
+    let prover: any
+    let provider: any
+    let db: DB
+    let sync: UnirepSocialSynchronizer
+
+    const EPOCH_LENGTH = 100000
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app: _app } = await deployContracts(EPOCH_LENGTH)
         // start server
-        const { db, prover, provider, synchronizer, chaiServer } =
-            await startServer(unirep, app)
+        const {
+            db: _db,
+            prover: _prover,
+            provider: _provider,
+            synchronizer,
+            chaiServer,
+        } = await startServer(unirep, _app)
         express = chaiServer
+        app = _app
+        db = _db
+        prover = _prover
+        provider = _provider
         sync = synchronizer
         chainId = await unirep.chainid()
 
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
+        user = createRandomUserIdentity()
+        const userState = await signUp(user, {
             app,
-            synchronizer
-        )
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
-        // initUserStatus
-        let initUser = await userService.getLoginUser(db, '123', undefined)
-        const wallet = ethers.Wallet.createRandom()
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
+        authentication = await genAuthentication(userState)
 
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-
-        expect(hasSignedUp).equal(true)
-
-        const epoch = await sync.loadCurrentEpoch()
-
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
-
-        const result = await post(chaiServer, userState, authentication)
-        await ethers.provider.waitForTransaction(result.txHash)
+        const txHash = await post(express, userState, authentication)
+        await provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
-        const res = await chaiServer.get('/api/post/0')
+        const res = await express.get('/api/post/0')
         expect(res).to.have.status(200)
         const curPost = res.body as Post
-        expect(curPost.status).to.equal(1)
+        expect(curPost.status).to.equal(PostStatus.ON_CHAIN)
     })
 
     after(async function () {
@@ -97,6 +78,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should create a comment', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'create comment'
         const { createHelia } = await eval("import('helia')")
         const helia = await createHelia()
@@ -147,7 +129,7 @@ describe('COMMENT /comment', function () {
         //  string cid        [4]   String
         // }
         const epk = epochKeyProof.epochKey as bigint
-        const receipt = await ethers.provider.waitForTransaction(txHash)
+        const receipt = await provider.waitForTransaction(txHash)
         const unirepAppInterface = new ethers.utils.Interface(abi)
         const rawEvent = receipt.logs
             .map((log) => unirepAppInterface.parseLog(log))
@@ -184,8 +166,9 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong proof', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'comment with wrong proof'
-        var epochKeyProof = await userState.genEpochKeyProof({
+        const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 2,
         })
 
@@ -210,12 +193,13 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong epoch', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         testContent = 'comment with wrong epoch'
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
-        const attesterId = userState.sync.attesterId
+        const attesterId = sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId
@@ -252,7 +236,8 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment failed with wrong proof', async function () {
-        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+        const userState = await genUserState(user.id, sync, app, db, prover)
+        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
 
@@ -279,7 +264,8 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment failed with wrong epoch key', async function () {
-        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+        const userState = await genUserState(user.id, sync, app, db, prover)
+        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 2,
         })
 
@@ -303,7 +289,8 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment success', async function () {
-        let epochKeyLiteProof = await userState.genEpochKeyLiteProof({
+        const userState = await genUserState(user.id, sync, app, db, prover)
+        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
 
@@ -325,7 +312,7 @@ describe('COMMENT /comment', function () {
                 return res.body.txHash
             })
 
-        await ethers.provider.waitForTransaction(txHash)
+        await provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
         // check comment exist

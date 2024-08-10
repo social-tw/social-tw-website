@@ -6,7 +6,7 @@ import { Unirep } from "@unirep/contracts/Unirep.sol";
 import { IVerifier } from "@unirep/contracts/interfaces/IVerifier.sol";
 import { IVerifierHelper } from "../interfaces/IVerifierHelper.sol";
 
-contract ReportNegRepVHelper is BaseVerifierHelper, IVerifierHelper {
+contract ReportNonNullifierVHelper is BaseVerifierHelper, IVerifierHelper {
     constructor(
         Unirep _unirep,
         IVerifier _verifier
@@ -18,15 +18,14 @@ contract ReportNegRepVHelper is BaseVerifierHelper, IVerifierHelper {
         uint256[] calldata publicSignals
     ) public pure returns (EpochKeySignals memory) {
         EpochKeySignals memory signals;
-        signals.epochKey = publicSignals[0];
-
         (
             signals.nonce,
             signals.epoch,
             signals.attesterId,
             signals.revealNonce,
             signals.chainId
-        ) = super.decodeEpochKeyControl(publicSignals[1]);
+        ) = super.decodeEpochKeyControl(publicSignals[0]);
+        signals.epochKey = publicSignals[1];
         
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
 

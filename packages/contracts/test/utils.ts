@@ -1,3 +1,5 @@
+//@ts-ignore
+import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import {
     defaultProver,
@@ -13,9 +15,9 @@ import { UserState, schema } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
-import { ethers } from 'hardhat'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { IdentityObject } from './types'
+import { ProofGenerationError } from './error'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
 
@@ -172,7 +174,7 @@ export const randomData = () => [
         ),
 ]
 
-export function genReportNegRepCircuitInput(config: {
+export function genReportNonNullifierCircuitInput(config: {
     reportedEpochKey: any
     identitySecret: string | bigint | Identity
     reportedEpoch: number | bigint
@@ -180,7 +182,6 @@ export function genReportNegRepCircuitInput(config: {
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
-    type: number | bigint
 }) {
     const {
         reportedEpochKey,
@@ -190,7 +191,6 @@ export function genReportNegRepCircuitInput(config: {
         currentNonce,
         chainId,
         attesterId,
-        type,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -201,14 +201,13 @@ export function genReportNegRepCircuitInput(config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
-        type,
     }
     return stringifyBigInts(circuitInputs)
 }
 
 export function genReportNullifierCircuitInput(config: {
     reportNullifier: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint
     reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
@@ -217,7 +216,7 @@ export function genReportNullifierCircuitInput(config: {
 }) {
     const {
         reportNullifier,
-        hashUserId,
+        identitySecret,
         reportId,
         currentEpoch,
         currentNonce,
@@ -227,7 +226,7 @@ export function genReportNullifierCircuitInput(config: {
 
     const circuitInputs = {
         report_nullifier: reportNullifier,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
@@ -242,8 +241,20 @@ export async function genProofAndVerify(
     circuitInputs: any
 ) {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new ProofGenerationError(error.message)
+        } else {
+            throw new Error('Unknown Error...')
+        }
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
@@ -279,6 +290,29 @@ export function flattenProof(proof: any) {
     ]
 }
 
-export function genNullifier(hashUserId: string, reportId: number | bigint) {
-    return poseidon2([hashUserId, reportId])
+export function genNullifier(identity: Identity, reportId: number | bigint) {
+    return poseidon2([identity.secret, reportId])
+}
+
+export async function userStateTransition(
+    userState: UserState,
+    unirep: any,
+    app: any
+) {
+    const latestEpoch = await unirep.attesterCurrentEpoch(app.address)
+    const remainingTime = await unirep.attesterEpochRemainingTime(app.address)
+    // epoch transition
+    await ethers.provider.send('evm_increaseTime', [remainingTime])
+    await ethers.provider.send('evm_mine', [])
+
+    const toEpoch = latestEpoch + 1
+    await userState.waitForSync()
+    const { publicSignals, proof } =
+        await userState.genUserStateTransitionProof({
+            toEpoch,
+        })
+    const tx = await unirep.userStateTransition(publicSignals, proof)
+    await tx.wait()
+
+    await userState.waitForSync()
 }

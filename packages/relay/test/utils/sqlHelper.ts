@@ -1,4 +1,10 @@
 import { DB } from 'anondb/node'
+import {
+    PostStatus,
+    ReportHistory,
+    ReportStatus,
+    ReportType,
+} from '../../src/types'
 import { commentTemplate } from '../mocks/comment'
 import { postData } from '../mocks/posts'
 import { reputationData } from '../mocks/reputations'
@@ -118,4 +124,25 @@ export const insertReputationHistory = async (db: DB) => {
     for (let i = 0; i < reputationData.length; i++) {
         await db.create('ReputationHistory', reputationData[i])
     }
+}
+
+export const resetReportResult = async (db: DB, report: ReportHistory) => {
+    await db.update('ReportHistory', {
+        where: {
+            reportId: report.reportId,
+        },
+        update: {
+            status: ReportStatus.VOTING,
+        },
+    })
+
+    const tableName = report.type == ReportType.POST ? 'Post' : 'Comment'
+    await db.update(tableName, {
+        where: {
+            [`${tableName.toLowerCase()}Id`]: report.objectId,
+        },
+        update: {
+            status: PostStatus.REPORTED,
+        },
+    })
 }

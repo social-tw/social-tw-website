@@ -25,6 +25,7 @@ export default function Post({
     downCount = 0,
     compact = false,
     isMine = false,
+    isReported = false,
     finalAction = null,
     votedNonce = null,
     votedEpoch = null,
@@ -42,6 +43,7 @@ export default function Post({
     downCount: number
     compact?: boolean
     isMine?: boolean
+    isReported?: boolean
     finalAction?: VoteAction | null
     votedNonce?: number | null
     votedEpoch?: number | null
@@ -160,7 +162,6 @@ export default function Post({
         </div>
     )
 
-    const isReported = false
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
             {isReported && <PostReportedMask />}

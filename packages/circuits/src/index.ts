@@ -1,1 +1,2 @@
-export * from './DataProof'
+export { DataProof } from './DataProof'
+export { ReportIdentityProof } from './ReportIdentityProof'

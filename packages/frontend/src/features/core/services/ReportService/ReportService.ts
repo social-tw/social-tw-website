@@ -1,5 +1,4 @@
-import { RelayApiService } from '@/features/core'
-import { getAdjudicateNullifier } from '@/features/reporting/utils/helpers'
+import { RelayApiService, genReportIdentityProof } from '@/features/core'
 import { ReportHistory } from '@/features/reporting/utils/types'
 import { RelayCreateReportResponse } from '@/types/api'
 import {
@@ -91,12 +90,20 @@ export class ReportService extends RelayApiService {
     }) {
         const client = this.getAuthClient()
         const userState = this.getUserState()
-        const nullifier = getAdjudicateNullifier(userState.id.secret, reportId)
+
+        const { publicSignals, proof } = await genReportIdentityProof(
+            userState,
+            {
+                reportId,
+            },
+        )
+
         const response = await client.post<{}>(
             `/report/${reportId}`,
             stringifyBigInts({
-                nullifier,
                 adjudicateValue,
+                publicSignals,
+                proof,
             }),
         )
         return response.data

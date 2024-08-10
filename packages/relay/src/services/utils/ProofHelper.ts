@@ -1,3 +1,4 @@
+import { ReportIdentityProof } from '@unirep-app/circuits'
 import {
     EpochKeyLiteProof,
     EpochKeyProof,
@@ -95,6 +96,28 @@ class ProofHelper {
         }
 
         return reputationProof
+    }
+
+    async getAndVerifyReportIdentityProof(
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<ReportIdentityProof> {
+        const reportIdentityProof = new ReportIdentityProof(
+            publicSignals,
+            proof,
+            synchronizer.prover
+        )
+
+        this.validateAttesterId(synchronizer, reportIdentityProof)
+        await this.validateEpoch(synchronizer, reportIdentityProof)
+
+        const isProofValid = await reportIdentityProof.verify()
+        if (!isProofValid) {
+            throw InvalidProofError
+        }
+
+        return reportIdentityProof
     }
 
     /**

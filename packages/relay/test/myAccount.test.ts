@@ -11,6 +11,7 @@ describe('My Account Page', function () {
     let postEpochKey = 'post-epoch-key'
     let voteEpochKey = 'vote-epoch-key'
     let sync: UnirepSocialSynchronizer
+
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
