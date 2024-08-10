@@ -9,7 +9,7 @@ export function useReputationScore() {
         queryFn: async () => {
             const userState = await getGuaranteedUserState()
             const data = await userState.getData()
-            return Number(data[0].toString()) + 1
+            return Number(data[0] - data[1])
         },
     })
 
