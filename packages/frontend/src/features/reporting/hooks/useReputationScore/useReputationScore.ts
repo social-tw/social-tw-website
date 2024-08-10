@@ -13,7 +13,8 @@ export function useReputationScore() {
         },
     })
 
-    const isValidReputationScore = reputationScore && reputationScore >= 0
+    const isValidReputationScore =
+        reputationScore !== undefined && reputationScore >= 0
 
     return {
         reputationScore,
