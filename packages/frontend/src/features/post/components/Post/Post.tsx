@@ -1,6 +1,8 @@
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import dayjs from 'dayjs'
@@ -99,7 +101,12 @@ export default function Post({
         setIsAction(finalAction)
     }, [isMine, finalAction])
 
+    const { isValidReputationScore } = useReputationScore()
     const handleVote = async (voteType: VoteAction) => {
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
+            return
+        }
         const success = await onVote(voteType)
         if (!success) {
             setIsError(true)

@@ -62,7 +62,7 @@ export function useCreatePost() {
                 epochKey,
             }
         },
-        onMutate: (variables) => {
+        onMutate: async (variables) => {
             const postData: PostData = {
                 postId: undefined,
                 content: variables.content,

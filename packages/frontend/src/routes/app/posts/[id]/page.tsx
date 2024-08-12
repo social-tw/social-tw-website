@@ -8,6 +8,8 @@ import {
     Post,
     useVotes,
 } from '@/features/post'
+import { useReputationScore } from '@/features/reporting'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
@@ -70,11 +72,16 @@ const PostDetailsPage: React.FC = () => {
 
     const [errorMessage, setErrorMessage] = useState<string>()
 
+    const { isValidReputationScore } = useReputationScore()
     const onWriteComment = () => {
         if (!isLoggedIn) {
             setErrorMessage(
                 '很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！',
             )
+            return
+        }
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
             return
         }
         setIsOpenCommnet((prev) => !prev)
