@@ -1,6 +1,8 @@
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import dayjs from 'dayjs'
@@ -23,6 +25,7 @@ export default function Post({
     downCount = 0,
     compact = false,
     isMine = false,
+    isReported = false,
     finalAction = null,
     votedNonce = null,
     votedEpoch = null,
@@ -40,6 +43,7 @@ export default function Post({
     downCount: number
     compact?: boolean
     isMine?: boolean
+    isReported?: boolean
     finalAction?: VoteAction | null
     votedNonce?: number | null
     votedEpoch?: number | null
@@ -97,7 +101,12 @@ export default function Post({
         setIsAction(finalAction)
     }, [isMine, finalAction])
 
+    const { isValidReputationScore } = useReputationScore()
     const handleVote = async (voteType: VoteAction) => {
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
+            return
+        }
         const success = await onVote(voteType)
         if (!success) {
             setIsError(true)
@@ -153,7 +162,6 @@ export default function Post({
         </div>
     )
 
-    const isReported = false
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
             {isReported && <PostReportedMask />}

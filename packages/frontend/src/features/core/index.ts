@@ -16,3 +16,7 @@ export { RelayApiService } from './services/RelayApiService/RelayApiService'
 export { ReportService } from './services/ReportService/ReportService'
 export { VoteService } from './services/VoteService/VoteService'
 export * from './stores/actions'
+export {
+    genReportIdentityProof,
+    genReportNullifier,
+} from './utils/genReportIdentityProof'

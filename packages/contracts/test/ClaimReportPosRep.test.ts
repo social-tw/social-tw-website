@@ -1,8 +1,9 @@
 // @ts-ignore
-import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
+import { ProofGenerationError } from './error'
 import { IdentityObject } from './types'
 import {
     createMultipleUserIdentity,
@@ -13,8 +14,8 @@ import {
     genReportNullifierCircuitInput,
     genUserState,
     genVHelperIdentifier,
+    userStateTransition,
 } from './utils'
-import { ProofGenerationError } from './error'
 
 describe('Claim Report Positive Reputation Test', function () {
     this.timeout(1000000)
@@ -90,9 +91,6 @@ describe('Claim Report Positive Reputation Test', function () {
                 .userRegistry(reporter.hashUserId)
                 .then((res) => expect(res).to.be.true)
             console.log('reporter register success...')
-
-            // reporter reported a post
-
             reporterState.stop()
         } catch (err) {
             console.error(err)
@@ -115,16 +113,22 @@ describe('Claim Report Positive Reputation Test', function () {
     it('should succeed to claim reputation to upvoter', async () => {
         const reportId = 0
         const currentNonce = 0
-        const hashUserId = upvoter.hashUserId
+        const identitySecret = upvoter.id.secret
 
         const attesterId = BigInt(app.address)
         const upvoterState = await genUserState(upvoter.id, app)
-        const currentEpoch = await upvoterState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        // elapsing 5 epoch
+        await ethers.provider.send('evm_increaseTime', [epochLength * 5])
+        await ethers.provider.send('evm_mine', [])
+        // userState Transition
+        await userStateTransition(upvoterState, unirep, app)
+
+        const currentEpoch = await upvoterState.sync.loadCurrentEpoch()
+        const reportNullifier = genNullifier(upvoter.id, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId,
             currentEpoch,
             currentNonce,
@@ -148,9 +152,29 @@ describe('Claim Report Positive Reputation Test', function () {
         )
         await expect(tx)
             .to.emit(app, 'ClaimPosRep')
-            .withArgs(publicSignals[0], currentEpoch)
+            .withArgs(publicSignals[1], currentEpoch)
 
+        // userState Transition
+        await userStateTransition(upvoterState, unirep, app)
+
+        // check if reputation is claimed
+        const data = await upvoterState.getData()
+        expect(data[0]).to.be.equal(BigInt(posReputation))
         upvoterState.stop()
+    })
+
+    it('should revert with not owner', async () => {
+        const notOwner = await ethers.getSigners().then((signers) => signers[1])
+        await expect(
+            app
+                .connect(notOwner)
+                .claimReportPosRep(
+                    usedPublicSig,
+                    usedProof,
+                    nullifierIdentifier,
+                    posReputation
+                )
+        ).to.be.reverted
     })
 
     it('should revert with used proof', async () => {
@@ -167,24 +191,21 @@ describe('Claim Report Positive Reputation Test', function () {
     before(async () => {
         // reporter report the poster at this moment
         const reporterState = await genUserState(reporter.id, app)
-        const { publicSignals: reporterPubSig, proof: reporterPf } =
-            await reporterState.genEpochKeyProof({
-                nonce: 0,
-                epoch: 0,
-                data: BigInt(0),
-                revealNonce: false,
-                attesterId: BigInt(app.address),
-            })
+        const { publicSignals: reporterPubSig } =
+            await reporterState.genEpochKeyProof()
         reporterEpochKey = reporterPubSig[0]
         reporterEpoch = await reporterState.sync.loadCurrentEpoch()
-
-        // elapsing 5 epoch
-        await ethers.provider.send('evm_increaseTime', [epochLength * 5])
-        await ethers.provider.send('evm_mine', [])
     })
 
     it('should succeed to claim reputation to reporter', async () => {
         const reporterState = await genUserState(reporter.id, app)
+
+        // elapsing 5 epoch
+        await ethers.provider.send('evm_increaseTime', [epochLength * 5])
+        await ethers.provider.send('evm_mine', [])
+        // userState Transition
+        await userStateTransition(reporterState, unirep, app)
+
         const identitySecret = reporter.id.secret
         const attesterId = BigInt(app.address)
 
@@ -218,8 +239,14 @@ describe('Claim Report Positive Reputation Test', function () {
         )
         await expect(tx)
             .to.emit(app, 'ClaimPosRep')
-            .withArgs(publicSignals[0], currentEpoch)
+            .withArgs(publicSignals[1], currentEpoch)
 
+        // userState Transition
+        await userStateTransition(reporterState, unirep, app)
+
+        // check if reputation is claimed
+        const data = await reporterState.getData()
+        expect(data[0]).to.be.equal(BigInt(posReputation))
         reporterState.stop()
     })
 
@@ -248,16 +275,16 @@ describe('Claim Report Positive Reputation Test', function () {
     it('should revert with wrong reportNullifierProof', async () => {
         const reportId = 1
         const currentNonce = 0
-        const hashUserId = upvoter.hashUserId
+        const identitySecret = upvoter.id.secret
 
         const attesterId = BigInt(app.address)
         const upvoterState = await genUserState(upvoter.id, app)
         const currentEpoch = await upvoterState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(upvoter.id, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId,
             currentEpoch,
             currentNonce,
@@ -288,16 +315,16 @@ describe('Claim Report Positive Reputation Test', function () {
     it('should revert with wrong epoch for reportNullifierProof', async () => {
         const reportId = 1
         const currentNonce = 0
-        const hashUserId = upvoter.hashUserId
+        const identitySecret = upvoter.id.secret
 
         const attesterId = BigInt(app.address)
         const upvoterState = await genUserState(upvoter.id, app)
         const currentEpoch = 444
 
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(upvoter.id, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId,
             currentEpoch,
             currentNonce,
@@ -327,16 +354,16 @@ describe('Claim Report Positive Reputation Test', function () {
     it('should revert with wrong attester for reportNullifierProof', async () => {
         const reportId = 1
         const currentNonce = 0
-        const hashUserId = upvoter.hashUserId
+        const identitySecret = upvoter.id.secret
 
         const wrongAttester = BigInt(44444)
         const upvoterState = await genUserState(upvoter.id, app)
         const currentEpoch = await upvoterState.sync.loadCurrentEpoch()
 
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(upvoter.id, reportId)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId,
             currentEpoch,
             currentNonce,

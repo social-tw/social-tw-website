@@ -6,7 +6,7 @@ import { useEffect, useMemo } from 'react'
 const DISCARDED_AT = 'discarded-checkin-at'
 
 export function useNotifyCheckIn() {
-    const { data: score } = useReputationScore()
+    const { reputationScore } = useReputationScore()
 
     const [discardedAt, saveDiscardedAt] = useLocalStorage<string | null>(
         DISCARDED_AT,
@@ -14,8 +14,8 @@ export function useNotifyCheckIn() {
     )
 
     const isOpen = useMemo(
-        () => !!score && score < 0 && !discardedAt,
-        [score, discardedAt],
+        () => !!reputationScore && reputationScore < 0 && !discardedAt,
+        [reputationScore, discardedAt],
     )
 
     const discard = () => {

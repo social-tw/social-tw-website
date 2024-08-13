@@ -18,15 +18,14 @@ contract ReportNonNullifierVHelper is BaseVerifierHelper, IVerifierHelper {
         uint256[] calldata publicSignals
     ) public pure returns (EpochKeySignals memory) {
         EpochKeySignals memory signals;
-        signals.epochKey = publicSignals[0];
-
         (
             signals.nonce,
             signals.epoch,
             signals.attesterId,
             signals.revealNonce,
             signals.chainId
-        ) = super.decodeEpochKeyControl(publicSignals[1]);
+        ) = super.decodeEpochKeyControl(publicSignals[0]);
+        signals.epochKey = publicSignals[1];
         
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
 

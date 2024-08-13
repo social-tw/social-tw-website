@@ -8,7 +8,9 @@ import {
     useUserState,
 } from '@/features/core'
 import { Post, useVoteEvents, useVotes } from '@/features/post'
-import { PostInfo, PostStatus } from '@/types/Post'
+import { useReputationScore } from '@/features/reporting'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
+import { PostInfo, PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import { handleVoteEvent } from '@/utils/handleVoteEvent'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
@@ -59,6 +61,7 @@ export default function PostList() {
                     commentCount: item.commentCount,
                     upCount: item.upCount,
                     downCount: item.downCount,
+                    isReported: item.status === RelayRawPostStatus.REPORTED,
                     isMine: voteCheck.isMine,
                     finalAction: voteCheck.finalAction,
                     votedNonce: voteCheck.votedNonce,
@@ -101,6 +104,7 @@ export default function PostList() {
                     commentCount: 0,
                     upCount: 0,
                     downCount: 0,
+                    isReported: false,
                     isMine: true,
                     finalAction: null,
                     votedNonce: null,
@@ -159,6 +163,8 @@ export default function PostList() {
 
     useVoteEvents((msg) => handleVoteEvent(queryClient, msg))
 
+    const { isValidReputationScore } = useReputationScore()
+
     return (
         <div className="px-4">
             <ul className="space-y-3 md:space-y-6">
@@ -177,6 +183,7 @@ export default function PostList() {
                             downCount={post.downCount}
                             compact
                             isMine={post.isMine}
+                            isReported={post.isReported}
                             finalAction={post.finalAction}
                             votedNonce={post.votedNonce}
                             votedEpoch={post.votedEpoch}
@@ -203,6 +210,7 @@ export default function PostList() {
                                     upCount={post.upCount}
                                     downCount={post.downCount}
                                     compact
+                                    isReported={post.isReported}
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
                                     votedNonce={post.votedNonce}
@@ -210,6 +218,10 @@ export default function PostList() {
                                     status={post.status}
                                     onComment={() => {
                                         if (!post.postId) return
+                                        if (!isValidReputationScore) {
+                                            openForbidActionDialog()
+                                            return
+                                        }
                                         gotoCommentsByPostId(post.postId)
                                     }}
                                     onVote={(voteType) =>

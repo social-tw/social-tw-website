@@ -1,5 +1,4 @@
 import { ethers } from 'ethers'
-import globalFactory from 'global-factory'
 
 import DataProofVerifier from '../../artifacts/contracts/verifiers/DataProofVerifier.sol/DataProofVerifier.json'
 import ReportNonNullifierProofVerifier from '../../artifacts/contracts/verifiers/ReportNonNullifierProofVerifier.sol/ReportNonNullifierProofVerifier.json'
@@ -16,14 +15,16 @@ export async function deploySingleContract(
 ): Promise<ethers.Contract> {
     try {
         // Create a new ContractFactory instance
-        const _ContractFactory = new ethers.ContractFactory(
+        const ContractFactory = new ethers.ContractFactory(
             abi,
             bytecode,
             deployer
         )
 
+        // TODO: uncomment this line after
+        // Unirep && UnirepApp upgrade the open zeppelin lib to 5
         // Apply global factory modifications
-        const ContractFactory = await globalFactory(_ContractFactory)
+        // const ContractFactory = await globalFactory(_ContractFactory)
 
         // Deploy the contract with constructor arguments
         const contract = await ContractFactory.deploy(...constructorArgs)

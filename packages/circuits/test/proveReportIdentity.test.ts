@@ -48,13 +48,11 @@ describe('Prove report identity in Unirep Social-TW', function () {
 
     it('should succeed with valid inputs', async () => {
         const identitySecret = user.id.secret
-        const hashUserId = user.hashUserId
         const reportId = 0
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -70,7 +68,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         )
         expect(isValid).to.be.true
         expect(publicSignals[0].toString()).to.be.equal(
-            poseidon2([hashUserId, reportId]).toString()
+            poseidon2([identitySecret, reportId]).toString()
         )
         expect(publicSignals[1].toString()).to.be.equal(attesterId.toString())
         expect(publicSignals[2].toString()).to.be.equal(epoch.toString())
@@ -81,13 +79,11 @@ describe('Prove report identity in Unirep Social-TW', function () {
 
     it('should revert with invalid identity', async () => {
         const wrongIdentitySecret = BigInt(444)
-        const hashUserId = user.hashUserId
         const reportId = 0
-        const reportNullifier = genNullifier(hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret: wrongIdentitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -104,51 +100,19 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 36\n'
-            )
-        }
-    })
-
-    it('should revert with wrong hashUserId', async () => {
-        const identitySecret = user.id.secret
-        const reportId = 0
-        const reportNullifier = genNullifier(user.hashUserId, reportId)
-        const hashUserId = BigInt(123)
-        const circuitInputs = genReportIdentityCircuitInput({
-            reportNullifier,
-            identitySecret,
-            hashUserId,
-            reportId,
-            data,
-            attesterId,
-            epoch,
-            chainId,
-            stateTreeElements: proof.siblings,
-            stateTreeIndices: proof.pathIndices,
-            stateTreeRoot,
-        })
-
-        try {
-            await genProofAndVerify(circuit, circuitInputs)
-        } catch (error: unknown) {
-            expect?.(error).to.be.an.instanceof(ProofGenerationError)
-            expect?.(error).to.have.property(
-                'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 35\n'
             )
         }
     })
 
     it('should revert with wrong reportId', async () => {
         const identitySecret = user.id.secret
-        const hashUserId = user.hashUserId
         const reportId = 0
         const wrongReportId = 444
-        const reportNullifier = genNullifier(user.hashUserId, reportId)
+        const reportNullifier = genNullifier(user.id, reportId)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier,
             identitySecret,
-            hashUserId,
             reportId: wrongReportId,
             data,
             attesterId,
@@ -165,20 +129,18 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
             )
         }
     })
 
     it('should revert with arbitrary nullifier', async () => {
         const identitySecret = user.id.secret
-        const hashUserId = user.hashUserId
         const reportId = 0
         const wrongReportNullifier = BigInt(444)
         const circuitInputs = genReportIdentityCircuitInput({
             reportNullifier: wrongReportNullifier,
             identitySecret,
-            hashUserId,
             reportId,
             data,
             attesterId,
@@ -195,7 +157,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 40\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
             )
         }
     })
