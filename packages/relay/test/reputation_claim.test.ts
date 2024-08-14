@@ -15,15 +15,14 @@ import {
     Adjudicator,
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
 
 // Import from contracts package
 import {
     flattenProof,
     genNullifier,
     genProofAndVerify,
-    genReportNegRepCircuitInput,
+    genReportNonNullifierCircuitInput,
     genReportNullifierCircuitInput,
 } from '../../contracts/test/utils'
 import { EpochKeyLiteProof } from '@unirep/circuits'
@@ -33,6 +32,8 @@ import {
     RepUserType,
     ReputationType,
 } from '../src/types/Reputation'
+import { createRandomUserIdentity } from './utils/userHelper'
+import { IdentityObject } from './utils/types'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -42,9 +43,9 @@ describe('Reputation Claim', function () {
     let unirep: Unirep
     let db: DB
     let chainId: number
-    let poster: User
-    let reporter: User
-    let voter: User
+    let poster: IdentityObject
+    let reporter: IdentityObject
+    let voter: IdentityObject
     let usedPublicSig: any
     let usedProof: any
     let posterUserState: UserState
@@ -59,7 +60,7 @@ describe('Reputation Claim', function () {
 
     const EPOCH_LENGTH = 3000
     const PositiveCircuit = 'reportNullifierProof'
-    const NegativeCircuit = 'reportNegRepProof'
+    const NegativeCircuit = 'reportNonNullifierProof'
     const reportId = '1'
     const postId = 1
 
@@ -116,52 +117,47 @@ describe('Reputation Claim', function () {
         express = chaiServer
         sync = synchronizer
         unirep = _unirep
-        const userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            _unirep,
-            app,
-            synchronizer
-        )
 
-        poster = await userService.getLoginUser(db, 'poster', undefined)
+        // poster = await userService.getLoginUser(db, 'poster', undefined)
+        poster = createRandomUserIdentity()
         const wallet = ethers.Wallet.createRandom()
-        posterUserState = await signUp(
-            poster,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet
-        )
+        posterUserState = await signUp(poster, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
         await posterUserState.waitForSync()
         const hasSignedUp = await posterUserState.hasSignedUp()
         expect(hasSignedUp).equal(true)
         console.log('poster register success...')
 
-        reporter = await userService.getLoginUser(db, 'reporter', undefined)
+        // reporter = await userService.getLoginUser(db, 'reporter', undefined)
+        reporter = createRandomUserIdentity()
         const wallet2 = ethers.Wallet.createRandom()
-        repoterUserState = await signUp(
-            reporter,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet2
-        )
+        repoterUserState = await signUp(reporter, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
         await repoterUserState.waitForSync()
         const hasSignedUp2 = await repoterUserState.hasSignedUp()
         expect(hasSignedUp2).equal(true)
         console.log('reporter register success...')
 
-        voter = await userService.getLoginUser(db, 'voter', undefined)
+        // voter = await userService.getLoginUser(db, 'voter', undefined)
+        voter = createRandomUserIdentity()
         const wallet3 = ethers.Wallet.createRandom()
-        voterUserState = await signUp(
-            voter,
-            userStateFactory,
-            userService,
-            synchronizer,
-            wallet3
-        )
+        voterUserState = await signUp(voter, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
         await voterUserState.waitForSync()
         const hasSignedUp3 = await voterUserState.hasSignedUp()
         expect(hasSignedUp3).equal(true)
@@ -209,7 +205,7 @@ describe('Reputation Claim', function () {
         reportedEpochKey = postPubSig[0]
 
         // Simulate vote
-        nullifier = genReportNullifier(reportId)
+        nullifier = genReportNullifier(reporter.id, reportId)
         console.log('nullifier: ', nullifier.toString())
         const adjudicateValue = AdjudicateValue.AGREE
         const report = await db.findOne('ReportHistory', {
@@ -244,11 +240,12 @@ describe('Reputation Claim', function () {
         const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
+        const identitySecret = reporter.id.secret
 
-        const reportNullifier = genNullifier(hashUserId, 1)
+        const reportNullifier = genNullifier(reporter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId: 1,
             currentEpoch,
             currentNonce,
@@ -332,11 +329,12 @@ describe('Reputation Claim', function () {
         const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
+        const identitySecret = reporter.id.secret
 
-        const reportNullifier = genNullifier(hashUserId, 1)
+        const reportNullifier = genNullifier(reporter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId: 1,
             currentEpoch,
             currentNonce,
@@ -414,7 +412,7 @@ describe('Reputation Claim', function () {
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
         const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
+        const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
             reportedEpochKey,
             identitySecret,
             reportedEpoch: 0,
@@ -422,7 +420,6 @@ describe('Reputation Claim', function () {
             currentNonce,
             chainId,
             attesterId,
-            type,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -493,11 +490,12 @@ describe('Reputation Claim', function () {
 
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await voterUserState.sync.loadCurrentEpoch()
+        const identitySecret = voter.id.secret
 
-        const reportNullifier = genNullifier(hashUserId, 1)
+        const reportNullifier = genNullifier(voter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId: 1,
             currentEpoch,
             currentNonce,
@@ -572,11 +570,12 @@ describe('Reputation Claim', function () {
         const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
+        const identitySecret = reporter.id.secret
 
-        const reportNullifier = genNullifier(hashUserId, 1)
+        const reportNullifier = genNullifier(reporter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId: 1,
             currentEpoch,
             currentNonce,
@@ -615,11 +614,12 @@ describe('Reputation Claim', function () {
 
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await voterUserState.sync.loadCurrentEpoch()
+        const identitySecret = voter.id.secret
 
-        const reportNullifier = genNullifier(hashUserId, 1)
+        const reportNullifier = genNullifier(voter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,
-            hashUserId,
+            identitySecret,
             reportId: 1,
             currentEpoch,
             currentNonce,
@@ -662,7 +662,7 @@ describe('Reputation Claim', function () {
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
         const type = 0
-        const reportNegRepCircuitInputs = genReportNegRepCircuitInput({
+        const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
             reportedEpochKey,
             identitySecret,
             reportedEpoch: 0,
@@ -670,7 +670,6 @@ describe('Reputation Claim', function () {
             currentNonce,
             chainId,
             attesterId,
-            type,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -700,7 +699,7 @@ describe('Reputation Claim', function () {
     })
 
     it('should fail when voter tries to claim positive reputation with wrong nullifier', async function () {
-        const wrongNullifier = genReportNullifier('3')
+        const wrongNullifier = genReportNullifier(voter.id, '3')
 
         const res = await express
             .post('/api/reports/claimPositiveReputation')

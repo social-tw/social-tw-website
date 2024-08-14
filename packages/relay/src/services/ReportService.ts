@@ -310,7 +310,6 @@ export class ReportService {
             db,
             synchronizer,
             ClaimMethods.CLAIM_POSITIVE_REP,
-            ClaimHelpers.POSITIVE_REP_HELPER,
             ReputationDirection.POSITIVE
         )
     }
@@ -327,7 +326,6 @@ export class ReportService {
             db,
             synchronizer,
             ClaimMethods.CLAIM_NEGATIVE_REP,
-            ClaimHelpers.NEGATIVE_REP_HELPER,
             ReputationDirection.NEGATIVE
         )
     }
@@ -338,7 +336,6 @@ export class ReportService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
         claimMethod: ClaimMethods,
-        helper: ClaimHelpers,
         direction: ReputationDirection
     ) {
         try {
@@ -374,6 +371,7 @@ export class ReportService {
             this.checkReputationClaim(report, repUserType, direction, nullifier)
 
             const change = this.getReputationChange(direction, repUserType)
+            const helper = this.getClaimHelper(repUserType, direction)
             const identifier = genVHelperIdentifier(helper)
 
             const txHash = await this.executeContractCall(
@@ -746,6 +744,22 @@ export class ReportService {
         } else {
             throw new Error('Invalid ReputationDirection')
         }
+    }
+
+    private getClaimHelper(
+        repUserType: RepUserType,
+        direction: ReputationDirection
+    ): ClaimHelpers {
+        if (repUserType === RepUserType.VOTER) {
+            return ClaimHelpers.VOTER
+        }
+        if (
+            direction === ReputationDirection.NEGATIVE &&
+            repUserType === RepUserType.REPORTER
+        ) {
+            return ClaimHelpers.FAILED_REPORTER
+        }
+        return ClaimHelpers.POSTER // This covers POSTER and REPORTER for positive reputation
     }
 }
 
