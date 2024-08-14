@@ -4,12 +4,13 @@ import {
     addAction,
     failActionById,
     ReportCommentData,
+    ReportService,
     succeedActionById,
     useActionCount,
     useUserState,
+    useUserStateTransition,
 } from '@/features/core'
 import { ReportCategory, ReportType } from '@/types/Report'
-import { relayReport } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -17,6 +18,7 @@ export function useReportComment() {
     const queryClient = useQueryClient()
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
+    const { stateTransition } = useUserStateTransition()
 
     const {
         mutateAsync: reportComment,
@@ -39,20 +41,15 @@ export function useReportComment() {
             reason: string
         }) => {
             const userState = await getGuaranteedUserState()
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
-            const proof = await userState.genEpochKeyProof({
-                nonce,
-            })
-            const epoch = Number(proof.epoch)
-            const epochKey = proof.epochKey.toString()
-            await relayReport({
-                proof,
+            const reportService = new ReportService(userState)
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            await stateTransition()
+            const { epoch, epochKey } = await reportService.createReport({
                 type: ReportType.COMMENT,
                 objectId: commentId,
-                reportorEpochKey: epochKey,
                 reason,
                 category,
-                reportEpoch: epoch,
+                identityNonce,
             })
             return {
                 postId,

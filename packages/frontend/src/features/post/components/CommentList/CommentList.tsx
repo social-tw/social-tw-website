@@ -2,6 +2,7 @@ import { QueryKeys } from '@/constants/queryKeys'
 import {
     ActionStatus,
     CommentData,
+    CommentService,
     commentActionsSelector,
     removeActionById,
     useActionStore,
@@ -9,8 +10,7 @@ import {
     useUserState,
 } from '@/features/core'
 import { Comment, useCreateComment, useRemoveComment } from '@/features/post'
-import { CommentStatus } from '@/types/Comments'
-import { fetchCommentsByPostId } from '@/utils/api'
+import { CommentStatus, RelayRawCommentStatus } from '@/types/Comments'
 import checkCommentIsMine from '@/utils/helpers/checkCommentIsMine'
 import getNonceFromEpochKey from '@/utils/helpers/getNonceFromEpochKey'
 import { useQuery } from '@tanstack/react-query'
@@ -25,34 +25,37 @@ export default function CommentList({ postId }: { postId: string }) {
     const { data } = useQuery({
         queryKey: [QueryKeys.ManyComments, postId],
         queryFn: async () => {
-            const comments = await fetchCommentsByPostId(postId)
-            return comments
-                .sort((a, b) => Number(a.publishedAt) - Number(b.publishedAt))
-                .map((comment) => ({
-                    postId: postId,
-                    commentId: comment.commentId!,
-                    epoch: comment.epoch,
-                    epochKey: comment.epochKey ?? '',
-                    content: comment.content ?? '',
-                    publishedAt: new Date(Number(comment.publishedAt)),
-                    transactionHash: comment.transactionHash,
-                    status: CommentStatus.Success,
-                }))
+            const commentService = new CommentService()
+            return commentService.fetchCommentsByPostId(postId)
         },
     })
 
     const comments = useMemo(() => {
-        return (data ?? []).map((item) => {
-            const isMine = userState
-                ? checkCommentIsMine(item, userState)
-                : false
+        return (data ?? [])
+            .sort((a, b) => Number(a.publishedAt) - Number(b.publishedAt))
+            .map((item) => {
+                const isMine = userState
+                    ? checkCommentIsMine(item, userState)
+                    : false
 
-            const canDelete = isMine && item.epoch === currentEpoch
-            const canReport = !isMine
+                const canDelete = isMine && item.epoch === currentEpoch
+                const canReport = true
 
-            return { ...item, canDelete, canReport }
-        })
-    }, [data, userState, currentEpoch])
+                return {
+                    postId: postId,
+                    commentId: item.commentId!,
+                    epoch: item.epoch,
+                    epochKey: item.epochKey ?? '',
+                    content: item.content ?? '',
+                    publishedAt: new Date(Number(item.publishedAt)),
+                    transactionHash: item.transactionHash,
+                    status: CommentStatus.Success,
+                    isReported: item.status === RelayRawCommentStatus.REPORTED,
+                    canDelete,
+                    canReport,
+                }
+            })
+    }, [data, userState, currentEpoch, postId])
 
     const commentActions = useActionStore(commentActionsSelector)
 
@@ -100,9 +103,11 @@ export default function CommentList({ postId }: { postId: string }) {
     ) => {
         const _userState = await getGuaranteedUserState()
         const nonce = getNonceFromEpochKey(epoch, epochKey, _userState)
-        if (!nonce) return
+        if (nonce === undefined || nonce === null) return
 
-        await removeComment({ postId, commentId, epoch, nonce })
+        await removeComment({ postId, commentId, epoch, nonce }).catch(
+            () => null,
+        )
     }
 
     return (
@@ -116,6 +121,7 @@ export default function CommentList({ postId }: { postId: string }) {
                         content={comment.content}
                         publishedAt={comment.publishedAt}
                         status={comment.status}
+                        isReported={comment.isReported}
                         canDelete={comment.canDelete}
                         canReport={comment.canReport}
                         onDelete={async () => {

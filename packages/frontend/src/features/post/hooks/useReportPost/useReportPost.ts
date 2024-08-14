@@ -4,12 +4,13 @@ import {
     addAction,
     failActionById,
     ReportPostData,
+    ReportService,
     succeedActionById,
     useActionCount,
     useUserState,
+    useUserStateTransition,
 } from '@/features/core'
 import { ReportCategory, ReportType } from '@/types/Report'
-import { relayReport } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -17,6 +18,7 @@ export function useReportPost() {
     const queryClient = useQueryClient()
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
+    const { stateTransition } = useUserStateTransition()
 
     const {
         mutateAsync: reportPost,
@@ -37,20 +39,15 @@ export function useReportPost() {
             reason: string
         }) => {
             const userState = await getGuaranteedUserState()
-            const nonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
-            const proof = await userState.genEpochKeyProof({
-                nonce,
-            })
-            const epoch = Number(proof.epoch)
-            const epochKey = proof.epochKey.toString()
-            await relayReport({
-                proof,
+            const reportService = new ReportService(userState)
+            const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            await stateTransition()
+            const { epoch, epochKey } = await reportService.createReport({
                 type: ReportType.POST,
                 objectId: postId,
-                reportorEpochKey: epochKey,
                 reason,
                 category,
-                reportEpoch: epoch,
+                identityNonce,
             })
             return {
                 postId,
@@ -72,7 +69,7 @@ export function useReportPost() {
                 failActionById(context.actionId)
             }
         },
-        onSuccess: (data, _variables, context) => {
+        onSuccess: async (data, _variables, context) => {
             if (context?.actionId) {
                 succeedActionById(context.actionId, {
                     postId: data.postId,
@@ -80,7 +77,12 @@ export function useReportPost() {
                     epochKey: data.epochKey,
                 })
             }
-            queryClient.invalidateQueries({
+
+            await queryClient.invalidateQueries({
+                queryKey: [QueryKeys.ManyPosts],
+            })
+
+            await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
         },

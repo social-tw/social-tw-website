@@ -36,17 +36,18 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     console.log('Deploying Verifiers')
     const {
         dataProofVerifier,
-        reportNegRepProofVerifier,
+        reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
     } = await deployVerifiers(deployer)
 
     // deploy verifierHelpers
     console.log('Deploying VerifierHelpers')
     const verifiers = {
-        reportNegRepProofVerifier: reportNegRepProofVerifier.address,
+        reportNonNullifierProofVerifier:
+            reportNonNullifierProofVerifier.address,
         reportNullifierProofVerifier: reportNullifierProofVerifier.address,
     }
-    const { reportNegRepVHelper, reportNullifierVHelper } =
+    const { reportNonNullifierVHelper, reportNullifierVHelper } =
         await deployVHelpers(deployer, unirep.address, verifiers)
 
     // deploy verifierHelperManager
@@ -63,8 +64,8 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     // 1. create a mapping list for vHelper => hash value
     const vHelpers = [
         {
-            identifier: 'reportNegRepProofVerifierHelper',
-            address: reportNegRepVHelper.address,
+            identifier: 'reportNonNullifierProofVerifierHelper',
+            address: reportNonNullifierVHelper.address,
         },
         {
             identifier: 'reportNullifierProofVerifierHelper',
@@ -79,12 +80,16 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         return { identifier: hashId, address }
     })
 
+    await vHelperManager
+        .owner()
+        .then((owner) =>
+            console.log('Owner of verifier helper manager:', owner)
+        )
     // 2. register address into vHelperManager
     for (const vHelper of vHelpers) {
-        await vHelperManager.functions.verifierRegister(
-            vHelper.identifier,
-            vHelper.address
-        )
+        await vHelperManager
+            .connect(deployer)
+            .functions.verifierRegister(vHelper.identifier, vHelper.address)
     }
 
     // 3. check via reading from contract
@@ -113,11 +118,12 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     return {
         unirep,
         app,
+        vHelperManager,
         // Verifier Helpers
-        reportNegRepVHelper,
+        reportNonNullifierVHelper,
         reportNullifierVHelper,
         // Verifiers
-        reportNegRepProofVerifier,
+        reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
     }
 }

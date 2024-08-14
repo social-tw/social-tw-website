@@ -6,15 +6,6 @@ export enum CommentStatus {
     Reported = 'reported',
 }
 
-export interface RelayRawComment {
-    commentId: string
-    postId: string
-    epochKey: string
-    publishedAt: string
-    content: string
-    voteSum: number
-}
-
 export interface FetchCommentsByEpochKeysParams {
     epochKeys: bigint[]
 }
@@ -53,6 +44,14 @@ export interface CommentHistoryMetaData {
     url: string
 }
 
+export enum RelayRawCommentStatus {
+    NOT_ON_CHAIN,
+    ON_CHAIN,
+    REPORTED,
+    DISAGREED,
+    DELETED,
+}
+
 export interface RelayRawComment {
     publishedAt: string
     commentId: string
@@ -62,6 +61,6 @@ export interface RelayRawComment {
     content: string
     epoch: number
     epochKey: string
-    status: number
+    status: RelayRawCommentStatus
     _id: string
 }

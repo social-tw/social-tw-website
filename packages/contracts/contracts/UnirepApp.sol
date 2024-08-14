@@ -6,6 +6,8 @@ import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochK
 import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
@@ -16,7 +18,7 @@ interface IVerifier {
     ) external view returns (bool);
 }
 
-contract UnirepApp {
+contract UnirepApp is Ownable {
     struct postVote {
         uint256 upVote;
         uint256 downVote;
@@ -333,7 +335,7 @@ contract UnirepApp {
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -373,7 +375,7 @@ contract UnirepApp {
     function claimDailyLoginRep(
         uint256[] calldata publicSignals,
         uint256[8] calldata proof
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -412,15 +414,15 @@ contract UnirepApp {
     /**
      * Give the report negative reputation
      * @param publicSignals: public signals
-     * @param proof: report negative reputation proof
-     * @param change: reputation score (type 0: (5), type 1: (1))
+     * @param proof: report non nullifier proof
+     * @param change: reputation score
      */
     function claimReportNegRep(
         uint256[] calldata publicSignals,
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public {
+    ) public onlyOwner() {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -442,8 +444,8 @@ contract UnirepApp {
         }
 
         // attesting on Unirep contract:
-        // type 0: punishing poster   (5)
-        // type 1: punishing reporter (1)
+        // 1. punishing poster   (5)
+        // 2. punishing reporter (1)
         unirep.attest(
             signals.epochKey,
             epoch,

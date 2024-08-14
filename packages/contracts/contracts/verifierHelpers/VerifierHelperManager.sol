@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 
 import { IVerifierHelper } from "../interfaces/IVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract VerifierHelperManager {
+contract VerifierHelperManager is Ownable {
     mapping(bytes32 => address) public registeredVHelpers; // see verifierRegister
     error IdentifierNotRegistered(bytes32);
 
@@ -14,7 +15,7 @@ contract VerifierHelperManager {
     function verifierRegister(
         bytes32 identifier,
         address addr
-    ) public {
+    ) public onlyOwner() {
         registeredVHelpers[identifier] = addr;
     }
 

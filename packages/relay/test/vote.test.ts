@@ -2,49 +2,48 @@ import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-import { UserState } from '@unirep/core'
 import { stringifyBigInts } from '@unirep/utils'
 import { deployContracts, startServer, stopServer } from './environment'
 
+import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { io } from 'socket.io-client'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
-import { PostService } from '../src/services/PostService'
-import { userService } from '../src/services/UserService'
+import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
-import { UserStateFactory } from './utils/UserStateFactory'
-import { ReputationType, genProveReputationProof } from './utils/genProof'
+import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
-import { signUp } from './utils/signUp'
+import { signUp } from './utils/signup'
+import { IdentityObject } from './utils/types'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 describe('POST /vote', function () {
     let socketClient: any
     let snapshot: any
     let db: DB
     let express: ChaiHttp.Agent
-    let userStateFactory: UserStateFactory
-    let userState: UserState
     let sync: UnirepSocialSynchronizer
     let upvotePostId: string
     let downvotePostId: string
     let otherPostId: string
-    let pService: PostService
     let chainId: number
     let authentication: string
+    let app: UnirepApp
+    let user: IdentityObject
+    let prover: any
+    let provider: any
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep, app } = await deployContracts(100000)
+        const { unirep, app: _app } = await deployContracts(100000)
         // start server
         const {
             db: _db,
-            prover,
-            provider,
+            prover: _prover,
+            provider: _provider,
             chaiServer,
             synchronizer,
-            postService,
-        } = await startServer(unirep, app)
+        } = await startServer(unirep, _app)
 
         // start socket client
         socketClient = io('http://localhost:3000')
@@ -52,44 +51,22 @@ describe('POST /vote', function () {
         db = _db
         express = chaiServer
         sync = synchronizer
-        pService = postService
-        userStateFactory = new UserStateFactory(
-            db,
-            provider,
-            prover,
-            unirep,
+        app = _app
+        prover = _prover
+        provider = _provider
+
+        user = createRandomUserIdentity()
+        const userState = await signUp(user, {
             app,
-            synchronizer
-        )
-
-        const initUser = await userService.getLoginUser(db, '123', undefined)
-        userState = await signUp(
-            initUser,
-            userStateFactory,
-            userService,
-            synchronizer
-        )
-
-        await userState.waitForSync()
-        const hasSignedUp = await userState.hasSignedUp()
-        expect(hasSignedUp).equal(true)
+            db,
+            prover,
+            provider,
+            sync,
+        })
 
         chainId = await unirep.chainid()
-        const epoch = await sync.loadCurrentEpoch()
 
-        const reputationProof = await genProveReputationProof(
-            ReputationType.POSITIVE,
-            {
-                id: userState.id,
-                epoch,
-                nonce: 1,
-                attesterId: sync.attesterId,
-                chainId,
-                revealNonce: 0,
-            }
-        )
-
-        authentication = jsonToBase64(reputationProof)
+        authentication = await genAuthentication(userState)
 
         // produce three posts
         const postPromises = [
@@ -100,12 +77,10 @@ describe('POST /vote', function () {
 
         const postResponses = await Promise.all(postPromises)
         await Promise.all(
-            postResponses.map((res) =>
-                ethers.provider.waitForTransaction(res.txHash)
-            )
+            postResponses.map((txHash) => provider.waitForTransaction(txHash))
         )
         await sync.waitForSync()
-        await pService.updateOrder(db)
+        await postService.updateOrder(db)
         // get the post ids
         const posts = await express.get('/api/post?page=1').then((res) => {
             expect(res).to.have.status(200)
@@ -155,6 +130,7 @@ describe('POST /vote', function () {
     }
 
     it('should vote for post', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -194,6 +170,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with the same type', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -222,6 +199,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with different type', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -251,6 +229,7 @@ describe('POST /vote', function () {
     })
 
     it('should cancel vote for post', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -283,6 +262,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -311,6 +291,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with wrong proof', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -328,6 +309,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with invalid post', async function () {
+        const userState = await genUserState(user.id, sync, app, db, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })

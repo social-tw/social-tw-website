@@ -12,6 +12,9 @@ export enum QueryKeys {
     PendingReports = 'pending_reports',
     ReputationScore = 'reputation_score',
     ReputationHistory = 'reputation_history',
+    PostHistory = 'post_history',
+    CommentHistory = 'comment_history',
+    VoteHistory = 'vote_history',
     ReportHistory = 'ReportHistory',
 }
 

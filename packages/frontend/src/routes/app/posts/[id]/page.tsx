@@ -1,20 +1,21 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { QueryKeys } from '@/constants/queryKeys'
 import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
-import { useUserState } from '@/features/core'
+import { PostService, useUserState } from '@/features/core'
 import {
-    CommentNotification,
     CommentList,
+    CommentNotification,
     CreateComment,
     Post,
     useVotes,
 } from '@/features/post'
-import { fetchSinglePost } from '@/utils/api'
-import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
-import { QueryKeys } from '@/constants/queryKeys'
-import { PostStatus } from '@/types/Post'
+import { useReputationScore } from '@/features/reporting'
+import { openForbidActionDialog } from '@/features/shared/stores/dialog'
+import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
+import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
+import { useQuery } from '@tanstack/react-query'
+import React, { useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
@@ -35,51 +36,52 @@ const PostDetailsPage: React.FC = () => {
         queryKey: [QueryKeys.SinglePost, id],
         queryFn: async () => {
             if (!id) return undefined
-            const post = await fetchSinglePost(id)
-            return {
-                id: post._id,
-                postId: post.postId,
-                epochKey: post.epochKey,
-                content: post.content,
-                publishedAt: new Date(Number(post.publishedAt)),
-                commentCount: post.commentCount,
-                upCount: post.upCount,
-                downCount: post.downCount,
-                isMine: false,
-                finalAction: null,
-                votedNonce: null,
-                votedEpoch: null,
-                status: PostStatus.Success,
-                votes: post.votes,
-            }
+            const postService = new PostService()
+            return postService.fetchPostById(id)
         },
     })
 
     const post = useMemo(() => {
-        if (data && userState) {
-            const voteCheck = checkVoteIsMine(data.votes, userState)
-            const isMine = voteCheck.isMine
-            const finalAction = voteCheck.finalAction
-            return {
-                ...data,
-                isMine: isMine,
-                finalAction: finalAction,
-                votedNonce: voteCheck.votedNonce,
-                votedEpoch: voteCheck.votedEpoch,
-            }
+        if (!data) return undefined
+
+        let voteCheck
+        if (userState) {
+            voteCheck = checkVoteIsMine(data?.votes, userState)
         }
-        return data
+
+        return {
+            id: data._id,
+            postId: data.postId,
+            epochKey: data.epochKey,
+            content: data.content,
+            publishedAt: new Date(Number(data.publishedAt)),
+            commentCount: data.commentCount,
+            upCount: data.upCount,
+            downCount: data.downCount,
+            isReported: data.status === RelayRawPostStatus.REPORTED,
+            isMine: voteCheck ? voteCheck.isMine : false,
+            finalAction: voteCheck ? voteCheck.finalAction : null,
+            votedNonce: voteCheck ? voteCheck.votedNonce : null,
+            votedEpoch: voteCheck ? voteCheck.votedEpoch : null,
+            status: PostStatus.Success,
+            votes: data.votes,
+        }
     }, [data, userState])
 
     const [isOpenComment, setIsOpenCommnet] = useState(false)
 
     const [errorMessage, setErrorMessage] = useState<string>()
 
+    const { isValidReputationScore } = useReputationScore()
     const onWriteComment = () => {
         if (!isLoggedIn) {
             setErrorMessage(
                 '很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！',
             )
+            return
+        }
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
             return
         }
         setIsOpenCommnet((prev) => !prev)
@@ -134,6 +136,7 @@ const PostDetailsPage: React.FC = () => {
                         upCount={post.upCount}
                         downCount={post.downCount}
                         onComment={onWriteComment}
+                        isReported={post.isReported}
                         isMine={post.isMine}
                         finalAction={post.finalAction}
                         votedNonce={post.votedNonce}

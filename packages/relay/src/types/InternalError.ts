@@ -36,7 +36,7 @@ export const WrongEpochKeyNumberError = new InternalError(
 export const InvalidAttesterIdError = new InternalError('Wrong attesterId', 400)
 export const InvalidProofError = new InternalError('Invalid proof', 400)
 export const InvalidStateTreeError = new InternalError(
-    'Invalid State Tree',
+    'Invalid state tree',
     400
 )
 export const InvalidPublicSignalError = new InternalError(
@@ -150,6 +150,12 @@ export const NoCommentHistoryFoundError = new InternalError(
     'No comment history found for the given epoch range',
     404
 )
+
+export const NoVoteHistoryFoundError = new InternalError(
+    'No vote history found for the given epoch range',
+    404
+)
+
 export const InvalidReputationProofError = new InternalError(
     'Invalid reputation proof',
     400
@@ -157,6 +163,11 @@ export const InvalidReputationProofError = new InternalError(
 
 export const NegativeReputationUserError = new InternalError(
     'Negative reputation user',
+    400
+)
+
+export const PositiveReputationUserError = new InternalError(
+    'Positive reputation user',
     400
 )
 

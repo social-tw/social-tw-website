@@ -1,30 +1,24 @@
 import { MutationKeys } from '@/constants/queryKeys'
-import { useUserState } from '@/features/core'
+import {
+    ReportService,
+    useUserState,
+    useUserStateTransition,
+} from '@/features/core'
 import { useMutation } from '@tanstack/react-query'
 import { AdjudicateFormValues } from '../../components/Adjudicate/AdjudicateForm'
-import { adjudicateReport } from '../../utils/apis'
-import { getAdjudicateNullifier } from '../../utils/helpers'
 
 export function useAdjudicate() {
     const { getGuaranteedUserState } = useUserState()
 
+    const { stateTransition } = useUserStateTransition()
+
     return useMutation({
         mutationKey: [MutationKeys.Adjudicate],
         mutationFn: async (values: AdjudicateFormValues) => {
-            const { reportId, adjudicateValue } = values
-
+            await stateTransition()
             const userState = await getGuaranteedUserState()
-
-            const nullifier = getAdjudicateNullifier(
-                userState.id.secret,
-                reportId,
-            )
-
-            return adjudicateReport({
-                reportId,
-                adjudicateValue,
-                nullifier,
-            })
+            const reportService = new ReportService(userState)
+            return reportService.adjudicateReport(values)
         },
     })
 }

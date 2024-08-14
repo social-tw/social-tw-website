@@ -11,6 +11,7 @@ import {
 import crypto from 'crypto'
 import { poseidon1, poseidon2 } from 'poseidon-lite'
 import { defaultProver } from '../provers/defaultProver'
+import { ProofGenerationError } from './error'
 import { EpochKeyControl, IdentityObject } from './types'
 
 export const genProofAndVerify = async (
@@ -18,8 +19,20 @@ export const genProofAndVerify = async (
     circuitInputs: any
 ) => {
     const startTime = new Date().getTime()
-    const { proof, publicSignals } =
-        await defaultProver.genProofAndPublicSignals(circuit, circuitInputs)
+    let proof: any, publicSignals: any
+    try {
+        ;({ proof, publicSignals } =
+            await defaultProver.genProofAndPublicSignals(
+                circuit,
+                circuitInputs
+            ))
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new ProofGenerationError(error?.message)
+        } else {
+            throw new Error(`Unknown Error...`)
+        }
+    }
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
@@ -43,11 +56,11 @@ export const createRandomUserIdentity = (): IdentityObject => {
     return { hashUserId, id }
 }
 
-export const genNullifier = (hashUserId: string, reportId: number | bigint) => {
-    return poseidon2([hashUserId, reportId])
+export const genNullifier = (identity: Identity, reportId: number | bigint) => {
+    return poseidon2([identity.secret, reportId])
 }
 
-export const genReportNegRepCircuitInput = (config: {
+export const genReportNonNullifierCircuitInput = (config: {
     reportedEpochKey: any
     identitySecret: string | bigint
     reportedEpoch: number | bigint
@@ -55,7 +68,6 @@ export const genReportNegRepCircuitInput = (config: {
     currentNonce: number | bigint
     chainId: number | bigint
     attesterId: number | bigint
-    type: number | bigint
 }) => {
     const {
         reportedEpochKey,
@@ -65,7 +77,6 @@ export const genReportNegRepCircuitInput = (config: {
         currentNonce,
         chainId,
         attesterId,
-        type,
     } = Object.assign(config)
 
     const circuitInputs = {
@@ -76,14 +87,13 @@ export const genReportNegRepCircuitInput = (config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
-        type,
     }
     return utils.stringifyBigInts(circuitInputs)
 }
 
 export const genReportNullifierCircuitInput = (config: {
     reportNullifier: any
-    hashUserId: string | bigint
+    identitySecret: string | bigint
     reportId: number | bigint
     currentEpoch: number | bigint
     currentNonce: number | bigint
@@ -92,7 +102,7 @@ export const genReportNullifierCircuitInput = (config: {
 }) => {
     const {
         reportNullifier,
-        hashUserId,
+        identitySecret,
         reportId,
         currentEpoch,
         currentNonce,
@@ -102,7 +112,7 @@ export const genReportNullifierCircuitInput = (config: {
 
     const circuitInputs = {
         report_nullifier: reportNullifier,
-        hash_user_id: hashUserId,
+        identity_secret: identitySecret,
         report_id: reportId,
         current_epoch: currentEpoch,
         current_nonce: currentNonce,
@@ -115,7 +125,6 @@ export const genReportNullifierCircuitInput = (config: {
 export const genReportIdentityCircuitInput = (config: {
     reportNullifier: any
     identitySecret: string | bigint
-    hashUserId: string | bigint
     reportId: number | bigint
     data: string[] | bigint[]
     attesterId: string | bigint
@@ -128,7 +137,6 @@ export const genReportIdentityCircuitInput = (config: {
     const {
         reportNullifier,
         identitySecret,
-        hashUserId,
         reportId,
         data,
         attesterId,
@@ -142,7 +150,6 @@ export const genReportIdentityCircuitInput = (config: {
     const circuitInputs = {
         report_nullifier: reportNullifier,
         identity_secret: identitySecret,
-        hash_user_id: hashUserId,
         report_id: reportId,
         data,
         attester_id: attesterId,
