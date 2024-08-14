@@ -7,9 +7,11 @@ import {
     Adjudicator,
     CommentNotExistError,
     CommentReportedError,
+    InternalError,
     InvalidCommentIdError,
     InvalidParametersError,
     InvalidPostIdError,
+    InvalidReportNullifierError,
     InvalidReportStatusError,
     PostNotExistError,
     PostReportedError,
@@ -20,12 +22,8 @@ import {
     ReportStatus,
     ReportType,
     ReportVotingEndedError,
-    UserAlreadyVotedError,
     UserAlreadyClaimedError,
-    InternalError,
-    InvalidReportNullifierError,
-    NegativeReputationUserError,
-    PositiveReputationUserError,
+    UserAlreadyVotedError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
@@ -301,14 +299,12 @@ export class ReportService {
     async claimPositiveReputation(
         req: express.Request,
         res: express.Response,
-        db: DB,
-        synchronizer: UnirepSocialSynchronizer
+        db: DB
     ) {
         await this.claimReputation(
             req,
             res,
             db,
-            synchronizer,
             ClaimMethods.CLAIM_POSITIVE_REP,
             ReputationDirection.POSITIVE
         )
@@ -317,14 +313,12 @@ export class ReportService {
     async claimNegativeReputation(
         req: express.Request,
         res: express.Response,
-        db: DB,
-        synchronizer: UnirepSocialSynchronizer
+        db: DB
     ) {
         await this.claimReputation(
             req,
             res,
             db,
-            synchronizer,
             ClaimMethods.CLAIM_NEGATIVE_REP,
             ReputationDirection.NEGATIVE
         )
@@ -334,37 +328,23 @@ export class ReportService {
         req: express.Request,
         res: express.Response,
         db: DB,
-        synchronizer: UnirepSocialSynchronizer,
         claimMethod: ClaimMethods,
         direction: ReputationDirection
     ) {
         try {
-            const {
-                reportId,
-                publicSignals,
-                proof,
-                claimSignals,
-                claimProof,
-                repUserType,
-                nullifier,
-            } = req.body
+            const { reportId, claimSignals, claimProof, repUserType } = req.body
+
+            let nullifier: string | undefined
+            if (repUserType === RepUserType.VOTER) {
+                nullifier = claimSignals[2]
+            }
 
             this.validateInputs(reportId, claimSignals, claimProof, repUserType)
-
-            const epochKeyProof = await this.verifyEpochKeyProof(
-                publicSignals,
-                proof,
-                synchronizer
-            )
-            const { epoch, epochKey } = this.getEpochInfo(epochKeyProof)
 
             const report = await this.getReport(
                 db,
                 reportId,
-                epoch,
-                epochKey,
                 repUserType,
-                direction,
                 nullifier
             )
 
@@ -385,8 +365,6 @@ export class ReportService {
             await this.updateReputationStatus(
                 db,
                 direction,
-                epochKey,
-                epoch,
                 reportId,
                 nullifier,
                 repUserType
@@ -396,21 +374,19 @@ export class ReportService {
             await this.createReputationHistory(
                 db,
                 txHash,
-                epoch,
-                epochKey,
                 change,
                 repType,
-                reportId
+                reportId,
+                report
             )
 
             this.sendSuccessResponse(
                 res,
                 txHash,
                 reportId,
-                epoch,
-                epochKey,
                 repType,
-                change
+                change,
+                report
             )
         } catch (error: any) {
             this.handleError(res, error, direction)
@@ -436,32 +412,10 @@ export class ReportService {
         }
     }
 
-    private async verifyEpochKeyProof(
-        publicSignals: any,
-        proof: any,
-        synchronizer: UnirepSocialSynchronizer
-    ) {
-        return await ProofHelper.getAndVerifyEpochKeyLiteProof(
-            publicSignals,
-            proof,
-            synchronizer
-        )
-    }
-
-    private getEpochInfo(epochKeyProof: any) {
-        return {
-            epoch: Number(epochKeyProof.epoch),
-            epochKey: epochKeyProof.epochKey.toString(),
-        }
-    }
-
     private async getReport(
         db: DB,
         reportId: string,
-        epoch: number,
-        epochKey: string,
         repUserType: RepUserType,
-        direction: ReputationDirection,
         nullifier?: string
     ) {
         if (repUserType === RepUserType.VOTER) {
@@ -469,18 +423,11 @@ export class ReportService {
             return this.findReportWithNullifier(
                 db,
                 reportId,
-                epoch,
                 nullifier,
                 ReportStatus.WAITING_FOR_TRANSACTION
             )
         } else {
-            const whereClause = this.getReportWhereClause(
-                reportId,
-                epoch,
-                epochKey,
-                repUserType,
-                direction
-            )
+            const whereClause = this.getReportWhereClause(reportId)
             const report = await db.findOne('ReportHistory', {
                 where: whereClause,
             })
@@ -489,32 +436,15 @@ export class ReportService {
         }
     }
 
-    private getReportWhereClause(
-        reportId: string,
-        epoch: number,
-        epochKey: string,
-        repUserType: RepUserType,
-        direction: ReputationDirection
-    ) {
-        const baseClause = {
+    private getReportWhereClause(reportId: string) {
+        return {
             reportId,
             status: ReportStatus.WAITING_FOR_TRANSACTION,
-            reportEpoch: epoch,
-        }
-
-        if (direction === ReputationDirection.NEGATIVE) {
-            return repUserType === RepUserType.REPORTER
-                ? { ...baseClause, reportorEpochKey: epochKey }
-                : { ...baseClause, respondentEpochKey: epochKey }
-        } else {
-            return repUserType === RepUserType.REPORTER
-                ? { ...baseClause, reportorEpochKey: epochKey }
-                : baseClause // For voters, we don't include epochKey in the where clause
         }
     }
 
     private checkReputationClaim(
-        report: any,
+        report: ReportHistory,
         repUserType: RepUserType,
         direction: ReputationDirection,
         nullifier?: string
@@ -540,7 +470,7 @@ export class ReportService {
                 if (!nullifier) throw InvalidParametersError
                 if (!report) throw InvalidReportNullifierError
                 if (
-                    report.adjudicatorsNullifier.some(
+                    report.adjudicatorsNullifier?.some(
                         (adj: any) => adj.nullifier === nullifier && adj.claimed
                     )
                 ) {
@@ -584,16 +514,15 @@ export class ReportService {
     private async createReputationHistory(
         db: DB,
         txHash: string,
-        epoch: number,
-        epochKey: string,
         change: RepChangeType,
         repType: ReputationType,
-        reportId: string
+        reportId: string,
+        report: ReportHistory
     ) {
         await db.create('ReputationHistory', {
             transactionHash: txHash,
-            epoch,
-            epochKey,
+            epoch: report.reportEpoch,
+            epochKey: report.respondentEpochKey,
             score: change,
             type: repType,
             reportId,
@@ -604,17 +533,16 @@ export class ReportService {
         res: express.Response,
         txHash: string,
         reportId: string,
-        epoch: number,
-        epochKey: string,
         repType: ReputationType,
-        change: RepChangeType
+        change: RepChangeType,
+        report: ReportHistory
     ) {
         res.status(200).json({
             message: {
                 txHash,
                 reportId,
-                epoch,
-                epochKey,
+                epoch: report.reportEpoch,
+                epochKey: report.respondentEpochKey,
                 type: repType,
                 score: change,
             },
@@ -644,17 +572,14 @@ export class ReportService {
     private async updateReputationStatus(
         db: DB,
         type: ReputationDirection,
-        epochKey: string,
-        epoch: number,
         reportId: string,
-        nullifier?: string,
+        nullifier?: string | undefined,
         repUserType?: RepUserType
     ) {
         if (type === ReputationDirection.POSITIVE && nullifier) {
             const report = await this.findReportWithNullifier(
                 db,
                 reportId,
-                epoch,
                 nullifier,
                 ReportStatus.WAITING_FOR_TRANSACTION
             )
@@ -676,18 +601,14 @@ export class ReportService {
             }
         } else {
             let updateField: string
-            let whereField: string
 
             if (type === ReputationDirection.POSITIVE) {
                 updateField = 'reportorClaimedRep'
-                whereField = 'reportorEpochKey'
             } else {
                 if (repUserType === RepUserType.REPORTER) {
                     updateField = 'reportorClaimedRep'
-                    whereField = 'reportorEpochKey'
                 } else if (repUserType === RepUserType.POSTER) {
                     updateField = 'respondentClaimedRep'
-                    whereField = 'respondentEpochKey'
                 } else {
                     throw new Error(
                         'Invalid repUserType for negative reputation'
@@ -699,8 +620,6 @@ export class ReportService {
             await db.update('ReportHistory', {
                 where: {
                     reportId,
-                    [whereField]: epochKey,
-                    reportEpoch: epoch,
                 },
                 update: updateQuery,
             })
@@ -710,14 +629,12 @@ export class ReportService {
     async findReportWithNullifier(
         db: DB,
         reportId: string,
-        epoch: number,
         nullifier: string,
         status: ReportStatus
     ) {
         const reports = await db.findMany('ReportHistory', {
             where: {
                 reportId,
-                reportEpoch: epoch,
                 status: status,
             },
         })

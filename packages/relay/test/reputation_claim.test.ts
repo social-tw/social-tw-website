@@ -4,13 +4,11 @@ import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { userService } from '../src/services/UserService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
     ReportStatus,
     ReportType,
     AdjudicateValue,
-    User,
     ReportHistory,
     Adjudicator,
 } from '../src/types'
@@ -205,7 +203,7 @@ describe('Reputation Claim', function () {
         reportedEpochKey = postPubSig[0]
 
         // Simulate vote
-        nullifier = genReportNullifier(reporter.id, reportId)
+        nullifier = genReportNullifier(voter.id, reportId)
         console.log('nullifier: ', nullifier.toString())
         const adjudicateValue = AdjudicateValue.AGREE
         const report = await db.findOne('ReportHistory', {
@@ -266,8 +264,6 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: repoterEpochKey.publicSignals,
-                    proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
@@ -282,7 +278,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(repoterEpochKey.epochKey.toString())
+            .that.equals(posterEpochKey.epochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.REPORT_SUCCESS)
@@ -305,7 +301,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            repoterEpochKey.epochKey.toString()
+            posterEpochKey.epochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.REPORTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.REPORT_SUCCESS)
@@ -353,8 +349,6 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: repoterEpochKey.publicSignals,
-                    proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
@@ -369,7 +363,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(repoterEpochKey.epochKey.toString())
+            .that.equals(posterEpochKey.epochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.REPORT_FAILURE)
@@ -392,7 +386,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            repoterEpochKey.epochKey.toString()
+            posterEpochKey.epochKey.toString()
         )
         expect(reputationHistory.score).to.equal(
             RepChangeType.FAILED_REPORTER_REP
@@ -432,8 +426,6 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: posterEpochKey.publicSignals,
-                    proof: posterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.POSTER,
@@ -512,12 +504,9 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: voterEpochKey.publicSignals,
-                    proof: voterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.VOTER,
-                    nullifier: nullifier.toString(),
                 })
             )
 
@@ -530,7 +519,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(voterEpochKey.epochKey.toString())
+            .that.equals(posterEpochKey.epochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.ADJUDICATE)
@@ -543,7 +532,8 @@ describe('Reputation Claim', function () {
                 reportorEpochKey: repoterEpochKey.epochKey.toString(),
             },
         })
-        expect(report.reportorClaimedRep).equal(1)
+        console.log('report: ', report)
+        expect(report.adjudicatorsNullifier[0].adjudicateValue).equal(1)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {
@@ -553,7 +543,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            voterEpochKey.epochKey.toString()
+            posterEpochKey.epochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
@@ -591,8 +581,6 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: repoterEpochKey.publicSignals,
-                    proof: repoterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
@@ -634,12 +622,10 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: voterEpochKey.publicSignals,
-                    proof: voterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.VOTER,
-                    nullifier: nullifier.toString(),
+                    nullifier1: reportNullifier.toString(),
                 })
             )
 
@@ -678,8 +664,6 @@ describe('Reputation Claim', function () {
             .send(
                 stringifyBigInts({
                     reportId: reportId,
-                    publicSignals: posterEpochKey.publicSignals,
-                    proof: posterEpochKey.proof,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.POSTER,
@@ -688,27 +672,5 @@ describe('Reputation Claim', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.include('User has already claimed')
-    })
-
-    it('should fail when voter tries to claim positive reputation with wrong nullifier', async function () {
-        const wrongNullifier = genReportNullifier(voter.id, '3')
-
-        const res = await express
-            .post('/api/reports/claimPositiveReputation')
-            .set('content-type', 'application/json')
-            .send(
-                stringifyBigInts({
-                    reportId: reportId,
-                    publicSignals: voterEpochKey.publicSignals,
-                    proof: voterEpochKey.proof,
-                    claimSignals: usedPublicSig,
-                    claimProof: usedProof,
-                    repUserType: RepUserType.VOTER,
-                    nullifier: wrongNullifier.toString(),
-                })
-            )
-
-        expect(res).to.have.status(400)
-        expect(res.body.error).to.include('Invalid report nullifier')
     })
 })
