@@ -237,7 +237,6 @@ describe('Reputation Claim', function () {
 
     it('should reporter be able to claim positive reputation', async function () {
         const currentNonce = 1
-        const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
@@ -298,7 +297,6 @@ describe('Reputation Claim', function () {
         })
         expect(report.reportorClaimedRep).equal(1)
 
-        // 验证 ReputationHistory 记录
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {
                 transactionHash: message.txHash,
@@ -326,7 +324,6 @@ describe('Reputation Claim', function () {
         })
 
         const currentNonce = 1
-        const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
@@ -411,7 +408,6 @@ describe('Reputation Claim', function () {
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
-        const type = 0
         const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
             reportedEpochKey,
             identitySecret,
@@ -486,7 +482,6 @@ describe('Reputation Claim', function () {
     // voter claim positive reputation
     it('should voter be able to claim voter positive reputation', async function () {
         const currentNonce = 0
-        const hashUserId = voter.hashUserId
 
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await voterUserState.sync.loadCurrentEpoch()
@@ -567,7 +562,6 @@ describe('Reputation Claim', function () {
 
     it('should fail when reporter tries to claim positive reputation twice', async function () {
         const currentNonce = 1
-        const hashUserId = reporter.hashUserId
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
@@ -610,7 +604,6 @@ describe('Reputation Claim', function () {
 
     it('should fail when voter tries to claim positive reputation twice', async function () {
         const currentNonce = 0
-        const hashUserId = voter.hashUserId
 
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await voterUserState.sync.loadCurrentEpoch()
@@ -661,7 +654,6 @@ describe('Reputation Claim', function () {
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
-        const type = 0
         const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
             reportedEpochKey,
             identitySecret,
