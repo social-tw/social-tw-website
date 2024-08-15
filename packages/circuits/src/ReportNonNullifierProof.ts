@@ -48,6 +48,7 @@ export class ReportNonNullifierProof extends BaseProof {
         this.attesterId = attesterId
         this.revealNonce = revealNonce
         this.chainId = chainId
-        this.circuit = UnirepSocialCircuit.reportNonNullifierProof as any as Circuit
+        this.circuit =
+            UnirepSocialCircuit.reportNonNullifierProof as any as Circuit
     }
 }
