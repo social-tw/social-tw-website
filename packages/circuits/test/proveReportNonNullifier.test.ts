@@ -1,8 +1,8 @@
 import * as utils from '@unirep/utils'
 import { expect } from 'chai'
 import { ReportNonNullifierProof } from '../src'
+import { UnirepSocialCircuit } from '../src/types'
 import { ProofGenerationError } from './error'
-import { UnirepSocialCircuit } from './types'
 import {
     createRandomUserIdentity,
     genProofAndVerify,

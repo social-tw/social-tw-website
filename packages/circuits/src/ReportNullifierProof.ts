@@ -1,13 +1,12 @@
-import { Prover } from '@unirep/circuits'
+import { BaseProof, Circuit, Prover } from '@unirep/circuits'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { UnirepSocialCircuit } from '../test/types'
-import { decodeEpochKeyControl } from '../test/utils'
-import { UnirepSocialBaseProof } from './UnirepSocialBaseProof'
+import { UnirepSocialCircuit } from './types'
+import { decodeEpochKeyControl } from './utils'
 
 /**
  *  Verify the voter identity for claiming reputation
  */
-export class ReportNullifierProof extends UnirepSocialBaseProof {
+export class ReportNullifierProof extends BaseProof {
     readonly output = {
         control: 0,
         currentEpochKey: 1,
@@ -48,6 +47,6 @@ export class ReportNullifierProof extends UnirepSocialBaseProof {
         this.attesterId = attesterId
         this.revealNonce = revealNonce
         this.chainId = chainId
-        this.unirepSocialCircuit = UnirepSocialCircuit.reportNullifierProof
+        this.circuit = UnirepSocialCircuit.reportNullifierProof as any as Circuit
     }
 }

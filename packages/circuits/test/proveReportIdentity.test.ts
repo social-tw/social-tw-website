@@ -4,8 +4,8 @@ import { IncrementalMerkleTree as zkIncrementalMerkleTree } from '@zk-kit/increm
 import { expect } from 'chai'
 import { poseidon2 } from 'poseidon-lite'
 import { ReportIdentityProof } from '../src'
+import { UnirepSocialCircuit } from '../src/types'
 import { ProofGenerationError } from './error'
-import { UnirepSocialCircuit } from './types'
 import {
     createRandomUserIdentity,
     genNullifier,
