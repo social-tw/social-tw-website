@@ -4,7 +4,6 @@ include "../../../node_modules/@unirep/circuits/circuits/incrementalMerkleTree.c
 include "../../../node_modules/@unirep/circuits/circuits/hasher.circom";
 
 template ReportIdentityProof(STATE_TREE_DEPTH, FIELD_COUNT) {
-    // inputs
     signal input report_nullifier;
     signal input identity_secret;
     signal input report_id;

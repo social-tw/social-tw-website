@@ -9,3 +9,9 @@ export type EpochKeyControl = {
     revealNonce: bigint
     chainId: bigint
 }
+
+export enum UnirepSocialCircuit {
+    reportIdentityProof = 'reportIdentityProof',
+    reportNullifierProof = 'reportNullifierProof',
+    reportNonNullifierProof = 'reportNonNullifierProof',
+}
