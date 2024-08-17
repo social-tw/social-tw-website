@@ -38,10 +38,17 @@ export function useReportPost() {
             category: ReportCategory
             reason: string
         }) => {
+            console.time('getGuaranteedUserState')
             const userState = await getGuaranteedUserState()
+            console.timeEnd('getGuaranteedUserState')
+            console.time('reportservice + identityNonce')
             const reportService = new ReportService(userState)
             const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
+            console.timeEnd('reportservice + identityNonce')
+            console.time('stateTransition')
             await stateTransition()
+            console.timeEnd('stateTransition')
+            console.time('createReport')
             const { epoch, epochKey } = await reportService.createReport({
                 type: ReportType.POST,
                 objectId: postId,
@@ -49,6 +56,7 @@ export function useReportPost() {
                 category,
                 identityNonce,
             })
+            console.timeEnd('createReport')
             return {
                 postId,
                 epoch,

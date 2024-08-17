@@ -54,11 +54,13 @@ export function PostReportDialog({
 
     const onSubmit = handleSubmit(async (data) => {
         try {
+            console.time('reportPost')
             await reportPost({
                 postId,
                 category: ReportCategory.SPAM,
                 reason: data[`${REGISTER_ID_DESC}`],
             })
+            console.timeEnd('reportPost')
         } catch (error) {}
     })
 
