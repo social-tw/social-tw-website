@@ -14,6 +14,7 @@ import {
     InvalidStateTreeError,
 } from '../../types'
 import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
+import { ethers } from 'hardhat'
 
 class ProofHelper {
     async getAndVerifyEpochKeyProof(
@@ -147,6 +148,14 @@ class ProofHelper {
             throw InvalidAttesterIdError
         }
     }
+}
+
+export function genVHelperIdentifier(identifier: string): string {
+    const encodedId = ethers.utils.defaultAbiCoder.encode(
+        ['string'],
+        [identifier]
+    )
+    return ethers.utils.keccak256(encodedId)
 }
 
 export default new ProofHelper()

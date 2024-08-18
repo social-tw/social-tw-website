@@ -12,12 +12,4 @@ export class IpfsHelper {
     }
 }
 
-export function genVHelperIdentifier(identifier: string): string {
-    const encodedId = ethers.utils.defaultAbiCoder.encode(
-        ['string'],
-        [identifier]
-    )
-    return ethers.utils.keccak256(encodedId)
-}
-
 export default new IpfsHelper()
