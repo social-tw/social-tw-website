@@ -39,7 +39,7 @@ import {
     ReputationDirection,
     ReputationType,
 } from '../types/Reputation'
-import { genVHelperIdentifier } from '../services/utils/IpfsHelper'
+import { genVHelperIdentifier } from '../services/utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class ReportService {
@@ -583,6 +583,7 @@ export class ReportService {
                 nullifier,
                 ReportStatus.WAITING_FOR_TRANSACTION
             )
+            if (!report) throw ReportNotExistError
 
             if (report) {
                 const updatedAdjudicators = report.adjudicatorsNullifier.map(
