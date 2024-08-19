@@ -288,7 +288,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+                id: reportId,
             },
         })
         expect(report.reportorClaimedRep).equal(1)
@@ -312,7 +312,7 @@ describe('Reputation Claim', function () {
         // reset HistoryReport reportorClaimedRep to 0
         await db.update('ReportHistory', {
             where: {
-                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+                reportId: 1,
             },
             update: {
                 reportorClaimedRep: 0,
@@ -373,7 +373,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+                reportId: reportId,
             },
         })
         expect(report.reportorClaimedRep).equal(1)
@@ -451,7 +451,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+                reportId: reportId,
             },
         })
         expect(report.reportorClaimedRep).equal(1)
@@ -529,7 +529,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportorEpochKey: repoterEpochKey.epochKey.toString(),
+                reportId: reportId,
             },
         })
         console.log('report: ', report)

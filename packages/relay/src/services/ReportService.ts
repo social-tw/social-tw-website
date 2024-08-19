@@ -420,12 +420,14 @@ export class ReportService {
     ) {
         if (repUserType === RepUserType.VOTER) {
             if (!nullifier) throw InvalidParametersError
-            return this.findReportWithNullifier(
+            const report = await this.findReportWithNullifier(
                 db,
                 reportId,
                 nullifier,
                 ReportStatus.WAITING_FOR_TRANSACTION
             )
+            if (!report) throw ReportNotExistError
+            return report
         } else {
             const whereClause = this.getReportWhereClause(reportId)
             const report = await db.findOne('ReportHistory', {
