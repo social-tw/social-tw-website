@@ -11,7 +11,7 @@ import {
 } from '@/features/core'
 import { Comment, useCreateComment, useRemoveComment } from '@/features/post'
 import { CommentStatus, RelayRawCommentStatus } from '@/types/Comments'
-import checkCommentIsMine from '@/utils/helpers/checkCommentIsMine'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import getNonceFromEpochKey from '@/utils/helpers/getNonceFromEpochKey'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -35,7 +35,7 @@ export default function CommentList({ postId }: { postId: string }) {
             .sort((a, b) => Number(a.publishedAt) - Number(b.publishedAt))
             .map((item) => {
                 const isMine = userState
-                    ? checkCommentIsMine(item, userState)
+                    ? isMyEpochKey(userState, item.epoch, item.epochKey)
                     : false
 
                 const canDelete = isMine && item.epoch === currentEpoch

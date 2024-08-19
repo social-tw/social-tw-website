@@ -4,7 +4,7 @@ import {
     RelayRemoveCommentResponse,
 } from '@/types/api'
 import { RelayRawComment } from '@/types/Comments'
-import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
@@ -33,7 +33,7 @@ export class CommentService extends RelayApiService {
         const userState = this.getUserState()
         const comments = await this.fetchCommentHistory(fromEpoch, toEpoch)
         return comments.filter((comment) =>
-            isMyEpochKeyOnEpoch(userState, comment.epoch, comment.epochKey),
+            isMyEpochKey(userState, comment.epoch, comment.epochKey),
         )
     }
 

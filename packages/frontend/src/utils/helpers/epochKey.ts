@@ -1,23 +1,8 @@
 import { UserState } from '@unirep/core'
 
-export function isMyEpochKey(userState: UserState, epochKey: string) {
-    const currentEpoch = userState.sync.calcCurrentEpoch()
-    const numEpochKeyNoncePerEpoch =
-        userState.sync.settings.numEpochKeyNoncePerEpoch
+const epochKeysCache = new Map<string, string>()
 
-    for (let epoch = 1; epoch < currentEpoch + 1; epoch++) {
-        for (let nonce = 0; nonce < numEpochKeyNoncePerEpoch; nonce++) {
-            const myEpochKey = userState.getEpochKeys(epoch, nonce).toString()
-
-            if (myEpochKey === epochKey) {
-                return true
-            }
-        }
-    }
-    return false
-}
-
-export function isMyEpochKeyOnEpoch(
+export function isMyEpochKey(
     userState: UserState,
     epoch: number,
     epochKey: string,
@@ -26,11 +11,20 @@ export function isMyEpochKeyOnEpoch(
         userState.sync.settings.numEpochKeyNoncePerEpoch
 
     for (let nonce = 0; nonce < numEpochKeyNoncePerEpoch; nonce++) {
-        const myEpochKey = userState.getEpochKeys(epoch, nonce).toString()
+        const cacheKey = `${userState.id.secret}.${epoch}.${nonce}`
+
+        let myEpochKey: string | undefined = undefined
+        if (epochKeysCache.has(cacheKey)) {
+            myEpochKey = epochKeysCache.get(cacheKey)
+        } else {
+            myEpochKey = userState.getEpochKeys(epoch, nonce).toString()
+            epochKeysCache.set(cacheKey, myEpochKey)
+        }
 
         if (myEpochKey === epochKey) {
             return true
         }
     }
+
     return false
 }
