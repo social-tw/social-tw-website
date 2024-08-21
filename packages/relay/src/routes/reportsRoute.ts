@@ -5,14 +5,14 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 
 export default (app: Express, db: DB) => {
     app.post(
-        '/api/reports/claimPositiveReputation',
+        '/api/reputation/claim/positive',
         errorHandler(async (req, res) => {
             await reportService.claimPositiveReputation(req, res, db)
         })
     )
 
     app.post(
-        '/api/reports/claimNegativeReputation',
+        '/api/reputation/claim/negative',
         errorHandler(async (req, res) => {
             await reportService.claimNegativeReputation(req, res, db)
         })

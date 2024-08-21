@@ -259,7 +259,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimPositiveReputation')
+            .post('/api/reputation/claim/positive')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -344,7 +344,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimNegativeReputation')
+            .post('/api/reputation/claim/negative')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -421,7 +421,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimNegativeReputation')
+            .post('/api/reputation/claim/negative')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -499,7 +499,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimPositiveReputation')
+            .post('/api/reputation/claim/positive')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -576,7 +576,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimPositiveReputation')
+            .post('/api/reputation/claim/positive')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -617,7 +617,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimPositiveReputation')
+            .post('/api/reputation/claim/positive')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -659,7 +659,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reports/claimNegativeReputation')
+            .post('/api/reputation/claim/negative')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
