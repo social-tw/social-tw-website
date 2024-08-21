@@ -496,25 +496,29 @@ export class ReportService {
             case ReputationDirection.POSITIVE:
                 switch (repUserType) {
                     case RepUserType.REPORTER:
-                        return RepChangeType.REPORTER_REP;
+                        return RepChangeType.REPORTER_REP
                     case RepUserType.VOTER:
-                        return RepChangeType.VOTER_REP;
+                        return RepChangeType.VOTER_REP
                     case RepUserType.POSTER:
-                        throw new Error("Invalid combination: POSITIVE direction for POSTER");
+                        throw new Error(
+                            'Invalid combination: POSITIVE direction for POSTER'
+                        )
                 }
-                break;
+                break
             case ReputationDirection.NEGATIVE:
                 switch (repUserType) {
                     case RepUserType.REPORTER:
-                        return RepChangeType.FAILED_REPORTER_REP;
+                        return RepChangeType.FAILED_REPORTER_REP
                     case RepUserType.POSTER:
-                        return RepChangeType.POSTER_REP;
+                        return RepChangeType.POSTER_REP
                     case RepUserType.VOTER:
-                        throw new Error("Invalid combination: NEGATIVE direction for VOTER");
+                        throw new Error(
+                            'Invalid combination: NEGATIVE direction for VOTER'
+                        )
                 }
-                break;
+                break
         }
-        throw new Error("Invalid direction or repUserType");
+        throw new Error('Invalid direction or repUserType')
     }
 
     private async executeContractCall(
