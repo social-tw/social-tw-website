@@ -35,7 +35,7 @@ export default function MobileBottomNav() {
                 <motion.nav
                     className="
                         fixed 
-                        z-50
+                        z-40
                         bottom-0 
                         w-screen 
                         h-20 
