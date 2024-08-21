@@ -1,6 +1,6 @@
 import { FetchVoteHistoryResponse, RelayCreateVoteResponse } from '@/types/api'
 import { RelayRawVote, VoteAction } from '@/types/Vote'
-import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
@@ -29,7 +29,7 @@ export class VoteService extends RelayApiService {
         const userState = this.getUserState()
         const votes = await this.fetchVoteHistory(fromEpoch, toEpoch)
         return votes.filter((vote) =>
-            isMyEpochKeyOnEpoch(userState, vote.epoch, vote.epochKey),
+            isMyEpochKey(userState, vote.epoch, vote.epochKey),
         )
     }
 

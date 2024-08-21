@@ -4,7 +4,7 @@ import {
     FetchPostsResponse,
     RelayCreatePostResponse,
 } from '@/types/api'
-import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
@@ -39,7 +39,7 @@ export class PostService extends RelayApiService {
         const userState = this.getUserState()
         const posts = await this.fetchPostHistory(fromEpoch, toEpoch)
         return posts.filter((post) =>
-            isMyEpochKeyOnEpoch(userState, post.epoch, post.epochKey),
+            isMyEpochKey(userState, post.epoch, post.epochKey),
         )
     }
 

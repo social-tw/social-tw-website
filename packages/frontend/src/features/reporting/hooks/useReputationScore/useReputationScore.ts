@@ -3,11 +3,13 @@ import { useUserState } from '@/features/core'
 import { useQuery } from '@tanstack/react-query'
 
 export function useReputationScore() {
-    const { getGuaranteedUserState } = useUserState()
+    const { userState } = useUserState()
     const { data: reputationScore } = useQuery({
-        queryKey: [QueryKeys.ReputationScore],
+        queryKey: [QueryKeys.ReputationScore, userState?.id.toString()],
         queryFn: async () => {
-            const userState = await getGuaranteedUserState()
+            if (!userState) {
+                return 0
+            }
             const data = await userState.getData()
             return Number(data[0] - data[1])
         },
