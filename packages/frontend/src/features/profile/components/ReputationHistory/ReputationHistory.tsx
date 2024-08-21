@@ -62,11 +62,7 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 function ReputationTable({ fromToEpoch }: ReputationTableProps) {
-    const {
-        isFetching,
-        isFetched,
-        data,
-    } = useReputationHistory(fromToEpoch)
+    const { isFetching, isFetched, data } = useReputationHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parseReputationHistoryToBodyData(data || [])
 

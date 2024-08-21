@@ -23,7 +23,7 @@ export function PostTable({ fromToEpoch }: PostTableProps) {
     if (!isFetched) {
         return null
     }
-    
+
     return (
         <TableContainer>
             <TableHeader data={headerData} />
