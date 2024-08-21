@@ -676,16 +676,29 @@ export class ReportService {
         direction: ReputationDirection,
         repUserType: RepUserType
     ): ReputationType {
-        if (direction === ReputationDirection.POSITIVE) {
-            return repUserType === RepUserType.VOTER
-                ? ReputationType.ADJUDICATE
-                : ReputationType.REPORT_SUCCESS
-        } else if (direction === ReputationDirection.NEGATIVE) {
-            return repUserType === RepUserType.POSTER
-                ? ReputationType.BE_REPORTED
-                : ReputationType.REPORT_FAILURE
-        } else {
-            throw new Error('Invalid ReputationDirection')
+        switch (direction) {
+            case ReputationDirection.POSITIVE:
+                switch (repUserType) {
+                    case RepUserType.VOTER:
+                        return ReputationType.ADJUDICATE;
+                    case RepUserType.REPORTER:
+                        return ReputationType.REPORT_SUCCESS;
+                    case RepUserType.POSTER:
+                        throw new Error('Invalid combination: POSITIVE direction for POSTER');
+                }
+                break;
+            case ReputationDirection.NEGATIVE:
+                switch (repUserType) {
+                    case RepUserType.VOTER:
+                        throw new Error('Invalid combination: NEGATIVE direction for VOTER');
+                    case RepUserType.REPORTER:
+                        return ReputationType.REPORT_FAILURE;
+                    case RepUserType.POSTER:
+                        return ReputationType.BE_REPORTED;
+                }
+                break;
+            default:
+                throw new Error('Invalid ReputationDirection');
         }
     }
 
