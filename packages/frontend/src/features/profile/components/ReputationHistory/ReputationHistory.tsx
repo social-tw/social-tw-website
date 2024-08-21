@@ -62,18 +62,26 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 function ReputationTable({ fromToEpoch }: ReputationTableProps) {
-    const { isFetchingReputationHistory, reputationHistory } =
-        useReputationHistory(fromToEpoch)
+    const {
+        isFetching,
+        isFetched,
+        data,
+    } = useReputationHistory(fromToEpoch)
     const headerData = getHeaderData()
-    const bodyData = parseReputationHistoryToBodyData(reputationHistory || [])
+    const bodyData = parseReputationHistoryToBodyData(data || [])
+
+    if (!isFetched) {
+        return <div className="min-h-[300px]" />
+    }
+
     return (
         <TableContainer>
             <TableHeader data={headerData} />
             <TableBody
                 data={bodyData}
                 noDataHint="此日期區間尚無紀錄，請另行查詢"
-                isLoading={isFetchingReputationHistory}
-                isInit={true}
+                isLoading={isFetching}
+                isInit={isFetched}
             />
         </TableContainer>
     )

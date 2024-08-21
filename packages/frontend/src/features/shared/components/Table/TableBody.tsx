@@ -67,7 +67,7 @@ export function TableBody({
 }: TableBodyProps) {
     return (
         <div>
-            {(!isInit || isLoading) && <TableBodyLoading />}
+            {isLoading && <TableBodyLoading />}
             {isInit && data.length === 0 && (
                 <TableBodyNoData hint={noDataHint} />
             )}
