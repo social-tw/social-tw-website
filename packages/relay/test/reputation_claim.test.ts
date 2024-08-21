@@ -55,6 +55,10 @@ describe('Reputation Claim', function () {
     let attesterId: bigint
     let reportedEpochKey: bigint
     let nullifier: BigInt
+    let voter2: IdentityObject
+    let voter2UserState: UserState
+    let voter2EpochKey: EpochKeyLiteProof
+    let nullifier2: BigInt
 
     const EPOCH_LENGTH = 3000
     const PositiveCircuit = 'reportNullifierProof'
@@ -161,6 +165,22 @@ describe('Reputation Claim', function () {
         expect(hasSignedUp3).equal(true)
         console.log('voter register success...')
 
+        voter2 = createRandomUserIdentity()
+        const wallet4 = ethers.Wallet.createRandom()
+        voter2UserState = await signUp(voter2, {
+            app,
+            db,
+            prover,
+            provider,
+            sync,
+        })
+        await voter2UserState.waitForSync()
+        const hasSignedUp4 = await voter2UserState.hasSignedUp()
+        expect(hasSignedUp4).equal(true)
+        console.log('voter2 register success...')
+
+        voter2EpochKey = await voter2UserState.genEpochKeyLiteProof()
+
         chainId = await unirep.chainid()
 
         repoterEpochKey = await repoterUserState.genEpochKeyLiteProof()
@@ -225,6 +245,27 @@ describe('Reputation Claim', function () {
                 adjudicatorsNullifier,
                 adjudicateCount,
                 status: ReportStatus.WAITING_FOR_TRANSACTION,
+            },
+        })
+
+        nullifier2 = genReportNullifier(voter2.id, reportId)
+        console.log('nullifier2: ', nullifier2.toString())
+        const adjudicateValue2 = AdjudicateValue.AGREE
+        const adjudicatorsNullifier2 = upsertAdjudicatorsNullifier(
+            nullifier2.toString(),
+            adjudicateValue2,
+            report
+        )
+        await db.update('ReportHistory', {
+            where: {
+                reportId,
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    ...adjudicatorsNullifier,
+                    ...adjudicatorsNullifier2,
+                ],
+                adjudicateCount: (report.adjudicateCount ?? 0) + 2,
             },
         })
     })
@@ -672,5 +713,93 @@ describe('Reputation Claim', function () {
 
         expect(res).to.have.status(400)
         expect(res.body.error).to.include('User has already claimed')
+    })
+    it('should voter2 be able to claim voter positive reputation', async function () {
+        const currentNonce = 0
+
+        const attesterId = BigInt(sync.attesterId)
+        const currentEpoch = await voter2UserState.sync.loadCurrentEpoch()
+        const identitySecret = voter2.id.secret
+
+        const reportNullifier = genNullifier(voter2.id, 1)
+        const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
+            reportNullifier,
+            identitySecret,
+            reportId: 1,
+            currentEpoch,
+            currentNonce,
+            attesterId,
+            chainId,
+        })
+
+        const { publicSignals, proof } = await genProofAndVerify(
+            PositiveCircuit,
+            reportNullifierCircuitInputs
+        )
+
+        usedPublicSig = publicSignals
+        usedProof = flattenProof(proof)
+
+        const res = await express
+            .post('/api/reputation/claim/positive')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    reportId: reportId,
+                    claimSignals: usedPublicSig,
+                    claimProof: usedProof,
+                    repUserType: RepUserType.VOTER,
+                })
+            )
+
+        expect(res).to.have.status(200)
+        const message = res.body.message
+        expect(message)
+            .to.have.property('txHash')
+            .that.matches(/^0x[a-fA-F0-9]{64}$/)
+        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('epoch').that.equals(currentEpoch)
+        expect(message)
+            .to.have.property('epochKey')
+            .that.equals(posterEpochKey.epochKey.toString())
+        expect(message)
+            .to.have.property('type')
+            .that.equals(ReputationType.ADJUDICATE)
+        expect(message)
+            .to.have.property('score')
+            .that.equals(RepChangeType.VOTER_REP)
+
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                reportId: reportId,
+            },
+        })
+        console.log('report: ', report)
+        expect(report.adjudicatorsNullifier[0].adjudicateValue).equal(1)
+
+        const reputationHistory = await db.findOne('ReputationHistory', {
+            where: {
+                transactionHash: message.txHash,
+            },
+        })
+        expect(reputationHistory).to.not.be.null
+        expect(reputationHistory.epoch).to.equal(currentEpoch)
+        expect(reputationHistory.epochKey).to.equal(
+            posterEpochKey.epochKey.toString()
+        )
+        expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
+        expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
+        expect(reputationHistory.reportId).to.equal(reportId)
+    })
+    it('should update report status to COMPLETED when all parties claim reputation', async function () {
+        // Check final report status
+        const report = await db.findOne('ReportHistory', {
+            where: { reportId },
+        })
+        expect(report.status).to.equal(ReportStatus.COMPLETED)
+        expect(report.reportorClaimedRep).to.equal(1)
+        expect(report.respondentClaimedRep).to.equal(1)
+        expect(report.adjudicatorsNullifier[0].claimed).to.be.true
+        expect(report.adjudicatorsNullifier[1].claimed).to.be.true
     })
 })

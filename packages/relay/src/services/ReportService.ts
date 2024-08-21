@@ -433,6 +433,9 @@ export class ReportService {
                 ReportStatus.WAITING_FOR_TRANSACTION
             )
             if (!report) throw ReportNotExistError
+            if (this.hasUserAlreadyClaimed(report, repUserType, nullifier)) {
+                throw UserAlreadyClaimedError
+            }
             return report
         } else {
             const whereClause = this.getReportWhereClause(reportId)
@@ -440,7 +443,31 @@ export class ReportService {
                 where: whereClause,
             })
             if (!report) throw ReportNotExistError
+            if (this.hasUserAlreadyClaimed(report, repUserType, nullifier)) {
+                throw UserAlreadyClaimedError
+            }
             return report
+        }
+    }
+
+    private hasUserAlreadyClaimed(
+        report: ReportHistory,
+        repUserType: RepUserType,
+        nullifier?: string
+    ): boolean {
+        switch (repUserType) {
+            case RepUserType.REPORTER:
+                return !!report.reportorClaimedRep
+            case RepUserType.POSTER:
+                return !!report.respondentClaimedRep
+            case RepUserType.VOTER:
+                return (
+                    report.adjudicatorsNullifier?.some(
+                        (adj) => adj.nullifier === nullifier && adj.claimed
+                    ) ?? false
+                )
+            default:
+                return false
         }
     }
 
@@ -596,60 +623,62 @@ export class ReportService {
 
     private async updateReputationStatus(
         db: DB,
-        type: ReputationDirection,
+        direction: ReputationDirection,
         reportId: string,
-        nullifier?: string | undefined,
+        nullifier?: string,
         repUserType?: RepUserType
     ) {
-        if (type === ReputationDirection.POSITIVE && nullifier) {
-            const report = await this.findReportWithNullifier(
-                db,
-                reportId,
-                nullifier,
-                ReportStatus.WAITING_FOR_TRANSACTION
-            )
-            if (!report) throw ReportNotExistError
+        const report = await db.findOne('ReportHistory', {
+            where: { reportId },
+        })
+        if (!report) throw ReportNotExistError
 
-            if (report) {
-                const updatedAdjudicators = report.adjudicatorsNullifier.map(
-                    (adj) =>
-                        adj.nullifier === nullifier
-                            ? { ...adj, claimed: true }
-                            : adj
-                )
+        let updates: Partial<ReportHistory> = {}
 
-                await db.update('ReportHistory', {
-                    where: { _id: report._id },
-                    update: {
-                        adjudicatorsNullifier: updatedAdjudicators,
-                    },
-                })
+        if (
+            direction === ReputationDirection.POSITIVE &&
+            repUserType === RepUserType.VOTER &&
+            nullifier
+        ) {
+            updates.adjudicatorsNullifier =
+                report.adjudicatorsNullifier?.map((adj) =>
+                    adj.nullifier === nullifier
+                        ? { ...adj, claimed: true }
+                        : adj
+                ) || []
+        } else if (
+            direction === ReputationDirection.POSITIVE &&
+            repUserType === RepUserType.REPORTER
+        ) {
+            updates.reportorClaimedRep = true
+        } else if (direction === ReputationDirection.NEGATIVE) {
+            if (repUserType === RepUserType.REPORTER) {
+                updates.reportorClaimedRep = true
+            } else if (repUserType === RepUserType.POSTER) {
+                updates.respondentClaimedRep = true
             }
-        } else {
-            let updateField: string
-
-            if (type === ReputationDirection.POSITIVE) {
-                updateField = 'reportorClaimedRep'
-            } else {
-                if (repUserType === RepUserType.REPORTER) {
-                    updateField = 'reportorClaimedRep'
-                } else if (repUserType === RepUserType.POSTER) {
-                    updateField = 'respondentClaimedRep'
-                } else {
-                    throw new Error(
-                        'Invalid repUserType for negative reputation'
-                    )
-                }
-            }
-
-            const updateQuery = { [updateField]: true }
-            await db.update('ReportHistory', {
-                where: {
-                    reportId,
-                },
-                update: updateQuery,
-            })
         }
+
+        if (this.isReportCompleted({ ...report, ...updates })) {
+            updates.status = ReportStatus.COMPLETED
+        }
+
+        await db.update('ReportHistory', {
+            where: { reportId },
+            update: updates,
+        })
+
+        return await db.findOne('ReportHistory', { where: { reportId } })
+    }
+
+    private isReportCompleted(report: ReportHistory): boolean {
+        const allAdjudicatorsClaimed =
+            report.adjudicatorsNullifier?.every((adj) => adj.claimed) ?? true
+        return (
+            !!report.reportorClaimedRep &&
+            !!report.respondentClaimedRep &&
+            allAdjudicatorsClaimed
+        )
     }
 
     async findReportWithNullifier(
