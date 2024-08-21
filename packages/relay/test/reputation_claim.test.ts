@@ -288,7 +288,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                id: reportId,
+                reportId: reportId,
             },
         })
         expect(report.reportorClaimedRep).equal(1)
