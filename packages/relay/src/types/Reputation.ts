@@ -29,10 +29,8 @@ export enum ClaimMethods {
 }
 
 export enum ClaimHelpers {
-    VOTER = 'reportNullifierVHelper',
-    POSTER = 'reportNonNullifierVHelper',
-    REPORTER = 'reportNonNullifierVHelper',
-    FAILED_REPORTER = 'reportNonNullifierVHelper',
+    ReportNullifierVHelper = 'reportNullifierVHelper',
+    ReportNonNullifierVHelper = 'reportNonNullifierVHelper',
 }
 
 // Reputation change amount

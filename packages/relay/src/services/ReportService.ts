@@ -43,6 +43,12 @@ import { genVHelperIdentifier } from '../services/utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class ReportService {
+    private helpersMap: Record<RepUserType, ClaimHelpers> = {
+        [RepUserType.VOTER]: ClaimHelpers.ReportNullifierVHelper,
+        [RepUserType.POSTER]: ClaimHelpers.ReportNonNullifierVHelper,
+        [RepUserType.REPORTER]: ClaimHelpers.ReportNonNullifierVHelper,
+    }
+
     async verifyReportData(
         db: DB,
         reportData: ReportHistory,
@@ -670,16 +676,14 @@ export class ReportService {
         repUserType: RepUserType,
         direction: ReputationDirection
     ): ClaimHelpers {
-        if (repUserType === RepUserType.VOTER) {
-            return ClaimHelpers.VOTER
-        }
         if (
-            direction === ReputationDirection.NEGATIVE &&
-            repUserType === RepUserType.REPORTER
+            repUserType === RepUserType.REPORTER &&
+            direction === ReputationDirection.NEGATIVE
         ) {
-            return ClaimHelpers.FAILED_REPORTER
+            // Special case for FAILED_REPORTER
+            return ClaimHelpers.ReportNonNullifierVHelper
         }
-        return ClaimHelpers.POSTER // This covers POSTER and REPORTER for positive reputation
+        return this.helpersMap[repUserType]
     }
 }
 
