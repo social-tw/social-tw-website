@@ -4,7 +4,6 @@ import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { commentService } from '../src/services/CommentService'
-import { postService } from '../src/services/PostService'
 import { reportService } from '../src/services/ReportService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
@@ -168,7 +167,6 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        await postService.updateOrder(db)
         // Verify that the post status is updated and content is filtered
         const afterReportResponse = await express.get(
             `/api/post/${postId}?status=${PostStatus.REPORTED}`
@@ -973,7 +971,6 @@ describe('POST /api/report', function () {
                 return reports[0]
             })
 
-        await postService.updateOrder(db)
         await express.get(`/api/post/${report.objectId}`).then((res) => {
             const curPost = res.body as Post
             expect(curPost.status).to.equal(PostStatus.DISAGREED)
@@ -1026,7 +1023,6 @@ describe('POST /api/report', function () {
                 return reports
             })
 
-        await postService.updateOrder(db)
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post
@@ -1074,7 +1070,6 @@ describe('POST /api/report', function () {
                 return reports
             })
 
-        await postService.updateOrder(db)
         await express.get(`/api/post/${report[0].objectId}`).then((res) => {
             expect(res).to.have.status(200)
             const curPost = res.body as Post
