@@ -975,8 +975,9 @@ describe('POST /api/report', function () {
 
         await postService.updateOrder(db)
         await express.get(`/api/post/${report.objectId}`).then((res) => {
-            expect(res).to.have.status(400)
-            expect(res.body.error).to.be.equal('Post does not exist')
+            const curPost = res.body as Post
+            expect(curPost.status).to.equal(PostStatus.DISAGREED)
+            expect(curPost).to.not.have.property('content')
         })
     })
 

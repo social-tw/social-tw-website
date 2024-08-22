@@ -97,7 +97,7 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
-            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED})
+            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED}, ${PostStatus.DISAGREED})
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
@@ -128,7 +128,10 @@ export class PostService {
     private filterPostContent(post: Post): Partial<Post> {
         if (post.status === PostStatus.ON_CHAIN) {
             return post
-        } else if (post.status === PostStatus.REPORTED) {
+        } else if (
+            post.status === PostStatus.REPORTED ||
+            post.status === PostStatus.DISAGREED
+        ) {
             const { content, ...restOfPost } = post
             return restOfPost
         }
@@ -151,7 +154,7 @@ export class PostService {
             if (this.cache.length == 0) {
                 const statement = `
                     SELECT * FROM Post 
-                    WHERE status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED})
+                    WHERE status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED}, ${PostStatus.DISAGREED})
                     ORDER BY CAST(publishedAt AS INTEGER) DESC 
                     LIMIT ${LOAD_POST_COUNT} OFFSET ${start}
                 `
@@ -169,7 +172,11 @@ export class PostService {
             posts = await db.findMany('Post', {
                 where: {
                     epochKey: epks,
-                    status: [PostStatus.ON_CHAIN, PostStatus.REPORTED],
+                    status: [
+                        PostStatus.ON_CHAIN,
+                        PostStatus.REPORTED,
+                        PostStatus.DISAGREED,
+                    ],
                 },
                 limit: LOAD_POST_COUNT,
             })
@@ -197,7 +204,11 @@ export class PostService {
         if (status !== undefined) {
             whereClause.status = status
         } else {
-            whereClause.status = [PostStatus.ON_CHAIN, PostStatus.REPORTED]
+            whereClause.status = [
+                PostStatus.ON_CHAIN,
+                PostStatus.REPORTED,
+                PostStatus.DISAGREED,
+            ]
         }
 
         const post = await db.findOne('Post', {
