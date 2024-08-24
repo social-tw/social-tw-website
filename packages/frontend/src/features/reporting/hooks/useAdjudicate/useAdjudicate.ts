@@ -24,8 +24,8 @@ export function useAdjudicate() {
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
-                queryKey: [QueryKeys.PendingReports]
+                queryKey: [QueryKeys.PendingReports],
             })
-        }
+        },
     })
 }
