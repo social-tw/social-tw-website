@@ -9,7 +9,7 @@ export default function SearchBtn({ disabled, onClick }: SearchBtnProps) {
     return (
         <button
             className={clsx(
-                `rounded-[8px] text-white px-4 min-w-[80px]`,
+                `rounded-[8px] text-white px-4 min-w-[80px] text-xs md:text-base`,
                 `bg-[#FF892A] disabled:bg-slate-700`,
                 `cursor-pointer disabled:cursor-not-allowed`,
             )}

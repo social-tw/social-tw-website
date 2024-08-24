@@ -67,7 +67,9 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 function RowWrapper({ children }: { children: ReactNode }) {
-    return <div className={`flex flex-row gap-4 w-full`}>{children}</div>
+    return (
+        <div className={`flex flex-row gap-2 md:gap-4 w-full`}>{children}</div>
+    )
 }
 
 function Group({ children }: { children: ReactNode }) {
@@ -75,5 +77,5 @@ function Group({ children }: { children: ReactNode }) {
 }
 
 function Label({ name }: { name: string }) {
-    return <div className={`text-sm text-white`}>{name}</div>
+    return <div className={`text-xs md:text-sm text-white`}>{name}</div>
 }
