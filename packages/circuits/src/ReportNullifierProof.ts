@@ -14,9 +14,11 @@ export class ReportNullifierProof extends BaseProof {
 
     readonly input = {
         reportNullifier: 2,
+        reportId: 3,
     }
 
     public reportNullifier: bigint
+    public reportId: bigint
     public currentEpochKey: bigint
     public control: bigint
 
@@ -35,6 +37,7 @@ export class ReportNullifierProof extends BaseProof {
         this.reportNullifier = BigInt(
             _publicSignals[this.input.reportNullifier]
         )
+        this.reportId = BigInt(_publicSignals[this.input.reportId])
         this.currentEpochKey = BigInt(
             _publicSignals[this.output.currentEpochKey]
         )
