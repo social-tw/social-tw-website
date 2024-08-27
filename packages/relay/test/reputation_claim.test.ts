@@ -64,7 +64,9 @@ describe('Reputation Claim', function () {
     const PositiveCircuit = 'reportNullifierProof'
     const NegativeCircuit = 'reportNonNullifierProof'
     const reportId = '1'
+    const reportId2 = '2'
     const postId = 1
+    const postId2 = '2'
 
     const upsertAdjudicatorsNullifier = (
         nullifier: string,
@@ -199,7 +201,7 @@ describe('Reputation Claim', function () {
             transactionHash: ethers.utils.randomBytes(32).toString(),
         })
 
-        // Simulate report creation
+        // Simulate success report creation
         await db.create('ReportHistory', {
             reportId,
             type: ReportType.POST,
@@ -268,6 +270,76 @@ describe('Reputation Claim', function () {
                 adjudicateCount: (report.adjudicateCount ?? 0) + 2,
             },
         })
+
+        // Simulate post creation for postId2
+        await db.create('Post', {
+            postId: postId2,
+            content: 'Test post 2',
+            epochKey: poster.hashUserId,
+            epoch: await sync.loadCurrentEpoch(),
+            status: 1,
+            transactionHash: ethers.utils.randomBytes(32).toString(),
+        })
+
+        // Simulate failed report creation for postId2
+        await db.create('ReportHistory', {
+            reportId: reportId2,
+            type: ReportType.POST,
+            objectId: postId2,
+            reportorEpochKey: repoterEpochKey.epochKey.toString(),
+            respondentEpochKey: posterEpochKey.epochKey.toString(),
+            reason: 'Test reason for failed report',
+            category: 1,
+            reportEpoch: await sync.loadCurrentEpoch(),
+            status: ReportStatus.VOTING,
+        })
+
+        // Simulate votes for failed report
+        const nullifierFailed1 = genReportNullifier(voter.id, reportId2)
+        console.log('nullifierFailed1: ', nullifierFailed1.toString())
+        const adjudicateValueFailed1 = AdjudicateValue.DISAGREE
+        const reportFailed = await db.findOne('ReportHistory', {
+            where: {
+                reportId: reportId2,
+            },
+        })
+        const adjudicatorsNullifierFailed1 = upsertAdjudicatorsNullifier(
+            nullifierFailed1.toString(),
+            adjudicateValueFailed1,
+            reportFailed
+        )
+        const adjudicateCountFailed1 = (reportFailed.adjudicateCount ?? 0) + 1
+        await db.update('ReportHistory', {
+            where: {
+                reportId: reportId2,
+            },
+            update: {
+                adjudicatorsNullifier: adjudicatorsNullifierFailed1,
+                adjudicateCount: adjudicateCountFailed1,
+                status: ReportStatus.WAITING_FOR_TRANSACTION,
+            },
+        })
+
+        const nullifierFailed2 = genReportNullifier(voter2.id, reportId2)
+        console.log('nullifierFailed2: ', nullifierFailed2.toString())
+        const adjudicateValueFailed2 = AdjudicateValue.DISAGREE
+        const adjudicatorsNullifierFailed2 = upsertAdjudicatorsNullifier(
+            nullifierFailed2.toString(),
+            adjudicateValueFailed2,
+            reportFailed
+        )
+        await db.update('ReportHistory', {
+            where: {
+                reportId: reportId2,
+            },
+            update: {
+                adjudicatorsNullifier: [
+                    ...adjudicatorsNullifierFailed1,
+                    ...adjudicatorsNullifierFailed2,
+                ],
+                adjudicateCount: adjudicateCountFailed1 + 1,
+            },
+        })
     })
 
     after(async function () {
@@ -300,7 +372,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/positive')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -350,16 +422,6 @@ describe('Reputation Claim', function () {
     })
 
     it('should reporter be able to claim negative reputation', async function () {
-        // reset HistoryReport reportorClaimedRep to 0
-        await db.update('ReportHistory', {
-            where: {
-                reportId: 1,
-            },
-            update: {
-                reportorClaimedRep: 0,
-            },
-        })
-
         const currentNonce = 1
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
@@ -385,11 +447,11 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/negative')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
-                    reportId: reportId,
+                    reportId: reportId2,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
@@ -400,7 +462,7 @@ describe('Reputation Claim', function () {
         expect(message)
             .to.have.property('txHash')
             .that.matches(/^0x[a-fA-F0-9]{64}$/)
-        expect(message).to.have.property('reportId').that.equals(reportId)
+        expect(message).to.have.property('reportId').that.equals(reportId2)
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
@@ -414,7 +476,7 @@ describe('Reputation Claim', function () {
 
         const report = await db.findOne('ReportHistory', {
             where: {
-                reportId: reportId,
+                reportId: reportId2,
             },
         })
         expect(report.reportorClaimedRep).equal(1)
@@ -433,7 +495,7 @@ describe('Reputation Claim', function () {
             RepChangeType.FAILED_REPORTER_REP
         )
         expect(reputationHistory.type).to.equal(ReputationType.REPORT_FAILURE)
-        expect(reputationHistory.reportId).to.equal(reportId)
+        expect(reputationHistory.reportId).to.equal(reportId2)
     })
 
     it('should poster be able to claim poster negative reputation', async function () {
@@ -462,7 +524,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/negative')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -495,7 +557,7 @@ describe('Reputation Claim', function () {
                 reportId: reportId,
             },
         })
-        expect(report.reportorClaimedRep).equal(1)
+        expect(report.respondentClaimedRep).equal(1)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {
@@ -540,7 +602,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/positive')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -573,7 +635,6 @@ describe('Reputation Claim', function () {
                 reportId: reportId,
             },
         })
-        console.log('report: ', report)
         expect(report.adjudicatorsNullifier[0].adjudicateValue).equal(1)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
@@ -617,7 +678,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/positive')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -627,6 +688,7 @@ describe('Reputation Claim', function () {
                     repUserType: RepUserType.REPORTER,
                 })
             )
+        console.log('res.body: ', res.body)
         expect(res).to.have.status(400)
         expect(res.body.error).to.include('User has already claimed')
     })
@@ -658,7 +720,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/positive')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -700,7 +762,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/negative')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -741,7 +803,7 @@ describe('Reputation Claim', function () {
         usedProof = flattenProof(proof)
 
         const res = await express
-            .post('/api/reputation/claim/positive')
+            .post('/api/reputation/claim')
             .set('content-type', 'application/json')
             .send(
                 stringifyBigInts({
@@ -768,14 +830,6 @@ describe('Reputation Claim', function () {
         expect(message)
             .to.have.property('score')
             .that.equals(RepChangeType.VOTER_REP)
-
-        const report = await db.findOne('ReportHistory', {
-            where: {
-                reportId: reportId,
-            },
-        })
-        console.log('report: ', report)
-        expect(report.adjudicatorsNullifier[0].adjudicateValue).equal(1)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {

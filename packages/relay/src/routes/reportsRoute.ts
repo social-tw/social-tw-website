@@ -2,19 +2,113 @@ import { Express } from 'express'
 import { DB } from 'anondb'
 import { reportService } from '../services/ReportService'
 import { errorHandler } from '../services/utils/ErrorHandler'
+import {
+    InvalidReportStatusError,
+    InvalidRepUserTypeError,
+    ReportNotExistError,
+    ReportStatus,
+} from '../types'
+import { RepUserType, ReputationDirection } from '../types/Reputation'
+import { genVHelperIdentifier } from '../../../contracts/test/utils'
 
 export default (app: Express, db: DB) => {
     app.post(
-        '/api/reputation/claim/positive',
+        '/api/reputation/claim',
         errorHandler(async (req, res) => {
-            await reportService.claimPositiveReputation(req, res, db)
-        })
-    )
+            const { reportId, repUserType, claimSignals, claimProof } = req.body
 
-    app.post(
-        '/api/reputation/claim/negative',
-        errorHandler(async (req, res) => {
-            await reportService.claimNegativeReputation(req, res, db)
+            const report = await reportService.fetchSingleReport(reportId, db)
+            if (!report) throw ReportNotExistError
+            if (report.status !== ReportStatus.WAITING_FOR_TRANSACTION)
+                throw InvalidReportStatusError
+
+            const isPassed = reportService.checkReportResult(report)
+
+            const claimMethod = reportService.getClaimMethod(
+                repUserType,
+                isPassed
+            )
+            const claimChange = reportService.getClaimChange(
+                repUserType,
+                isPassed
+            )
+            const helper = reportService.getClaimHelper(repUserType)
+            const identifier = genVHelperIdentifier(helper)
+
+            const direction = isPassed
+                ? ReputationDirection.POSITIVE
+                : ReputationDirection.NEGATIVE
+            const repType = reportService.getReputationType(
+                isPassed,
+                repUserType
+            )
+
+            await reportService.validateClaimRequest(
+                report,
+                repUserType,
+                direction,
+                claimSignals[2]
+            )
+
+            console.log(
+                'claimMethod',
+                claimMethod,
+                'claimChange',
+                claimChange,
+                'identifier',
+                identifier,
+                'claimSignals',
+                claimSignals,
+                'claimProof',
+                claimProof
+            )
+
+            const txHash = await reportService.claim(
+                claimMethod,
+                claimChange,
+                identifier,
+                claimSignals,
+                claimProof,
+                db
+            )
+
+            await reportService.updateReportStatus(
+                reportId,
+                repUserType,
+                db,
+                claimSignals[2]
+            )
+
+            await reportService.createReputationHistory(
+                db,
+                txHash,
+                claimChange,
+                repType,
+                reportId,
+                report
+            )
+
+            console.log({
+                message: {
+                    txHash,
+                    reportId,
+                    epoch: report.reportEpoch,
+                    epochKey: report.respondentEpochKey,
+                    type: repType,
+                    score: claimChange,
+                },
+            })
+
+            res.json({
+                message: {
+                    txHash,
+                    reportId,
+                    epoch: report.reportEpoch,
+                    epochKey: report.respondentEpochKey,
+                    type: repType,
+                    score: claimChange,
+                },
+            })
         })
     )
 }
