@@ -4,11 +4,10 @@ import { reportService } from '../services/ReportService'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import {
     InvalidReportStatusError,
-    InvalidRepUserTypeError,
     ReportNotExistError,
     ReportStatus,
 } from '../types'
-import { RepUserType, ReputationDirection } from '../types/Reputation'
+import { ReputationDirection } from '../types/Reputation'
 import { genVHelperIdentifier } from '../../../contracts/test/utils'
 
 export default (app: Express, db: DB) => {
@@ -16,7 +15,8 @@ export default (app: Express, db: DB) => {
         '/api/reputation/claim',
         errorHandler(async (req, res) => {
             const { reportId, repUserType, claimSignals, claimProof } = req.body
-
+            console.log('claimSignals:', claimSignals)
+            console.log('claimProof:', claimProof)
             const report = await reportService.fetchSingleReport(reportId, db)
             if (!report) throw ReportNotExistError
             if (report.status !== ReportStatus.WAITING_FOR_TRANSACTION)
@@ -50,26 +50,12 @@ export default (app: Express, db: DB) => {
                 claimSignals[2]
             )
 
-            console.log(
-                'claimMethod',
-                claimMethod,
-                'claimChange',
-                claimChange,
-                'identifier',
-                identifier,
-                'claimSignals',
-                claimSignals,
-                'claimProof',
-                claimProof
-            )
-
             const txHash = await reportService.claim(
                 claimMethod,
                 claimChange,
                 identifier,
                 claimSignals,
-                claimProof,
-                db
+                claimProof
             )
 
             await reportService.updateReportStatus(
@@ -87,17 +73,6 @@ export default (app: Express, db: DB) => {
                 reportId,
                 report
             )
-
-            console.log({
-                message: {
-                    txHash,
-                    reportId,
-                    epoch: report.reportEpoch,
-                    epochKey: report.respondentEpochKey,
-                    type: repType,
-                    score: claimChange,
-                },
-            })
 
             res.json({
                 message: {

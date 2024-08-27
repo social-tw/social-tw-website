@@ -32,6 +32,7 @@ import {
 } from '../src/types/Reputation'
 import { createRandomUserIdentity } from './utils/userHelper'
 import { IdentityObject } from './utils/types'
+import { UnirepSocialCircuit } from '../../circuits/src/types'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -61,8 +62,8 @@ describe('Reputation Claim', function () {
     let nullifier2: BigInt
 
     const EPOCH_LENGTH = 3000
-    const PositiveCircuit = 'reportNullifierProof'
-    const NegativeCircuit = 'reportNonNullifierProof'
+    const PositiveCircuit = UnirepSocialCircuit.reportNullifierProof
+    const NegativeCircuit = UnirepSocialCircuit.reportNonNullifierProof
     const reportId = '1'
     const reportId2 = '2'
     const postId = 1
@@ -350,6 +351,7 @@ describe('Reputation Claim', function () {
         const currentNonce = 1
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
+        console.log('currentEpoch: ', currentEpoch)
         const identitySecret = reporter.id.secret
 
         const reportNullifier = genNullifier(reporter.id, 1)
@@ -426,7 +428,7 @@ describe('Reputation Claim', function () {
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
-
+        console.log('currentEpoch: ', currentEpoch)
         const reportNullifier = genNullifier(reporter.id, 1)
         const reportNullifierCircuitInputs = genReportNullifierCircuitInput({
             reportNullifier,

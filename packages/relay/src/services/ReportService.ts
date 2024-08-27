@@ -541,8 +541,7 @@ export class ReportService {
         claimChange: RepChangeType,
         identifier: string,
         publicSignals: any,
-        proof: any,
-        db: DB
+        proof: any
     ): Promise<string> {
         let txHash: string | undefined
 
