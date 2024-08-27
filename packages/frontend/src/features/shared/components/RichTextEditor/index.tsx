@@ -1,5 +1,4 @@
-import clsx from 'clsx'
-import { EditorState } from 'lexical'
+import { ActionStatus, ActionType, useActionStore } from '@/features/core'
 import {
     $convertFromMarkdownString,
     $convertToMarkdownString,
@@ -13,11 +12,12 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
-import nodes from './nodes'
-import ClearAllPlugin from './plugins/ClearAllPlugin'
+import clsx from 'clsx'
+import { EditorState } from 'lexical'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ActionStatus, ActionType, useActionStore } from '@/features/core'
+import nodes from './nodes'
+import ClearAllPlugin from './plugins/ClearAllPlugin'
 
 const theme = {
     text: {
@@ -77,7 +77,7 @@ export default function RichTextEditor({
                     action.status === ActionStatus.Failure &&
                     action.id === failedPostId,
             )
-            if (failedPost && 'content' in failedPost.data) {
+            if (!!failedPost?.data && 'content' in failedPost.data) {
                 setLocalFailedPostContent(failedPost.data.content)
             }
         }

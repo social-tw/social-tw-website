@@ -14,6 +14,7 @@ export { CommentService } from './services/CommentService/CommentService'
 export { PostService } from './services/PostService/PostService'
 export { RelayApiService } from './services/RelayApiService/RelayApiService'
 export { ReportService } from './services/ReportService/ReportService'
+export { UserService } from './services/UserService/UserService'
 export { VoteService } from './services/VoteService/VoteService'
 export * from './stores/actions'
 export {

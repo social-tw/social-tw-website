@@ -20,12 +20,20 @@ function useActiveAdjudication() {
         const waitingForAdjudicationReports = reports
             .filter((report) =>
                 report?.reportorEpochKey
-                    ? !isMyEpochKey(userState, report.reportorEpochKey)
+                    ? !isMyEpochKey(
+                          userState,
+                          report.reportEpoch,
+                          report.reportorEpochKey,
+                      )
                     : true,
             )
             .filter((report) =>
                 report?.respondentEpochKey
-                    ? !isMyEpochKey(userState, report.respondentEpochKey)
+                    ? !isMyEpochKey(
+                          userState,
+                          report.object.epoch,
+                          report.respondentEpochKey,
+                      )
                     : true,
             )
             .filter(

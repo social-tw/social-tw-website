@@ -13,6 +13,7 @@ import {
     ReportType,
     UserRegisterStatus,
 } from '../../types'
+import { postService } from '../PostService'
 import ActionCountManager from '../utils/ActionCountManager'
 import { socketManager } from '../utils/SocketManager'
 
@@ -75,11 +76,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
 
     // After the user is on-chain, update the signup status
     async handleUserSignUp({ event, db, decodedData }: EventHandlerArgs) {
-        const hashUserId = ethers.utils.hexStripZeros(event.topics[1])
-        const fromServer = ethers.utils.defaultAbiCoder.decode(
-            ['bool'],
-            event.topics[2]
-        )[0]
+        const hashUserId = decodedData.hashUserId.toHexString()
+        const fromServer = decodedData.fromServer
         const status = fromServer
             ? UserRegisterStatus.REGISTERER_SERVER
             : UserRegisterStatus.REGISTERER
@@ -284,6 +282,9 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 })
             }
         }
+
+        // update post order
+        await postService.updateOrder(this.db)
 
         return result
     }

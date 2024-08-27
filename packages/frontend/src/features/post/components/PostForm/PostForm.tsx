@@ -42,7 +42,7 @@ export default function PostForm({
                     action.status === ActionStatus.Failure &&
                     action.id === failedPostId,
             )
-            if (failedPost && 'content' in failedPost.data) {
+            if (!!failedPost?.data && 'content' in failedPost.data) {
                 setValue('content', failedPost.data.content)
             }
         }

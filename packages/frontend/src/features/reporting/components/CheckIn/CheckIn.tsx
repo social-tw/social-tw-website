@@ -48,7 +48,7 @@ export default function CheckIn({
             <CheckInSuccess
                 open={isSuccess}
                 onClose={close}
-                onCheckout={gotoProfilePage}
+                onCheckOut={gotoProfilePage}
             />
             <CheckInFailure open={isError} onClose={close} onRetry={retry} />
         </>

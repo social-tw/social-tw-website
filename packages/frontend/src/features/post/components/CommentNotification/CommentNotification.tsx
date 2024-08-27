@@ -3,7 +3,7 @@ import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
 import { useUserState } from '@/features/core'
 import { useCommentEvents } from '@/features/post'
 import { CommentMsg } from '@/types/Comments'
-import { isMyEpochKeyOnEpoch } from '@/utils/helpers/epochKey'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
@@ -20,8 +20,7 @@ export default function CommentNotifications({
 
     const newComments = list.filter(
         (item) =>
-            userState &&
-            !isMyEpochKeyOnEpoch(userState, item.epoch, item.epochKey),
+            userState && !isMyEpochKey(userState, item.epoch, item.epochKey),
     )
 
     const renderNotification = (item: CommentMsg, index: number) => {
@@ -59,7 +58,7 @@ export default function CommentNotifications({
         )
     }
     return (
-        <div className="fixed w-screen bottom-28">
+        <div className="fixed left-0 w-screen bottom-28">
             <div className="flex flex-col max-w-sm gap-3 px-8 mx-auto">
                 <AnimatePresence>
                     {newComments.map((comment, i) =>
