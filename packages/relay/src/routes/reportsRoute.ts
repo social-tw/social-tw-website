@@ -15,8 +15,6 @@ export default (app: Express, db: DB) => {
         '/api/reputation/claim',
         errorHandler(async (req, res) => {
             const { reportId, repUserType, claimSignals, claimProof } = req.body
-            console.log('claimSignals:', claimSignals)
-            console.log('claimProof:', claimProof)
             const report = await reportService.fetchSingleReport(reportId, db)
             if (!report) throw ReportNotExistError
             if (report.status !== ReportStatus.WAITING_FOR_TRANSACTION)
