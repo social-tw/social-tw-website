@@ -7,7 +7,6 @@ import {
     Adjudicator,
     CommentNotExistError,
     CommentReportedError,
-    InternalError,
     InvalidCommentIdError,
     InvalidParametersError,
     InvalidPostIdError,
@@ -31,7 +30,6 @@ import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
-import express from 'express'
 import {
     ClaimHelpers,
     ClaimMethods,
@@ -40,8 +38,8 @@ import {
     ReputationDirection,
     ReputationType,
 } from '../types/Reputation'
-import { genVHelperIdentifier } from '../services/utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
+import { ReportNonNullifierProof, ReportNullifierProof } from '../../../circuits/src'
 
 export class ReportService {
     private helpersMap: Record<RepUserType, ClaimHelpers> = {
@@ -346,12 +344,13 @@ export class ReportService {
         change: RepChangeType,
         repType: ReputationType,
         reportId: string,
-        report: ReportHistory
+        currentEpoch: string,
+        currentEpochKey: string
     ) {
         await db.create('ReputationHistory', {
             transactionHash: txHash,
-            epoch: report.reportEpoch,
-            epochKey: report.respondentEpochKey,
+            epoch: Number(currentEpoch),
+            epochKey: String(currentEpochKey),
             score: change,
             type: repType,
             reportId,
@@ -421,7 +420,7 @@ export class ReportService {
     }
 
     checkRespondentEpochKey(report: ReportHistory, epochKey: string) {
-        if (report.respondentEpochKey !== epochKey) {
+        if (report.respondentEpochKey !== epochKey.toString()) {
             throw new Error('Invalid respondent epoch key')
         }
     }
@@ -582,13 +581,16 @@ export class ReportService {
         report: ReportHistory,
         repUserType: RepUserType,
         direction: ReputationDirection,
-        nullifier?: string
+        nullifier?: string,
+        epochKey?: string
     ) {
         if (repUserType === RepUserType.VOTER) {
             if (!nullifier) throw InvalidParametersError
             this.checkAdjudicatorNullifier(report, nullifier)
             this.checkAdjudicatorIsClaimed(report, nullifier)
         } else if (repUserType === RepUserType.POSTER) {
+            if (!epochKey) throw InvalidParametersError
+            this.checkRespondentEpochKey(report, epochKey)
             this.checkRespondentIsClaimed(report)
         } else if (repUserType === RepUserType.REPORTER) {
             this.checkReporterIsClaimed(report)
@@ -597,6 +599,33 @@ export class ReportService {
         }
 
         this.checkReputationClaim(report, repUserType, direction, nullifier)
+    }
+
+    async getEpochAndEpochKey(
+        claimSignals: any,
+        claimProof: any,
+        direction: ReputationDirection,
+        repUserType: RepUserType
+    ) {
+        let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
+        if (direction === ReputationDirection.POSITIVE && repUserType !== RepUserType.POSTER) {
+            const reportNullifierProof = new ReportNullifierProof(
+                claimSignals,
+                claimProof
+            )
+            currentEpoch = reportNullifierProof.epoch
+            currentEpochKey = reportNullifierProof.currentEpochKey
+        } else {
+            const reportNonNullifierProof = new ReportNonNullifierProof(
+                claimSignals,
+                claimProof
+            )
+            currentEpoch = reportNonNullifierProof.epoch
+            currentEpochKey = reportNonNullifierProof.currentEpochKey
+            reportedEpochKey = reportNonNullifierProof.reportedEpochKey
+        }
+
+        return { currentEpoch, currentEpochKey, reportedEpochKey }
     }
 }
 

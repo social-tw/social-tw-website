@@ -33,6 +33,7 @@ import {
 import { createRandomUserIdentity } from './utils/userHelper'
 import { IdentityObject } from './utils/types'
 import { UnirepSocialCircuit } from '../../circuits/src/types'
+import { ReportNonNullifierProof, ReportNullifierProof } from '../../circuits/src'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -370,6 +371,11 @@ describe('Reputation Claim', function () {
             reportNullifierCircuitInputs
         )
 
+        const reportNullifierProof = new ReportNullifierProof(
+            publicSignals,
+            proof
+        )
+
         usedPublicSig = publicSignals
         usedProof = flattenProof(proof)
 
@@ -393,7 +399,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(posterEpochKey.epochKey.toString())
+            .that.equals(reportNullifierProof.currentEpochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.REPORT_SUCCESS)
@@ -416,7 +422,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            posterEpochKey.epochKey.toString()
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.REPORTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.REPORT_SUCCESS)
@@ -445,6 +451,11 @@ describe('Reputation Claim', function () {
             reportNullifierCircuitInputs
         )
 
+        const reportNullifierProof = new ReportNullifierProof(
+            publicSignals,
+            proof
+        )
+
         usedPublicSig = publicSignals
         usedProof = flattenProof(proof)
 
@@ -468,7 +479,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(posterEpochKey.epochKey.toString())
+            .that.equals(reportNullifierProof.currentEpochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.REPORT_FAILURE)
@@ -491,7 +502,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            posterEpochKey.epochKey.toString()
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(
             RepChangeType.FAILED_REPORTER_REP
@@ -522,6 +533,12 @@ describe('Reputation Claim', function () {
             reportNegRepCircuitInputs
         )
 
+        const reportNonNullifierProof = new ReportNonNullifierProof(
+            publicSignals,
+            proof
+        )
+
+
         usedPublicSig = publicSignals
         usedProof = flattenProof(proof)
 
@@ -546,7 +563,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(posterEpochKey.epochKey.toString())
+            .that.equals(reportNonNullifierProof.currentEpochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.BE_REPORTED)
@@ -569,7 +586,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            posterEpochKey.epochKey.toString()
+            reportNonNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.POSTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.BE_REPORTED)
@@ -600,6 +617,12 @@ describe('Reputation Claim', function () {
             reportNullifierCircuitInputs
         )
 
+
+        const reportNullifierProof = new ReportNullifierProof(
+            publicSignals,
+            proof
+        )
+
         usedPublicSig = publicSignals
         usedProof = flattenProof(proof)
 
@@ -624,7 +647,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(posterEpochKey.epochKey.toString())
+            .that.equals(reportNullifierProof.currentEpochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.ADJUDICATE)
@@ -647,7 +670,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            posterEpochKey.epochKey.toString()
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
@@ -801,6 +824,12 @@ describe('Reputation Claim', function () {
             reportNullifierCircuitInputs
         )
 
+
+        const reportNullifierProof = new ReportNullifierProof(
+            publicSignals,
+            proof
+        )
+
         usedPublicSig = publicSignals
         usedProof = flattenProof(proof)
 
@@ -825,7 +854,7 @@ describe('Reputation Claim', function () {
         expect(message).to.have.property('epoch').that.equals(currentEpoch)
         expect(message)
             .to.have.property('epochKey')
-            .that.equals(posterEpochKey.epochKey.toString())
+            .that.equals(reportNullifierProof.currentEpochKey.toString())
         expect(message)
             .to.have.property('type')
             .that.equals(ReputationType.ADJUDICATE)
@@ -841,7 +870,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            posterEpochKey.epochKey.toString()
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)

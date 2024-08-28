@@ -36,6 +36,9 @@ export default (app: Express, db: DB) => {
             const direction = isPassed
                 ? ReputationDirection.POSITIVE
                 : ReputationDirection.NEGATIVE
+
+            const { currentEpoch, currentEpochKey, reportedEpochKey } = await reportService.getEpochAndEpochKey(claimSignals, claimProof, direction, repUserType)
+
             const repType = reportService.getReputationType(
                 isPassed,
                 repUserType
@@ -45,7 +48,8 @@ export default (app: Express, db: DB) => {
                 report,
                 repUserType,
                 direction,
-                claimSignals[2]
+                claimSignals[2],
+                reportedEpochKey
             )
 
             const txHash = await reportService.claim(
@@ -69,15 +73,16 @@ export default (app: Express, db: DB) => {
                 claimChange,
                 repType,
                 reportId,
-                report
+                currentEpoch,
+                currentEpochKey
             )
 
             res.json({
                 message: {
                     txHash,
                     reportId,
-                    epoch: report.reportEpoch,
-                    epochKey: report.respondentEpochKey,
+                    epoch: Number(currentEpoch),
+                    epochKey: String(currentEpochKey),
                     type: repType,
                     score: claimChange,
                 },
