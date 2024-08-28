@@ -47,7 +47,6 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             publicSignals,
             proof
         )
-
         expect(isValid).to.be.true
         // decode other data
         expect(reportNullifierProof.epoch.toString()).to.be.equal(

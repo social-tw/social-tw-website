@@ -18,7 +18,6 @@ import { signUp } from './utils/signup'
 // Import from contracts package
 import {
     flattenProof,
-    genNullifier,
     genProofAndVerify,
     genReportNonNullifierCircuitInput,
     genReportNullifierCircuitInput,
@@ -37,6 +36,7 @@ import {
     ReportNonNullifierProof,
     ReportNullifierProof,
 } from '../../circuits/src'
+import { genNullifier } from '../../circuits/test/utils'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -358,19 +358,20 @@ describe('Reputation Claim', function () {
         console.log('currentEpoch: ', currentEpoch)
         const identitySecret = reporter.id.secret
 
-        const reportNullifierCircuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey: repoterEpochKey.epochKey.toString(),
-            identitySecret,
-            reportedEpoch: 0,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-        })
+        const reportNonNullifierCircuitInput =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: repoterEpochKey.epochKey.toString(),
+                identitySecret,
+                reportedEpoch: 0,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNullifierCircuitInputs
+            reportNonNullifierCircuitInput
         )
 
         const reportNullifierProof = new ReportNonNullifierProof(
@@ -437,20 +438,20 @@ describe('Reputation Claim', function () {
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
         console.log('currentEpoch: ', currentEpoch)
-        const reportNullifier = genNullifier(reporter.id, 1)
-        const reportNullifierCircuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey: repoterEpochKey.epochKey.toString(),
-            identitySecret,
-            reportedEpoch: 0,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-        })
+        const reportNonNullifierCircuitInput =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: repoterEpochKey.epochKey.toString(),
+                identitySecret,
+                reportedEpoch: 0,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNullifierCircuitInputs
+            reportNonNullifierCircuitInput
         )
 
         const reportNullifierProof = new ReportNonNullifierProof(
@@ -520,19 +521,20 @@ describe('Reputation Claim', function () {
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
-        const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch: 0,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-        })
+        const reportNonNullifierCircuitInput =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey,
+                identitySecret,
+                reportedEpoch: 0,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInput
         )
 
         const reportNonNullifierProof = new ReportNonNullifierProof(
@@ -660,7 +662,7 @@ describe('Reputation Claim', function () {
                 reportId: reportId,
             },
         })
-        expect(report.adjudicatorsNullifier[0].adjudicateValue).equal(1)
+        expect(report.adjudicatorsNullifier[0].claimed).equal(true)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {
@@ -683,20 +685,20 @@ describe('Reputation Claim', function () {
         const currentEpoch = await repoterUserState.sync.loadCurrentEpoch()
         const identitySecret = reporter.id.secret
 
-        const reportNullifier = genNullifier(reporter.id, 1)
-        const reportNullifierCircuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey: repoterEpochKey.epochKey.toString(),
-            identitySecret,
-            reportedEpoch: 0,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-        })
+        const reportNonNullifierCircuitInput =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey: repoterEpochKey.epochKey.toString(),
+                identitySecret,
+                reportedEpoch: 0,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNullifierCircuitInputs
+            reportNonNullifierCircuitInput
         )
 
         usedPublicSig = publicSignals
@@ -713,7 +715,6 @@ describe('Reputation Claim', function () {
                     repUserType: RepUserType.REPORTER,
                 })
             )
-        console.log('res.body: ', res.body)
         expect(res).to.have.status(400)
         expect(res.body.error).to.include('User has already claimed')
     })
@@ -768,19 +769,20 @@ describe('Reputation Claim', function () {
         const attesterId = BigInt(sync.attesterId)
         const currentEpoch = await posterUserState.sync.loadCurrentEpoch()
 
-        const reportNegRepCircuitInputs = genReportNonNullifierCircuitInput({
-            reportedEpochKey,
-            identitySecret,
-            reportedEpoch: 0,
-            currentEpoch,
-            currentNonce,
-            chainId,
-            attesterId,
-        })
+        const reportNonNullifierCircuitInput =
+            genReportNonNullifierCircuitInput({
+                reportedEpochKey,
+                identitySecret,
+                reportedEpoch: 0,
+                currentEpoch,
+                currentNonce,
+                chainId,
+                attesterId,
+            })
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNegRepCircuitInputs
+            reportNonNullifierCircuitInput
         )
 
         usedPublicSig = publicSignals

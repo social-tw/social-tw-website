@@ -13,6 +13,7 @@ import {
     InvalidReportNullifierError,
     InvalidReportStatusError,
     InvalidRepUserTypeError,
+    InvalidReputationProofError,
     PostNotExistError,
     PostReportedError,
     ReportCategory,
@@ -304,13 +305,12 @@ export class ReportService {
         change: RepChangeType,
         repType: ReputationType,
         reportId: string,
-        currentEpoch: string,
-        currentEpochKey: string
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         await db.create('ReputationHistory', {
             transactionHash: txHash,
-            epoch: Number(currentEpoch),
-            epochKey: String(currentEpochKey),
+            epoch: Number(reportProof.epoch),
+            epochKey: String(reportProof.currentEpochKey),
             score: change,
             type: repType,
             reportId,
@@ -359,34 +359,58 @@ export class ReportService {
         }
     }
 
-    checkAdjudicatorNullifier(report: ReportHistory, nullifier: string) {
+    checkAdjudicatorNullifier(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
         if (
             !report.adjudicatorsNullifier?.some(
-                (adj) => adj.nullifier === nullifier
+                (adj) =>
+                    !(reportProof instanceof ReportNonNullifierProof) &&
+                    adj.nullifier === reportProof.reportNullifier.toString()
             )
         ) {
             throw new Error('Invalid adjudicator nullifier')
         }
     }
 
-    checkAdjudicatorIsClaimed(report: ReportHistory, nullifier: string) {
+    checkAdjudicatorIsClaimed(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
         if (
             report.adjudicatorsNullifier?.some(
-                (adj) => adj.nullifier === nullifier && adj.claimed
+                (adj) =>
+                    !(reportProof instanceof ReportNonNullifierProof) &&
+                    adj.nullifier === reportProof.reportNullifier.toString() &&
+                    adj.claimed
             )
         ) {
             throw UserAlreadyClaimedError
         }
     }
 
-    checkRespondentEpochKey(report: ReportHistory, epochKey: string) {
-        if (report.respondentEpochKey !== epochKey.toString()) {
+    checkRespondentEpochKey(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            !(reportProof instanceof ReportNonNullifierProof) ||
+            report.respondentEpochKey !==
+                reportProof.reportedEpochKey.toString()
+        ) {
             throw new Error('Invalid respondent epoch key')
         }
     }
 
-    checkReportorEpochKey(report: ReportHistory, epochKey: string) {
-        if (report.reportorEpochKey !== epochKey.toString()) {
+    checkReportorEpochKey(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            !(reportProof instanceof ReportNonNullifierProof) ||
+            report.reportorEpochKey !== reportProof.reportedEpochKey.toString()
+        ) {
             throw new Error('Invalid reportor epoch key')
         }
     }
@@ -469,7 +493,7 @@ export class ReportService {
         reportId: string,
         repUserType: RepUserType,
         db: DB,
-        nullifier?: string
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         const report = await this.fetchSingleReport(reportId, db)
         if (!report) throw new Error('Report not found')
@@ -489,7 +513,11 @@ export class ReportService {
                 }
                 updates.adjudicatorsNullifier =
                     report.adjudicatorsNullifier.map((adj) => {
-                        if (adj.nullifier === nullifier) {
+                        if (
+                            !(reportProof instanceof ReportNonNullifierProof) &&
+                            adj.nullifier ===
+                                reportProof.reportNullifier.toString()
+                        ) {
                             return { ...adj, claimed: true }
                         }
                         return adj
@@ -546,21 +574,16 @@ export class ReportService {
     async validateClaimRequest(
         report: ReportHistory,
         repUserType: RepUserType,
-        direction: ReputationDirection,
-        nullifier?: string,
-        epochKey?: string
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (repUserType === RepUserType.VOTER) {
-            if (!nullifier) throw InvalidParametersError
-            this.checkAdjudicatorNullifier(report, nullifier)
-            this.checkAdjudicatorIsClaimed(report, nullifier)
+            this.checkAdjudicatorNullifier(report, reportProof)
+            this.checkAdjudicatorIsClaimed(report, reportProof)
         } else if (repUserType === RepUserType.POSTER) {
-            if (!epochKey) throw InvalidParametersError
-            this.checkRespondentEpochKey(report, epochKey)
+            this.checkRespondentEpochKey(report, reportProof)
             this.checkRespondentIsClaimed(report)
         } else if (repUserType === RepUserType.REPORTER) {
-            if (!epochKey) throw InvalidParametersError
-            this.checkReportorEpochKey(report, epochKey)
+            this.checkReportorEpochKey(report, reportProof)
             this.checkReporterIsClaimed(report)
         } else {
             throw InvalidRepUserTypeError
@@ -570,14 +593,10 @@ export class ReportService {
     async getEpochAndEpochKey(
         claimSignals: any,
         claimProof: any,
-        direction: ReputationDirection,
         repUserType: RepUserType
     ) {
         let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
-        if (
-            direction === ReputationDirection.POSITIVE &&
-            repUserType === RepUserType.VOTER
-        ) {
+        if (repUserType === RepUserType.VOTER) {
             const reportNullifierProof = new ReportNullifierProof(
                 claimSignals,
                 claimProof
@@ -595,6 +614,28 @@ export class ReportService {
         }
 
         return { currentEpoch, currentEpochKey, reportedEpochKey }
+    }
+
+    async getReportProof(
+        claimSignals: any,
+        claimProof: any,
+        repUserType: RepUserType,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<ReportNullifierProof | ReportNonNullifierProof> {
+        if (repUserType === RepUserType.VOTER) {
+            console.log('repUserType aa:', repUserType)
+            return new ReportNullifierProof(
+                claimSignals,
+                claimProof,
+                synchronizer.prover
+            )
+        } else {
+            return new ReportNonNullifierProof(
+                claimSignals,
+                claimProof,
+                synchronizer.prover
+            )
+        }
     }
 }
 
