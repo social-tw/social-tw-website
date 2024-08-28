@@ -359,8 +359,10 @@ export class ReportService {
     }
 
     private isReportCompleted(report: ReportHistory): boolean {
-        const allAdjudicatorsClaimed =
-            report.adjudicatorsNullifier?.every((adj) => adj.claimed) ?? true
+        const allAdjudicatorsClaimed = report.adjudicatorsNullifier?.length
+            ? report.adjudicatorsNullifier.every((adj) => adj.claimed)
+            : false
+
         return (
             !!report.reportorClaimedRep &&
             !!report.respondentClaimedRep &&
