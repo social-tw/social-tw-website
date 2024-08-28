@@ -36,7 +36,6 @@ import {
     ClaimMethods,
     RepChangeType,
     RepUserType,
-    ReputationDirection,
     ReputationType,
 } from '../types/Reputation'
 import TransactionManager from './utils/TransactionManager'
@@ -623,7 +622,6 @@ export class ReportService {
         synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportNullifierProof | ReportNonNullifierProof> {
         if (repUserType === RepUserType.VOTER) {
-            console.log('repUserType aa:', repUserType)
             return new ReportNullifierProof(
                 claimSignals,
                 claimProof,

@@ -8,7 +8,6 @@ import {
     ReportNotExistError,
     ReportStatus,
 } from '../types'
-import { RepUserType, ReputationDirection } from '../types/Reputation'
 import { genVHelperIdentifier } from '../../../contracts/test/utils'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 

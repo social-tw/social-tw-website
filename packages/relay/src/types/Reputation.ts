@@ -8,11 +8,6 @@ export enum ReputationType {
     CHECK_IN,
 }
 
-export enum ReputationDirection {
-    POSITIVE = 'Positive',
-    NEGATIVE = 'Negative',
-}
-
 export interface ReputationHistory {
     transactionHash: string
     epoch: number
