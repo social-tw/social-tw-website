@@ -8,12 +8,14 @@ import { UnirepSocialCircuit } from './types'
 export class ReportIdentityProof extends BaseProof {
     readonly input = {
         reportNullifier: 0,
-        attesterId: 1,
-        epoch: 2,
-        stateTreeRoot: 3,
+        reportId: 1,
+        attesterId: 2,
+        epoch: 3,
+        stateTreeRoot: 4,
     }
 
     public reportNullifier: bigint
+    public reportId: bigint
     public attesterId: bigint
     public epoch: bigint
     public stateTreeRoot: bigint
@@ -25,6 +27,7 @@ export class ReportIdentityProof extends BaseProof {
     ) {
         super(publicSignals, proof, prover)
         this.reportNullifier = this.publicSignals[this.input.reportNullifier]
+        this.reportId = this.publicSignals[this.input.reportId]
         this.attesterId = this.publicSignals[this.input.attesterId]
         this.epoch = this.publicSignals[this.input.epoch]
         this.stateTreeRoot = this.publicSignals[this.input.stateTreeRoot]

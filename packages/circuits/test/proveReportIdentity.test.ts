@@ -106,7 +106,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 35\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 34\n'
             )
         }
     })
@@ -135,7 +135,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n'
             )
         }
     })
@@ -163,7 +163,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 39\n'
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n'
             )
         }
     })
