@@ -39,15 +39,12 @@ import {
     ReputationType,
 } from '../types/Reputation'
 import TransactionManager from './utils/TransactionManager'
-import { ReportNonNullifierProof, ReportNullifierProof } from '../../../circuits/src'
+import {
+    ReportNonNullifierProof,
+    ReportNullifierProof,
+} from '../../../circuits/src'
 
 export class ReportService {
-    private helpersMap: Record<RepUserType, ClaimHelpers> = {
-        [RepUserType.VOTER]: ClaimHelpers.ReportNullifierVHelper,
-        [RepUserType.POSTER]: ClaimHelpers.ReportNonNullifierVHelper,
-        [RepUserType.REPORTER]: ClaimHelpers.ReportNonNullifierVHelper,
-    }
-
     async verifyReportData(
         db: DB,
         reportData: ReportHistory,
@@ -301,43 +298,6 @@ export class ReportService {
         ]
     }
 
-    private checkReputationClaim(
-        report: ReportHistory,
-        repUserType: RepUserType,
-        direction: ReputationDirection,
-        nullifier?: string
-    ) {
-        if (direction === ReputationDirection.NEGATIVE) {
-            if (
-                repUserType === RepUserType.REPORTER &&
-                report.reportorClaimedRep
-            )
-                throw UserAlreadyClaimedError
-            if (
-                repUserType === RepUserType.POSTER &&
-                report.respondentClaimedRep
-            )
-                throw UserAlreadyClaimedError
-        } else {
-            if (
-                repUserType === RepUserType.REPORTER &&
-                report.reportorClaimedRep
-            )
-                throw UserAlreadyClaimedError
-            if (repUserType === RepUserType.VOTER) {
-                if (!nullifier) throw InvalidParametersError
-                if (!report) throw InvalidReportNullifierError
-                if (
-                    report.adjudicatorsNullifier?.some(
-                        (adj: any) => adj.nullifier === nullifier && adj.claimed
-                    )
-                ) {
-                    throw UserAlreadyClaimedError
-                }
-            }
-        }
-    }
-
     async createReputationHistory(
         db: DB,
         txHash: string,
@@ -422,6 +382,12 @@ export class ReportService {
     checkRespondentEpochKey(report: ReportHistory, epochKey: string) {
         if (report.respondentEpochKey !== epochKey.toString()) {
             throw new Error('Invalid respondent epoch key')
+        }
+    }
+
+    checkReportorEpochKey(report: ReportHistory, epochKey: string) {
+        if (report.reportorEpochKey !== epochKey.toString()) {
+            throw new Error('Invalid reportor epoch key')
         }
     }
 
@@ -593,12 +559,12 @@ export class ReportService {
             this.checkRespondentEpochKey(report, epochKey)
             this.checkRespondentIsClaimed(report)
         } else if (repUserType === RepUserType.REPORTER) {
+            if (!epochKey) throw InvalidParametersError
+            this.checkReportorEpochKey(report, epochKey)
             this.checkReporterIsClaimed(report)
         } else {
             throw InvalidRepUserTypeError
         }
-
-        this.checkReputationClaim(report, repUserType, direction, nullifier)
     }
 
     async getEpochAndEpochKey(
@@ -608,7 +574,10 @@ export class ReportService {
         repUserType: RepUserType
     ) {
         let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
-        if (direction === ReputationDirection.POSITIVE && repUserType !== RepUserType.POSTER) {
+        if (
+            direction === ReputationDirection.POSITIVE &&
+            repUserType === RepUserType.VOTER
+        ) {
             const reportNullifierProof = new ReportNullifierProof(
                 claimSignals,
                 claimProof

@@ -37,7 +37,13 @@ export default (app: Express, db: DB) => {
                 ? ReputationDirection.POSITIVE
                 : ReputationDirection.NEGATIVE
 
-            const { currentEpoch, currentEpochKey, reportedEpochKey } = await reportService.getEpochAndEpochKey(claimSignals, claimProof, direction, repUserType)
+            const { currentEpoch, currentEpochKey, reportedEpochKey } =
+                await reportService.getEpochAndEpochKey(
+                    claimSignals,
+                    claimProof,
+                    direction,
+                    repUserType
+                )
 
             const repType = reportService.getReputationType(
                 isPassed,
