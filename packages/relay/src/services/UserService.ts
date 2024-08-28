@@ -120,13 +120,6 @@ export class UserService {
             throw InvalidProofError
         }
 
-        // save user into db, status is NOT_REGISTER because
-        // the data is not on-chain
-        await synchronizer.db.create('SignUp', {
-            hashUserId: hashUserId,
-            status: UserRegisterStatus.NOT_REGISTER,
-        })
-
         const txHash = await TransactionManager.callContract('userSignUp', [
             signupProof.publicSignals,
             signupProof.proof,

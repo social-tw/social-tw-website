@@ -17,7 +17,10 @@ export class CommentService {
     private filterCommentContent(comment: Comment): Partial<Comment> {
         if (comment.status === CommentStatus.ON_CHAIN) {
             return comment
-        } else if (comment.status === CommentStatus.REPORTED) {
+        } else if (
+            comment.status === CommentStatus.REPORTED ||
+            comment.status === CommentStatus.DISAGREED
+        ) {
             const { content, ...restOfComment } = comment
             return restOfComment
         }
@@ -30,7 +33,11 @@ export class CommentService {
     ): Promise<Partial<Comment>[] | null> {
         const comments = await db.findMany('Comment', {
             where: {
-                status: [CommentStatus.ON_CHAIN, CommentStatus.REPORTED],
+                status: [
+                    CommentStatus.ON_CHAIN,
+                    CommentStatus.REPORTED,
+                    CommentStatus.DISAGREED,
+                ],
 
                 postId: postId,
             },
@@ -71,6 +78,7 @@ export class CommentService {
                     CommentStatus.NOT_ON_CHAIN,
                     CommentStatus.ON_CHAIN,
                     CommentStatus.REPORTED,
+                    CommentStatus.DISAGREED,
                 ],
             },
             orderBy: {
