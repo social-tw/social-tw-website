@@ -384,7 +384,7 @@ export class ReportService {
             case RepUserType.POSTER:
                 return ReputationType.BE_REPORTED
             default:
-                throw new Error('Invalid RepUserType')
+                throw InvalidRepUserTypeError
         }
     }
 
@@ -396,7 +396,7 @@ export class ReportService {
             case RepUserType.VOTER:
                 return ClaimHelpers.ReportNullifierVHelper
             default:
-                throw new Error('Invalid RepUserType')
+                throw InvalidRepUserTypeError
         }
     }
 
@@ -439,13 +439,23 @@ export class ReportService {
     }
 
     getClaimMethod(repUserType: RepUserType, isPassed: boolean): ClaimMethods {
-        if (isPassed) {
-            return ClaimMethods.CLAIM_POSITIVE_REP
-        } else {
-            if (repUserType === RepUserType.POSTER) {
-                return ClaimMethods.CLAIM_NEGATIVE_REP
-            }
-            return ClaimMethods.CLAIM_NEGATIVE_REP
+        switch (repUserType) {
+            case RepUserType.POSTER:
+                if (isPassed) {
+                    return ClaimMethods.CLAIM_NEGATIVE_REP
+                } else {
+                    throw new Error(
+                        'Poster cannot claim reputation for failed reports'
+                    )
+                }
+            case RepUserType.REPORTER:
+                return isPassed
+                    ? ClaimMethods.CLAIM_POSITIVE_REP
+                    : ClaimMethods.CLAIM_NEGATIVE_REP
+            case RepUserType.VOTER:
+                return ClaimMethods.CLAIM_POSITIVE_REP
+            default:
+                throw InvalidRepUserTypeError
         }
     }
 
@@ -460,7 +470,7 @@ export class ReportService {
             case RepUserType.POSTER:
                 return RepChangeType.POSTER_REP
             default:
-                throw new Error('Invalid RepUserType')
+                throw InvalidRepUserTypeError
         }
     }
 
@@ -521,7 +531,7 @@ export class ReportService {
                     })
                 break
             default:
-                throw new Error('Invalid RepUserType')
+                throw InvalidRepUserTypeError
         }
 
         const updatedReport = { ...report, ...updates }

@@ -1,5 +1,4 @@
 import type { Helia } from '@helia/interface'
-import { ethers } from 'hardhat'
 
 export class IpfsHelper {
     // store content into helia ipfs node with json plain
