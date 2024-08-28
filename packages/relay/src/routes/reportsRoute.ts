@@ -29,11 +29,9 @@ export default (
                 synchronizer
             )
 
-            if (userType !== RepUserType.VOTER) {
-                const isProofValid = await reportProof.verify()
-                if (!isProofValid) {
-                    throw InvalidReputationProofError
-                }
+            const isProofValid = await reportProof.verify()
+            if (!isProofValid) {
+                throw InvalidReputationProofError
             }
 
             const report = await reportService.fetchSingleReport(reportId, db)
