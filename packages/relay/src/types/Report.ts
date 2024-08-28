@@ -21,7 +21,7 @@ export enum ReportType {
 
 export type Adjudicator = {
     nullifier: string
-    adjudicateValue: number // 1: agree, 0: disagree
+    adjudicateValue: number // 1: disagree, 0: agree
     claimed: boolean // TRUE: claimed, FALSE: not claimed
 }
 
@@ -43,6 +43,6 @@ export interface ReportHistory {
 }
 
 export enum AdjudicateValue {
-    DISAGREE,
     AGREE,
+    DISAGREE,
 }
