@@ -14,10 +14,7 @@ import { UserState } from '@unirep/core'
 import { IndexedDBConnector } from 'anondb/web'
 
 async function getDb(appAddress: string) {
-    const db = await IndexedDBConnector.create(schema, {
-        name: 'unirep-social-tw',
-        version: 1,
-    })
+    const db = await IndexedDBConnector.create(schema)
     const version = await db.findOne('Version', {
         where: {
             appAddress,
@@ -25,16 +22,19 @@ async function getDb(appAddress: string) {
     })
 
     if (version && version.appAddress !== appAddress) {
-        await db.closeAndWipe()
-        const newDb = await IndexedDBConnector.create(schema, {
-            name: 'unirep-social-tw',
-            version: 2,
+        await db.transaction((transactionDB) => {
+            for (const table of Object.keys(db.schema)) {
+                transactionDB.delete(table, { where: {} })
+            }
+            transactionDB.delete('Version', {
+                where: {
+                    appAddress: version.appAddress,
+                },
+            })
+            transactionDB.create('Version', {
+                appAddress,
+            })
         })
-        await newDb.create('Version', {
-            appAddress,
-        })
-
-        return newDb
     }
 
     return db
