@@ -175,3 +175,13 @@ export const InvalidAuthenticationError = new InternalError(
     'Invalid authentication',
     400
 )
+
+export const UserAlreadyClaimedError = new InternalError(
+    'User has already claimed',
+    400
+)
+
+export const InvalidRepUserTypeError = new InternalError(
+    'Invalid RepUser Type Error',
+    400
+)

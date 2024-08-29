@@ -8,8 +8,12 @@ import {
     CommentNotExistError,
     CommentReportedError,
     InvalidCommentIdError,
+    InvalidParametersError,
     InvalidPostIdError,
+    InvalidReportNullifierError,
     InvalidReportStatusError,
+    InvalidRepUserTypeError,
+    InvalidReputationProofError,
     PostNotExistError,
     PostReportedError,
     ReportCategory,
@@ -19,6 +23,7 @@ import {
     ReportStatus,
     ReportType,
     ReportVotingEndedError,
+    UserAlreadyClaimedError,
     UserAlreadyVotedError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
@@ -26,6 +31,18 @@ import { PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import Validator from './utils/Validator'
+import {
+    ClaimHelpers,
+    ClaimMethods,
+    RepChangeType,
+    RepUserType,
+    ReputationType,
+} from '../types/Reputation'
+import TransactionManager from './utils/TransactionManager'
+import {
+    ReportNonNullifierProof,
+    ReportNullifierProof,
+} from '../../../circuits/src'
 
 export class ReportService {
     async verifyReportData(
@@ -279,6 +296,344 @@ export class ReportService {
                 description: '其他',
             },
         ]
+    }
+
+    async createReputationHistory(
+        db: DB,
+        txHash: string,
+        change: RepChangeType,
+        repType: ReputationType,
+        reportId: string,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        await db.create('ReputationHistory', {
+            transactionHash: txHash,
+            epoch: Number(reportProof.epoch),
+            epochKey: String(reportProof.currentEpochKey),
+            score: change,
+            type: repType,
+            reportId,
+        })
+    }
+
+    private isReportCompleted(report: ReportHistory): boolean {
+        const allAdjudicatorsClaimed = report.adjudicatorsNullifier?.length
+            ? report.adjudicatorsNullifier.every((adj) => adj.claimed)
+            : false
+
+        return (
+            !!report.reportorClaimedRep &&
+            !!report.respondentClaimedRep &&
+            allAdjudicatorsClaimed
+        )
+    }
+
+    getReputationType(
+        isPassed: boolean,
+        repUserType: RepUserType
+    ): ReputationType {
+        switch (repUserType) {
+            case RepUserType.VOTER:
+                return ReputationType.ADJUDICATE
+            case RepUserType.REPORTER:
+                return isPassed
+                    ? ReputationType.REPORT_SUCCESS
+                    : ReputationType.REPORT_FAILURE
+            case RepUserType.POSTER:
+                return ReputationType.BE_REPORTED
+            default:
+                throw InvalidRepUserTypeError
+        }
+    }
+
+    getClaimHelper(repUserType: RepUserType): ClaimHelpers {
+        switch (repUserType) {
+            case RepUserType.REPORTER:
+            case RepUserType.POSTER:
+                return ClaimHelpers.ReportNonNullifierVHelper
+            case RepUserType.VOTER:
+                return ClaimHelpers.ReportNullifierVHelper
+            default:
+                throw InvalidRepUserTypeError
+        }
+    }
+
+    checkAdjudicatorNullifier(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            !report.adjudicatorsNullifier?.some(
+                (adj) =>
+                    !(reportProof instanceof ReportNonNullifierProof) &&
+                    adj.nullifier === reportProof.reportNullifier.toString()
+            )
+        ) {
+            throw new Error('Invalid adjudicator nullifier')
+        }
+    }
+
+    checkAdjudicatorIsClaimed(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            report.adjudicatorsNullifier?.some(
+                (adj) =>
+                    !(reportProof instanceof ReportNonNullifierProof) &&
+                    adj.nullifier === reportProof.reportNullifier.toString() &&
+                    adj.claimed
+            )
+        ) {
+            throw UserAlreadyClaimedError
+        }
+    }
+
+    checkRespondentEpochKey(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            !(reportProof instanceof ReportNonNullifierProof) ||
+            report.respondentEpochKey !==
+                reportProof.reportedEpochKey.toString()
+        ) {
+            throw new Error('Invalid respondent epoch key')
+        }
+    }
+
+    checkReportorEpochKey(
+        report: ReportHistory,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (
+            !(reportProof instanceof ReportNonNullifierProof) ||
+            report.reportorEpochKey !== reportProof.reportedEpochKey.toString()
+        ) {
+            throw new Error('Invalid reportor epoch key')
+        }
+    }
+
+    checkRespondentIsClaimed(report: ReportHistory) {
+        if (report.respondentClaimedRep) {
+            throw UserAlreadyClaimedError
+        }
+    }
+
+    checkReporterIsClaimed(report: ReportHistory) {
+        if (report.reportorClaimedRep) {
+            throw UserAlreadyClaimedError
+        }
+    }
+
+    getClaimMethod(repUserType: RepUserType, isPassed: boolean): ClaimMethods {
+        switch (repUserType) {
+            case RepUserType.POSTER:
+                if (isPassed) {
+                    return ClaimMethods.CLAIM_NEGATIVE_REP
+                } else {
+                    throw new Error(
+                        'Poster cannot claim reputation for failed reports'
+                    )
+                }
+            case RepUserType.REPORTER:
+                return isPassed
+                    ? ClaimMethods.CLAIM_POSITIVE_REP
+                    : ClaimMethods.CLAIM_NEGATIVE_REP
+            case RepUserType.VOTER:
+                return ClaimMethods.CLAIM_POSITIVE_REP
+            default:
+                throw InvalidRepUserTypeError
+        }
+    }
+
+    getClaimChange(repUserType: RepUserType, isPassed: boolean): RepChangeType {
+        switch (repUserType) {
+            case RepUserType.REPORTER:
+                return isPassed
+                    ? RepChangeType.REPORTER_REP
+                    : RepChangeType.FAILED_REPORTER_REP
+            case RepUserType.VOTER:
+                return RepChangeType.VOTER_REP
+            case RepUserType.POSTER:
+                return RepChangeType.POSTER_REP
+            default:
+                throw InvalidRepUserTypeError
+        }
+    }
+
+    checkReportResult(report: ReportHistory): boolean {
+        if (
+            !report.adjudicatorsNullifier ||
+            report.adjudicatorsNullifier.length === 0
+        ) {
+            return false
+        }
+
+        let agreeVotes = 0
+        let disagreeVotes = 0
+
+        for (const adjudicator of report.adjudicatorsNullifier) {
+            if (adjudicator.adjudicateValue === AdjudicateValue.AGREE) {
+                agreeVotes++
+            } else if (
+                adjudicator.adjudicateValue === AdjudicateValue.DISAGREE
+            ) {
+                disagreeVotes++
+            }
+        }
+
+        const passThreshold = 0.5
+
+        return agreeVotes / (agreeVotes + disagreeVotes) > passThreshold
+    }
+
+    async updateReportStatus(
+        reportId: string,
+        repUserType: RepUserType,
+        db: DB,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        const report = await this.fetchSingleReport(reportId, db)
+        if (!report) throw new Error('Report not found')
+
+        let updates: Partial<ReportHistory> = {}
+
+        switch (repUserType) {
+            case RepUserType.REPORTER:
+                updates.reportorClaimedRep = true
+                break
+            case RepUserType.POSTER:
+                updates.respondentClaimedRep = true
+                break
+            case RepUserType.VOTER:
+                if (!report.adjudicatorsNullifier) {
+                    throw new Error('No adjudicators found for this report')
+                }
+                updates.adjudicatorsNullifier =
+                    report.adjudicatorsNullifier.map((adj) => {
+                        if (
+                            !(reportProof instanceof ReportNonNullifierProof) &&
+                            adj.nullifier ===
+                                reportProof.reportNullifier.toString()
+                        ) {
+                            return { ...adj, claimed: true }
+                        }
+                        return adj
+                    })
+                break
+            default:
+                throw InvalidRepUserTypeError
+        }
+
+        const updatedReport = { ...report, ...updates }
+
+        if (this.isReportCompleted(updatedReport)) {
+            updates.status = ReportStatus.COMPLETED
+        }
+
+        await db.update('ReportHistory', {
+            where: { reportId },
+            update: updates,
+        })
+
+        return await this.fetchSingleReport(reportId, db)
+    }
+
+    async claim(
+        claimMethod: ClaimMethods,
+        claimChange: RepChangeType,
+        identifier: string,
+        publicSignals: any,
+        proof: any
+    ): Promise<string> {
+        let txHash: string | undefined
+
+        try {
+            txHash = await TransactionManager.callContract(claimMethod, [
+                publicSignals,
+                proof,
+                identifier,
+                claimChange,
+            ])
+
+            if (!txHash) {
+                throw new Error(
+                    'Transaction hash is undefined after contract call'
+                )
+            }
+
+            return txHash
+        } catch (error: any) {
+            console.error('Error in claiming reputation:', error)
+            throw new Error(`Reputation claim failed: ${error.message}`)
+        }
+    }
+
+    async validateClaimRequest(
+        report: ReportHistory,
+        repUserType: RepUserType,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
+    ) {
+        if (repUserType === RepUserType.VOTER) {
+            this.checkAdjudicatorNullifier(report, reportProof)
+            this.checkAdjudicatorIsClaimed(report, reportProof)
+        } else if (repUserType === RepUserType.POSTER) {
+            this.checkRespondentEpochKey(report, reportProof)
+            this.checkRespondentIsClaimed(report)
+        } else if (repUserType === RepUserType.REPORTER) {
+            this.checkReportorEpochKey(report, reportProof)
+            this.checkReporterIsClaimed(report)
+        } else {
+            throw InvalidRepUserTypeError
+        }
+    }
+
+    async getEpochAndEpochKey(
+        claimSignals: any,
+        claimProof: any,
+        repUserType: RepUserType
+    ) {
+        let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
+        if (repUserType === RepUserType.VOTER) {
+            const reportNullifierProof = new ReportNullifierProof(
+                claimSignals,
+                claimProof
+            )
+            currentEpoch = reportNullifierProof.epoch
+            currentEpochKey = reportNullifierProof.currentEpochKey
+        } else {
+            const reportNonNullifierProof = new ReportNonNullifierProof(
+                claimSignals,
+                claimProof
+            )
+            currentEpoch = reportNonNullifierProof.epoch
+            currentEpochKey = reportNonNullifierProof.currentEpochKey
+            reportedEpochKey = reportNonNullifierProof.reportedEpochKey
+        }
+
+        return { currentEpoch, currentEpochKey, reportedEpochKey }
+    }
+
+    async getReportProof(
+        claimSignals: any,
+        claimProof: any,
+        repUserType: RepUserType,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<ReportNullifierProof | ReportNonNullifierProof> {
+        if (repUserType === RepUserType.VOTER) {
+            return new ReportNullifierProof(
+                claimSignals,
+                claimProof,
+                synchronizer.prover
+            )
+        } else {
+            return new ReportNonNullifierProof(
+                claimSignals,
+                claimProof,
+                synchronizer.prover
+            )
+        }
     }
 }
 
