@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { useAuthStatus } from '@/features/auth'
 import { useUserState, useWeb3Provider } from '@/features/core'
 import { relaySignUp } from '@/utils/api'
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { SignupFailedError } from '@/utils/errors'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useSignup() {
     const queryClient = useQueryClient()
@@ -52,9 +52,12 @@ export function useSignup() {
                 throw new SignupFailedError()
             }
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.HasSignedUp],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: [QueryKeys.ReputationScore],
             })
         },
     })
