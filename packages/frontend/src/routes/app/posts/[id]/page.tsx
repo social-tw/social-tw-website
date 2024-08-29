@@ -59,6 +59,7 @@ const PostDetailsPage: React.FC = () => {
             upCount: data.upCount,
             downCount: data.downCount,
             isReported: data.status === RelayRawPostStatus.REPORTED,
+            isBlocked: data.status === RelayRawPostStatus.DISAGREED,
             isMine: voteCheck ? voteCheck.isMine : false,
             finalAction: voteCheck ? voteCheck.finalAction : null,
             votedNonce: voteCheck ? voteCheck.votedNonce : null,
@@ -137,6 +138,7 @@ const PostDetailsPage: React.FC = () => {
                         downCount={post.downCount}
                         onComment={onWriteComment}
                         isReported={post.isReported}
+                        isBlocked={post.isBlocked}
                         isMine={post.isMine}
                         finalAction={post.finalAction}
                         votedNonce={post.votedNonce}
