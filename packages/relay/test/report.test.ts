@@ -940,6 +940,8 @@ describe('POST /api/report', function () {
                     { adjudicateValue: AdjudicateValue.AGREE },
                     { adjudicateValue: AdjudicateValue.AGREE },
                     { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
+                    { adjudicateValue: AdjudicateValue.AGREE },
                     { adjudicateValue: AdjudicateValue.DISAGREE },
                     { adjudicateValue: AdjudicateValue.DISAGREE },
                     { adjudicateValue: AdjudicateValue.DISAGREE },
