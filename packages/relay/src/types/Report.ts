@@ -44,5 +44,5 @@ export interface ReportHistory {
 
 export enum AdjudicateValue {
     DISAGREE,
-    AGREE
+    AGREE,
 }
