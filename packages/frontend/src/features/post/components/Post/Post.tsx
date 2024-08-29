@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
 import { PostActionMenu } from './PostActionMenu'
+import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 
@@ -26,6 +27,7 @@ export default function Post({
     compact = false,
     isMine = false,
     isReported = false,
+    isBlocked = false,
     finalAction = null,
     votedNonce = null,
     votedEpoch = null,
@@ -44,6 +46,7 @@ export default function Post({
     compact?: boolean
     isMine?: boolean
     isReported?: boolean
+    isBlocked?: boolean
     finalAction?: VoteAction | null
     votedNonce?: number | null
     votedEpoch?: number | null
@@ -165,6 +168,7 @@ export default function Post({
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
             {isReported && <PostReportedMask />}
+            {isBlocked && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
