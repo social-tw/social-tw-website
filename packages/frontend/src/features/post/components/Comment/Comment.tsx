@@ -4,6 +4,7 @@ import formatDate from '@/utils/helpers/formatDate'
 import clsx from 'clsx'
 import { nanoid } from 'nanoid'
 import { CommentActionMenu } from './CommentActionMenu'
+import { CommentBlockedMask } from './CommentBlockedMask'
 import { CommentReportedMask } from './CommentReportedMask'
 
 interface CommentProps {
@@ -13,6 +14,7 @@ interface CommentProps {
     content: string
     publishedAt: Date
     isReported?: boolean
+    isBlocked?: boolean
     status: CommentStatus
     canDelete: boolean
     canReport: boolean
@@ -27,6 +29,7 @@ export default function Comment({
     content = '',
     publishedAt,
     isReported = false,
+    isBlocked = false,
     status = CommentStatus.Success,
     canDelete = true,
     canReport = true,
@@ -44,6 +47,7 @@ export default function Comment({
                 )}
             >
                 {isReported && <CommentReportedMask />}
+                {isBlocked && <CommentBlockedMask />}
                 <header className="grid grid-cols-[1fr_auto] items-center">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-5">

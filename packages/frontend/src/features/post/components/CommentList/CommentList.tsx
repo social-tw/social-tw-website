@@ -51,6 +51,7 @@ export default function CommentList({ postId }: { postId: string }) {
                     transactionHash: item.transactionHash,
                     status: CommentStatus.Success,
                     isReported: item.status === RelayRawCommentStatus.REPORTED,
+                    isBlocked: item.status === RelayRawCommentStatus.DISAGREED,
                     canDelete,
                     canReport,
                 }
@@ -122,6 +123,7 @@ export default function CommentList({ postId }: { postId: string }) {
                         publishedAt={comment.publishedAt}
                         status={comment.status}
                         isReported={comment.isReported}
+                        isBlocked={comment.isBlocked}
                         canDelete={comment.canDelete}
                         canReport={comment.canReport}
                         onDelete={async () => {
