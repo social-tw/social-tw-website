@@ -271,7 +271,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 })
                 // Then update the status of the post or comment to Onchain or Disagreed
                 // 1: ON_CHAIN, 3: DISAGREED
-                const newStatus = agreeVotes > disagreeVotes ? 1 : 3
+                const newStatus = agreeVotes < disagreeVotes ? 1 : 3
                 const tableName =
                     report.type == ReportType.POST ? 'Post' : 'Comment'
                 db.update(tableName, {
