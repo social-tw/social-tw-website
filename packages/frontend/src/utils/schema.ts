@@ -1,30 +1,16 @@
-import { TableData } from 'anondb'
 import { schema as syncSchema } from '@unirep/core'
+import { TableData } from 'anondb'
 
 const _schema = [
     ...syncSchema,
     {
-        name: 'UserState',
-        indexes: [{ keys: ['attesterId'] }],
-        primaryKey: 'attesterId',
+        name: 'Version',
+        indexes: [{ keys: ['appAddress'] }],
+        primaryKey: 'appAddress',
         rows: [
             {
-                name: 'attesterId',
+                name: 'appAddress',
                 type: 'String',
-            },
-            {
-                name: 'latestTransitionedEpoch',
-                type: 'Int',
-                default: 0,
-            },
-            {
-                name: 'latestTransitionedIndex',
-                type: 'Int',
-                defulat: 0,
-            },
-            {
-                name: 'data',
-                type: 'Object',
             },
         ],
     },

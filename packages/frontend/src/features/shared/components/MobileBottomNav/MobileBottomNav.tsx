@@ -3,15 +3,13 @@ import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
 import { ReactComponent as HomeIcon } from '@/assets/svg/home.svg'
 import { ReactComponent as PersonCircleIcon } from '@/assets/svg/person-circle.svg'
 import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
-import { MutationKeys } from '@/constants/queryKeys'
+import { useAuthStatus } from '@/features/auth'
 import SignupPendingTransition from '@/features/auth/components/SignupPendingTransition/SignupPendingTransition'
-import { useIsMutating } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
 
 export default function MobileBottomNav() {
-    const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
-    const isSigningUp = signingUpCount > 0
+    const { isLoggingIn, isSigningUp } = useAuthStatus()
 
     const navVariants = {
         start: { y: 100 },
@@ -27,7 +25,7 @@ export default function MobileBottomNav() {
 
     return (
         <>
-            {isSigningUp ? (
+            {isLoggingIn || isSigningUp ? (
                 <div className="fixed bottom-0 w-screen h-24">
                     <SignupPendingTransition />
                 </div>

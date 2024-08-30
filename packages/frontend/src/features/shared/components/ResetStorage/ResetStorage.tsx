@@ -13,7 +13,6 @@ export default function ResetStorage() {
             LocalStorageHelper.removeHashUserId()
             LocalStorageHelper.removeAccessToken()
             LocalStorageHelper.removeSignMsg()
-            console.log('reload page')
             navigate(0)
         }
     }, [error, navigate])

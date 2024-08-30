@@ -1,12 +1,12 @@
-import './signupPendingTransition.css'
+import { MutationKeys } from '@/constants/queryKeys'
+import { useAuthStatus } from '@/features/auth/hooks/useAuthStatus/useAuthStatus'
+import Backdrop from '@/features/shared/components/Backdrop/Backdrop'
+import { useMutationState } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Backdrop from '@/features/shared/components/Backdrop/Backdrop'
-import { MutationKeys } from '@/constants/queryKeys'
-import { useIsMutating, useMutationState } from '@tanstack/react-query'
-import { useAuthStatus } from '@/features/auth/hooks/useAuthStatus/useAuthStatus'
+import './signupPendingTransition.css'
 
 const textsAndTimes: { text: string; time: number }[] = [
     { text: 'Unirep Social TW 是個全匿名且去中心化的社群平台', time: 7000 },
@@ -20,15 +20,13 @@ export default function SignUpLoadingModal() {
         navigate('/login', { replace: true, state: {} })
     }
 
-    const { isLoggedIn } = useAuthStatus()
-
-    const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
-    const isSigningUp = signingUpCount > 0
+    const { isLoggedIn, isLoggingIn, isSigningUp } = useAuthStatus()
 
     const [isShowSignupLoadingTransition, setIsShowSignupLoadingTransition] =
         useState(false)
 
-    const isPending = isSigningUp || isShowSignupLoadingTransition
+    const isPending =
+        isLoggingIn || isSigningUp || isShowSignupLoadingTransition
 
     useEffect(() => {
         if (isLoggedIn) {

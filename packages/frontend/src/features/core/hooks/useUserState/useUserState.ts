@@ -1,20 +1,39 @@
-import { constructSchema } from 'anondb/types'
-import { MemoryConnector } from 'anondb/web'
-import { Identity } from '@semaphore-protocol/identity'
-import { UserState } from '@unirep/core'
-import { useLocalStorage } from '@uidotdev/usehooks'
-import { useQuery } from '@tanstack/react-query'
-import { useRelayConfig } from '@/features/core'
-import prover from '@/utils/prover'
-import { schema } from '@/utils/schema'
 import { QueryKeys } from '@/constants/queryKeys'
+import { useRelayConfig } from '@/features/core'
 import {
     LOCAL_STORAGE,
     LocalStorageHelper,
 } from '@/utils/helpers/LocalStorageHelper'
 import { createProviderByUrl } from '@/utils/helpers/createProviderByUrl'
+import prover from '@/utils/prover'
+import { schema } from '@/utils/schema'
+import { Identity } from '@semaphore-protocol/identity'
+import { useQuery } from '@tanstack/react-query'
+import { useLocalStorage } from '@uidotdev/usehooks'
+import { UserState } from '@unirep/core'
+import { IndexedDBConnector } from 'anondb/web'
 
-const db = new MemoryConnector(constructSchema(schema))
+async function getDb(appAddress: string) {
+    const db = await IndexedDBConnector.create(schema)
+    const version = await db.findOne('Version', {
+        where: {
+            appAddress,
+        },
+    })
+
+    if (!version) {
+        await db.transaction((transactionDB) => {
+            for (const table of Object.keys(db.schema)) {
+                transactionDB.delete(table, { where: {} })
+            }
+            transactionDB.create('Version', {
+                appAddress,
+            })
+        })
+    }
+
+    return db
+}
 
 export function useUserState() {
     const {
@@ -36,9 +55,6 @@ export function useUserState() {
     } = useQuery({
         queryKey: [QueryKeys.UserState, config, signature],
         queryFn: async () => {
-            if (userState) {
-                userState.stop()
-            }
             let _signature = signature
             if (!_signature) {
                 _signature = LocalStorageHelper.getGuaranteedSignature()
@@ -46,9 +62,14 @@ export function useUserState() {
             if (!config || !_signature) {
                 return null
             }
-            try {
-                const provider = createProviderByUrl(config.ETH_PROVIDER_URL)
 
+            try {
+                if (userState) {
+                    userState.stop()
+                }
+
+                const db = await getDb(config.APP_ADDRESS)
+                const provider = createProviderByUrl(config.ETH_PROVIDER_URL)
                 const _userState = new UserState({
                     db,
                     prover,
@@ -62,7 +83,8 @@ export function useUserState() {
                 await _userState.waitForSync()
 
                 return _userState
-            } catch {
+            } catch (error) {
+                console.error(error)
                 return null
             }
         },
