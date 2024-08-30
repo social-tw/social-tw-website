@@ -21,16 +21,11 @@ async function getDb(appAddress: string) {
         },
     })
 
-    if (version && version.appAddress !== appAddress) {
+    if (!version) {
         await db.transaction((transactionDB) => {
             for (const table of Object.keys(db.schema)) {
                 transactionDB.delete(table, { where: {} })
             }
-            transactionDB.delete('Version', {
-                where: {
-                    appAddress: version.appAddress,
-                },
-            })
             transactionDB.create('Version', {
                 appAddress,
             })
@@ -88,7 +83,8 @@ export function useUserState() {
                 await _userState.waitForSync()
 
                 return _userState
-            } catch {
+            } catch (error) {
+                console.error(error)
                 return null
             }
         },
