@@ -17,3 +17,28 @@ export interface ReputationHistory {
     reportId: string
     report: ReportHistory
 }
+
+export enum ClaimMethods {
+    CLAIM_POSITIVE_REP = 'claimReportPosRep',
+    CLAIM_NEGATIVE_REP = 'claimReportNegRep',
+}
+
+export enum ClaimHelpers {
+    ReportNullifierVHelper = 'reportNullifierVHelper',
+    ReportNonNullifierVHelper = 'reportNonNullifierVHelper',
+}
+
+// Reputation change amount
+export enum RepChangeType {
+    REPORTER_REP = 3,
+    POSTER_REP = 5,
+    FAILED_REPORTER_REP = 1,
+    VOTER_REP = 1,
+}
+
+// Reputation user type
+export enum RepUserType {
+    REPORTER,
+    VOTER,
+    POSTER,
+}

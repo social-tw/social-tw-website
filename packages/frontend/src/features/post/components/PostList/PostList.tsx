@@ -62,6 +62,7 @@ export default function PostList() {
                     upCount: item.upCount,
                     downCount: item.downCount,
                     isReported: item.status === RelayRawPostStatus.REPORTED,
+                    isBlocked: item.status === RelayRawPostStatus.DISAGREED,
                     isMine: voteCheck.isMine,
                     finalAction: voteCheck.finalAction,
                     votedNonce: voteCheck.votedNonce,
@@ -105,6 +106,7 @@ export default function PostList() {
                     upCount: 0,
                     downCount: 0,
                     isReported: false,
+                    isBlocked: false,
                     isMine: true,
                     finalAction: null,
                     votedNonce: null,
@@ -211,6 +213,7 @@ export default function PostList() {
                                     downCount={post.downCount}
                                     compact
                                     isReported={post.isReported}
+                                    isBlocked={post.isBlocked}
                                     isMine={post.isMine}
                                     finalAction={post.finalAction}
                                     votedNonce={post.votedNonce}
