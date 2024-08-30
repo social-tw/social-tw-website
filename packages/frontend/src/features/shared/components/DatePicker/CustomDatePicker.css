@@ -10,9 +10,13 @@
     padding: 10px 10px 10px 40px;
     border: 1.5px solid white;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 12px;
     color: gray;
     background-color: rgba(255, 255, 255, 0.9);
+
+    @media (min-width: 768px) {
+        font-size: 16px;
+    }
 }
 
 .custom-input__selected {

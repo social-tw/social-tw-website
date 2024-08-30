@@ -26,7 +26,7 @@ export function ActionMenuBottomSlide({
 }: ActionMenuBottomSlideProps) {
     const isMobile = useMediaQuery('only screen and (max-width : 768px)')
     const isShowing = isOpen && isMobile
-    const containerClassName = `fixed z-10 bottom-0 left-0 w-screen h-20 px-6 flex items-stretch rounded-t-3xl bg-[#363636] cursor-pointer`
+    const containerClassName = `fixed z-50 bottom-0 left-0 w-screen h-20 px-6 flex gap-6 items-stretch rounded-t-3xl bg-[#363636] cursor-pointer`
     return isShowing ? (
         <div className={containerClassName}>
             <CloseIcon

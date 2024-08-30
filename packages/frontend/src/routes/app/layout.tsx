@@ -57,7 +57,7 @@ export default function AppLayout() {
         }
     }
 
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
+    const isSmallDevice = useMediaQuery('only screen and (max-width : 1024px)')
     const isShowingHeaderLogoOnSmallDevice =
         location.pathname !== '/profile' &&
         location.pathname !== '/profile/reputation' &&
@@ -96,7 +96,7 @@ export default function AppLayout() {
                             {headerTextOnMobile}
                         </h1>
                     </header>
-                    <section className="px-8 py-4 space-y-3">
+                    <section className="p-4 space-y-3">
                         <div className="max-w-xs mx-auto">
                             <EpochInfo />
                         </div>

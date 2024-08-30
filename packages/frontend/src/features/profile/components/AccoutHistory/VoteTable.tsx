@@ -19,9 +19,14 @@ interface VoteTableProps {
 }
 
 export function VoteTable({ fromToEpoch }: VoteTableProps) {
-    const { isFetching, data } = useMyVoteHistory(fromToEpoch)
+    const { isFetching, isFetched, data } = useMyVoteHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parseVoteHistoryToBodyData(data || [])
+
+    if (!isFetched) {
+        return null
+    }
+
     return (
         <TableContainer>
             <TableHeader data={headerData} />
@@ -29,7 +34,7 @@ export function VoteTable({ fromToEpoch }: VoteTableProps) {
                 data={bodyData}
                 noDataHint="此日期區間尚無紀錄，請另行查詢"
                 isLoading={isFetching}
-                isInit={true}
+                isInit={isFetched}
             />
         </TableContainer>
     )

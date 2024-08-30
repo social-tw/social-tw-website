@@ -1,5 +1,5 @@
 import { SignupPendingTransition } from '@/features/auth'
-import { PostList, CreatePost } from '@/features/post'
+import { CreatePost, PostList } from '@/features/post'
 
 export default function PostPage() {
     return (
