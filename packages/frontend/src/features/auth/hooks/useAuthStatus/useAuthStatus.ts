@@ -17,7 +17,7 @@ export function useAuthStatus() {
     })
 
     const { isPending: isCheckingSignedUp, data: isSignedUp } = useQuery({
-        queryKey: [QueryKeys.HasSignedUp, userState?.id.secret.toString()],
+        queryKey: [QueryKeys.HasSignedUp, userState?.id?.secret?.toString()],
         queryFn: async () => {
             if (!userState) return false
             return userState.hasSignedUp()
