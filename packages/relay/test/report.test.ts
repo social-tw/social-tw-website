@@ -472,20 +472,21 @@ describe('POST /api/report', function () {
 
     it('should fetch report whose adjudication result is tie', async function () {
         // update mock value into report
+        const adjudicatorsNullifier = [
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+        ]
         await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
             update: {
-                adjudicatorsNullifier: [
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 0 },
-                    { adjudicateValue: 0 },
-                    { adjudicateValue: 0 },
-                ],
-                adjudicateCount: 6,
+                adjudicatorsNullifier,
+                adjudicateCount: adjudicatorsNullifier.length,
             },
         })
 
@@ -538,21 +539,22 @@ describe('POST /api/report', function () {
 
     it('should fetch report whose status is waiting for transaction', async function () {
         // insert mock value into report
+        const adjudicatorsNullifier = [
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+        ]
         await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
             update: {
-                adjudicatorsNullifier: [
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 1 },
-                    { adjudicateValue: 0 },
-                    { adjudicateValue: 0 },
-                    { adjudicateValue: 0 },
-                ],
-                adjudicateCount: 7,
+                adjudicatorsNullifier,
+                adjudicateCount: adjudicatorsNullifier.length,
                 status: ReportStatus.WAITING_FOR_TRANSACTION,
             },
         })
@@ -930,24 +932,25 @@ describe('POST /api/report', function () {
 
     it('should settle report and update object status', async function () {
         // insert mock value into report
+        const adjudicatorsNullifier = [
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+        ]
         const prevEpoch = await sync.loadCurrentEpoch()
         await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
             update: {
-                adjudicatorsNullifier: [
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                ],
-                adjudicateCount: 7,
+                adjudicatorsNullifier,
+                adjudicateCount: adjudicatorsNullifier.length,
                 status: ReportStatus.VOTING,
                 reportEpoch: prevEpoch,
             },
@@ -983,18 +986,19 @@ describe('POST /api/report', function () {
 
     it('should not settle report if the vote count is less than five', async function () {
         // insert mock value into report
+        const adjudicatorsNullifier = [
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+        ]
         const prevEpoch = await sync.loadCurrentEpoch()
         await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
             update: {
-                adjudicatorsNullifier: [
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                ],
-                adjudicateCount: 3,
+                adjudicatorsNullifier,
+                adjudicateCount: adjudicatorsNullifier.length,
                 status: ReportStatus.VOTING,
                 reportEpoch: prevEpoch,
             },
@@ -1035,21 +1039,22 @@ describe('POST /api/report', function () {
 
     it('should not settle report if the vote is tie', async function () {
         // insert mock value into report
+        const adjudicatorsNullifier = [
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.AGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+            { adjudicateValue: AdjudicateValue.DISAGREE },
+        ]
         const prevEpoch = await sync.loadCurrentEpoch()
         await db.update('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],
             },
             update: {
-                adjudicatorsNullifier: [
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.AGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                    { adjudicateValue: AdjudicateValue.DISAGREE },
-                ],
-                adjudicateCount: 6,
+                adjudicatorsNullifier,
+                adjudicateCount: adjudicatorsNullifier.length,
                 status: ReportStatus.VOTING,
                 reportEpoch: prevEpoch,
             },
