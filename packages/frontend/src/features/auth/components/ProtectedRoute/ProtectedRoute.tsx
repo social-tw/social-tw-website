@@ -1,8 +1,8 @@
+import { PATHS } from '@/constants/paths'
+import { useAuthStatus, useLogout } from '@/features/auth'
+import { useIsFirstRender } from '@uidotdev/usehooks'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useIsFirstRender } from '@uidotdev/usehooks'
-import { useAuthStatus, useLogout } from '@/features/auth'
-import { PATHS } from '@/constants/paths'
 
 type ProtectedRouterProps = {
     children: React.ReactNode
@@ -28,7 +28,6 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
             return
         }
         if (!isLoggedIn) {
-            console.log('not logged in')
             navigate(PATHS.WELCOME)
         }
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
@@ -51,7 +50,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         navigate,
     ])
 
-    if (isLoggingIn) {
+    if (!isLoggedIn) {
         return null
     }
 
