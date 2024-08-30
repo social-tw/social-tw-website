@@ -16,9 +16,14 @@ interface CommentTableProps {
 }
 
 export function CommentTable({ fromToEpoch }: CommentTableProps) {
-    const { isFetching, data } = useMyCommentHistory(fromToEpoch)
+    const { isFetching, isFetched, data } = useMyCommentHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parseCommentHistoryToBodyData(data || [])
+
+    if (!isFetched) {
+        return null
+    }
+
     return (
         <TableContainer>
             <TableHeader data={headerData} />
@@ -26,7 +31,7 @@ export function CommentTable({ fromToEpoch }: CommentTableProps) {
                 data={bodyData}
                 noDataHint="此日期區間尚無紀錄，請另行查詢"
                 isLoading={isFetching}
-                isInit={true}
+                isInit={isFetched}
             />
         </TableContainer>
     )

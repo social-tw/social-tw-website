@@ -1,7 +1,7 @@
 function SetDateBtn({ onClick, name }: { onClick: () => void; name: string }) {
     return (
         <button
-            className={`rounded-[4px] text-black px-4 py-2 min-w-[80px] bg-[white]`}
+            className={`rounded-[4px] text-black px-4 py-2 text-xs md:text-base bg-[white]`}
             onClick={onClick}
         >
             {name}

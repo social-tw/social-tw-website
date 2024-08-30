@@ -18,13 +18,11 @@ function Avatar() {
 
 export default function ProfileLayout() {
     return (
-        <div className="w-full h-screen px-4 pt-8 md:pt-24">
-            <div className="w-full h-full grid grid-rows-[auto_1fr]">
-                <div className="flex justify-center w-full mb-8">
-                    <Avatar />
-                </div>
-                <Outlet />
+        <div className="px-4 py-8 md:pt-24">
+            <div className="flex justify-center pb-8">
+                <Avatar />
             </div>
+            <Outlet />
         </div>
     )
 }

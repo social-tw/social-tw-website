@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion'
-import { NavLink } from 'react-router-dom'
 import { ReactComponent as AddIcon } from '@/assets/svg/add.svg'
 import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
 import { ReactComponent as HomeIcon } from '@/assets/svg/home.svg'
 import { ReactComponent as PersonCircleIcon } from '@/assets/svg/person-circle.svg'
 import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
+import { MutationKeys } from '@/constants/queryKeys'
 import SignupPendingTransition from '@/features/auth/components/SignupPendingTransition/SignupPendingTransition'
 import { useIsMutating } from '@tanstack/react-query'
-import { MutationKeys } from '@/constants/queryKeys'
+import { motion } from 'framer-motion'
+import { NavLink } from 'react-router-dom'
 
 export default function MobileBottomNav() {
     const signingUpCount = useIsMutating({ mutationKey: [MutationKeys.Signup] })
@@ -35,6 +35,7 @@ export default function MobileBottomNav() {
                 <motion.nav
                     className="
                         fixed 
+                        z-40
                         bottom-0 
                         w-screen 
                         h-20 

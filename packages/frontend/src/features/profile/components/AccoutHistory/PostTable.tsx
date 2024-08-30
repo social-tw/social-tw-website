@@ -16,9 +16,14 @@ interface PostTableProps {
 }
 
 export function PostTable({ fromToEpoch }: PostTableProps) {
-    const { isFetching, data } = useMyPostHistory(fromToEpoch)
+    const { isFetching, isFetched, data } = useMyPostHistory(fromToEpoch)
     const headerData = getHeaderData()
     const bodyData = parsePostHistoryToBodyData(data || [])
+
+    if (!isFetched) {
+        return null
+    }
+
     return (
         <TableContainer>
             <TableHeader data={headerData} />
@@ -26,7 +31,7 @@ export function PostTable({ fromToEpoch }: PostTableProps) {
                 data={bodyData}
                 noDataHint="此日期區間尚無紀錄，請另行查詢"
                 isLoading={isFetching}
-                isInit={true}
+                isInit={isFetched}
             />
         </TableContainer>
     )
