@@ -1,6 +1,6 @@
 import { RelayRawComment } from '@/types/Comments'
 import { RelayRawPost } from '@/types/Post'
-import { ReportCategory, ReportType } from '@/types/Report'
+import { ReportCategory, ReportType, RepUserType } from '@/types/Report'
 import { VoteAction } from '@/types/Vote'
 import {
     EpochKeyLiteProof,
@@ -29,6 +29,8 @@ import {
     RelayUserStateTransitionResponse,
     SortKeys,
 } from '../types/api'
+import { ReportHistory } from '@/features/reporting/utils/types'
+import { ReportStatus } from '@unirep-app/relay/build/src/types'
 
 export async function fetchReputationHistory(
     fromEpoch: number,
@@ -336,24 +338,23 @@ export async function relayReport({
     return data
 }
 
-export async function relayClaimPositiveReputation(
-    proof: EpochKeyLiteProof,
+export async function relayClaimReputation(
     reportId: string,
-    repUserType: string,
-    nullifier?: string,
+    repUserType: RepUserType,
+    publicSignals: string[],
+    proof: string[],
 ) {
-    const response = await fetch(`${SERVER}/api/claim-positive-reputation`, {
+    const response = await fetch(`${SERVER}/api/reputation/claim`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
             stringifyBigInts({
-                publicSignals: proof.publicSignals,
-                proof: proof.proof,
                 reportId,
                 repUserType,
-                nullifier,
+                claimSignals: publicSignals,
+                claimProof: proof,
             }),
         ),
     })
@@ -361,35 +362,16 @@ export async function relayClaimPositiveReputation(
     const data = await response.json()
 
     if (!response.ok) {
-        throw Error(`Claim positive reputation failed: ${data.error}`)
+        throw Error(`Claim reputation failed: ${data.error}`)
     }
     return data
 }
 
-export async function relayClaimNegativeReputation(
-    proof: EpochKeyLiteProof,
-    reportId: string,
-    repUserType: string,
-) {
-    const response = await fetch(`${SERVER}/api/claim-negative-reputation`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-            stringifyBigInts({
-                publicSignals: proof.publicSignals,
-                proof: proof.proof,
-                reportId,
-                repUserType,
-            }),
-        ),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-        throw Error(`Claim negative reputation failed: ${data.error}`)
-    }
-    return data
+export async function fetchReportsWaitingForTransaction(): Promise<
+    ReportHistory[]
+> {
+    const response = await fetch(
+        `${SERVER}/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}`,
+    )
+    return response.json()
 }
