@@ -27,6 +27,7 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
+import { useBackgroundReputationClaim } from '@/features/reporting/hooks/useBackgroundReputationClaim/useBackgroundReputationClaim'
 
 function NotificationContainer({ children }: { children: React.ReactNode }) {
     return (
@@ -45,6 +46,8 @@ export default function AppLayout() {
     const location = useLocation()
 
     const navigate = useNavigate()
+
+    useBackgroundReputationClaim()
 
     const headerTextOnDesktop = getDesktopHeaderTextByPath(location.pathname)
     const headerTextOnMobile = getMobileHeaderTextByPath(location.pathname)

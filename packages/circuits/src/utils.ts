@@ -6,6 +6,8 @@ import {
     REVEAL_NONCE_BITS,
 } from '@unirep/utils'
 import { EpochKeyControl } from './types'
+import { Identity } from '@semaphore-protocol/identity'
+import { poseidon2 } from 'poseidon-lite'
 
 export const decodeEpochKeyControl = (control: bigint): EpochKeyControl => {
     let accBits = BigInt(0)

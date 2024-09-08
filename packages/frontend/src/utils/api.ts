@@ -341,8 +341,8 @@ export async function relayReport({
 export async function relayClaimReputation(
     reportId: string,
     repUserType: RepUserType,
-    publicSignals: string[],
-    proof: string[],
+    publicSignals: bigint[],
+    proof: bigint[],
 ) {
     const response = await fetch(`${SERVER}/api/reputation/claim`, {
         method: 'POST',

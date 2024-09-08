@@ -7,6 +7,7 @@ import {
     ReportType,
 } from '@/types/Report'
 import { stringifyBigInts } from '@unirep/utils'
+import { ReportStatus } from '@unirep-app/relay/build/src/types'
 
 export class ReportService extends RelayApiService {
     async fetchPendingReports() {
@@ -106,6 +107,28 @@ export class ReportService extends RelayApiService {
                 proof,
             }),
         )
+        return response.data
+    }
+
+    async fetchWaitFotTransactionReports() {
+        const client = this.getAuthClient()
+        const userState = this.getUserState()
+        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+
+        const searchParams = new URLSearchParams()
+        searchParams.append(
+            'status',
+            ReportStatus.WAITING_FOR_TRANSACTION.toString(),
+        )
+        searchParams.append(
+            'publicSignals',
+            JSON.stringify(stringifyBigInts(publicSignals)),
+        )
+        searchParams.append('proof', JSON.stringify(stringifyBigInts(proof)))
+        const response = await client.get<ReportHistory[]>(
+            `/report?${searchParams.toString()}`,
+        )
+
         return response.data
     }
 }

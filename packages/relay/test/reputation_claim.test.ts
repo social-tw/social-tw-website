@@ -474,6 +474,7 @@ describe('Reputation Claim', function () {
                 })
             )
         expect(res).to.have.status(200)
+        console.log('res a: ', res.body)
         const message = res.body.message
         expect(message)
             .to.have.property('txHash')

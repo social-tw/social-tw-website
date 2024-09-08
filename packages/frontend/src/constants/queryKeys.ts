@@ -39,4 +39,6 @@ export enum MutationKeys {
     Adjudicate = 'adjudicate',
     CheckIn = 'check_in',
     ClaimReputation = 'claim_reputation',
+    ClaimAdjudicatorReputation = 'claim_adjudicator_reputation',
+    ClaimEpochKeyReputation = 'claim_epoch_key_reputation',
 }
