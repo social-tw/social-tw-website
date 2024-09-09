@@ -26,3 +26,9 @@ export enum ReputationType {
     BE_REPORTED = 'BE_REPORTED',
     ADJUDICATE = 'ADJUDICATE',
 }
+
+export enum ReportStatus {
+    VOTING,
+    WAITING_FOR_TRANSACTION,
+    COMPLETED,
+}

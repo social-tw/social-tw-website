@@ -1,6 +1,11 @@
 import { RelayRawComment } from '@/types/Comments'
 import { RelayRawPost } from '@/types/Post'
-import { ReportCategory, ReportType, RepUserType } from '@/types/Report'
+import {
+    ReportCategory,
+    ReportStatus,
+    ReportType,
+    RepUserType,
+} from '@/types/Report'
 import { VoteAction } from '@/types/Vote'
 import {
     EpochKeyLiteProof,
@@ -9,7 +14,7 @@ import {
     UserStateTransitionProof,
 } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../constants/config'
+import { SERVER } from '@/constants/config'
 import {
     Directions,
     FetchCommentsByEpochKeysParams,
@@ -28,9 +33,8 @@ import {
     RelaySignUpResponse,
     RelayUserStateTransitionResponse,
     SortKeys,
-} from '../types/api'
+} from '@/types/api'
 import { ReportHistory } from '@/features/reporting/utils/types'
-import { ReportStatus } from '@unirep-app/relay/build/src/types'
 
 export async function fetchReputationHistory(
     fromEpoch: number,

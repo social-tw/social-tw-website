@@ -4,10 +4,10 @@ import { RelayCreateReportResponse } from '@/types/api'
 import {
     RelayRawReportCategory,
     ReportCategory,
+    ReportStatus,
     ReportType,
 } from '@/types/Report'
 import { stringifyBigInts } from '@unirep/utils'
-import { ReportStatus } from '@unirep-app/relay/build/src/types'
 
 export class ReportService extends RelayApiService {
     async fetchPendingReports() {
