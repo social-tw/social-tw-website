@@ -1,4 +1,4 @@
-import { schema as syncSchema } from '@unirep/core'
+import { userSchema as syncSchema } from '@unirep/core'
 import { TableData } from 'anondb'
 
 const _schema = [

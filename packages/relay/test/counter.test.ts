@@ -62,7 +62,7 @@ describe('GET /counter', function () {
     })
 
     it('should add the counter number increment after the user posted', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         let txHash = await post(express, userState, authentication)
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
@@ -79,7 +79,7 @@ describe('GET /counter', function () {
     })
 
     it('should counter failed if number of epks is not 3', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         // one epoch key
         const epochKeys = (
             userState.getEpochKeys(undefined, 0) as bigint

@@ -65,7 +65,7 @@ describe('POST /api/checkin', function () {
     })
 
     it('should allow users with negative reputation to claim reputation', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         await airdropReputation(false, 1, userState, unirep, express, provider)
 
         const { publicSignals, _snarkProof: proof } =
@@ -96,7 +96,7 @@ describe('POST /api/checkin', function () {
     })
 
     it('should fail if users with non-negative reputation tries to claim reputation', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         await airdropReputation(true, 2, userState, unirep, express, provider)
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ minRep: 1 })

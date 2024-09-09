@@ -1,5 +1,4 @@
 //@ts-ignore
-import { ethers } from 'hardhat'
 import { Identity } from '@semaphore-protocol/identity'
 import {
     defaultProver,
@@ -11,13 +10,15 @@ import {
     EpochKeyLiteProof,
     EpochKeyProof,
 } from '@unirep/circuits'
-import { UserState, schema } from '@unirep/core'
+import { UserState, userSchema as schema } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
+import { ethers } from 'hardhat'
+
 import { poseidon1, poseidon2 } from 'poseidon-lite'
-import { IdentityObject } from './types'
 import { ProofGenerationError } from './error'
+import { IdentityObject } from './types'
 
 const { FIELD_COUNT, SUM_FIELD_COUNT } = CircuitConfig.default
 

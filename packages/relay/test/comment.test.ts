@@ -78,7 +78,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should create a comment', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         testContent = 'create comment'
         const { createHelia } = await eval("import('helia')")
         const helia = await createHelia()
@@ -166,7 +166,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         testContent = 'comment with wrong proof'
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 2,
@@ -193,7 +193,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('should comment failed with wrong epoch', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         testContent = 'comment with wrong epoch'
         // generating a proof with wrong epoch
         const wrongEpoch = 44444
@@ -236,7 +236,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })
@@ -264,7 +264,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment failed with wrong epoch key', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 2,
         })
@@ -289,7 +289,7 @@ describe('COMMENT /comment', function () {
     })
 
     it('delete the comment success', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
             nonce: 1,
         })

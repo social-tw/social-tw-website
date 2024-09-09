@@ -130,7 +130,7 @@ describe('POST /vote', function () {
     }
 
     it('should vote for post', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -170,7 +170,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with the same type', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -199,7 +199,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when vote again with different type', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -229,7 +229,7 @@ describe('POST /vote', function () {
     })
 
     it('should cancel vote for post', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -262,7 +262,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })
@@ -291,7 +291,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
         })
@@ -309,7 +309,7 @@ describe('POST /vote', function () {
     })
 
     it('should vote failed with invalid post', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epochKeyProof = await userState.genEpochKeyLiteProof({
             nonce: 0,
         })

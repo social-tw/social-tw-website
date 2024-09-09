@@ -138,7 +138,7 @@ describe('POST /api/report', function () {
 
     it('should create a report and update post status', async function () {
         const postId = '0'
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
@@ -195,7 +195,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail to create a report with invalid proof', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
             objectId: '0',
@@ -232,7 +232,7 @@ describe('POST /api/report', function () {
 
     it('should create a report and update comment status', async function () {
         const commentId = '0'
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
             objectId: commentId,
@@ -299,7 +299,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail to create a report on the same post / comment', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: '0',
@@ -332,7 +332,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail to create a report with non-existent post/comment', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: 'non-existent',
@@ -365,7 +365,7 @@ describe('POST /api/report', function () {
     })
 
     it('should get empty report list if reportEpoech is equal to currentEpoch', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const { publicSignals, proof } = await userState.genEpochKeyLiteProof({
             nonce,
         })
@@ -576,7 +576,7 @@ describe('POST /api/report', function () {
     })
 
     it('should vote agree on the report', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
@@ -630,7 +630,7 @@ describe('POST /api/report', function () {
     })
 
     it('should vote disagree on the report', async function () {
-        const userState = await genUserState(users[1].id, sync, app, db, prover)
+        const userState = await genUserState(users[1].id, app, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
@@ -687,7 +687,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if report identity proof is wrong', async function () {
-        const userState = await genUserState(users[2].id, sync, app, db, prover)
+        const userState = await genUserState(users[2].id, app, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
@@ -732,7 +732,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if report does not exist', async function () {
-        const userState = await genUserState(users[2].id, sync, app, db, prover)
+        const userState = await genUserState(users[2].id, app, prover)
         const notExistReportId = '444'
         const nullifier = genReportNullifier(users[2].id, notExistReportId)
         const toEpoch = await userStateTransition(userState, {
@@ -770,7 +770,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote invalid adjudicate value', async function () {
-        const userState = await genUserState(users[2].id, sync, app, db, prover)
+        const userState = await genUserState(users[2].id, app, prover)
         const wrongAdjucateValue = 'wrong'
 
         const report = await db.findOne('ReportHistory', {
@@ -815,7 +815,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote on the report with same nullifier', async function () {
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const report = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
@@ -857,7 +857,7 @@ describe('POST /api/report', function () {
     })
 
     it('should fail if vote on the report whose status is not VOTING', async function () {
-        const userState = await genUserState(users[2].id, sync, app, db, prover)
+        const userState = await genUserState(users[2].id, app, prover)
         const watingForTxReport = await db.findOne('ReportHistory', {
             where: {
                 AND: [{ objectId: '0' }, { type: ReportType.POST }],

@@ -63,7 +63,7 @@ describe('CheckReputation', function () {
     })
 
     it('should pass the check reputation middleware with positive reputation', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epoch = await sync.loadCurrentEpoch()
         const minRep = 2
         const proveMinRep = 1
@@ -103,7 +103,7 @@ describe('CheckReputation', function () {
     })
 
     it('should fail the check reputation middleware with negative reputation', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epoch = await sync.loadCurrentEpoch()
         const maxRep = 4
         const proveMaxRep = 1
@@ -155,7 +155,7 @@ describe('CheckReputation', function () {
     })
 
     it('should fail the check reputation middleware with wrong reputation proof', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const epoch = await sync.loadCurrentEpoch()
         const minRep = 2
         const proveMinRep = 1
@@ -206,7 +206,7 @@ describe('CheckReputation', function () {
     })
 
     it('should fail the check reputation middleware without authentication', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const testContent = 'test content'
 
         const epochKeyProof = await userState.genEpochKeyProof({
