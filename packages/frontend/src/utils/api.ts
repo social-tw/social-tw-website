@@ -1,6 +1,11 @@
 import { RelayRawComment } from '@/types/Comments'
 import { RelayRawPost } from '@/types/Post'
-import { ReportCategory, ReportType } from '@/types/Report'
+import {
+    ReportCategory,
+    ReportStatus,
+    ReportType,
+    RepUserType,
+} from '@/types/Report'
 import { VoteAction } from '@/types/Vote'
 import {
     EpochKeyLiteProof,
@@ -9,7 +14,7 @@ import {
     UserStateTransitionProof,
 } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
-import { SERVER } from '../constants/config'
+import { SERVER } from '@/constants/config'
 import {
     Directions,
     FetchCommentsByEpochKeysParams,
@@ -28,7 +33,8 @@ import {
     RelaySignUpResponse,
     RelayUserStateTransitionResponse,
     SortKeys,
-} from '../types/api'
+} from '@/types/api'
+import { ReportHistory } from '@/features/reporting/utils/types'
 
 export async function fetchReputationHistory(
     fromEpoch: number,
@@ -334,4 +340,42 @@ export async function relayReport({
         throw Error(data.error)
     }
     return data
+}
+
+export async function relayClaimReputation(
+    reportId: string,
+    repUserType: RepUserType,
+    publicSignals: bigint[],
+    proof: bigint[],
+) {
+    const response = await fetch(`${SERVER}/api/reputation/claim`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            stringifyBigInts({
+                reportId,
+                repUserType,
+                claimSignals: publicSignals,
+                claimProof: proof,
+            }),
+        ),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw Error(`Claim reputation failed: ${data.error}`)
+    }
+    return data
+}
+
+export async function fetchReportsWaitingForTransaction(): Promise<
+    ReportHistory[]
+> {
+    const response = await fetch(
+        `${SERVER}/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}`,
+    )
+    return response.json()
 }

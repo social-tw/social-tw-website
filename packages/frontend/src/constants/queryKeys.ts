@@ -15,6 +15,8 @@ export enum QueryKeys {
     PostHistory = 'post_history',
     CommentHistory = 'comment_history',
     VoteHistory = 'vote_history',
+    ReportHistory = 'ReportHistory',
+    ReportsWaitingForTransaction = 'ReportsWaitingForTransaction',
 }
 
 export enum MutationKeys {
@@ -36,4 +38,7 @@ export enum MutationKeys {
     ReportComment = 'report_comment',
     Adjudicate = 'adjudicate',
     CheckIn = 'check_in',
+    ClaimReputation = 'claim_reputation',
+    ClaimAdjudicatorReputation = 'claim_adjudicator_reputation',
+    ClaimEpochKeyReputation = 'claim_epoch_key_reputation',
 }
