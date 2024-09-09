@@ -28,8 +28,6 @@ export async function genUserState(id, sync, app, db, prover) {
     const attesterId = BigInt(app.address)
 
     const userState = new UserState({
-        synchronizer: sync,
-        db,
         prover,
         unirepAddress,
         provider: ethers.provider,
