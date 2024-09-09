@@ -22,7 +22,7 @@ export function createUserIdentities(size: number): IdentityObject[] {
     return result
 }
 
-export async function genUserState(id, sync, app, db, prover) {
+export async function genUserState(id, app, prover) {
     // generate a user state
     const unirepAddress = await app.unirep()
     const attesterId = BigInt(app.address)

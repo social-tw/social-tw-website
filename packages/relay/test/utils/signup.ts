@@ -10,7 +10,7 @@ export async function signUp(
     context
 ): Promise<UserState> {
     const { app, db, prover, provider, sync } = context
-    const userState = await genUserState(user.id, sync, app, db, prover)
+    const userState = await genUserState(user.id, app, prover)
     const { publicSignals, _snarkProof: proof } =
         await userState.genUserSignUpProof()
     const txHash = await userService.signup(

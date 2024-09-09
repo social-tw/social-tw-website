@@ -140,7 +140,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
         const identity = new Identity(user.hashUserId)
-        const userState = await genUserState(identity, sync, app, db, prover)
+        const userState = await genUserState(identity, app, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -167,7 +167,7 @@ describe('LOGIN /login', function () {
         const userId = users[0].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -199,7 +199,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
 
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -219,7 +219,7 @@ describe('LOGIN /login', function () {
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
 
-        const userState = await genUserState(users[1].id, sync, app, db, prover)
+        const userState = await genUserState(users[1].id, app, prover)
         const {
             publicSignals,
             _snarkProof: proof,
@@ -252,7 +252,7 @@ describe('LOGIN /login', function () {
         const userId = users[1].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[1].id, sync, app, db, prover)
+        const userState = await genUserState(users[1].id, app, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 
@@ -282,7 +282,7 @@ describe('LOGIN /login', function () {
         const userId = users[0].id.toString()
         prepareUserLoginTwitterApiMock(userId, mockCode, 'access-token')
         const user = await userService.getLoginUser(db, userId, 'access-token')
-        const userState = await genUserState(users[0].id, sync, app, db, prover)
+        const userState = await genUserState(users[0].id, app, prover)
         const { publicSignals, _snarkProof: proof } =
             await userState.genUserSignUpProof()
 

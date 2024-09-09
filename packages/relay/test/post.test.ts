@@ -68,7 +68,7 @@ describe('POST /post', function () {
     })
 
     it('should create a post', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         // FIXME: Look for fuzzer to test content
         const testContent = 'test content #0'
         // cid of test content
@@ -149,7 +149,7 @@ describe('POST /post', function () {
     })
 
     it('should post failed with wrong proof', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const testContent = 'test content'
 
         var epochKeyProof = await userState.genEpochKeyProof({
@@ -176,7 +176,7 @@ describe('POST /post', function () {
     })
 
     it('should post failed with wrong epoch', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         const testContent = 'invalid epoch'
 
         // generating a proof with wrong epoch
@@ -281,7 +281,7 @@ describe('POST /post', function () {
     })
 
     it('should fetch posts which are already on-chain', async function () {
-        const userState = await genUserState(user.id, sync, app, db, prover)
+        const userState = await genUserState(user.id, app, prover)
         // send a post
         const txHash = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10

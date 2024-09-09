@@ -74,13 +74,7 @@ describe('Synchronize Post Test', function () {
 
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
-            const userState = await genUserState(
-                users[0].id,
-                sync,
-                app,
-                db,
-                prover
-            )
+            const userState = await genUserState(users[0].id, app, prover)
             const txHash = await post(express, userState, authentication)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
@@ -169,13 +163,7 @@ describe('Synchronize Comment Test', function () {
 
     describe('Synchronize Comment', async function () {
         before(async function () {
-            const userState = await genUserState(
-                users[0].id,
-                sync,
-                app,
-                db,
-                prover
-            )
+            const userState = await genUserState(users[0].id, app, prover)
 
             {
                 const txHash = await post(express, userState, authentication)
@@ -193,13 +181,7 @@ describe('Synchronize Comment Test', function () {
             // User 1 post a comment on the thread
             const commentContent = "I'm a comment"
 
-            const userState = await genUserState(
-                users[1].id,
-                sync,
-                app,
-                db,
-                prover
-            )
+            const userState = await genUserState(users[1].id, app, prover)
             const epoch = await sync.loadCurrentEpoch()
             const { publicSignals, proof } = await userState.genEpochKeyProof({
                 epoch,
@@ -243,13 +225,7 @@ describe('Synchronize Comment Test', function () {
 
         it('should update comment', async function () {
             // User 1 edit the comment
-            const userState = await genUserState(
-                users[1].id,
-                sync,
-                app,
-                db,
-                prover
-            )
+            const userState = await genUserState(users[1].id, app, prover)
             const newContent = "I'm not a comment what you want"
             const { publicSignals, proof } =
                 await userState.genEpochKeyLiteProof()
