@@ -26,13 +26,13 @@ export async function genReportNonNullifierProof(
     const identitySecret = userState.id.secret
 
     const circuitInputs = {
-        reportedEpochKey: params.reportedEpochKey,
-        identitySecret: identitySecret,
-        reportedEpoch: params.reportedEpoch,
-        currentEpoch: epoch,
-        currentNonce: params.nonce,
-        attesterId: attesterId,
-        chainId: userState.chainId,
+        reported_epoch_key: params.reportedEpochKey,
+        identity_secret: identitySecret,
+        reported_epoch: params.reportedEpoch,
+        current_epoch: epoch,
+        current_nonce: params.nonce,
+        attester_id: attesterId,
+        chain_id: userState.chainId,
     }
 
     const results = await userState.prover.genProofAndPublicSignals(
