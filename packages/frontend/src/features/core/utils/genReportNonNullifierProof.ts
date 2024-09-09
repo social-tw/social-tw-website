@@ -27,17 +27,17 @@ export async function genReportNonNullifierProof(
 
     const circuitInputs = {
         reportedEpochKey: params.reportedEpochKey,
-        identitySecret,
+        identitySecret: identitySecret,
         reportedEpoch: params.reportedEpoch,
         currentEpoch: epoch,
         currentNonce: params.nonce,
-        attesterId,
+        attesterId: attesterId,
         chainId: userState.chainId,
     }
 
     const results = await userState.prover.genProofAndPublicSignals(
         UnirepSocialCircuit.reportNonNullifierProof,
-        circuitInputs,
+        stringifyBigInts(circuitInputs),
     )
 
     return new ReportNonNullifierProof(

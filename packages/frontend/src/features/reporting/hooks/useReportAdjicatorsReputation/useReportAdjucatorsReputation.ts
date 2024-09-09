@@ -35,7 +35,7 @@ export function useReportAdjucatorsReputation() {
                 proof,
             )
             const provider = getGuaranteedProvider()
-            await provider.waitForTransaction(result.body.message.txHash)
+            await provider.waitForTransaction(result.message.txHash)
             await userState.waitForSync()
 
             return result
