@@ -66,5 +66,5 @@ export function useBackgroundReputationClaim() {
 
     useEffect(() => {
         processReports()
-    }, [reports])
+    }, [reports, processReports])
 }
