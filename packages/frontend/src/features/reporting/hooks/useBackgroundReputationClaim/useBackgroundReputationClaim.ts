@@ -1,6 +1,6 @@
 import { useUserState } from '@/features/core'
 import { RepUserType } from '@/types/Report'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useWaitForTransactionReport } from '@/features/reporting/hooks/useGetWaitForTransactReport/useWaitForTransactionReport'
 import { useReportAdjucatorsReputation } from '@/features/reporting/hooks/useReportAdjicatorsReputation/useReportAdjucatorsReputation'
 import { useReportEpochKeyRepuation } from '@/features/reporting/hooks/useReportEpochKeyReputation/useReportEpochKeyRepuation'
@@ -14,62 +14,57 @@ export function useBackgroundReputationClaim() {
     const { mutateAsync: claimEpochKeyRepuation } = useReportEpochKeyRepuation()
     const { userState } = useUserState()
 
-    useEffect(() => {
-        const processReports = async () => {
-            if (!reports) return
-            if (!userState) return
+    const processReports = useCallback(async () => {
+        if (!reports || !userState) return
 
-            for (const report of reports) {
-                if (!report.respondentEpochKey) continue
-                if (
-                    isMyEpochKey(
-                        userState,
-                        report.reportEpoch,
-                        report.reportorEpochKey,
-                    )
-                ) {
-                    if (report.reportorClaimedRep) {
-                        continue
-                    } else {
-                        await claimEpochKeyRepuation({
-                            reportId: report.reportId,
-                            reportedEpochKey: BigInt(report.reportorEpochKey),
-                            reportedEpoch: report.reportEpoch,
-                            repUserType: RepUserType.REPORTER,
-                        })
-                    }
-                } else if (
-                    isMyEpochKey(
-                        userState,
-                        report.object.epoch,
-                        report.respondentEpochKey,
-                    )
-                ) {
-                    if (report.respondentClaimedRep) {
-                        continue
-                    } else {
-                        await claimEpochKeyRepuation({
-                            reportId: report.reportId,
-                            reportedEpochKey: BigInt(report.respondentEpochKey),
-                            reportedEpoch: report.object.epoch,
-                            repUserType: RepUserType.POSTER,
-                        })
-                    }
-                } else if (
-                    report.adjudicatorsNullifier?.some(
-                        (adj) =>
-                            isMyAdjudicateNullifier(
-                                userState,
-                                report.reportId,
-                                adj.nullifier,
-                            ) && !adj.claimed,
-                    )
-                ) {
-                    await claimAdjucatorRepuation(report.reportId)
+        for (const report of reports) {
+            if (!report.respondentEpochKey) continue
+            if (
+                isMyEpochKey(
+                    userState,
+                    report.reportEpoch,
+                    report.reportorEpochKey,
+                )
+            ) {
+                if (!report.reportorClaimedRep) {
+                    await claimEpochKeyRepuation({
+                        reportId: report.reportId,
+                        reportedEpochKey: BigInt(report.reportorEpochKey),
+                        reportedEpoch: report.reportEpoch,
+                        repUserType: RepUserType.REPORTER,
+                    })
                 }
+            } else if (
+                isMyEpochKey(
+                    userState,
+                    report.object.epoch,
+                    report.respondentEpochKey,
+                )
+            ) {
+                if (!report.respondentClaimedRep) {
+                    await claimEpochKeyRepuation({
+                        reportId: report.reportId,
+                        reportedEpochKey: BigInt(report.respondentEpochKey),
+                        reportedEpoch: report.object.epoch,
+                        repUserType: RepUserType.POSTER,
+                    })
+                }
+            } else if (
+                report.adjudicatorsNullifier?.some(
+                    (adj) =>
+                        isMyAdjudicateNullifier(
+                            userState,
+                            report.reportId,
+                            adj.nullifier,
+                        ) && !adj.claimed,
+                )
+            ) {
+                await claimAdjucatorRepuation(report.reportId)
             }
         }
+    }, [reports, userState, claimEpochKeyRepuation, claimAdjucatorRepuation])
 
+    useEffect(() => {
         processReports()
     }, [reports])
 }
