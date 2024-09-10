@@ -1,17 +1,18 @@
 import { useUserState } from '@/features/core'
-import { RepUserType } from '@/types/Report'
-import { useCallback, useEffect } from 'react'
 import { useWaitForTransactionReport } from '@/features/reporting/hooks/useGetWaitForTransactReport/useWaitForTransactionReport'
-import { useReportAdjucatorsReputation } from '@/features/reporting/hooks/useReportAdjicatorsReputation/useReportAdjucatorsReputation'
-import { useReportEpochKeyRepuation } from '@/features/reporting/hooks/useReportEpochKeyReputation/useReportEpochKeyRepuation'
-import { isMyEpochKey } from '@/utils/helpers/epochKey'
+import { useReportAdjudicatorReputation } from '@/features/reporting/hooks/useReportAdjudicatorReputation/useReportAdjudicatorReputation'
+import { useReportEpochKeyReputation } from '@/features/reporting/hooks/useReportEpochKeyReputation/useReportEpochKeyReputation'
 import { isMyAdjudicateNullifier } from '@/features/reporting/utils/helpers'
+import { RepUserType } from '@/types/Report'
+import { isMyEpochKey } from '@/utils/helpers/epochKey'
+import { useCallback, useEffect } from 'react'
 
 export function useBackgroundReputationClaim() {
     const { data: reports } = useWaitForTransactionReport()
-    const { mutateAsync: claimAdjucatorRepuation } =
-        useReportAdjucatorsReputation()
-    const { mutateAsync: claimEpochKeyRepuation } = useReportEpochKeyRepuation()
+    const { mutateAsync: claimAdjucatorReputation } =
+        useReportAdjudicatorReputation()
+    const { mutateAsync: claimEpochKeyReputation } =
+        useReportEpochKeyReputation()
     const { userState } = useUserState()
 
     const processReports = useCallback(async () => {
@@ -27,7 +28,7 @@ export function useBackgroundReputationClaim() {
                 )
             ) {
                 if (!report.reportorClaimedRep) {
-                    await claimEpochKeyRepuation({
+                    await claimEpochKeyReputation({
                         reportId: report.reportId,
                         reportedEpochKey: BigInt(report.reportorEpochKey),
                         reportedEpoch: report.reportEpoch,
@@ -42,7 +43,7 @@ export function useBackgroundReputationClaim() {
                 )
             ) {
                 if (!report.respondentClaimedRep) {
-                    await claimEpochKeyRepuation({
+                    await claimEpochKeyReputation({
                         reportId: report.reportId,
                         reportedEpochKey: BigInt(report.respondentEpochKey),
                         reportedEpoch: report.object.epoch,
@@ -59,10 +60,10 @@ export function useBackgroundReputationClaim() {
                         ) && !adj.claimed,
                 )
             ) {
-                await claimAdjucatorRepuation(report.reportId)
+                await claimAdjucatorReputation(report.reportId)
             }
         }
-    }, [reports, userState, claimEpochKeyRepuation, claimAdjucatorRepuation])
+    }, [reports, userState, claimEpochKeyReputation, claimAdjucatorReputation])
 
     useEffect(() => {
         processReports()

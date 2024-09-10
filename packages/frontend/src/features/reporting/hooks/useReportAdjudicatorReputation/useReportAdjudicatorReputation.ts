@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
     useActionCount,
@@ -7,11 +6,12 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { genReportNullifierProof } from '@/features/core/utils/genReportNullifierProof'
-import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
-import { relayClaimReputation } from '@/utils/api'
 import { RepUserType } from '@/types/Report'
+import { relayClaimReputation } from '@/utils/api'
+import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export function useReportAdjucatorsReputation() {
+export function useReportAdjudicatorReputation() {
     const { stateTransition } = useUserStateTransition()
     const { getGuaranteedUserState } = useUserState()
     const actionCount = useActionCount()

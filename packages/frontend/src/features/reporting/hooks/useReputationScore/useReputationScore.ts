@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 
 export function useReputationScore() {
     const { userState } = useUserState()
-    const { data: reputationScore } = useQuery({
+
+    const reputationScoreQuery = useQuery({
         queryKey: [QueryKeys.ReputationScore, userState?.id.toString()],
         queryFn: async () => {
             if (!userState) {
@@ -15,10 +16,13 @@ export function useReputationScore() {
         },
     })
 
+    const { data: reputationScore, ...otherProps } = reputationScoreQuery
+
     const isValidReputationScore =
         reputationScore !== undefined && reputationScore >= 0
 
     return {
+        ...otherProps,
         reputationScore,
         isValidReputationScore,
     }
