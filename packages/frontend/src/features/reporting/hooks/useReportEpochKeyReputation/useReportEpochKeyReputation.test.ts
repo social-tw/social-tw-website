@@ -54,7 +54,7 @@ describe('useReportEpochKeyReputation', () => {
             .post('/api/transition')
             .reply(200, { hash: '0xhash' })
             .post('/api/reputation/claim')
-            .reply(200, { message: { txHash: '0xhash'} })
+            .reply(200, { message: { txHash: '0xhash' } })
 
         const { result } = renderHook(() => useReportEpochKeyReputation(), {
             wrapper: wrapper,

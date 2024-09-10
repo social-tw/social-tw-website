@@ -11,4 +11,3 @@ export { usePendingReports } from './hooks/usePendingReports/usePendingReports'
 export { useReportAdjudicatorReputation } from './hooks/useReportAdjudicatorReputation/useReportAdjudicatorReputation'
 export { useReportEpochKeyReputation } from './hooks/useReportEpochKeyReputation/useReportEpochKeyReputation'
 export { useReputationScore } from './hooks/useReputationScore/useReputationScore'
-

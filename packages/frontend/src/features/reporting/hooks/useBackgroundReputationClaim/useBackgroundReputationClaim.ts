@@ -11,7 +11,8 @@ export function useBackgroundReputationClaim() {
     const { data: reports } = useWaitForTransactionReport()
     const { mutateAsync: claimAdjucatorReputation } =
         useReportAdjudicatorReputation()
-    const { mutateAsync: claimEpochKeyReputation } = useReportEpochKeyReputation()
+    const { mutateAsync: claimEpochKeyReputation } =
+        useReportEpochKeyReputation()
     const { userState } = useUserState()
 
     const processReports = useCallback(async () => {

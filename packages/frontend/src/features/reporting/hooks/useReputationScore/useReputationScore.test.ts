@@ -6,7 +6,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
             id: '1',
-            getData: jest.fn().mockResolvedValue([10, 5, 0, 0])
+            getData: jest.fn().mockResolvedValue([10, 5, 0, 0]),
         },
     }),
 }))
