@@ -8,7 +8,7 @@ export { useCheckIn } from './hooks/useCheckIn/useCheckIn'
 export { useFetchReportCategories } from './hooks/useFetchReportCategories/useFetchReportCategories'
 export { useNotifyCheckIn } from './hooks/useNotifyCheckIn/useNotifyCheckIn'
 export { usePendingReports } from './hooks/usePendingReports/usePendingReports'
-export { useReportAdjucatorsReputation } from './hooks/useReportAdjicatorsReputation/useReportAdjucatorsReputation'
+export { useReportAdjudicatorReputation } from './hooks/useReportAdjudicatorReputation/useReportAdjudicatorReputation'
 export { useReportEpochKeyReputation } from './hooks/useReportEpochKeyReputation/useReportEpochKeyReputation'
 export { useReputationScore } from './hooks/useReputationScore/useReputationScore'
 

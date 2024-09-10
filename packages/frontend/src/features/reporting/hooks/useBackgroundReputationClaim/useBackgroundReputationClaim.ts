@@ -1,6 +1,6 @@
 import { useUserState } from '@/features/core'
 import { useWaitForTransactionReport } from '@/features/reporting/hooks/useGetWaitForTransactReport/useWaitForTransactionReport'
-import { useReportAdjucatorsReputation } from '@/features/reporting/hooks/useReportAdjicatorsReputation/useReportAdjucatorsReputation'
+import { useReportAdjudicatorReputation } from '@/features/reporting/hooks/useReportAdjudicatorReputation/useReportAdjudicatorReputation'
 import { useReportEpochKeyReputation } from '@/features/reporting/hooks/useReportEpochKeyReputation/useReportEpochKeyReputation'
 import { isMyAdjudicateNullifier } from '@/features/reporting/utils/helpers'
 import { RepUserType } from '@/types/Report'
@@ -10,7 +10,7 @@ import { useCallback, useEffect } from 'react'
 export function useBackgroundReputationClaim() {
     const { data: reports } = useWaitForTransactionReport()
     const { mutateAsync: claimAdjucatorReputation } =
-        useReportAdjucatorsReputation()
+        useReportAdjudicatorReputation()
     const { mutateAsync: claimEpochKeyReputation } = useReportEpochKeyReputation()
     const { userState } = useUserState()
 
