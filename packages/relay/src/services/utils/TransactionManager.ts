@@ -2,12 +2,7 @@ import ABI from '@unirep-app/contracts/abi/UnirepApp.json'
 import { DB } from 'anondb/node'
 import { Contract, ethers } from 'ethers'
 import { APP_ADDRESS, MAX_FEE_PER_GAS } from '../../config'
-import {
-    NoDBConnectedError,
-    TransactionResult,
-    UninitializedError,
-    UserAlreadySignedUpError,
-} from '../../types'
+import { Errors } from '../../types'
 
 export class TransactionManager {
     appContract?: Contract
@@ -31,7 +26,7 @@ export class TransactionManager {
      * Start the transaction manager.
      */
     async start() {
-        if (!this.wallet || !this._db) throw UninitializedError
+        if (!this.wallet || !this._db) throw Errors.UNINITIALIZED()
         const latestNonce = await this.wallet.getTransactionCount()
         await this._db.upsert('AccountNonce', {
             where: {
@@ -50,7 +45,7 @@ export class TransactionManager {
      * Start the daemon to continuously check for transactions.
      */
     async startDaemon() {
-        if (!this._db) throw NoDBConnectedError
+        if (!this._db) throw Errors.NO_DB_CONNECTED()
         for (;;) {
             const nextTx = await this._db.findOne('AccountTransaction', {
                 where: {},
@@ -83,7 +78,7 @@ export class TransactionManager {
      * @returns True if the transaction was sent, false otherwise.
      */
     async tryBroadcastTransaction(signedData: string) {
-        if (!this.wallet) throw UninitializedError
+        if (!this.wallet) throw Errors.UNINITIALIZED()
         const hash = ethers.utils.keccak256(signedData)
         try {
             console.log(`Sending tx ${hash}`)
@@ -140,39 +135,6 @@ export class TransactionManager {
     }
 
     /**
-     * Execute a transaction and return parsed logs.
-     *
-     * @param contract - The contract instance.
-     * @param to - The address to send the transaction to.
-     * @param data - The transaction data.
-     * @returns An array of parsed logs.
-     */
-    async executeTransaction(
-        contract: Contract,
-        to: string,
-        data: string | any = {}
-    ): Promise<TransactionResult> {
-        const hash = await this.queueTransaction(to, data)
-        const receipt = await this.wallet?.provider.waitForTransaction(hash)
-
-        let parsedLogs: (ethers.utils.LogDescription | null)[] = []
-        if (receipt && receipt.logs) {
-            parsedLogs = receipt.logs
-                .map((log: ethers.providers.Log) => {
-                    try {
-                        return contract.interface.parseLog(log)
-                    } catch (e) {
-                        return null // It's not an event from our contract, ignore.
-                    }
-                })
-                .filter(
-                    (log: ethers.utils.LogDescription | null) => log !== null
-                )
-        }
-        return { txHash: hash, logs: parsedLogs }
-    }
-
-    /**
      * Queue a transaction for execution.
      *
      * @param to - The address to send the transaction to.
@@ -190,7 +152,7 @@ export class TransactionManager {
         } else {
             Object.assign(args, data)
         }
-        if (!this.wallet) throw UninitializedError
+        if (!this.wallet) throw Errors.UNINITIALIZED()
         if (!args.gasLimit) {
             // don't estimate, use this for unpredictable gas limit tx's
             // transactions may revert with this
@@ -201,16 +163,13 @@ export class TransactionManager {
                     from: this.wallet.address,
                     ...args,
                 })
-            } catch (error) {
-                const err = error as any
-                if (
-                    err.message &&
-                    err.message.includes('UserAlreadySignedUp')
-                ) {
-                    throw UserAlreadySignedUpError
-                } else {
-                    console.error(err)
-                }
+            } catch (error: any) {
+                console.error(
+                    `${error.code} - Transaction error while estimating gas limit: ${error}`
+                )
+                throw Errors.TRANSACTION_FAILED(
+                    `Transaction Error: ${error.message}`
+                )
             }
 
             Object.assign(args, {
@@ -249,7 +208,7 @@ export class TransactionManager {
         functionSignature: string, // 'leaveComment' for example
         args: any[]
     ): Promise<string> {
-        if (!this.appContract) throw UninitializedError
+        if (!this.appContract) throw Errors.UNINITIALIZED()
         const appContract = this.appContract
 
         const calldata = appContract.interface.encodeFunctionData(
