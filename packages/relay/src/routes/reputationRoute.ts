@@ -4,7 +4,7 @@ import { reputationService } from '../services/ReputationService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
-import { InvalidEpochError } from '../types'
+import { Errors } from '../types'
 
 export default (
     app: Express,
@@ -21,7 +21,7 @@ export default (
                 !Validator.isValidNumber(fromEpoch) ||
                 !Validator.isValidNumber(toEpoch)
             ) {
-                throw InvalidEpochError
+                throw Errors.INVALID_EPOCH()
             }
 
             const reputations =

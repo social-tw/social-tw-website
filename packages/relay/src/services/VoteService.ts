@@ -1,13 +1,6 @@
 import { DB } from 'anondb'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import {
-    InvalidEpochRangeError,
-    InvalidVoteActionError,
-    NoVoteHistoryFoundError,
-    PostNotExistError,
-    Vote,
-    VoteAction,
-} from '../types'
+import { Errors, Vote, VoteAction } from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ActionCountManager from './utils/ActionCountManager'
 import ProofHelper from './utils/ProofHelper'
@@ -39,7 +32,7 @@ export class VoteService {
         db: DB
     ): Promise<Vote[]> {
         if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
-            throw InvalidEpochRangeError
+            throw Errors.INVALID_EPOCH_RANGE()
         const votes = await db.findMany('Vote', {
             where: {
                 epoch: { gte: fromEpoch, lte: toEpoch },
@@ -48,7 +41,7 @@ export class VoteService {
                 epoch: 'asc',
             },
         })
-        if (votes.length === 0) throw NoVoteHistoryFoundError
+        if (votes.length === 0) throw Errors.NO_VOTE_HISTORY_FOUND()
 
         return votes
     }
@@ -88,7 +81,7 @@ export class VoteService {
                 postId: postId,
             },
         })
-        if (!post) throw PostNotExistError
+        if (!post) throw Errors.POST_NOT_EXIST()
 
         const epochKey = epochKeyProof.epochKey.toString()
         const findVote = await db.findOne('Vote', {
@@ -141,7 +134,7 @@ export class VoteService {
             default:
                 return
         }
-        throw InvalidVoteActionError
+        throw Errors.INVALID_VOTE_ACTION()
     }
 
     /**

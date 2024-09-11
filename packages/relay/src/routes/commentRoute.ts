@@ -7,13 +7,7 @@ import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
-import {
-    EmptyCommentError,
-    InvalidParametersError,
-    InvalidPostIdError,
-    NegativeReputationUserError,
-    PostNotExistError,
-} from '../types'
+import { Errors } from '../types'
 
 export default (
     app: Express,
@@ -26,14 +20,15 @@ export default (
             errorHandler(async (req, res) => {
                 const { postId } = req.query
 
-                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
+                if (!Validator.isValidNumber(postId))
+                    throw Errors.INVALID_POST_ID()
 
                 const post = await postService.fetchSinglePost(
                     postId as string,
                     db
                 )
 
-                if (!post) throw PostNotExistError
+                if (!post) throw Errors.POST_NOT_EXIST()
 
                 const comments = await commentService.fetchComments(
                     postId as string,
@@ -48,21 +43,22 @@ export default (
             errorHandler(createCheckReputationMiddleware(synchronizer)),
             errorHandler(async (req, res) => {
                 if (res.locals.isNegativeReputation) {
-                    throw NegativeReputationUserError
+                    throw Errors.NEGATIVE_REPUTATION_USER()
                 }
 
                 const { content, postId, publicSignals, proof } = req.body
 
-                if (!content) throw EmptyCommentError
+                if (!content) throw Errors.EMPTY_COMMENT()
 
-                if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
+                if (!Validator.isValidNumber(postId))
+                    throw Errors.INVALID_POST_ID()
 
                 const post = await postService.fetchSinglePost(
                     postId.toString(),
                     db
                 )
 
-                if (!post) throw PostNotExistError
+                if (!post) throw Errors.POST_NOT_EXIST()
 
                 const txHash = await commentService.leaveComment(
                     postId.toString(),
@@ -81,7 +77,7 @@ export default (
             errorHandler(createCheckReputationMiddleware(synchronizer)),
             errorHandler(async (req, res) => {
                 if (res.locals.isNegativeReputation) {
-                    throw NegativeReputationUserError
+                    throw Errors.NEGATIVE_REPUTATION_USER()
                 }
 
                 const { commentId, postId, publicSignals, proof } = req.body
@@ -103,7 +99,8 @@ export default (
             const fromEpoch = parseInt(req.query.from_epoch as string)
             const toEpoch = parseInt(req.query.to_epoch as string)
 
-            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
+            if (isNaN(fromEpoch) || isNaN(toEpoch))
+                throw Errors.INVALID_PARAMETERS()
 
             const history = await commentService.getCommentHistory(
                 fromEpoch,

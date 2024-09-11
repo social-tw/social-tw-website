@@ -669,7 +669,6 @@ describe('POST /api/report', function () {
             .then((res) => {
                 expect(res).to.have.status(201)
             })
-            .catch((err) => console.error(err))
 
         await reportService
             .fetchSingleReport(report.reportId, db)

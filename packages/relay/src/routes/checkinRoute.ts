@@ -5,7 +5,7 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 import { errorHandler } from '../services/utils/ErrorHandler'
 import ProofHelper from '../services/utils/ProofHelper'
 import TransactionManager from '../services/utils/TransactionManager'
-import { PositiveReputationUserError } from '../types'
+import { Errors } from '../types'
 
 export default (
     app: Express,
@@ -17,7 +17,7 @@ export default (
         errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
             if (!res.locals.isNegativeReputation)
-                throw PositiveReputationUserError
+                throw Errors.POSITIVE_REPUTATION_USER()
 
             const { publicSignals, proof } = req.body
 

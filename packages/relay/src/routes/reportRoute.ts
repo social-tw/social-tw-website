@@ -9,15 +9,7 @@ import { createCheckReputationMiddleware } from '../middlewares/CheckReputationM
 import { postService } from '../services/PostService'
 import ProofHelper from '../services/utils/ProofHelper'
 import Validator from '../services/utils/Validator'
-import {
-    AdjudicateValue,
-    InvalidAdjudicateValueError,
-    InvalidProofError,
-    InvalidPublicSignalError,
-    InvalidReportIdError,
-    InvalidReportStatusError,
-    NegativeReputationUserError,
-} from '../types'
+import { AdjudicateValue, Errors } from '../types'
 
 export default (
     app: Express,
@@ -28,9 +20,8 @@ export default (
         '/api/report',
         errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req: Request, res: Response) => {
-            if (res.locals.isNegativeReputation) {
-                throw NegativeReputationUserError
-            }
+            if (res.locals.isNegativeReputation)
+                throw Errors.NEGATIVE_REPUTATION_USER()
 
             const { _reportData, publicSignals, proof } = req.body
             // 1. Validate request body
@@ -55,9 +46,10 @@ export default (
         '/api/report',
         errorHandler(async (req: Request, res: Response) => {
             const { status, publicSignals, proof } = req.query
-            if (!Validator.isValidNumber(status)) throw InvalidReportStatusError
-            if (!publicSignals) throw InvalidPublicSignalError
-            if (!proof) throw InvalidProofError
+            if (!Validator.isValidNumber(status))
+                throw Errors.INVALID_REPORT_STATUS()
+            if (!publicSignals) throw Errors.INVALID_PUBLIC_SIGNAL()
+            if (!proof) throw Errors.INVALID_PROOF()
 
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 JSON.parse(publicSignals as string) as PublicSignals,
@@ -78,14 +70,11 @@ export default (
         '/api/report/:id',
         errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
-            if (res.locals.isNegativeReputation) {
-                throw NegativeReputationUserError
-            }
+            if (res.locals.isNegativeReputation)
+                throw Errors.NEGATIVE_REPUTATION_USER()
 
             const id = req.params.id
-            if (!Validator.isValidNumber(id)) {
-                throw InvalidReportIdError
-            }
+            if (!Validator.isValidNumber(id)) throw Errors.INVALID_REPORT_ID()
 
             const { adjudicateValue, publicSignals, proof } = req.body
 
@@ -93,7 +82,7 @@ export default (
                 !Validator.isValidNumber(adjudicateValue) ||
                 !(adjudicateValue in AdjudicateValue)
             ) {
-                throw InvalidAdjudicateValueError
+                throw Errors.INVALID_ADJUDICATE_VALUE()
             }
 
             await reportService.voteOnReport(

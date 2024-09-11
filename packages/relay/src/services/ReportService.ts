@@ -10,23 +10,11 @@ import { postService } from '../services/PostService'
 import {
     AdjudicateValue,
     Adjudicator,
-    CommentNotExistError,
-    CommentReportedError,
-    InvalidCommentIdError,
-    InvalidPostIdError,
-    InvalidReportStatusError,
-    InvalidRepUserTypeError,
-    PostNotExistError,
-    PostReportedError,
+    Errors,
     ReportCategory,
     ReportHistory,
-    ReportNotExistError,
-    ReportObjectTypeNotExistsError,
     ReportStatus,
     ReportType,
-    ReportVotingEndedError,
-    UserAlreadyClaimedError,
-    UserAlreadyVotedError,
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
@@ -53,28 +41,29 @@ export class ReportService {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.POST) {
             if (!Validator.isValidNumber(reportData.objectId))
-                throw InvalidPostIdError
+                throw Errors.INVALID_POST_ID()
 
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
                 db
             )
-            if (!post) throw PostNotExistError
-            if (post.status === PostStatus.REPORTED) throw PostReportedError
+            if (!post) throw Errors.POST_NOT_EXIST()
+            if (post.status === PostStatus.REPORTED)
+                throw Errors.POST_REPORTED()
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.COMMENT) {
             if (!Validator.isValidNumber(reportData.objectId))
-                throw InvalidCommentIdError
+                throw Errors.INVALID_COMMENT_ID()
             const comment = await commentService.fetchSingleComment(
                 reportData.objectId.toString(),
                 db
             )
-            if (!comment) throw CommentNotExistError
+            if (!comment) throw Errors.COMMENT_NOT_EXIST()
             if (comment.status === CommentStatus.REPORTED)
-                throw CommentReportedError
+                throw Errors.COMMENT_REPORTED()
             reportData.respondentEpochKey = comment.epochKey
         } else {
-            throw ReportObjectTypeNotExistsError
+            throw Errors.REPORT_OBJECT_TYPE_NOT_EXISTS()
         }
         // 1.b Check if the epoch key is valid
         await ProofHelper.getAndVerifyEpochKeyProof(
@@ -157,9 +146,7 @@ export class ReportService {
         }
 
         const condition = statusCondition[status]
-        if (!condition) {
-            throw InvalidReportStatusError
-        }
+        if (!condition) throw Errors.INVALID_REPORT_STATUS()
 
         // fetch object(post / comment) and add into report
         const reports = await db.findMany('ReportHistory', condition)
@@ -188,15 +175,16 @@ export class ReportService {
         const report = await this.fetchSingleReport(reportId, db)
         const nullifier = publicSignals[0]
 
-        if (!report) throw ReportNotExistError
-        if (report.status != ReportStatus.VOTING) throw ReportVotingEndedError
+        if (!report) throw Errors.REPORT_NOT_EXIST()
+        if (report.status != ReportStatus.VOTING)
+            throw Errors.REPORT_VOTING_ENDED()
         await ProofHelper.getAndVerifyReportIdentityProof(
             publicSignals,
             proof,
             synchronizer
         )
         // check if user voted or not
-        if (this.isVoted(nullifier, report)) throw UserAlreadyVotedError
+        if (this.isVoted(nullifier, report)) throw Errors.USER_ALREADY_VOTED()
 
         const adjudicatorsNullifier = this.upsertAdjudicatorsNullifier(
             nullifier,
@@ -349,7 +337,7 @@ export class ReportService {
             case RepUserType.RESPONDENT:
                 return ReputationType.BE_REPORTED
             default:
-                throw InvalidRepUserTypeError
+                throw Errors.INVALID_REP_USER_TYPE()
         }
     }
 
@@ -361,7 +349,7 @@ export class ReportService {
             case RepUserType.ADJUDICATOR:
                 return ClaimHelpers.ReportNullifierVHelper
             default:
-                throw InvalidRepUserTypeError
+                throw Errors.INVALID_REP_USER_TYPE()
         }
     }
 
@@ -392,7 +380,7 @@ export class ReportService {
                     adj.claimed
             )
         ) {
-            throw UserAlreadyClaimedError
+            throw Errors.USER_ALREADY_CLAIMED()
         }
     }
 
@@ -422,15 +410,11 @@ export class ReportService {
     }
 
     checkRespondentIsClaimed(report: ReportHistory) {
-        if (report.respondentClaimedRep) {
-            throw UserAlreadyClaimedError
-        }
+        if (report.respondentClaimedRep) throw Errors.USER_ALREADY_CLAIMED()
     }
 
     checkReporterIsClaimed(report: ReportHistory) {
-        if (report.reportorClaimedRep) {
-            throw UserAlreadyClaimedError
-        }
+        if (report.reportorClaimedRep) throw Errors.USER_ALREADY_CLAIMED()
     }
 
     getClaimMethod(repUserType: RepUserType, isPassed: boolean): ClaimMethods {
@@ -450,7 +434,7 @@ export class ReportService {
             case RepUserType.ADJUDICATOR:
                 return ClaimMethods.CLAIM_POSITIVE_REP
             default:
-                throw InvalidRepUserTypeError
+                throw Errors.INVALID_REP_USER_TYPE()
         }
     }
 
@@ -465,7 +449,7 @@ export class ReportService {
             case RepUserType.RESPONDENT:
                 return RepChangeType.RESPONDENT_REP
             default:
-                throw InvalidRepUserTypeError
+                throw Errors.INVALID_REP_USER_TYPE()
         }
     }
 
@@ -530,7 +514,7 @@ export class ReportService {
                     })
                 break
             default:
-                throw InvalidRepUserTypeError
+                throw Errors.INVALID_REP_USER_TYPE()
         }
 
         const updatedReport = { ...report, ...updates }
@@ -592,7 +576,7 @@ export class ReportService {
             this.checkReportorEpochKey(report, reportProof)
             this.checkReporterIsClaimed(report)
         } else {
-            throw InvalidRepUserTypeError
+            throw Errors.INVALID_REP_USER_TYPE()
         }
     }
 

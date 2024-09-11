@@ -5,16 +5,10 @@ import {
     ReputationProof,
 } from '@unirep/circuits'
 import { Synchronizer } from '@unirep/core'
-import { Groth16Proof, PublicSignals } from 'snarkjs'
-import {
-    InvalidAttesterIdError,
-    InvalidEpochError,
-    InvalidProofError,
-    InvalidReputationProofError,
-    InvalidStateTreeError,
-} from '../../types'
-import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
 import { ethers } from 'hardhat'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { Errors } from '../../types'
+import { UnirepSocialSynchronizer } from '../singletons/UnirepSocialSynchronizer'
 
 class ProofHelper {
     async getAndVerifyEpochKeyProof(
@@ -41,15 +35,11 @@ class ProofHelper {
             Number(epochKeyProof.epoch),
             epochKeyProof.attesterId
         )
-        if (!isStateTreeValid) {
-            throw InvalidStateTreeError
-        }
+        if (!isStateTreeValid) throw Errors.INVALID_STATE_TREE()
 
         // check if proof is valid
         const isProofValid = await epochKeyProof.verify()
-        if (!isProofValid) {
-            throw InvalidProofError
-        }
+        if (!isProofValid) throw Errors.INVALID_PROOF()
 
         return epochKeyProof
     }
@@ -70,9 +60,7 @@ class ProofHelper {
         this.validateAttesterId(synchronizer, epochKeyLiteProof)
 
         const isProofValid = await epochKeyLiteProof.verify()
-        if (!isProofValid) {
-            throw InvalidProofError
-        }
+        if (!isProofValid) throw Errors.INVALID_PROOF()
 
         return epochKeyLiteProof
     }
@@ -93,7 +81,7 @@ class ProofHelper {
 
         const isProofValid = await reputationProof.verify()
         if (!isProofValid) {
-            throw InvalidReputationProofError
+            throw Errors.INVALID_REPUTATION_PROOF()
         }
 
         return reputationProof
@@ -114,9 +102,7 @@ class ProofHelper {
         await this.validateEpoch(synchronizer, reportIdentityProof)
 
         const isProofValid = await reportIdentityProof.verify()
-        if (!isProofValid) {
-            throw InvalidProofError
-        }
+        if (!isProofValid) throw Errors.INVALID_PROOF()
 
         return reportIdentityProof
     }
@@ -131,9 +117,8 @@ class ProofHelper {
     async validateEpoch(synchronizer: Synchronizer, proof: any) {
         // get current epoch and unirep contract
         const epoch = await synchronizer.loadCurrentEpoch()
-        if (!(proof.epoch.toString() === epoch.toString())) {
-            throw InvalidEpochError
-        }
+        if (!(proof.epoch.toString() === epoch.toString()))
+            throw Errors.INVALID_EPOCH()
     }
 
     /**
@@ -144,9 +129,8 @@ class ProofHelper {
      * @throws InvalidAttesterIdError if the attester id is invalid
      */
     validateAttesterId(synchronizer: Synchronizer, proof: any) {
-        if (!(synchronizer.attesterId === proof.attesterId)) {
-            throw InvalidAttesterIdError
-        }
+        if (!(synchronizer.attesterId === proof.attesterId))
+            throw Errors.INVALID_ATTESTER_ID()
     }
 }
 
