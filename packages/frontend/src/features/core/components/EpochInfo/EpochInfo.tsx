@@ -1,7 +1,7 @@
-import clsx from 'clsx'
-import Countdown from 'react-countdown'
 import EpochImg from '@/assets/img/epoch.png'
 import { useActionCount, useEpoch } from '@/features/core'
+import clsx from 'clsx'
+import Countdown from 'react-countdown'
 
 function EpochTimer() {
     const { epochEndTime } = useEpoch()
