@@ -1,9 +1,9 @@
+import { QueryKeys } from '@/constants/queryKeys'
+import { useUserState } from '@/features/core'
+import { useQuery } from '@tanstack/react-query'
 import isNull from 'lodash/isNull'
 import isUndefined from 'lodash/isUndefined'
 import { useEffect, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { useUserState } from '@/features/core'
-import { QueryKeys } from '@/constants/queryKeys'
 
 const epochLength = 300000 // 300000 ms
 
@@ -74,6 +74,8 @@ export function useEpoch() {
         ) {
             return
         }
+
+        refetchRemainingTime()
 
         const timer = setTimeout(async () => {
             await refetchCurrentEpoch()
