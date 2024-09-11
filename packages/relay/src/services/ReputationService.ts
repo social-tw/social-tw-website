@@ -19,7 +19,7 @@ export class ReputationService {
             },
             include: {
                 report: true,
-              }
+            },
         })
 
         return reputations

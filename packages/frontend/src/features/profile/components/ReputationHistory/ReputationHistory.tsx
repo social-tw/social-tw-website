@@ -98,7 +98,10 @@ function parseReputationHistoryToBodyData(
 ): BodyCellData[][] {
     return reputationHistoryData.map((v) => {
         return [
-            { type: BodyCellType.Text, content: formatVoteDate(Number(v.report.reportAt)) },
+            {
+                type: BodyCellType.Text,
+                content: formatVoteDate(Number(v.report.reportAt)),
+            },
             { type: BodyCellType.Text, content: getReputationTypeText(v.type) },
             { type: BodyCellType.Text, content: v.report.reportorEpochKey },
             { type: BodyCellType.Text, content: String(v.score) },
