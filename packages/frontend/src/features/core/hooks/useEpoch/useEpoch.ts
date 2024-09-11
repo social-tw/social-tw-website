@@ -76,7 +76,7 @@ export function useEpoch() {
         }
 
         refetchRemainingTime()
-        
+
         const timer = setTimeout(async () => {
             await refetchCurrentEpoch()
             await refetchRemainingTime()
