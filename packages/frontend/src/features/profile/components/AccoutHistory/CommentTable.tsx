@@ -53,7 +53,7 @@ function parseCommentHistoryToBodyData(
         return [
             {
                 type: BodyCellType.Text,
-                content: formatCommentDate(item.publishedAt),
+                content: formatCommentDate(Number(item.publishedAt)),
             },
             { type: BodyCellType.Text, content: item.content },
             { type: BodyCellType.Text, content: item.epochKey },
@@ -66,7 +66,7 @@ function parseCommentHistoryToBodyData(
     })
 }
 
-function formatCommentDate(date: string) {
+function formatCommentDate(date: number) {
     return dayjs(date).format('YYYY/MM/DD')
 }
 

@@ -53,7 +53,7 @@ function parsePostHistoryToBodyData(
         return [
             {
                 type: BodyCellType.Text,
-                content: formatPostDate(item.publishedAt),
+                content: formatPostDate(Number(item.publishedAt)),
             },
             { type: BodyCellType.Text, content: item.content },
             { type: BodyCellType.Text, content: item.epochKey },
@@ -66,7 +66,7 @@ function parsePostHistoryToBodyData(
     })
 }
 
-function formatPostDate(date: string) {
+function formatPostDate(date: number) {
     return dayjs(date).format('YYYY/MM/DD')
 }
 

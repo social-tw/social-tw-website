@@ -63,6 +63,7 @@ function Wrapper({ children }: { children: ReactNode }) {
 
 function ReputationTable({ fromToEpoch }: ReputationTableProps) {
     const { isFetching, isFetched, data } = useReputationHistory(fromToEpoch)
+    console.log(data)
     const headerData = getHeaderData()
     const bodyData = parseReputationHistoryToBodyData(data || [])
 
@@ -97,7 +98,7 @@ function parseReputationHistoryToBodyData(
 ): BodyCellData[][] {
     return reputationHistoryData.map((v) => {
         return [
-            { type: BodyCellType.Text, content: v.report.reportAt },
+            { type: BodyCellType.Text, content: formatVoteDate(Number(v.report.reportAt)) },
             { type: BodyCellType.Text, content: getReputationTypeText(v.type) },
             { type: BodyCellType.Text, content: v.report.reportorEpochKey },
             { type: BodyCellType.Text, content: String(v.score) },
@@ -111,6 +112,10 @@ function isWithin30Days(startDate: Date | null, endDate: Date | null) {
     const end = dayjs(endDate)
     const daysDifference = end.diff(start, 'day')
     return daysDifference <= 30
+}
+
+function formatVoteDate(date: number) {
+    return dayjs(date).format('YYYY/MM/DD')
 }
 
 function getReputationTypeText(type: number) {
