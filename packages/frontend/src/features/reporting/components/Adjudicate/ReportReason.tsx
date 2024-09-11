@@ -11,10 +11,12 @@ export default function ReportReason({
     const { reportCategories } = useFetchReportCategories()
 
     const reportCategoryLabel = useMemo(() => {
-        const reportCategory = reportCategories.find((c) => c.number === category)
+        const reportCategory = reportCategories.find(
+            (c) => c.number === category,
+        )
         return reportCategory?.description ?? ''
     }, [category, reportCategories])
-    
+
     return (
         <div className="pt-3">
             <div className="relative rounded-lg bg-dark-gradient h-36">
