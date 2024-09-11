@@ -6,17 +6,17 @@ export const errorHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             await func(req, res, next)
-        } catch (err: any) {
-            if (err instanceof InternalError) {
-                console.log('error', err)
-                res.status(err.httpStatusCode).json({
-                    error: err.message,
+        } catch (error: any) {
+            if (error instanceof InternalError) {
+                console.log('error', error)
+                res.status(error.httpStatusCode).json({
+                    error: error.message,
                 })
             } else {
-                console.error('Uncaught error', err)
+                console.error('Uncaught error', error)
                 res.status(500).json({
                     message: 'Uncaught error',
-                    info: err.message,
+                    info: error.message,
                 })
             }
         }

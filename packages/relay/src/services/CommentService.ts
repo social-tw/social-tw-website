@@ -1,12 +1,7 @@
 import { DB } from 'anondb'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import {
-    CommentNotExistError,
-    InvalidEpochKeyError,
-    InvalidEpochRangeError,
-    NoCommentHistoryFoundError,
-} from '../types'
+import { Errors } from '../types'
 import { Comment, CommentStatus } from '../types/Comment'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
@@ -149,7 +144,7 @@ export class CommentService {
                 postId: postId,
             },
         })
-        if (!comment) throw CommentNotExistError
+        if (!comment) throw Errors.COMMENT_NOT_EXIST()
 
         const epochKeyLiteProof =
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
@@ -159,7 +154,7 @@ export class CommentService {
             )
 
         if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey)
-            throw InvalidEpochKeyError
+            throw Errors.INVALID_EPOCH_KEY()
 
         const txHash = await TransactionManager.callContract('editComment', [
             epochKeyLiteProof.publicSignals,
@@ -189,7 +184,7 @@ export class CommentService {
         db: DB
     ): Promise<Comment[]> {
         if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
-            throw InvalidEpochRangeError
+            throw Errors.INVALID_EPOCH_RANGE()
 
         const comments = await db.findMany('Comment', {
             where: {
@@ -200,7 +195,7 @@ export class CommentService {
             },
         })
 
-        if (comments.length === 0) throw NoCommentHistoryFoundError
+        if (comments.length === 0) throw Errors.NO_COMMENT_HISTORY_FOUND()
 
         return comments
     }

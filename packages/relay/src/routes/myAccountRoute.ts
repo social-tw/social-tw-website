@@ -4,12 +4,7 @@ import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import { voteService } from '../services/VoteService'
 import { errorHandler } from '../services/utils/ErrorHandler'
-import {
-    InvalidDirectionError,
-    InvalidSortKeyError,
-    NoDataFoundError,
-    UnspecifiedEpochKeyError,
-} from '../types'
+import { Errors } from '../types'
 
 export default (app: Express, db: DB) => {
     const handleMyAccountRequest = async (
@@ -24,22 +19,18 @@ export default (app: Express, db: DB) => {
     ) => {
         const epks = req.query.epks as string | undefined
         const parsedEpks = epks?.split('_') || []
-        if (parsedEpks.length === 0) {
-            throw UnspecifiedEpochKeyError
-        }
+        if (parsedEpks.length === 0) throw Errors.UNSPECIFIED_EPOCH_KEY()
 
         const sortKey = (req.query.sortKey as string) ?? 'publishedAt'
-        if (sortKey !== 'publishedAt' && sortKey !== 'voteSum') {
-            throw InvalidSortKeyError
-        }
+        if (sortKey !== 'publishedAt' && sortKey !== 'voteSum')
+            throw Errors.INVALID_SORT_KEY()
 
         const direction = (req.query.direction as string) ?? 'desc'
-        if (direction !== 'asc' && direction !== 'desc') {
-            throw InvalidDirectionError
-        }
+        if (direction !== 'asc' && direction !== 'desc')
+            throw Errors.INVALID_DIRECTION()
 
         const data = await fetchData(parsedEpks, sortKey, direction, db)
-        if (data === null) throw NoDataFoundError
+        if (data === null) throw Errors.NO_DATA_FOUND()
         res.json(data)
     }
 

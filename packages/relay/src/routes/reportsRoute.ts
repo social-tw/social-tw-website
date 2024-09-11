@@ -1,15 +1,10 @@
-import { Express } from 'express'
 import { DB } from 'anondb'
-import { reportService } from '../services/ReportService'
-import { errorHandler } from '../services/utils/ErrorHandler'
-import {
-    InvalidReportStatusError,
-    InvalidReputationProofError,
-    ReportNotExistError,
-    ReportStatus,
-} from '../types'
+import { Express } from 'express'
 import { genVHelperIdentifier } from '../../../contracts/test/utils'
+import { reportService } from '../services/ReportService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
+import { errorHandler } from '../services/utils/ErrorHandler'
+import { Errors, ReportStatus } from '../types'
 
 export default (
     app: Express,
@@ -29,14 +24,12 @@ export default (
             )
 
             const isProofValid = await reportProof.verify()
-            if (!isProofValid) {
-                throw InvalidReputationProofError
-            }
+            if (!isProofValid) throw Errors.INVALID_REPUTATION_PROOF()
 
             const report = await reportService.fetchSingleReport(reportId, db)
-            if (!report) throw ReportNotExistError
+            if (!report) throw Errors.REPORT_NOT_EXIST()
             if (report.status !== ReportStatus.WAITING_FOR_TRANSACTION)
-                throw InvalidReportStatusError
+                throw Errors.INVALID_REPORT_STATUS()
 
             const isPassed = reportService.checkReportResult(report)
 

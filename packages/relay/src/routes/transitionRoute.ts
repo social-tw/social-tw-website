@@ -4,7 +4,7 @@ import { Express } from 'express'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import TransactionManager from '../services/utils/TransactionManager'
-import { InvalidProofError } from '../types'
+import { Errors } from '../types'
 
 export default (
     app: Express,
@@ -21,9 +21,7 @@ export default (
                 synchronizer.prover
             )
             const valid = await transitionProof.verify()
-            if (!valid) {
-                throw InvalidProofError
-            }
+            if (!valid) throw Errors.INVALID_PROOF()
 
             const calldata =
                 synchronizer.unirepContract.interface.encodeFunctionData(

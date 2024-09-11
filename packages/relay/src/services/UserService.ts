@@ -4,14 +4,7 @@ import crypto from 'crypto'
 import fetch from 'node-fetch'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { TWITTER_USER_URL } from '../config'
-import {
-    InvalidHashUserIdError,
-    InvalidProofError,
-    User,
-    UserAlreadySignedUpError,
-    UserLoginError,
-    UserRegisterStatus,
-} from '../types'
+import { Errors, User, UserRegisterStatus } from '../types'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
@@ -38,15 +31,16 @@ export class UserService {
                 code as string
             )
             const userInfo = await TwitterClient.client.users.findMyUser()
-            const userId = userInfo.data?.id!!
+            const userId = userInfo.data?.id
+            if (!userId) throw Errors.USER_LOGIN_ERROR('User ID not found')
             return await this.getLoginUser(
                 db,
                 userId,
                 response.token.access_token
             )
-        } catch (error) {
-            console.error('error in getting user id', error)
-            throw UserLoginError
+        } catch (error: any) {
+            console.error('Error in user login:', error)
+            throw Errors.USER_LOGIN_ERROR(`User login failed: ${error.message}`)
         }
     }
 
@@ -111,14 +105,12 @@ export class UserService {
                 attesterId,
             },
         })
-        if (isUserExist) throw UserAlreadySignedUpError
+        if (isUserExist) throw Errors.USER_ALREADY_SIGNED_UP()
 
         await ProofHelper.validateEpoch(synchronizer, signupProof)
 
         const valid = await signupProof.verify()
-        if (!valid) {
-            throw InvalidProofError
-        }
+        if (!valid) throw Errors.INVALID_PROOF()
 
         const txHash = await TransactionManager.callContract('userSignUp', [
             signupProof.publicSignals,
@@ -137,9 +129,7 @@ export class UserService {
             },
         })
 
-        if (user != null) {
-            throw UserAlreadySignedUpError
-        }
+        if (user != null) throw Errors.USER_ALREADY_SIGNED_UP()
 
         const response: any = await fetch(TWITTER_USER_URL, {
             method: 'GET',
@@ -152,7 +142,7 @@ export class UserService {
             console.error(
                 `AccessToken is invalid or user ${hashUserId} is not matched`
             )
-            throw InvalidHashUserIdError
+            throw Errors.INVALID_HASH_USER_ID()
         }
     }
 }

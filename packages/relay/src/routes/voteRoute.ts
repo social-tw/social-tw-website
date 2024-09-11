@@ -5,14 +5,7 @@ import { voteService } from '../services/VoteService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
 import Validator from '../services/utils/Validator'
-import {
-    InvalidParametersError,
-    InvalidPostIdError,
-    InvalidProofError,
-    InvalidPublicSignalError,
-    InvalidVoteActionError,
-    NegativeReputationUserError,
-} from '../types'
+import { Errors } from '../types'
 
 export default (
     app: Express,
@@ -23,19 +16,18 @@ export default (
         '/api/vote',
         errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
-            if (res.locals.isNegativeReputation) {
-                throw NegativeReputationUserError
-            }
+            if (res.locals.isNegativeReputation)
+                throw Errors.NEGATIVE_REPUTATION_USER()
 
             //vote for post with _id
             const { postId, voteAction, publicSignals, proof } = req.body
-            if (!Validator.isValidNumber(postId)) throw InvalidPostIdError
+            if (!Validator.isValidNumber(postId)) throw Errors.INVALID_POST_ID()
 
-            if (voteAction == undefined) throw InvalidVoteActionError
+            if (voteAction == undefined) throw Errors.INVALID_VOTE_ACTION()
 
-            if (publicSignals == undefined) throw InvalidPublicSignalError
+            if (publicSignals == undefined) throw Errors.INVALID_PUBLIC_SIGNAL()
 
-            if (proof == undefined) throw InvalidProofError
+            if (proof == undefined) throw Errors.INVALID_PROOF()
 
             await voteService.vote(
                 postId,
@@ -55,7 +47,8 @@ export default (
             const fromEpoch = parseInt(req.query.from_epoch as string)
             const toEpoch = parseInt(req.query.to_epoch as string)
 
-            if (isNaN(fromEpoch) || isNaN(toEpoch)) throw InvalidParametersError
+            if (isNaN(fromEpoch) || isNaN(toEpoch))
+                throw Errors.INVALID_PARAMETERS()
 
             const history = await voteService.getVoteHistory(
                 fromEpoch,

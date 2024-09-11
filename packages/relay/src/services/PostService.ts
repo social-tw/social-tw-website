@@ -8,10 +8,7 @@ import {
     LOAD_POST_COUNT,
     UPDATE_POST_ORDER_INTERVAL,
 } from '../config'
-import {
-    InvalidEpochRangeError,
-    NoPostHistoryFoundError,
-} from '../types/InternalError'
+import { Errors } from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import IpfsHelper from './utils/IpfsHelper'
@@ -320,7 +317,7 @@ export class PostService {
         db: DB
     ): Promise<Post[]> {
         if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
-            throw InvalidEpochRangeError
+            throw Errors.INVALID_EPOCH_RANGE()
         const posts = await db.findMany('Post', {
             where: {
                 epoch: { gte: fromEpoch, lte: toEpoch },
@@ -329,7 +326,7 @@ export class PostService {
                 epoch: 'asc',
             },
         })
-        if (posts.length === 0) throw NoPostHistoryFoundError
+        if (posts.length === 0) throw Errors.NO_POST_HISTORY_FOUND()
 
         return posts
     }

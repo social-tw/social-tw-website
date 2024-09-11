@@ -1,6 +1,6 @@
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import ProofHelper from '../services/utils/ProofHelper'
-import { InvalidAuthenticationError } from '../types'
+import { Errors } from '../types'
 
 export const jsonToBase64 = (object) => {
     const json = JSON.stringify(object)
@@ -17,9 +17,7 @@ export const createCheckReputationMiddleware = (
 ) =>
     async function (req, res, next) {
         const authentication = req.headers.authentication
-        if (!authentication) {
-            throw InvalidAuthenticationError
-        }
+        if (!authentication) throw Errors.INVALID_AUTHENTICATION()
 
         // decode authorization
         const { publicSignals, proof } = JSON.parse(atob(authentication))

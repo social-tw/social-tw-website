@@ -17,18 +17,18 @@ import {
     provider,
     UNIREP_ADDRESS,
 } from './config'
-import TransactionManager from './services/utils/TransactionManager'
-import { SocketManager } from './services/utils/SocketManager'
 import { postService } from './services/PostService'
+import { SocketManager } from './services/utils/SocketManager'
+import TransactionManager from './services/utils/TransactionManager'
 
 // libraries
+import cors from 'cors'
+import schema from './db/schema'
 import { UnirepSocialSynchronizer } from './services/singletons/UnirepSocialSynchronizer'
 import prover from './services/utils/Prover'
-import schema from './db/schema'
-import cors from 'cors'
 
-main().catch((err) => {
-    console.error(`Uncaught error: ${err}`)
+main().catch((error) => {
+    console.error(`Uncaught error: ${error}`)
     process.exit(1)
 })
 
