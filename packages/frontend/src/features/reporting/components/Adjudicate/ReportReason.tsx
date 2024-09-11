@@ -1,12 +1,20 @@
-import { REPORT_CATEGORY_LABELS, ReportCategory } from '@/constants/report'
+import { useMemo } from 'react'
+import { useFetchReportCategories } from '../../hooks/useFetchReportCategories/useFetchReportCategories'
 
 export default function ReportReason({
     category,
     reason,
 }: {
-    category: ReportCategory
+    category: number
     reason: string
 }) {
+    const { reportCategories } = useFetchReportCategories()
+
+    const reportCategoryLabel = useMemo(() => {
+        const reportCategory = reportCategories.find((c) => c.number === category)
+        return reportCategory?.description ?? ''
+    }, [category, reportCategories])
+    
     return (
         <div className="pt-3">
             <div className="relative rounded-lg bg-dark-gradient h-36">
@@ -15,7 +23,7 @@ export default function ReportReason({
                 </h3>
                 <div className="h-full p-4 pt-5 overflow-auto">
                     <p className="text-sm font-medium leading-relaxed tracking-wider text-white md:leading-slightly-loose">
-                        原因分類：{REPORT_CATEGORY_LABELS[category]}
+                        原因分類：{reportCategoryLabel}
                     </p>
                     <p className="text-sm font-medium leading-relaxed tracking-wider text-white md:leading-slightly-loose">
                         詳情說明：{reason}

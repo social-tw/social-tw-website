@@ -59,7 +59,7 @@ export function CommentReportDialog({
             await reportComment({
                 postId,
                 commentId,
-                category: ReportCategory.SPAM,
+                category: data[`${REGISTER_ID_REASON}`] as ReportCategory,
                 reason: data[`${REGISTER_ID_DESC}`],
             })
         } catch (_error) {}

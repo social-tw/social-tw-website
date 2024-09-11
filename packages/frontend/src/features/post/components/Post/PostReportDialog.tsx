@@ -56,7 +56,7 @@ export function PostReportDialog({
         try {
             await reportPost({
                 postId,
-                category: ReportCategory.SPAM,
+                category: data[`${REGISTER_ID_REASON}`] as ReportCategory,
                 reason: data[`${REGISTER_ID_DESC}`],
             })
         } catch (error) {}
