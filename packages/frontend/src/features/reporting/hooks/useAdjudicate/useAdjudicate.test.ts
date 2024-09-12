@@ -21,6 +21,16 @@ jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
+            id: {
+                secret: '0x123',
+            },
+            latestTransitionedEpoch: jest.fn().mockResolvedValue(2),
+            genProveReputationProof: jest.fn().mockResolvedValue({
+                publicSignals: 'mocked_signals',
+                proof: 'mocked_proof',
+                epoch: 0,
+                epochKey: 'mocked_epockKey',
+            }),
             sync: {
                 calcCurrentEpoch: jest.fn().mockReturnValue(2),
             },

@@ -1,3 +1,4 @@
+import { wrapper } from '@/utils/test-helpers/wrapper'
 import { render, screen } from '@testing-library/react'
 import { useAdjudicate } from '../../hooks/useAdjudicate/useAdjudicate'
 import Adjudicate from './Adjudicate'
@@ -18,62 +19,66 @@ describe('Adjudicate', () => {
 
     it('should render nothing if reportData is not provided', () => {
         mockUseAdjudicate.mockReturnValue({
-            mutate: jest.fn(),
+            isIdle: true,
             isPending: false,
             isSuccess: false,
             isError: false,
             reset: jest.fn(),
+            mutate: jest.fn(),
         })
-        const { container } = render(<Adjudicate />)
+        const { container } = render(<Adjudicate />, { wrapper })
         expect(container).toBeEmptyDOMElement()
     })
 
     it('should render AdjudicateDialog when open is true', () => {
         mockUseAdjudicate.mockReturnValue({
-            mutate: jest.fn(),
+            isIdle: true,
             isPending: false,
             isSuccess: false,
             isError: false,
             reset: jest.fn(),
+            mutate: jest.fn(),
         })
-        render(<Adjudicate reportData={reportData} open />)
+        render(<Adjudicate reportData={reportData} open />, { wrapper })
         expect(screen.getByText(/^檢舉案件$/)).toBeInTheDocument()
         expect(screen.getByText(/^由你來評判$/)).toBeInTheDocument()
     })
 
     it('should render AdjudicatePending when isPending is true', () => {
         mockUseAdjudicate.mockReturnValue({
-            mutate: jest.fn(),
+            isIdle: false,
             isPending: true,
             isSuccess: false,
             isError: false,
             reset: jest.fn(),
+            mutate: jest.fn(),
         })
-        render(<Adjudicate reportData={reportData} />)
-        expect(screen.getByText(/您的檢舉評判正在送出中/)).toBeInTheDocument()
+        render(<Adjudicate reportData={reportData} />, { wrapper })
+        expect(screen.getByText(/感謝您協助參與檢舉評判！/)).toBeInTheDocument()
     })
 
-    it('should render AdjudicateSuccess when isSuccess is true', () => {
+    it('should render AdjudicatePending when isSuccess is true', () => {
         mockUseAdjudicate.mockReturnValue({
-            mutate: jest.fn(),
+            isIdle: false,
             isPending: false,
             isSuccess: true,
             isError: false,
             reset: jest.fn(),
+            mutate: jest.fn(),
         })
-        render(<Adjudicate reportData={reportData} />)
+        render(<Adjudicate reportData={reportData} />, { wrapper })
         expect(screen.getByText(/感謝您協助參與檢舉評判！/)).toBeInTheDocument()
     })
 
     it('should render AdjudicateFailure when isError is true', () => {
         mockUseAdjudicate.mockReturnValue({
-            mutate: jest.fn(),
             isPending: false,
             isSuccess: false,
             isError: true,
             reset: jest.fn(),
+            mutate: jest.fn(),
         })
-        render(<Adjudicate reportData={reportData} />)
+        render(<Adjudicate reportData={reportData} />, { wrapper })
         expect(screen.getByText(/請您再次嘗試評判檢舉案件/)).toBeInTheDocument()
     })
 })
