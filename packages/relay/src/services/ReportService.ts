@@ -40,6 +40,7 @@ import {
     ReportNonNullifierProof,
     ReportNullifierProof,
 } from '../../../circuits/src'
+import { REPORT_SETTLE_VOTE_THRESHOLD } from '../config'
 
 export class ReportService {
     async verifyReportData(
@@ -216,6 +217,15 @@ export class ReportService {
                 adjudicateCount,
             },
         })
+
+        // check REPORT_SETTLE_VOTE_THRESHOLD and update status
+        if (adjudicateCount >= REPORT_SETTLE_VOTE_THRESHOLD) {
+            const status = ReportStatus.WAITING_FOR_TRANSACTION
+            await db.update('ReportHistory', {
+                where: { reportId },
+                update: { status },
+            })
+        }
     }
 
     upsertAdjudicatorsNullifier(
