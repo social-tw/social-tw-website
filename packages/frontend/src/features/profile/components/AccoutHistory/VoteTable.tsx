@@ -58,7 +58,7 @@ function parseVoteHistoryToBodyData(
         return [
             {
                 type: BodyCellType.Text,
-                content: formatVoteDate(item.publishedAt),
+                content: formatVoteDate(Number(item.publishedAt)),
             },
             { type: BodyCellType.Img, src: imgSrc, alt: imgAlt },
             { type: BodyCellType.Text, content: item.epochKey },
@@ -71,7 +71,7 @@ function parseVoteHistoryToBodyData(
     })
 }
 
-function formatVoteDate(date: string) {
+function formatVoteDate(date: number) {
     return dayjs(date).format('YYYY/MM/DD')
 }
 

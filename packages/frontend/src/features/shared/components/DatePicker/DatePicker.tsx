@@ -29,6 +29,7 @@ export default function DatePicker({
                 }`}
             />
             <DatePickerLib
+                dateFormat="yyyy/MM/dd"
                 selected={startDate}
                 onChange={onChange}
                 startDate={startDate}

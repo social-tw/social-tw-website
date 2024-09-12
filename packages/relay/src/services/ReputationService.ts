@@ -17,6 +17,9 @@ export class ReputationService {
             orderBy: {
                 epoch: 'desc',
             },
+            include: {
+                report: true,
+            },
         })
 
         return reputations
