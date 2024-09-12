@@ -1,31 +1,46 @@
-import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import { MutationKeys } from '@/constants/queryKeys'
 import {
+    ActionType,
+    addAction,
+    failActionById,
     ReportService,
+    succeedActionById,
     useUserState,
     useUserStateTransition,
 } from '@/features/core'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { AdjudicateFormValues } from '../../components/Adjudicate/AdjudicateForm'
 
 export function useAdjudicate() {
-    const { getGuaranteedUserState } = useUserState()
+    const { userState } = useUserState()
 
     const { stateTransition } = useUserStateTransition()
-
-    const queryClient = useQueryClient()
 
     return useMutation({
         mutationKey: [MutationKeys.Adjudicate],
         mutationFn: async (values: AdjudicateFormValues) => {
+            if (!userState) {
+                return
+            }
+
             await stateTransition()
-            const userState = await getGuaranteedUserState()
+
             const reportService = new ReportService(userState)
-            return reportService.adjudicateReport(values)
+            await reportService.adjudicateReport(values)
         },
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: [QueryKeys.PendingReports],
-            })
+        onMutate: async (variables) => {
+            const actionId = addAction(ActionType.Adjudicate, variables)
+            return { actionId }
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.actionId) {
+                failActionById(context.actionId)
+            }
+        },
+        onSuccess: async (_data, _variables, context) => {
+            if (context?.actionId) {
+                succeedActionById(context.actionId)
+            }
         },
     })
 }
