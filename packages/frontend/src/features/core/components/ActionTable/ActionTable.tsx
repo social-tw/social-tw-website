@@ -2,6 +2,7 @@ import {
     actionsSelector,
     ActionStatus,
     ActionType,
+    getActionMessage,
     useActionStore,
     type Action,
 } from '@/features/core'
@@ -13,18 +14,6 @@ import {
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { Link, useNavigate } from 'react-router-dom'
-
-function getActionTypeLabel(type: ActionType) {
-    const typeLabels = {
-        [ActionType.Post]: '貼文',
-        [ActionType.Comment]: '留言',
-        [ActionType.DeleteComment]: '刪除留言',
-        [ActionType.ReportPost]: '檢舉貼文',
-        [ActionType.ReportComment]: '檢舉留言',
-        [ActionType.CheckIn]: '每日簽到',
-    }
-    return typeLabels[type]
-}
 
 function getActionLink(action: Action) {
     if (action.type === ActionType.Post) {
@@ -68,7 +57,8 @@ function ActionLink({
 
     if (
         action.type === ActionType.ReportComment ||
-        action.type === ActionType.ReportPost
+        action.type === ActionType.ReportPost ||
+        action.type === ActionType.Adjudicate
     ) {
         return <span className="text-white">-</span>
     }
@@ -103,7 +93,7 @@ const columns = (onClose: () => void) => [
     }),
     columnHelper.accessor('type', {
         header: 'Action',
-        cell: (info) => getActionTypeLabel(info.getValue()),
+        cell: (info) => getActionMessage(info.getValue()),
     }),
     columnHelper.accessor('status', {
         header: 'Status',

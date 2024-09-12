@@ -1,9 +1,8 @@
 import { useAdjudicate } from '../../hooks/useAdjudicate/useAdjudicate'
 import AdjudicateDialog from './AdjudicateDialog'
 import AdjudicateFailure from './AdjudicateFailure'
-import { ReportData } from './AdjudicateForm'
+import { type ReportData } from './AdjudicateForm'
 import AdjudicatePending from './AdjudicatePending'
-import AdjudicateSuccess from './AdjudicateSuccess'
 
 export default function Adjudicate({
     reportData,
@@ -14,9 +13,15 @@ export default function Adjudicate({
     open?: boolean
     onClose?: () => void
 }) {
-    const close = onClose
+    const isOpen = open
 
-    const { isPending, isSuccess, isError, reset, mutate } = useAdjudicate()
+    const { isIdle, isPending, isSuccess, isError, reset, mutate } =
+        useAdjudicate()
+
+    const close = () => {
+        reset()
+        onClose()
+    }
 
     if (!reportData) {
         return null
@@ -26,16 +31,12 @@ export default function Adjudicate({
         <>
             <AdjudicateDialog
                 reportData={reportData}
-                open={open}
+                open={isOpen && isIdle}
                 onClose={close}
-                onSubmit={(values) => {
-                    mutate(values)
-                    close()
-                }}
+                onSubmit={(values) => mutate(values)}
             />
-            <AdjudicatePending open={isPending} onClose={reset} />
-            <AdjudicateSuccess open={isSuccess} onClose={reset} />
-            <AdjudicateFailure open={isError} onClose={reset} />
+            <AdjudicatePending open={isPending || isSuccess} onClose={close} />
+            <AdjudicateFailure open={isError} onClose={close} />
         </>
     )
 }

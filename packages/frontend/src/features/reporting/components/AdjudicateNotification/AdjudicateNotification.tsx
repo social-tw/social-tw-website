@@ -10,7 +10,7 @@ import AdjudicateButton from './AdjudicateButton'
 function useActiveAdjudication() {
     const { userState } = useUserState()
 
-    const { data: reports } = usePendingReports()
+    const { data: reports, refetch } = usePendingReports()
 
     const activeReport = useMemo(() => {
         if (!reports || !userState) {
@@ -54,7 +54,7 @@ function useActiveAdjudication() {
         return waitingForAdjudicationReports[0]
     }, [reports, userState])
 
-    return useMemo(() => {
+    const reportData = useMemo(() => {
         if (!activeReport) {
             return null
         }
@@ -66,12 +66,22 @@ function useActiveAdjudication() {
             content: activeReport.object.content,
         }
     }, [activeReport])
+
+    return {
+        data: reportData,
+        refetch,
+    }
 }
 
 export default function AdjudicationNotification() {
-    const activeAdjudication = useActiveAdjudication()
+    const { data: activeAdjudication, refetch } = useActiveAdjudication()
 
     const [open, toggle] = useToggle(false)
+
+    const onClose = () => {
+        refetch()
+        toggle(false)
+    }
 
     if (!activeAdjudication) {
         return null
@@ -83,7 +93,7 @@ export default function AdjudicationNotification() {
             <Adjudicate
                 reportData={activeAdjudication}
                 open={open}
-                onClose={() => toggle(false)}
+                onClose={onClose}
             />
         </div>
     )

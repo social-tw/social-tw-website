@@ -1,3 +1,4 @@
+import { AdjudicateValue } from '@/constants/report'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
@@ -10,6 +11,7 @@ export enum ActionType {
     ReportPost = 'reportPost',
     ReportComment = 'reportComment',
     CheckIn = 'checkIn',
+    Adjudicate = 'adjudicate',
 }
 
 export enum ActionStatus {
@@ -52,6 +54,11 @@ export interface ReportCommentData {
     epochKey?: string
 }
 
+export interface AdjudicateData {
+    reportId: string
+    adjudicateValue: AdjudicateValue
+}
+
 export interface BaseAction<Type, Data> {
     id: string
     type: Type
@@ -67,6 +74,7 @@ export type Action =
     | BaseAction<ActionType.ReportPost, ReportPostData>
     | BaseAction<ActionType.ReportComment, ReportCommentData>
     | BaseAction<ActionType.CheckIn, undefined>
+    | BaseAction<ActionType.Adjudicate, AdjudicateData>
 
 export interface ActionState {
     entities: Record<string, Action>
@@ -158,34 +166,22 @@ export function countByTimeRangeSelector(startTime: number, endTime: number) {
     }
 }
 
-export function createAction(
-    type: ActionType,
-    data:
-        | PostData
-        | CommentData
-        | DeleteCommentData
-        | ReportPostData
-        | ReportCommentData
-        | undefined,
-): Action {
+export function createAction<NewAction extends Action>(
+    type: NewAction['type'],
+    data: NewAction['data'],
+): NewAction {
     return {
         id: nanoid(),
         type,
         status: ActionStatus.Pending,
         submittedAt: new Date(),
         data,
-    } as Action
+    } as NewAction
 }
 
-export function addAction(
-    type: ActionType,
-    data:
-        | PostData
-        | CommentData
-        | DeleteCommentData
-        | ReportPostData
-        | ReportCommentData
-        | undefined,
+export function addAction<NewAction extends Action>(
+    type: NewAction['type'],
+    data: NewAction['data'],
 ) {
     const action = createAction(type, data)
     useActionStore.setState((state) => {
@@ -247,4 +243,30 @@ export function removeActionByCommentId(commentId: string) {
 
     if (!action) return
     removeActionById(action.id)
+}
+
+export function getActionMessage(type: ActionType) {
+    const messages = {
+        [ActionType.Post]: '貼文存取',
+        [ActionType.Comment]: '留言存取',
+        [ActionType.DeleteComment]: '刪除留言',
+        [ActionType.ReportPost]: '檢舉貼文',
+        [ActionType.ReportComment]: '檢舉留言',
+        [ActionType.CheckIn]: '每日簽到',
+        [ActionType.Adjudicate]: '檢舉仲裁',
+    }
+    return messages[type]
+}
+
+export function getActionSubject(type: ActionType) {
+    const subjects = {
+        [ActionType.Post]: '貼文',
+        [ActionType.Comment]: '留言',
+        [ActionType.DeleteComment]: '留言',
+        [ActionType.ReportPost]: '檢舉',
+        [ActionType.ReportComment]: '檢舉',
+        [ActionType.CheckIn]: '簽到',
+        [ActionType.Adjudicate]: '仲裁',
+    }
+    return subjects[type]
 }
