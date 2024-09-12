@@ -47,7 +47,7 @@ export function useBackgroundReputationClaim() {
                         reportId: report.reportId,
                         reportedEpochKey: BigInt(report.respondentEpochKey),
                         reportedEpoch: report.object.epoch,
-                        repUserType: RepUserType.POSTER,
+                        repUserType: RepUserType.RESPONDENT,
                     })
                 }
             } else if (

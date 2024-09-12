@@ -16,8 +16,8 @@ export interface RelayRawReportCategory {
 
 export enum RepUserType {
     REPORTER,
-    POSTER,
-    VOTER,
+    RESPONDENT,
+    ADJUDICATOR,
 }
 
 export enum ReputationType {

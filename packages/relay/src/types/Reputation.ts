@@ -31,14 +31,14 @@ export enum ClaimHelpers {
 // Reputation change amount
 export enum RepChangeType {
     REPORTER_REP = 3,
-    POSTER_REP = 5,
+    RESPONDENT_REP = 5,
     FAILED_REPORTER_REP = 1,
-    VOTER_REP = 1,
+    ADJUDICATOR_REP = 1,
 }
 
 // Reputation user type
 export enum RepUserType {
     REPORTER,
-    VOTER,
-    POSTER,
+    RESPONDENT,
+    ADJUDICATOR,
 }

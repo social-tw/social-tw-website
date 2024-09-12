@@ -30,7 +30,7 @@ export function useReportAdjudicatorReputation() {
             )
             const result = await relayClaimReputation(
                 reportId,
-                RepUserType.VOTER,
+                RepUserType.ADJUDICATOR,
                 publicSignals,
                 proof,
             )
