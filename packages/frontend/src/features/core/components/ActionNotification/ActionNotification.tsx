@@ -4,6 +4,8 @@ import {
     ActionStatus,
     ActionTable,
     ActionType,
+    getActionMessage,
+    getActionSubject,
     latestActionSelector,
     pendingCountSelector,
     useActionStore,
@@ -12,30 +14,6 @@ import {
 import { Dialog } from '@headlessui/react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-
-function getActionMessage(type: ActionType) {
-    const messages = {
-        [ActionType.Post]: '貼文存取',
-        [ActionType.Comment]: '留言存取',
-        [ActionType.DeleteComment]: '刪除留言',
-        [ActionType.ReportPost]: '檢舉貼文',
-        [ActionType.ReportComment]: '檢舉留言',
-        [ActionType.CheckIn]: '每日簽到',
-    }
-    return messages[type]
-}
-
-function getActionSubject(type: ActionType) {
-    const subjects = {
-        [ActionType.Post]: '貼文',
-        [ActionType.Comment]: '留言',
-        [ActionType.DeleteComment]: '留言',
-        [ActionType.ReportPost]: '檢舉',
-        [ActionType.ReportComment]: '檢舉',
-        [ActionType.CheckIn]: '簽到',
-    }
-    return subjects[type]
-}
 
 function getActionLink(action: Action) {
     if (action.type === ActionType.Post) {
