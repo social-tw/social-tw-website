@@ -62,7 +62,7 @@ describe('Adjudicate', () => {
             isError: false,
             reset: jest.fn(),
         })
-        render(<Adjudicate reportData={reportData} />, { wrapper})
+        render(<Adjudicate reportData={reportData} />, { wrapper })
         expect(screen.getByText(/感謝您協助參與檢舉評判！/)).toBeInTheDocument()
     })
 
