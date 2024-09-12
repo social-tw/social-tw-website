@@ -1,5 +1,10 @@
 import { DB } from 'anondb'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
+import {
+    ReportNonNullifierProof,
+    ReportNullifierProof,
+} from '../../../circuits/src'
+import { REPORT_SETTLE_VOTE_THRESHOLD } from '../config'
 import { commentService } from '../services/CommentService'
 import { postService } from '../services/PostService'
 import {
@@ -25,9 +30,6 @@ import {
 } from '../types'
 import { CommentStatus } from '../types/Comment'
 import { PostStatus } from '../types/Post'
-import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import ProofHelper from './utils/ProofHelper'
-import Validator from './utils/Validator'
 import {
     ClaimHelpers,
     ClaimMethods,
@@ -35,12 +37,10 @@ import {
     RepUserType,
     ReputationType,
 } from '../types/Reputation'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
-import {
-    ReportNonNullifierProof,
-    ReportNullifierProof,
-} from '../../../circuits/src'
-import { REPORT_SETTLE_VOTE_THRESHOLD } from '../config'
+import Validator from './utils/Validator'
 
 export class ReportService {
     async verifyReportData(
@@ -340,13 +340,13 @@ export class ReportService {
         repUserType: RepUserType
     ): ReputationType {
         switch (repUserType) {
-            case RepUserType.VOTER:
+            case RepUserType.ADJUDICATOR:
                 return ReputationType.ADJUDICATE
             case RepUserType.REPORTER:
                 return isPassed
                     ? ReputationType.REPORT_SUCCESS
                     : ReputationType.REPORT_FAILURE
-            case RepUserType.POSTER:
+            case RepUserType.RESPONDENT:
                 return ReputationType.BE_REPORTED
             default:
                 throw InvalidRepUserTypeError
@@ -356,9 +356,9 @@ export class ReportService {
     getClaimHelper(repUserType: RepUserType): ClaimHelpers {
         switch (repUserType) {
             case RepUserType.REPORTER:
-            case RepUserType.POSTER:
+            case RepUserType.RESPONDENT:
                 return ClaimHelpers.ReportNonNullifierVHelper
-            case RepUserType.VOTER:
+            case RepUserType.ADJUDICATOR:
                 return ClaimHelpers.ReportNullifierVHelper
             default:
                 throw InvalidRepUserTypeError
@@ -435,7 +435,7 @@ export class ReportService {
 
     getClaimMethod(repUserType: RepUserType, isPassed: boolean): ClaimMethods {
         switch (repUserType) {
-            case RepUserType.POSTER:
+            case RepUserType.RESPONDENT:
                 if (isPassed) {
                     return ClaimMethods.CLAIM_NEGATIVE_REP
                 } else {
@@ -447,7 +447,7 @@ export class ReportService {
                 return isPassed
                     ? ClaimMethods.CLAIM_POSITIVE_REP
                     : ClaimMethods.CLAIM_NEGATIVE_REP
-            case RepUserType.VOTER:
+            case RepUserType.ADJUDICATOR:
                 return ClaimMethods.CLAIM_POSITIVE_REP
             default:
                 throw InvalidRepUserTypeError
@@ -460,10 +460,10 @@ export class ReportService {
                 return isPassed
                     ? RepChangeType.REPORTER_REP
                     : RepChangeType.FAILED_REPORTER_REP
-            case RepUserType.VOTER:
-                return RepChangeType.VOTER_REP
-            case RepUserType.POSTER:
-                return RepChangeType.POSTER_REP
+            case RepUserType.ADJUDICATOR:
+                return RepChangeType.ADJUDICATOR_REP
+            case RepUserType.RESPONDENT:
+                return RepChangeType.RESPONDENT_REP
             default:
                 throw InvalidRepUserTypeError
         }
@@ -510,10 +510,10 @@ export class ReportService {
             case RepUserType.REPORTER:
                 updates.reportorClaimedRep = true
                 break
-            case RepUserType.POSTER:
+            case RepUserType.RESPONDENT:
                 updates.respondentClaimedRep = true
                 break
-            case RepUserType.VOTER:
+            case RepUserType.ADJUDICATOR:
                 if (!report.adjudicatorsNullifier) {
                     throw new Error('No adjudicators found for this report')
                 }
@@ -582,10 +582,10 @@ export class ReportService {
         repUserType: RepUserType,
         reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
-        if (repUserType === RepUserType.VOTER) {
+        if (repUserType === RepUserType.ADJUDICATOR) {
             this.checkAdjudicatorNullifier(report, reportProof)
             this.checkAdjudicatorIsClaimed(report, reportProof)
-        } else if (repUserType === RepUserType.POSTER) {
+        } else if (repUserType === RepUserType.RESPONDENT) {
             this.checkRespondentEpochKey(report, reportProof)
             this.checkRespondentIsClaimed(report)
         } else if (repUserType === RepUserType.REPORTER) {
@@ -602,7 +602,7 @@ export class ReportService {
         repUserType: RepUserType
     ) {
         let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
-        if (repUserType === RepUserType.VOTER) {
+        if (repUserType === RepUserType.ADJUDICATOR) {
             const reportNullifierProof = new ReportNullifierProof(
                 claimSignals,
                 claimProof
@@ -628,7 +628,7 @@ export class ReportService {
         repUserType: RepUserType,
         synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportNullifierProof | ReportNonNullifierProof> {
-        if (repUserType === RepUserType.VOTER) {
+        if (repUserType === RepUserType.ADJUDICATOR) {
             return new ReportNullifierProof(
                 claimSignals,
                 claimProof,

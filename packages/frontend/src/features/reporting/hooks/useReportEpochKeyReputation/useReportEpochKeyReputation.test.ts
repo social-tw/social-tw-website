@@ -65,7 +65,7 @@ describe('useReportEpochKeyReputation', () => {
                 reportId: '1',
                 reportedEpochKey: BigInt('1'),
                 reportedEpoch: 1,
-                repUserType: RepUserType.POSTER,
+                repUserType: RepUserType.RESPONDENT,
             })
         })
 

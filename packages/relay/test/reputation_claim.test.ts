@@ -6,37 +6,37 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import {
+    AdjudicateValue,
+    Adjudicator,
+    ReportHistory,
     ReportStatus,
     ReportType,
-    AdjudicateValue,
-    ReportHistory,
-    Adjudicator,
 } from '../src/types'
 import { deployContracts, startServer, stopServer } from './environment'
 import { signUp } from './utils/signup'
 
 // Import from contracts package
+import { EpochKeyLiteProof } from '@unirep/circuits'
+import {
+    ReportNonNullifierProof,
+    ReportNullifierProof,
+} from '../../circuits/src'
+import { UnirepSocialCircuit } from '../../circuits/src/types'
+import { genNullifier } from '../../circuits/test/utils'
 import {
     flattenProof,
     genProofAndVerify,
     genReportNonNullifierCircuitInput,
     genReportNullifierCircuitInput,
 } from '../../contracts/test/utils'
-import { EpochKeyLiteProof } from '@unirep/circuits'
-import { genReportNullifier } from '../test/utils/genNullifier'
 import {
     RepChangeType,
     RepUserType,
     ReputationType,
 } from '../src/types/Reputation'
-import { createRandomUserIdentity } from './utils/userHelper'
+import { genReportNullifier } from '../test/utils/genNullifier'
 import { IdentityObject } from './utils/types'
-import { UnirepSocialCircuit } from '../../circuits/src/types'
-import {
-    ReportNonNullifierProof,
-    ReportNullifierProof,
-} from '../../circuits/src'
-import { genNullifier } from '../../circuits/test/utils'
+import { createRandomUserIdentity } from './utils/userHelper'
 
 describe('Reputation Claim', function () {
     this.timeout(1000000)
@@ -554,7 +554,7 @@ describe('Reputation Claim', function () {
                     reportId: reportId,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
-                    repUserType: RepUserType.POSTER,
+                    repUserType: RepUserType.RESPONDENT,
                 })
             )
 
@@ -573,7 +573,7 @@ describe('Reputation Claim', function () {
             .that.equals(ReputationType.BE_REPORTED)
         expect(message)
             .to.have.property('score')
-            .that.equals(RepChangeType.POSTER_REP)
+            .that.equals(RepChangeType.RESPONDENT_REP)
 
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -592,7 +592,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory.epochKey).to.equal(
             reportNonNullifierProof.currentEpochKey.toString()
         )
-        expect(reputationHistory.score).to.equal(RepChangeType.POSTER_REP)
+        expect(reputationHistory.score).to.equal(RepChangeType.RESPONDENT_REP)
         expect(reputationHistory.type).to.equal(ReputationType.BE_REPORTED)
         expect(reputationHistory.reportId).to.equal(reportId)
     })
@@ -637,7 +637,7 @@ describe('Reputation Claim', function () {
                     reportId: reportId,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
-                    repUserType: RepUserType.VOTER,
+                    repUserType: RepUserType.ADJUDICATOR,
                 })
             )
 
@@ -656,7 +656,7 @@ describe('Reputation Claim', function () {
             .that.equals(ReputationType.ADJUDICATE)
         expect(message)
             .to.have.property('score')
-            .that.equals(RepChangeType.VOTER_REP)
+            .that.equals(RepChangeType.ADJUDICATOR_REP)
 
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -675,7 +675,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory.epochKey).to.equal(
             reportNullifierProof.currentEpochKey.toString()
         )
-        expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
+        expect(reputationHistory.score).to.equal(RepChangeType.ADJUDICATOR_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
         expect(reputationHistory.reportId).to.equal(reportId)
     })
@@ -754,7 +754,7 @@ describe('Reputation Claim', function () {
                     reportId: reportId,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
-                    repUserType: RepUserType.VOTER,
+                    repUserType: RepUserType.ADJUDICATOR,
                     nullifier1: reportNullifier.toString(),
                 })
             )
@@ -797,7 +797,7 @@ describe('Reputation Claim', function () {
                     reportId: reportId,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
-                    repUserType: RepUserType.POSTER,
+                    repUserType: RepUserType.RESPONDENT,
                 })
             )
 
@@ -843,7 +843,7 @@ describe('Reputation Claim', function () {
                     reportId: reportId,
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
-                    repUserType: RepUserType.VOTER,
+                    repUserType: RepUserType.ADJUDICATOR,
                 })
             )
 
@@ -862,7 +862,7 @@ describe('Reputation Claim', function () {
             .that.equals(ReputationType.ADJUDICATE)
         expect(message)
             .to.have.property('score')
-            .that.equals(RepChangeType.VOTER_REP)
+            .that.equals(RepChangeType.ADJUDICATOR_REP)
 
         const reputationHistory = await db.findOne('ReputationHistory', {
             where: {
@@ -874,7 +874,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory.epochKey).to.equal(
             reportNullifierProof.currentEpochKey.toString()
         )
-        expect(reputationHistory.score).to.equal(RepChangeType.VOTER_REP)
+        expect(reputationHistory.score).to.equal(RepChangeType.ADJUDICATOR_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
         expect(reputationHistory.reportId).to.equal(reportId)
     })
