@@ -18,11 +18,11 @@ export function useDatePicker() {
 
     // Calculate epochLength in milliseconds
     const epochLength = useMemo(() => {
-        return config ? config.EPOCH_LENGTH * 1000 : 0
+        return config?.EPOCH_LENGTH ? config.EPOCH_LENGTH * 1000 : undefined
     }, [config])
 
     const updateFromToEpoch = useCallback(async () => {
-        if (!userState || !config) {
+        if (!userState || !epochLength) {
             setFromToEpoch(new InvalidFromToEpoch())
             return
         }
@@ -34,7 +34,7 @@ export function useDatePicker() {
                 epochLength,
             ),
         )
-    }, [startDate, endDate, userState, config, epochLength])
+    }, [startDate, endDate, userState, epochLength])
 
     const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates
