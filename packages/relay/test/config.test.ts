@@ -56,9 +56,10 @@ describe('GET /api/config', function () {
         expect(res.body.APP_ADDRESS).to.equal(app.address)
         expect(res.body.ETH_PROVIDER_URL).to.equal(ETH_PROVIDER_URL)
 
-        const expectedEpochLength = await sync.unirepContract.attesterEpochLength(
-            BigInt(app.address).toString()
-        )
+        const expectedEpochLength =
+            await sync.unirepContract.attesterEpochLength(
+                BigInt(app.address).toString()
+            )
         expect(res.body.EPOCH_LENGTH).to.equal(expectedEpochLength)
     })
 

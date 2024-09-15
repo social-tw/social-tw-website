@@ -24,25 +24,45 @@ describe('EpochDateService', () => {
             // at service start & now
             const date0 = new Date('2024-07-11T00:00:00Z')
             expect(
-                EpochDateService.calcEpochByDate(mockNow, date0, synchronizer, epochLength),
+                EpochDateService.calcEpochByDate(
+                    mockNow,
+                    date0,
+                    synchronizer,
+                    epochLength,
+                ),
             ).toBe(0)
 
             // between service start & now
             const date1 = new Date('2024-07-11T00:15:00Z')
             expect(
-                EpochDateService.calcEpochByDate(mockNow, date1, synchronizer, epochLength),
+                EpochDateService.calcEpochByDate(
+                    mockNow,
+                    date1,
+                    synchronizer,
+                    epochLength,
+                ),
             ).toBe(3) // 724 * 300000 + 1720655850000
 
             // before service start
             const date2 = new Date('2024-07-10T23:59:00Z')
             expect(
-                EpochDateService.calcEpochByDate(mockNow, date2, synchronizer, epochLength),
+                EpochDateService.calcEpochByDate(
+                    mockNow,
+                    date2,
+                    synchronizer,
+                    epochLength,
+                ),
             ).toBe(0)
 
             // future
             const date3 = new Date('2024-07-17T00:00:00Z')
             expect(
-                EpochDateService.calcEpochByDate(mockNow, date3, synchronizer, epochLength),
+                EpochDateService.calcEpochByDate(
+                    mockNow,
+                    date3,
+                    synchronizer,
+                    epochLength,
+                ),
             ).toBe(1440 + 12 * 24)
         })
     })

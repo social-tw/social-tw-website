@@ -3,9 +3,12 @@ import { Express } from 'express'
 import { APP_ADDRESS, ETH_PROVIDER_URL, UNIREP_ADDRESS } from '../config'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 
-export default (app: Express, _: DB, synchronizer: UnirepSocialSynchronizer) => {
+export default (
+    app: Express,
+    _: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
     app.get('/api/config', async (_, res) => {
-        
         const epochLength =
             await synchronizer.unirepContract.attesterEpochLength(
                 BigInt(APP_ADDRESS).toString()

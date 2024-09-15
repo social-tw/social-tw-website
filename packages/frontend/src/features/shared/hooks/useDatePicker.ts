@@ -31,7 +31,7 @@ export function useDatePicker() {
                 startDate,
                 endDate,
                 userState.sync,
-                epochLength
+                epochLength,
             ),
         )
     }, [startDate, endDate, userState, config, epochLength])

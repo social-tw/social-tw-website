@@ -48,7 +48,11 @@ export function useEpoch() {
     })
 
     const isPending =
-        isUserStatePending || isCurrentEpochPending || isRemainingTimePending || isConfigPending || !epochLength
+        isUserStatePending ||
+        isCurrentEpochPending ||
+        isRemainingTimePending ||
+        isConfigPending ||
+        !epochLength
 
     const epochStartTime = useMemo(() => {
         if (
@@ -61,7 +65,7 @@ export function useEpoch() {
         }
         return Date.now() - (epochLength - remainingTime)
     }, [currentEpoch, remainingTime, epochLength])
-    
+
     const epochEndTime = useMemo(() => {
         if (
             isUndefined(currentEpoch) ||
@@ -93,7 +97,13 @@ export function useEpoch() {
         return () => {
             clearTimeout(timer)
         }
-    }, [currentEpoch, refetchCurrentEpoch, refetchRemainingTime, remainingTime, epochLength])
+    }, [
+        currentEpoch,
+        refetchCurrentEpoch,
+        refetchRemainingTime,
+        remainingTime,
+        epochLength,
+    ])
 
     return {
         isPending,
