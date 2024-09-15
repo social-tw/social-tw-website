@@ -1,14 +1,18 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { useUserState } from '@/features/core'
+import { useRelayConfig, useUserState } from '@/features/core'
 import { useQuery } from '@tanstack/react-query'
 import isNull from 'lodash/isNull'
 import isUndefined from 'lodash/isUndefined'
 import { useEffect, useMemo } from 'react'
 
-const epochLength = 300000 // 300000 ms
-
 export function useEpoch() {
     const { isPending: isUserStatePending, userState } = useUserState()
+    const { data: config, isPending: isConfigPending } = useRelayConfig()
+
+    // Convert EPOCH_LENGTH from seconds to milliseconds
+    const epochLength = useMemo(() => {
+        return config?.EPOCH_LENGTH ? config.EPOCH_LENGTH * 1000 : undefined
+    }, [config])
 
     const {
         isPending: isCurrentEpochPending,
@@ -23,6 +27,7 @@ export function useEpoch() {
             return userState.sync.calcCurrentEpoch()
         },
         staleTime: epochLength,
+        enabled: !!epochLength,
     })
 
     const {
@@ -39,22 +44,24 @@ export function useEpoch() {
             return time * 1000
         },
         staleTime: epochLength,
+        enabled: !!epochLength,
     })
 
     const isPending =
-        isUserStatePending || isCurrentEpochPending || isRemainingTimePending
+        isUserStatePending || isCurrentEpochPending || isRemainingTimePending || isConfigPending || !epochLength
 
     const epochStartTime = useMemo(() => {
         if (
             isUndefined(currentEpoch) ||
             isNull(currentEpoch) ||
-            !remainingTime
+            !remainingTime ||
+            !epochLength
         ) {
             return 0
         }
         return Date.now() - (epochLength - remainingTime)
-    }, [currentEpoch, remainingTime])
-
+    }, [currentEpoch, remainingTime, epochLength])
+    
     const epochEndTime = useMemo(() => {
         if (
             isUndefined(currentEpoch) ||
@@ -70,7 +77,8 @@ export function useEpoch() {
         if (
             isUndefined(currentEpoch) ||
             isNull(currentEpoch) ||
-            !remainingTime
+            !remainingTime ||
+            !epochLength
         ) {
             return
         }
@@ -85,7 +93,7 @@ export function useEpoch() {
         return () => {
             clearTimeout(timer)
         }
-    }, [currentEpoch, refetchCurrentEpoch, refetchRemainingTime, remainingTime])
+    }, [currentEpoch, refetchCurrentEpoch, refetchRemainingTime, remainingTime, epochLength])
 
     return {
         isPending,

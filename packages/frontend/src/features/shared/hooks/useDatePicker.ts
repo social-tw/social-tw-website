@@ -1,6 +1,6 @@
-import { useUserState } from '@/features/core'
+import { useRelayConfig, useUserState } from '@/features/core'
 import dayjs from 'dayjs'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import {
     EpochDateService,
     FromToEpoch,
@@ -9,14 +9,20 @@ import {
 
 export function useDatePicker() {
     const { userState } = useUserState()
+    const { data: config } = useRelayConfig()
     const [startDate, setStartDate] = useState<undefined | Date>(undefined)
     const [endDate, setEndDate] = useState<undefined | Date>(undefined)
     const [fromToEpoch, setFromToEpoch] = useState<FromToEpoch>(
         new InvalidFromToEpoch(),
     )
 
+    // Calculate epochLength in milliseconds
+    const epochLength = useMemo(() => {
+        return config ? config.EPOCH_LENGTH * 1000 : 0
+    }, [config])
+
     const updateFromToEpoch = useCallback(async () => {
-        if (!userState) {
+        if (!userState || !config) {
             setFromToEpoch(new InvalidFromToEpoch())
             return
         }
@@ -25,9 +31,10 @@ export function useDatePicker() {
                 startDate,
                 endDate,
                 userState.sync,
+                epochLength
             ),
         )
-    }, [startDate, endDate, userState])
+    }, [startDate, endDate, userState, config, epochLength])
 
     const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates
