@@ -31,6 +31,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
             },
         },
         getGuaranteedUserState: () => ({
+            getData: () => [BigInt(2), BigInt(1), BigInt(0), BigInt(0)],
             waitForSync: jest.fn(),
             latestTransitionedEpoch: jest.fn().mockResolvedValue(1),
             genEpochKeyProof: jest.fn().mockResolvedValue({

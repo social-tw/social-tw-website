@@ -46,14 +46,15 @@ export class RelayApiService {
 
                 const reputation = data[0] - data[1]
 
-                const { publicSignals, proof } = reputation < 0 
-                    ? await userState.genProveReputationProof({
-                        maxRep: 1,
-                    })
-                    : await userState.genProveReputationProof({
-                        minRep: 0,
-                    })
-        
+                const { publicSignals, proof } =
+                    reputation < 0
+                        ? await userState.genProveReputationProof({
+                              maxRep: 1,
+                          })
+                        : await userState.genProveReputationProof({
+                              minRep: 0,
+                          })
+
                 const token = btoa(
                     JSON.stringify(stringifyBigInts({ publicSignals, proof })),
                 )
