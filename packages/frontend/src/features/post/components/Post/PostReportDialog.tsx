@@ -1,5 +1,4 @@
 import { Dialog } from '@/features/shared'
-import { ReportCategory } from '@/types/Report'
 import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
@@ -56,7 +55,7 @@ export function PostReportDialog({
         try {
             await reportPost({
                 postId,
-                category: data[`${REGISTER_ID_REASON}`] as ReportCategory,
+                category: data[`${REGISTER_ID_REASON}`],
                 reason: data[`${REGISTER_ID_DESC}`],
             })
         } catch (error) {}

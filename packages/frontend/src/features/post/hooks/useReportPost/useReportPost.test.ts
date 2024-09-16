@@ -1,5 +1,4 @@
 import { SERVER } from '@/constants/config'
-import { ReportCategory } from '@/types/Report'
 import { wrapper } from '@/utils/test-helpers/wrapper'
 import { renderHook, waitFor } from '@testing-library/react'
 import nock from 'nock'
@@ -69,7 +68,7 @@ describe('useReportPost', () => {
 
         const { result } = renderHook(useReportPost, { wrapper })
         let mockPostId = 'mocked_postId'
-        let mockCategory = ReportCategory.ATTACK
+        let mockCategory = 1
         let mockReason = 'mocked_reason'
         await result.current.reportPost({
             postId: mockPostId,

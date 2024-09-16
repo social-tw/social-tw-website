@@ -10,7 +10,7 @@ import {
     useUserState,
     useUserStateTransition,
 } from '@/features/core'
-import { ReportCategory, ReportType } from '@/types/Report'
+import { ReportType } from '@/types/Report'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -37,7 +37,7 @@ export function useReportComment() {
         }: {
             postId: string
             commentId: string
-            category: ReportCategory
+            category: number
             reason: string
         }) => {
             const userState = await getGuaranteedUserState()

@@ -14,8 +14,8 @@ export default (
     app.get(
         '/api/reputation/history',
         errorHandler(async (req: Request, res: Response) => {
-            const fromEpoch = Number(req.query.fromEpoch)
-            const toEpoch = Number(req.query.toEpoch)
+            const fromEpoch = Number(req.query.from_epoch)
+            const toEpoch = Number(req.query.to_epoch)
 
             if (
                 !Validator.isValidNumber(fromEpoch) ||
