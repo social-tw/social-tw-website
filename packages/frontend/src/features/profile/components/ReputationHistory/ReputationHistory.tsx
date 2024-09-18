@@ -1,3 +1,4 @@
+import { useUserState } from '@/features/core'
 import {
     BodyCellType,
     TableBody,
@@ -9,9 +10,12 @@ import {
 import { useDatePicker } from '@/features/shared/hooks/useDatePicker'
 import { FromToEpoch } from '@/features/shared/services/EpochDateService'
 import { FetchReputationHistoryResponse } from '@/types/api'
+import { ReputationType } from '@/types/Report'
+import { formatDateByEpoch } from '@/utils/helpers/formatDateByEpoch'
+import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import { useReputationHistory } from '../../hooks/useReputationHistory/useReputationHistory'
+import { useMyReputationHistory } from '../../hooks/useMyReputationHistory/useMyReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
 import { SearchDayLimitDialog } from './SearchDayLimitDialog'
 
@@ -62,10 +66,10 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 function ReputationTable({ fromToEpoch }: ReputationTableProps) {
-    const { isFetching, isFetched, data } = useReputationHistory(fromToEpoch)
-    console.log(data)
+    const { userState } = useUserState()
+    const { isFetching, isFetched, data } = useMyReputationHistory(fromToEpoch)
     const headerData = getHeaderData()
-    const bodyData = parseReputationHistoryToBodyData(data || [])
+    const bodyData = parseReputationHistoryToBodyData(data || [], userState)
 
     if (!isFetched) {
         return <div className="min-h-[300px]" />
@@ -95,16 +99,20 @@ function getHeaderData(): HeaderCellData[] {
 
 function parseReputationHistoryToBodyData(
     reputationHistoryData: FetchReputationHistoryResponse,
+    userState?: UserState | null | undefined,
 ): BodyCellData[][] {
     return reputationHistoryData.map((v) => {
         return [
             {
                 type: BodyCellType.Text,
-                content: formatVoteDate(Number(v.report.reportAt)),
+                content: userState ? formatDateByEpoch(userState, v.epoch) : '',
             },
             { type: BodyCellType.Text, content: getReputationTypeText(v.type) },
-            { type: BodyCellType.Text, content: v.report.reportorEpochKey },
-            { type: BodyCellType.Text, content: String(v.score) },
+            { type: BodyCellType.Text, content: v.epochKey },
+            {
+                type: BodyCellType.Text,
+                content: formatReputationScore(v.type, v.score),
+            },
         ]
     })
 }
@@ -117,23 +125,42 @@ function isWithin30Days(startDate: Date | null, endDate: Date | null) {
     return daysDifference <= 30
 }
 
-function formatVoteDate(date: number) {
-    return dayjs(date).format('YYYY/MM/DD')
+function getReputationTypeText(type: ReputationType) {
+    switch (type) {
+        case ReputationType.REPORT_SUCCESS: {
+            return '檢舉成功'
+        }
+        case ReputationType.REPORT_FAILURE: {
+            return '檢舉失敗'
+        }
+        case ReputationType.BE_REPORTED: {
+            return '被檢舉成功'
+        }
+        case ReputationType.ADJUDICATE: {
+            return '協助檢舉判定'
+        }
+        case ReputationType.CHECK_IN: {
+            return '登入'
+        }
+        default: {
+            return ''
+        }
+    }
 }
 
-function getReputationTypeText(type: number) {
+function formatReputationScore(type: ReputationType, score: number) {
     switch (type) {
-        case 0:
-            return '檢舉成功'
-        case 1:
-            return '檢舉失敗'
-        case 2:
-            return '被檢舉成功'
-        case 3:
-            return '協助檢舉判定'
-        case 4:
-            return '登入'
-        default:
-            return ''
+        case ReputationType.ADJUDICATE:
+        case ReputationType.REPORT_SUCCESS:
+        case ReputationType.CHECK_IN: {
+            return `+${score}`
+        }
+        case ReputationType.REPORT_FAILURE:
+        case ReputationType.BE_REPORTED: {
+            return `-${score}`
+        }
+        default: {
+            return `${score}`
+        }
     }
 }

@@ -1,12 +1,18 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { useUserState } from '@/features/core'
+import { useEpoch, useUserState } from '@/features/core'
 import { useQuery } from '@tanstack/react-query'
 
 export function useReputationScore() {
     const { userState } = useUserState()
 
+    const { currentEpoch } = useEpoch()
+
     const reputationScoreQuery = useQuery({
-        queryKey: [QueryKeys.ReputationScore, userState?.id.toString()],
+        queryKey: [
+            QueryKeys.ReputationScore,
+            userState?.id.toString(),
+            currentEpoch,
+        ],
         queryFn: async () => {
             if (!userState) {
                 return 0

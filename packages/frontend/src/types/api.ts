@@ -1,5 +1,6 @@
 import { RelayRawComment } from './Comments'
 import { RelayRawPost } from './Post'
+import { RelayRawReputationHistory } from './Report'
 import { RelayRawVote } from './Vote'
 
 export enum Directions {
@@ -11,15 +12,6 @@ export enum SortKeys {
     PublishedAt = 'publishedAt',
     VoteSum = 'voteSum',
 }
-
-export type FetchReputationHistoryResponse = {
-    score: number
-    type: number
-    report: {
-        reportorEpochKey: string
-        reportAt: string
-    }
-}[]
 
 export interface FetchRelayConfigResponse {
     UNIREP_ADDRESS: string
@@ -59,6 +51,8 @@ export type FetchVotesByEpochKeysResponse = RelayRawVote[]
 export interface FetchCounterResponse {
     counter: number
 }
+
+export type FetchReputationHistoryResponse = RelayRawReputationHistory[]
 
 export interface RelayUserStateTransitionResponse {
     txHash: string

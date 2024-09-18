@@ -1,19 +1,3 @@
-import { RelayRawComment } from '@/types/Comments'
-import { RelayRawPost } from '@/types/Post'
-import {
-    ReportCategory,
-    ReportStatus,
-    ReportType,
-    RepUserType,
-} from '@/types/Report'
-import { VoteAction } from '@/types/Vote'
-import {
-    EpochKeyLiteProof,
-    EpochKeyProof,
-    SignupProof,
-    UserStateTransitionProof,
-} from '@unirep/circuits'
-import { stringifyBigInts } from '@unirep/utils'
 import { SERVER } from '@/constants/config'
 import {
     Directions,
@@ -34,7 +18,22 @@ import {
     RelayUserStateTransitionResponse,
     SortKeys,
 } from '@/types/api'
-import { ReportHistory } from '@/features/reporting/utils/types'
+import { RelayRawComment } from '@/types/Comments'
+import { RelayRawPost } from '@/types/Post'
+import {
+    ReportHistory,
+    ReportStatus,
+    ReportType,
+    RepUserType,
+} from '@/types/Report'
+import { VoteAction } from '@/types/Vote'
+import {
+    EpochKeyLiteProof,
+    EpochKeyProof,
+    SignupProof,
+    UserStateTransitionProof,
+} from '@unirep/circuits'
+import { stringifyBigInts } from '@unirep/utils'
 
 export async function fetchReputationHistory(
     fromEpoch: number,
@@ -314,7 +313,7 @@ export async function relayReport({
     objectId: string
     reportorEpochKey: string
     reason: string
-    category: ReportCategory
+    category: number
     reportEpoch: number
 }) {
     const response = await fetch(`${SERVER}/api/report`, {

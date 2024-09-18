@@ -1,9 +1,8 @@
 import { RelayApiService, genReportIdentityProof } from '@/features/core'
-import { ReportHistory } from '@/features/reporting/utils/types'
 import { RelayCreateReportResponse } from '@/types/api'
 import {
     RelayRawReportCategory,
-    ReportCategory,
+    ReportHistory,
     ReportStatus,
     ReportType,
 } from '@/types/Report'
@@ -48,7 +47,7 @@ export class ReportService extends RelayApiService {
         type: ReportType
         objectId: string
         reason: string
-        category: ReportCategory
+        category: number
         identityNonce: number
     }) {
         const client = this.getAuthClient()

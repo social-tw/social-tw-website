@@ -3,4 +3,5 @@ export { default as ReputationHistory } from './components/ReputationHistory/Rep
 export { default as SearchByDate } from './components/SearchByDate/SearchByDate'
 export { useMyCommentHistory } from './hooks/useMyCommentHistory/useMyCommentHistory'
 export { useMyPostHistory } from './hooks/useMyPostHistory/useMyPostHistory'
+export { useMyReputationHistory } from './hooks/useMyReputationHistory/useMyReputationHistory'
 export { useMyVoteHistory } from './hooks/useMyVoteHistory/useMyVoteHistory'

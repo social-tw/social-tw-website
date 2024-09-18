@@ -1,5 +1,5 @@
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
-import { AdjudicateValue, ReportCategory } from '@/constants/report'
+import { AdjudicateValue } from '@/constants/report'
 import AdjudicateActions from './AdjudicateActions'
 import ReportContent from './ReportContent'
 import ReportReason from './ReportReason'
@@ -7,7 +7,7 @@ import ReportReason from './ReportReason'
 export interface ReportData {
     id: string
     content: string
-    category: ReportCategory
+    category: number
     reason: string
 }
 

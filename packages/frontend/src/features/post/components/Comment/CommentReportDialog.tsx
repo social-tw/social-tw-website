@@ -1,5 +1,4 @@
 import { Dialog } from '@/features/shared'
-import { ReportCategory } from '@/types/Report'
 import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
 import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import {
@@ -59,7 +58,7 @@ export function CommentReportDialog({
             await reportComment({
                 postId,
                 commentId,
-                category: data[`${REGISTER_ID_REASON}`] as ReportCategory,
+                category: data[`${REGISTER_ID_REASON}`],
                 reason: data[`${REGISTER_ID_DESC}`],
             })
         } catch (_error) {}
