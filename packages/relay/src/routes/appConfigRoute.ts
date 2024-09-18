@@ -1,12 +1,24 @@
+import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { UNIREP_ADDRESS, APP_ADDRESS, ETH_PROVIDER_URL } from '../config'
+import { APP_ADDRESS, ETH_PROVIDER_URL, UNIREP_ADDRESS } from '../config'
+import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 
-export default (app: Express) => {
-    app.get('/api/config', (_, res) =>
+export default (
+    app: Express,
+    _: DB,
+    synchronizer: UnirepSocialSynchronizer
+) => {
+    app.get('/api/config', async (_, res) => {
+        const epochLength =
+            await synchronizer.unirepContract.attesterEpochLength(
+                BigInt(APP_ADDRESS).toString()
+            )
+
         res.json({
             UNIREP_ADDRESS,
             APP_ADDRESS,
             ETH_PROVIDER_URL,
+            EPOCH_LENGTH: epochLength,
         })
-    )
+    })
 }

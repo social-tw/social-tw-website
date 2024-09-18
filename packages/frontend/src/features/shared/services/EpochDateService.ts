@@ -9,21 +9,32 @@ export class EpochDateService {
         start: Date | undefined,
         end: Date | undefined,
         synchoronizer: Synchronizer,
+        epochLength: number,
     ) {
         if (!!start && !!end && EpochDateService.isValidDateRange(start, end)) {
             const [from, to] = EpochDateService.calcEpochsByDates(
                 [start, end],
                 synchoronizer,
+                epochLength,
             )
             return new ValidFromToEpoch(from, to)
         }
         return new InvalidFromToEpoch()
     }
 
-    static calcEpochsByDates(dates: Date[], synchoronizer: Synchronizer) {
+    static calcEpochsByDates(
+        dates: Date[],
+        synchoronizer: Synchronizer,
+        epochLength: number,
+    ) {
         const now = Date.now()
         return dates.map((date) =>
-            EpochDateService.calcEpochByDate(now, date, synchoronizer),
+            EpochDateService.calcEpochByDate(
+                now,
+                date,
+                synchoronizer,
+                epochLength,
+            ),
         )
     }
 
@@ -31,8 +42,8 @@ export class EpochDateService {
         now: number,
         date: Date,
         synchoronizer: Synchronizer,
+        epochLength: number,
     ) {
-        const epochLength = 300000
         const currentEpoch = synchoronizer.calcCurrentEpoch()
         const remainingTime = synchoronizer.calcEpochRemainingTime() * 1000
         const currentEpochStartTime = now - (epochLength - remainingTime)
