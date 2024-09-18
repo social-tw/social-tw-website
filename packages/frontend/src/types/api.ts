@@ -17,6 +17,7 @@ export interface FetchRelayConfigResponse {
     UNIREP_ADDRESS: string
     APP_ADDRESS: string
     ETH_PROVIDER_URL: string
+    EPOCH_LENGTH: number
 }
 
 export type FetchPostsResponse = RelayRawPost[]

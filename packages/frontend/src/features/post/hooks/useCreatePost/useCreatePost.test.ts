@@ -5,6 +5,16 @@ import { act, renderHook } from '@testing-library/react'
 import nock from 'nock'
 import { useCreatePost } from './useCreatePost'
 
+jest.mock('@/features/core/hooks/useRelayConfig/useRelayConfig', () => ({
+    useRelayConfig: () => ({
+        data: {
+            EPOCH_LENGTH: 300,
+        },
+        isPending: false,
+        isSuccess: true,
+    }),
+}))
+
 jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
     useWeb3Provider: () => ({
         getGuaranteedProvider: () => ({

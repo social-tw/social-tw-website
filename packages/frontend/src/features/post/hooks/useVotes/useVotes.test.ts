@@ -5,6 +5,16 @@ import { act, renderHook } from '@testing-library/react'
 import nock from 'nock'
 import { useVotes } from './useVotes'
 
+jest.mock('@/features/core/hooks/useRelayConfig/useRelayConfig', () => ({
+    useRelayConfig: () => ({
+        data: {
+            EPOCH_LENGTH: 300,
+        },
+        isPending: false,
+        isSuccess: true,
+    }),
+}))
+
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
