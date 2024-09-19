@@ -42,13 +42,23 @@ export class RelayApiService {
 
         client.interceptors.request.use(
             async (config) => {
+                const data = await userState.getData()
+
+                const reputation = data[0] - data[1]
+
                 const { publicSignals, proof } =
-                    await userState.genProveReputationProof({
-                        minRep: 0,
-                    })
+                    reputation < 0
+                        ? await userState.genProveReputationProof({
+                              maxRep: 1,
+                          })
+                        : await userState.genProveReputationProof({
+                              minRep: 0,
+                          })
+
                 const token = btoa(
                     JSON.stringify(stringifyBigInts({ publicSignals, proof })),
                 )
+
                 config.headers.set('authentication', token)
 
                 return config

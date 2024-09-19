@@ -24,6 +24,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
             id: {
                 secret: '0x123',
             },
+            getData: () => [BigInt(2), BigInt(1), BigInt(0), BigInt(0)],
             latestTransitionedEpoch: jest.fn().mockResolvedValue(2),
             genProveReputationProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',
@@ -39,6 +40,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
             id: {
                 secret: '0x123',
             },
+            getData: () => [BigInt(2), BigInt(1), BigInt(0), BigInt(0)],
             latestTransitionedEpoch: jest.fn().mockResolvedValue(2),
             genProveReputationProof: jest.fn().mockResolvedValue({
                 publicSignals: 'mocked_signals',

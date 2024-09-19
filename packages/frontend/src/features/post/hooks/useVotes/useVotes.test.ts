@@ -18,6 +18,7 @@ jest.mock('@/features/core/hooks/useRelayConfig/useRelayConfig', () => ({
 jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     useUserState: () => ({
         userState: {
+            getData: () => [BigInt(2), BigInt(1), BigInt(0), BigInt(0)],
             getEpochKeys: jest
                 .fn()
                 .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
@@ -27,6 +28,7 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
             },
         },
         getGuaranteedUserState: () => ({
+            getData: () => [BigInt(2), BigInt(1), BigInt(0), BigInt(0)],
             getEpochKeys: jest
                 .fn()
                 .mockReturnValue(['epochKey-1', 'epochKey-2'].join(',')),
