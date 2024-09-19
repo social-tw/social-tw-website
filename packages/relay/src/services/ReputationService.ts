@@ -1,5 +1,9 @@
 import { DB } from 'anondb/node'
-import { ReputationHistory } from '../types/Reputation'
+import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { RepChangeType, ReputationHistory, ReputationType } from '../types/Reputation'
+import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import ProofHelper from './utils/ProofHelper'
+import TransactionManager from './utils/TransactionManager'
 
 export class ReputationService {
     async findManyReputationHistory(
@@ -23,6 +27,35 @@ export class ReputationService {
         })
 
         return reputations
+    }
+
+    async claimCheckInReputation(
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        db: DB,
+        synchronizer: UnirepSocialSynchronizer,
+    ) {
+        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
+
+        const txHash = await TransactionManager.callContract(
+            'claimDailyLoginRep',
+            [epochKeyProof.publicSignals, epochKeyProof.proof]
+        )
+
+        db.create('ReputationHistory', {
+            transactionHash: txHash,
+            epoch: Number(epochKeyProof.epoch),
+            epochKey: String(epochKeyProof.epochKey),
+            score: RepChangeType.CHECK_IN_REP,
+            type: ReputationType.CHECK_IN,
+            reportId: null,
+        })
+
+        return txHash
     }
 }
 

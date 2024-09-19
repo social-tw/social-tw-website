@@ -1,10 +1,9 @@
 import { DB } from 'anondb/node'
 import { Express } from 'express'
 import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
+import { reputationService } from '../services/ReputationService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
-import ProofHelper from '../services/utils/ProofHelper'
-import TransactionManager from '../services/utils/TransactionManager'
 import { Errors } from '../types'
 
 export default (
@@ -21,15 +20,11 @@ export default (
 
             const { publicSignals, proof } = req.body
 
-            const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+            const txHash = reputationService.claimCheckInReputation(
                 publicSignals,
                 proof,
+                db,
                 synchronizer
-            )
-
-            const txHash = await TransactionManager.callContract(
-                'claimDailyLoginRep',
-                [epochKeyProof.publicSignals, epochKeyProof.proof]
             )
 
             res.json({ txHash })

@@ -34,6 +34,7 @@ export enum RepChangeType {
     RESPONDENT_REP = 5,
     FAILED_REPORTER_REP = 1,
     ADJUDICATOR_REP = 1,
+    CHECK_IN_REP = 1,
 }
 
 // Reputation user type
