@@ -5,19 +5,18 @@ import {
     DialogBackdrop,
     DialogPanel,
 } from '@headlessui/react'
-import { useNotifyCheckIn } from '../../hooks/useNotifyCheckIn/useNotifyCheckIn'
 
 export default function DiscardCheckIn({
     open = false,
     onClose = () => {},
+    onConfirm = () => {},
     onCheckIn = () => {},
 }: {
     open?: boolean
     onClose?: () => void
+    onConfirm?: () => void
     onCheckIn?: () => void
 }) {
-    const { discard } = useNotifyCheckIn()
-
     return (
         <Dialog className="relative z-50" open={open} onClose={onClose}>
             <DialogBackdrop className="fixed inset-0 bg-black/70" />
@@ -37,7 +36,7 @@ export default function DiscardCheckIn({
                             <div className="flex gap-4">
                                 <button
                                     className="flex-1 text-lg font-bold text-white btn btn-primary"
-                                    onClick={discard}
+                                    onClick={onConfirm}
                                 >
                                     確認放棄
                                 </button>

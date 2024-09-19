@@ -8,7 +8,7 @@ export default function CheckInNotification() {
     const [isOpenCheckIn, toggleCheckIn] = useToggle(false)
     const [isOpenDiscardCheckIn, toggleDiscardCheckIn] = useToggle(false)
 
-    const { isOpen } = useNotifyCheckIn()
+    const { isOpen, discardCheckIn } = useNotifyCheckIn()
 
     if (!isOpen) {
         return null
@@ -28,6 +28,9 @@ export default function CheckInNotification() {
             <DiscardCheckIn
                 open={isOpenDiscardCheckIn}
                 onClose={() => toggleDiscardCheckIn(false)}
+                onConfirm={() => {
+                    discardCheckIn()
+                }}
                 onCheckIn={() => {
                     toggleDiscardCheckIn(false)
                     toggleCheckIn(true)
