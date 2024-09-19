@@ -19,7 +19,8 @@ export function useNotifyCheckIn() {
         null,
     )
 
-    const isOpen = !!reputationScore && reputationScore < 0 && !checkedInAt && !discardedAt
+    const isOpen =
+        !!reputationScore && reputationScore < 0 && !checkedInAt && !discardedAt
 
     const startCheckIn = () => {
         setCheckedInAt(new Date().toISOString())
@@ -27,7 +28,7 @@ export function useNotifyCheckIn() {
 
     const failCheckIn = () => {
         setCheckedInAt(null)
-    }   
+    }
 
     const discardCheckIn = () => {
         setDiscardedAt(new Date().toISOString())

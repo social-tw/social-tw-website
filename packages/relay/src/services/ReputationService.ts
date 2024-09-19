@@ -1,6 +1,10 @@
 import { DB } from 'anondb/node'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import { RepChangeType, ReputationHistory, ReputationType } from '../types/Reputation'
+import {
+    RepChangeType,
+    ReputationHistory,
+    ReputationType,
+} from '../types/Reputation'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
@@ -33,7 +37,7 @@ export class ReputationService {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         db: DB,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ) {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
