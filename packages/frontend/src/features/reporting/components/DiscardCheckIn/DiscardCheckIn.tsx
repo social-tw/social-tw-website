@@ -6,17 +6,19 @@ import {
     DialogPanel,
 } from '@headlessui/react'
 
+interface DiscardCheckInProps {
+    open?: boolean
+    onClose?: () => void
+    onConfirm?: () => void
+    onCheckIn?: () => void
+}
+
 export default function DiscardCheckIn({
     open = false,
     onClose = () => {},
     onConfirm = () => {},
     onCheckIn = () => {},
-}: {
-    open?: boolean
-    onClose?: () => void
-    onConfirm?: () => void
-    onCheckIn?: () => void
-}) {
+}: DiscardCheckInProps) {
     return (
         <Dialog className="relative z-50" open={open} onClose={onClose}>
             <DialogBackdrop className="fixed inset-0 bg-black/70" />
