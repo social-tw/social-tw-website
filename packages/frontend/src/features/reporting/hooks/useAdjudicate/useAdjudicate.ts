@@ -1,4 +1,4 @@
-import { MutationKeys } from '@/constants/queryKeys'
+import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import {
     ActionType,
     addAction,
@@ -8,10 +8,12 @@ import {
     useUserState,
     useUserStateTransition,
 } from '@/features/core'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AdjudicateFormValues } from '../../components/Adjudicate/AdjudicateForm'
 
 export function useAdjudicate() {
+    const queryClient = useQueryClient()
+
     const { userState } = useUserState()
 
     const { stateTransition } = useUserStateTransition()
@@ -41,6 +43,10 @@ export function useAdjudicate() {
             if (context?.actionId) {
                 succeedActionById(context.actionId)
             }
+
+            await queryClient.invalidateQueries({
+                queryKey: [QueryKeys.PendingReports],
+            })
         },
     })
 }
