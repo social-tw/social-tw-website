@@ -18,7 +18,7 @@
         "@typechain/hardhat": "^9.1.0",
         "@types/crypto-js": "^4.1.1",
         "@unirep-app/contracts": "^1.0.0",
-        "@unirep/core": "2.1.4",
+        "@unirep/core": "2.1.1",
         "cors": "^2.8.5",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
