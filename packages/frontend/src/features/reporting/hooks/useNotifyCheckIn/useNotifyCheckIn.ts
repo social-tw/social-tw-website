@@ -1,10 +1,8 @@
+import { CHECKED_IN_AT, DISCARDED_CHECK_IN_AT } from '@/constants/config'
 import { useReputationScore } from '@/features/reporting'
 import { useLocalStorage } from '@uidotdev/usehooks'
 import dayjs from 'dayjs'
 import { useEffect } from 'react'
-
-const CHECKED_IN_AT = 'checked-in-at'
-const DISCARDED_CHECK_IN_AT = 'discarded-check-in-at'
 
 export function useNotifyCheckIn() {
     const { reputationScore } = useReputationScore()
