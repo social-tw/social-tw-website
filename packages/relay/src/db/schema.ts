@@ -198,7 +198,11 @@ const _schema = [
             ['epochKey', 'String'],
             ['score', 'Int'],
             ['type', 'Int'],
-            ['reportId', 'String'],
+            {
+                name: 'reportId',
+                type: 'String',
+                optional: true,
+            },
             {
                 name: 'report',
                 type: 'Object',
