@@ -20,7 +20,7 @@ export default (
 
             const { publicSignals, proof } = req.body
 
-            const txHash = reputationService.claimCheckInReputation(
+            const txHash = await reputationService.claimCheckInReputation(
                 publicSignals,
                 proof,
                 db,
