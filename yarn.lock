@@ -5176,47 +5176,47 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@unirep/circuits@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@unirep/circuits/-/circuits-2.1.1.tgz#eec089100770485dcf367692b96389c9f92aad98"
-  integrity sha512-goUI35YNOdPQJ6F89llT/NOEmLlXrirrCE6dBfSn9wuc60LrWh5pgxj0hnctG04N9/J9CSXa0S8PEKG6mwNcqQ==
+"@unirep/circuits@2.1.5-alpha-1":
+  version "2.1.5-alpha-1"
+  resolved "https://registry.yarnpkg.com/@unirep/circuits/-/circuits-2.1.5-alpha-1.tgz#ab0d505e2e4976f86fad9bff3adeda8d8af954e1"
+  integrity sha512-cYcagtvo0MKOjHSTC5XnTwITJAUlggX107fv84JnT2NwXcL2hIedl6m3sBT63D80sJ6TwUFd9TqGu2LxRBp4OA==
   dependencies:
     "@types/snarkjs" "0.7.7"
-    "@unirep/utils" "2.1.1"
+    "@unirep/utils" "2.1.5-alpha-1"
     snarkjs "0.7.2"
 
-"@unirep/contracts@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@unirep/contracts/-/contracts-2.1.1.tgz#d015147b4c328796f0dc3b043275efbcd3a01b5e"
-  integrity sha512-uIELKfs9HjTOassI8EToZd5RxUueR4oNWPtNs+AP8lszc2sB6moTtzf7RGe7AuV9dF/PdgJ6lHwtpEb2KIMOqg==
+"@unirep/contracts@2.1.5-alpha-1":
+  version "2.1.5-alpha-1"
+  resolved "https://registry.yarnpkg.com/@unirep/contracts/-/contracts-2.1.5-alpha-1.tgz#f70f9b8bb70d93b609fe70b8dec2071ad78fc074"
+  integrity sha512-t9yvsYW32Hm0VQ/4g10tod7vb3522Niemb218O9v+O1OK7cQTLjondS/L/P8MFtMsy6b2kzk72Sd43R8JJVbnA==
   dependencies:
     "@openzeppelin/contracts" "4.9.3"
-    "@unirep/circuits" "2.1.1"
-    "@unirep/utils" "2.1.1"
+    "@unirep/circuits" "2.1.5-alpha-1"
+    "@unirep/utils" "2.1.5-alpha-1"
     "@zk-kit/incremental-merkle-tree.sol" "1.7.0"
     ethers "5.7.2"
     global-factory "0.0.2"
     poseidon-solidity "0.0.5"
     solc "0.8.21"
 
-"@unirep/core@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@unirep/core/-/core-2.1.1.tgz#5cc2c9aec09ba2ad1f9b3830929ad3a893e48660"
-  integrity sha512-OH5IAnsY9jM2YHQos+Y0DodBnAfIZGzZWamJkqBg9CdZg0uPx2NKDMCyJNtICFYcvR0ARtV4+pauQfAIX48E/A==
+"@unirep/core@2.1.5-alpha-1":
+  version "2.1.5-alpha-1"
+  resolved "https://registry.yarnpkg.com/@unirep/core/-/core-2.1.5-alpha-1.tgz#19ea3c2c7ae6eed18c0e14758facc091a2fb8d42"
+  integrity sha512-QohuuQpABGKcL47Dw+n+k+Ps76MJ+u7dg9Cu0PoKduIIgjbXmk0HEM4v9DzxM3Cfl+upzHGKzZM7TbM0+BU6wQ==
   dependencies:
     "@semaphore-protocol/identity" "3.10.1"
-    "@unirep/circuits" "2.1.1"
-    "@unirep/contracts" "2.1.1"
-    "@unirep/utils" "2.1.1"
+    "@unirep/circuits" "2.1.5-alpha-1"
+    "@unirep/contracts" "2.1.5-alpha-1"
+    "@unirep/utils" "2.1.5-alpha-1"
     anondb "0.0.21"
     async-lock "1.4.0"
     ethers "5.7.2"
     nanoid "3.3.6"
 
-"@unirep/utils@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@unirep/utils/-/utils-2.1.1.tgz#a5d85202c2a6d0c3fafba78edff954ccac2ac6f8"
-  integrity sha512-x/KMsRp/cGaX4kNuFFwl/ClozCfm8NIAPC3vPLhbqGjYUyWrIpfyTlfDT1D0/MpMfL7hVX/noXnE9bfjzZhDAA==
+"@unirep/utils@2.1.5-alpha-1":
+  version "2.1.5-alpha-1"
+  resolved "https://registry.yarnpkg.com/@unirep/utils/-/utils-2.1.5-alpha-1.tgz#4af2bcb303e309659ad25d813a484469656d1e42"
+  integrity sha512-bHtRVSTF9LwxEQ7cvrklgbcneBy9fQnJDQf+DWlUMOZKgld4njIdxbCrvxRhdC/SVG8mfMULhnLUNGztpIoLzg==
   dependencies:
     "@zk-kit/incremental-merkle-tree" "1.1.0"
     poseidon-lite "0.2.0"
