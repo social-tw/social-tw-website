@@ -1,37 +1,57 @@
+import { CHECKED_IN_AT, DISCARDED_CHECK_IN_AT } from '@/constants/config'
 import { useReputationScore } from '@/features/reporting'
 import { useLocalStorage } from '@uidotdev/usehooks'
 import dayjs from 'dayjs'
-import { useEffect, useMemo } from 'react'
-
-const DISCARDED_AT = 'discarded-checkin-at'
+import { useEffect } from 'react'
 
 export function useNotifyCheckIn() {
     const { reputationScore } = useReputationScore()
 
-    const [discardedAt, saveDiscardedAt] = useLocalStorage<string | null>(
-        DISCARDED_AT,
+    const [checkedInAt, setCheckedInAt] = useLocalStorage<string | null>(
+        CHECKED_IN_AT,
         null,
     )
 
-    const isOpen = useMemo(
-        () => !!reputationScore && reputationScore < 0 && !discardedAt,
-        [reputationScore, discardedAt],
+    const [discardedAt, setDiscardedAt] = useLocalStorage<string | null>(
+        DISCARDED_CHECK_IN_AT,
+        null,
     )
 
-    const discard = () => {
-        saveDiscardedAt(new Date().toISOString())
+    const isOpen =
+        !!reputationScore && reputationScore < 0 && !checkedInAt && !discardedAt
+
+    const startCheckIn = () => {
+        setCheckedInAt(new Date().toISOString())
     }
+
+    const failCheckIn = () => {
+        setCheckedInAt(null)
+    }
+
+    const discardCheckIn = () => {
+        setDiscardedAt(new Date().toISOString())
+    }
+
+    useEffect(() => {
+        if (!checkedInAt || dayjs().isSame(dayjs(checkedInAt), 'day')) {
+            return
+        }
+
+        setCheckedInAt(null)
+    }, [checkedInAt, setCheckedInAt])
 
     useEffect(() => {
         if (!discardedAt || dayjs().isSame(dayjs(discardedAt), 'day')) {
             return
         }
 
-        saveDiscardedAt(null)
-    }, [discardedAt, saveDiscardedAt])
+        setDiscardedAt(null)
+    }, [discardedAt, setDiscardedAt])
 
     return {
         isOpen,
-        discard,
+        startCheckIn,
+        failCheckIn,
+        discardCheckIn,
     }
 }

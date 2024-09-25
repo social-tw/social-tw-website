@@ -11,6 +11,7 @@ import {
     AdjudicationNotification,
     CheckInNotification,
 } from '@/features/reporting'
+import { useBackgroundReputationClaim } from '@/features/reporting/hooks/useBackgroundReputationClaim/useBackgroundReputationClaim'
 import { MobileBottomNav } from '@/features/shared'
 import { ForbidActionDialog } from '@/features/shared/components/Dialog/ForbidActionDialog'
 import {
@@ -27,13 +28,12 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
-import { useBackgroundReputationClaim } from '@/features/reporting/hooks/useBackgroundReputationClaim/useBackgroundReputationClaim'
 
 function NotificationContainer({ children }: { children: React.ReactNode }) {
     return (
         <div
             id="notifications"
-            className="fixed z-20 right-4 bottom-28 lg:right-10 lg:bottom-20"
+            className="fixed z-20 right-4 bottom-28 lg:left-10 lg:right-auto lg:bottom-20"
         >
             {children}
         </div>

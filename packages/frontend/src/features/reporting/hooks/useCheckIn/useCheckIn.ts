@@ -12,6 +12,7 @@ import {
 } from '@/features/core'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNotifyCheckIn } from '../useNotifyCheckIn/useNotifyCheckIn'
 
 export function useCheckIn() {
     const queryClient = useQueryClient()
@@ -23,6 +24,8 @@ export function useCheckIn() {
     const { stateTransition } = useUserStateTransition()
 
     const actionCount = useActionCount()
+
+    const { startCheckIn, failCheckIn } = useNotifyCheckIn()
 
     return useMutation({
         mutationKey: [MutationKeys.CheckIn],
@@ -52,10 +55,12 @@ export function useCheckIn() {
             }
         },
         onMutate: (_variables) => {
+            startCheckIn()
             const actionId = addAction(ActionType.CheckIn, undefined)
             return { actionId }
         },
         onError: (_error, _variables, context) => {
+            failCheckIn()
             if (context?.actionId) {
                 failActionById(context.actionId)
             }

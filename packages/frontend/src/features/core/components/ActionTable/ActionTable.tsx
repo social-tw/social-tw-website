@@ -58,7 +58,8 @@ function ActionLink({
     if (
         action.type === ActionType.ReportComment ||
         action.type === ActionType.ReportPost ||
-        action.type === ActionType.Adjudicate
+        action.type === ActionType.Adjudicate ||
+        action.type === ActionType.CheckIn
     ) {
         return <span className="text-white">-</span>
     }
