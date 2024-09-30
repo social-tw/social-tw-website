@@ -10,8 +10,7 @@ import {
     EpochKeyLiteProof,
     EpochKeyProof,
 } from '@unirep/circuits'
-import { UserState } from '@unirep/core'
-import { schema } from '@unirep/core/src/userSchema'
+import { userSchema as schema, UserState } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
 import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
