@@ -53,11 +53,23 @@ export class PostService extends RelayApiService {
         const client = this.getAuthClient()
 
         const userState = this.getUserState()
+
+        /// ==========================================
+        // calculate the time of generating proof here:
+        const startTime = Date.now()
         const { publicSignals, proof, epoch, epochKey } =
             await userState.genEpochKeyProof({
                 nonce: identityNonce,
             })
+        const endTime = Date.now()
+        console.log(
+            `Post (createPost) gen epochKeyProof: ${endTime - startTime}ms`,
+        )
+        /// ==========================================
 
+        /// ==========================================
+        // calculate the time of creating post here:
+        const startTime_2 = Date.now()
         const response = await client.post<RelayCreatePostResponse>(
             '/post',
             stringifyBigInts({
@@ -66,6 +78,12 @@ export class PostService extends RelayApiService {
                 content,
             }),
         )
+        const endTime_2 = Date.now()
+        console.log(
+            `Post (createPost) create post: ${endTime_2 - startTime_2}ms`,
+        )
+        /// ==========================================
+
         const { txHash } = response.data
         return {
             txHash,
