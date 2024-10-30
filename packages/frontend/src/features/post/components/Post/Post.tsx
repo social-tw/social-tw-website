@@ -14,6 +14,8 @@ import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
+import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
+import { useCopyPostLink } from '../../hooks/useCopyPostLink/useCopyPostLink'
 
 export default function Post({
     id = '',
@@ -86,6 +88,8 @@ export default function Post({
         votedNonce,
         votedEpoch,
     ])
+
+    const { isCopied, handleShareClick } = useCopyPostLink(id);
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -170,6 +174,7 @@ export default function Post({
             {isReported && <PostReportedMask />}
             {isBlocked && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
+            {<ShareLinkTransition isOpen={isCopied} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
@@ -190,6 +195,7 @@ export default function Post({
                     voteAction={isAction}
                     handleVote={handleVote}
                     handleComment={onComment}
+                    handleShare={handleShareClick}
                 />
             </div>
             {compact && imageUrl && (
