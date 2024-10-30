@@ -4,12 +4,12 @@ export default function ConfirmationDialog({
     open,
     onConfirm,
     onCancel,
-    onClose
+    onClose,
 }: {
     open: boolean
     onConfirm: () => void
     onCancel: () => void
-    onClose:() => void
+    onClose: () => void
 }) {
     if (!open) return null
 
@@ -17,10 +17,7 @@ export default function ConfirmationDialog({
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
             <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full relative">
                 {/* Close Button */}
-                <button
-                    className="absolute top-4 right-4"
-                    onClick={onClose}
-                >
+                <button className="absolute top-4 right-4" onClick={onClose}>
                     <CloseIcon className="w-6 h-6 text-gray-500 hover:text-black" />
                 </button>
 

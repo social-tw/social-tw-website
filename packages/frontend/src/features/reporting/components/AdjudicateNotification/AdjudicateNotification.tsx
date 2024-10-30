@@ -75,11 +75,10 @@ function useActiveAdjudication() {
     }
 }
 
-
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
-    const [open, toggle] = useToggle(false) 
-    const [confirmOpen, setConfirmOpen] = useState(false) 
+    const [open, toggle] = useToggle(false)
+    const [confirmOpen, setConfirmOpen] = useState(false)
     const [buttonVisible, setButtonVisible] = useState(true)
 
     useEffect(() => {
@@ -87,7 +86,7 @@ export default function AdjudicationNotification() {
             setButtonVisible(true)
         }
     }, [activeAdjudication])
-    
+
     const closeAdjudicate = () => {
         toggle(false)
     }
@@ -110,25 +109,25 @@ export default function AdjudicationNotification() {
         toggle(false)
         setConfirmOpen(false)
         setButtonVisible(false)
-        refetch() 
+        refetch()
     }
 
     if (!activeAdjudication) {
-        return null 
+        return null
     }
 
     return (
         <div data-testid="adjudication-notification">
             {buttonVisible && (
-                <AdjudicateButton 
-                    onClick={goAdjudicate} 
-                    onClose={handleCloseClick} 
+                <AdjudicateButton
+                    onClick={goAdjudicate}
+                    onClose={handleCloseClick}
                 />
             )}
             <ConfirmationDialog
                 open={confirmOpen}
-                onConfirm={confirmClose} 
-                onCancel={goAdjudicate} 
+                onConfirm={confirmClose}
+                onCancel={goAdjudicate}
                 onClose={closeConfirm}
             />
             <Adjudicate
