@@ -183,7 +183,7 @@ interface ShareBtnProps {
     onClick: () => void
     isLoggedIn: boolean
 }
-function ShareBtn({ onClick, isLoggedIn}: ShareBtnProps) {
+function ShareBtn({ onClick, isLoggedIn }: ShareBtnProps) {
     const cursor = isLoggedIn ? 'pointer' : 'not-allowed'
 
     return (

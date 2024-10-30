@@ -89,7 +89,7 @@ export default function Post({
         votedEpoch,
     ])
 
-    const { isCopied, handleShareClick } = useCopyPostLink(id);
+    const { isCopied, handleShareClick } = useCopyPostLink(id)
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)

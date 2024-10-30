@@ -11,7 +11,7 @@ export default function ShareLinkTransition({ isOpen }: ShareLinkTransition) {
 
     useEffect(() => {
         controls.start({
-            y: [100, 0], 
+            y: [100, 0],
             opacity: [0, 1, 0],
             transition: {
                 y: {
