@@ -75,7 +75,7 @@ export default function PostPublishTransition({
                         "
                         aria-label="Close"
                     >
-                        <AiOutlineClose className="w-6 h-6"/>
+                        <AiOutlineClose className="w-6 h-6" />
                     </button>
                 </div>
             </div>
