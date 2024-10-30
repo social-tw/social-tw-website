@@ -3,8 +3,6 @@ import DownVoteImg from '@/assets/img/downvote.png'
 import ShareImg from '@/assets/img/share.png'
 import UpVoteImg from '@/assets/img/upvote.png'
 import { VoteAction } from '@/types/Vote'
-import { useState } from 'react'
-import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 
 interface PostFooterProps {
     isLoggedIn: boolean

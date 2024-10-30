@@ -2,11 +2,11 @@ import ShareImg from '@/assets/img/share.png'
 import { motion, useAnimation } from 'framer-motion'
 import { useEffect } from 'react'
 
-interface ShareLinkTransition {
+interface ShareLinkTransitionProps {
     isOpen: boolean
 }
 
-export default function ShareLinkTransition({ isOpen }: ShareLinkTransition) {
+export default function ShareLinkTransition({ isOpen }: ShareLinkTransitionProps) {
     const controls = useAnimation()
 
     useEffect(() => {
