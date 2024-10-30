@@ -2,10 +2,12 @@ import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useToggle } from '@uidotdev/usehooks'
 import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
+import ConfirmationDialog from './ConfirmationDialog'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -73,27 +75,66 @@ function useActiveAdjudication() {
     }
 }
 
+
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
+    const [open, toggle] = useToggle(false) 
+    const [confirmOpen, setConfirmOpen] = useState(false) 
+    const [buttonVisible, setButtonVisible] = useState(true)
 
-    const [open, toggle] = useToggle(false)
-
-    const onClose = () => {
-        refetch()
+    useEffect(() => {
+        if (activeAdjudication) {
+            setButtonVisible(true)
+        }
+    }, [activeAdjudication])
+    
+    const closeAdjudicate = () => {
         toggle(false)
     }
 
+    const closeConfirm = () => {
+        setConfirmOpen(false)
+    }
+
+    const handleCloseClick = () => {
+        setConfirmOpen(true)
+    }
+
+    const goAdjudicate = () => {
+        toggle(true)
+        setButtonVisible(false)
+        setConfirmOpen(false)
+    }
+
+    const confirmClose = () => {
+        toggle(false)
+        setConfirmOpen(false)
+        setButtonVisible(false)
+        refetch() 
+    }
+
     if (!activeAdjudication) {
-        return null
+        return null 
     }
 
     return (
         <div data-testid="adjudication-notification">
-            <AdjudicateButton onClick={toggle} />
+            {buttonVisible && (
+                <AdjudicateButton 
+                    onClick={goAdjudicate} 
+                    onClose={handleCloseClick} 
+                />
+            )}
+            <ConfirmationDialog
+                open={confirmOpen}
+                onConfirm={confirmClose} 
+                onCancel={goAdjudicate} 
+                onClose={closeConfirm}
+            />
             <Adjudicate
                 reportData={activeAdjudication}
                 open={open}
-                onClose={onClose}
+                onClose={closeAdjudicate}
             />
         </div>
     )
