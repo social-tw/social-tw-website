@@ -5,8 +5,5 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "cSpell.words": [
-        "headlessui",
-        "reportor"
-    ]
+    "cSpell.words": ["headlessui", "reportor"]
 }

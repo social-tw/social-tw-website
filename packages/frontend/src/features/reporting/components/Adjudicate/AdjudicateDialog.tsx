@@ -75,5 +75,4 @@ export default function AdjudicationDialog({
             </Dialog>
         )
     } else return null
-
 }

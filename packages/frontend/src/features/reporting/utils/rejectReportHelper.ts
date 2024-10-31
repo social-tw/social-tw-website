@@ -28,4 +28,3 @@ export function isReportRejected(userId: string, reportId: string) {
     const currentRejectedPosts = JSON.parse(localStorage.getItem(key) || '[]')
     return currentRejectedPosts.includes(reportId)
 }
-
