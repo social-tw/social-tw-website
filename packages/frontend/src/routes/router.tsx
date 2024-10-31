@@ -78,7 +78,7 @@ const router = createBrowserRouter([
                         element: <ReputationPage />,
                     },
                     {
-                        path: PATHS.HISTORTY,
+                        path: PATHS.HISTORY,
                         element: <HistoryPage />,
                     },
                 ],

@@ -9,6 +9,6 @@ export const PATHS = {
     VIEW_POST: '/posts/:id',
     WRITE_POST: '/write-post',
     PROFILE: '/profile',
-    HISTORTY: '/profile/history',
+    HISTORY: '/profile/history',
     REPUTATION: '/profile/reputation',
 }
