@@ -1,42 +1,17 @@
 import { AdjudicateValue } from '@/constants/report'
 
-export interface ReportData {
-    id: string
-    content: string
-    category: number
-    reason: string
-}
-
 export interface AdjudicateFormValues {
     reportId: string
     adjudicateValue: AdjudicateValue
 }
 
 export default function AdjudicateCancelFrom({
-    reportData,
-    onSubmit = () => {},
     onConfirmCancel = () => {},
     onDenyCancel = () => {},
 }: {
-    reportData: ReportData
-    onSubmit?: (values: AdjudicateFormValues) => void
     onConfirmCancel?: () => void
     onDenyCancel?: () => void
 }) {
-    // function onAgree() {
-    //     onSubmit({
-    //         reportId: reportData.id,
-    //         adjudicateValue: AdjudicateValue.Agree,
-    //     })
-    // }
-
-    // function onDisagree() {
-    //     onSubmit({
-    //         reportId: reportData.id,
-    //         adjudicateValue: AdjudicateValue.Disagree,
-    //     })
-    // }
-
     return (
         <article
             className="py-10 space-y-4 md:py-14 md:space-y-5"

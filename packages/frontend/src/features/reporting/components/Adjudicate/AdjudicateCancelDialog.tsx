@@ -6,27 +6,21 @@ import {
     DialogPanel,
 } from '@headlessui/react'
 import AdjudicateCancelFrom from './AdjudicateCancelFrom'
-import {
-    AdjudicateFormValues,
-    ReportData,
-} from './AdjudicateForm'
 
 export default function AdjudicateCancelDialog({
-    reportData,
+    handleRejectReport = () => {},
     open = false,
     onClose = () => {},
     onOpenAdjudicate = () => {},
-    onSubmit = () => {},
 }: {
-    reportData: ReportData
+    handleRejectReport: () => void
     open?: boolean
     onClose?: () => void
     onOpenAdjudicate?: () => void
-    onSubmit?: (values: AdjudicateFormValues) => void
 }) {
     const onConfirmCancel = () => {
+        handleRejectReport()
         onClose()
-        //TODO: Deny functions
     }
     const onDenyCancel = () => {
         onClose()
@@ -42,8 +36,6 @@ export default function AdjudicateCancelDialog({
                     </CloseButton>
                     <div className="max-h-[90vh] overflow-y-auto gradient-border-4 rounded-xl">
                         <AdjudicateCancelFrom
-                            reportData={reportData}
-                            onSubmit={onSubmit}
                             onConfirmCancel={onConfirmCancel}
                             onDenyCancel={onDenyCancel}
                         />

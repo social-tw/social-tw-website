@@ -1,12 +1,17 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
+import { LOCAL_STORAGE } from '@/utils/helpers/LocalStorageHelper'
 import { useToggle } from '@uidotdev/usehooks'
 import { useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
+import {
+    addRejectedReport,
+    isReportRejected,
+} from '../../utils/rejectReportHelper'
 import Adjudicate from '../Adjudicate/Adjudicate'
-import AdjudicateButton from './AdjudicateButton'
 import AdjudicateCancelDialog from '../Adjudicate/AdjudicateCancelDialog'
+import AdjudicateButton from './AdjudicateButton'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -76,6 +81,7 @@ function useActiveAdjudication() {
 
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
+    const hashUserId = localStorage.getItem(LOCAL_STORAGE.HASH_USER_ID)
 
     const [isAdjudicateOpen, toggleAdjudicate] = useToggle(false)
     const [isCancelDialogOpen, toggleCancelDialog] = useToggle(false)
@@ -89,15 +95,20 @@ export default function AdjudicationNotification() {
         toggleCancelDialog(false)
     }
 
-    // if (!activeAdjudication) {
-    //     return null
-    // }
+    const handleRejectReport = () => {
+        if (activeAdjudication && hashUserId) {
+            addRejectedReport(hashUserId, activeAdjudication.id)
+            refetch()
+        }
+        return
+    }
 
-    const reportData = {
-        id: '1',
-        content: '123123',
-        category: 1,
-        reason: "123123123123",
+    if (!activeAdjudication || !hashUserId) {
+        return null
+    }
+
+    if (isReportRejected(hashUserId, activeAdjudication.id)) {
+        return null
     }
 
     return (
@@ -107,13 +118,13 @@ export default function AdjudicationNotification() {
                 onCancel={toggleCancelDialog}
             />
             <AdjudicateCancelDialog
-                reportData={reportData}
+                handleRejectReport={handleRejectReport}
                 open={isCancelDialogOpen}
                 onClose={onCancelDialogClose}
                 onOpenAdjudicate={toggleAdjudicate}
             />
             <Adjudicate
-                reportData={reportData}
+                reportData={activeAdjudication}
                 open={isAdjudicateOpen}
                 onClose={onAdjudicateClose}
             />
