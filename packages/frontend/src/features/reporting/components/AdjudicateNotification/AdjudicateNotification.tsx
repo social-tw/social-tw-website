@@ -6,6 +6,8 @@ import { usePendingReports } from '../../hooks/usePendingReports/usePendingRepor
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
+import { ReportData } from '../Adjudicate/AdjudicateForm'
+import AdjudicateCancelDialog from '../Adjudicate/AdjudicateCancelDialog'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -76,6 +78,8 @@ function useActiveAdjudication() {
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
 
+    console.log(activeAdjudication)
+
     const [open, toggle] = useToggle(false)
 
     const onClose = () => {
@@ -83,18 +87,26 @@ export default function AdjudicationNotification() {
         toggle(false)
     }
 
-    if (!activeAdjudication) {
-        return null
+    // if (!activeAdjudication) {
+    //     return null
+    // }
+
+    const reportData = {
+        id: '1',
+        content: '123123',
+        category: 1,
+        reason: "123123123123",
     }
 
     return (
         <div data-testid="adjudication-notification">
             <AdjudicateButton onClick={toggle} />
-            <Adjudicate
-                reportData={activeAdjudication}
+            <AdjudicateCancelDialog
+                reportData={reportData}
                 open={open}
                 onClose={onClose}
             />
+            {/* <Adjudicate reportData={reportData} open={open} onClose={onClose} /> */}
         </div>
     )
 }
