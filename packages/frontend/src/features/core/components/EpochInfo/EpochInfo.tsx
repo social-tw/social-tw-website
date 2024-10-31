@@ -8,8 +8,8 @@ function EpochTimer() {
 
     return (
         <div>
-            <div className="text-xs font-semibold text-white">
-                Next Epoch in
+            <div className="text-xs font-semibold text-white text-nowrap">
+                當前 Epoch 倒數
             </div>
             <div
                 className="text-3xl font-semibold text-white h-9"
@@ -64,7 +64,7 @@ function getAccountCountMessage(count: number) {
     } else if (count > 3) {
         return '動作次數超出安全範圍，建議等下個Epoch後執行'
     } else {
-        return '目前動作次數(3次內)可確保匿名身份不被洩漏'
+        return '目前動作次數(3次內)可確保匿名身份不被交叉比對'
     }
 }
 
@@ -72,7 +72,7 @@ function EpochMessage() {
     const count = useActionCount()
     const message = getAccountCountMessage(count)
 
-    return <p className="text-xs font-medium text-white/60">{message}</p>
+    return <p className="text-xs font-medium text-white/60 text-nowrap">{message}</p>
 }
 
 export default function EpochInfo() {
