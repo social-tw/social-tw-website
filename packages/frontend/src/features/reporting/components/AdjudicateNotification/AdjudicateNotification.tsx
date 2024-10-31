@@ -6,7 +6,6 @@ import { usePendingReports } from '../../hooks/usePendingReports/usePendingRepor
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
-import { ReportData } from '../Adjudicate/AdjudicateForm'
 import AdjudicateCancelDialog from '../Adjudicate/AdjudicateCancelDialog'
 
 function useActiveAdjudication() {
@@ -78,13 +77,16 @@ function useActiveAdjudication() {
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
 
-    console.log(activeAdjudication)
+    const [isAdjudicateOpen, toggleAdjudicate] = useToggle(false)
+    const [isCancelDialogOpen, toggleCancelDialog] = useToggle(false)
 
-    const [open, toggle] = useToggle(false)
-
-    const onClose = () => {
+    const onAdjudicateClose = () => {
         refetch()
-        toggle(false)
+        toggleAdjudicate(false)
+    }
+
+    const onCancelDialogClose = () => {
+        toggleCancelDialog(false)
     }
 
     // if (!activeAdjudication) {
@@ -99,14 +101,22 @@ export default function AdjudicationNotification() {
     }
 
     return (
-        <div data-testid="adjudication-notification">
-            <AdjudicateButton onClick={toggle} />
+        <div data-testid="adjudication-notification" className="relative p-2">
+            <AdjudicateButton
+                onClick={toggleAdjudicate}
+                onCancel={toggleCancelDialog}
+            />
             <AdjudicateCancelDialog
                 reportData={reportData}
-                open={open}
-                onClose={onClose}
+                open={isCancelDialogOpen}
+                onClose={onCancelDialogClose}
+                onOpenAdjudicate={toggleAdjudicate}
             />
-            {/* <Adjudicate reportData={reportData} open={open} onClose={onClose} /> */}
+            <Adjudicate
+                reportData={reportData}
+                open={isAdjudicateOpen}
+                onClose={onAdjudicateClose}
+            />
         </div>
     )
 }

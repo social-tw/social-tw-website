@@ -5,23 +5,33 @@ import {
     DialogBackdrop,
     DialogPanel,
 } from '@headlessui/react'
-import AdjudicationForm, {
+import AdjudicateCancelFrom from './AdjudicateCancelFrom'
+import {
     AdjudicateFormValues,
     ReportData,
 } from './AdjudicateForm'
-import AdjudicateCancelFrom from './AdjudicateCancelFrom'
 
 export default function AdjudicateCancelDialog({
     reportData,
     open = false,
     onClose = () => {},
+    onOpenAdjudicate = () => {},
     onSubmit = () => {},
 }: {
     reportData: ReportData
     open?: boolean
     onClose?: () => void
+    onOpenAdjudicate?: () => void
     onSubmit?: (values: AdjudicateFormValues) => void
 }) {
+    const onConfirmCancel = () => {
+        onClose()
+        //TODO: Deny functions
+    }
+    const onDenyCancel = () => {
+        onClose()
+        onOpenAdjudicate()
+    }
     return (
         <Dialog className="relative z-50" open={open} onClose={onClose}>
             <DialogBackdrop className="fixed inset-0 bg-black/70" />
@@ -34,6 +44,8 @@ export default function AdjudicateCancelDialog({
                         <AdjudicateCancelFrom
                             reportData={reportData}
                             onSubmit={onSubmit}
+                            onConfirmCancel={onConfirmCancel}
+                            onDenyCancel={onDenyCancel}
                         />
                     </div>
                 </DialogPanel>

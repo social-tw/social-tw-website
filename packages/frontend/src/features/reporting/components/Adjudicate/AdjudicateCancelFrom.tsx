@@ -1,8 +1,4 @@
-import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
 import { AdjudicateValue } from '@/constants/report'
-import AdjudicateActions from './AdjudicateActions'
-import ReportContent from './ReportContent'
-import ReportReason from './ReportReason'
 
 export interface ReportData {
     id: string
@@ -19,23 +15,27 @@ export interface AdjudicateFormValues {
 export default function AdjudicateCancelFrom({
     reportData,
     onSubmit = () => {},
+    onConfirmCancel = () => {},
+    onDenyCancel = () => {},
 }: {
     reportData: ReportData
     onSubmit?: (values: AdjudicateFormValues) => void
+    onConfirmCancel?: () => void
+    onDenyCancel?: () => void
 }) {
-    function onAgree() {
-        onSubmit({
-            reportId: reportData.id,
-            adjudicateValue: AdjudicateValue.Agree,
-        })
-    }
+    // function onAgree() {
+    //     onSubmit({
+    //         reportId: reportData.id,
+    //         adjudicateValue: AdjudicateValue.Agree,
+    //     })
+    // }
 
-    function onDisagree() {
-        onSubmit({
-            reportId: reportData.id,
-            adjudicateValue: AdjudicateValue.Disagree,
-        })
-    }
+    // function onDisagree() {
+    //     onSubmit({
+    //         reportId: reportData.id,
+    //         adjudicateValue: AdjudicateValue.Disagree,
+    //     })
+    // }
 
     return (
         <article
@@ -55,13 +55,13 @@ export default function AdjudicateCancelFrom({
                 <div className="flex gap-12">
                     <button
                         className="flex-1 text-lg font-bold text-white btn btn-primary"
-                        onClick={onAgree}
+                        onClick={onConfirmCancel}
                     >
                         確認放棄
                     </button>
                     <button
                         className="flex-1 text-lg font-bold text-white btn btn-primary"
-                        onClick={onDisagree}
+                        onClick={onDenyCancel}
                     >
                         前往協助評判
                     </button>

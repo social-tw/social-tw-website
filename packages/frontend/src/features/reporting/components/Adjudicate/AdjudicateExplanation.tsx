@@ -1,8 +1,5 @@
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
 import { AdjudicateValue } from '@/constants/report'
-import AdjudicateActions from './AdjudicateActions'
-import ReportContent from './ReportContent'
-import ReportReason from './ReportReason'
 
 export interface ReportData {
     id: string
@@ -16,27 +13,13 @@ export interface AdjudicateFormValues {
     adjudicateValue: AdjudicateValue
 }
 
-export default function AdjudicateForm({
+export default function AdjudicateExplanation({
     reportData,
-    onSubmit = () => {},
+    onClick = () => {},
 }: {
     reportData: ReportData
-    onSubmit?: (values: AdjudicateFormValues) => void
+    onClick?: () => void
 }) {
-    function onAgree() {
-        onSubmit({
-            reportId: reportData.id,
-            adjudicateValue: AdjudicateValue.Agree,
-        })
-    }
-
-    function onDisagree() {
-        onSubmit({
-            reportId: reportData.id,
-            adjudicateValue: AdjudicateValue.Disagree,
-        })
-    }
-
     return (
         <article
             className="py-10 space-y-4 md:py-14 md:space-y-5"
@@ -55,20 +38,22 @@ export default function AdjudicateForm({
             </header>
             <section className="px-6 md:px-14">
                 <p className="text-base font-medium leading-relaxed tracking-wider md:leading-slightly-loose">
-                    請就以下「被檢舉之內容」、「檢舉原因分類與詳情」仔細考量與判斷是否同意該檢舉，一同維護平台的自治與健康！
+                    恭喜你被隨機選為一則檢舉案件的評判官之一！ Unirep Social
+                    Taiwan
+                    為一去中心化的用戶自治管理社群平台，藉由透過檢舉不當內容的方式來維持社群的安全與健康。
+                    當檢舉案件被成功上鏈交易後，該檢舉案件將交由5位隨機用戶進行檢舉內容的評判審核，
+                    協助評判的用戶的聲譽分數將提高1分。
+                    若檢舉案評判最終結果為同意檢舉為多數，則該則內容會被屏蔽。
+                    協助評判後，會等評判最終結果出爐會再另行透過「通知中心」通知你，請留意通知中心的訊息。
                 </p>
             </section>
-            <section className="px-6 md:px-14">
-                <ReportContent content={reportData.content} />
-            </section>
-            <section className="px-6 md:px-14">
-                <ReportReason
-                    category={reportData.category}
-                    reason={reportData.reason}
-                />
-            </section>
-            <footer className="px-6 md:px-14">
-                <AdjudicateActions onAgree={onAgree} onDisagree={onDisagree} />
+            <footer className="px-6 md:px-14 flex items-center justify-center">
+                <button
+                    className="text-lg font-bold text-white btn btn-primary md: w-60"
+                    onClick={onClick}
+                >
+                    查看案件詳情進行評判
+                </button>
             </footer>
         </article>
     )
