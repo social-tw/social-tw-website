@@ -9,11 +9,15 @@ import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class PostService extends RelayApiService {
-    async fetchPosts(page: number) {
+    async fetchPosts(page: number, query?: string) {
         const client = this.getClient()
         const response = await client.get<FetchPostsResponse>(
             `/post?page=${page}`,
         )
+        //TODO: After relay update change to
+        // const response = await client.get<FetchPostsResponse>(
+        //     `/post?page=${page}&query={query}`,
+        // )
         return response.data
     }
 
