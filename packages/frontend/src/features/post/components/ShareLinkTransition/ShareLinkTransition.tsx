@@ -6,7 +6,9 @@ interface ShareLinkTransitionProps {
     isOpen: boolean
 }
 
-export default function ShareLinkTransition({ isOpen }: ShareLinkTransitionProps) {
+export default function ShareLinkTransition({
+    isOpen,
+}: ShareLinkTransitionProps) {
     const controls = useAnimation()
 
     useEffect(() => {

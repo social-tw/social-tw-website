@@ -5,7 +5,5 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "cSpell.words": [
-        "uidotdev"
-    ]
+    "cSpell.words": ["uidotdev"]
 }
