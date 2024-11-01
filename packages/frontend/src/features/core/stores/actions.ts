@@ -23,6 +23,7 @@ export enum ActionStatus {
 export interface PostData {
     postId?: string
     content: string
+    epoch?: number
     epochKey?: string
     transactionHash?: string
 }

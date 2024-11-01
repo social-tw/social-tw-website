@@ -69,7 +69,7 @@ const PostDetailsPage: React.FC = () => {
         }
     }, [data, userState])
 
-    const [isOpenComment, setIsOpenCommnet] = useState(false)
+    const [isOpenComment, setIsOpenComment] = useState(false)
 
     const [errorMessage, setErrorMessage] = useState<string>()
 
@@ -85,7 +85,7 @@ const PostDetailsPage: React.FC = () => {
             openForbidActionDialog()
             return
         }
-        setIsOpenCommnet((prev) => !prev)
+        setIsOpenComment((prev) => !prev)
     }
 
     const handleVote = async (voteType: VoteAction): Promise<boolean> => {
@@ -154,7 +154,7 @@ const PostDetailsPage: React.FC = () => {
             <CreateComment
                 postId={id}
                 isOpen={isOpenComment}
-                onClose={() => setIsOpenCommnet(false)}
+                onClose={() => setIsOpenComment(false)}
             />
             <CommentNotification postId={id} />
             <AuthErrorDialog

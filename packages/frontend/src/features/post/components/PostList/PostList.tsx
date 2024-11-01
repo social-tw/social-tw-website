@@ -56,6 +56,7 @@ export default function PostList() {
                     id: item.transactionHash!,
                     postId: item.postId,
                     epochKey: item.epochKey,
+                    epoch: item.epoch,
                     content: item.content,
                     publishedAt: new Date(Number(item.publishedAt)),
                     commentCount: item.commentCount,
@@ -100,6 +101,7 @@ export default function PostList() {
                     id: actionData?.transactionHash ?? nanoid(),
                     postId: actionData?.postId,
                     epochKey: actionData?.epochKey,
+                    epoch: actionData?.epoch,
                     content: actionData.content,
                     publishedAt: action.submittedAt,
                     commentCount: 0,
@@ -178,6 +180,7 @@ export default function PostList() {
                         <Post
                             id={post.postId}
                             epochKey={post.epochKey}
+                            epoch={post.epoch}
                             content={post.content}
                             publishedAt={post.publishedAt}
                             commentCount={post.commentCount}
@@ -206,6 +209,7 @@ export default function PostList() {
                                 <Post
                                     id={post.postId}
                                     epochKey={post.epochKey}
+                                    epoch={post.epoch}
                                     content={post.content}
                                     publishedAt={post.publishedAt}
                                     commentCount={post.commentCount}
