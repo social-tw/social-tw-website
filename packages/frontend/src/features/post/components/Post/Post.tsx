@@ -15,7 +15,7 @@ import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
-import { useCopyPostLink } from '../../hooks/useCopyPostLink/useCopyPostLink'
+import { useCopy } from '@/features/shared/hooks/useCopy'
 
 export default function Post({
     id = '',
@@ -89,7 +89,7 @@ export default function Post({
         votedEpoch,
     ])
 
-    const { isCopied, handleShareClick } = useCopyPostLink(id)
+    const { hasCopied, copyToClipboard } = useCopy()
 
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
@@ -101,6 +101,13 @@ export default function Post({
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
     const [isError, setIsError] = useState(false)
+
+    const handleShareClick = () => {
+        if (id) {
+            const postLink = `${window.location.origin}/posts/${id}`
+            copyToClipboard(postLink)
+        }
+    }
 
     // set isAction when finalAction is changed
     useEffect(() => {
@@ -174,7 +181,7 @@ export default function Post({
             {isReported && <PostReportedMask />}
             {isBlocked && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
-            {<ShareLinkTransition isOpen={isCopied} />}
+            {<ShareLinkTransition isOpen={hasCopied} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>

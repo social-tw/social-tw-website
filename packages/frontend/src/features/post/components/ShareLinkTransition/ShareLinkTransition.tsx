@@ -10,6 +10,7 @@ export default function ShareLinkTransition({ isOpen }: ShareLinkTransitionProps
     const controls = useAnimation()
 
     useEffect(() => {
+        if (!isOpen) return
         controls.start({
             y: [100, 0],
             opacity: [0, 1, 0],
