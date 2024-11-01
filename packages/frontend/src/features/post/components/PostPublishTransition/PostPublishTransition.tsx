@@ -31,8 +31,8 @@ export default function PostPublishTransition({
 
     return (
         <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/70'}>
-            <div className="flex items-center justify-center w-full h-full relative">
-                <div className="flex flex-col gap-8">
+            <div className="flex items-center justify-center w-full h-full">
+                <div className="flex flex-col gap-8 relative">
                     <div className="flex justify-center gap-2">
                         <img
                             src={Logo}
@@ -66,13 +66,7 @@ export default function PostPublishTransition({
                     </div>
                     <button
                         onClick={onClose}
-                        className="
-                            flex items-center justify-center 
-                            w-8 h-8 rounded-full 
-                            hover:bg-gray-100 transition 
-                            absolute top-2 left-2
-                            bg-white
-                        "
+                        className="absolute text-white top-2 right-2 btn btn-sm btn-circle btn-ghost"
                         aria-label="Close"
                     >
                         <AiOutlineClose className="w-6 h-6" />
