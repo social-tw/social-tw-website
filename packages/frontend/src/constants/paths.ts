@@ -13,4 +13,6 @@ export const PATHS = {
     PROFILE: '/profile',
     HISTORY: '/profile/history',
     REPUTATION: '/profile/reputation',
+    ABOUT_US: '/about',
+    NOTIFICATION: '/notification',
 }

@@ -2,6 +2,7 @@ import { PATHS } from '@/constants/paths'
 import { ProtectedRoute } from '@/features/auth'
 import { ErrorBoundary, ResetStorage } from '@/features/shared'
 import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
+import AboutPage from './app/about/page'
 import AppLayout from './app/layout'
 import PostPage from './app/posts/[id]/page'
 import PostListPage from './app/posts/page'
@@ -16,11 +17,11 @@ import LoginInternalPage from './onboarding/login/internal/page'
 import LoginPage from './onboarding/login/page'
 import SignupInternalPage from './onboarding/signup/internal/page'
 import SignupPage from './onboarding/signup/page'
+import FeaturesPage from './start/features/page'
 import LaunchPage from './start/launch/page'
+import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
-import StartLayout from './start/layout'
-import FeaturesPage from './start/features/page'
 
 const router = createBrowserRouter([
     {
@@ -69,37 +70,49 @@ const router = createBrowserRouter([
         ],
     },
     {
-        element: (
-            <ProtectedRoute>
-                <AppLayout />
-            </ProtectedRoute>
-        ),
-        errorElement: <ResetStorage />,
+        element: <AppLayout />,
+        errorElement: <ErrorBoundary />,
         children: [
             {
-                path: PATHS.HOME,
-                element: <PostListPage />,
-            },
-            {
-                path: PATHS.VIEW_POST,
-                element: <PostPage />,
-            },
-            {
-                element: <ProfileLayout />,
+                element: <ProtectedRoute />,
+                errorElement: <ResetStorage />,
                 children: [
                     {
-                        path: PATHS.PROFILE,
-                        element: <ProfilePage />,
+                        path: PATHS.HOME,
+                        element: <PostListPage />,
                     },
                     {
-                        path: PATHS.REPUTATION,
-                        element: <ReputationPage />,
+                        path: PATHS.VIEW_POST,
+                        element: <PostPage />,
                     },
                     {
-                        path: PATHS.HISTORY,
-                        element: <HistoryPage />,
+                        element: <ProfileLayout />,
+                        children: [
+                            {
+                                path: PATHS.PROFILE,
+                                element: <ProfilePage />,
+                            },
+                            {
+                                path: PATHS.REPUTATION,
+                                element: <ReputationPage />,
+                            },
+                            {
+                                path: PATHS.HISTORY,
+                                element: <HistoryPage />,
+                            },
+                        ],
+                    },
+                    {
+                        path: PATHS.NOTIFICATION,
+                        loader: () => {
+                            return redirect(PATHS.HOME)
+                        },
                     },
                 ],
+            },
+            {
+                path: PATHS.ABOUT_US,
+                element: <AboutPage />,
             },
         ],
     },
@@ -107,26 +120,15 @@ const router = createBrowserRouter([
         element: <FullScreenLayout />,
         children: [
             {
-                path: PATHS.WRITE_POST,
-                element: (
-                    <ProtectedRoute>
-                        <WritePostPage />
-                    </ProtectedRoute>
-                ),
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: PATHS.WRITE_POST,
+                        element: <WritePostPage />,
+                    },
+                ],
             },
         ],
-    },
-    {
-        path: '/explore',
-        loader: () => {
-            return redirect(PATHS.HOME)
-        },
-    },
-    {
-        path: '/notification',
-        loader: () => {
-            return redirect(PATHS.HOME)
-        },
     },
 ])
 
