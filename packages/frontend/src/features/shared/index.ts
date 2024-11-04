@@ -16,5 +16,6 @@ export {
     EpochDateService,
     InvalidFromToEpoch,
     ValidFromToEpoch,
-    type FromToEpoch,
+    type FromToEpoch
 } from './services/EpochDateService'
+

@@ -1,4 +1,3 @@
-import { SignupPendingTransition } from '@/features/auth'
 import { CreatePost, PostList } from '@/features/post'
 
 export default function PostPage() {
@@ -6,7 +5,6 @@ export default function PostPage() {
         <div>
             <section className="relative hidden py-6 border-b border-neutral-600 lg:block">
                 <CreatePost />
-                <SignupPendingTransition />
             </section>
             <section className="py-6">
                 <PostList />
