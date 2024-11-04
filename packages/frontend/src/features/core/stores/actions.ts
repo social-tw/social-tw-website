@@ -273,7 +273,8 @@ export function getActionSubject(type: ActionType, voteType?: VoteAction) {
     const subjects = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
-        [ActionType.Vote]: voteType === VoteAction.UPVOTE ? '按讚貼文' : '倒讚貼文',
+        [ActionType.Vote]:
+            voteType === VoteAction.UPVOTE ? '按讚貼文' : '倒讚貼文',
         [ActionType.DeleteComment]: '留言',
         [ActionType.ReportPost]: '檢舉',
         [ActionType.ReportComment]: '檢舉',

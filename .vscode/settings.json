@@ -5,7 +5,5 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "cSpell.words": [
-        "partialize"
-    ]
+    "cSpell.words": ["partialize"]
 }
