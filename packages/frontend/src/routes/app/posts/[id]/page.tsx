@@ -14,12 +14,12 @@ import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
-
+    const location = useLocation()
     const navigate = useNavigate()
 
     if (!id) {
@@ -69,7 +69,7 @@ const PostDetailsPage: React.FC = () => {
         }
     }, [data, userState])
 
-    const [isOpenComment, setIsOpenCommnet] = useState(false)
+    const [isOpenComment, setIsOpenComment] = useState(false)
 
     const [errorMessage, setErrorMessage] = useState<string>()
 
@@ -85,7 +85,7 @@ const PostDetailsPage: React.FC = () => {
             openForbidActionDialog()
             return
         }
-        setIsOpenCommnet((prev) => !prev)
+        setIsOpenComment((prev) => !prev)
     }
 
     const handleVote = async (voteType: VoteAction): Promise<boolean> => {
@@ -122,6 +122,12 @@ const PostDetailsPage: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+        if (location.hash === '#comments') {
+            setIsOpenComment(true)
+        }
+    }, [location.hash])
+
     if (!id || !post) return null
 
     return (
@@ -154,7 +160,7 @@ const PostDetailsPage: React.FC = () => {
             <CreateComment
                 postId={id}
                 isOpen={isOpenComment}
-                onClose={() => setIsOpenCommnet(false)}
+                onClose={() => setIsOpenComment(false)}
             />
             <CommentNotification postId={id} />
             <AuthErrorDialog
