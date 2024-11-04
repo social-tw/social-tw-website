@@ -16,7 +16,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 function getActionLink(action: Action) {
-    if (action.type === ActionType.Post) {
+    if (action.type === ActionType.Post || action.type === ActionType.Vote) {
         if (action.status === ActionStatus.Success) {
             return `/posts/${action.data.postId}`
         } else {
@@ -33,7 +33,11 @@ function getActionLink(action: Action) {
 }
 
 function isActionLinkExistWhenSuccess(action: Action) {
-    return action.type === ActionType.Post || action.type === ActionType.Comment
+    return (
+        action.type === ActionType.Post ||
+        action.type === ActionType.Comment ||
+        action.type === ActionType.Vote
+    )
 }
 
 function isActionLinkExistWhenFailure(action: Action) {
@@ -45,8 +49,10 @@ function isActionLinkExistWhenFailure(action: Action) {
 }
 
 function getActionStatusLabel(action: Action) {
-    const message = getActionMessage(action.type)
-    const subject = getActionSubject(action.type)
+    const voteType =
+        action.type === ActionType.Vote ? action.data.voteAction : undefined
+    const message = getActionMessage(action.type, voteType)
+    const subject = getActionSubject(action.type, voteType)
     const actionLink = getActionLink(action)
 
     switch (action.status) {
@@ -104,15 +110,15 @@ function getActionStatusLabel(action: Action) {
 }
 
 export default function ActionNotification() {
-    const lastestAction = useActionStore(latestActionSelector)
+    const latestAction = useActionStore(latestActionSelector)
 
     const pendingCount = useActionStore(pendingCountSelector)
 
     const [isOpen, setIsOpen] = useState(false)
 
-    if (!lastestAction) return null
+    if (!latestAction) return null
 
-    const statusLabel = getActionStatusLabel(lastestAction)
+    const statusLabel = getActionStatusLabel(latestAction)
 
     return (
         <>

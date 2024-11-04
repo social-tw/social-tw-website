@@ -3,6 +3,12 @@ import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+    ActionType,
+    addAction,
+    failActionById,
+    succeedActionById,
+} from '@/features/core'
 
 export function useVotes() {
     const queryClient = useQueryClient()
@@ -46,7 +52,27 @@ export function useVotes() {
 
             return true
         },
-        onSuccess: (_data, variables, _context) => {
+        onMutate: async (variables) => {
+            const voteData = {
+                postId: variables.id,
+                voteAction: variables.voteAction,
+                epoch: variables.votedEpoch,
+                identityNonce:
+                    variables.votedNonce ?? getEpochKeyNonce(actionCount),
+            }
+            const actionId = addAction(ActionType.Vote, voteData)
+            return { actionId }
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.actionId) {
+                failActionById(context.actionId)
+            }
+        },
+        onSuccess: (_data, variables, context) => {
+            if (context?.actionId) {
+                succeedActionById(context.actionId)
+            }
+
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ManyComments, variables.id],
             })

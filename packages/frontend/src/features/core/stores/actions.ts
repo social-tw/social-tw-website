@@ -1,4 +1,5 @@
 import { AdjudicateValue } from '@/constants/report'
+import { VoteAction } from '@/types/Vote'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
@@ -7,6 +8,7 @@ import { immer } from 'zustand/middleware/immer'
 export enum ActionType {
     Post = 'post',
     Comment = 'comment',
+    Vote = 'ote',
     DeleteComment = 'deleteComment',
     ReportPost = 'reportPost',
     ReportComment = 'reportComment',
@@ -25,6 +27,13 @@ export interface PostData {
     content: string
     epochKey?: string
     transactionHash?: string
+}
+
+export interface VoteData {
+    postId: string
+    voteAction: VoteAction
+    epoch: number | null
+    identityNonce: number
 }
 
 export interface CommentData {
@@ -69,6 +78,7 @@ export interface BaseAction<Type, Data> {
 
 export type Action =
     | BaseAction<ActionType.Post, PostData>
+    | BaseAction<ActionType.Vote, VoteData>
     | BaseAction<ActionType.Comment, CommentData>
     | BaseAction<ActionType.DeleteComment, DeleteCommentData>
     | BaseAction<ActionType.ReportPost, ReportPostData>
@@ -245,10 +255,12 @@ export function removeActionByCommentId(commentId: string) {
     removeActionById(action.id)
 }
 
-export function getActionMessage(type: ActionType) {
+export function getActionMessage(type: ActionType, voteType?: VoteAction) {
     const messages = {
         [ActionType.Post]: '貼文存取',
         [ActionType.Comment]: '留言存取',
+        [ActionType.Vote]:
+            voteType === VoteAction.UPVOTE ? '按讚上鏈' : '倒讚上鏈',
         [ActionType.DeleteComment]: '刪除留言',
         [ActionType.ReportPost]: '檢舉貼文',
         [ActionType.ReportComment]: '檢舉留言',
@@ -257,11 +269,11 @@ export function getActionMessage(type: ActionType) {
     }
     return messages[type]
 }
-
-export function getActionSubject(type: ActionType) {
+export function getActionSubject(type: ActionType, voteType?: VoteAction) {
     const subjects = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
+        [ActionType.Vote]: voteType === VoteAction.UPVOTE ? '按讚貼文' : '倒讚貼文',
         [ActionType.DeleteComment]: '留言',
         [ActionType.ReportPost]: '檢舉',
         [ActionType.ReportComment]: '檢舉',
