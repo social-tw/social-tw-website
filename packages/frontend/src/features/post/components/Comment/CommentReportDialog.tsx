@@ -1,5 +1,5 @@
 import { Dialog } from '@/features/shared'
-import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
+import { FieldValues, useForm } from 'react-hook-form'
 import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import {
     REGISTER_ID_DESC,
@@ -11,8 +11,6 @@ import {
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
-    ReportFormSubmitFailure,
-    ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
 import { useEffect, useState } from 'react'
@@ -50,8 +48,6 @@ export function CommentReportDialog({
     const {
         isIdle,
         isPending,
-        isError,
-        isSuccess,
         reportComment,
         reset: resetState,
     } = useReportComment()

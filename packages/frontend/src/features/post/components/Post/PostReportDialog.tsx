@@ -126,7 +126,7 @@ function useCloseDialogFlow({
     resetForm,
     resetState,
     onClose,
-    onCloseTransition: onCloseTransition,
+    onCloseTransition,
 }: {
     resetForm: () => void
     resetState: () => void
