@@ -10,12 +10,12 @@ export default function WelcomePage() {
 
     return (
         <>
-            <header className='fixed z-40 w-screen top-16 md:top-24'>
-                <div className='flex flex-col items-center max-w-2xl px-4 mx-auto'>
+            <header className="fixed z-40 w-screen top-16 md:top-24">
+                <div className="flex flex-col items-center max-w-2xl px-4 mx-auto">
                     <motion.img
                         src={LogoWhite}
-                        alt='UniRep Logo'
-                        className='w-30 h-30'
+                        alt="UniRep Logo"
+                        className="w-30 h-30"
                         initial={{
                             opacity: 0,
                         }}
@@ -27,7 +27,7 @@ export default function WelcomePage() {
                         }}
                     />
                     <motion.h1
-                        className='mt-3 text-2xl font-semibold text-neutral-200'
+                        className="mt-3 text-2xl font-semibold text-neutral-200"
                         initial={{
                             opacity: 0,
                             y: 100,
@@ -44,7 +44,7 @@ export default function WelcomePage() {
                         Unirep Social TW
                     </motion.h1>
                     <motion.p
-                        className='text-sm font-light leading-loose tracking-wider text-center text-white mt-9'
+                        className="text-sm font-light leading-loose tracking-wider text-center text-white mt-9"
                         initial={{
                             opacity: 0,
                             y: 100,
@@ -63,7 +63,7 @@ export default function WelcomePage() {
                     </motion.p>
                 </div>
             </header>
-            <main className='max-w-2xl min-h-screen px-4 mx-auto py-96 md:py-[26rem] md:px-9'>
+            <main className="max-w-2xl min-h-screen px-4 mx-auto py-96 md:py-[26rem] md:px-9">
                 <motion.div
                     initial={{
                         opacity: 0,
@@ -79,9 +79,9 @@ export default function WelcomePage() {
                     <WelcomePostList />
                 </motion.div>
             </main>
-            <footer className='fixed z-40 w-screen px-4 bottom-8 md:bottom-28'>
+            <footer className="fixed z-40 w-screen px-4 bottom-8 md:bottom-28">
                 <motion.div
-                    className='max-w-2xl px-4 mx-auto space-y-5 md:px-0'
+                    className="max-w-2xl px-4 mx-auto space-y-5 md:px-0"
                     initial={{
                         opacity: 0,
                         y: 100,
@@ -97,17 +97,17 @@ export default function WelcomePage() {
                 >
                     <LoginButton
                         onClick={() => navigate(PATHS.LOGIN)}
-                        title='立即登入'
-                        subTitle='歡迎提供你的獨到見解！'
-                        color='#2F9CAF'
-                        text='2xl'
+                        title="立即登入"
+                        subTitle="歡迎提供你的獨到見解！"
+                        color="#2F9CAF"
+                        text="2xl"
                     />
                     <LoginButton
                         onClick={() => navigate(PATHS.SIGN_UP)}
-                        title='立即註冊'
-                        subTitle='只要兩步驟，即可安全匿名分享你的想法！'
-                        color='#FF892A'
-                        text='2xl'
+                        title="立即註冊"
+                        subTitle="只要兩步驟，即可安全匿名分享你的想法！"
+                        color="#FF892A"
+                        text="2xl"
                     />
                 </motion.div>
             </footer>
