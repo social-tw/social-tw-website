@@ -8,6 +8,7 @@ import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
 import ConfirmationDialog from './ConfirmationDialog'
+import { truncate } from 'lodash'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -88,6 +89,7 @@ export default function AdjudicationNotification() {
     }, [activeAdjudication])
 
     const closeAdjudication = () => {
+        setButtonVisible(true)
         toggle(false)
     }
 
