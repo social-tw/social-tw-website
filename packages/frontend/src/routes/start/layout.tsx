@@ -12,7 +12,7 @@ export default function StartLayout() {
     return (
         <>
             <motion.div
-                className="fixed w-screen h-screen -z-50"
+                className='fixed w-screen h-screen -z-50'
                 animate={{
                     background: gradients,
                 }}
