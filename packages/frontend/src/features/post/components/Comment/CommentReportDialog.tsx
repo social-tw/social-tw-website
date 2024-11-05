@@ -15,6 +15,7 @@ import {
     ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
+import { useEffect, useState } from 'react'
 
 interface CommentReportDialogProps {
     postId: string
@@ -34,6 +35,8 @@ export function CommentReportDialog({
     isOpen,
     onClose,
 }: CommentReportDialogProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    
     const {
         register,
         handleSubmit,
@@ -64,22 +67,30 @@ export function CommentReportDialog({
         } catch (_error) {}
     })
 
-    const onFailureResubmit = useFailureResubmitDialogFlow({
-        resetForm,
-        resetState,
-        getValues,
-    })
-
     const onCloseDialog = useCloseDialogFlow({
         resetForm,
         resetState,
         onClose,
     })
 
+     useEffect(() => {
+         if (isPending) {
+             setIsSubmitting(true)
+
+             const timer = setTimeout(() => {
+                 onCloseDialog()
+             }, 5000)
+
+             return () => {
+                 clearTimeout(timer)
+             }
+         }
+     }, [isPending, onCloseDialog])
+
     return (
         <>
             {isIdle && (
-                <Dialog isOpen={isOpen} onClose={onClose}>
+                <Dialog isOpen={isOpen} onClose={onCloseDialog}>
                     <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
                         <ReportFormStepGroup>
@@ -109,14 +120,10 @@ export function CommentReportDialog({
                     </ReportFormCtn>
                 </Dialog>
             )}
-            {isPending && <ReportFormSubmitting />}
-            {isError && (
-                <ReportFormSubmitFailure
-                    onClose={onCloseDialog}
-                    onResubmit={onFailureResubmit}
-                />
-            )}
-            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseDialog} />}
+            <ReportFormSubmitting
+                isOpen={isSubmitting}
+                onClose={onCloseDialog}
+            />
         </>
     )
 }
@@ -134,20 +141,5 @@ function useCloseDialogFlow({
         resetForm()
         resetState()
         onClose()
-    }
-}
-
-function useFailureResubmitDialogFlow({
-    resetForm,
-    resetState,
-    getValues,
-}: {
-    resetForm: (values: FieldValues) => void
-    resetState: () => void
-    getValues: UseFormGetValues<FieldValues>
-}) {
-    return () => {
-        resetForm(getValues())
-        resetState()
     }
 }

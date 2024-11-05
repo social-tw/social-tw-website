@@ -11,7 +11,6 @@ jest.mock('../../ReportForm/ReportFormCategories', () => ({
 
 const mockValues = {
     isPending: false,
-    isIdle: false,
     isSuccess: false,
     isError: false,
     reset: jest.fn(),
@@ -19,11 +18,12 @@ const mockValues = {
 }
 
 describe('PostReportDialog', () => {
-    it('should render isIdle content', () => {
+    it('should render the initial form content', () => {
         const mockUseReportPost = useReportPost as jest.MockedFunction<
             typeof useReportPost
         >
-        mockUseReportPost.mockReturnValue({ ...mockValues, isIdle: true })
+
+        mockUseReportPost.mockReturnValue({ ...mockValues })
         render(
             <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
@@ -45,29 +45,5 @@ describe('PostReportDialog', () => {
             { wrapper },
         )
         expect(screen.getByText('您的檢舉報告正在送出中')).toBeInTheDocument()
-    })
-
-    it('should render isSuccess content', () => {
-        const mockUseReportPost = useReportPost as jest.MockedFunction<
-            typeof useReportPost
-        >
-        mockUseReportPost.mockReturnValue({ ...mockValues, isSuccess: true })
-        render(
-            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
-            { wrapper },
-        )
-        expect(screen.getByText('您的檢舉報告傳送成功！')).toBeInTheDocument()
-    })
-
-    it('should render isError content', () => {
-        const mockUseReportPost = useReportPost as jest.MockedFunction<
-            typeof useReportPost
-        >
-        mockUseReportPost.mockReturnValue({ ...mockValues, isError: true })
-        render(
-            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
-            { wrapper },
-        )
-        expect(screen.getByText('導致傳送失敗。')).toBeInTheDocument()
     })
 })

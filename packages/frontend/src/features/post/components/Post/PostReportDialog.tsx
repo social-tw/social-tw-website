@@ -1,5 +1,6 @@
 import { Dialog } from '@/features/shared'
-import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { FieldValues, useForm } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
     REGISTER_ID_DESC,
@@ -11,8 +12,6 @@ import {
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
-    ReportFormSubmitFailure,
-    ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
 
@@ -32,6 +31,8 @@ export function PostReportDialog({
     isOpen,
     onClose,
 }: PostReportDialogProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const {
         register,
         handleSubmit,
@@ -43,7 +44,6 @@ export function PostReportDialog({
     } = useForm<FieldValues>({ defaultValues })
 
     const {
-        isIdle,
         isPending,
         isError,
         isSuccess,
@@ -61,59 +61,63 @@ export function PostReportDialog({
         } catch (error) {}
     })
 
-    const onFailureResubmit = useFailureResubmitDialogFlow({
-        resetForm,
-        resetState,
-        getValues,
-    })
+    const onCloseTransition = () => {
+        setIsSubmitting(false)
+    }
 
     const onCloseDialog = useCloseDialogFlow({
         resetForm,
         resetState,
         onClose,
+        onCloseTransition,
     })
+
+    useEffect(() => {
+        if (isPending) {
+            onClose()
+            setIsSubmitting(true)
+            const timer = setTimeout(() => {
+                onCloseDialog()
+            }, 5000)
+
+            return () => {
+                clearTimeout(timer)
+            }
+        }
+    }, [isPending, onClose, onCloseDialog])
+
+    useEffect(() => {
+        if (isSuccess || isError) {
+            onCloseDialog() 
+        }
+    }, [isSuccess, isError, onCloseDialog])
 
     return (
         <>
-            {isIdle && (
-                <Dialog isOpen={isOpen} onClose={onClose}>
-                    <ReportFormCtn onSubmit={onSubmit}>
-                        <ReportFormIntro />
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="1. 檢舉原因"
-                                isRequired
-                            />
-                            <ReportFormCategories
-                                register={register}
-                                errors={errors}
-                                setValue={setValue}
-                                getValues={getValues}
-                                trigger={trigger}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="2. 檢舉描述"
-                                isRequired
-                            />
-                            <ReportFormReason
-                                register={register}
-                                errors={errors}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormSubmitBtn />
-                    </ReportFormCtn>
-                </Dialog>
-            )}
-            {isPending && <ReportFormSubmitting />}
-            {isError && (
-                <ReportFormSubmitFailure
-                    onClose={onCloseDialog}
-                    onResubmit={onFailureResubmit}
-                />
-            )}
-            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseDialog} />}
+            <Dialog isOpen={isOpen} onClose={onCloseDialog}>
+                <ReportFormCtn onSubmit={onSubmit}>
+                    <ReportFormIntro />
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel title="1. 檢舉原因" isRequired />
+                        <ReportFormCategories
+                            register={register}
+                            errors={errors}
+                            setValue={setValue}
+                            getValues={getValues}
+                            trigger={trigger}
+                        />
+                    </ReportFormStepGroup>
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel title="2. 檢舉描述" isRequired />
+                        <ReportFormReason register={register} errors={errors} />
+                    </ReportFormStepGroup>
+                    <ReportFormSubmitBtn />
+                </ReportFormCtn>
+            </Dialog>
+            <ReportFormSubmitting
+                isOpen={isSubmitting}
+                onClose={onCloseDialog}
+            />
         </>
     )
 }
@@ -122,29 +126,17 @@ function useCloseDialogFlow({
     resetForm,
     resetState,
     onClose,
+    onCloseTransition: onCloseTransition,
 }: {
     resetForm: () => void
     resetState: () => void
     onClose: () => void
+    onCloseTransition: () => void
 }) {
     return () => {
         resetForm()
         resetState()
         onClose()
-    }
-}
-
-function useFailureResubmitDialogFlow({
-    resetForm,
-    resetState,
-    getValues,
-}: {
-    resetForm: (values: FieldValues) => void
-    resetState: () => void
-    getValues: UseFormGetValues<FieldValues>
-}) {
-    return () => {
-        resetForm(getValues())
-        resetState()
+        onCloseTransition()
     }
 }
