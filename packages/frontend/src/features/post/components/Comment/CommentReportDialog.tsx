@@ -36,7 +36,7 @@ export function CommentReportDialog({
     onClose,
 }: CommentReportDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
-    
+
     const {
         register,
         handleSubmit,
@@ -73,19 +73,19 @@ export function CommentReportDialog({
         onClose,
     })
 
-     useEffect(() => {
-         if (isPending) {
-             setIsSubmitting(true)
+    useEffect(() => {
+        if (isPending) {
+            setIsSubmitting(true)
 
-             const timer = setTimeout(() => {
-                 onCloseDialog()
-             }, 5000)
+            const timer = setTimeout(() => {
+                onCloseDialog()
+            }, 5000)
 
-             return () => {
-                 clearTimeout(timer)
-             }
-         }
-     }, [isPending, onCloseDialog])
+            return () => {
+                clearTimeout(timer)
+            }
+        }
+    }, [isPending, onCloseDialog])
 
     return (
         <>

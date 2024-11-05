@@ -88,7 +88,7 @@ export function PostReportDialog({
 
     useEffect(() => {
         if (isSuccess || isError) {
-            onCloseDialog() 
+            onCloseDialog()
         }
     }, [isSuccess, isError, onCloseDialog])
 
