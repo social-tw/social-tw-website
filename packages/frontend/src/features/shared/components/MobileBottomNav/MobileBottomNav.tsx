@@ -69,7 +69,7 @@ export default function MobileBottomNav() {
                     </div>
                     <NavLink
                         className="flex items-center justify-center flex-1"
-                        to="/"
+                        to="/notification"
                     >
                         <BellIcon className="text-white w-14 h-14" />
                     </NavLink>

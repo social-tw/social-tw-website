@@ -18,6 +18,7 @@ import WritePostPage from './full-screen/write-post/page'
 import { ProtectedRoute } from '@/features/auth'
 import { ErrorBoundary, ResetStorage } from '@/features/shared'
 import { PATHS } from '@/constants/paths'
+import NotificationPage from './app/notification/page'
 
 const router = createBrowserRouter([
     {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
                     },
                 ],
             },
+            {
+                path: PATHS.NOTIFICATION,
+                element: <NotificationPage />
+            }
         ],
     },
     {
@@ -100,12 +105,6 @@ const router = createBrowserRouter([
     },
     {
         path: '/explore',
-        loader: () => {
-            return redirect(PATHS.HOME)
-        },
-    },
-    {
-        path: '/notification',
         loader: () => {
             return redirect(PATHS.HOME)
         },

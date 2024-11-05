@@ -64,7 +64,8 @@ export default function AppLayout() {
     const isShowingHeaderLogoOnSmallDevice =
         location.pathname !== '/profile' &&
         location.pathname !== '/profile/reputation' &&
-        location.pathname !== '/profile/history'
+        location.pathname !== '/profile/history' &&
+        location.pathname !== '/notification'
     const isShowingGoBackButtonOnDesktop =
         !matchPath &&
         location.pathname !== '/profile' &&
@@ -263,6 +264,8 @@ function getDesktopHeaderTextByPath(path: string): string {
         return 'Profile 我的帳號 > 歷史紀錄'
     } else if (path === '/profile/reputation') {
         return 'Profile 我的帳號 > 信譽分數'
+    } else if (path === '/notification') {
+        return '通知中心'
     } else {
         return ''
     }
@@ -275,6 +278,8 @@ function getMobileHeaderTextByPath(path: string): string {
         return '歷史紀錄'
     } else if (path === '/profile/reputation') {
         return '信譽分數'
+    } else if (path === '/notification') {
+        return '通知中心'
     } else {
         return 'Unirep Social TW'
     }
