@@ -28,7 +28,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
             return
         }
         if (!isLoggedIn) {
-            navigate(PATHS.WELCOME)
+            navigate(PATHS.LAUNCH)
         }
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
@@ -38,7 +38,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         }
         if (isLoggedIn && !isSignedUp) {
             logout()
-            navigate(PATHS.WELCOME)
+            navigate(PATHS.LAUNCH)
         }
     }, [
         isCheckingSignedUp,
