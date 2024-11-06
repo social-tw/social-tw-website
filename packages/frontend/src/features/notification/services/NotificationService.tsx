@@ -6,11 +6,12 @@ import { NotificationAction } from '../types/NotificationTypes'
 class NotificationService {
     sendNotification(type: string, targetId?: string) {
         const config = notificationConfig[type]
-        
-        // Evaluate actions to ensure it's always an array or undefined
-        const actions = typeof config.actions === 'function' && targetId
-            ? config.actions(targetId) // Call the function with targetId
-            : config.actions as NotificationAction[] | undefined // Otherwise, use it as an array or undefined
+
+        // Check if actions is a function, and if so, call it with targetId
+        const actions: NotificationAction[] | undefined = 
+            typeof config.actions === 'function' && targetId 
+                ? config.actions(targetId) 
+                : config.actions as NotificationAction[] | undefined
 
         const notification = {
             id: Date.now(),
@@ -18,7 +19,7 @@ class NotificationService {
             message: config.message,
             time: new Date().toLocaleTimeString(),
             isRead: false,
-            actions, // Ensure actions is always an array or undefined
+            actions, 
             targetId,
         }
 
@@ -34,4 +35,5 @@ class NotificationService {
 
 export default new NotificationService()
 
-// NotificationService.sendNotification('SIGN_UP_SUCCESS')
+// Example Usage
+// NotificationService.sendNotification('POST_SUCCEEDED', '123')

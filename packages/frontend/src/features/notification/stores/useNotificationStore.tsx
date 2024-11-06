@@ -1,19 +1,8 @@
 import { create } from 'zustand'
+import { NotificationAction } from '../types/NotificationTypes'
+import { Notification } from '../types/NotificationTypes'
 
-interface Notification {
-    id: number
-    type: string
-    message: string
-    time: string
-    isRead: boolean
-    actions?: NotificationAction[]
-    targetId?: string
-}
 
-interface NotificationAction {
-    label: string
-    execute: () => void
-}
 
 interface NotificationStore {
     notifications: Notification[]
@@ -25,6 +14,7 @@ interface NotificationStore {
     clearNotificationDot: () => void
 }
 
+// Define initial state
 const initialState = {
     notifications: [] as Notification[],
     showNotificationDot: false,
@@ -62,4 +52,5 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     clearNotificationDot: () => set({ showNotificationDot: false }),
 }))
 
+// Load stored notifications upon initializing
 useNotificationStore.getState().loadNotifications()
