@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNotificationStore } from '../stores/NotificationStores'
+import { useNotificationStore } from '../stores/useNotificationStore'
 import { notificationConfig } from '../types/NotificationTypes'
 
 interface NotificationItemProps {

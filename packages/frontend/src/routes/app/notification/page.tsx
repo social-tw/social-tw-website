@@ -1,17 +1,9 @@
 import React, { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { QueryKeys } from '@/constants/queryKeys'
-import NotificationService from '@/features/notification/services/NotificationService'
 import NotificationItem from '@/features/notification/components/NotificationItem'
-import { useNotificationStore } from '@/features/notification/stores/NotificationStores'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 const NotificationPage: React.FC = () => {
-    const { data: notifications, isLoading, error } = useQuery({
-        queryKey: [QueryKeys.Notifications],
-        queryFn: async () => NotificationService.fetchNotifications(),
-    })
-
-    const addNotification = useNotificationStore((state) => state.addNotification)
+    const notifications = useNotificationStore((state) => state.notifications)
     const loadReadStatuses = useNotificationStore((state) => state.loadReadStatuses)
 
     useEffect(() => {
@@ -19,15 +11,9 @@ const NotificationPage: React.FC = () => {
         loadReadStatuses()
     }, [loadReadStatuses])
 
-    useEffect(() => {
-        if (notifications) {
-            notifications.forEach((notification) => addNotification(notification))
-        }
-    }, [notifications, addNotification])
-
-    if (isLoading) return <p>Loading notifications...</p>
-    if (error) return <p>Failed to load notifications.</p>
-    if (!notifications || notifications.length === 0) return <p>No notifications available.</p>
+    if (!notifications || notifications.length === 0) {
+        return <p></p>
+    }
 
     return (
         <div className="relative px-4 py-8 md:pt-24 text-white min-h-screen">
