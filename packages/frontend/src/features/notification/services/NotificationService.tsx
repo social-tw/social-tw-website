@@ -14,10 +14,20 @@ class NotificationService {
             isRead: false,
             actions: config.actions,
         }
+        console.log(notification)
 
         const addNotification = useNotificationStore.getState().addNotification
         addNotification(notification)
     }
+
+    clearNotifications() {
+        const resetStore = useNotificationStore.getState().reset
+        resetStore()
+    }
 }
 
 export default new NotificationService()
+
+
+
+// NotificationService.sendNotification('SIGN_UP_SUCCESS')

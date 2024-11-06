@@ -1,5 +1,6 @@
 import { ReactComponent as AddIcon } from '@/assets/svg/add.svg'
 import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
+import { ReactComponent as BellWDotIcon } from '@/assets/svg/bell-wdot.svg'
 import { ReactComponent as HomeIcon } from '@/assets/svg/home.svg'
 import { ReactComponent as PersonCircleIcon } from '@/assets/svg/person-circle.svg'
 import { ReactComponent as StarIcon } from '@/assets/svg/star.svg'
@@ -7,6 +8,7 @@ import { useAuthStatus } from '@/features/auth'
 import SignupPendingTransition from '@/features/auth/components/SignupPendingTransition/SignupPendingTransition'
 import { motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 export default function MobileBottomNav() {
     const { isLoggingIn, isSigningUp } = useAuthStatus()
@@ -21,6 +23,12 @@ export default function MobileBottomNav() {
                 ease: 'easeInOut',
             },
         },
+    }
+
+    const showNotificationDot = useNotificationStore((state) => state.showNotificationDot)
+    const clearNotificationDot = useNotificationStore((state) => state.clearNotificationDot)
+    const handleBellClick = () => {
+        clearNotificationDot() 
     }
 
     return (
@@ -70,8 +78,13 @@ export default function MobileBottomNav() {
                     <NavLink
                         className="flex items-center justify-center flex-1"
                         to="/notification"
+                        onClick={handleBellClick}
                     >
-                        <BellIcon className="text-white w-14 h-14" />
+                        {showNotificationDot ? (
+                            <BellWDotIcon className="w-14 h-14" /> // Show BellWDotIcon when there's a new notification
+                        ) : (
+                            <BellIcon className="w-14 h-14" /> // Show regular BellIcon when no new notification
+                        )}
                     </NavLink>
                     <NavLink
                         className="flex items-center justify-center flex-1"

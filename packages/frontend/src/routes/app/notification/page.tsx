@@ -4,7 +4,7 @@ import { useNotificationStore } from '@/features/notification/stores/useNotifica
 
 const NotificationPage: React.FC = () => {
     const notifications = useNotificationStore((state) => state.notifications)
-    const loadReadStatuses = useNotificationStore((state) => state.loadReadStatuses)
+    const loadReadStatuses = useNotificationStore((state) => state.loadNotifications)
 
     useEffect(() => {
         // Load read statuses from local storage

@@ -16,52 +16,49 @@ interface NotificationAction {
 
 interface NotificationStore {
     notifications: Notification[]
+    showNotificationDot: boolean
     addNotification: (notification: Notification) => void
     markAsRead: (id: number) => void
-    loadReadStatuses: () => void
+    loadNotifications: () => void
+    reset: () => void
+    clearNotificationDot: () => void
 }
 
 const initialState = {
     notifications: [] as Notification[],
+    showNotificationDot: false,
 }
 
 export const useNotificationStore = create<NotificationStore>((set) => ({
     ...initialState,
     addNotification: (notification) =>
         set((state) => {
-            // Check if notification with same ID already exists
-            if (state.notifications.some((n) => n.id === notification.id)) {
-                return state // Return unchanged state if ID exists
-            }
+            const updatedNotifications = [...state.notifications, notification]
+            localStorage.setItem('notifications', JSON.stringify(updatedNotifications))
             return {
-                notifications: [...state.notifications, notification],
+                notifications: updatedNotifications,
+                showNotificationDot: true,
             }
         }),
     markAsRead: (id) =>
-        set((state) => ({
-            notifications: state.notifications.map((n) =>
+        set((state) => {
+            const updatedNotifications = state.notifications.map((n) =>
                 n.id === id ? { ...n, isRead: true } : n
-            ),
-        })),
-    loadReadStatuses: () => {
+            )
+            localStorage.setItem('notifications', JSON.stringify(updatedNotifications))
+            return { notifications: updatedNotifications }
+        }),
+    loadNotifications: () => {
         const storedNotifications = localStorage.getItem('notifications')
         if (storedNotifications) {
             set({ notifications: JSON.parse(storedNotifications) })
-        } else {
-            set({ notifications: [] })
         }
     },
-    reset: () => set({ ...initialState }),
+    reset: () => {
+        localStorage.removeItem('notifications')
+        set({ ...initialState })
+    },
+    clearNotificationDot: () => set({ showNotificationDot: false }),
 }))
 
-
-//usage:
-
-//import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
-
-// NotificationService.sendNotification('SIGN_UP_SUCCESS')
-
-// const clearNotifications = () => {
-//     const resetStore = useNotificationStore((state) => state.reset)
-//     resetStore()
-// }
+useNotificationStore.getState().loadNotifications()

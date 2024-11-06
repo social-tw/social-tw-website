@@ -8,6 +8,7 @@ import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
+
 export class PostService extends RelayApiService {
     async fetchPosts(page: number) {
         const client = this.getClient()
@@ -67,6 +68,8 @@ export class PostService extends RelayApiService {
             }),
         )
         const { txHash } = response.data
+        
+
         return {
             txHash,
             epoch: Number(epoch),
