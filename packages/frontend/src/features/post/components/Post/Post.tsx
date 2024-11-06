@@ -90,19 +90,14 @@ export default function Post({
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
-    const [show, setShow] = useState(false)
+    const [isShowAnimation, setIsShowAnimation] = useState(false)
+    const [isShowMask, setIsShowMask] = useState(isReported)
     const [imgType, setImgType] = useState<
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
     const [isError, setIsError] = useState(false)
-
-    // set isAction when finalAction is changed
-    useEffect(() => {
-        setIsMineState(isMine)
-        setIsAction(finalAction)
-    }, [isMine, finalAction])
 
     const { isValidReputationScore } = useReputationScore()
     const handleVote = async (voteType: VoteAction) => {
@@ -116,14 +111,14 @@ export default function Post({
             return
         }
 
-        setShow(true)
+        setIsShowAnimation(true)
         setImgType(
             voteType === VoteAction.UPVOTE
                 ? VoteAction.UPVOTE
                 : VoteAction.DOWNVOTE,
         )
         setIsAction(voteType)
-        setTimeout(() => setShow(false), 500)
+        setTimeout(() => setIsShowAnimation(false), 500)
     }
 
     useEffect(() => {
@@ -135,6 +130,11 @@ export default function Post({
         setIsMineState(voteState.isMine)
         setIsAction(voteState.finalAction)
     }, [voteState])
+
+    useEffect(() => {
+        setIsMineState(isMine)
+        setIsAction(finalAction)
+    }, [isMine, finalAction])
 
     const postInfo = (
         <div className="space-y-3">
@@ -167,9 +167,14 @@ export default function Post({
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isReported && <PostReportedMask />}
+            {isShowMask && (
+                <PostReportedMask
+                    onRemove={() => setIsShowMask(false)}
+                    reason="張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等。"
+                />
+            )}
             {isBlocked && <PostBlockedMask />}
-            {<LikeAnimation isLiked={show} imgType={imgType} />}
+            {<LikeAnimation isLiked={isShowAnimation} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>

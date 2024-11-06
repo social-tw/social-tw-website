@@ -42,6 +42,7 @@ export default function PostList() {
         queryFn: async ({ pageParam }) => {
             const postService = new PostService()
             const data = await postService.fetchPosts(pageParam)
+            console.log(data)
 
             return data.map((item) => {
                 const voteCheck = userState
