@@ -14,9 +14,10 @@ import { PostReportDialog } from './PostReportDialog'
 
 interface PostActionMenuProps {
     postId: string
+    content: string
 }
 
-export function PostActionMenu({ postId }: PostActionMenuProps) {
+export function PostActionMenu({ postId, content }: PostActionMenuProps) {
     const {
         isOpen: isActionMenuOpen,
         onOpen: onActionMenuOpen,
@@ -63,6 +64,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
             </ActionMenuBottomSlide>
             <PostReportDialog
                 postId={postId}
+                content={content}
                 isOpen={isReportDialogOpen}
                 onClose={onReportDialogClose}
             />
