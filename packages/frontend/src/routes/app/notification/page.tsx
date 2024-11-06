@@ -1,24 +1,29 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import NotificationService from '@/features/notification/services/NotificationService'
 import NotificationItem from '@/features/notification/components/NotificationItem'
-
-interface Notification {
-    id: number
-    type: string
-    message: string
-    time: string
-    isRead: boolean
-    actionLabel?: string
-    action?: () => void
-}
+import { useNotificationStore } from '@/features/notification/stores/NotificationStores'
 
 const NotificationPage: React.FC = () => {
-    const { data: notifications, isLoading, error } = useQuery<Notification[]>({
+    const { data: notifications, isLoading, error } = useQuery({
         queryKey: [QueryKeys.Notifications],
         queryFn: async () => NotificationService.fetchNotifications(),
     })
+
+    const addNotification = useNotificationStore((state) => state.addNotification)
+    const loadReadStatuses = useNotificationStore((state) => state.loadReadStatuses)
+
+    useEffect(() => {
+        // Load read statuses from local storage
+        loadReadStatuses()
+    }, [loadReadStatuses])
+
+    useEffect(() => {
+        if (notifications) {
+            notifications.forEach((notification) => addNotification(notification))
+        }
+    }, [notifications, addNotification])
 
     if (isLoading) return <p>Loading notifications...</p>
     if (error) return <p>Failed to load notifications.</p>
@@ -34,7 +39,7 @@ const NotificationPage: React.FC = () => {
             </div>
             <div className="pt-24 space-y-4">
                 {notifications.map((notification) => (
-                    <NotificationItem key={notification.id} notification={notification} />
+                    <NotificationItem key={notification.id} notificationId={notification.id} />
                 ))}
             </div>
         </div>

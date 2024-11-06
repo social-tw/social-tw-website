@@ -47,7 +47,7 @@ export const notificationConfig: Record<string, NotificationConfig> = {
         type: "POST_SUCCEEDED",
         message: "你的貼文發佈成功！",
         actions: [
-            { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
+            // { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
             { label: "前往查看", execute: goToPostPage(123) }
         ],
         icon: PostSuccessIcon,
@@ -62,7 +62,7 @@ export const notificationConfig: Record<string, NotificationConfig> = {
         type: "COMMENT_SUCCEEDED",
         message: "你的留言發佈成功！",
         actions: [
-            { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
+            // { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
             { label: "前往查看", execute: goToPostPage(123) }
         ],
         icon: CommentSuccessIcon,
@@ -101,7 +101,7 @@ export const notificationConfig: Record<string, NotificationConfig> = {
         type: "REPORT_SUCCEEDED",
         message: "你的不當內容檢舉申請送出成功！待 5 位平台用戶進行評判",
         actions: [
-            { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
+            // { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
             { label: "前往查看", execute: goToPostPage(123) }
         ],
         icon: ReportSuccessIcon,
@@ -116,7 +116,7 @@ export const notificationConfig: Record<string, NotificationConfig> = {
         type: "REPORT_PASSED",
         message: "你的貼文檢舉案件被評判通過，你的聲譽分數提高 3 分",
         actions: [
-            { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
+            // { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
             { label: "前往查看", execute: goToPostPage(123) }
         ],
         icon: ReportPassed,
@@ -125,7 +125,7 @@ export const notificationConfig: Record<string, NotificationConfig> = {
         type: "REPORT_REJECTED",
         message: "很遺憾通知你，你的貼文檢舉案件被評判否決，你的聲譽分數降低 1 分",
         actions: [
-            { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
+            // { label: "查看區塊鏈瀏覽器", execute: () => console.log("Navigating to blockchain explorer") },
             { label: "前往查看", execute: goToPostPage(123) }
         ],
         icon: ReportRejected,

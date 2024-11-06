@@ -2,53 +2,58 @@ import React from 'react'
 import { useNotificationStore } from '../stores/NotificationStores'
 import { notificationConfig } from '../types/NotificationTypes'
 
-interface Notification {
-    id: number
-    type: string
-    message: string
-    time: string
-    isRead: boolean
-    actionLabel?: string
-    action?: () => void
-}
-
 interface NotificationItemProps {
-    notification: Notification
+    notificationId: number
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ notification }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) => {
+    const notification = useNotificationStore((state) =>
+        state.notifications.find((n) => n.id === notificationId)
+    )
     const markAsRead = useNotificationStore((state) => state.markAsRead)
+
+    if (!notification) return null // Render nothing if notification is not found
 
     const handleAction = (execute: () => void) => {
         execute()
         markAsRead(notification.id)
     }
 
-    // Get the icon component based on notification type
     const config = notificationConfig[notification.type]
-    const IconComponent = notificationConfig[notification.type]?.icon
+    const IconComponent = config?.icon
 
     return (
-        <div className="flex items-center p-3 rounded-lg shadow-md mb-4 bg-gray-100">
-            <div className="mr-4 flex-shrink-0 flex items-center justify-center h-full">
-                {IconComponent ? <IconComponent className="w-8 h-8" /> : null}
-            </div>
+        <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
+            {/* Overlay for read notifications, with pointer-events-none to allow click-through */}
+            {notification.isRead && (
+                <div className="absolute inset-0 bg-black bg-opacity-40 rounded-2xl z-20 pointer-events-none"></div>
+            )}
 
-            <div className="flex-grow">
-                <p className="text-xs text-gray-500 mb-1">{notification.time}</p>
-                <p className="text-sm text-black">{notification.message}</p>
+            <div className="flex items-center w-full z-10">
+                <div className="mr-4 flex-shrink-0 flex items-center justify-center h-full">
+                    {IconComponent ? <IconComponent className="w-8 h-8" /> : null}
+                </div>
 
-                {/* Render multiple actions aligned to the right */}
-                <div className="flex justify-end space-x-4 mt-2">
-                    {config?.actions?.map((action, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleAction(action.execute)}
-                            className="text-blue-600 text-xs underline"
-                        >
-                            {action.label}
-                        </button>
-                    ))}
+                <div className="flex-grow">
+                    <p className={`text-xs mb-1 text-gray-500`}>{notification.time}</p>
+                    <p className={`text-sm ${notification.isRead ? 'text-gray-500' : 'text-black'}`}>
+                        {notification.message}
+                    </p>
+
+                    {/* Render multiple actions aligned to the right */}
+                    <div className="flex justify-end space-x-4 mt-2">
+                        {config?.actions?.map((action, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleAction(action.execute)}
+                                className={`text-xs underline ${
+                                    notification.isRead ? 'text-gray-400' : 'text-blue-600'
+                                }`}
+                            >
+                                {action.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
