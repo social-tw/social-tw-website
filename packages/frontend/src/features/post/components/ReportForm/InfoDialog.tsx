@@ -13,8 +13,8 @@ export function InfoDialog({
 }: InfoDialogProps) {
     return (
         <Dialog isOpen={isOpen} onClose={onClose}>
-            <div className="py-6 px-12 flex flex-col items-center justify-between gap-16">
-                <p className="mt-2 tracking-wide leading-7">
+            <div className="py-8 px-12 flex flex-col items-center justify-between gap-16 w-full">
+                <p className="mt-6 tracking-wide leading-7">
                     親愛的用戶：
                     <br />
                     <br />
@@ -36,7 +36,7 @@ export function InfoDialog({
                     ，以幫助其他用戶進行評判，並避免聲譽分數被降低的風險。
                 </p>
                 <button
-                    className="w-80 h-14 rounded-lg text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%] bg-primary/90"
+                    className="max-w-[280px] w-full h-14 rounded-lg text-white/90 flex justify-center items-center text-xl font-bold tracking-[30%] bg-primary/90"
                     type="button"
                     onClick={onButtonClick}
                 >
