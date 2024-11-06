@@ -22,6 +22,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
     const config = notificationConfig[notification.type]
     const IconComponent = config?.icon
 
+    // Ensure `actions` is an array by checking if it's a function and calling it if necessary
+    const actions = Array.isArray(config.actions)
+        ? config.actions
+        : typeof config.actions === 'function' && notification.targetId
+            ? config.actions(notification.targetId)
+            : []
+
     return (
         <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
             {/* Overlay for read notifications, with pointer-events-none to allow click-through */}
@@ -42,13 +49,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
 
                     {/* Render multiple actions aligned to the right */}
                     <div className="flex justify-end space-x-4 mt-2">
-                        {config?.actions?.map((action, index) => (
+                        {actions.map((action, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleAction(action.execute)}
-                                className={`text-xs underline ${
-                                    notification.isRead ? 'text-gray-400' : 'text-blue-600'
-                                }`}
+                                className={`text-xs underline ${notification.isRead ? 'text-gray-400' : ''}`} 
+                                style={{ color: notification.isRead ? undefined : '#4A9BAA' }}
                             >
                                 {action.label}
                             </button>

@@ -7,6 +7,7 @@ interface Notification {
     time: string
     isRead: boolean
     actions?: NotificationAction[]
+    targetId?: string
 }
 
 interface NotificationAction {
