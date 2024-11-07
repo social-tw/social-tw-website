@@ -4,6 +4,7 @@ import { useNotificationStore } from '../stores/useNotificationStore'
 import { notificationConfig } from '../types/NotificationTypes'
 import { useNavigate } from 'react-router-dom'
 import { PATHS } from '@/constants/paths'
+
 interface NotificationItemProps {
     notificationId: number
 }
@@ -18,31 +19,44 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
     if (!notification) return null // Render nothing if notification is not found
 
     const handleAction = (actionType: string, targetId?: string) => {
+        console.log(actionType, targetId)
         switch (actionType) {
             case "viewPost":
-                if (targetId) navigate(`/post/${targetId}`)
+                if (targetId) navigate(`/posts/${targetId}`)
                 break
-            case "writePost":
-                navigate(PATHS.WRITE_POST)
+            case "rewritePost":
+                //TODO: does not show the failed post
+                navigate(`/?failedPostId=${targetId}`)
                 break
-            // case "viewReport":
-            //     if (targetId) navigate(`/report/${targetId}`)
-            //     break
-            // case "openCheckIn":
-            //     navigate("/check-in")
-            //     break
-            // Add more case statements as needed for other actions
+            case "viewComment":
+                // `/posts/${action.data.postId}#${action.data.commentId}`
+                if (targetId) navigate(`/posts/${targetId}`)
+                break
+            case "rewriteComment":
+                // `/posts/${action.data.postId}#${action.data.commentId}`
+                if (targetId) navigate(`/posts/${targetId}`)
+                break
+            case "reportDialog":
+                if (targetId) navigate(`/report/${targetId}`)
+                break
+            case "reportResult":
+                if (targetId) navigate(`/report/${targetId}`)
+                break
+            case "adjudicationDialog":
+                if (targetId) navigate(`/report/${targetId}`)
+                break
+            case "checkIn":
+                if (targetId) navigate(`/report/${targetId}`)
+                break
             default:
-                console.warn("Unknown action type")
+                console.warn("Unknown action type:", actionType)
         }
         markAsRead(notification.id)
     }
 
     const config = notificationConfig[notification.type]
     const IconComponent = config?.icon
-    const actions = typeof config.actions === 'function'
-        ? config.actions(notification.targetId)
-        : config.actions
+    const actions = config.actions || []
 
     return (
         <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
@@ -62,7 +76,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
                     </p>
 
                     <div className="flex justify-end space-x-4 mt-2">
-                        {actions?.map((action, index) => (
+                        {actions.map((action, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleAction(action.type, notification.targetId)}

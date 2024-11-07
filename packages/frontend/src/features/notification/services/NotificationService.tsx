@@ -7,11 +7,7 @@ class NotificationService {
     sendNotification(type: string, targetId?: string) {
         const config = notificationConfig[type]
 
-        // Check if actions is a function, and if so, call it with targetId
-        const actions: NotificationAction[] | undefined = 
-            typeof config.actions === 'function' && targetId 
-                ? config.actions(targetId) 
-                : config.actions as NotificationAction[] | undefined
+        const actions = config.actions 
 
         const notification = {
             id: Date.now(),

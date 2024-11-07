@@ -1,11 +1,12 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useToggle } from '@uidotdev/usehooks'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
+import NotificationService from '@/features/notification/services/NotificationService'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -66,6 +67,13 @@ function useActiveAdjudication() {
             content: activeReport.object.content,
         }
     }, [activeReport])
+
+    useEffect(() => {
+        if (activeReport) {
+            NotificationService.sendNotification('NEW_REPORT_ADJUDICATE', activeReport.reportId)
+        }
+    }, [activeReport])
+
 
     return {
         data: reportData,

@@ -1,8 +1,15 @@
 import { create } from 'zustand'
 import { NotificationAction } from '../types/NotificationTypes'
-import { Notification } from '../types/NotificationTypes'
 
-
+interface Notification {
+    id: number
+    type: string
+    message: string
+    time: string
+    isRead: boolean
+    actions?: NotificationAction[] 
+    targetId?: string
+}
 
 interface NotificationStore {
     notifications: Notification[]

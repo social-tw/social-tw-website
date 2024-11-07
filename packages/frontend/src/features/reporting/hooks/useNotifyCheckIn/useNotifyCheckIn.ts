@@ -3,6 +3,7 @@ import { useReputationScore } from '@/features/reporting'
 import { useLocalStorage } from '@uidotdev/usehooks'
 import dayjs from 'dayjs'
 import { useEffect } from 'react'
+import NotificationService from '@/features/notification/services/NotificationService'
 
 export function useNotifyCheckIn() {
     const { reputationScore } = useReputationScore()
@@ -47,6 +48,12 @@ export function useNotifyCheckIn() {
 
         setDiscardedAt(null)
     }, [discardedAt, setDiscardedAt])
+
+    useEffect(() => {
+        if (!!reputationScore && reputationScore < 0 && !checkedInAt && !discardedAt) {
+            NotificationService.sendNotification('LOW_REPUTATION') 
+        }
+    }, [reputationScore, checkedInAt, discardedAt])
 
     return {
         isOpen,
