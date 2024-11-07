@@ -15,7 +15,7 @@ import {
 
 function HistoryButton() {
     const navigate = useNavigate()
-    
+
     const handleLogout = () => {
         navigate('/profile/history')
     }

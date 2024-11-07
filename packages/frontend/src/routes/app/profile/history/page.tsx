@@ -11,16 +11,17 @@ export default function History() {
         navigate('/welcome')
     }
 
-    if (!isLoggedIn) return (
-        <LoginButton
-            isLoading={false}
-            onClick={handleClick}
-            title="登入你的帳號"
-            color="#2F9CAF"
-            icon={RiLoginBoxLine}
-            text="lg"
-            iconSize={24}
-        />
-    )
+    if (!isLoggedIn)
+        return (
+            <LoginButton
+                isLoading={false}
+                onClick={handleClick}
+                title="登入你的帳號"
+                color="#2F9CAF"
+                icon={RiLoginBoxLine}
+                text="lg"
+                iconSize={24}
+            />
+        )
     return <AccountHistory />
 }
