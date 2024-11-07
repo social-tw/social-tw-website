@@ -1,5 +1,10 @@
 import { useAuthStatus } from '@/features/auth'
-import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import {
+    LikeAnimation,
+    VoteFailureDialog,
+    useFirstReportReason,
+    useVoteStore,
+} from '@/features/post'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -100,6 +105,8 @@ export default function Post({
     const [isError, setIsError] = useState(false)
 
     const { isValidReputationScore } = useReputationScore()
+    const { reason } = useFirstReportReason(id)
+
     const handleVote = async (voteType: VoteAction) => {
         if (!isValidReputationScore) {
             openForbidActionDialog()
@@ -170,7 +177,7 @@ export default function Post({
             {isShowMask && (
                 <PostReportedMask
                     onRemove={() => setIsShowMask(false)}
-                    reason="張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等。"
+                    reason={reason}
                 />
             )}
             {isBlocked && <PostBlockedMask />}

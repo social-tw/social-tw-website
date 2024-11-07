@@ -1,15 +1,18 @@
 import { ReactComponent as GavelIcon } from '@/assets/svg/gavel.svg'
 import { useDialog } from '@/features/shared'
 import ActionLinks from '../ReportedMask/ActionLinks'
-import ReportReason from '../ReportedMask/ReportReason'
 import ConfirmDialog from '../ReportedMask/ConfirmDialog'
+import ReportReason from '../ReportedMask/ReportReason'
 
 interface PostReportedMaskProps {
-    reason: string
+    reason?: string
     onRemove: () => void
 }
 
-export function PostReportedMask({ reason, onRemove }: PostReportedMaskProps) {
+export function PostReportedMask({
+    reason = '',
+    onRemove,
+}: PostReportedMaskProps) {
     const {
         isOpen: isDialogOpen,
         onOpen: onDialogOpen,
