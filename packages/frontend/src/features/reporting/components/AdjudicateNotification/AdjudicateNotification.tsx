@@ -6,6 +6,7 @@ import { usePendingReports } from '../../hooks/usePendingReports/usePendingRepor
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
+import { useAuthStatus } from '@/features/auth'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -74,6 +75,7 @@ function useActiveAdjudication() {
 }
 
 export default function AdjudicationNotification() {
+    const { isLoggedIn } = useAuthStatus()
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
 
     const [open, toggle] = useToggle(false)
@@ -83,7 +85,7 @@ export default function AdjudicationNotification() {
         toggle(false)
     }
 
-    if (!activeAdjudication) {
+    if (!activeAdjudication || !isLoggedIn) {
         return null
     }
 

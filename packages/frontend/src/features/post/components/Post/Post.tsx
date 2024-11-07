@@ -1,5 +1,7 @@
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -62,7 +64,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
-
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
     const { votes } = useVoteStore()
 
     const voteState = useMemo(() => {
@@ -105,7 +107,15 @@ export default function Post({
     }, [isMine, finalAction])
 
     const { isValidReputationScore } = useReputationScore()
+
+    const handleComment = () => {
+        checkAuth(() => {
+            onComment()
+        })
+    }
+
     const handleVote = async (voteType: VoteAction) => {
+        if (!isLoggedIn) return
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
@@ -189,7 +199,7 @@ export default function Post({
                     countComment={commentCount}
                     voteAction={isAction}
                     handleVote={handleVote}
-                    handleComment={onComment}
+                    handleComment={handleComment}
                 />
             </div>
             {compact && imageUrl && (

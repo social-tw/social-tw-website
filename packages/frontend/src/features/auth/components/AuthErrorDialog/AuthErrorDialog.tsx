@@ -6,12 +6,14 @@ interface ErrorModalProps {
     isOpen: boolean
     message?: string
     buttonText?: string
+    onClose: () => void
 }
 
 export default function AuthErrorDialog({
     isOpen,
     message = '',
     buttonText = '返回註冊頁重新嘗試',
+    onClose,
 }: ErrorModalProps) {
     const navigate = useNavigate()
 
@@ -26,14 +28,14 @@ export default function AuthErrorDialog({
                     <GrFormClose
                         className="absolute cursor-pointer top-4 right-4"
                         size={24}
-                        onClick={handleClick}
+                        onClick={onClose}
                     />
-                    <div className="flex flex-col justify-center gap-6">
+                    <div className="flex flex-col w-full py-2 gap-5">
                         <p>親愛的用戶：</p>
                         <p>{message}</p>
                     </div>
                     <button
-                        className="w-full py-4 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg"
+                        className="w-full max-w-[280px] px-4 py-3 bg-[#FF892A] rounded-lg text-white font-bold tracking-wider text-lg"
                         onClick={handleClick}
                     >
                         {buttonText}

@@ -13,6 +13,8 @@ import {
 } from '../ActionMenu'
 import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 
 interface CommentActionMenuProps {
     postId: string
@@ -29,6 +31,8 @@ export function CommentActionMenu({
     canDelete,
     canReport,
 }: CommentActionMenuProps) {
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
     const {
         isOpen: isActionMenuOpen,
         onOpen: onActionMenuOpen,
@@ -46,9 +50,16 @@ export function CommentActionMenu({
     } = useDialog()
 
     const { isValidReputationScore } = useReputationScore()
+
     const handleReportComment = isValidReputationScore
         ? onReportDialogOpen
         : openForbidActionDialog
+
+    const onReport = () => {
+        checkAuth(() => {
+            handleReportComment()
+        })
+    }
 
     return (
         <ActionMenuContainer
@@ -68,7 +79,7 @@ export function CommentActionMenu({
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉留言"
-                    onClick={handleReportComment}
+                    onClick={onReport}
                     disabled={!canReport}
                 />
             </ActionMenuDropdown>
@@ -85,7 +96,7 @@ export function CommentActionMenu({
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉留言"
-                    onClick={handleReportComment}
+                    onClick={onReport}
                     disabled={!canReport}
                 />
             </ActionMenuBottomSlide>

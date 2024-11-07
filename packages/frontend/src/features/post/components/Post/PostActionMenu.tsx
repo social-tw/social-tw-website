@@ -1,4 +1,6 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useReputationScore } from '@/features/reporting'
 import { useDialog } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -30,9 +32,17 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
     } = useDialog()
 
     const { isValidReputationScore } = useReputationScore()
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
     const handleReportPost = isValidReputationScore
         ? onReportDialogOpen
         : openForbidActionDialog
+
+    const onReport = () => {
+        checkAuth(() => {
+            handleReportPost()
+        })
+    }
 
     return (
         <ActionMenuContainer
@@ -46,7 +56,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={handleReportPost}
+                    onClick={onReport}
                     disabled={false}
                 />
             </ActionMenuDropdown>
@@ -57,7 +67,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={handleReportPost}
+                    onClick={onReport}
                     disabled={false}
                 />
             </ActionMenuBottomSlide>

@@ -1,5 +1,4 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
 import { PostService, useUserState } from '@/features/core'
 import {
     CommentList,
@@ -27,8 +26,6 @@ const PostDetailsPage: React.FC = () => {
     }
 
     const { userState } = useUserState()
-
-    const { isLoggedIn } = useAuthStatus()
 
     const { createVote } = useVotes()
 
@@ -69,23 +66,16 @@ const PostDetailsPage: React.FC = () => {
         }
     }, [data, userState])
 
-    const [isOpenComment, setIsOpenCommnet] = useState(false)
-
-    const [errorMessage, setErrorMessage] = useState<string>()
+    const [isOpenComment, setIsOpenComment] = useState(false)
 
     const { isValidReputationScore } = useReputationScore()
+
     const onWriteComment = () => {
-        if (!isLoggedIn) {
-            setErrorMessage(
-                '很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！',
-            )
-            return
-        }
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
         }
-        setIsOpenCommnet((prev) => !prev)
+        setIsOpenComment((prev) => !prev)
     }
 
     const handleVote = async (voteType: VoteAction): Promise<boolean> => {
@@ -154,14 +144,9 @@ const PostDetailsPage: React.FC = () => {
             <CreateComment
                 postId={id}
                 isOpen={isOpenComment}
-                onClose={() => setIsOpenCommnet(false)}
+                onClose={() => setIsOpenComment(false)}
             />
             <CommentNotification postId={id} />
-            <AuthErrorDialog
-                isOpen={!!errorMessage}
-                message={errorMessage}
-                buttonText="返回註冊/登入頁"
-            />
         </>
     )
 }

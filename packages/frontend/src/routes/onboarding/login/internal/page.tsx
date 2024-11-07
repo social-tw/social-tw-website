@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { GrFormClose } from 'react-icons/gr'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
     AuthErrorDialog,
     AuthNoteDialog,
@@ -20,6 +20,11 @@ enum NoteStatus {
 
 export default function LoginInternalPage() {
     const { selectedSignupMethod } = useParams()
+    const navigate = useNavigate()
+
+    const handleClose = () => {
+        navigate('/welcome')
+    }
 
     const {
         isPending: isWalletLoginPending,
@@ -97,7 +102,11 @@ export default function LoginInternalPage() {
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <AuthErrorDialog isOpen={!!error} message={error?.message} />
+            <AuthErrorDialog
+                isOpen={!!error}
+                message={error?.message}
+                onClose={handleClose}
+            />
         </div>
     )
 }

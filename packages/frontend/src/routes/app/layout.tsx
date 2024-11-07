@@ -14,6 +14,7 @@ import {
 import { useBackgroundReputationClaim } from '@/features/reporting/hooks/useBackgroundReputationClaim/useBackgroundReputationClaim'
 import { MobileBottomNav } from '@/features/shared'
 import { ForbidActionDialog } from '@/features/shared/components/Dialog/ForbidActionDialog'
+import { useAuthStore } from '@/features/auth/stores/authStore'
 import {
     closeForbidActionDialog,
     useDialogStore,
@@ -42,10 +43,10 @@ function NotificationContainer({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout() {
     const matchPath = useMatch('/')
-
     const location = useLocation()
-
     const navigate = useNavigate()
+
+    // const { isAuthError, hideAuthError } = useAuthStore()
 
     useBackgroundReputationClaim()
 
@@ -110,6 +111,12 @@ export default function AppLayout() {
                     </main>
                     <MobileBottomNav />
                     <ErrorDialog />
+                    {/* {isAuthError && (
+                        <AuthErrorDialog
+                            isOpen={true}
+                            message="很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！"
+                        />
+                    )} */}
                 </div>
                 <NotificationContainer>
                     <AdjudicationNotification />
@@ -238,6 +245,12 @@ export default function AppLayout() {
                         </div>
                     </section>
                     <ErrorDialog />
+                    {/* {isAuthError && (
+                        <AuthErrorDialog
+                            isOpen={true}
+                            message="很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！"
+                        />
+                    )} */}
                 </div>
                 <NotificationContainer>
                     <AdjudicationNotification />

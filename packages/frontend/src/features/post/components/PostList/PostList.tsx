@@ -1,4 +1,5 @@
 import { QueryKeys } from '@/constants/queryKeys'
+
 import {
     ActionStatus,
     postActionsSelector,
@@ -126,6 +127,15 @@ export default function PostList() {
 
     const { createVote } = useVotes()
 
+    const handleComment = (postId?: string) => {
+        if (!postId) return
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
+            return
+        }
+        gotoCommentsByPostId(postId)
+    }
+
     const handleVote = async (
         id: string,
         voteType: VoteAction,
@@ -219,14 +229,7 @@ export default function PostList() {
                                     votedNonce={post.votedNonce}
                                     votedEpoch={post.votedEpoch}
                                     status={post.status}
-                                    onComment={() => {
-                                        if (!post.postId) return
-                                        if (!isValidReputationScore) {
-                                            openForbidActionDialog()
-                                            return
-                                        }
-                                        gotoCommentsByPostId(post.postId)
-                                    }}
+                                    onComment={() => handleComment(post.id)}
                                     onVote={(voteType) =>
                                         handleVote(post.postId!, voteType, post)
                                     }

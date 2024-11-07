@@ -50,7 +50,7 @@ export default function SignUpLoadingModal() {
     const [pendingText, setPendingText] =
         useState('努力註冊中，先來看看文章吧！')
 
-    const opacityVarients = {
+    const opacityVariants = {
         visible: { opacity: 1 },
         hidden: {
             opacity: 0,
@@ -98,13 +98,13 @@ export default function SignUpLoadingModal() {
                 <>
                     <motion.div
                         className="w-8/12 h-[12px] rounded-2xl bg-gradient-to-r from-[#52ACBC] to-[#FF892A]"
-                        variants={opacityVarients}
+                        variants={opacityVariants}
                         initial="visible"
                         animate="hidden"
                     />
                     <motion.p
                         className="w-11/12 text-lg font-semibold tracking-wider text-center text-white h-14"
-                        variants={opacityVarients}
+                        variants={opacityVariants}
                         initial="visible"
                         animate="hidden"
                     >
