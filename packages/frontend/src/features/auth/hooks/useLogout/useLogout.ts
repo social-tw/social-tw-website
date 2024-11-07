@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { MutationKeys } from '@/constants/queryKeys'
 import { PATHS } from '@/constants/paths'
+import NotificationService from '@/features/notification/services/NotificationService'
 
 export function useLogout() {
     const navigate = useNavigate()
@@ -21,6 +22,7 @@ export function useLogout() {
             LocalStorageHelper.removeSignMsg()
         },
         onSuccess: () => {
+            NotificationService.clearNotifications()
             navigate(PATHS.WELCOME)
         },
     })
