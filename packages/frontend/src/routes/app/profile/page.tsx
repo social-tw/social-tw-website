@@ -4,6 +4,7 @@ import {
     RiHourglassFill,
     RiLogoutBoxRLine,
     RiShieldStarLine,
+    RiLoginBoxLine,
 } from 'react-icons/ri'
 import {
     CyanButton,
@@ -14,9 +15,11 @@ import {
 
 function HistoryButton() {
     const navigate = useNavigate()
+    
     const handleLogout = () => {
         navigate('/profile/history')
     }
+
     return (
         <CyanButton
             isLoading={false}
@@ -90,7 +93,7 @@ export default function ProfilePage() {
                         onClick={handleClick}
                         title="登入你的帳號"
                         color="#2F9CAF"
-                        icon={RiLogoutBoxRLine}
+                        icon={RiLoginBoxLine}
                         text="lg"
                         iconSize={24}
                     />
