@@ -28,7 +28,8 @@ export default (
             }
             if (isNaN(page) || page < 1) throw Errors.INVALID_PAGE()
 
-            const posts = await postService.fetchPosts(epks, page, db)
+            const keyword = req.query.content ? req.query.content as string : undefined
+            const posts = await postService.fetchPosts(epks, page, keyword, db)
             res.json(posts)
         })
     )
