@@ -76,7 +76,7 @@ describe('POST /post', function () {
         const helia = await createHelia()
         const testContentHash = await IpfsHelper.createIpfsContent(
             helia,
-            testContent
+            testContent,
         )
         const epochKeyProof = await userState.genEpochKeyProof({
             nonce: 0,
@@ -91,7 +91,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -167,7 +167,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -186,7 +186,7 @@ describe('POST /post', function () {
         const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
         const id = userState.id
         const data = randomData()
@@ -210,7 +210,7 @@ describe('POST /post', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -250,7 +250,7 @@ describe('POST /post', function () {
                 expect(prevPost.sorting_score).gte(nextPost.sorting_score)
                 if (prevPost.sorting_score == nextPost.sorting_score) {
                     expect(BigInt(prevPost.publishedAt)).gte(
-                        BigInt(nextPost.publishedAt)
+                        BigInt(nextPost.publishedAt),
                     )
                 }
             } else {
@@ -264,14 +264,14 @@ describe('POST /post', function () {
 
                     if (prevPost.daily_upvotes == nextPost.daily_upvotes) {
                         expect(prevPost.daily_comments).gte(
-                            nextPost.daily_comments
+                            nextPost.daily_comments,
                         )
 
                         if (
                             prevPost.daily_comments == nextPost.daily_comments
                         ) {
                             expect(BigInt(prevPost.publishedAt)).gte(
-                                BigInt(nextPost.publishedAt)
+                                BigInt(nextPost.publishedAt),
                             )
                         }
                     }
@@ -332,7 +332,7 @@ describe('POST /post', function () {
     })
     it('should get correct records from PostHistory', async function () {
         const res = await express.get(
-            '/api/post/postHistory?from_epoch=0&to_epoch=5'
+            '/api/post/postHistory?from_epoch=0&to_epoch=5',
         )
         expect(res).to.have.status(200)
         expect(res.body).to.be.an('array').that.has.lengthOf(11)
@@ -340,7 +340,7 @@ describe('POST /post', function () {
 
     it('should revert with invalid epoch range', async function () {
         const res = await express.get(
-            '/api/post/postHistory?from_epoch=2&to_epoch=1'
+            '/api/post/postHistory?from_epoch=2&to_epoch=1',
         )
         expect(res).to.have.status(400)
         expect(res.body.error).to.equal('Invalid epoch range')
@@ -348,11 +348,11 @@ describe('POST /post', function () {
 
     it('should return 404 when no posts found in the given epoch range', async function () {
         const res = await express.get(
-            '/api/post/postHistory?from_epoch=100&to_epoch=101'
+            '/api/post/postHistory?from_epoch=100&to_epoch=101',
         )
         expect(res).to.have.status(404)
         expect(res.body.error).to.equal(
-            'No post history found for the given epoch range'
+            'No post history found for the given epoch range',
         )
     })
 })

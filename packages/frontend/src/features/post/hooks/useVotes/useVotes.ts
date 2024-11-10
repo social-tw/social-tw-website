@@ -31,35 +31,35 @@ export function useVotes() {
         }) => {
             const userState = await getGuaranteedUserState()
             const voteService = new VoteService(userState)
-    
+
             const epoch = votedEpoch ?? undefined
             const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
-    
+
             await voteService.createVote({
                 postId: id,
                 voteAction,
                 epoch,
                 identityNonce: nonce,
             })
-    
+
             await userState.waitForSync()
-    
+
             return { postId: id, voteAction }
         },
         onSuccess: (data, variables, _context) => {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ManyComments, variables.id],
             })
-    
+
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, variables.id],
             })
-    
+
             const notificationType =
                 data.voteAction === VoteAction.UPVOTE
                     ? 'UPVOTE_SUCCEEDED'
                     : 'DOWNVOTE_SUCCEEDED'
-    
+
             NotificationService.sendNotification(notificationType, data.postId)
         },
         onError: (_error, variables, _context) => {
@@ -67,15 +67,14 @@ export function useVotes() {
                 variables.voteAction === VoteAction.UPVOTE
                     ? 'UPVOTE_FAILED'
                     : 'DOWNVOTE_FAILED'
-    
+
             NotificationService.sendNotification(notificationType, variables.id)
         },
     })
-    
+
     return {
         isPending,
         error,
         createVote,
     }
-    
 }

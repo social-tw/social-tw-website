@@ -30,7 +30,7 @@ async function main() {
 
         await fs.promises.writeFile(
             path.join(outDir, `${name}_main.circom`),
-            circuitContents[name]
+            circuitContents[name],
         )
 
         const inputFile = path.join(outDir, `${name}_main.circom`)
@@ -49,7 +49,7 @@ async function main() {
         if (circuitOutFileExists) {
             console.log(
                 circuitOut.split('/').pop(),
-                'exists. Skipping compilation.'
+                'exists. Skipping compilation.',
             )
         } else {
             console.log(`Compiling ${inputFile.split('/').pop()}...`)
@@ -60,14 +60,14 @@ async function main() {
                     (err, stdout, stderr) => {
                         if (err) rj(err)
                         else rs('')
-                    }
-                )
+                    },
+                ),
             )
             console.log(
                 'Generated',
                 circuitOut.split('/').pop(),
                 'and',
-                wasmOut.split('/').pop()
+                wasmOut.split('/').pop(),
             )
         }
 
@@ -85,7 +85,7 @@ async function main() {
             console.log(
                 `Generated ${zkey.split('/').pop()} and ${vkOut
                     .split('/')
-                    .pop()}`
+                    .pop()}`,
             )
             await fs.promises.rename(wasmOut, wasmOutFinal)
             await fs.promises.rm(wasmOutDir, { recursive: true, force: true })

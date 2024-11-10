@@ -58,7 +58,7 @@ describe('GET /api/config', function () {
 
         const expectedEpochLength =
             await sync.unirepContract.attesterEpochLength(
-                BigInt(app.address).toString()
+                BigInt(app.address).toString(),
             )
         expect(res.body.EPOCH_LENGTH).to.equal(expectedEpochLength)
     })

@@ -69,7 +69,10 @@ export function useReportPost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification("REPORT_FAILED", `/posts/${_variables.postId}`)
+            NotificationService.sendNotification(
+                'REPORT_FAILED',
+                `/posts/${_variables.postId}`,
+            )
         },
         onSuccess: async (data, _variables, context) => {
             if (context?.actionId) {
@@ -87,7 +90,7 @@ export function useReportPost() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
-            NotificationService.sendNotification("REPORT_SUCCEEDED")
+            NotificationService.sendNotification('REPORT_SUCCEEDED')
         },
     })
 

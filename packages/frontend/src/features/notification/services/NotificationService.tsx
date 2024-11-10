@@ -1,12 +1,11 @@
 import { useNotificationStore } from '../stores/useNotificationStore'
 import { notificationConfig } from '../types/NotificationTypes'
 
-
 class NotificationService {
     sendNotification(type: string, targetId?: string) {
         const config = notificationConfig[type]
 
-        const actions = config.actions 
+        const actions = config.actions
 
         const notification = {
             id: Date.now(),
@@ -14,7 +13,7 @@ class NotificationService {
             message: config.message,
             time: new Date().toLocaleTimeString(),
             isRead: false,
-            actions, 
+            actions,
             targetId,
         }
 

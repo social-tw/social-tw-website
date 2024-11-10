@@ -13,7 +13,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ReputationType } from '@/types/Report'
 import NotificationService from '@/features/notification/services/NotificationService'
 
-
 export function useReportEpochKeyReputation() {
     const { stateTransition } = useUserStateTransition()
     const { getGuaranteedUserState } = useUserState()
@@ -63,27 +62,36 @@ export function useReportEpochKeyReputation() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
-            const reportId =  result.message.reportId
-            const isPassed = result.message.isPassed 
+            const reportId = result.message.reportId
+            const isPassed = result.message.isPassed
             switch (result.message.type) {
                 case ReputationType.BE_REPORTED:
-                    NotificationService.sendNotification("BE_REPORTED", reportId);
-                    break;
+                    NotificationService.sendNotification(
+                        'BE_REPORTED',
+                        reportId,
+                    )
+                    break
                 case ReputationType.REPORT_SUCCESS:
-                    NotificationService.sendNotification("REPORT_PASSED", reportId);
-                    break;
+                    NotificationService.sendNotification(
+                        'REPORT_PASSED',
+                        reportId,
+                    )
+                    break
                 case ReputationType.REPORT_FAILURE:
-                    NotificationService.sendNotification("REPORT_REJECTED", reportId);
-                    break;
+                    NotificationService.sendNotification(
+                        'REPORT_REJECTED',
+                        reportId,
+                    )
+                    break
                 case ReputationType.ADJUDICATE:
                     NotificationService.sendNotification(
-                        isPassed ? "ADJUDICATE_RESULT_PASSED" : "ADJUDICATE_RESULT_REJECTED",
-                        reportId
-                    );
-                    break;
+                        isPassed
+                            ? 'ADJUDICATE_RESULT_PASSED'
+                            : 'ADJUDICATE_RESULT_REJECTED',
+                        reportId,
+                    )
+                    break
             }
-
-
         },
     })
 }

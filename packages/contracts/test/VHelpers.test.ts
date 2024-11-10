@@ -67,7 +67,7 @@ describe('Verifier Helper Manager Test', function () {
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
-                chainId
+                chainId,
             )
 
             const reportNonNullifierCircuitInputs =
@@ -83,7 +83,7 @@ describe('Verifier Helper Manager Test', function () {
 
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNonNullifierCircuitInputs
+                reportNonNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
@@ -92,7 +92,7 @@ describe('Verifier Helper Manager Test', function () {
 
             const signal = await reportNonNullifierVHelper.verifyAndCheck(
                 publicSignals,
-                flattenedProof
+                flattenedProof,
             )
 
             expect(signal.epochKey.toString()).to.be.equal(
@@ -101,12 +101,12 @@ describe('Verifier Helper Manager Test', function () {
                     attesterId,
                     currentEpoch,
                     currentNonce,
-                    chainId
-                ).toString()
+                    chainId,
+                ).toString(),
             )
             expect(signal.epoch.toString()).to.be.equal(currentEpoch.toString())
             expect(signal.attesterId.toString()).to.be.equal(
-                attesterId.toString()
+                attesterId.toString(),
             )
             expect(signal.chainId.toString()).to.be.equal(chainId.toString())
 
@@ -130,7 +130,7 @@ describe('Verifier Helper Manager Test', function () {
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
-                chainId
+                chainId,
             )
 
             const reportNonNullifierCircuitInputs =
@@ -146,7 +146,7 @@ describe('Verifier Helper Manager Test', function () {
 
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNonNullifierCircuitInputs
+                reportNonNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
@@ -158,8 +158,8 @@ describe('Verifier Helper Manager Test', function () {
             await expect(
                 reportNonNullifierVHelper.verifyAndCheck(
                     publicSignals,
-                    invalidProof
-                )
+                    invalidProof,
+                ),
             ).to.be.reverted
         })
     })
@@ -185,19 +185,19 @@ describe('Verifier Helper Manager Test', function () {
                     currentNonce,
                     attesterId,
                     chainId,
-                }
+                },
             )
 
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNullifierCircuitInputs
+                reportNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
             const flattenedProof = flattenProof(proof)
             const signal = await reportNullifierVHelper.verifyAndCheck(
                 publicSignals,
-                flattenedProof
+                flattenedProof,
             )
             expect(signal.epochKey.toString()).to.be.equal(
                 genEpochKey(
@@ -205,12 +205,12 @@ describe('Verifier Helper Manager Test', function () {
                     attesterId,
                     currentEpoch,
                     currentNonce,
-                    chainId
-                ).toString()
+                    chainId,
+                ).toString(),
             )
             expect(signal.epoch.toString()).to.be.equal(currentEpoch.toString())
             expect(signal.attesterId.toString()).to.be.equal(
-                attesterId.toString()
+                attesterId.toString(),
             )
             expect(signal.chainId.toString()).to.be.equal(chainId.toString())
 
@@ -238,12 +238,12 @@ describe('Verifier Helper Manager Test', function () {
                     currentNonce,
                     attesterId,
                     chainId,
-                }
+                },
             )
 
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNullifierCircuitInputs
+                reportNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
@@ -256,8 +256,8 @@ describe('Verifier Helper Manager Test', function () {
             await expect(
                 reportNullifierVHelper.verifyAndCheck(
                     publicSignals,
-                    invalidProof
-                )
+                    invalidProof,
+                ),
             ).to.be.reverted
         })
     })

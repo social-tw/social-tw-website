@@ -50,8 +50,13 @@ export function useNotifyCheckIn() {
     }, [discardedAt, setDiscardedAt])
 
     useEffect(() => {
-        if (!!reputationScore && reputationScore < 0 && !checkedInAt && !discardedAt) {
-            NotificationService.sendNotification('LOW_REPUTATION') 
+        if (
+            !!reputationScore &&
+            reputationScore < 0 &&
+            !checkedInAt &&
+            !discardedAt
+        ) {
+            NotificationService.sendNotification('LOW_REPUTATION')
         }
     }, [reputationScore, checkedInAt, discardedAt])
 

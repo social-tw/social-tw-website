@@ -31,9 +31,8 @@ export class ReportService extends RelayApiService {
 
     async fetchReportCategories() {
         const client = this.getClient()
-        const response = await client.get<RelayRawReportCategory[]>(
-            `/report/category`,
-        )
+        const response =
+            await client.get<RelayRawReportCategory[]>(`/report/category`)
         return response.data
     }
 

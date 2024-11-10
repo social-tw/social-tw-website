@@ -45,7 +45,7 @@ export const startServer = async (unirep: any, unirepApp: any) => {
             provider: provider,
             unirepAddress: unirep.address,
         },
-        unirepApp
+        unirepApp,
     )
     synchronizer.resetDatabase()
 
@@ -99,7 +99,7 @@ export const stopServer = async (
     testName: string,
     snapshot: any,
     sync: Synchronizer,
-    server: ChaiHttp.Agent
+    server: ChaiHttp.Agent,
 ) => {
     console.log(`server ${testName} is shutting down`)
     sync.stop()

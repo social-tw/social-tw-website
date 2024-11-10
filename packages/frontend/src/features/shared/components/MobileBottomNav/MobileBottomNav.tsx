@@ -25,10 +25,14 @@ export default function MobileBottomNav() {
         },
     }
 
-    const showNotificationDot = useNotificationStore((state) => state.showNotificationDot)
-    const clearNotificationDot = useNotificationStore((state) => state.clearNotificationDot)
+    const showNotificationDot = useNotificationStore(
+        (state) => state.showNotificationDot,
+    )
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
     const handleBellClick = () => {
-        clearNotificationDot() 
+        clearNotificationDot()
     }
 
     return (

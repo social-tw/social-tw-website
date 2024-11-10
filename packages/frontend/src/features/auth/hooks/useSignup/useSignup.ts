@@ -6,7 +6,6 @@ import { SignupFailedError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import NotificationService from '@/features/notification/services/NotificationService'
 
-
 export function useSignup() {
     const queryClient = useQueryClient()
 
@@ -51,8 +50,7 @@ export function useSignup() {
 
                 NotificationService.clearNotifications()
                 NotificationService.sendNotification('SIGN_UP_SUCCESS')
-               
-                
+
                 return data
             } catch {
                 throw new SignupFailedError()

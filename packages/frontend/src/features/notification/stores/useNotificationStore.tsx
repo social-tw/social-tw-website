@@ -7,7 +7,7 @@ interface Notification {
     message: string
     time: string
     isRead: boolean
-    actions?: NotificationAction[] 
+    actions?: NotificationAction[]
     targetId?: string
 }
 
@@ -32,7 +32,10 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     addNotification: (notification) =>
         set((state) => {
             const updatedNotifications = [...state.notifications, notification]
-            localStorage.setItem('notifications', JSON.stringify(updatedNotifications))
+            localStorage.setItem(
+                'notifications',
+                JSON.stringify(updatedNotifications),
+            )
             return {
                 notifications: updatedNotifications,
                 showNotificationDot: true,
@@ -41,9 +44,12 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     markAsRead: (id) =>
         set((state) => {
             const updatedNotifications = state.notifications.map((n) =>
-                n.id === id ? { ...n, isRead: true } : n
+                n.id === id ? { ...n, isRead: true } : n,
             )
-            localStorage.setItem('notifications', JSON.stringify(updatedNotifications))
+            localStorage.setItem(
+                'notifications',
+                JSON.stringify(updatedNotifications),
+            )
             return { notifications: updatedNotifications }
         }),
     loadNotifications: () => {

@@ -65,7 +65,7 @@ describe('Verifier Helper Manager Test', function () {
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
-                chainId
+                chainId,
             )
 
             const reportNonNullifierCircuitInputs =
@@ -82,7 +82,7 @@ describe('Verifier Helper Manager Test', function () {
             // generating proof for report negative reputation proof
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNonNullifierCircuitInputs
+                reportNonNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
@@ -90,7 +90,7 @@ describe('Verifier Helper Manager Test', function () {
             const flattenedProof = flattenProof(proof)
             const valid = await reportNonNullifierVerifier.verifyProof(
                 publicSignals,
-                flattenedProof
+                flattenedProof,
             )
             expect(valid).to.be.equal(true)
         })
@@ -109,7 +109,7 @@ describe('Verifier Helper Manager Test', function () {
                 attesterId,
                 reportedEpoch,
                 reportedNonce,
-                chainId
+                chainId,
             )
 
             const reportNonNullifierCircuitInputs =
@@ -126,7 +126,7 @@ describe('Verifier Helper Manager Test', function () {
             // generating proof for report negative reputation proof
             const { publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNonNullifierCircuitInputs
+                reportNonNullifierCircuitInputs,
             )
 
             // get verifier from identifier in unirepApp.vHelpManager
@@ -138,8 +138,8 @@ describe('Verifier Helper Manager Test', function () {
             await expect(
                 reportNonNullifierVerifier.verifyProof(
                     publicSignals,
-                    invalidProof
-                )
+                    invalidProof,
+                ),
             ).to.be.reverted
         })
     })
@@ -165,20 +165,20 @@ describe('Verifier Helper Manager Test', function () {
                     currentNonce,
                     attesterId,
                     chainId,
-                }
+                },
             )
 
             // generating proof for report negative reputation proof
             const { isValid, publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNullifierCircuitInputs
+                reportNullifierCircuitInputs,
             )
             expect(isValid).to.be.equal(true)
 
             const flattenedProof = flattenProof(proof)
             const valid = await reportNullifierVerifier.verifyProof(
                 publicSignals,
-                flattenedProof
+                flattenedProof,
             )
             expect(valid).to.be.equal(true)
         })
@@ -202,13 +202,13 @@ describe('Verifier Helper Manager Test', function () {
                     currentNonce,
                     attesterId,
                     chainId,
-                }
+                },
             )
 
             // generating proof for report nullifier proof
             const { publicSignals, proof } = await genProofAndVerify(
                 circuit,
-                reportNullifierCircuitInputs
+                reportNullifierCircuitInputs,
             )
 
             const flattenedProof = flattenProof(proof)
@@ -217,7 +217,10 @@ describe('Verifier Helper Manager Test', function () {
                 .concat(BigInt(0).toString())
 
             await expect(
-                reportNullifierVerifier.verifyProof(publicSignals, invalidProof)
+                reportNullifierVerifier.verifyProof(
+                    publicSignals,
+                    invalidProof,
+                ),
             ).to.be.reverted
         })
     })

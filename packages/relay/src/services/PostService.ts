@@ -143,7 +143,7 @@ export class PostService {
     async fetchPosts(
         epks: string[] | undefined,
         page: number,
-        db: DB
+        db: DB,
     ): Promise<Partial<Post>[] | null> {
         let posts: Post[]
         if (!epks) {
@@ -188,14 +188,14 @@ export class PostService {
                 })
                 const filteredPost = this.filterPostContent(post)
                 return { ...filteredPost, votes }
-            })
+            }),
         )
     }
 
     async fetchSinglePost(
         postId: string,
         db: DB,
-        status?: PostStatus
+        status?: PostStatus,
     ): Promise<Partial<Post> | null> {
         const whereClause: any = { postId }
         if (status !== undefined) {
@@ -227,7 +227,7 @@ export class PostService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB
+        db: DB,
     ): Promise<Partial<Post>[] | null> {
         const posts = await db.findMany('Post', {
             where: {
@@ -253,7 +253,7 @@ export class PostService {
                 })
                 const filteredPost = this.filterPostContent(post)
                 return { ...filteredPost, votes }
-            })
+            }),
         )
     }
 
@@ -263,12 +263,12 @@ export class PostService {
         proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia
+        helia: Helia,
     ): Promise<string> {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
         )
 
         // post content
@@ -303,7 +303,7 @@ export class PostService {
     async updatePostStatus(
         postId: string,
         status: number,
-        db: DB
+        db: DB,
     ): Promise<void> {
         await db.update('Post', {
             where: { postId },
@@ -314,7 +314,7 @@ export class PostService {
     async getPostHistory(
         fromEpoch: number,
         toEpoch: number,
-        db: DB
+        db: DB,
     ): Promise<Post[]> {
         if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
             throw Errors.INVALID_EPOCH_RANGE()

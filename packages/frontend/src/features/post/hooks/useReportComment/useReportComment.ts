@@ -75,7 +75,10 @@ export function useReportComment() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification("REPORT_FAILED", `/posts/${_variables.postId}#${_variables.commentId}`)
+            NotificationService.sendNotification(
+                'REPORT_FAILED',
+                `/posts/${_variables.postId}#${_variables.commentId}`,
+            )
         },
         onSuccess: (data, _variables, context) => {
             if (context?.actionId) {
@@ -88,9 +91,8 @@ export function useReportComment() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ManyComments, data.postId],
             })
-            NotificationService.sendNotification("REPORT_SUCCEEDED")
+            NotificationService.sendNotification('REPORT_SUCCEEDED')
         },
-
     })
 
     return { reportComment, isIdle, isPending, isSuccess, isError, reset }

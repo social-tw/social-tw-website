@@ -11,5 +11,5 @@ export const PATHS = {
     PROFILE: '/profile',
     HISTORTY: '/profile/history',
     REPUTATION: '/profile/reputation',
-    NOTIFICATION: '/notification'
+    NOTIFICATION: '/notification',
 }

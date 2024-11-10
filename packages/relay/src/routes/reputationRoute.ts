@@ -9,7 +9,7 @@ import { Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.get(
         '/api/reputation/history',
@@ -28,10 +28,10 @@ export default (
                 await reputationService.findManyReputationHistory(
                     fromEpoch,
                     toEpoch,
-                    db
+                    db,
                 )
 
             res.json(reputations)
-        })
+        }),
     )
 }

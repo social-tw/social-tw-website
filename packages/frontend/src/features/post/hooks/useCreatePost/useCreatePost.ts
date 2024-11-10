@@ -77,7 +77,10 @@ export function useCreatePost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification('POST_FAILED', context?.actionId)
+            NotificationService.sendNotification(
+                'POST_FAILED',
+                context?.actionId,
+            )
         },
         onSuccess: (data, _variables, context) => {
             succeedActionById(context.actionId, {
@@ -96,7 +99,6 @@ export function useCreatePost() {
             NotificationService.sendNotification('POST_SUCCEEDED', data.postId)
         },
     })
-
 
     return {
         isPending,

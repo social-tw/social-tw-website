@@ -75,7 +75,6 @@ function useActiveAdjudication() {
         }
     }, [activeReport])
 
-
     return {
         data: reportData,
         refetch,
@@ -83,16 +82,17 @@ function useActiveAdjudication() {
 }
 
 export default function AdjudicationNotification() {
-    const { data: activeAdjudication, refetch } = useActiveAdjudication();
-    const { AdjuducateDialogOpen, setAdjuducateDialogOpen } = useAdjudicateStore();
+    const { data: activeAdjudication, refetch } = useActiveAdjudication()
+    const { AdjuducateDialogOpen, setAdjuducateDialogOpen } =
+        useAdjudicateStore()
 
     const onClose = () => {
-        refetch(); // Refetch data when closing the dialog if needed
-        setAdjuducateDialogOpen(false); // Close the dialog
-    };
+        refetch() // Refetch data when closing the dialog if needed
+        setAdjuducateDialogOpen(false) // Close the dialog
+    }
 
     if (!activeAdjudication) {
-        return null;
+        return null
     }
 
     return (
@@ -104,5 +104,5 @@ export default function AdjudicationNotification() {
                 onClose={onClose}
             />
         </div>
-    );
+    )
 }

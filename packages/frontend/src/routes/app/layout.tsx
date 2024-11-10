@@ -80,10 +80,14 @@ export default function AppLayout() {
         (state) => state.forbidAction,
     )
 
-    const showNotificationDot = useNotificationStore((state) => state.showNotificationDot)
-    const clearNotificationDot = useNotificationStore((state) => state.clearNotificationDot)
+    const showNotificationDot = useNotificationStore(
+        (state) => state.showNotificationDot,
+    )
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
     const handleBellClick = () => {
-        clearNotificationDot() 
+        clearNotificationDot()
     }
 
     if (isSmallDevice) {
@@ -123,7 +127,7 @@ export default function AppLayout() {
                     <ErrorDialog />
                 </div>
                 <NotificationContainer>
-                    <AdjudicationNotification/>
+                    <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
             </div>
@@ -213,18 +217,22 @@ export default function AppLayout() {
                                     className={({ isActive }) =>
                                         clsx(
                                             'relative flex items-center gap-8',
-                                            isActive ? 'text-secondary' : 'text-white'
+                                            isActive
+                                                ? 'text-secondary'
+                                                : 'text-white',
                                         )
                                     }
                                     to="/notification"
                                     onClick={handleBellClick}
                                 >
                                     {showNotificationDot ? (
-                                        <BellWDotIcon className="w-full h-full" /> 
+                                        <BellWDotIcon className="w-full h-full" />
                                     ) : (
-                                        <BellIcon className="w-full h-full" /> 
+                                        <BellIcon className="w-full h-full" />
                                     )}
-                                    <span className="text-xl font-bold">Notification</span>
+                                    <span className="text-xl font-bold">
+                                        Notification
+                                    </span>
                                 </NavLink>
                                 <NavLink
                                     className={({ isActive }) =>
@@ -252,7 +260,7 @@ export default function AppLayout() {
                     <ErrorDialog />
                 </div>
                 <NotificationContainer>
-                    <AdjudicationNotification/>
+                    <AdjudicationNotification />
                     <CheckInNotification />
                 </NotificationContainer>
                 <ForbidActionDialog

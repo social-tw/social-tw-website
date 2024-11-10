@@ -11,9 +11,11 @@ interface NotificationItemProps {
     notificationId: number
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({
+    notificationId,
+}) => {
     const notification = useNotificationStore((state) =>
-        state.notifications.find((n) => n.id === notificationId)
+        state.notifications.find((n) => n.id === notificationId),
     )
     const markAsRead = useNotificationStore((state) => state.markAsRead)
     const navigate = useNavigate()
@@ -22,41 +24,40 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
     const { toggleCheckIn } = useCheckInStore()
     const { setIsOpen } = useDialog()
 
-
     if (!notification) return null
 
     const handleAction = (actionType: string, targetId?: string) => {
         console.log(actionType, targetId)
         switch (actionType) {
-            case "viewPost":
+            case 'viewPost':
                 if (targetId) navigate(`/posts/${targetId}`)
                 break
-            case "rewritePost":
+            case 'rewritePost':
                 navigate(`/?failedPostId=${targetId}`)
                 break
-            case "viewComment":
+            case 'viewComment':
                 navigate(`/posts/${targetId}`)
                 break
-            case "rewriteComment":
+            case 'rewriteComment':
                 navigate(`/posts/${targetId}`)
                 break
-            case "reportDialog":
+            case 'reportDialog':
                 navigate(`${targetId}`)
                 setIsOpen(true)
                 break
-            case "reportResult":
+            case 'reportResult':
                 navigate(`/reports/${targetId}`)
                 break
-            case "adjudicationDialog":
+            case 'adjudicationDialog':
                 navigate(`/`)
                 setAdjuducateDialogOpen(true)
                 break
-            case "checkIn":
+            case 'checkIn':
                 navigate(`/`)
                 toggleCheckIn(true)
                 break
             default:
-                console.warn("Unknown action type:", actionType)
+                console.warn('Unknown action type:', actionType)
         }
         markAsRead(notification.id)
     }
@@ -73,12 +74,18 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
 
             <div className="flex items-center w-full z-10">
                 <div className="mr-4 flex-shrink-0 flex items-center justify-center h-full">
-                    {IconComponent ? <IconComponent className="w-8 h-8" /> : null}
+                    {IconComponent ? (
+                        <IconComponent className="w-8 h-8" />
+                    ) : null}
                 </div>
 
                 <div className="flex-grow">
-                    <p className="text-xs mb-1 text-gray-500">{notification.time}</p>
-                    <p className={`text-sm ${notification.isRead ? 'text-gray-500' : 'text-black'}`}>
+                    <p className="text-xs mb-1 text-gray-500">
+                        {notification.time}
+                    </p>
+                    <p
+                        className={`text-sm ${notification.isRead ? 'text-gray-500' : 'text-black'}`}
+                    >
                         {notification.message}
                     </p>
 
@@ -86,7 +93,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
                         {actions.map((action, index) => (
                             <button
                                 key={index}
-                                onClick={() => handleAction(action.type, notification.targetId)}
+                                onClick={() =>
+                                    handleAction(
+                                        action.type,
+                                        notification.targetId,
+                                    )
+                                }
                                 className="text-xs underline text-[#4A9BAA]"
                             >
                                 {action.label}
