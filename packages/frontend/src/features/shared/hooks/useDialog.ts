@@ -8,5 +8,6 @@ export default function useDialog() {
         isOpen,
         onOpen,
         onClose,
+        setIsOpen
     }
 }

@@ -7,6 +7,7 @@ import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
 import NotificationService from '@/features/notification/services/NotificationService'
+import { useAdjudicateStore } from '../../hooks/useAdjudicate/useAdjudicateStore'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -82,27 +83,26 @@ function useActiveAdjudication() {
 }
 
 export default function AdjudicationNotification() {
-    const { data: activeAdjudication, refetch } = useActiveAdjudication()
-
-    const [open, toggle] = useToggle(false)
+    const { data: activeAdjudication, refetch } = useActiveAdjudication();
+    const { AdjuducateDialogOpen, setAdjuducateDialogOpen } = useAdjudicateStore();
 
     const onClose = () => {
-        refetch()
-        toggle(false)
-    }
+        refetch(); // Refetch data when closing the dialog if needed
+        setAdjuducateDialogOpen(false); // Close the dialog
+    };
 
     if (!activeAdjudication) {
-        return null
+        return null;
     }
 
     return (
         <div data-testid="adjudication-notification">
-            <AdjudicateButton onClick={toggle} />
+            <AdjudicateButton onClick={() => setAdjuducateDialogOpen(true)} />
             <Adjudicate
                 reportData={activeAdjudication}
-                open={open}
+                open={AdjuducateDialogOpen}
                 onClose={onClose}
             />
         </div>
-    )
+    );
 }

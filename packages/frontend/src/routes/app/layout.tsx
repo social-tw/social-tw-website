@@ -30,6 +30,8 @@ import {
     useNavigate,
 } from 'react-router-dom'
 import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
+import { useToggle } from '@uidotdev/usehooks'
+import { useAdjudicateStore } from '@/features/reporting/hooks/useAdjudicate/useAdjudicateStore'
 
 function NotificationContainer({ children }: { children: React.ReactNode }) {
     return (
@@ -121,7 +123,7 @@ export default function AppLayout() {
                     <ErrorDialog />
                 </div>
                 <NotificationContainer>
-                    <AdjudicationNotification />
+                    <AdjudicationNotification/>
                     <CheckInNotification />
                 </NotificationContainer>
             </div>
@@ -250,7 +252,7 @@ export default function AppLayout() {
                     <ErrorDialog />
                 </div>
                 <NotificationContainer>
-                    <AdjudicationNotification />
+                    <AdjudicationNotification/>
                     <CheckInNotification />
                 </NotificationContainer>
                 <ForbidActionDialog

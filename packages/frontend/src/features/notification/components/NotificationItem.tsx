@@ -3,7 +3,9 @@ import React from 'react'
 import { useNotificationStore } from '../stores/useNotificationStore'
 import { notificationConfig } from '../types/NotificationTypes'
 import { useNavigate } from 'react-router-dom'
-import { PATHS } from '@/constants/paths'
+import { useAdjudicateStore } from '@/features/reporting/hooks/useAdjudicate/useAdjudicateStore'
+import { useCheckInStore } from '@/features/reporting/hooks/useCheckIn/useCheckInStore'
+import { useDialog } from '@/features/shared'
 
 interface NotificationItemProps {
     notificationId: number
@@ -15,6 +17,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
     )
     const markAsRead = useNotificationStore((state) => state.markAsRead)
     const navigate = useNavigate()
+
+    const { setAdjuducateDialogOpen } = useAdjudicateStore()
+    const { toggleCheckIn } = useCheckInStore()
+    const { setIsOpen } = useDialog()
+
 
     if (!notification) return null
 
@@ -35,18 +42,18 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
                 break
             case "reportDialog":
                 navigate(`${targetId}`)
-                //TODO: open dialog
+                setIsOpen(true)
                 break
             case "reportResult":
                 navigate(`/reports/${targetId}`)
                 break
             case "adjudicationDialog":
                 navigate(`/`)
-                //TODO: open dialog
+                setAdjuducateDialogOpen(true)
                 break
             case "checkIn":
                 navigate(`/`)
-                //TODO: open checkin dialog
+                toggleCheckIn(true)
                 break
             default:
                 console.warn("Unknown action type:", actionType)
