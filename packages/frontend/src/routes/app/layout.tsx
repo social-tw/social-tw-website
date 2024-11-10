@@ -218,9 +218,9 @@ export default function AppLayout() {
                                     onClick={handleBellClick}
                                 >
                                     {showNotificationDot ? (
-                                        <BellWDotIcon className="w-20 h-20" /> 
+                                        <BellWDotIcon className="w-full h-full" /> 
                                     ) : (
-                                        <BellIcon className="w-14 h-14" /> 
+                                        <BellIcon className="w-full h-full" /> 
                                     )}
                                     <span className="text-xl font-bold">Notification</span>
                                 </NavLink>
