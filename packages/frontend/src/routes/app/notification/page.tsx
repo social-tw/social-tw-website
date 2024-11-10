@@ -24,7 +24,7 @@ const NotificationPage: React.FC = () => {
                 </p>
             </div>
             <div className="pt-24 space-y-4">
-                {notifications.map((notification) => (
+                {[...notifications].reverse().map((notification) => (
                     <NotificationItem key={notification.id} notificationId={notification.id} />
                 ))}
             </div>

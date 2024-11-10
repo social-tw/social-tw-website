@@ -218,7 +218,7 @@ export default function AppLayout() {
                                     onClick={handleBellClick}
                                 >
                                     {showNotificationDot ? (
-                                        <BellWDotIcon className="w-14 h-14" /> 
+                                        <BellWDotIcon className="w-20 h-20" /> 
                                     ) : (
                                         <BellIcon className="w-14 h-14" /> 
                                     )}

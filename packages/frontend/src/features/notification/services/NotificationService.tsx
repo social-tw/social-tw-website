@@ -1,6 +1,5 @@
 import { useNotificationStore } from '../stores/useNotificationStore'
 import { notificationConfig } from '../types/NotificationTypes'
-import { NotificationAction } from '../types/NotificationTypes'
 
 
 class NotificationService {

@@ -25,25 +25,22 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
                 if (targetId) navigate(`/posts/${targetId}`)
                 break
             case "rewritePost":
-                //TODO: does not show the failed post
                 navigate(`/?failedPostId=${targetId}`)
                 break
             case "viewComment":
-                // `/posts/${action.data.postId}#${action.data.commentId}`
                 if (targetId) navigate(`/posts/${targetId}`)
                 break
             case "rewriteComment":
-                // `/posts/${action.data.postId}#${action.data.commentId}`
                 if (targetId) navigate(`/posts/${targetId}`)
                 break
             case "reportDialog":
-                if (targetId) navigate(`/report/${targetId}`)
+                if (targetId) navigate(`/reports/${targetId}`)
                 break
             case "reportResult":
-                if (targetId) navigate(`/report/${targetId}`)
+                if (targetId) navigate(`/reports/${targetId}`)
                 break
             case "adjudicationDialog":
-                if (targetId) navigate(`/report/${targetId}`)
+                if (targetId) navigate(`/reports/${targetId}`)
                 break
             case "checkIn":
                 if (targetId) navigate(`/report/${targetId}`)

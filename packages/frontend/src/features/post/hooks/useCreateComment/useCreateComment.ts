@@ -88,7 +88,7 @@ export function useCreateComment() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification('COMMENT_FAILED', context?.actionId)
+            NotificationService.sendNotification('COMMENT_FAILED', _variables.postId)
         },
         onSuccess: (data, variables, context) => {
             succeedActionById(context.actionId, {
@@ -107,7 +107,7 @@ export function useCreateComment() {
                     queryKey: [QueryKeys.SinglePost, variables.postId],
                 })
             }, 1000)
-            NotificationService.sendNotification('COMMENT_SUCCEED', data.commentId)
+            NotificationService.sendNotification('COMMENT_SUCCEEDED', `${variables.postId}#${data.commentId}`)
         },
     })
 
