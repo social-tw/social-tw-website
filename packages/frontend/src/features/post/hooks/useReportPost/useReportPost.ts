@@ -69,7 +69,7 @@ export function useReportPost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification("REPORT_FAILED")
+            NotificationService.sendNotification("REPORT_FAILED", _variables.postId)
         },
         onSuccess: async (data, _variables, context) => {
             if (context?.actionId) {

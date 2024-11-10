@@ -10,6 +10,9 @@ import { RepUserType } from '@/types/Report'
 import { relayClaimReputation } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ReputationType } from '@/types/Report'
+import NotificationService from '@/features/notification/services/NotificationService'
+
 
 export function useReportEpochKeyReputation() {
     const { stateTransition } = useUserStateTransition()
@@ -56,10 +59,25 @@ export function useReportEpochKeyReputation() {
 
             return result
         },
-        onSuccess: () => {
+        onSuccess: (result) => {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
+            const reportId =  result.message.reportId
+            const isPassed = result.message.isPassed 
+            if (result.message.type === ReputationType.BE_REPORTED){
+                NotificationService.sendNotification("BE_REPORTED", reportId)
+            } else if (result.message.type === ReputationType.REPORT_SUCCESS){
+                NotificationService.sendNotification("REPORT_PASSED", reportId)
+            } else if (result.message.type === ReputationType.REPORT_FAILURE){
+                NotificationService.sendNotification("REPORT_REJECTED", reportId)
+            } else if (result.message.type === ReputationType.ADJUDICATE && isPassed){
+                NotificationService.sendNotification("ADJUDICATE_RESULT_PASSED",reportId)
+            } else if (result.message.type === ReputationType.ADJUDICATE && !isPassed){
+                NotificationService.sendNotification("ADJUDICATE_RESULT_REJECTED", reportId)
+            } 
+
+
         },
     })
 }

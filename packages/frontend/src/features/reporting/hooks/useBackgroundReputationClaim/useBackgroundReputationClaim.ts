@@ -7,7 +7,6 @@ import { ReportHistory, RepUserType } from '@/types/Report'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { UserState } from '@unirep/core'
 import { useCallback, useEffect } from 'react'
-import NotificationService from '@/features/notification/services/NotificationService'
 
 function canClaimReportorReputation(
     userState: UserState,
@@ -71,7 +70,6 @@ export function useBackgroundReputationClaim() {
                     reportedEpoch: report.reportEpoch,
                     repUserType: RepUserType.REPORTER,
                 })
-                NotificationService.sendNotification('REPORT_PASSED',  report.reportId)
             }
 
             if (
@@ -88,7 +86,6 @@ export function useBackgroundReputationClaim() {
 
             if (canClaimAdjudicatorReputation(userState, report)) {
                 await claimAdjucatorReputation(report.reportId)
-                NotificationService.sendNotification('ADJUDICATE_RESULT_PASSED', report.reportId)
             }
         }
     }, [reports, userState, claimEpochKeyReputation, claimAdjucatorReputation])
