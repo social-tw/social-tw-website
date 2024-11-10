@@ -16,7 +16,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
     const markAsRead = useNotificationStore((state) => state.markAsRead)
     const navigate = useNavigate()
 
-    if (!notification) return null // Render nothing if notification is not found
+    if (!notification) return null
 
     const handleAction = (actionType: string, targetId?: string) => {
         console.log(actionType, targetId)
@@ -28,22 +28,25 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notificationId }) =
                 navigate(`/?failedPostId=${targetId}`)
                 break
             case "viewComment":
-                if (targetId) navigate(`/posts/${targetId}`)
+                navigate(`/posts/${targetId}`)
                 break
             case "rewriteComment":
-                if (targetId) navigate(`/posts/${targetId}`)
+                navigate(`/posts/${targetId}`)
                 break
             case "reportDialog":
-                if (targetId) navigate(`/reports/${targetId}`)
+                navigate(`${targetId}`)
+                //TODO: open dialog
                 break
             case "reportResult":
-                if (targetId) navigate(`/reports/${targetId}`)
+                navigate(`/reports/${targetId}`)
                 break
             case "adjudicationDialog":
-                if (targetId) navigate(`/reports/${targetId}`)
+                navigate(`/`)
+                //TODO: open dialog
                 break
             case "checkIn":
-                if (targetId) navigate(`/report/${targetId}`)
+                navigate(`/`)
+                //TODO: open checkin dialog
                 break
             default:
                 console.warn("Unknown action type:", actionType)

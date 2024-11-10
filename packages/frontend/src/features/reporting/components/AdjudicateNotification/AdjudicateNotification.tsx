@@ -70,7 +70,7 @@ function useActiveAdjudication() {
 
     useEffect(() => {
         if (activeReport) {
-            NotificationService.sendNotification('NEW_REPORT_ADJUDICATE', activeReport.reportId)
+            NotificationService.sendNotification('NEW_REPORT_ADJUDICATE')
         }
     }, [activeReport])
 
