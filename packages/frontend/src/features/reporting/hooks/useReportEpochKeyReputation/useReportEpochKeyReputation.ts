@@ -65,17 +65,23 @@ export function useReportEpochKeyReputation() {
             })
             const reportId =  result.message.reportId
             const isPassed = result.message.isPassed 
-            if (result.message.type === ReputationType.BE_REPORTED){
-                NotificationService.sendNotification("BE_REPORTED", reportId)
-            } else if (result.message.type === ReputationType.REPORT_SUCCESS){
-                NotificationService.sendNotification("REPORT_PASSED", reportId)
-            } else if (result.message.type === ReputationType.REPORT_FAILURE){
-                NotificationService.sendNotification("REPORT_REJECTED", reportId)
-            } else if (result.message.type === ReputationType.ADJUDICATE && isPassed){
-                NotificationService.sendNotification("ADJUDICATE_RESULT_PASSED",reportId)
-            } else if (result.message.type === ReputationType.ADJUDICATE && !isPassed){
-                NotificationService.sendNotification("ADJUDICATE_RESULT_REJECTED", reportId)
-            } 
+            switch (result.message.type) {
+                case ReputationType.BE_REPORTED:
+                    NotificationService.sendNotification("BE_REPORTED", reportId);
+                    break;
+                case ReputationType.REPORT_SUCCESS:
+                    NotificationService.sendNotification("REPORT_PASSED", reportId);
+                    break;
+                case ReputationType.REPORT_FAILURE:
+                    NotificationService.sendNotification("REPORT_REJECTED", reportId);
+                    break;
+                case ReputationType.ADJUDICATE:
+                    NotificationService.sendNotification(
+                        isPassed ? "ADJUDICATE_RESULT_PASSED" : "ADJUDICATE_RESULT_REJECTED",
+                        reportId
+                    );
+                    break;
+            }
 
 
         },
