@@ -149,7 +149,7 @@ export class PostService {
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-                return { post, votes }
+                return { ...post, votes }
             })
         )
     }
@@ -158,7 +158,7 @@ export class PostService {
         postId: string,
         db: DB,
         status?: PostStatus
-    ): Promise<Partial<Post> | null> {
+    ): Promise<Post | null> {
         const whereClause: any = { postId }
         if (status !== undefined) {
             whereClause.status = status
@@ -188,7 +188,7 @@ export class PostService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Partial<Post>[] | null> {
+    ): Promise<Post[] | null> {
         const posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
@@ -212,7 +212,7 @@ export class PostService {
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-                return { post, votes }
+                return { ...post, votes }
             })
         )
     }

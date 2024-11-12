@@ -294,7 +294,7 @@ describe('POST /post', function () {
         for (let i = 0; i < post.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal('test content')
+            expect(post.content).equal('test content #0')
         }
 
         // second page will be empty
@@ -324,7 +324,7 @@ describe('POST /post', function () {
         for (let i = 0; i < post.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal('test content')
+            expect(post.content).equal('test content #0')
         }
     })
 
