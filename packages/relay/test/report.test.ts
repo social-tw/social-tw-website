@@ -175,7 +175,6 @@ describe('POST /api/report', function () {
             `/api/post/${postId}?status=${PostStatus.REPORTED}`
         )
         expect(afterReportResponse).to.have.status(200)
-        expect(afterReportResponse.body).equal('test content')
         expect(afterReportResponse.body).to.have.property(
             'status',
             PostStatus.REPORTED
@@ -192,7 +191,7 @@ describe('POST /api/report', function () {
             (post) => post.postId === postId
         )
         expect(reportedPost).to.exist
-        expect(reportedPost).to.not.have.property('content')
+        expect(reportedPost).to.have.property('content', 'test content')
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
     })
 
