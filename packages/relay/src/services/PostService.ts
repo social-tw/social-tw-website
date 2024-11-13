@@ -2,11 +2,7 @@ import { DB } from 'anondb'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import {
-    DAY_DIFF_STAEMENT,
-    DB_PATH,
-    LOAD_POST_COUNT,
-} from '../config'
+import { DAY_DIFF_STAEMENT, DB_PATH, LOAD_POST_COUNT } from '../config'
 import { Errors } from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -15,8 +11,11 @@ import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
-
-    async fetchOrderedPosts(db: DB, offset: number, content: string | undefined): Promise<Post[]> {
+    async fetchOrderedPosts(
+        db: DB,
+        offset: number,
+        content: string | undefined
+    ): Promise<Post[]> {
         //  TODO i think this sql is not really maintainable for long term, should consider to refactor it
         //      if user just posted, get the first ten result from db
         //      pop last one and insert new post to the first element
@@ -79,7 +78,9 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
-            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED}, ${PostStatus.DISAGREED}) 
+            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${
+            PostStatus.REPORTED
+        }, ${PostStatus.DISAGREED}) 
             
             ${content ? `AND p.content LIKE '%${content}%'` : ''}
             
@@ -123,16 +124,20 @@ export class PostService {
     ): Promise<Partial<Post>[] | null> {
         let posts: Post[]
         if (!epks) {
-            posts = await this.fetchOrderedPosts(db, (page - 1) * LOAD_POST_COUNT, keyword)
+            posts = await this.fetchOrderedPosts(
+                db,
+                (page - 1) * LOAD_POST_COUNT,
+                keyword
+            )
         } else {
-           let whereClause = {
+            let whereClause = {
                 epochKey: epks,
                 status: [
                     PostStatus.ON_CHAIN,
                     PostStatus.REPORTED,
                     PostStatus.DISAGREED,
                 ],
-                content : keyword ? { contains: keyword } : undefined
+                content: keyword ? { contains: keyword } : undefined,
             }
 
             posts = await db.findMany('Post', {

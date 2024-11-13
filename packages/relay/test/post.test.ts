@@ -227,7 +227,7 @@ describe('POST /post', function () {
         // insert random amount of votes into db
         await insertVotes(db)
 
-        // since already fetch from db, no need to update order here 
+        // since already fetch from db, no need to update order here
         const posts = await express.get(`/api/post?page=1`).then((res) => {
             expect(res).to.have.status(200)
             return res.body
@@ -294,7 +294,7 @@ describe('POST /post', function () {
         for (let i = 0; i < post.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal('test content #0')
+            expect(post.content).equal(`test content #${i}`)
         }
 
         // second page will be empty
@@ -316,15 +316,17 @@ describe('POST /post', function () {
     })
 
     it('should fetch posts by keyword', async function () {
-        let posts = await express.get(`/api/post?page=1&keyword=content`).then((res) => {
-            expect(res).to.have.status(200)
-            return res.body
-        })
+        let posts = await express
+            .get(`/api/post?page=1&keyword=content`)
+            .then((res) => {
+                expect(res).to.have.status(200)
+                return res.body
+            })
 
         for (let i = 0; i < post.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal('test content #0')
+            expect(post.content).equal(`test content #${i}`)
         }
     })
 
