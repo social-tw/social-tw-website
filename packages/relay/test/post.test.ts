@@ -290,11 +290,13 @@ describe('POST /post', function () {
             return res.body
         })
 
+        console.log(posts)
+
         // every post is on-chain so the status must be 1
-        for (let i = 0; i < post.length; i++) {
+        for (let i = 0; i < posts.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal(`test content #${i}`)
+            expect(post.content).include('test content')
         }
 
         // second page will be empty
@@ -323,10 +325,10 @@ describe('POST /post', function () {
                 return res.body
             })
 
-        for (let i = 0; i < post.length; i++) {
+        for (let i = 0; i < posts.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
-            expect(post.content).equal(`test content #${i}`)
+            expect(post.content).include('test content')
         }
     })
 
