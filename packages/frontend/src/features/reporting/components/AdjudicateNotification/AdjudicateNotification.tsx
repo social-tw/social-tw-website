@@ -1,6 +1,5 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { useToggle } from '@uidotdev/usehooks'
 import { useEffect, useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'

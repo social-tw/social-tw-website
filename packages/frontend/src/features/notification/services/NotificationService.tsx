@@ -27,7 +27,8 @@ class NotificationService {
     }
 }
 
-export default new NotificationService()
+const notificationService = new NotificationService()
 
-// Example Usage
-// NotificationService.sendNotification('POST_SUCCEEDED', '123')
+export default notificationService
+
+
