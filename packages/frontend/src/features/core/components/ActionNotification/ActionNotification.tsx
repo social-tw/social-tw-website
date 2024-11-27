@@ -137,12 +137,12 @@ export default function ActionNotification() {
                 onClose={() => setIsOpen(false)}
             >
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex items-center justify-center min-h-full p-4">
+                    <div className="min-h-full px-4 pt-[15.75rem] md:py-4 md:flex md:justify-center md:items-center">
                         <Dialog.Panel
-                            className="relative w-full max-w-md overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                            className="relative w-full max-w-md mx-auto overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                             data-testid="actions-dialog"
                         >
-                            <div className="sticky top-0 z-10 py-4 bg-black/90 px-7">
+                            <div className="px-6 py-4">
                                 <button
                                     className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
                                     type="submit"
@@ -151,7 +151,7 @@ export default function ActionNotification() {
                                     <CloseIcon />
                                 </button>
                             </div>
-                            <div className="overflow-y-auto h-72 px-7 pb-7">
+                            <div className="px-6 pb-6">
                                 <ActionTable onClose={() => setIsOpen(false)} />
                             </div>
                         </Dialog.Panel>
