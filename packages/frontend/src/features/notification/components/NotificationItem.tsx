@@ -84,7 +84,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                         {notification.time}
                     </p>
                     <p
-                        className={`text-sm ${notification.isRead ? 'text-gray-500' : 'text-black'}`}
+                        className={`text-sm ${
+                            notification.isRead ? 'text-gray-500' : 'text-black'
+                        }`}
                     >
                         {notification.message}
                     </p>

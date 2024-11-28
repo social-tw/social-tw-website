@@ -156,7 +156,7 @@ describe('LOGIN /login', function () {
                     hashUserId: user.hashUserId,
                     token: user.token,
                     fromServer: true,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -181,7 +181,7 @@ describe('LOGIN /login', function () {
                     hashUserId: user.hashUserId,
                     token: user.token,
                     fromServer: false,
-                }),
+                })
             )
             .then((res) => {
                 expect(res.body.status).to.equal('success')
@@ -209,8 +209,8 @@ describe('LOGIN /login', function () {
                 proof,
                 user.hashUserId,
                 true,
-                this.synchronizer,
-            ),
+                this.synchronizer
+            )
         ).to.be.rejectedWith(Error)
     })
 
@@ -241,7 +241,7 @@ describe('LOGIN /login', function () {
                     hashUserId: user.hashUserId,
                     token: user.token,
                     fromServer: true,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -266,7 +266,7 @@ describe('LOGIN /login', function () {
                     hashUserId: user.hashUserId,
                     token: user.token,
                     fromServer: true,
-                }),
+                })
             )
             .then((res) => {
                 expect(res.body.status).to.equal('success')
@@ -296,7 +296,7 @@ describe('LOGIN /login', function () {
                     hashUserId: user.hashUserId,
                     token: user.token,
                     fromServer: true,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -308,7 +308,7 @@ describe('LOGIN /login', function () {
         const registeredUser = await userService.getLoginUser(
             db,
             userId,
-            'access-token',
+            'access-token'
         )
         expect(registeredUser.status).to.equal(UserRegisterStatus.REGISTERER)
     })
@@ -318,10 +318,10 @@ describe('LOGIN /login', function () {
         const registeredUser = await userService.getLoginUser(
             db,
             userId,
-            'access-token',
+            'access-token'
         )
         expect(registeredUser.status).to.equal(
-            UserRegisterStatus.REGISTERER_SERVER,
+            UserRegisterStatus.REGISTERER_SERVER
         )
     })
 })
@@ -329,7 +329,7 @@ describe('LOGIN /login', function () {
 function prepareUserLoginTwitterApiMock(
     userId: string,
     code: string,
-    accessToken: string,
+    accessToken: string
 ) {
     nock(TWITTER_API, { encodedQueryParams: true })
         .post('/2/oauth2/token')

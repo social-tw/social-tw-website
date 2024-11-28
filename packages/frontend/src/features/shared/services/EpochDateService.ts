@@ -72,8 +72,5 @@ export class InvalidFromToEpoch implements FromToEpoch {
 }
 
 export class ValidFromToEpoch implements FromToEpoch {
-    constructor(
-        public from: number,
-        public to: number,
-    ) {}
+    constructor(public from: number, public to: number) {}
 }

@@ -9,7 +9,7 @@ import { ProofGenerationError } from './error'
 
 export const genProofAndVerify = async (
     circuit: Circuit | string,
-    circuitInputs: any,
+    circuitInputs: any
 ) => {
     const startTime = new Date().getTime()
     let proof: any, publicSignals: any
@@ -17,7 +17,7 @@ export const genProofAndVerify = async (
         ;({ proof, publicSignals } =
             await defaultProver.genProofAndPublicSignals(
                 circuit,
-                circuitInputs,
+                circuitInputs
             ))
     } catch (error) {
         if (error instanceof Error) {
@@ -29,13 +29,13 @@ export const genProofAndVerify = async (
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000,
-        )} s)`,
+            (endTime - startTime) / 1000
+        )} s)`
     )
     const isValid = await defaultProver.verifyProof(
         circuit,
         publicSignals,
-        proof,
+        proof
     )
     return { isValid, proof, publicSignals }
 }
@@ -161,12 +161,12 @@ export const randomData = () => [
         .map(() => poseidon1([Math.floor(Math.random() * 199191919)])),
     ...Array(
         CircuitConfig.default.FIELD_COUNT -
-            CircuitConfig.default.SUM_FIELD_COUNT,
+            CircuitConfig.default.SUM_FIELD_COUNT
     )
         .fill(0)
         .map(
             () =>
                 poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** CircuitConfig.default.MAX_SAFE_BITS,
+                BigInt(2) ** CircuitConfig.default.MAX_SAFE_BITS
         ),
 ]

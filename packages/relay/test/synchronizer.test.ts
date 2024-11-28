@@ -80,7 +80,7 @@ describe('Synchronize Post Test', function () {
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
                 helia,
-                'test content',
+                'test content'
             )
 
             await provider.waitForTransaction(txHash)
@@ -198,7 +198,7 @@ describe('Synchronize Comment Test', function () {
             })
 
             await expect(
-                app.leaveComment(publicSignals, proof, 0, commentContent),
+                app.leaveComment(publicSignals, proof, 0, commentContent)
             )
                 .to.emit(app, 'Comment')
                 .withArgs(publicSignals[0], 0, 0, 0, commentContent)
@@ -233,7 +233,7 @@ describe('Synchronize Comment Test', function () {
             await expect(
                 app.editComment(publicSignals, proof, 0, 0, newContent, {
                     gasLimit: 5000000,
-                }),
+                })
             )
                 .to.emit(app, 'UpdatedComment')
                 .withArgs(publicSignals[1], 0, 0, 0, newContent)

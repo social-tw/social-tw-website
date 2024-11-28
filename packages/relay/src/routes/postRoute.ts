@@ -12,7 +12,7 @@ export default (
     app: Express,
     db: DB,
     synchronizer: UnirepSocialSynchronizer,
-    helia: Helia,
+    helia: Helia
 ) => {
     app.get(
         '/api/post',
@@ -30,7 +30,7 @@ export default (
 
             const posts = await postService.fetchPosts(epks, page, db)
             res.json(posts)
-        }),
+        })
     )
 
     app.post(
@@ -49,11 +49,11 @@ export default (
                 proof,
                 db,
                 synchronizer,
-                helia,
+                helia
             )
 
             res.json({ txHash })
-        }),
+        })
     )
 
     app.get(
@@ -68,10 +68,10 @@ export default (
             const history = await postService.getPostHistory(
                 fromEpoch,
                 toEpoch,
-                db,
+                db
             )
             res.status(200).json(history)
-        }),
+        })
     )
 
     app.get(
@@ -87,6 +87,6 @@ export default (
             } else {
                 res.json(post)
             }
-        }),
+        })
     )
 }

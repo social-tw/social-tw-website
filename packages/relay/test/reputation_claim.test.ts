@@ -76,7 +76,7 @@ describe('Reputation Claim', function () {
     const upsertAdjudicatorsNullifier = (
         nullifier: string,
         adjudicateValue: AdjudicateValue,
-        report: ReportHistory,
+        report: ReportHistory
     ): Adjudicator[] => {
         const newAdjudicator = {
             nullifier: nullifier,
@@ -93,7 +93,7 @@ describe('Reputation Claim', function () {
         db: DB,
         epoch: number,
         nullifier: string,
-        status: ReportStatus,
+        status: ReportStatus
     ) {
         const reports = await db.findMany('ReportHistory', {
             where: {
@@ -104,8 +104,8 @@ describe('Reputation Claim', function () {
 
         return reports.find((report) =>
             report.adjudicatorsNullifier.some(
-                (adj) => adj.nullifier === nullifier,
-            ),
+                (adj) => adj.nullifier === nullifier
+            )
         )
     }
 
@@ -241,7 +241,7 @@ describe('Reputation Claim', function () {
         const adjudicatorsNullifier = upsertAdjudicatorsNullifier(
             nullifier.toString(),
             adjudicateValue,
-            report,
+            report
         )
         const adjudicateCount = (report.adjudicateCount ?? 0) + 1
         await db.update('ReportHistory', {
@@ -261,7 +261,7 @@ describe('Reputation Claim', function () {
         const adjudicatorsNullifier2 = upsertAdjudicatorsNullifier(
             nullifier2.toString(),
             adjudicateValue2,
-            report,
+            report
         )
         await db.update('ReportHistory', {
             where: {
@@ -311,7 +311,7 @@ describe('Reputation Claim', function () {
         const adjudicatorsNullifierFailed1 = upsertAdjudicatorsNullifier(
             nullifierFailed1.toString(),
             adjudicateValueFailed1,
-            reportFailed,
+            reportFailed
         )
         const adjudicateCountFailed1 = (reportFailed.adjudicateCount ?? 0) + 1
         await db.update('ReportHistory', {
@@ -331,7 +331,7 @@ describe('Reputation Claim', function () {
         const adjudicatorsNullifierFailed2 = upsertAdjudicatorsNullifier(
             nullifierFailed2.toString(),
             adjudicateValueFailed2,
-            reportFailed,
+            reportFailed
         )
         await db.update('ReportHistory', {
             where: {
@@ -371,12 +371,12 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNonNullifierCircuitInput,
+            reportNonNullifierCircuitInput
         )
 
         const reportNullifierProof = new ReportNonNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
 
         usedPublicSig = publicSignals
@@ -391,7 +391,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
-                }),
+                })
             )
         expect(res).to.have.status(200)
         const message = res.body.message
@@ -425,7 +425,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            reportNullifierProof.currentEpochKey.toString(),
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.REPORTER_REP)
         expect(reputationHistory.type).to.equal(ReputationType.REPORT_SUCCESS)
@@ -451,12 +451,12 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNonNullifierCircuitInput,
+            reportNonNullifierCircuitInput
         )
 
         const reportNullifierProof = new ReportNonNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
 
         usedPublicSig = publicSignals
@@ -471,7 +471,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
-                }),
+                })
             )
         expect(res).to.have.status(200)
         console.log('res a: ', res.body)
@@ -506,10 +506,10 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            reportNullifierProof.currentEpochKey.toString(),
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(
-            RepChangeType.FAILED_REPORTER_REP,
+            RepChangeType.FAILED_REPORTER_REP
         )
         expect(reputationHistory.type).to.equal(ReputationType.REPORT_FAILURE)
         expect(reputationHistory.reportId).to.equal(reportId2)
@@ -535,12 +535,12 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNonNullifierCircuitInput,
+            reportNonNullifierCircuitInput
         )
 
         const reportNonNullifierProof = new ReportNonNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
 
         usedPublicSig = publicSignals
@@ -555,7 +555,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.RESPONDENT,
-                }),
+                })
             )
 
         expect(res).to.have.status(200)
@@ -590,7 +590,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            reportNonNullifierProof.currentEpochKey.toString(),
+            reportNonNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.RESPONDENT_REP)
         expect(reputationHistory.type).to.equal(ReputationType.BE_REPORTED)
@@ -618,12 +618,12 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NullifierProof,
-            reportNullifierCircuitInputs,
+            reportNullifierCircuitInputs
         )
 
         const reportNullifierProof = new ReportNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
 
         usedPublicSig = publicSignals
@@ -638,7 +638,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.ADJUDICATOR,
-                }),
+                })
             )
 
         expect(res).to.have.status(200)
@@ -673,7 +673,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            reportNullifierProof.currentEpochKey.toString(),
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.ADJUDICATOR_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)
@@ -699,7 +699,7 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNonNullifierCircuitInput,
+            reportNonNullifierCircuitInput
         )
 
         usedPublicSig = publicSignals
@@ -714,7 +714,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.REPORTER,
-                }),
+                })
             )
         expect(res).to.have.status(400)
         expect(res.body.error).to.include('User has already claimed')
@@ -740,7 +740,7 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NullifierProof,
-            reportNullifierCircuitInputs,
+            reportNullifierCircuitInputs
         )
 
         usedPublicSig = publicSignals
@@ -756,7 +756,7 @@ describe('Reputation Claim', function () {
                     claimProof: usedProof,
                     repUserType: RepUserType.ADJUDICATOR,
                     nullifier1: reportNullifier.toString(),
-                }),
+                })
             )
 
         expect(res).to.have.status(400)
@@ -783,7 +783,7 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NonNullifierProof,
-            reportNonNullifierCircuitInput,
+            reportNonNullifierCircuitInput
         )
 
         usedPublicSig = publicSignals
@@ -798,7 +798,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.RESPONDENT,
-                }),
+                })
             )
 
         expect(res).to.have.status(400)
@@ -824,12 +824,12 @@ describe('Reputation Claim', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             NullifierProof,
-            reportNullifierCircuitInputs,
+            reportNullifierCircuitInputs
         )
 
         const reportNullifierProof = new ReportNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
 
         usedPublicSig = publicSignals
@@ -844,7 +844,7 @@ describe('Reputation Claim', function () {
                     claimSignals: usedPublicSig,
                     claimProof: usedProof,
                     repUserType: RepUserType.ADJUDICATOR,
-                }),
+                })
             )
 
         expect(res).to.have.status(200)
@@ -872,7 +872,7 @@ describe('Reputation Claim', function () {
         expect(reputationHistory).to.not.be.null
         expect(reputationHistory.epoch).to.equal(currentEpoch)
         expect(reputationHistory.epochKey).to.equal(
-            reportNullifierProof.currentEpochKey.toString(),
+            reportNullifierProof.currentEpochKey.toString()
         )
         expect(reputationHistory.score).to.equal(RepChangeType.ADJUDICATOR_REP)
         expect(reputationHistory.type).to.equal(ReputationType.ADJUDICATE)

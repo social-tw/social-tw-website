@@ -10,6 +10,6 @@ export const genAuthentication = async (userState: UserState) => {
         stringifyBigInts({
             publicSignals,
             proof,
-        }),
+        })
     )
 }

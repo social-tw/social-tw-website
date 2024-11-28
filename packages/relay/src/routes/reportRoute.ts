@@ -14,7 +14,7 @@ import { AdjudicateValue, Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/report',
@@ -30,7 +30,7 @@ export default (
                 _reportData,
                 publicSignals,
                 proof,
-                synchronizer,
+                synchronizer
             )
             // 2. Create a report
             const reportId = await reportService.createReport(db, reportData)
@@ -39,7 +39,7 @@ export default (
             // 4. Update post order
             await postService.updateOrder(db)
             res.json({ reportId })
-        }),
+        })
     )
 
     app.get(
@@ -54,16 +54,16 @@ export default (
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 JSON.parse(publicSignals as string) as PublicSignals,
                 JSON.parse(proof as string) as Groth16Proof,
-                synchronizer,
+                synchronizer
             )
 
             const reports = await reportService.fetchReports(
                 Number(status),
                 synchronizer,
-                db,
+                db
             )
             res.json(reports)
-        }),
+        })
     )
 
     app.post(
@@ -91,11 +91,11 @@ export default (
                 publicSignals,
                 proof,
                 synchronizer,
-                db,
+                db
             )
 
             res.status(201).json({})
-        }),
+        })
     )
 
     app.get(
@@ -103,6 +103,6 @@ export default (
         errorHandler((req, res, next) => {
             const reportCategories = reportService.fetchReportCategory()
             res.json(reportCategories)
-        }),
+        })
     )
 }
