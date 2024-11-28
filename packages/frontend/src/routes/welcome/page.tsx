@@ -124,7 +124,9 @@ export default function WelcomePage() {
                         onClick={() => navigate(PATHS.SIGN_UP)}
                     >
                         <span className="text-2xl font-semibold">立即註冊</span>
-                        <span className="text-xs">只要兩步驟，即可安全匿名分享你的想法！</span>
+                        <span className="text-xs">
+                            只要兩步驟，即可安全匿名分享你的想法！
+                        </span>
                     </button>
                 </motion.div>
             </footer>
