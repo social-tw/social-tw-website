@@ -12,7 +12,6 @@ import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { getVariantAutoScrollY } from '@/utils/helpers/motionVariants'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { GrFormClose } from 'react-icons/gr'
 
 enum NoteStatus {
     Close = 'close',
@@ -105,7 +104,6 @@ export default function SignupInternalPage() {
                 </div>
             </div>
             <AuthNoteDialog
-                icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />

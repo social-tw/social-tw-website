@@ -1,15 +1,12 @@
 import Dialog from '@/features/shared/components/Dialog/Dialog'
-import { IconType } from 'react-icons'
 
 interface NoteModallProps {
     noteStatus: string
-    icon: IconType
     onClose: () => void
 }
 
 export default function AuthNoteDialog({
     noteStatus,
-    icon: Icon,
     onClose,
 }: NoteModallProps) {
     let content
@@ -70,7 +67,7 @@ export default function AuthNoteDialog({
 
     return (
         <Dialog isOpen={noteStatus !== 'close'} onClose={onClose}>
-            <div className="flex flex-col gap-4 p-12 overflow-auto text-base font-light leading-7 tracking-wider text-black rounded-lg">
+            <div className="flex flex-col gap-4 pt-12 p-6 md:p-12 overflow-auto text-base font-light leading-7 tracking-wider text-black rounded-lg max-h-[90vh]">
                 {content}
             </div>
         </Dialog>

@@ -9,7 +9,6 @@ import {
     useLoginWithWallet,
 } from '@/features/auth'
 import { useState } from 'react'
-import { GrFormClose } from 'react-icons/gr'
 import { useParams } from 'react-router-dom'
 
 enum NoteStatus {
@@ -95,7 +94,6 @@ export default function LoginInternalPage() {
                 </div>
             )}
             <AuthNoteDialog
-                icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
