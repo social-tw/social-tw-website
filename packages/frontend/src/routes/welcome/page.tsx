@@ -1,9 +1,8 @@
+import LogoWhite from '@/assets/img/logo-white.png'
+import { PATHS } from '@/constants/paths'
+import { WelcomePostList } from '@/features/post'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { LoginButton } from '@/features/auth'
-import { WelcomePostList } from '@/features/post'
-import { PATHS } from '@/constants/paths'
-import LogoWhite from '@/assets/img/logo-white.png'
 
 const gradients = [
     'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
@@ -111,20 +110,22 @@ export default function WelcomePage() {
                         delay: 4,
                     }}
                 >
-                    <LoginButton
+                    <button
+                        className="flex flex-col items-center justify-center w-full p-4 tracking-wider text-white rounded-xl bg-secondary focus:outline-offset-0"
+                        type="button"
                         onClick={() => navigate(PATHS.LOGIN)}
-                        title="立即登入"
-                        subTitle="歡迎提供你的獨到見解！"
-                        color="#2F9CAF"
-                        text="2xl"
-                    />
-                    <LoginButton
+                    >
+                        <span className="text-2xl font-semibold">立即登入</span>
+                        <span className="text-xs">歡迎提供你的獨到見解！</span>
+                    </button>
+                    <button
+                        className="flex flex-col items-center justify-center w-full p-4 tracking-wider text-white rounded-xl bg-primary focus:outline-offset-0"
+                        type="button"
                         onClick={() => navigate(PATHS.SIGN_UP)}
-                        title="立即註冊"
-                        subTitle="只要兩步驟，即可安全匿名分享你的想法！"
-                        color="#FF892A"
-                        text="2xl"
-                    />
+                    >
+                        <span className="text-2xl font-semibold">立即註冊</span>
+                        <span className="text-xs">只要兩步驟，即可安全匿名分享你的想法！</span>
+                    </button>
                 </motion.div>
             </footer>
         </div>

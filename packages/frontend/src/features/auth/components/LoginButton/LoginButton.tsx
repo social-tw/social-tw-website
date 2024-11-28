@@ -44,8 +44,8 @@ export default function LoginButton({
                 transition 
                 duration-300 
                 ease-in-out
-                gap-8
                 `,
+                Icon ? 'flex-row gap-8' : 'flex-col',
                 start ? 'justify-start' : 'justify-center',
             )}
             style={{ backgroundColor: color }}
