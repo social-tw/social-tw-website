@@ -1,4 +1,5 @@
 import { Dialog } from '@/features/shared'
+import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import {
@@ -13,7 +14,6 @@ import {
     ReportFormSubmitBtn,
     ReportFormSubmitting,
 } from '../ReportForm'
-import { useEffect, useState } from 'react'
 
 interface CommentReportDialogProps {
     postId: string
@@ -64,24 +64,33 @@ export function CommentReportDialog({
     })
 
     const onCloseDialog = useCloseDialogFlow({
+        setIsSubmitting,
         resetForm,
         resetState,
         onClose,
     })
 
     useEffect(() => {
+        let timer: NodeJS.Timeout | null = null
+
         if (isPending) {
             setIsSubmitting(true)
 
-            const timer = setTimeout(() => {
+            timer = setTimeout(() => {
                 onCloseDialog()
             }, 5000)
+        }
 
-            return () => {
+        if (!isPending && isSubmitting) {
+            onCloseDialog()
+        }
+
+        return () => {
+            if (timer) {
                 clearTimeout(timer)
             }
         }
-    }, [isPending, onCloseDialog])
+    }, [isPending, isSubmitting, onCloseDialog])
 
     return (
         <>
@@ -125,15 +134,18 @@ export function CommentReportDialog({
 }
 
 function useCloseDialogFlow({
+    setIsSubmitting,
     resetForm,
     resetState,
     onClose,
 }: {
+    setIsSubmitting: (value: boolean) => void
     resetForm: () => void
     resetState: () => void
     onClose: () => void
 }) {
     return () => {
+        setIsSubmitting(false)
         resetForm()
         resetState()
         onClose()
