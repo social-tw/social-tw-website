@@ -17,6 +17,21 @@ export function useVotes() {
 
     const actionCount = useActionCount()
 
+    const getActionTypeFromVoteAction = (voteAction: VoteAction) => {
+        switch (voteAction) {
+            case VoteAction.UPVOTE:
+                return ActionType.UpVote
+            case VoteAction.DOWNVOTE:
+                return ActionType.DownVote
+            case VoteAction.CANCEL_UPVOTE:
+                return ActionType.CancelUpVote
+            case VoteAction.CANCEL_DOWNVOTE:
+                return ActionType.CancelDownVote
+            default:
+                throw new Error('Invalid vote action')
+        }
+    }
+
     const {
         isPending,
         error,
@@ -53,14 +68,14 @@ export function useVotes() {
             return true
         },
         onMutate: async (variables) => {
-            const voteData = {
-                postId: variables.id,
-                voteAction: variables.voteAction,
-                epoch: variables.votedEpoch,
-                identityNonce:
-                    variables.votedNonce ?? getEpochKeyNonce(actionCount),
-            }
-            const actionId = addAction(ActionType.Vote, voteData)
+            const actionId = addAction(
+                getActionTypeFromVoteAction(variables.voteAction),
+                {
+                    postId: variables.id,
+                    epoch: variables.votedEpoch,
+                    identityNonce: variables.votedNonce ?? getEpochKeyNonce(actionCount),
+                }
+            )
             return { actionId }
         },
         onError: (_error, _variables, context) => {
