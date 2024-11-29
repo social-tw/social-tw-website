@@ -133,8 +133,8 @@ const PostDetailsPage: React.FC = () => {
 
     return (
         <>
-            <div className="px-4">
-                <section className="py-6">
+            <div className="px-4 py-6 space-y-6 lg:px-0">
+                <section>
                     <Post
                         id={post.postId}
                         epochKey={post.epochKey}
@@ -153,7 +153,7 @@ const PostDetailsPage: React.FC = () => {
                         onVote={handleVote}
                     />
                 </section>
-                <section id="comments">
+                <section id="comments" className="px-6">
                     <CommentList postId={id} />
                     <div className="h-[50vh]"></div>
                 </section>
