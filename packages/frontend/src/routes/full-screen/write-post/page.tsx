@@ -55,7 +55,7 @@ export default function WritePostPage() {
         if (!isLoggedIn) {
             setErrorMessage(AUTH_ERROR_MESSAGE.DEFAULT)
         }
-    }, [isLoggedIn])
+    }, [isLoggedIn, setErrorMessage])
 
     return (
         <div className="p-4">
