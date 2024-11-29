@@ -2,14 +2,22 @@ import EpochImg from '@/assets/img/epoch.png'
 import { useActionCount, useEpoch } from '@/features/core'
 import clsx from 'clsx'
 import Countdown from 'react-countdown'
+import { FaRegQuestionCircle } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 
-function EpochTimer() {
+function EpochTimer({ onClick }: { onClick: () => void }) {
     const { epochEndTime } = useEpoch()
 
     return (
         <div>
-            <div className="text-xs font-semibold text-white text-nowrap">
-                當前 Epoch 倒數
+            <div className="flex justify-between gap-2">
+                <p className="text-xs font-semibold text-white text-nowrap">
+                    當前 Epoch 倒數
+                </p>
+                <FaRegQuestionCircle
+                    className="text-white cursor-pointer"
+                    onClick={onClick}
+                />
             </div>
             <div
                 className="text-3xl font-semibold text-white h-9"
@@ -72,10 +80,16 @@ function EpochMessage() {
     const count = useActionCount()
     const message = getAccountCountMessage(count)
 
-    return <p className="text-xs font-medium text-white/60 text-nowrap">{message}</p>
+    return <p className="text-xs font-medium text-white/60">{message}</p>
 }
 
 export default function EpochInfo() {
+    const navigate = useNavigate()
+
+    const gotoAboutPage = () => {
+        navigate('/about')
+    }
+
     return (
         <div className="flex items-stretch gap-3">
             <img
@@ -85,14 +99,18 @@ export default function EpochInfo() {
             />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
-                    <div className="w-[90px] basis-[90px]">
-                        <EpochTimer />
-                    </div>
+                    <EpochTimer onClick={gotoAboutPage} />
                     <div className="flex-1">
                         <EpochActionCounter />
                     </div>
                 </div>
-                <EpochMessage />
+                <div className="flex justify-between">
+                    <EpochMessage />
+                    <FaRegQuestionCircle
+                        className="text-white cursor-pointer"
+                        onClick={gotoAboutPage}
+                    />
+                </div>
             </div>
         </div>
     )
