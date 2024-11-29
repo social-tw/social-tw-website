@@ -15,11 +15,11 @@ import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
 import React, { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
-    const location = useLocation()
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
     if (!id) {
@@ -123,10 +123,12 @@ const PostDetailsPage: React.FC = () => {
     }
 
     useEffect(() => {
-        if (location.hash === '#comments') {
+        const leaveComment = searchParams.get('leaveComment')
+
+        if (leaveComment === '1') {
             setIsOpenComment(true)
         }
-    }, [location.hash])
+    }, [searchParams])
 
     if (!id || !post) return null
 

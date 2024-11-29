@@ -121,7 +121,7 @@ export default function PostList() {
     const navigate = useNavigate()
 
     function gotoCommentsByPostId(postId: string) {
-        navigate(`/posts/${postId}/#comments`)
+        navigate(`/posts/${postId}/?leaveComment=1`)
     }
 
     const { createVote } = useVotes()
