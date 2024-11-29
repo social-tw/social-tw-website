@@ -73,8 +73,9 @@ export function useVotes() {
                 {
                     postId: variables.id,
                     epoch: variables.votedEpoch,
-                    identityNonce: variables.votedNonce ?? getEpochKeyNonce(actionCount),
-                }
+                    identityNonce:
+                        variables.votedNonce ?? getEpochKeyNonce(actionCount),
+                },
             )
             return { actionId }
         },
