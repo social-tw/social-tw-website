@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FirstImg from '@/assets/img/featureIntroduction/first-step.png'
 import SecondImg from '@/assets/img/featureIntroduction/second-step.png'
