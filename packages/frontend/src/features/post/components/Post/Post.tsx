@@ -14,7 +14,6 @@ import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
-import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useUserState } from '@/features/core'
 import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
 
