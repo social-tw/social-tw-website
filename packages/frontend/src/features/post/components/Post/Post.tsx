@@ -16,6 +16,7 @@ import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useUserState } from '@/features/core'
+import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
 
 export default function Post({
     id = '',
@@ -170,30 +171,18 @@ export default function Post({
         </div>
     )
 
-    const IsShowReportedMasks = useMemo(() => {
-        return (
-            isReported &&
-            userState &&
-            epoch &&
-            epochKey &&
-            !isMyEpochKey(userState, epoch, epochKey)
-        )
+    const isShowReportedMasks = useMemo(() => {
+        return shouldShowMask(isReported, userState, epoch, epochKey)
     }, [userState, epoch, epochKey, isReported])
 
-    const IsShowBlockedMasks = useMemo(() => {
-        return (
-            isBlocked &&
-            userState &&
-            epoch &&
-            epochKey &&
-            !isMyEpochKey(userState, epoch, epochKey)
-        )
+    const isShowBlockedMasks = useMemo(() => {
+        return shouldShowMask(isBlocked, userState, epoch, epochKey)
     }, [userState, epoch, epochKey, isBlocked])
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {IsShowReportedMasks && <PostReportedMask />}
-            {IsShowBlockedMasks && <PostBlockedMask />}
+            {isShowReportedMasks && <PostReportedMask />}
+            {isShowBlockedMasks && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
