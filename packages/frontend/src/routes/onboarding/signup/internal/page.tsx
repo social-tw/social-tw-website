@@ -10,8 +10,6 @@ import {
 } from '@/features/auth'
 import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { getVariantAutoScrollY } from '@/utils/helpers/motionVariants'
-import { useMediaQuery } from '@uidotdev/usehooks'
-import { clsx } from 'clsx'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { GrFormClose } from 'react-icons/gr'
@@ -40,7 +38,6 @@ export default function SignupInternalPage() {
     const error = walletSignupError || serverSignupError
 
     const hashUserId = LocalStorageHelper.getGuaranteedHashUserId()
-    const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)')
     const variantAutoScrollY = getVariantAutoScrollY()
 
     return (
@@ -67,12 +64,9 @@ export default function SignupInternalPage() {
                 <BackToWelcomeButton />
             </div>
             <div
-                className={clsx(
-                    `w-full flex items-center justify-center gap-8`,
-                    isSmallDevice && 'flex-col',
-                )}
+                className="flex flex-col items-center justify-center w-11/12 gap-8 lg:w-full lg:flex-row"
             >
-                <div className="flex flex-col items-center justify-center basis-[22rem] gap-2">
+                <div className="flex flex-col items-center justify-center w-full lg:basis-[22rem] gap-2">
                     <LoginButton
                         isLoading={isPending}
                         onClick={walletSignup}
@@ -89,7 +83,7 @@ export default function SignupInternalPage() {
                         <span className="text-[#52ACBC]"> MetaMask 錢包 </span>?
                     </p>
                 </div>
-                <div className="flex flex-col items-center justify-center basis-[22rem] gap-2">
+                <div className="flex flex-col items-center justify-center w-full lg:basis-[22rem] gap-2">
                     <LoginButton
                         isLoading={isPending}
                         onClick={serverSignup}
