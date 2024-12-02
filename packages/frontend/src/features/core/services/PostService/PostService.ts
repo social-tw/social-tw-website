@@ -15,6 +15,10 @@ export class PostService extends RelayApiService {
             `/post?page=${page}`,
         )
         //TODO: After relay update change to
+        // const params = new URLSearchParams({ page: page.toString() })
+        // if (query) {
+        //     params.append('query', query)
+        // }
         // const response = await client.get<FetchPostsResponse>(
         //     `/post?page=${page}&query={query}`,
         // )

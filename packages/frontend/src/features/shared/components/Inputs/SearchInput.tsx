@@ -8,12 +8,12 @@ export default function SearchInput() {
 
     const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            navigate(`?q=${encodeURIComponent(query)}`)
+            navigate(`?q=${encodeURIComponent(query.trim())}`)
         }
     }
 
     const onClick = () => {
-        navigate(`?q=${encodeURIComponent(query)}`)
+        navigate(`?q=${encodeURIComponent(query.trim())}`)
     }
 
     return (
