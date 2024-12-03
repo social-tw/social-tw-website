@@ -2,7 +2,7 @@ import { useAuthStatus } from '@/features/auth'
 import {
     LikeAnimation,
     VoteFailureDialog,
-    useFirstReportReason,
+    usePostReportReason,
     useVoteStore,
 } from '@/features/post'
 import { useReputationScore } from '@/features/reporting'
@@ -105,7 +105,7 @@ export default function Post({
     const [isError, setIsError] = useState(false)
 
     const { isValidReputationScore } = useReputationScore()
-    const { reason } = useFirstReportReason(id)
+    const { reason } = usePostReportReason(id)
 
     const handleVote = async (voteType: VoteAction) => {
         if (!isValidReputationScore) {

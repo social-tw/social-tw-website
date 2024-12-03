@@ -1,6 +1,6 @@
 import { usePendingReports } from '@/features/reporting/hooks/usePendingReports/usePendingReports'
 
-export function useFirstReportReason(postId: string): {
+export function usePostReportReason(postId: string): {
     reason?: string
     isLoading: boolean
     error: any
