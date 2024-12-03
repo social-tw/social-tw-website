@@ -1,7 +1,7 @@
 // NotificationItem.tsx
 import React from 'react'
-import { useNotificationStore } from '../stores/useNotificationStore'
-import { notificationConfig } from '../types/NotificationTypes'
+import { useNotificationStore } from '../../stores/useNotificationStore'
+import { notificationConfig } from '../../types/NotificationTypes'
 import { useNavigate } from 'react-router-dom'
 import { useAdjudicateStore } from '@/features/reporting/hooks/useAdjudicate/useAdjudicateStore'
 import { useCheckInStore } from '@/features/reporting/hooks/useCheckIn/useCheckInStore'
