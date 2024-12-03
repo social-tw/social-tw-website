@@ -72,7 +72,7 @@ function getAccountCountMessage(count: number) {
     } else if (count > 3) {
         return '動作次數超出安全範圍，建議等下個Epoch後執行'
     } else {
-        return '目前動作次數(3次內)可確保匿名身份不被交叉比對'
+        return '目前動作次數(3次內)，可確保匿名身份不被交叉比對'
     }
 }
 
