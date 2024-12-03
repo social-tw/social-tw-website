@@ -20,7 +20,7 @@ export enum QueryKeys {
 }
 
 export enum MutationKeys {
-    ReuestData = 'request_data',
+    RequestData = 'request_data',
     ProveData = 'prove_data',
     Login = 'login',
     LoginWithServer = 'login_with_server',

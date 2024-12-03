@@ -33,7 +33,12 @@ function getActionLink(action: Action) {
 }
 
 function isActionLinkExistWhenSuccess(action: Action) {
-    return action.type === ActionType.Post || action.type === ActionType.Comment
+    return (
+        action.type === ActionType.Post ||
+        action.type === ActionType.Comment ||
+        action.type === ActionType.UpVote ||
+        action.type === ActionType.DownVote
+    )
 }
 
 function isActionLinkExistWhenFailure(action: Action) {
@@ -84,7 +89,7 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
-                        {message}交易失敗!
+                        {message}交易未成功!
                     </span>
                     {isActionLinkExistWhenFailure(action) && (
                         <Link
@@ -104,15 +109,15 @@ function getActionStatusLabel(action: Action) {
 }
 
 export default function ActionNotification() {
-    const lastestAction = useActionStore(latestActionSelector)
+    const latestAction = useActionStore(latestActionSelector)
 
     const pendingCount = useActionStore(pendingCountSelector)
 
     const [isOpen, setIsOpen] = useState(false)
 
-    if (!lastestAction) return null
+    if (!latestAction) return null
 
-    const statusLabel = getActionStatusLabel(lastestAction)
+    const statusLabel = getActionStatusLabel(latestAction)
 
     return (
         <>
