@@ -1,5 +1,4 @@
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
-import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
 import { ReactComponent as ActionIcon } from '@/assets/svg/action.svg'
 import {
     ActionStatus,
