@@ -64,6 +64,3 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     },
     clearNotificationDot: () => set({ showNotificationDot: false }),
 }))
-
-// Load stored notifications upon initializing
-useNotificationStore.getState().loadNotifications()
