@@ -27,6 +27,7 @@ export enum ActionStatus {
 export interface PostData {
     postId?: string
     content: string
+    epoch?: number
     epochKey?: string
     transactionHash?: string
 }
@@ -278,8 +279,8 @@ export function removeActionByCommentId(commentId: string) {
 
 export function getActionMessage(type: ActionType) {
     const messages = {
-        [ActionType.Post]: '貼文存取',
-        [ActionType.Comment]: '留言存取',
+        [ActionType.Post]: '貼文上鏈',
+        [ActionType.Comment]: '留言上鏈',
         [ActionType.UpVote]: '按讚上鏈',
         [ActionType.CancelUpVote]: '取消按讚',
         [ActionType.DownVote]: '倒讚上鏈',

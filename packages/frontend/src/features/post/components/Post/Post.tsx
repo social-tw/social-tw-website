@@ -14,9 +14,12 @@ import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
+import { useUserState } from '@/features/core'
+import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
 
 export default function Post({
     id = '',
+    epoch,
     epochKey,
     content = '',
     imageUrl,
@@ -36,6 +39,7 @@ export default function Post({
     onVote = async (voteType: VoteAction) => false,
 }: {
     id?: string
+    epoch?: number
     epochKey?: string
     content?: string
     imageUrl?: string
@@ -54,6 +58,7 @@ export default function Post({
     onComment?: () => void
     onVote?: (voteType: VoteAction) => Promise<boolean>
 }) {
+    const { userState } = useUserState()
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
@@ -165,10 +170,18 @@ export default function Post({
         </div>
     )
 
+    const isShowReportedMasks = useMemo(() => {
+        return shouldShowMask(isReported, userState, epoch, epochKey)
+    }, [userState, epoch, epochKey, isReported])
+
+    const isShowBlockedMasks = useMemo(() => {
+        return shouldShowMask(isBlocked, userState, epoch, epochKey)
+    }, [userState, epoch, epochKey, isBlocked])
+
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isReported && <PostReportedMask />}
-            {isBlocked && <PostBlockedMask />}
+            {isShowReportedMasks && <PostReportedMask />}
+            {isShowBlockedMasks && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             <div className="flex-1 p-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
