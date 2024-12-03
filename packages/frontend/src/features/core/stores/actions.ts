@@ -248,8 +248,8 @@ export function removeActionByCommentId(commentId: string) {
 
 export function getActionMessage(type: ActionType) {
     const messages = {
-        [ActionType.Post]: '貼文存取',
-        [ActionType.Comment]: '留言存取',
+        [ActionType.Post]: '貼文上鏈',
+        [ActionType.Comment]: '留言上鏈',
         [ActionType.DeleteComment]: '刪除留言',
         [ActionType.ReportPost]: '檢舉貼文',
         [ActionType.ReportComment]: '檢舉留言',
