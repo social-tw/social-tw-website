@@ -33,7 +33,7 @@ export default function LoginButton({
                 `
                 flex
                 w-full
-                max-w-[44rem]           
+                md:max-w-[22rem]
                 items-center
                 rounded-xl
                 bg-[${color}]
@@ -45,7 +45,7 @@ export default function LoginButton({
                 duration-300 
                 ease-in-out
                 `,
-                Icon ? 'flex-row gap-2' : 'flex-col',
+                Icon ? 'flex-row gap-8' : 'flex-col',
                 start ? 'justify-start' : 'justify-center',
             )}
             style={{ backgroundColor: color }}
@@ -53,12 +53,7 @@ export default function LoginButton({
             {Icon && <Icon size={iconSize} />}
             <span
                 className={clsx(
-                    `text-white 
-                font-semibold 
-                text-${text} 
-                tracking-wider
-                `,
-                    Icon && 'mt-1',
+                    `text-white font-semibold text-${text} tracking-wider`,
                 )}
             >
                 {title}

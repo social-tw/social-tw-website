@@ -32,7 +32,7 @@ module.exports = {
                         '[data-theme=dark]'
                     ],
                     primary: '#FF892A',
-                    secondary: '#52ACBC',
+                    secondary: '#2F9CAF',
                     accent: '#3F3F3F',
                     error: '#FF1D1D',
                     '--rounded-btn': '0.75rem',
