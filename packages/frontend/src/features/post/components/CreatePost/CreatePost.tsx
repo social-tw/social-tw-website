@@ -48,7 +48,10 @@ export default function CreatePost({
     return (
         <>
             <PostForm disabled={disabled} onSubmit={onSubmit} />
-            <PostPublishTransition isOpen={isSubmitting} />
+            <PostPublishTransition
+                isOpen={isSubmitting}
+                onClose={() => setIsSubmitting(false)}
+            />
             <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </>
     )
