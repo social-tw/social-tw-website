@@ -100,7 +100,7 @@ export default function AppLayout() {
                         </h1>
                     </header>
                     <section className="p-4 space-y-3">
-                        <div className="max-w-xs mx-auto">
+                        <div className="mx-auto">
                             <EpochInfo />
                         </div>
                         <ActionNotification />
