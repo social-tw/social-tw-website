@@ -113,11 +113,10 @@ const PostDetailsPage: React.FC = () => {
                 })
             }
 
-            await refetch() // Refresh the post data after voting
+            await refetch()
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }

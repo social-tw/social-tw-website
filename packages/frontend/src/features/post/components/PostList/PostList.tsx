@@ -139,7 +139,6 @@ export default function PostList() {
                     post.finalAction === VoteAction.UPVOTE
                         ? VoteAction.CANCEL_UPVOTE
                         : VoteAction.CANCEL_DOWNVOTE
-
                 await createVote({
                     id,
                     voteAction: cancelAction,
@@ -160,7 +159,6 @@ export default function PostList() {
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }

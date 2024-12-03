@@ -7,6 +7,10 @@ import { immer } from 'zustand/middleware/immer'
 export enum ActionType {
     Post = 'post',
     Comment = 'comment',
+    UpVote = 'upvote',
+    CancelUpVote = 'cancelUpvote',
+    DownVote = 'downvote',
+    CancelDownVote = 'cancelDownvote',
     DeleteComment = 'deleteComment',
     ReportPost = 'reportPost',
     ReportComment = 'reportComment',
@@ -26,6 +30,29 @@ export interface PostData {
     epoch?: number
     epochKey?: string
     transactionHash?: string
+}
+
+export interface UpVoteData {
+    postId: string
+    epoch: number | null
+    identityNonce: number
+}
+export interface CancelUpVoteData {
+    postId: string
+    epoch: number | null
+    identityNonce: number
+}
+
+export interface DownVoteData {
+    postId: string
+    epoch: number | null
+    identityNonce: number
+}
+
+export interface CancelDownVoteData {
+    postId: string
+    epoch: number | null
+    identityNonce: number
 }
 
 export interface CommentData {
@@ -70,6 +97,10 @@ export interface BaseAction<Type, Data> {
 
 export type Action =
     | BaseAction<ActionType.Post, PostData>
+    | BaseAction<ActionType.UpVote, UpVoteData>
+    | BaseAction<ActionType.CancelUpVote, CancelUpVoteData>
+    | BaseAction<ActionType.DownVote, DownVoteData>
+    | BaseAction<ActionType.CancelDownVote, CancelDownVoteData>
     | BaseAction<ActionType.Comment, CommentData>
     | BaseAction<ActionType.DeleteComment, DeleteCommentData>
     | BaseAction<ActionType.ReportPost, ReportPostData>
@@ -250,6 +281,10 @@ export function getActionMessage(type: ActionType) {
     const messages = {
         [ActionType.Post]: '貼文上鏈',
         [ActionType.Comment]: '留言上鏈',
+        [ActionType.UpVote]: '按讚上鏈',
+        [ActionType.CancelUpVote]: '取消按讚',
+        [ActionType.DownVote]: '倒讚上鏈',
+        [ActionType.CancelDownVote]: '取消倒讚',
         [ActionType.DeleteComment]: '刪除留言',
         [ActionType.ReportPost]: '檢舉貼文',
         [ActionType.ReportComment]: '檢舉留言',
@@ -263,6 +298,10 @@ export function getActionSubject(type: ActionType) {
     const subjects = {
         [ActionType.Post]: '貼文',
         [ActionType.Comment]: '留言',
+        [ActionType.UpVote]: '按讚貼文',
+        [ActionType.CancelUpVote]: '取消按讚',
+        [ActionType.DownVote]: '倒讚貼文',
+        [ActionType.CancelDownVote]: '取消倒讚',
         [ActionType.DeleteComment]: '留言',
         [ActionType.ReportPost]: '檢舉',
         [ActionType.ReportComment]: '檢舉',
