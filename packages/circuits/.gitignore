@@ -17,3 +17,7 @@ zksnarkBuild/*
 !*/reportIdentityProof.wasm
 !*/reportIdentityProof.zkey
 !*/reportIdentityProof.circom
+!*/dailyClaimProof.vkey.json
+!*/dailyClaimProof.wasm
+!*/dailyClaimProof.zkey
+!*/dailyClaimProof.circom
