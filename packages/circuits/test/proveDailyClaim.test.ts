@@ -22,6 +22,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
      * 1. should succeed with valid inputs
      * 2. should revert with reputation > 0
      * 3. should revert with wrong reputation proof
+     * 4. should revert with wrong daily nullifier
      */
 
     const chainId = 31337
@@ -154,6 +155,42 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.have.property(
                 'message',
                 'Error: Assert Failed. Error in template Num2Bits_3 line: 38\nError in template Reputation_93 line: 111\nError in template DailyClaimProof_97 line: 39\n'
+            )
+        }
+    })
+
+    it('should revert with wrong daily nullifier', async () => {
+        const identitySecret = user.id.secret
+        const dailyEpoch = 0
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        const wrongDailyEpoch = 444
+
+        const reputationCircuitInput = genReputationCircuitInput({
+            identitySecret,
+            epoch: epoch,
+            nonce: 0,
+            attesterId: attesterId,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            data: data,
+            maxRep: 1,
+            chainId: chainId,
+        })
+
+        const circuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch: wrongDailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationCircuitInput,
+        })
+
+        try {
+            await genProofAndVerify(circuit, circuitInputs)
+        } catch (error: unknown) {
+            expect?.(error).to.be.an.instanceof(ProofGenerationError)
+            expect?.(error).to.have.property(
+                'message',
+                'Error: Assert Failed. Error in template DailyClaimProof_97 line: 64\n'
             )
         }
     })
