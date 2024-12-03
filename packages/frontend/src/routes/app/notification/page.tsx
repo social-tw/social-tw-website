@@ -4,14 +4,6 @@ import { useNotificationStore } from '@/features/notification/stores/useNotifica
 
 const NotificationPage: React.FC = () => {
     const notifications = useNotificationStore((state) => state.notifications)
-    const loadReadStatuses = useNotificationStore(
-        (state) => state.loadNotifications,
-    )
-
-    useEffect(() => {
-        // Load read statuses from local storage
-        loadReadStatuses()
-    }, [loadReadStatuses])
 
     if (!notifications || notifications.length === 0) {
         return <p></p>
