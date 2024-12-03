@@ -15,7 +15,7 @@ function EpochTimer({ onClick }: { onClick: () => void }) {
                     當前 Epoch 倒數
                 </p>
                 <FaRegQuestionCircle
-                    className="text-white cursor-pointer"
+                    className="text-white cursor-pointer w-3 h-3"
                     onClick={onClick}
                 />
             </div>
@@ -93,7 +93,7 @@ export default function EpochInfo() {
     return (
         <div className="flex items-stretch gap-3">
             <img
-                className="w-14 h-14 basis-14 shrink-0"
+                className="w-16 h-16 basis-16 shrink-0"
                 src={EpochImg}
                 alt="epoch actions"
             />
@@ -104,10 +104,10 @@ export default function EpochInfo() {
                         <EpochActionCounter />
                     </div>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                     <EpochMessage />
                     <FaRegQuestionCircle
-                        className="text-white cursor-pointer"
+                        className="text-white cursor-pointer w-3 h-3"
                         onClick={gotoAboutPage}
                     />
                 </div>
