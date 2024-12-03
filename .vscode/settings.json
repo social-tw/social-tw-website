@@ -4,5 +4,6 @@
     "editor.tabSize": 4,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
-    }
+    },
+    "cSpell.words": ["partialize"]
 }
