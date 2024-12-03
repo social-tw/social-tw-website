@@ -12,7 +12,6 @@ import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { getVariantAutoScrollY } from '@/utils/helpers/motionVariants'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { GrFormClose } from 'react-icons/gr'
 
 enum NoteStatus {
     Close = 'close',
@@ -44,10 +43,13 @@ export default function SignupInternalPage() {
         <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
                 <div className="flex flex-col gap-12">
-                    <Greeting />
-                    <p className="hidden text-2xl font-semibold tracking-wider text-center text-white md:block">
-                        再一步即可完成註冊
-                    </p>
+                    <div className="lg:space-y-12">
+                        <Greeting />
+                        <p className="text-2xl font-semibold tracking-wider text-left text-white lg:text-center md:block">
+                            只要 <span className="text-primary">2 步驟</span>{' '}
+                            即可完成註冊
+                        </p>
+                    </div>
                     <motion.div
                         className="flex justify-center"
                         variants={variantAutoScrollY}
@@ -56,7 +58,7 @@ export default function SignupInternalPage() {
                     >
                         {<StepInfo hashUserId={hashUserId} />}
                     </motion.div>
-                    <p className="text-white tracking-wide text-[15px] text-center">
+                    <p className="text-white tracking-wide text-[15px] text-left md:text-center">
                         選擇「錢包註冊」 / 「直接註冊」即代表未來登入的方式
                         ，無法再做更改
                     </p>
@@ -102,7 +104,6 @@ export default function SignupInternalPage() {
                 </div>
             </div>
             <AuthNoteDialog
-                icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
