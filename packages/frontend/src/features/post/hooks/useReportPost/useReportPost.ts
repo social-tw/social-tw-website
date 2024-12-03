@@ -22,7 +22,6 @@ export function useReportPost() {
 
     const {
         mutateAsync: reportPost,
-        isIdle,
         isPending,
         isSuccess,
         isError,
@@ -88,5 +87,5 @@ export function useReportPost() {
         },
     })
 
-    return { reportPost, isIdle, isPending, isSuccess, isError, reset }
+    return { reportPost, isPending, isSuccess, isError, reset }
 }
