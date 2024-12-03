@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import NotificationItem from '@/features/notification/components/NotificationItem/NotificationItem'
-import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
+import { useAllNotifications } from '@/features/notification/stores/useNotificationStore'
 
 const NotificationPage: React.FC = () => {
-    const notifications = useNotificationStore((state) => state.notifications)
+    const notifications = useAllNotifications()
 
     if (!notifications || notifications.length === 0) {
         return <p></p>
@@ -22,7 +22,7 @@ const NotificationPage: React.FC = () => {
                 {[...notifications].reverse().map((notification) => (
                     <NotificationItem
                         key={notification.id}
-                        notificationId={notification.id}
+                        id={notification.id}
                     />
                 ))}
             </div>

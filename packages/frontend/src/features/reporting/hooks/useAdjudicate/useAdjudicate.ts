@@ -10,7 +10,8 @@ import {
 } from '@/features/core'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AdjudicateFormValues } from '../../components/Adjudicate/AdjudicateForm'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useAdjudicate() {
     const queryClient = useQueryClient()
@@ -39,7 +40,7 @@ export function useAdjudicate() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification('ADJUDICATE_FAILED')
+            sendNotification(NotificationType.ADJUDICATE_FAILED)
         },
         onSuccess: async (_data, _variables, context) => {
             if (context?.actionId) {
@@ -49,7 +50,7 @@ export function useAdjudicate() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.PendingReports],
             })
-            NotificationService.sendNotification('ADJUDICATE_SUCCEEDED')
+            sendNotification(NotificationType.ADJUDICATE_SUCCEEDED)
         },
     })
 }

@@ -4,7 +4,9 @@ import { useUserState, useWeb3Provider } from '@/features/core'
 import { relaySignUp } from '@/utils/api'
 import { SignupFailedError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { clearNotifications } from '@/features/notification/stores/useNotificationStore'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useSignup() {
     const queryClient = useQueryClient()
@@ -48,8 +50,8 @@ export function useSignup() {
                 await provider.waitForTransaction(data.txHash)
                 await userState.waitForSync()
 
-                NotificationService.clearNotifications()
-                NotificationService.sendNotification('SIGN_UP_SUCCESS')
+                clearNotifications()
+                sendNotification(NotificationType.SIGN_UP_SUCCESS)
 
                 return data
             } catch {

@@ -1,30 +1,33 @@
-// NotificationItem.tsx
-import React from 'react'
-import { useNotificationStore } from '../../stores/useNotificationStore'
-import { notificationConfig } from '../../types/NotificationTypes'
-import { useNavigate } from 'react-router-dom'
 import { useAdjudicateStore } from '@/features/reporting/hooks/useAdjudicate/useAdjudicateStore'
 import { useCheckInStore } from '@/features/reporting/hooks/useCheckIn/useCheckInStore'
 import { useDialog } from '@/features/shared'
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getNotificationConfig } from '../../config/NotificationConfig'
+import {
+    useNotificationById,
+    markAsRead,
+} from '../../stores/useNotificationStore'
 
 interface NotificationItemProps {
-    notificationId: number
+    id: string
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({
-    notificationId,
-}) => {
-    const notification = useNotificationStore((state) =>
-        state.notifications.find((n) => n.id === notificationId),
-    )
-    const markAsRead = useNotificationStore((state) => state.markAsRead)
+const NotificationItem: React.FC<NotificationItemProps> = ({ id }) => {
+    const data = useNotificationById(id)
+    const isRead = data.isRead
+    const time = data.time
+    const config = getNotificationConfig(data.type)
+    const IconComponent = config.icon
+    const message = config.message
+    const actions = config.actions
+    const targetId = data.targetId
+
     const navigate = useNavigate()
 
     const { setAdjuducateDialogOpen } = useAdjudicateStore()
     const { toggleCheckIn } = useCheckInStore()
     const { setIsOpen } = useDialog()
-
-    if (!notification) return null
 
     const handleAction = (actionType: string, targetId?: string) => {
         switch (actionType) {
@@ -58,16 +61,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             default:
                 console.warn('Unknown action type:', actionType)
         }
-        markAsRead(notification.id)
+        markAsRead(id)
     }
-
-    const config = notificationConfig[notification.type]
-    const IconComponent = config?.icon
-    const actions = config.actions || []
 
     return (
         <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
-            {notification.isRead && (
+            {isRead && (
                 <div className="absolute inset-0 bg-black bg-opacity-40 rounded-2xl z-20 pointer-events-none"></div>
             )}
 
@@ -79,26 +78,21 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                 </div>
 
                 <div className="flex-grow">
-                    <p className="text-xs mb-1 text-gray-500">
-                        {notification.time}
-                    </p>
+                    <p className="text-xs mb-1 text-gray-500">{time}</p>
                     <p
                         className={`text-sm ${
-                            notification.isRead ? 'text-gray-500' : 'text-black'
+                            isRead ? 'text-gray-500' : 'text-black'
                         }`}
                     >
-                        {notification.message}
+                        {message}
                     </p>
 
                     <div className="flex justify-end space-x-4 mt-2">
-                        {actions.map((action, index) => (
+                        {actions?.map((action, index) => (
                             <button
                                 key={index}
                                 onClick={() =>
-                                    handleAction(
-                                        action.type,
-                                        notification.targetId,
-                                    )
+                                    handleAction(action.type, targetId)
                                 }
                                 className="text-xs underline text-[#4A9BAA]"
                             >

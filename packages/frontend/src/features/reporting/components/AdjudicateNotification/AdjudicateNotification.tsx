@@ -5,8 +5,9 @@ import { usePendingReports } from '../../hooks/usePendingReports/usePendingRepor
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
-import NotificationService from '@/features/notification/services/NotificationService'
 import { useAdjudicateStore } from '../../hooks/useAdjudicate/useAdjudicateStore'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -70,7 +71,7 @@ function useActiveAdjudication() {
 
     useEffect(() => {
         if (activeReport) {
-            NotificationService.sendNotification('NEW_REPORT_ADJUDICATE')
+            sendNotification(NotificationType.NEW_REPORT_ADJUDICATE)
         }
     }, [activeReport])
 

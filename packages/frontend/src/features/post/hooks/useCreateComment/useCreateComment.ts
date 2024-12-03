@@ -14,7 +14,8 @@ import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
 import { delay } from 'lodash'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useCreateComment() {
     const queryClient = useQueryClient()
@@ -88,10 +89,7 @@ export function useCreateComment() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification(
-                'COMMENT_FAILED',
-                _variables.postId,
-            )
+            sendNotification(NotificationType.COMMENT_FAILED, _variables.postId)
         },
         onSuccess: (data, variables, context) => {
             succeedActionById(context.actionId, {
@@ -110,8 +108,8 @@ export function useCreateComment() {
                     queryKey: [QueryKeys.SinglePost, variables.postId],
                 })
             }, 1000)
-            NotificationService.sendNotification(
-                'COMMENT_SUCCEEDED',
+            sendNotification(
+                NotificationType.COMMENT_SUCCEEDED,
                 `${variables.postId}#${data.commentId}`,
             )
         },

@@ -14,7 +14,8 @@ import {
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useCreatePost() {
     const queryClient = useQueryClient()
@@ -77,10 +78,7 @@ export function useCreatePost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification(
-                'POST_FAILED',
-                context?.actionId,
-            )
+            sendNotification(NotificationType.POST_FAILED, context?.actionId)
         },
         onSuccess: (data, _variables, context) => {
             succeedActionById(context.actionId, {
@@ -96,7 +94,7 @@ export function useCreatePost() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
-            NotificationService.sendNotification('POST_SUCCEEDED', data.postId)
+            sendNotification(NotificationType.POST_SUCCEEDED, data.postId)
         },
     })
 

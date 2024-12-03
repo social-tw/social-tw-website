@@ -3,7 +3,8 @@ import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useVotes() {
     const queryClient = useQueryClient()
@@ -57,18 +58,18 @@ export function useVotes() {
 
             const notificationType =
                 data.voteAction === VoteAction.UPVOTE
-                    ? 'UPVOTE_SUCCEEDED'
-                    : 'DOWNVOTE_SUCCEEDED'
+                    ? NotificationType.UPVOTE_SUCCEEDED
+                    : NotificationType.DOWNVOTE_SUCCEEDED
 
-            NotificationService.sendNotification(notificationType, data.postId)
+            sendNotification(notificationType, data.postId)
         },
         onError: (_error, variables, _context) => {
             const notificationType =
                 variables.voteAction === VoteAction.UPVOTE
-                    ? 'UPVOTE_FAILED'
-                    : 'DOWNVOTE_FAILED'
+                    ? NotificationType.UPVOTE_FAILED
+                    : NotificationType.DOWNVOTE_FAILED
 
-            NotificationService.sendNotification(notificationType, variables.id)
+            sendNotification(notificationType, variables.id)
         },
     })
 

@@ -13,7 +13,8 @@ import {
 import { ReportType } from '@/types/Report'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import NotificationService from '@/features/notification/services/NotificationService'
+import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useReportComment() {
     const queryClient = useQueryClient()
@@ -75,8 +76,8 @@ export function useReportComment() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification(
-                'REPORT_FAILED',
+            sendNotification(
+                NotificationType.REPORT_FAILED,
                 `/posts/${_variables.postId}#${_variables.commentId}`,
             )
         },
@@ -91,7 +92,7 @@ export function useReportComment() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ManyComments, data.postId],
             })
-            NotificationService.sendNotification('REPORT_SUCCEEDED')
+            sendNotification(NotificationType.REPORT_SUCCEEDED)
         },
     })
 
