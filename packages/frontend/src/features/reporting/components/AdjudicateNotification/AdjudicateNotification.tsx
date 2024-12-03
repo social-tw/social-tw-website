@@ -1,11 +1,12 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { useToggle } from '@uidotdev/usehooks'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
+import NotificationService from '@/features/notification/services/NotificationService'
+import { useAdjudicateStore } from '../../hooks/useAdjudicate/useAdjudicateStore'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -67,6 +68,12 @@ function useActiveAdjudication() {
         }
     }, [activeReport])
 
+    useEffect(() => {
+        if (activeReport) {
+            NotificationService.sendNotification('NEW_REPORT_ADJUDICATE')
+        }
+    }, [activeReport])
+
     return {
         data: reportData,
         refetch,
@@ -75,12 +82,12 @@ function useActiveAdjudication() {
 
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
-
-    const [open, toggle] = useToggle(false)
+    const { AdjuducateDialogOpen, setAdjuducateDialogOpen } =
+        useAdjudicateStore()
 
     const onClose = () => {
-        refetch()
-        toggle(false)
+        refetch() // Refetch data when closing the dialog if needed
+        setAdjuducateDialogOpen(false) // Close the dialog
     }
 
     if (!activeAdjudication) {
@@ -89,10 +96,10 @@ export default function AdjudicationNotification() {
 
     return (
         <div data-testid="adjudication-notification">
-            <AdjudicateButton onClick={toggle} />
+            <AdjudicateButton onClick={() => setAdjuducateDialogOpen(true)} />
             <Adjudicate
                 reportData={activeAdjudication}
-                open={open}
+                open={AdjuducateDialogOpen}
                 onClose={onClose}
             />
         </div>

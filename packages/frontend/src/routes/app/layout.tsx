@@ -1,6 +1,7 @@
 import Logo from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
 import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
+import { ReactComponent as BellWDotIcon } from '@/assets/svg/bell-wdot.svg'
 import { ReactComponent as HomeIcon } from '@/assets/svg/home.svg'
 import { ReactComponent as PersonCircleIcon } from '@/assets/svg/person-circle.svg'
 import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
@@ -28,6 +29,7 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 function NotificationContainer({ children }: { children: React.ReactNode }) {
     return (
@@ -64,7 +66,8 @@ export default function AppLayout() {
     const isShowingHeaderLogoOnSmallDevice =
         location.pathname !== '/profile' &&
         location.pathname !== '/profile/reputation' &&
-        location.pathname !== '/profile/history'
+        location.pathname !== '/profile/history' &&
+        location.pathname !== '/notification'
     const isShowingGoBackButtonOnDesktop =
         !matchPath &&
         location.pathname !== '/profile' &&
@@ -74,6 +77,16 @@ export default function AppLayout() {
     const isForbidActionDialogOpen = useDialogStore(
         (state) => state.forbidAction,
     )
+
+    const showNotificationDot = useNotificationStore(
+        (state) => state.showNotificationDot,
+    )
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
+    const handleBellClick = () => {
+        clearNotificationDot()
+    }
 
     if (isSmallDevice) {
         return (
@@ -201,16 +214,21 @@ export default function AppLayout() {
                                 <NavLink
                                     className={({ isActive }) =>
                                         clsx(
-                                            'flex items-center gap-8',
+                                            'relative flex items-center gap-8',
                                             isActive
                                                 ? 'text-secondary'
                                                 : 'text-white',
                                         )
                                     }
                                     to="/notification"
+                                    onClick={handleBellClick}
                                 >
-                                    <BellIcon className="w-14 h-14" />
-                                    <span className="text-xl font-bold ">
+                                    {showNotificationDot ? (
+                                        <BellWDotIcon className="w-full h-full" />
+                                    ) : (
+                                        <BellIcon className="w-full h-full" />
+                                    )}
+                                    <span className="text-xl font-bold">
                                         Notification
                                     </span>
                                 </NavLink>
@@ -263,6 +281,8 @@ function getDesktopHeaderTextByPath(path: string): string {
         return 'Profile 我的帳號 > 歷史紀錄'
     } else if (path === '/profile/reputation') {
         return 'Profile 我的帳號 > 信譽分數'
+    } else if (path === '/notification') {
+        return '通知中心'
     } else {
         return ''
     }
@@ -275,6 +295,8 @@ function getMobileHeaderTextByPath(path: string): string {
         return '歷史紀錄'
     } else if (path === '/profile/reputation') {
         return '信譽分數'
+    } else if (path === '/notification') {
+        return '通知中心'
     } else {
         return 'Unirep Social TW'
     }

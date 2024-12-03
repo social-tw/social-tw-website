@@ -3,6 +3,7 @@ import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import NotificationService from '@/features/notification/services/NotificationService'
 
 export function useVotes() {
     const queryClient = useQueryClient()
@@ -29,7 +30,6 @@ export function useVotes() {
             votedEpoch: number | null
         }) => {
             const userState = await getGuaranteedUserState()
-
             const voteService = new VoteService(userState)
 
             const epoch = votedEpoch ?? undefined
@@ -44,9 +44,9 @@ export function useVotes() {
 
             await userState.waitForSync()
 
-            return true
+            return { postId: id, voteAction }
         },
-        onSuccess: (_data, variables, _context) => {
+        onSuccess: (data, variables, _context) => {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ManyComments, variables.id],
             })
@@ -54,6 +54,21 @@ export function useVotes() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, variables.id],
             })
+
+            const notificationType =
+                data.voteAction === VoteAction.UPVOTE
+                    ? 'UPVOTE_SUCCEEDED'
+                    : 'DOWNVOTE_SUCCEEDED'
+
+            NotificationService.sendNotification(notificationType, data.postId)
+        },
+        onError: (_error, variables, _context) => {
+            const notificationType =
+                variables.voteAction === VoteAction.UPVOTE
+                    ? 'UPVOTE_FAILED'
+                    : 'DOWNVOTE_FAILED'
+
+            NotificationService.sendNotification(notificationType, variables.id)
         },
     })
 

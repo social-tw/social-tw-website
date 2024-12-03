@@ -78,6 +78,7 @@ export default (
                     epochKey: String(reportProof.currentEpochKey),
                     type: repType,
                     score: claimChange,
+                    isPassed: isPassed,
                 },
             })
         })

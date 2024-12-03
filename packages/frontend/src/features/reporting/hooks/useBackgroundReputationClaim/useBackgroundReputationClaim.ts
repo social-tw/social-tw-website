@@ -62,6 +62,7 @@ export function useBackgroundReputationClaim() {
         if (!reports || !userState) return
 
         for (const report of reports) {
+            console.log(report)
             if (canClaimReportorReputation(userState, report)) {
                 await claimEpochKeyReputation({
                     reportId: report.reportId,
