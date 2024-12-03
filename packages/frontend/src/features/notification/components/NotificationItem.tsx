@@ -27,7 +27,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     if (!notification) return null
 
     const handleAction = (actionType: string, targetId?: string) => {
-        console.log(actionType, targetId)
         switch (actionType) {
             case 'viewPost':
                 if (targetId) navigate(`/posts/${targetId}`)
