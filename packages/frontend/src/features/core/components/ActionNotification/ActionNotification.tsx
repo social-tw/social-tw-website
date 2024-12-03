@@ -84,7 +84,7 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
-                        {message}交易失敗!
+                        {message}交易未成功!
                     </span>
                     {isActionLinkExistWhenFailure(action) && (
                         <Link
