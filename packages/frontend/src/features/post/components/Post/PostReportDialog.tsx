@@ -19,10 +19,10 @@ import {
     ReportFormSubmitting,
 } from '../ReportForm'
 import Dialog from '@/features/shared/components/Dialog/Dialog'
+import { usePostById } from '@/features/post/hooks/usePostById/usePostById'
 
 interface PostReportDialogProps {
     postId: string
-    content: string
     isOpen: boolean
     onClose: () => void
 }
@@ -34,7 +34,6 @@ const defaultValues = {
 
 export function PostReportDialog({
     postId,
-    content,
     isOpen,
     onClose,
 }: PostReportDialogProps) {
@@ -86,6 +85,8 @@ export function PostReportDialog({
         resetStep,
     })
 
+    const { data: post } = usePostById(postId)
+
     return (
         <>
             {step === 1 && (
@@ -100,7 +101,7 @@ export function PostReportDialog({
                 <Dialog isOpen={isOpen} onClose={onCloseDialog}>
                     <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
-                        <ReportContent content={content} />
+                        <ReportContent content={post?.content} />
                         <ReportFormStepGroup>
                             <ReportFormStepLabel
                                 title="1. 檢舉原因"

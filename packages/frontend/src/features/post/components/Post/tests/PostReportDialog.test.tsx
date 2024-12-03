@@ -29,7 +29,6 @@ describe('PostReportDialog', () => {
                 postId={''}
                 isOpen={true}
                 onClose={() => {}}
-                content={''}
             />,
             { wrapper },
         )
@@ -50,7 +49,6 @@ describe('PostReportDialog', () => {
                 postId={''}
                 isOpen={true}
                 onClose={() => {}}
-                content={''}
             />,
             { wrapper },
         )
@@ -67,7 +65,6 @@ describe('PostReportDialog', () => {
                 postId={''}
                 isOpen={true}
                 onClose={() => {}}
-                content={''}
             />,
             { wrapper },
         )
@@ -84,7 +81,6 @@ describe('PostReportDialog', () => {
                 postId={''}
                 isOpen={true}
                 onClose={() => {}}
-                content={''}
             />,
             { wrapper },
         )
