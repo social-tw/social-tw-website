@@ -25,11 +25,7 @@ describe('PostReportDialog', () => {
         >
         mockUseReportPost.mockReturnValue({ ...mockValues, isIdle: true })
         render(
-            <PostReportDialog
-                postId={''}
-                isOpen={true}
-                onClose={() => {}}
-            />,
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
         )
         expect(
@@ -45,11 +41,7 @@ describe('PostReportDialog', () => {
         >
         mockUseReportPost.mockReturnValue({ ...mockValues, isPending: true })
         render(
-            <PostReportDialog
-                postId={''}
-                isOpen={true}
-                onClose={() => {}}
-            />,
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
         )
         expect(screen.getByText('您的檢舉報告正在送出中')).toBeInTheDocument()
@@ -61,11 +53,7 @@ describe('PostReportDialog', () => {
         >
         mockUseReportPost.mockReturnValue({ ...mockValues, isSuccess: true })
         render(
-            <PostReportDialog
-                postId={''}
-                isOpen={true}
-                onClose={() => {}}
-            />,
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
         )
         expect(screen.getByText('您的檢舉報告傳送成功！')).toBeInTheDocument()
@@ -77,11 +65,7 @@ describe('PostReportDialog', () => {
         >
         mockUseReportPost.mockReturnValue({ ...mockValues, isError: true })
         render(
-            <PostReportDialog
-                postId={''}
-                isOpen={true}
-                onClose={() => {}}
-            />,
+            <PostReportDialog postId={''} isOpen={true} onClose={() => {}} />,
             { wrapper },
         )
         expect(screen.getByText('導致傳送失敗。')).toBeInTheDocument()
