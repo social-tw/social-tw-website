@@ -470,13 +470,12 @@ describe('POST /api/report', function () {
             })
     })
 
-    it('should fetch report whose adjudication result is tie', async function () {
+    it('should not fetch report whose adjudication count has reached threshold', async function () {
         // update mock value into report
         const adjudicatorsNullifier = [
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -490,11 +489,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        // epoch transition
-        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await provider.send('evm_mine', [])
-
-        const reports = await express
+        const votingReports = await express
             .get(
                 `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
             )
@@ -503,23 +498,30 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        // flatMap to [adjudicateValue1, adjucateValue2 ...]
-        // add all adjudicateValues (0: disagree, 1: agree)
-        const adjudicateResult = reports[0].adjudicatorsNullifier
-            .flatMap((nullifier) => nullifier.adjudicateValue)
-            .reduce((acc, value) => {
-                // disagree
-                if (Number(value) == 0) {
-                    return acc - 1
-                }
-                // agree
-                return acc + 1
-            })
-        expect(adjudicateResult).equal(0)
-        expect(reports[0].adjudicateCount).gt(5)
+        // filter out the report whose objectId is '0' and type is POST
+        const filteredReports = votingReports.filter(
+            (report: any) => report.objectId !== '0' && report.type === ReportType.POST
+        )
+
+        expect(filteredReports.length).equal(0)
+
+        const waitingForTxReports = await express
+            .get(
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
+            .then((res) => res.body)
+
+        // no report is waiting for transaction
+        // because the report is still in voting status
+        // and since the adjudication count has reached threshold
+        // so when querying voting reports, it will be filtered out
+        expect(waitingForTxReports.length).equal(0)
     })
 
     it('should fetch report whose adjudication count is less than 5', async function () {
+        // epoch transition
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
         // nobody vote on reports[1], it can be fetched on next epoch
         const reports = await express
             .get(
@@ -530,10 +532,10 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        expect(reports[1].adjudicateCount).lt(5)
-        expect(reports[1].status).equal(0)
+        expect(reports[0].adjudicateCount).lt(5)
+        expect(reports[0].status).equal(0)
         const currentEpoch = await sync.loadCurrentEpoch()
-        const epochDiff = currentEpoch - reports[1].reportEpoch
+        const epochDiff = currentEpoch - reports[0].reportEpoch
         expect(epochDiff).gt(1)
     })
 
@@ -543,8 +545,6 @@ describe('POST /api/report', function () {
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -568,7 +568,7 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        expect(reports[0].adjudicateCount).gt(5)
+        expect(reports[0].adjudicateCount).gte(5)
         expect(reports[0].status).equal(1)
         const currentEpoch = await sync.loadCurrentEpoch()
         const epochDiff = currentEpoch - reports[0].reportEpoch
@@ -935,10 +935,6 @@ describe('POST /api/report', function () {
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -1041,8 +1037,6 @@ describe('POST /api/report', function () {
         const adjudicatorsNullifier = [
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
