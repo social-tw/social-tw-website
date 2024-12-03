@@ -1,17 +1,14 @@
 import { useAuthStatus } from '@/features/auth'
 import { useAuthStore } from '../../stores/authStore'
 
-type CallbackFunction = () => void
-
 export function useAuthCheck(errorMessage: string) {
     const { isLoggedIn } = useAuthStatus()
     const setErrorMessage = useAuthStore((state) => state.setErrorMessage)
 
-    const checkAuth = (callback: CallbackFunction) => {
+    const checkAuth = async (): Promise<void> => {
         if (!isLoggedIn) {
             setErrorMessage(errorMessage)
-        } else {
-            callback()
+            throw new Error('User is not logged in')
         }
     }
 

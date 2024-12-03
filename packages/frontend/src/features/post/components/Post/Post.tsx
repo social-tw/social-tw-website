@@ -108,10 +108,13 @@ export default function Post({
 
     const { isValidReputationScore } = useReputationScore()
 
-    const handleComment = () => {
-        checkAuth(() => {
+    const handleComment = async () => {
+        try {
+            await checkAuth()
             onComment()
-        })
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const handleVote = async (voteType: VoteAction) => {

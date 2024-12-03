@@ -34,14 +34,17 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
     const { isValidReputationScore } = useReputationScore()
     const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
-    const handleReportPost = isValidReputationScore
+    const onReport = isValidReputationScore
         ? onReportDialogOpen
         : openForbidActionDialog
 
-    const onReport = () => {
-        checkAuth(() => {
-            handleReportPost()
-        })
+    const handleReportPost = async () => {
+        try {
+            await checkAuth()
+            onReport()
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
@@ -56,7 +59,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReport}
+                    onClick={handleReportPost}
                     disabled={false}
                 />
             </ActionMenuDropdown>
@@ -67,7 +70,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉貼文"
-                    onClick={onReport}
+                    onClick={handleReportPost}
                     disabled={false}
                 />
             </ActionMenuBottomSlide>

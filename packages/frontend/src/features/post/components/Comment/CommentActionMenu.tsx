@@ -55,10 +55,13 @@ export function CommentActionMenu({
         ? onReportDialogOpen
         : openForbidActionDialog
 
-    const onReport = () => {
-        checkAuth(() => {
+    const onReport = async () => {
+        try {
+            await checkAuth()
             handleReportComment()
-        })
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (

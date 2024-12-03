@@ -40,10 +40,13 @@ export default function Comment({
 }: CommentProps) {
     const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
-    const handleDelete = () => {
-        checkAuth(() => {
+    const handleDelete = async () => {
+        try {
+            await checkAuth()
             onDelete()
-        })
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
