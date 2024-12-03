@@ -4,27 +4,11 @@ import { WelcomePostList } from '@/features/post'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
-const gradients = [
-    'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(150deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(200deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(250deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-]
-
 export default function WelcomePage() {
     const navigate = useNavigate()
 
     return (
-        <div>
-            <motion.div
-                className="fixed w-screen h-screen -z-50"
-                animate={{
-                    background: gradients,
-                }}
-                transition={{
-                    duration: 5,
-                }}
-            />
+        <>
             <header className="fixed z-40 w-screen top-16 md:top-24">
                 <div className="flex flex-col items-center max-w-2xl px-4 mx-auto">
                     <motion.img
@@ -53,7 +37,7 @@ export default function WelcomePage() {
                         }}
                         transition={{
                             duration: 1,
-                            delay: 1,
+                            delay: 0.5,
                         }}
                     >
                         Unirep Social TW
@@ -70,7 +54,7 @@ export default function WelcomePage() {
                         }}
                         transition={{
                             duration: 1,
-                            delay: 2,
+                            delay: 1,
                         }}
                     >
                         嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
@@ -88,7 +72,7 @@ export default function WelcomePage() {
                     }}
                     transition={{
                         duration: 1,
-                        delay: 3,
+                        delay: 1.5,
                     }}
                 >
                     <WelcomePostList />
@@ -107,7 +91,7 @@ export default function WelcomePage() {
                     }}
                     transition={{
                         duration: 1,
-                        delay: 4,
+                        delay: 2,
                     }}
                 >
                     <button
@@ -130,6 +114,6 @@ export default function WelcomePage() {
                     </button>
                 </motion.div>
             </footer>
-        </div>
+        </>
     )
 }

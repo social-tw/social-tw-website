@@ -17,6 +17,8 @@ module.exports = {
             backgroundImage: {
                 'dark-gradient':
                     'linear-gradient(115.09deg, rgba(47, 24, 6, 0.9) 2.26%, rgba(0, 0, 0, 0.9) 51.07%, rgba(5, 40, 46, 0.9) 98.92%)',
+                'custom-gradient':
+                    'linear-gradient(158.98deg, #FFFFFF 0%, #E2E2E2 49.14%, #FFFFFF 99.27%)',
             },
             lineHeight: {
                 'slightly-loose': '1.8',
