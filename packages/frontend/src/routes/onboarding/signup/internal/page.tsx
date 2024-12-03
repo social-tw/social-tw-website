@@ -63,9 +63,7 @@ export default function SignupInternalPage() {
                 </div>
                 <BackToWelcomeButton />
             </div>
-            <div
-                className="flex flex-col items-center justify-center w-11/12 gap-8 lg:w-full lg:flex-row"
-            >
+            <div className="flex flex-col items-center justify-center w-11/12 gap-8 lg:w-full lg:flex-row">
                 <div className="flex flex-col items-center justify-center w-full lg:basis-[22rem] gap-2">
                     <LoginButton
                         isLoading={isPending}
