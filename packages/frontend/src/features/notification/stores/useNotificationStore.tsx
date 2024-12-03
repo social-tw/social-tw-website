@@ -1,13 +1,10 @@
 import { create } from 'zustand'
-import { NotificationAction } from '../types/NotificationTypes'
-
 interface Notification {
     id: number
     type: string
     message: string
     time: string
     isRead: boolean
-    actions?: NotificationAction[]
     targetId?: string
 }
 
@@ -21,7 +18,6 @@ interface NotificationStore {
     clearNotificationDot: () => void
 }
 
-// Define initial state
 const initialState = {
     notifications: [] as Notification[],
     showNotificationDot: false,

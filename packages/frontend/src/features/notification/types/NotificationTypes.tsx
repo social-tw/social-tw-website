@@ -21,7 +21,7 @@ import { ReactComponent as UpvoteSuccessIcon } from '@/assets/svg/notification/u
 
 export type NotificationAction = {
     label: string
-    type: string // Use this to identify actions dynamically
+    type: string 
 }
 
 export interface NotificationConfig {

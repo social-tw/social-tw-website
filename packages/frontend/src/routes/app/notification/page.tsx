@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import NotificationItem from '@/features/notification/components/NotificationItem'
+import NotificationItem from '@/features/notification/components/NotificationItem/NotificationItem'
 import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 const NotificationPage: React.FC = () => {
