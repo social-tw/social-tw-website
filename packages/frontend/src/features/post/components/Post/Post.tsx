@@ -144,7 +144,7 @@ export default function Post({
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-5">
                     <Avatar name={epochKey ?? nanoid()} />
                     <span className="text-xs font-medium tracking-wide text-black/80">
                         {subtitle}
@@ -183,7 +183,7 @@ export default function Post({
             {isShowReportedMasks && <PostReportedMask />}
             {isShowBlockedMasks && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
-            <div className="flex-1 p-4 space-y-3">
+            <div className="flex-1 px-6 py-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
