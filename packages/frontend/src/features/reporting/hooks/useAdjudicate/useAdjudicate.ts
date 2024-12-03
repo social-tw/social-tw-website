@@ -39,10 +39,7 @@ export function useAdjudicate() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
-            NotificationService.sendNotification(
-                'ADJUDICATE_FAILED',
-                context?.actionId,
-            )
+            NotificationService.sendNotification('ADJUDICATE_FAILED')
         },
         onSuccess: async (_data, _variables, context) => {
             if (context?.actionId) {
