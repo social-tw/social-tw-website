@@ -1,3 +1,4 @@
+export { DailyClaimProof } from './DailyClaimProof'
 export { DataProof } from './DataProof'
 export { ReportIdentityProof } from './ReportIdentityProof'
 export { ReportNonNullifierProof } from './ReportNonNullifierProof'

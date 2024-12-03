@@ -1,8 +1,8 @@
 import { stringifyBigInts } from '@unirep/utils'
+import child_process from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import * as snarkjs from 'snarkjs'
-import child_process from 'child_process'
 import { circuitContents, ptauName } from './circuits'
 import { downloadPtau } from './downloadPtau'
 

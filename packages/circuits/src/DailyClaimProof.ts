@@ -7,25 +7,10 @@ import { UnirepSocialCircuit } from './types'
  */
 export class DailyClaimProof extends BaseProof {
     readonly input = {
-        identitySecret: 0,
-        dailyEpoch: 1,
-        dailyNullifier: 2,
-        stateTreeIndices: 3,
-        stateTreeElements: 4,
-        data: 5,
-        proveGraffiti: 6,
-        graffiti: 7,
-        revealNonce: 8,
-        attesterId: 9,
-        epoch: 10,
-        nonce: 11,
-        chainId: 12,
-        sigData: 13,
-        minRep: 14,
-        maxRep: 15,
-        proveMinRep: 16,
-        proveMaxRep: 17,
-        proveZeroRep: 18,
+        dailyEpoch: 0,
+        dailyNullifier: 1,
+        attesterId: 2,
+        epoch: 3,
     }
 
     public dailyNullifier: bigint

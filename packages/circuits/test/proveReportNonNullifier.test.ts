@@ -122,7 +122,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 40\n'
             )
         }
     })
@@ -160,7 +160,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 40\n'
             )
         }
     })
@@ -190,7 +190,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 40\n'
             )
         }
     })
