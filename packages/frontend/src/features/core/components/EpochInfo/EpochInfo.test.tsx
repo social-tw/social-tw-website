@@ -19,7 +19,7 @@ describe('EpochInfo', () => {
         render(<EpochInfo />, { wrapper })
 
         expect(
-            screen.getByText('目前動作次數(3次內)，可確保匿名身份不被交叉比對'),
+            screen.getByText('目前動作次數3次內，可確保匿名身份不被交叉比對'),
         ).toBeInTheDocument()
     })
 })
