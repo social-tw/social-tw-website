@@ -500,7 +500,8 @@ describe('POST /api/report', function () {
 
         // filter out the report whose objectId is '0' and type is POST
         const filteredReports = votingReports.filter(
-            (report: any) => report.objectId !== '0' && report.type === ReportType.POST
+            (report: any) =>
+                report.objectId !== '0' && report.type === ReportType.POST
         )
 
         expect(filteredReports.length).equal(0)
