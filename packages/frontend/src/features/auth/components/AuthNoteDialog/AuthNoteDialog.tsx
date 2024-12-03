@@ -1,15 +1,12 @@
-import { IconType } from 'react-icons'
 import Dialog from '@/features/shared/components/Dialog/Dialog'
 
 interface NoteModallProps {
     noteStatus: string
-    icon: IconType
     onClose: () => void
 }
 
 export default function AuthNoteDialog({
     noteStatus,
-    icon: Icon,
     onClose,
 }: NoteModallProps) {
     let content
@@ -18,7 +15,7 @@ export default function AuthNoteDialog({
         case 'metamask':
             content = (
                 <>
-                    <p className="font-semibold underline">
+                    <p className="underline underline-offset-4">
                         什麼是 MetaMask 錢包？
                     </p>
                     <p>
@@ -28,16 +25,8 @@ export default function AuthNoteDialog({
                         在網頁瀏覽器中安全地存儲、管理和交易以太幣（ETH）及其他基於以太坊的代幣。
                     </p>
                     <p>
-                        MetaMask
-                        不僅僅是一個安全的錢包，它還是一個將區塊鏈技術融入日常網頁使用的工具。使用者可以透過
-                        MetaMask
-                        輕鬆地訪問各種去中心化應用，例如賭博平台、藝術品市場、去中心化金融服務等。MetaMask
-                        通過助記詞和私鑰的方式，確保使用者對其資產擁有完全控制，同時也提供了在不同以太坊網絡之間切換的便利性。
-                    </p>
-                    <p>
-                        MetaMask
-                        在以太坊生態系中扮演著重要角色，為使用者提供了便捷的加密貨幣管理手段，同時也促進了去中心化應用的普及和使用。無論是初次接觸區塊鏈世界的新手，還是資深的加密貨幣愛好者，MetaMask
-                        都是一個不可或缺的工具。
+                        選擇「錢包註冊」將會使用 MetaMask
+                        來建立您的帳戶，以確保您的數據安全並讓您享有完全的數位資產管理權限。此方式適合已經擁有加密錢包或希望自行管理身份與數據的用戶。
                     </p>
                 </>
             )
@@ -45,16 +34,31 @@ export default function AuthNoteDialog({
         case 'server':
             content = (
                 <>
-                    <p className="font-semibold underline">
+                    <p className="underline underline-offset-4">
                         甚麼是 Server 註冊？
                     </p>
                     <p>
-                        如果您並未安裝 Metamask 錢包，我們提供 Server
-                        註冊幫助您解決這項問題。
+                        Server
+                        註冊是一種簡便的註冊方式，不需要用戶擁有或管理自己的加密錢包。選擇
+                        Server 註冊後，平台將會使用一種名為 relayer
+                        的服務來幫助您完成區塊鏈交易。
+                    </p>
+                    <p className="underline underline-offset-4">
+                        Relayer 是什麼？
                     </p>
                     <p>
-                        使用 Server
-                        註冊將允許我們使用伺服器進行鍊上簽名，並進行註冊動作，放心一切資訊一樣會是匿名的。
+                        Relayer
+                        是一個中介服務，用來協助用戶完成交易簽名和交易提交的工作。在
+                        Server
+                        註冊的情況下，當您執行操作（如發表內容或投票）時，平台上的
+                        relayer
+                        會代表您進行交易的簽名與上鏈，無需您自己直接進行。
+                    </p>
+                    <p className="underline underline-offset-4">
+                        這樣的好處是什麼？
+                    </p>
+                    <p>
+                        這樣的設計讓您無需持有加密貨幣或熟悉區塊鏈操作，即可輕鬆使用本平台的功能，同時享有區塊鏈的安全性和透明性。這對於不熟悉加密技術的新用戶非常友好，也減少了進入門檻。
                     </p>
                 </>
             )
@@ -63,7 +67,7 @@ export default function AuthNoteDialog({
 
     return (
         <Dialog isOpen={noteStatus !== 'close'} onClose={onClose}>
-            <div className="p-12 flex flex-col gap-4 overflow-auto leading-7 text-[15px] tracking-wider text-black rounded-lg">
+            <div className="flex flex-col gap-4 pt-12 p-6 md:p-12 overflow-auto text-base font-light leading-7 tracking-wider text-black rounded-lg max-h-[90vh]">
                 {content}
             </div>
         </Dialog>

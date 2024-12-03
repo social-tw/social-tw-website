@@ -1,11 +1,11 @@
-import { motion } from 'framer-motion'
-import { getVariantOpacityZeroToOne } from '@/utils/helpers/motionVariants'
 import {
     BackToWelcomeButton,
     Greeting,
     StepInfo,
     TwitterSignupButton,
 } from '@/features/auth'
+import { getVariantOpacityZeroToOne } from '@/utils/helpers/motionVariants'
+import { motion } from 'framer-motion'
 
 export default function SignupPage() {
     const variantOpacityZeroToOne = getVariantOpacityZeroToOne()
@@ -33,6 +33,17 @@ export default function SignupPage() {
                 animate="visible"
             >
                 <TwitterSignupButton />
+                <section className="max-w-lg p-5 bg-white rounded-xl md:p-6">
+                    <p className="text-xs leading-6 tracking-wider">
+                        X 帳號僅用於
+                        <span className="text-secondary">
+                            驗證你是否為真實用戶
+                        </span>
+                        ，以防止大量假帳號帶來的女巫攻擊風險，女巫攻擊（Sybil
+                        Attack）是一種常見於去中心化系統中的攻擊方式，指的是攻擊者創建大量假帳號或身份，以此來操控系統或影響網絡中的決策），從而保護平台系統安全。Unirep
+                        Social Taiwan 不會取用你在 X 上的任何資訊。
+                    </p>
+                </section>
             </motion.div>
         </div>
     )

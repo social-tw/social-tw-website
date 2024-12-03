@@ -1,9 +1,9 @@
-import { act, render, screen } from '@testing-library/react'
 import { ActionType, addAction } from '@/features/core'
-import ActionTable from './ActionTable'
-import * as router from 'react-router'
 import { TestWrapper } from '@/utils/test-helpers/wrapper'
+import { act, render, screen } from '@testing-library/react'
 import { useState } from 'react'
+import * as router from 'react-router'
+import ActionTable from './ActionTable'
 
 const ActionTableWrapper = () => {
     const [, setIsOpen] = useState(false)
@@ -34,9 +34,9 @@ describe('ActionTable', () => {
             addAction(ActionType.Post, postData)
         })
 
-        expect(screen.getByText('Time')).toBeInTheDocument()
-        expect(screen.getByText('Action')).toBeInTheDocument()
-        expect(screen.getByText('Status')).toBeInTheDocument()
-        expect(screen.getByText('Link')).toBeInTheDocument()
+        expect(screen.getByText('時間')).toBeInTheDocument()
+        expect(screen.getByText('操作')).toBeInTheDocument()
+        expect(screen.getByText('上鏈交易狀態')).toBeInTheDocument()
+        expect(screen.getByText('連結')).toBeInTheDocument()
     })
 })
