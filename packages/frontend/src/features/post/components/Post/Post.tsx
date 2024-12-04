@@ -14,11 +14,14 @@ import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
+import { useUserState } from '@/features/core'
+import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
 import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 import { useCopy } from '@/features/shared/hooks/useCopy'
 
 export default function Post({
     id = '',
+    epoch,
     epochKey,
     content = '',
     imageUrl,
@@ -38,6 +41,7 @@ export default function Post({
     onVote = async (voteType: VoteAction) => false,
 }: {
     id?: string
+    epoch?: number
     epochKey?: string
     content?: string
     imageUrl?: string
@@ -56,6 +60,7 @@ export default function Post({
     onComment?: () => void
     onVote?: (voteType: VoteAction) => Promise<boolean>
 }) {
+    const { userState } = useUserState()
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
@@ -150,7 +155,7 @@ export default function Post({
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-5">
                     <Avatar name={epochKey ?? nanoid()} />
                     <span className="text-xs font-medium tracking-wide text-black/80">
                         {subtitle}
@@ -176,13 +181,21 @@ export default function Post({
         </div>
     )
 
+    const isShowReportedMasks = useMemo(() => {
+        return shouldShowMask(isReported, userState, epoch, epochKey)
+    }, [userState, epoch, epochKey, isReported])
+
+    const isShowBlockedMasks = useMemo(() => {
+        return shouldShowMask(isBlocked, userState, epoch, epochKey)
+    }, [userState, epoch, epochKey, isBlocked])
+
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isReported && <PostReportedMask />}
-            {isBlocked && <PostBlockedMask />}
+            {isShowReportedMasks && <PostReportedMask />}
+            {isShowBlockedMasks && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
             {<ShareLinkTransition isOpen={hasCopied} />}
-            <div className="flex-1 p-4 space-y-3">
+            <div className="flex-1 px-6 py-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
