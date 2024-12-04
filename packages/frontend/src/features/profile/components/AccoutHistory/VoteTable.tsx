@@ -1,5 +1,6 @@
 import Downvote from '@/assets/img/downvote.png'
 import Upvote from '@/assets/img/upvote.png'
+import { PATHS } from '@/constants/paths'
 import { VoteService } from '@/features/core'
 import {
     BodyCellData,
@@ -12,6 +13,8 @@ import {
 } from '@/features/shared'
 import { FetchVoteHistoryResponse } from '@/types/api'
 import dayjs from 'dayjs'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 import { useMyVoteHistory } from '../../hooks/useMyVoteHistory/useMyVoteHistory'
 
 interface VoteTableProps {
@@ -44,7 +47,16 @@ function getHeaderData(): HeaderCellData[] {
     return [
         { label: 'Date' },
         { label: 'Type' },
-        { label: 'Epoch Key' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>Epoch Key</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle size={16} />
+                    </Link>
+                </div>
+            )
+        },
         { label: 'Link' },
     ]
 }

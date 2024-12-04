@@ -11,7 +11,7 @@ interface HeaderCellProps {
 }
 
 export interface HeaderCellData {
-    label: string
+    label: React.ReactNode
 }
 
 export function TableHeader({ data }: TabContentHeaderProps) {

@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths';
 import {
     BodyCellData,
     BodyCellType,
@@ -6,11 +7,13 @@ import {
     TableBody,
     TableContainer,
     TableHeader,
-} from '@/features/shared'
-import { FetchPostHistoryResponse } from '@/types/api'
-import { type RelayRawPost, RelayRawPostStatus } from '@/types/Post'
-import dayjs from 'dayjs'
-import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory'
+} from '@/features/shared';
+import { FetchPostHistoryResponse } from '@/types/api';
+import { type RelayRawPost, RelayRawPostStatus } from '@/types/Post';
+import dayjs from 'dayjs';
+import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { Link } from 'react-router-dom';
+import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory';
 
 interface PostTableProps {
     fromToEpoch: FromToEpoch
@@ -42,7 +45,16 @@ function getHeaderData(): HeaderCellData[] {
     return [
         { label: 'Date' },
         { label: 'Content' },
-        { label: 'Epoch Key' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>Epoch Key</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle size={16} />
+                    </Link>
+                </div>
+            )
+        },
         { label: 'Link' },
     ]
 }

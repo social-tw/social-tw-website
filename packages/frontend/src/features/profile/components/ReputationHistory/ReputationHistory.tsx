@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import { useUserState } from '@/features/core'
 import {
     BodyCellType,
@@ -15,6 +16,8 @@ import { formatDateByEpoch } from '@/utils/helpers/formatDateByEpoch'
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 import { useMyReputationHistory } from '../../hooks/useMyReputationHistory/useMyReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
 import { SearchDayLimitDialog } from './SearchDayLimitDialog'
@@ -92,7 +95,16 @@ function getHeaderData(): HeaderCellData[] {
     return [
         { label: 'Date' },
         { label: 'Reason' },
-        { label: 'Epoch Key' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>Epoch Key</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle size={16} />
+                    </Link>
+                </div>
+            )
+        },
         { label: 'Point' },
     ]
 }
