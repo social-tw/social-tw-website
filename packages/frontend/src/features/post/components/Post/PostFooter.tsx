@@ -1,5 +1,6 @@
 import CommentImg from '@/assets/img/comment.png'
 import DownVoteImg from '@/assets/img/downvote.png'
+import ShareImg from '@/assets/img/share.png'
 import UpVoteImg from '@/assets/img/upvote.png'
 import { VoteAction } from '@/types/Vote'
 
@@ -12,6 +13,7 @@ interface PostFooterProps {
     voteAction: VoteAction | null
     handleVote: (voteType: VoteAction) => void
     handleComment: () => void
+    handleShare: () => void
 }
 
 function PostFooter({
@@ -23,6 +25,7 @@ function PostFooter({
     voteAction,
     handleVote,
     handleComment,
+    handleShare,
 }: PostFooterProps) {
     return (
         <footer className="flex items-center gap-4">
@@ -45,6 +48,7 @@ function PostFooter({
                 count={countComment}
                 onClick={handleComment}
             />
+            <ShareBtn onClick={handleShare} isLoggedIn={isLoggedIn} />
         </footer>
     )
 }
@@ -170,6 +174,30 @@ function UpVoteBtn({
             count={count}
             onClick={onClick}
         />
+    )
+}
+
+interface ShareBtnProps {
+    onClick: () => void
+    isLoggedIn: boolean
+}
+function ShareBtn({ onClick, isLoggedIn }: ShareBtnProps) {
+    const cursor = isLoggedIn ? 'pointer' : 'not-allowed'
+
+    return (
+        <>
+            <button
+                className="flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                onClick={onClick}
+            >
+                <img
+                    className="w-5 h-5"
+                    src={ShareImg}
+                    alt="share"
+                    style={{ cursor }}
+                />
+            </button>
+        </>
     )
 }
 
