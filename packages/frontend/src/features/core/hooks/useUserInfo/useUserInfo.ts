@@ -12,30 +12,23 @@ export function useUserInfo() {
                 return null
             }
 
-            try {
-                const identity = userState.id
-                const db = userState.db
-                const provider = userState.sync.provider
-                console.log('identity', identity.commitment.toString())
+            const identity = userState.id
+            const db = userState.db
+            const provider = userState.sync.provider
 
-                const userId = identity.secret.toString()
+            const userId = identity.secret.toString()
 
-                const signup = await db.findOne('UserSignUp', {
-                    where: {
-                        commitment: identity.commitment.toString(),
-                    },
-                })
-                console.log('signup', signup)
-                const blockNumber = signup.blockNumber
-                const block = await provider.getBlock(blockNumber)
-                console.log('block', block.timestamp)
+            const signup = await db.findOne('UserSignUp', {
+                where: {
+                    commitment: identity.commitment.toString(),
+                },
+            })
+            const blockNumber = signup.blockNumber
+            const block = await provider.getBlock(blockNumber)
 
-                return {
-                    userId,
-                    signedUpDate: new Date(block.timestamp * 1000),
-                }
-            } catch (error) {
-                console.log(error)
+            return {
+                userId,
+                signedUpDate: new Date(block.timestamp * 1000),
             }
         },
     })
