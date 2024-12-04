@@ -32,7 +32,11 @@ export default function MainSideNav() {
                     </>
                 )}
             </NavLink>
-            <NavLink className="flex items-center gap-5" to={PATHS.ABOUT_US} data-tour-step="6">
+            <NavLink
+                className="flex items-center gap-5"
+                to={PATHS.ABOUT_US}
+                data-tour-step="6"
+            >
                 {({ isActive }) => (
                     <>
                         {isActive ? (
