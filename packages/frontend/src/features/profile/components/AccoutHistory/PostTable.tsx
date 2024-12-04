@@ -1,4 +1,4 @@
-import { PATHS } from '@/constants/paths';
+import { PATHS } from '@/constants/paths'
 import {
     BodyCellData,
     BodyCellType,
@@ -7,13 +7,13 @@ import {
     TableBody,
     TableContainer,
     TableHeader,
-} from '@/features/shared';
-import { FetchPostHistoryResponse } from '@/types/api';
-import { type RelayRawPost, RelayRawPostStatus } from '@/types/Post';
-import dayjs from 'dayjs';
-import { AiOutlineQuestionCircle } from "react-icons/ai";
-import { Link } from 'react-router-dom';
-import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory';
+} from '@/features/shared'
+import { FetchPostHistoryResponse } from '@/types/api'
+import { type RelayRawPost, RelayRawPostStatus } from '@/types/Post'
+import dayjs from 'dayjs'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
+import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory'
 
 interface PostTableProps {
     fromToEpoch: FromToEpoch
@@ -53,7 +53,7 @@ function getHeaderData(): HeaderCellData[] {
                         <AiOutlineQuestionCircle />
                     </Link>
                 </div>
-            )
+            ),
         },
         { label: '連結' },
     ]

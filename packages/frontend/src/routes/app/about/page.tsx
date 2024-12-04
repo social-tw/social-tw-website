@@ -255,7 +255,12 @@ function Collapse({
     defaultOpen?: boolean
 }) {
     return (
-        <Disclosure as="div" id={id} className="scroll-mt-20 lg:scroll-mt-36" defaultOpen={defaultOpen}>
+        <Disclosure
+            as="div"
+            id={id}
+            className="scroll-mt-20 lg:scroll-mt-36"
+            defaultOpen={defaultOpen}
+        >
             <DisclosureButton className="justify-between group btn btn-block btn-secondary no-animation">
                 {title}
                 <LuChevronDown className="w-6 h-6 group-data-[open]:rotate-180" />

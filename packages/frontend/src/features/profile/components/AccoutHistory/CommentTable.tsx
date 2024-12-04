@@ -52,7 +52,7 @@ function getHeaderData(): HeaderCellData[] {
                         <AiOutlineQuestionCircle />
                     </Link>
                 </div>
-            )
+            ),
         },
         { label: '連結' },
     ]

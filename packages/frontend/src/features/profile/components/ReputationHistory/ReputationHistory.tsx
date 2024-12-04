@@ -103,7 +103,7 @@ function getHeaderData(): HeaderCellData[] {
                         <AiOutlineQuestionCircle />
                     </Link>
                 </div>
-            )
+            ),
         },
         { label: '得分' },
     ]
