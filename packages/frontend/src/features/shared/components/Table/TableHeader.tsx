@@ -48,7 +48,7 @@ export function TableHeader({ data }: TabContentHeaderProps) {
 function HeaderCell({ data, style }: HeaderCellProps) {
     return (
         <div
-            className="text-gray-400"
+            className="px-1 text-sm text-gray-400 lg:text-base"
             style={{
                 ...style,
                 display: 'flex',

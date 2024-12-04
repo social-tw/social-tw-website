@@ -93,19 +93,19 @@ function ReputationTable({ fromToEpoch }: ReputationTableProps) {
 
 function getHeaderData(): HeaderCellData[] {
     return [
-        { label: 'Date' },
-        { label: 'Reason' },
+        { label: '日期' },
+        { label: '原因' },
         {
             label: (
                 <div className="flex items-start gap-1">
-                    <span>Epoch Key</span>
+                    <span>EpochKey</span>
                     <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
-                        <AiOutlineQuestionCircle size={16} />
+                        <AiOutlineQuestionCircle />
                     </Link>
                 </div>
             )
         },
-        { label: 'Point' },
+        { label: '得分' },
     ]
 }
 

@@ -45,19 +45,19 @@ export function VoteTable({ fromToEpoch }: VoteTableProps) {
 
 function getHeaderData(): HeaderCellData[] {
     return [
-        { label: 'Date' },
-        { label: 'Type' },
+        { label: '日期' },
+        { label: '類別' },
         {
             label: (
                 <div className="flex items-start gap-1">
-                    <span>Epoch Key</span>
+                    <span>EpochKey</span>
                     <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
-                        <AiOutlineQuestionCircle size={16} />
+                        <AiOutlineQuestionCircle />
                     </Link>
                 </div>
             )
         },
-        { label: 'Link' },
+        { label: '連結' },
     ]
 }
 
