@@ -62,7 +62,7 @@ export default function WelcomePage() {
                     </motion.p>
                 </div>
             </header>
-            <main className="max-w-2xl min-h-screen px-4 mx-auto py-96 md:py-[26rem] md:pl-9">
+            <main className="max-w-2xl min-h-screen px-4 mx-auto py-96 md:py-[26rem] md:px-9">
                 <motion.div
                     initial={{
                         opacity: 0,
