@@ -7,7 +7,6 @@ import AppLayout from './app/layout'
 import PostPage from './app/posts/[id]/page'
 import PostListPage from './app/posts/page'
 import HistoryPage from './app/profile/history/page'
-import ProfileLayout from './app/profile/layout'
 import ProfilePage from './app/profile/page'
 import ReputationPage from './app/profile/reputation/page'
 import FullScreenLayout from './full-screen/layout'
@@ -42,7 +41,6 @@ const router = createBrowserRouter([
             },
         ],
     },
-
     {
         path: PATHS.TWITTER_CALLBACK,
         element: <TwitterCallbackPage />,
@@ -86,21 +84,16 @@ const router = createBrowserRouter([
                         element: <PostPage />,
                     },
                     {
-                        element: <ProfileLayout />,
-                        children: [
-                            {
-                                path: PATHS.PROFILE,
-                                element: <ProfilePage />,
-                            },
-                            {
-                                path: PATHS.REPUTATION,
-                                element: <ReputationPage />,
-                            },
-                            {
-                                path: PATHS.HISTORY,
-                                element: <HistoryPage />,
-                            },
-                        ],
+                        path: PATHS.PROFILE,
+                        element: <ProfilePage />,
+                    },
+                    {
+                        path: PATHS.REPUTATION,
+                        element: <ReputationPage />,
+                    },
+                    {
+                        path: PATHS.HISTORY,
+                        element: <HistoryPage />,
                     },
                     {
                         path: PATHS.NOTIFICATION,
