@@ -9,5 +9,5 @@
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "cSpell.words": ["partialize"]
+    "cSpell.words": ["partialize", "uidotdev"]
 }
