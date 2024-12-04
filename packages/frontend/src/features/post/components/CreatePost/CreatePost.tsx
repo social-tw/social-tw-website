@@ -7,7 +7,6 @@ import {
 } from '@/features/post'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 
 export default function CreatePost({
     disabled = false,
@@ -25,7 +24,6 @@ export default function CreatePost({
 
         try {
             await createPost(values)
-            toast('貼文成功送出')
         } catch {
             setIsSubmitting(false)
             queryClient.setQueryData(['posts'], previousPostsData)
@@ -50,7 +48,10 @@ export default function CreatePost({
     return (
         <>
             <PostForm disabled={disabled} onSubmit={onSubmit} />
-            <PostPublishTransition isOpen={isSubmitting} />
+            <PostPublishTransition
+                isOpen={isSubmitting}
+                onClose={() => setIsSubmitting(false)}
+            />
             <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </>
     )

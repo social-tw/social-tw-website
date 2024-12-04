@@ -1,13 +1,13 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { LOCAL_STORAGE } from '@/utils/helpers/LocalStorageHelper'
 import { useToggle } from '@uidotdev/usehooks'
 import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
-import AdjudicateCancelDialog from '../Adjudicate/AdjudicateCancelDialog'
 import AdjudicateButton from './AdjudicateButton'
+import ConfirmationDialog from './ConfirmationDialog'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -77,39 +77,64 @@ function useActiveAdjudication() {
 
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
-    const hashUserId = localStorage.getItem(LOCAL_STORAGE.HASH_USER_ID)
+    const [open, toggle] = useToggle(false)
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [buttonVisible, setButtonVisible] = useState(true)
 
-    const [isAdjudicateOpen, toggleAdjudicate] = useToggle(false)
-    const [isCancelDialogOpen, toggleCancelDialog] = useToggle(false)
+    useEffect(() => {
+        if (activeAdjudication) {
+            setButtonVisible(true)
+        }
+    }, [activeAdjudication])
 
-    const onAdjudicateClose = () => {
+    const closeAdjudication = () => {
+        setButtonVisible(true)
+        toggle(false)
+    }
+
+    const closeConfirmation = () => {
+        setConfirmOpen(false)
+    }
+
+    const openConfirmation = () => {
+        setConfirmOpen(true)
+    }
+
+    const openAdjudication = () => {
+        toggle(true)
+        setButtonVisible(false)
+        setConfirmOpen(false)
+    }
+
+    const rejectAdjudication = () => {
+        toggle(false)
+        setConfirmOpen(false)
+        setButtonVisible(false)
         refetch()
-        toggleAdjudicate(false)
     }
 
-    const onCancelDialogClose = () => {
-        toggleCancelDialog(false)
-    }
-
-    if (!activeAdjudication || !hashUserId) {
+    if (!activeAdjudication) {
         return null
     }
 
     return (
-        <div data-testid="adjudication-notification" className="relative p-2">
-            <AdjudicateButton
-                onClick={toggleAdjudicate}
-                onCancel={toggleCancelDialog}
-            />
-            <AdjudicateCancelDialog
-                open={isCancelDialogOpen}
-                onClose={onCancelDialogClose}
-                onOpenAdjudicate={toggleAdjudicate}
+        <div data-testid="adjudication-notification">
+            {buttonVisible && (
+                <AdjudicateButton
+                    onClick={openAdjudication}
+                    onClose={openConfirmation}
+                />
+            )}
+            <ConfirmationDialog
+                open={confirmOpen}
+                onConfirm={rejectAdjudication}
+                onCancel={openAdjudication}
+                onClose={closeConfirmation}
             />
             <Adjudicate
                 reportData={activeAdjudication}
-                open={isAdjudicateOpen}
-                onClose={onAdjudicateClose}
+                open={open}
+                onClose={closeAdjudication}
             />
         </div>
     )

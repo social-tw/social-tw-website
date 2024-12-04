@@ -1,31 +1,14 @@
+import LogoWhite from '@/assets/img/logo-white.png'
+import { PATHS } from '@/constants/paths'
+import { WelcomePostList } from '@/features/post'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { LoginButton } from '@/features/auth'
-import { WelcomePostList } from '@/features/post'
-import { PATHS } from '@/constants/paths'
-import LogoWhite from '@/assets/img/logo-white.png'
-
-const gradients = [
-    'linear-gradient(100deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(150deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(200deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-    'linear-gradient(250deg, #FF892A -15%, #8A5F35 5%, #000000 30%, #305F67 95%, #52ACBC 115%)',
-]
 
 export default function WelcomePage() {
     const navigate = useNavigate()
 
     return (
-        <div>
-            <motion.div
-                className="fixed w-screen h-screen -z-50"
-                animate={{
-                    background: gradients,
-                }}
-                transition={{
-                    duration: 5,
-                }}
-            />
+        <>
             <header className="fixed z-40 w-screen top-16 md:top-24">
                 <div className="flex flex-col items-center max-w-2xl px-4 mx-auto">
                     <motion.img
@@ -54,7 +37,7 @@ export default function WelcomePage() {
                         }}
                         transition={{
                             duration: 1,
-                            delay: 1,
+                            delay: 0.5,
                         }}
                     >
                         Unirep Social TW
@@ -71,7 +54,7 @@ export default function WelcomePage() {
                         }}
                         transition={{
                             duration: 1,
-                            delay: 2,
+                            delay: 1,
                         }}
                     >
                         嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
@@ -89,7 +72,7 @@ export default function WelcomePage() {
                     }}
                     transition={{
                         duration: 1,
-                        delay: 3,
+                        delay: 1.5,
                     }}
                 >
                     <WelcomePostList />
@@ -108,25 +91,29 @@ export default function WelcomePage() {
                     }}
                     transition={{
                         duration: 1,
-                        delay: 4,
+                        delay: 2,
                     }}
                 >
-                    <LoginButton
+                    <button
+                        className="flex flex-col items-center justify-center w-full p-4 tracking-wider text-white rounded-xl bg-secondary focus:outline-offset-0"
+                        type="button"
                         onClick={() => navigate(PATHS.LOGIN)}
-                        title="立即登入"
-                        subTitle="歡迎提供你的獨到見解！"
-                        color="#2F9CAF"
-                        text="2xl"
-                    />
-                    <LoginButton
+                    >
+                        <span className="text-2xl font-semibold">立即登入</span>
+                        <span className="text-xs">歡迎提供你的獨到見解！</span>
+                    </button>
+                    <button
+                        className="flex flex-col items-center justify-center w-full p-4 tracking-wider text-white rounded-xl bg-primary focus:outline-offset-0"
+                        type="button"
                         onClick={() => navigate(PATHS.SIGN_UP)}
-                        title="立即註冊"
-                        subTitle="只要兩步驟，即可安全匿名分享你的想法！"
-                        color="#FF892A"
-                        text="2xl"
-                    />
+                    >
+                        <span className="text-2xl font-semibold">立即註冊</span>
+                        <span className="text-xs">
+                            只要兩步驟，即可安全匿名分享你的想法！
+                        </span>
+                    </button>
                 </motion.div>
             </footer>
-        </div>
+        </>
     )
 }

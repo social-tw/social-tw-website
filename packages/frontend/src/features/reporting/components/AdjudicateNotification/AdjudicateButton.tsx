@@ -1,18 +1,21 @@
 import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg'
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
-import { AiOutlineClose } from 'react-icons/ai'
+import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
 
 export default function AdjudicationButton({
     onCancel = () => {},
     onClick = () => {},
+    onClose = () => {},
 }: {
     onCancel?: () => void
     onClick?: () => void
+    onClose?: () => void
 }) {
     return (
-        <>
+        <div className="relative inline-block">
+            {/* Main Button */}
             <button
-                className="relative py-2 pl-12 pr-2 bg-black border border-white rounded-tl-lg rounded-tr rounded-bl rounded-br-lg lg:py-3 lg:pr-4 lg:pl-14 drop-shadow"
+                className="relative py-2 pl-12 pr-2 bg-black border border-white rounded-lg lg:py-3 lg:pr-4 lg:pl-14 drop-shadow"
                 onClick={onClick}
             >
                 <GavelRaisedIcon className="absolute bottom-0 -left-3 w-[4.5rem] lg:w-[5.25rem] h-auto" />
@@ -26,19 +29,15 @@ export default function AdjudicationButton({
                     </span>
                 </div>
             </button>
+
+            {/* Close Button */}
             <button
-                onClick={onCancel}
-                className="
-                    flex items-center justify-center 
-                    w-6 h-6 rounded-full 
-                    hover:bg-gray-100 transition 
-                    absolute top-0 right-0
-                    bg-white
-                "
-                aria-label="Close"
+                className="absolute -top-3.5 -right-3.5 w-7 h-7 flex items-center justify-center 
+                        bg-white rounded-full border border-gray-300 shadow-md hover:bg-gray-100"
+                onClick={onClose}
             >
-                <AiOutlineClose className="w-5 h-5" />
+                <CloseIcon className="w-4 h-4 text-black" />
             </button>
-        </>
+        </div>
     )
 }

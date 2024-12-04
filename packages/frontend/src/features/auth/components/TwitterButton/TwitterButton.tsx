@@ -1,6 +1,6 @@
-import { BsTwitter } from 'react-icons/bs'
-import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
+import { BsTwitterX } from 'react-icons/bs'
 import { fetchLogin } from '@/utils/api'
+import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import LoginButton from '../LoginButton/LoginButton'
 
 interface TwitterButtonProps {
@@ -12,7 +12,7 @@ export function TwitterButton({ title, handleClick }: TwitterButtonProps) {
     return (
         <LoginButton
             isLoading={false}
-            icon={BsTwitter}
+            icon={BsTwitterX}
             onClick={handleClick}
             title={title}
             color="#2F9CAF"
@@ -28,12 +28,7 @@ export function TwitterLoginButton() {
         LocalStorageHelper.setIsTwitterVerified()
         window.location.href = url
     }
-    return (
-        <TwitterButton
-            title="使用 Twitter 帳號登入"
-            handleClick={handleClick}
-        />
-    )
+    return <TwitterButton title="使用 X 帳號登入" handleClick={handleClick} />
 }
 
 export function TwitterSignupButton() {
@@ -41,10 +36,5 @@ export function TwitterSignupButton() {
         const { url } = await fetchLogin()
         window.location.href = url
     }
-    return (
-        <TwitterButton
-            title="使用 Twitter 帳號註冊"
-            handleClick={handleClick}
-        />
-    )
+    return <TwitterButton title="使用 X 帳號註冊" handleClick={handleClick} />
 }
