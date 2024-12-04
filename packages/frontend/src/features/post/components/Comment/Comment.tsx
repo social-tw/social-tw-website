@@ -39,7 +39,7 @@ export default function Comment({
 }: CommentProps) {
     const { isLoggedIn } = useAuthStatus()
 
-    const handleDelete = () => {  
+    const handleDelete = () => {
         if (!isLoggedIn) return
         onDelete()
     }

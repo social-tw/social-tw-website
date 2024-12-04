@@ -1,7 +1,5 @@
 import { useAuthStatus } from '@/features/auth'
 import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
-import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
-import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -69,7 +67,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
-    
+
     const { votes } = useVoteStore()
 
     const voteState = useMemo(() => {
