@@ -24,10 +24,11 @@ export default function ActionTracker() {
 
     return (
         <>
-            <div className="grid grid-cols-[1fr_auto] items-center gap-2" data-tour-step="3">
-                <div>
-                    {actionStatus}
-                </div>
+            <div
+                className="grid grid-cols-[1fr_auto] items-center gap-2"
+                data-tour-step="3"
+            >
+                <div>{actionStatus}</div>
                 <button
                     className="px-1.5 py-px text-xs border text-primary border-primary leading-none"
                     onClick={() => setOpen(true)}
@@ -35,7 +36,7 @@ export default function ActionTracker() {
                     {pendingCount}
                 </button>
             </div>
-            <ActionDialog open={open} onClose={() => setOpen(false)}/>
+            <ActionDialog open={open} onClose={() => setOpen(false)} />
         </>
     )
 }
@@ -102,7 +103,6 @@ function getActionStatus(action: Action | undefined) {
         }
     }
 }
-
 
 function getActionLink(action: Action) {
     if (action.type === ActionType.Post) {

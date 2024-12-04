@@ -5,11 +5,19 @@ import { closeTour, resetTour } from '../../stores/tour'
 import TourPagination from './TourPagination'
 
 function StepTitle({ children }: { children: React.ReactNode }) {
-    return <h1 className="mb-2 text-xl font-bold tracking-wide text-center text-content">{children}</h1>
+    return (
+        <h1 className="mb-2 text-xl font-bold tracking-wide text-center text-content">
+            {children}
+        </h1>
+    )
 }
 
 function StepParagraph({ children }: { children: React.ReactNode }) {
-    return <p className="text-sm tracking-wide text-left text-content">{children}</p>
+    return (
+        <p className="text-sm tracking-wide text-left text-content">
+            {children}
+        </p>
+    )
 }
 
 export default function TourTooltip(props: TooltipRenderProps) {
@@ -18,7 +26,10 @@ export default function TourTooltip(props: TooltipRenderProps) {
     const { isSignedUp } = useAuthStatus()
 
     return (
-        <article {...tooltipProps} className="relative border-2 border-white max-w-85 bg-white/90 rounded-xl">
+        <article
+            {...tooltipProps}
+            className="relative border-2 border-white max-w-85 bg-white/90 rounded-xl"
+        >
             <div className="absolute -top-2 -left-2">
                 <span className="flex items-center justify-center text-lg font-bold text-white rounded-full w-7 h-7 bg-primary">
                     {index + 1}

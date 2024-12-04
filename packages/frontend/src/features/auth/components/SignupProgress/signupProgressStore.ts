@@ -15,12 +15,14 @@ const initialState: SignupProgressState = {
 
 const slot = 1000 // 1 second
 
-export const useSignupProgressStore = create<SignupProgressState>()(immer(() => initialState))
+export const useSignupProgressStore = create<SignupProgressState>()(
+    immer(() => initialState),
+)
 
 export function startSignupProgress() {
     const { isPaused } = useSignupProgressStore.getState()
     if (isPaused) return
-    
+
     useSignupProgressStore.setState((state) => {
         state.value++
     })
@@ -32,13 +34,13 @@ export function startSignupProgress() {
 
 export function pauseSignupProgress() {
     useSignupProgressStore.setState({
-        isPaused: true
+        isPaused: true,
     })
 }
 
 export function continueSignupProgress() {
     useSignupProgressStore.setState({
-        isPaused: false
+        isPaused: false,
     })
     startSignupProgress()
 }

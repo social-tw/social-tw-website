@@ -1,6 +1,6 @@
-import { ReactComponent as LongArrowLeftIcon } from "@/assets/svg/long-arrow-left.svg"
-import { ReactComponent as LongArrowRightIcon } from "@/assets/svg/long-arrow-right.svg"
-import { jumpStep, nextStep, prevStep, useTourStore } from "../../stores/tour"
+import { ReactComponent as LongArrowLeftIcon } from '@/assets/svg/long-arrow-left.svg'
+import { ReactComponent as LongArrowRightIcon } from '@/assets/svg/long-arrow-right.svg'
+import { jumpStep, nextStep, prevStep, useTourStore } from '../../stores/tour'
 
 export default function TourPagination() {
     const { steps, stepIndex } = useTourStore()

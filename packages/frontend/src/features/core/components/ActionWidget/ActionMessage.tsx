@@ -4,7 +4,11 @@ export default function ActionMessage() {
     const count = useActionCount()
     const message = getAccountCountMessage(count)
 
-    return <span className="inline-block text-xs font-medium text-white/60">{message}</span>
+    return (
+        <span className="inline-block text-xs font-medium text-white/60">
+            {message}
+        </span>
+    )
 }
 
 function getAccountCountMessage(count: number) {

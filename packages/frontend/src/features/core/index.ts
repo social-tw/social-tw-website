@@ -24,5 +24,5 @@ export * from './stores/actions'
 export * from './stores/tour'
 export {
     genReportIdentityProof,
-    genReportNullifier
+    genReportNullifier,
 } from './utils/genReportIdentityProof'

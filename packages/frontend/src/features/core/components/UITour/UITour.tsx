@@ -13,7 +13,7 @@ export default function UITour() {
             closeTour()
         }
     }
-    
+
     return (
         <Joyride
             // beaconComponent={undefined}
@@ -28,7 +28,7 @@ export default function UITour() {
             scrollToFirstStep
             showProgress
             floaterProps={{
-                hideArrow: true
+                hideArrow: true,
             }}
         />
     )

@@ -7,7 +7,7 @@ import EpochTimer from './EpochTimer'
 export default function EpochWidget() {
     return (
         <div className="space-y-3" data-tour-step="1">
-            <div className="flex items-stretch gap-3" >
+            <div className="flex items-stretch gap-3">
                 <img
                     className="w-16 h-16 basis-16 shrink-0"
                     src={EpochImg}
@@ -22,7 +22,7 @@ export default function EpochWidget() {
                             <ActionCounter />
                         </div>
                     </div>
-                        <ActionMessage />
+                    <ActionMessage />
                 </div>
             </div>
             <ActionTracker />

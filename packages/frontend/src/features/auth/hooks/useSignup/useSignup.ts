@@ -3,7 +3,10 @@ import { useAuthStatus } from '@/features/auth'
 import { useUserState, useWeb3Provider } from '@/features/core'
 import { relaySignUp } from '@/utils/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { resetSignupProgress, startSignupProgress } from '../../components/SignupProgress/signupProgressStore'
+import {
+    resetSignupProgress,
+    startSignupProgress,
+} from '../../components/SignupProgress/signupProgressStore'
 
 export function useSignup() {
     const queryClient = useQueryClient()
@@ -59,7 +62,7 @@ export function useSignup() {
         },
         onError: () => {
             resetSignupProgress()
-        }
+        },
     })
 
     return {
