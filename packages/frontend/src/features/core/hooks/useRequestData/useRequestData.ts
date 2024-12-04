@@ -13,7 +13,7 @@ export function useRequestData() {
         error,
         mutateAsync: requestData,
     } = useMutation({
-        mutationKey: [MutationKeys.ReuestData],
+        mutationKey: [MutationKeys.RequestData],
         mutationFn: async ({
             reqData,
             epkNonce,

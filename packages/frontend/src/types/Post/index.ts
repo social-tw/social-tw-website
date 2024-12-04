@@ -13,6 +13,7 @@ export interface PostInfo {
     id: string
     postId: string | undefined
     epochKey: string | undefined
+    epoch: number | undefined
     content: string | undefined
     publishedAt: Date
     commentCount: number
