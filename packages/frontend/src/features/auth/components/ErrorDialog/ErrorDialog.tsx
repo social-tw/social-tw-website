@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import AuthErrorDialog from '@/features/auth/components/AuthErrorDialog/AuthErrorDialog'
 import { useAuthStatus } from '@/features/auth/hooks/useAuthStatus/useAuthStatus'
 import { useNavigate } from 'react-router-dom'
@@ -8,7 +9,7 @@ export default function ErrorDialog() {
     const navigate = useNavigate()
 
     const handleClose = () => {
-        navigate('/welcome')
+        navigate(PATHS.LAUNCH)
     }
 
     return (

@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import {
     AuthErrorDialog,
     AuthNoteDialog,
@@ -25,7 +26,7 @@ export default function SignupInternalPage() {
     const navigate = useNavigate()
 
     const handleClose = () => {
-        navigate('/welcome')
+        navigate(PATHS.LAUNCH)
     }
 
     const {

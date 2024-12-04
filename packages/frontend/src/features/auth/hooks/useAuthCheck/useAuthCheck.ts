@@ -2,11 +2,11 @@ import { useAuthStatus } from '@/features/auth'
 import { useAuthStore } from '../../stores/authStore'
 
 export function useAuthCheck(errorMessage: string) {
-    const { isLoggedIn } = useAuthStatus()
+    const { isLoggedIn, isLoggingIn } = useAuthStatus()
     const setErrorMessage = useAuthStore((state) => state.setErrorMessage)
 
     const checkAuth = async (): Promise<void> => {
-        if (!isLoggedIn) {
+        if (!isLoggedIn || isLoggingIn) {
             setErrorMessage(errorMessage)
             throw new Error('User is not logged in')
         }

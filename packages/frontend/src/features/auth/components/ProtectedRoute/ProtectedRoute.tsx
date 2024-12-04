@@ -1,8 +1,9 @@
 import { PATHS } from '@/constants/paths'
-import { useAuthStatus, useLogout } from '@/features/auth'
+import { AuthErrorDialog, useAuthStatus, useLogout } from '@/features/auth'
 import { useIsFirstRender } from '@uidotdev/usehooks'
 import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../../stores/authStore'
 
 export default function ProtectedRoute() {
     const navigate = useNavigate()
@@ -16,7 +17,7 @@ export default function ProtectedRoute() {
     } = useAuthStatus()
 
     const { logout } = useLogout()
-
+    const { errorMessage, setErrorMessage } = useAuthStore()
     const isFirstRender = useIsFirstRender()
 
     useEffect(() => {
@@ -46,9 +47,16 @@ export default function ProtectedRoute() {
         navigate,
     ])
 
-    if (!isLoggedIn) {
-        return null
-    }
-
-    return <Outlet />
+    return (
+        <>
+            <Outlet />
+            {errorMessage && (
+                <AuthErrorDialog
+                    isOpen={!!errorMessage}
+                    message={errorMessage}
+                    onClose={() => setErrorMessage(null)}
+                />
+            )}
+        </>
+    )
 }

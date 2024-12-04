@@ -15,6 +15,7 @@ import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
 import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthStatus } from '@/features/auth'
 
 interface CommentActionMenuProps {
     postId: string
@@ -32,6 +33,7 @@ export function CommentActionMenu({
     canReport,
 }: CommentActionMenuProps) {
     const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+    const { isLoggedIn } = useAuthStatus()
 
     const {
         isOpen: isActionMenuOpen,
@@ -68,6 +70,7 @@ export function CommentActionMenu({
         <ActionMenuContainer
             onOpen={onActionMenuOpen}
             onClose={onActionMenuClose}
+            disabled={!isLoggedIn}
         >
             <ActionMenuDropdown
                 isOpen={isActionMenuOpen}

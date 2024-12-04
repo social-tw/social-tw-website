@@ -13,6 +13,7 @@ import {
     useActionMenu,
 } from '../ActionMenu'
 import { PostReportDialog } from './PostReportDialog'
+import { useAuthStatus } from '@/features/auth'
 
 interface PostActionMenuProps {
     postId: string
@@ -24,6 +25,8 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
         onOpen: onActionMenuOpen,
         onClose: onActionMenuClose,
     } = useActionMenu()
+
+    const { isLoggedIn } = useAuthStatus()
 
     const {
         isOpen: isReportDialogOpen,
@@ -51,6 +54,7 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
         <ActionMenuContainer
             onOpen={onActionMenuOpen}
             onClose={onActionMenuClose}
+            disabled={!isLoggedIn}
         >
             <ActionMenuDropdown
                 isOpen={isActionMenuOpen}
