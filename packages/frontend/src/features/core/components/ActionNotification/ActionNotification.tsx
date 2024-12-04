@@ -1,5 +1,5 @@
 import { ReactComponent as CloseIcon } from '@/assets/svg/close.svg'
-import { ReactComponent as PostIcon } from '@/assets/svg/post.svg'
+import { ReactComponent as ActionIcon } from '@/assets/svg/action.svg'
 import {
     ActionStatus,
     ActionTable,
@@ -58,7 +58,7 @@ function getActionStatusLabel(action: Action) {
         case ActionStatus.Pending: {
             return (
                 <div className="flex items-center gap-2">
-                    <PostIcon className="w-4 text-primary" />
+                    <ActionIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
                         {message}交易進行中
                     </span>
@@ -69,8 +69,8 @@ function getActionStatusLabel(action: Action) {
         case ActionStatus.Success: {
             return (
                 <div className="flex items-center gap-2">
-                    <PostIcon className="w-4 text-white" />
-                    <span className="text-xs text-white">
+                    <ActionIcon className="w-4 text-primary" />
+                    <span className="text-xs text-primary">
                         {message}交易成功!
                     </span>
                     {isActionLinkExistWhenSuccess(action) && (
@@ -87,7 +87,7 @@ function getActionStatusLabel(action: Action) {
         case ActionStatus.Failure: {
             return (
                 <div className="flex items-center gap-2">
-                    <PostIcon className="w-4 text-primary" />
+                    <ActionIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
                         {message}交易未成功!
                     </span>

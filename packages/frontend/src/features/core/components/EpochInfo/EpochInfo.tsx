@@ -70,7 +70,7 @@ function getAccountCountMessage(count: number) {
     } else if (count > 3) {
         return '動作次數超出安全範圍，建議等下個Epoch後執行'
     } else {
-        return '目前動作次數(3次內)可確保匿名身份不被洩漏'
+        return '目前動作次數3次內，可確保匿名身份不被交叉比對'
     }
 }
 
@@ -85,7 +85,7 @@ export default function EpochInfo() {
     return (
         <div className="flex items-stretch gap-3">
             <img
-                className="w-14 h-14 basis-14 shrink-0"
+                className="w-16 h-16 basis-16 shrink-0"
                 src={EpochImg}
                 alt="epoch actions"
             />
@@ -98,7 +98,12 @@ export default function EpochInfo() {
                         <EpochActionCounter />
                     </div>
                 </div>
-                <EpochMessage />
+                <div className="flex justify-between gap-2 text-white">
+                    <EpochMessage />
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle size={12} />
+                    </Link>
+                </div>
             </div>
         </div>
     )
