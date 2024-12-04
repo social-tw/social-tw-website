@@ -8,24 +8,23 @@ import {
 import AdjudicateCancelFrom from './AdjudicateCancelFrom'
 
 export default function AdjudicateCancelDialog({
-    handleRejectReport = () => {},
     open = false,
     onClose = () => {},
     onOpenAdjudicate = () => {},
 }: {
-    handleRejectReport: () => void
     open?: boolean
     onClose?: () => void
     onOpenAdjudicate?: () => void
 }) {
     const onConfirmCancel = () => {
-        handleRejectReport()
         onClose()
     }
+    
     const onDenyCancel = () => {
         onClose()
         onOpenAdjudicate()
     }
+
     return (
         <Dialog className="relative z-50" open={open} onClose={onClose}>
             <DialogBackdrop className="fixed inset-0 bg-black/70" />

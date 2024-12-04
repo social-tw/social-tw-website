@@ -5,12 +5,12 @@ import {
     DialogBackdrop,
     DialogPanel,
 } from '@headlessui/react'
+import { useState } from 'react'
+import AdjudicateExplanation from './AdjudicateExplanation'
 import AdjudicationForm, {
     AdjudicateFormValues,
     ReportData,
 } from './AdjudicateForm'
-import { useState } from 'react'
-import AdjudicateExplanation from './AdjudicateExplanation'
 
 type Step = 'EXPLANATION' | 'FORM'
 
@@ -46,10 +46,7 @@ export default function AdjudicationDialog({
                             <CloseIcon />
                         </CloseButton>
                         <div className="max-h-[90vh] overflow-y-auto gradient-border-4 rounded-xl">
-                            <AdjudicateExplanation
-                                reportData={reportData}
-                                onClick={handleStep}
-                            />
+                            <AdjudicateExplanation onClick={handleStep} />
                         </div>
                     </DialogPanel>
                 </div>

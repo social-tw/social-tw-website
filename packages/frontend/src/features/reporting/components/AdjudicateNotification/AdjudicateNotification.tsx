@@ -5,10 +5,6 @@ import { useToggle } from '@uidotdev/usehooks'
 import { useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
-import {
-    addRejectedReport,
-    isReportRejected,
-} from '../../utils/rejectReportHelper'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateCancelDialog from '../Adjudicate/AdjudicateCancelDialog'
 import AdjudicateButton from './AdjudicateButton'
@@ -95,19 +91,7 @@ export default function AdjudicationNotification() {
         toggleCancelDialog(false)
     }
 
-    const handleRejectReport = () => {
-        if (activeAdjudication && hashUserId) {
-            addRejectedReport(hashUserId, activeAdjudication.id)
-            refetch()
-        }
-        return
-    }
-
     if (!activeAdjudication || !hashUserId) {
-        return null
-    }
-
-    if (isReportRejected(hashUserId, activeAdjudication.id)) {
         return null
     }
 
@@ -118,7 +102,6 @@ export default function AdjudicationNotification() {
                 onCancel={toggleCancelDialog}
             />
             <AdjudicateCancelDialog
-                handleRejectReport={handleRejectReport}
                 open={isCancelDialogOpen}
                 onClose={onCancelDialogClose}
                 onOpenAdjudicate={toggleAdjudicate}
