@@ -1,28 +1,45 @@
+import { PATHS } from '@/constants/paths'
+import { ProtectedRoute } from '@/features/auth'
+import { ErrorBoundary, ResetStorage } from '@/features/shared'
 import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
-import OnboardingLayout from './onboarding/layout'
-import LoginPage from './onboarding/login/page'
-import LoginInternalPage from './onboarding/login/internal/page'
-import SignupPage from './onboarding/signup/page'
-import SignupInternalPage from './onboarding/signup/internal/page'
-import WelcomePage from './welcome/page'
-import TwitterCallbackPage from './twitter/callback/page'
+import AboutPage from './app/about/page'
 import AppLayout from './app/layout'
-import PostListPage from './app/posts/page'
 import PostPage from './app/posts/[id]/page'
-import ProfileLayout from './app/profile/layout'
-import ProfilePage from './app/profile/page'
+import PostListPage from './app/posts/page'
 import HistoryPage from './app/profile/history/page'
+import ProfilePage from './app/profile/page'
 import ReputationPage from './app/profile/reputation/page'
 import FullScreenLayout from './full-screen/layout'
 import WritePostPage from './full-screen/write-post/page'
-import { ProtectedRoute } from '@/features/auth'
-import { ErrorBoundary, ResetStorage } from '@/features/shared'
-import { PATHS } from '@/constants/paths'
+import OnboardingLayout from './onboarding/layout'
+import LoginInternalPage from './onboarding/login/internal/page'
+import LoginPage from './onboarding/login/page'
+import SignupInternalPage from './onboarding/signup/internal/page'
+import SignupPage from './onboarding/signup/page'
+import FeaturesPage from './start/features/page'
+import LaunchPage from './start/launch/page'
+import StartLayout from './start/layout'
+import WelcomePage from './start/welcome/page'
+import TwitterCallbackPage from './twitter/callback/page'
 
 const router = createBrowserRouter([
     {
-        path: PATHS.WELCOME,
-        element: <WelcomePage />,
+        element: <StartLayout />,
+        errorElement: <ErrorBoundary />,
+        children: [
+            {
+                path: PATHS.WELCOME,
+                element: <WelcomePage />,
+            },
+            {
+                path: PATHS.LAUNCH,
+                element: <LaunchPage />,
+            },
+            {
+                path: PATHS.FEATURES,
+                element: <FeaturesPage />,
+            },
+        ],
     },
     {
         path: PATHS.TWITTER_CALLBACK,
@@ -51,24 +68,21 @@ const router = createBrowserRouter([
         ],
     },
     {
-        element: (
-            <ProtectedRoute>
-                <AppLayout />
-            </ProtectedRoute>
-        ),
-        errorElement: <ResetStorage />,
+        element: <AppLayout />,
+        errorElement: <ErrorBoundary />,
         children: [
             {
-                path: PATHS.HOME,
-                element: <PostListPage />,
-            },
-            {
-                path: PATHS.VIEW_POST,
-                element: <PostPage />,
-            },
-            {
-                element: <ProfileLayout />,
+                element: <ProtectedRoute />,
+                errorElement: <ResetStorage />,
                 children: [
+                    {
+                        path: PATHS.HOME,
+                        element: <PostListPage />,
+                    },
+                    {
+                        path: PATHS.VIEW_POST,
+                        element: <PostPage />,
+                    },
                     {
                         path: PATHS.PROFILE,
                         element: <ProfilePage />,
@@ -78,10 +92,20 @@ const router = createBrowserRouter([
                         element: <ReputationPage />,
                     },
                     {
-                        path: PATHS.HISTORTY,
+                        path: PATHS.HISTORY,
                         element: <HistoryPage />,
                     },
+                    {
+                        path: PATHS.NOTIFICATION,
+                        loader: () => {
+                            return redirect(PATHS.HOME)
+                        },
+                    },
                 ],
+            },
+            {
+                path: PATHS.ABOUT_US,
+                element: <AboutPage />,
             },
         ],
     },
@@ -89,26 +113,15 @@ const router = createBrowserRouter([
         element: <FullScreenLayout />,
         children: [
             {
-                path: PATHS.WRITE_POST,
-                element: (
-                    <ProtectedRoute>
-                        <WritePostPage />
-                    </ProtectedRoute>
-                ),
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: PATHS.WRITE_POST,
+                        element: <WritePostPage />,
+                    },
+                ],
             },
         ],
-    },
-    {
-        path: '/explore',
-        loader: () => {
-            return redirect(PATHS.HOME)
-        },
-    },
-    {
-        path: '/notification',
-        loader: () => {
-            return redirect(PATHS.HOME)
-        },
     },
 ])
 

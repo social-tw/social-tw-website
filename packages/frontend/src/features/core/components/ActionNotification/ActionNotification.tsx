@@ -33,7 +33,12 @@ function getActionLink(action: Action) {
 }
 
 function isActionLinkExistWhenSuccess(action: Action) {
-    return action.type === ActionType.Post || action.type === ActionType.Comment
+    return (
+        action.type === ActionType.Post ||
+        action.type === ActionType.Comment ||
+        action.type === ActionType.UpVote ||
+        action.type === ActionType.DownVote
+    )
 }
 
 function isActionLinkExistWhenFailure(action: Action) {
@@ -84,7 +89,7 @@ function getActionStatusLabel(action: Action) {
                 <div className="flex items-center gap-2">
                     <PostIcon className="w-4 text-primary" />
                     <span className="text-xs text-primary">
-                        {message}交易失敗!
+                        {message}交易未成功!
                     </span>
                     {isActionLinkExistWhenFailure(action) && (
                         <Link
@@ -104,15 +109,15 @@ function getActionStatusLabel(action: Action) {
 }
 
 export default function ActionNotification() {
-    const lastestAction = useActionStore(latestActionSelector)
+    const latestAction = useActionStore(latestActionSelector)
 
     const pendingCount = useActionStore(pendingCountSelector)
 
     const [isOpen, setIsOpen] = useState(false)
 
-    if (!lastestAction) return null
+    if (!latestAction) return null
 
-    const statusLabel = getActionStatusLabel(lastestAction)
+    const statusLabel = getActionStatusLabel(latestAction)
 
     return (
         <>
@@ -132,12 +137,12 @@ export default function ActionNotification() {
                 onClose={() => setIsOpen(false)}
             >
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex items-center justify-center min-h-full p-4">
+                    <div className="min-h-full px-4 pt-[15.75rem] md:py-4 md:flex md:justify-center md:items-center">
                         <Dialog.Panel
-                            className="relative w-full max-w-md overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                            className="relative w-full max-w-md mx-auto overflow-hidden rounded-xl bg-black/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                             data-testid="actions-dialog"
                         >
-                            <div className="sticky top-0 z-10 py-4 bg-black/90 px-7">
+                            <div className="px-6 py-4">
                                 <button
                                     className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90"
                                     type="submit"
@@ -146,7 +151,7 @@ export default function ActionNotification() {
                                     <CloseIcon />
                                 </button>
                             </div>
-                            <div className="overflow-y-auto h-72 px-7 pb-7">
+                            <div className="px-6 pb-6">
                                 <ActionTable onClose={() => setIsOpen(false)} />
                             </div>
                         </Dialog.Panel>

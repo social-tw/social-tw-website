@@ -1,7 +1,6 @@
 import ReportContent from '@/features/reporting/components/Adjudicate/ReportContent'
-
-import { useState } from 'react'
-import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { FieldValues, useForm } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost/useReportPost'
 import {
     InfoDialog,
@@ -14,8 +13,6 @@ import {
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
-    ReportFormSubmitFailure,
-    ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
 import Dialog from '@/features/shared/components/Dialog/Dialog'
@@ -37,6 +34,8 @@ export function PostReportDialog({
     isOpen,
     onClose,
 }: PostReportDialogProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const [step, setStep] = useState<number>(1)
 
     const {
@@ -50,7 +49,6 @@ export function PostReportDialog({
     } = useForm<FieldValues>({ defaultValues })
 
     const {
-        isIdle,
         isPending,
         isError,
         isSuccess,
@@ -72,18 +70,37 @@ export function PostReportDialog({
         setStep(1)
     }
 
-    const onFailureResubmit = useFailureResubmitDialogFlow({
-        resetForm,
-        resetState,
-        getValues,
-    })
+    const onCloseTransition = () => {
+        setIsSubmitting(false)
+    }
 
     const onCloseDialog = useCloseDialogFlow({
         resetForm,
         resetState,
         onClose,
+        onCloseTransition,
         resetStep,
     })
+
+    useEffect(() => {
+        if (isPending) {
+            onClose()
+            setIsSubmitting(true)
+            const timer = setTimeout(() => {
+                onCloseDialog()
+            }, 5000)
+
+            return () => {
+                clearTimeout(timer)
+            }
+        }
+    }, [isPending, onClose, onCloseDialog])
+
+    useEffect(() => {
+        if (isSuccess || isError) {
+            onCloseDialog()
+        }
+    }, [isSuccess, isError, onCloseDialog])
 
     const { data: post } = usePostById(postId)
 
@@ -96,8 +113,7 @@ export function PostReportDialog({
                     onButtonClick={() => setStep(2)}
                 />
             )}
-
-            {step === 2 && isIdle && (
+            {step === 2 && (
                 <Dialog isOpen={isOpen} onClose={onCloseDialog}>
                     <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
@@ -129,15 +145,10 @@ export function PostReportDialog({
                     </ReportFormCtn>
                 </Dialog>
             )}
-
-            {isPending && <ReportFormSubmitting />}
-            {isError && (
-                <ReportFormSubmitFailure
-                    onClose={onCloseDialog}
-                    onResubmit={onFailureResubmit}
-                />
-            )}
-            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseDialog} />}
+            <ReportFormSubmitting
+                isOpen={isSubmitting}
+                onClose={onCloseDialog}
+            />
         </>
     )
 }
@@ -147,31 +158,19 @@ function useCloseDialogFlow({
     resetState,
     onClose,
     resetStep,
+    onCloseTransition,
 }: {
     resetForm: () => void
     resetState: () => void
     onClose: () => void
     resetStep: () => void
+    onCloseTransition: () => void
 }) {
     return () => {
         resetForm()
         resetState()
         onClose()
         resetStep()
-    }
-}
-
-function useFailureResubmitDialogFlow({
-    resetForm,
-    resetState,
-    getValues,
-}: {
-    resetForm: (values: FieldValues) => void
-    resetState: () => void
-    getValues: UseFormGetValues<FieldValues>
-}) {
-    return () => {
-        resetForm(getValues())
-        resetState()
+        onCloseTransition()
     }
 }

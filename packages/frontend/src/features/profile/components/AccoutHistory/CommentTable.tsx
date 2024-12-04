@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import {
     BodyCellData,
     BodyCellType,
@@ -9,6 +10,8 @@ import {
 } from '@/features/shared'
 import { FetchCommentHistoryResponse } from '@/types/api'
 import dayjs from 'dayjs'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 import { useMyCommentHistory } from '../../hooks/useMyCommentHistory/useMyCommentHistory'
 
 interface CommentTableProps {
@@ -39,10 +42,19 @@ export function CommentTable({ fromToEpoch }: CommentTableProps) {
 
 function getHeaderData(): HeaderCellData[] {
     return [
-        { label: 'Date' },
-        { label: 'Content' },
-        { label: 'Epoch Key' },
-        { label: 'Link' },
+        { label: '日期' },
+        { label: '內容' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>EpochKey</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle />
+                    </Link>
+                </div>
+            ),
+        },
+        { label: '連結' },
     ]
 }
 
