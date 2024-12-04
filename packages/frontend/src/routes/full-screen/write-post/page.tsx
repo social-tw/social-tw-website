@@ -1,5 +1,7 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 import { PATHS } from '@/constants/paths'
-import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
+import { useAuthStatus } from '@/features/auth'
+import { useAuthStore } from '@/features/auth/stores/authStore'
 import {
     PostFailureDialog,
     PostForm,
@@ -13,6 +15,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function WritePostPage() {
     const { isLoggedIn } = useAuthStatus()
+    const setErrorMessage = useAuthStore((state) => state.setErrorMessage)
 
     const navigate = useNavigate()
 
@@ -23,6 +26,7 @@ export default function WritePostPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const onSubmit = async (values: PostFormValues) => {
+        if (!isLoggedIn) return
         const previousPostsData = queryClient.getQueryData(['posts'])
 
         try {
@@ -47,14 +51,11 @@ export default function WritePostPage() {
         }
     }, [isPending, navigate])
 
-    if (!isLoggedIn) {
-        return (
-            <AuthErrorDialog
-                isOpen={true}
-                message="很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！"
-            />
-        )
-    }
+    useEffect(() => {
+        if (!isLoggedIn) {
+            setErrorMessage(AUTH_ERROR_MESSAGE.DEFAULT)
+        }
+    }, [isLoggedIn, setErrorMessage])
 
     return (
         <div className="p-4">

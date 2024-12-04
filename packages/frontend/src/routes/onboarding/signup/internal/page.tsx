@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import {
     AuthErrorDialog,
     AuthNoteDialog,
@@ -12,6 +13,7 @@ import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import { getVariantAutoScrollY } from '@/utils/helpers/motionVariants'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 enum NoteStatus {
     Close = 'close',
@@ -21,6 +23,11 @@ enum NoteStatus {
 
 export default function SignupInternalPage() {
     const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
+    const navigate = useNavigate()
+
+    const handleClose = () => {
+        navigate(PATHS.LAUNCH)
+    }
 
     const {
         isPending: isWalletSignupPending,
@@ -107,7 +114,11 @@ export default function SignupInternalPage() {
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <AuthErrorDialog isOpen={!!error} message={error?.message} />
+            <AuthErrorDialog
+                isOpen={!!error}
+                message={error?.message}
+                onClose={handleClose}
+            />
         </div>
     )
 }

@@ -16,6 +16,8 @@ import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 import { useUserState } from '@/features/core'
 import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 import { useCopy } from '@/features/shared/hooks/useCopy'
 
@@ -69,6 +71,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
     const { votes } = useVoteStore()
 
@@ -121,7 +124,18 @@ export default function Post({
     }, [isMine, finalAction])
 
     const { isValidReputationScore } = useReputationScore()
+
+    const handleComment = async () => {
+        try {
+            await checkAuth()
+            onComment()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleVote = async (voteType: VoteAction) => {
+        if (!isLoggedIn) return
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
@@ -214,7 +228,7 @@ export default function Post({
                     countComment={commentCount}
                     voteAction={isAction}
                     handleVote={handleVote}
-                    handleComment={onComment}
+                    handleComment={handleComment}
                     handleShare={handleShareClick}
                 />
             </div>

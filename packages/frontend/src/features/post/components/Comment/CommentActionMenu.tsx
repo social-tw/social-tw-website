@@ -13,7 +13,9 @@ import {
 } from '../ActionMenu'
 import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
-
+import { useAuthStatus } from '@/features/auth'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 interface CommentActionMenuProps {
     postId: string
     commentId: string
@@ -29,6 +31,10 @@ export function CommentActionMenu({
     canDelete,
     canReport,
 }: CommentActionMenuProps) {
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
+    const { isLoggedIn } = useAuthStatus()
+
     const {
         isOpen: isActionMenuOpen,
         onOpen: onActionMenuOpen,
@@ -46,14 +52,25 @@ export function CommentActionMenu({
     } = useDialog()
 
     const { isValidReputationScore } = useReputationScore()
+
     const handleReportComment = isValidReputationScore
         ? onReportDialogOpen
         : openForbidActionDialog
+
+    const onReport = async () => {
+        try {
+            await checkAuth()
+            handleReportComment()
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     return (
         <ActionMenuContainer
             onOpen={onActionMenuOpen}
             onClose={onActionMenuClose}
+            disabled={!isLoggedIn}
         >
             <ActionMenuDropdown
                 isOpen={isActionMenuOpen}
@@ -68,7 +85,7 @@ export function CommentActionMenu({
                 <ActionMenuDropdownItem
                     icon={<BanIcon />}
                     name="檢舉留言"
-                    onClick={handleReportComment}
+                    onClick={onReport}
                     disabled={!canReport}
                 />
             </ActionMenuDropdown>
@@ -85,7 +102,7 @@ export function CommentActionMenu({
                 <ActionMenuBottomSlideItem
                     icon={<BanIcon />}
                     name="檢舉留言"
-                    onClick={handleReportComment}
+                    onClick={onReport}
                     disabled={!canReport}
                 />
             </ActionMenuBottomSlide>

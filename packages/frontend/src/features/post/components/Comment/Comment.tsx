@@ -6,6 +6,8 @@ import { nanoid } from 'nanoid'
 import { CommentActionMenu } from './CommentActionMenu'
 import { CommentBlockedMask } from './CommentBlockedMask'
 import { CommentReportedMask } from './CommentReportedMask'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 
 interface CommentProps {
     postId: string
@@ -36,6 +38,17 @@ export default function Comment({
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
+    const handleDelete = async () => {
+        try {
+            await checkAuth()
+            onDelete()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     return (
         <>
             <article
@@ -64,7 +77,7 @@ export default function Comment({
                             <CommentActionMenu
                                 postId={postId}
                                 commentId={commentId}
-                                onDelete={onDelete}
+                                onDelete={handleDelete}
                                 canDelete={canDelete}
                                 canReport={canReport}
                             />

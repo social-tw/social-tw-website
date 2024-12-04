@@ -27,6 +27,7 @@ export function useAuthStatus() {
     const signingUpCount = useIsMutating({
         mutationKey: [MutationKeys.Signup],
     })
+
     const isSigningUp = signingUpCount > 0
 
     const signupErrors = useMutationState({
