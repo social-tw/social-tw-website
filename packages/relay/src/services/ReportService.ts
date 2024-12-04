@@ -126,6 +126,11 @@ export class ReportService {
             [ReportStatus.VOTING]: {
                 where: {
                     AND: [
+                        {
+                            adjudicateCount: {
+                                lt: parseInt(REPORT_SETTLE_VOTE_THRESHOLD),
+                            },
+                        },
                         { reportEpoch: { lt: epoch } },
                         { status: ReportStatus.VOTING },
                     ],
@@ -205,15 +210,6 @@ export class ReportService {
                 adjudicateCount,
             },
         })
-
-        // check REPORT_SETTLE_VOTE_THRESHOLD and update status
-        if (adjudicateCount >= REPORT_SETTLE_VOTE_THRESHOLD) {
-            const status = ReportStatus.WAITING_FOR_TRANSACTION
-            await db.update('ReportHistory', {
-                where: { reportId },
-                update: { status },
-            })
-        }
     }
 
     upsertAdjudicatorsNullifier(
