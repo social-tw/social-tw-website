@@ -69,7 +69,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
-    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+    
     const { votes } = useVoteStore()
 
     const voteState = useMemo(() => {
@@ -114,12 +114,8 @@ export default function Post({
     const { isValidReputationScore } = useReputationScore()
 
     const handleComment = async () => {
-        try {
-            await checkAuth()
-            onComment()
-        } catch (error) {
-            console.error(error)
-        }
+        if (!isLoggedIn) return
+        onComment()
     }
 
     const handleVote = async (voteType: VoteAction) => {

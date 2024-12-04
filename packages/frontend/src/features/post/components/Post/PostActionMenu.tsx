@@ -1,6 +1,4 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
-import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
-import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useReputationScore } from '@/features/reporting'
 import { useDialog } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -35,19 +33,14 @@ export function PostActionMenu({ postId }: PostActionMenuProps) {
     } = useDialog()
 
     const { isValidReputationScore } = useReputationScore()
-    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
     const onReport = isValidReputationScore
         ? onReportDialogOpen
         : openForbidActionDialog
 
-    const handleReportPost = async () => {
-        try {
-            await checkAuth()
-            onReport()
-        } catch (error) {
-            console.error(error)
-        }
+    const handleReportPost = () => {
+        if (!isLoggedIn) return
+        onReport()
     }
 
     return (
