@@ -60,7 +60,10 @@ export default function WritePostPage() {
     return (
         <div className="p-4">
             <PostForm onCancel={() => navigate('/')} onSubmit={onSubmit} />
-            <PostPublishTransition isOpen={isSubmitting} />
+            <PostPublishTransition
+                isOpen={isSubmitting}
+                onClose={() => setIsSubmitting(false)}
+            />
             <PostFailureDialog isOpen={!!error} onClose={() => reset()} />
         </div>
     )

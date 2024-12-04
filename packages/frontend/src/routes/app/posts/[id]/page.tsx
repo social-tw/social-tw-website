@@ -13,12 +13,12 @@ import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
-
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
     if (!id) {
@@ -68,6 +68,8 @@ const PostDetailsPage: React.FC = () => {
 
     const [isOpenComment, setIsOpenComment] = useState(false)
 
+    const [errorMessage, setErrorMessage] = useState<string>()
+
     const { isValidReputationScore } = useReputationScore()
 
     const onWriteComment = () => {
@@ -103,21 +105,28 @@ const PostDetailsPage: React.FC = () => {
                 })
             }
 
-            await refetch() // Refresh the post data after voting
+            await refetch()
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }
+
+    useEffect(() => {
+        const leaveComment = searchParams.get('leaveComment')
+
+        if (leaveComment === '1') {
+            setIsOpenComment(true)
+        }
+    }, [searchParams])
 
     if (!id || !post) return null
 
     return (
         <>
-            <div className="px-4">
-                <section className="py-6">
+            <div className="px-4 py-6 space-y-6 lg:px-0">
+                <section>
                     <Post
                         id={post.postId}
                         epochKey={post.epochKey}
@@ -136,7 +145,7 @@ const PostDetailsPage: React.FC = () => {
                         onVote={handleVote}
                     />
                 </section>
-                <section id="comments">
+                <section id="comments" className="px-6">
                     <CommentList postId={id} />
                     <div className="h-[50vh]"></div>
                 </section>

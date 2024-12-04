@@ -1,5 +1,7 @@
 export const PATHS = {
     WELCOME: '/welcome',
+    LAUNCH: '/launch',
+    FEATURES: '/features',
     LOGIN: '/login',
     TWITTER_CALLBACK: '/twitter/callback',
     LOGIN_INTERNAL: '/login/internal',
@@ -11,4 +13,6 @@ export const PATHS = {
     PROFILE: '/profile',
     HISTORY: '/profile/history',
     REPUTATION: '/profile/reputation',
+    ABOUT_US: '/about',
+    NOTIFICATION: '/notification',
 }

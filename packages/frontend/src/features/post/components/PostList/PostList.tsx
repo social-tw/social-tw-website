@@ -57,6 +57,7 @@ export default function PostList() {
                     id: item.transactionHash!,
                     postId: item.postId,
                     epochKey: item.epochKey,
+                    epoch: item.epoch,
                     content: item.content,
                     publishedAt: new Date(Number(item.publishedAt)),
                     commentCount: item.commentCount,
@@ -101,6 +102,7 @@ export default function PostList() {
                     id: actionData?.transactionHash ?? nanoid(),
                     postId: actionData?.postId,
                     epochKey: actionData?.epochKey,
+                    epoch: actionData?.epoch,
                     content: actionData.content,
                     publishedAt: action.submittedAt,
                     commentCount: 0,
@@ -122,7 +124,7 @@ export default function PostList() {
     const navigate = useNavigate()
 
     function gotoCommentsByPostId(postId: string) {
-        navigate(`/posts/${postId}/#comments`)
+        navigate(`/posts/${postId}/?leaveComment=1`)
     }
 
     const { createVote } = useVotes()
@@ -147,7 +149,6 @@ export default function PostList() {
                     post.finalAction === VoteAction.UPVOTE
                         ? VoteAction.CANCEL_UPVOTE
                         : VoteAction.CANCEL_DOWNVOTE
-
                 await createVote({
                     id,
                     voteAction: cancelAction,
@@ -168,7 +169,6 @@ export default function PostList() {
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }
@@ -188,6 +188,7 @@ export default function PostList() {
                         <Post
                             id={post.postId}
                             epochKey={post.epochKey}
+                            epoch={post.epoch}
                             content={post.content}
                             publishedAt={post.publishedAt}
                             commentCount={post.commentCount}
@@ -216,6 +217,7 @@ export default function PostList() {
                                 <Post
                                     id={post.postId}
                                     epochKey={post.epochKey}
+                                    epoch={post.epoch}
                                     content={post.content}
                                     publishedAt={post.publishedAt}
                                     commentCount={post.commentCount}

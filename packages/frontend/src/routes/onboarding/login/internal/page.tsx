@@ -1,16 +1,15 @@
-import { useState } from 'react'
-import { GrFormClose } from 'react-icons/gr'
-import { useNavigate, useParams } from 'react-router-dom'
+import { SIGNUP_METHODS } from '@/constants/signupMethods'
 import {
     AuthErrorDialog,
     AuthNoteDialog,
-    LoginButton,
     BackToWelcomeButton,
     Greeting,
+    LoginButton,
     useLoginWithServer,
     useLoginWithWallet,
 } from '@/features/auth'
-import { SIGNUP_METHODS } from '@/constants/signupMethods'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 enum NoteStatus {
     Close = 'close',
@@ -43,12 +42,14 @@ export default function LoginInternalPage() {
     const [noteStatus, setNoteStatus] = useState<NoteStatus>(NoteStatus.Close)
 
     return (
-        <div className="flex flex-col items-center h-full px-4 pt-20">
+        <div className="flex flex-col items-center h-full">
             <div className="z-20 flex flex-col w-11/12 mb-6">
-                <Greeting />
-                <p className="hidden mt-12 text-2xl font-semibold tracking-wider text-center text-white md:block">
-                    再一步即可完成登入
-                </p>
+                <div className="lg:space-y-12">
+                    <Greeting />
+                    <p className="text-2xl font-semibold tracking-wider text-left text-white lg:text-center md:block">
+                        再一步即可完成登入
+                    </p>
+                </div>
                 <BackToWelcomeButton />
             </div>
             {selectedSignupMethod === SIGNUP_METHODS.METAMASK && (
@@ -98,7 +99,6 @@ export default function LoginInternalPage() {
                 </div>
             )}
             <AuthNoteDialog
-                icon={GrFormClose}
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />

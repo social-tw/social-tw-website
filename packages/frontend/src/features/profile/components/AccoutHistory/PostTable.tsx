@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import {
     BodyCellData,
     BodyCellType,
@@ -8,7 +9,10 @@ import {
     TableHeader,
 } from '@/features/shared'
 import { FetchPostHistoryResponse } from '@/types/api'
+import { type RelayRawPost, RelayRawPostStatus } from '@/types/Post'
 import dayjs from 'dayjs'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 import { useMyPostHistory } from '../../hooks/useMyPostHistory/useMyPostHistory'
 
 interface PostTableProps {
@@ -39,10 +43,19 @@ export function PostTable({ fromToEpoch }: PostTableProps) {
 
 function getHeaderData(): HeaderCellData[] {
     return [
-        { label: 'Date' },
-        { label: 'Content' },
-        { label: 'Epoch Key' },
-        { label: 'Link' },
+        { label: '日期' },
+        { label: '內容' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>EpochKey</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle />
+                    </Link>
+                </div>
+            ),
+        },
+        { label: '連結' },
     ]
 }
 
@@ -55,7 +68,7 @@ function parsePostHistoryToBodyData(
                 type: BodyCellType.Text,
                 content: formatPostDate(Number(item.publishedAt)),
             },
-            { type: BodyCellType.Text, content: item.content },
+            { type: BodyCellType.Text, content: getPostContent(item) },
             { type: BodyCellType.Text, content: item.epochKey },
             {
                 type: BodyCellType.Link,
@@ -64,6 +77,36 @@ function parsePostHistoryToBodyData(
             },
         ]
     })
+}
+
+function BeReportingContent() {
+    return (
+        <div className="p-0.5 rounded border-2 border-black text-white text-xs text-center font-bold bg-[linear-gradient(108.3deg,#0C3037_8.76%,#131313_51.1%,#502A0C_93.43%)]">
+            被檢舉，審核中
+        </div>
+    )
+}
+
+function BeBlockedContent() {
+    return (
+        <div className="p-0.5 rounded border-2 border-black text-white text-xs text-center font-bold bg-[linear-gradient(108.3deg,#0C3037_8.76%,#131313_51.1%,#502A0C_93.43%)]">
+            被檢舉，審核中
+        </div>
+    )
+}
+
+function getPostContent(post: RelayRawPost) {
+    switch (post.status) {
+        case RelayRawPostStatus.REPORTED: {
+            return <BeReportingContent />
+        }
+        case RelayRawPostStatus.DISAGREED: {
+            return <BeBlockedContent />
+        }
+        default: {
+            return post.content
+        }
+    }
 }
 
 function formatPostDate(date: number) {
