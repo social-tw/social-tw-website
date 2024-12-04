@@ -12,7 +12,7 @@ export class DailyClaimProof extends BaseProof {
         attesterId: 2,
         epoch: 3,
         minRep: 4,
-        maxRep: 5
+        maxRep: 5,
     }
 
     public dailyEpoch: bigint
