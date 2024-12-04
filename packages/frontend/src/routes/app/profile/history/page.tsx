@@ -1,7 +1,4 @@
-import { LoginButton, useAuthStatus } from '@/features/auth'
 import { AccountHistory } from '@/features/profile'
-import { RiLoginBoxLine } from 'react-icons/ri'
-import { useNavigate } from 'react-router-dom'
 
 export default function History() {
     return (

@@ -68,8 +68,6 @@ const PostDetailsPage: React.FC = () => {
 
     const [isOpenComment, setIsOpenComment] = useState(false)
 
-    const [errorMessage, setErrorMessage] = useState<string>()
-
     const { isValidReputationScore } = useReputationScore()
 
     const onWriteComment = () => {
