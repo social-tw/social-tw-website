@@ -1,15 +1,21 @@
 import EpochImg from '@/assets/img/epoch.png'
+import { PATHS } from '@/constants/paths'
 import { useActionCount, useEpoch } from '@/features/core'
 import clsx from 'clsx'
 import Countdown from 'react-countdown'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 
 function EpochTimer() {
     const { epochEndTime } = useEpoch()
 
     return (
         <div>
-            <div className="text-xs font-semibold text-white">
-                Next Epoch in
+            <div className="flex items-start gap-1 text-xs font-semibold text-white">
+                當前 Epoch 倒數
+                <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                    <AiOutlineQuestionCircle size={12} />
+                </Link>
             </div>
             <div
                 className="text-3xl font-semibold text-white h-9"
@@ -85,7 +91,7 @@ export default function EpochInfo() {
             />
             <div className="flex-1 space-y-1">
                 <div className="flex gap-2">
-                    <div className="w-[90px] basis-[90px]">
+                    <div className="w-28 basis-28">
                         <EpochTimer />
                     </div>
                     <div className="flex-1">

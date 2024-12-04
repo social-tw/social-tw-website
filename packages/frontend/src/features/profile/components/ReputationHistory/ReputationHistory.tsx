@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import { useUserState } from '@/features/core'
 import {
     BodyCellType,
@@ -15,6 +16,8 @@ import { formatDateByEpoch } from '@/utils/helpers/formatDateByEpoch'
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
+import { Link } from 'react-router-dom'
 import { useMyReputationHistory } from '../../hooks/useMyReputationHistory/useMyReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
 import { SearchDayLimitDialog } from './SearchDayLimitDialog'
@@ -90,10 +93,19 @@ function ReputationTable({ fromToEpoch }: ReputationTableProps) {
 
 function getHeaderData(): HeaderCellData[] {
     return [
-        { label: 'Date' },
-        { label: 'Reason' },
-        { label: 'Epoch Key' },
-        { label: 'Point' },
+        { label: '日期' },
+        { label: '原因' },
+        {
+            label: (
+                <div className="flex items-start gap-1">
+                    <span>EpochKey</span>
+                    <Link to={`${PATHS.ABOUT_US}?viewId=feature-epoch`}>
+                        <AiOutlineQuestionCircle />
+                    </Link>
+                </div>
+            ),
+        },
+        { label: '得分' },
     ]
 }
 
