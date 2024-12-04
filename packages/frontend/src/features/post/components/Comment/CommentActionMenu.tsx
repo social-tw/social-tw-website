@@ -14,7 +14,8 @@ import {
 import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
 import { useAuthStatus } from '@/features/auth'
-
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 interface CommentActionMenuProps {
     postId: string
     commentId: string
@@ -30,6 +31,8 @@ export function CommentActionMenu({
     canDelete,
     canReport,
 }: CommentActionMenuProps) {
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
     const { isLoggedIn } = useAuthStatus()
 
     const {
@@ -54,9 +57,13 @@ export function CommentActionMenu({
         ? onReportDialogOpen
         : openForbidActionDialog
 
-    const onReport = () => {
-        if (!isLoggedIn) return
-        handleReportComment()
+    const onReport = async () => {
+        try {
+            await checkAuth()
+            handleReportComment()
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (

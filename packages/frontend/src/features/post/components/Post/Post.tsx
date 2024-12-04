@@ -16,6 +16,8 @@ import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 import { useUserState } from '@/features/core'
 import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 
 export default function Post({
     id = '',
@@ -67,6 +69,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
     const { votes } = useVoteStore()
 
@@ -112,8 +115,12 @@ export default function Post({
     const { isValidReputationScore } = useReputationScore()
 
     const handleComment = async () => {
-        if (!isLoggedIn) return
-        onComment()
+        try {
+            await checkAuth()
+            onComment()
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const handleVote = async (voteType: VoteAction) => {
