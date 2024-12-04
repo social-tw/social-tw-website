@@ -1,7 +1,6 @@
 export { default as ActionNotification } from './components/ActionNotification/ActionNotification'
 export { default as ActionTable } from './components/ActionTable/ActionTable'
 export { default as ActionWidget } from './components/ActionWidget/ActionWidget'
-export { default as EpochInfo } from './components/EpochInfo/EpochInfo'
 export { default as QueryProvider } from './components/QueryProvider/QueryProvider'
 export { default as UITour } from './components/UITour/UITour'
 export { useActionCount } from './hooks/useActionCount/useActionCount'
@@ -24,5 +23,5 @@ export * from './stores/actions'
 export * from './stores/tour'
 export {
     genReportIdentityProof,
-    genReportNullifier,
+    genReportNullifier
 } from './utils/genReportIdentityProof'

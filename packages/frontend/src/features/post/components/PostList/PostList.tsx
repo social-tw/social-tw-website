@@ -169,7 +169,7 @@ export default function PostList() {
     const { isValidReputationScore } = useReputationScore()
 
     return (
-        <div className="px-4">
+        <div className="px-4 lg:px-0">
             <ul className="space-y-3 md:space-y-6">
                 <li>
                     <ExamplePost />

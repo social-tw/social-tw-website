@@ -57,6 +57,7 @@ export default function MobileBottomNav() {
             <NavLink
                 className="flex items-center justify-center flex-1"
                 to={PATHS.ABOUT_US}
+                data-tour-step="6"
             >
                 {({ isActive }) =>
                     isActive ? (

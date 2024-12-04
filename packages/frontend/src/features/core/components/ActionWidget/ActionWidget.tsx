@@ -4,7 +4,7 @@ import ActionMessage from './ActionMessage'
 import ActionTracker from './ActionTracker'
 import EpochTimer from './EpochTimer'
 
-export default function EpochWidget() {
+export default function ActionWidget() {
     return (
         <div className="space-y-3" data-tour-step="1">
             <div className="flex items-stretch gap-3">
@@ -15,7 +15,7 @@ export default function EpochWidget() {
                 />
                 <div className="flex-1 space-y-1.5" data-tour-step="2">
                     <div className="flex gap-2">
-                        <div className="w-[90px] basis-[90px]">
+                        <div className="w-28 basis-28">
                             <EpochTimer />
                         </div>
                         <div className="flex-1">

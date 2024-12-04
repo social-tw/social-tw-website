@@ -1,8 +1,8 @@
 import Logo from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
 import { PATHS } from '@/constants/paths'
-import { ErrorDialog } from '@/features/auth'
-import { ActionNotification, EpochInfo } from '@/features/core'
+import { ErrorDialog, SignupPending } from '@/features/auth'
+import { ActionWidget, UITour } from '@/features/core'
 import {
     AdjudicationNotification,
     CheckInNotification,
@@ -33,6 +33,8 @@ export default function MobileAppLayout() {
                 <AdjudicationNotification />
                 <CheckInNotification />
             </NotificationContainer>
+            <SignupPending />
+            <UITour />
             <ForbidActionDialog
                 isOpen={isForbidActionDialogOpen}
                 onClose={closeForbidActionDialog}
@@ -83,10 +85,9 @@ function MobileLayoutHeader() {
             </div>
             {isContainingPosts && (
                 <section className="px-4 py-2 space-y-3">
-                    <div className="max-w-xs mx-auto">
-                        <EpochInfo />
+                    <div className="max-w-[21rem] mx-auto">
+                        <ActionWidget />
                     </div>
-                    <ActionNotification />
                 </section>
             )}
         </header>

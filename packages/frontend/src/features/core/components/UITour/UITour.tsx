@@ -16,7 +16,6 @@ export default function UITour() {
 
     return (
         <Joyride
-            // beaconComponent={undefined}
             tooltipComponent={TourTooltip}
             steps={steps}
             stepIndex={stepIndex}
