@@ -1,5 +1,6 @@
 import { Dialog } from '@/features/shared'
-import { FieldValues, useForm, UseFormGetValues } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { FieldValues, useForm } from 'react-hook-form'
 import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import {
     REGISTER_ID_DESC,
@@ -11,8 +12,6 @@ import {
     ReportFormStepGroup,
     ReportFormStepLabel,
     ReportFormSubmitBtn,
-    ReportFormSubmitFailure,
-    ReportFormSubmitSuccess,
     ReportFormSubmitting,
 } from '../ReportForm'
 
@@ -34,6 +33,8 @@ export function CommentReportDialog({
     isOpen,
     onClose,
 }: CommentReportDialogProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const {
         register,
         handleSubmit,
@@ -47,8 +48,6 @@ export function CommentReportDialog({
     const {
         isIdle,
         isPending,
-        isError,
-        isSuccess,
         reportComment,
         reset: resetState,
     } = useReportComment()
@@ -64,22 +63,39 @@ export function CommentReportDialog({
         } catch (_error) {}
     })
 
-    const onFailureResubmit = useFailureResubmitDialogFlow({
-        resetForm,
-        resetState,
-        getValues,
-    })
-
     const onCloseDialog = useCloseDialogFlow({
+        setIsSubmitting,
         resetForm,
         resetState,
         onClose,
     })
 
+    useEffect(() => {
+        let timer: NodeJS.Timeout | null = null
+
+        if (isPending) {
+            setIsSubmitting(true)
+
+            timer = setTimeout(() => {
+                onCloseDialog()
+            }, 5000)
+        }
+
+        if (!isPending && isSubmitting) {
+            onCloseDialog()
+        }
+
+        return () => {
+            if (timer) {
+                clearTimeout(timer)
+            }
+        }
+    }, [isPending, isSubmitting, onCloseDialog])
+
     return (
         <>
             {isIdle && (
-                <Dialog isOpen={isOpen} onClose={onClose}>
+                <Dialog isOpen={isOpen} onClose={onCloseDialog}>
                     <ReportFormCtn onSubmit={onSubmit}>
                         <ReportFormIntro />
                         <ReportFormStepGroup>
@@ -109,45 +125,29 @@ export function CommentReportDialog({
                     </ReportFormCtn>
                 </Dialog>
             )}
-            {isPending && <ReportFormSubmitting />}
-            {isError && (
-                <ReportFormSubmitFailure
-                    onClose={onCloseDialog}
-                    onResubmit={onFailureResubmit}
-                />
-            )}
-            {isSuccess && <ReportFormSubmitSuccess onClose={onCloseDialog} />}
+            <ReportFormSubmitting
+                isOpen={isSubmitting}
+                onClose={onCloseDialog}
+            />
         </>
     )
 }
 
 function useCloseDialogFlow({
+    setIsSubmitting,
     resetForm,
     resetState,
     onClose,
 }: {
+    setIsSubmitting: (value: boolean) => void
     resetForm: () => void
     resetState: () => void
     onClose: () => void
 }) {
     return () => {
+        setIsSubmitting(false)
         resetForm()
         resetState()
         onClose()
-    }
-}
-
-function useFailureResubmitDialogFlow({
-    resetForm,
-    resetState,
-    getValues,
-}: {
-    resetForm: (values: FieldValues) => void
-    resetState: () => void
-    getValues: UseFormGetValues<FieldValues>
-}) {
-    return () => {
-        resetForm(getValues())
-        resetState()
     }
 }

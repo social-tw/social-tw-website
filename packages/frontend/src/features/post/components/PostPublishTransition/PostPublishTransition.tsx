@@ -1,13 +1,16 @@
-import { motion } from 'framer-motion'
 import Logo from '@/assets/img/logo.png'
 import { Backdrop } from '@/features/shared'
 import { useMediaQuery } from '@uidotdev/usehooks'
+import { motion } from 'framer-motion'
+import { AiOutlineClose } from 'react-icons/ai'
 
 interface TransactionModalProps {
+    onClose: () => void
     isOpen: boolean
 }
 
 export default function PostPublishTransition({
+    onClose,
     isOpen,
 }: TransactionModalProps) {
     const items = [1, 2, 3]
@@ -29,7 +32,7 @@ export default function PostPublishTransition({
     return (
         <Backdrop isOpen={isOpen} position="fixed" background={'bg-black/70'}>
             <div className="flex items-center justify-center w-full h-full">
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 relative">
                     <div className="flex justify-center gap-2">
                         <img
                             src={Logo}
@@ -61,6 +64,13 @@ export default function PostPublishTransition({
                             存取進度條以確認存取進度。
                         </p>
                     </div>
+                    <button
+                        onClick={onClose}
+                        className="absolute text-white top-2 right-2 btn btn-sm btn-circle btn-ghost"
+                        aria-label="Close"
+                    >
+                        <AiOutlineClose className="w-6 h-6" />
+                    </button>
                 </div>
             </div>
         </Backdrop>

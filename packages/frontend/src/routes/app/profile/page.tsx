@@ -19,7 +19,7 @@ function HistoryButton() {
             title="歷史紀錄"
             icon={RiHourglassFill}
             start={true}
-            text="lg"
+            size="lg"
             iconSize={24}
         />
     )
@@ -37,7 +37,7 @@ function ReputationButton() {
             title="信譽分數"
             icon={RiShieldStarLine}
             start={true}
-            text="lg"
+            size="lg"
             iconSize={24}
         />
     )
