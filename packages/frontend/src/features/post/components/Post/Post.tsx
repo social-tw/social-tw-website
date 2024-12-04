@@ -188,13 +188,7 @@ export default function Post({
     }, [userState, epoch, epochKey, isReported, isShowMask])
 
     const isShowBlockedMasks = useMemo(() => {
-        return shouldShowMask(
-            isBlocked,
-            userState,
-            epoch,
-            epochKey,
-            isShowMask,
-        )
+        return shouldShowMask(isBlocked, userState, epoch, epochKey, isShowMask)
     }, [userState, epoch, epochKey, isBlocked, isShowMask])
 
     console.log(isShowReportedMasks, isShowBlockedMasks)
