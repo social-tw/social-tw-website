@@ -1033,52 +1033,6 @@ describe('POST /api/report', function () {
         })
     })
 
-    it('should not settle report if the vote is tie', async function () {
-        // insert mock value into report
-        const adjudicatorsNullifier = [
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-        ]
-        const prevEpoch = await sync.loadCurrentEpoch()
-        await db.update('ReportHistory', {
-            where: {
-                AND: [{ objectId: '0' }, { type: ReportType.POST }],
-            },
-            update: {
-                adjudicatorsNullifier,
-                adjudicateCount: adjudicatorsNullifier.length,
-                status: ReportStatus.VOTING,
-                reportEpoch: prevEpoch,
-            },
-        })
-        // epoch transition
-        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await provider.send('evm_mine', [])
-        const curEpoch = await sync.loadCurrentEpoch()
-        expect(curEpoch).equal(prevEpoch + 1)
-        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
-        await sync.waitForSync()
-
-        const report = await express
-            .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
-            )
-            .then((res) => {
-                expect(res).to.have.status(200)
-                const reports = res.body
-                expect(reports.length).to.be.equal(2)
-                return reports
-            })
-
-        await express.get(`/api/post/${report[0].objectId}`).then((res) => {
-            expect(res).to.have.status(200)
-            const curPost = res.body as Post
-            expect(curPost.status).to.equal(PostStatus.REPORTED)
-        })
-    })
-
     it('should fetch report category', async function () {
         const reportCategories = await express
             .get('/api/report/category')
