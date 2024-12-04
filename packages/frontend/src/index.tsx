@@ -1,11 +1,13 @@
+import '@/assets/css/main.css'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-tw'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import '@/assets/css/main.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
+dayjs.locale('zh-tw')
 dayjs.extend(relativeTime)
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
