@@ -11,11 +11,16 @@ export class DailyClaimProof extends BaseProof {
         dailyNullifier: 1,
         attesterId: 2,
         epoch: 3,
+        minRep: 4,
+        maxRep: 5
     }
 
+    public dailyEpoch: bigint
     public dailyNullifier: bigint
     public attesterId: bigint
     public epoch: bigint
+    public minRep: bigint
+    public maxRep: bigint
 
     constructor(
         publicSignals: (bigint | string)[],
@@ -23,9 +28,12 @@ export class DailyClaimProof extends BaseProof {
         prover?: Prover
     ) {
         super(publicSignals, proof, prover)
+        this.dailyEpoch = BigInt(publicSignals[this.input.dailyEpoch])
         this.dailyNullifier = BigInt(publicSignals[this.input.dailyNullifier])
         this.epoch = BigInt(publicSignals[this.input.epoch])
         this.attesterId = BigInt(this.publicSignals[this.input.attesterId])
+        this.minRep = BigInt(this.publicSignals[this.input.minRep])
+        this.maxRep = BigInt(this.publicSignals[this.input.maxRep])
         this.circuit = UnirepSocialCircuit.dailyClaimProof as any as Circuit
     }
 }
