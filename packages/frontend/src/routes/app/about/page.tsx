@@ -9,10 +9,23 @@ import {
     DisclosureButton,
     DisclosurePanel,
 } from '@headlessui/react'
+import { useEffect } from 'react'
 import { LuChevronDown } from 'react-icons/lu'
 import Markdown from 'react-markdown'
+import { useSearchParams } from 'react-router-dom'
 
 export default function AboutPage() {
+    const [searchParams] = useSearchParams()
+    const viewId = searchParams.get('viewId')
+
+    useEffect(() => {
+        const viewId = searchParams.get('viewId')
+        if (!viewId) return
+        const element = document.getElementById(viewId)
+        if (!element) return
+        element.scrollIntoView()
+    }, [searchParams])
+
     return (
         <div className="px-4 pb-10 lg:pt-4 lg:px-0">
             <section className="py-4">
@@ -27,6 +40,7 @@ export default function AboutPage() {
                             id={feature.id}
                             title={feature.title}
                             content={feature.content}
+                            defaultOpen={feature.id === viewId}
                         />
                     ))}
                 </div>
@@ -43,6 +57,7 @@ export default function AboutPage() {
                             id={policy.id}
                             title={policy.title}
                             content={policy.content}
+                            defaultOpen={policy.id === viewId}
                         />
                     ))}
                 </div>
@@ -79,11 +94,12 @@ export default function AboutPage() {
                     常見問題
                 </h2>
                 <div className="space-y-4">
-                    {faqs.map((faq, i) => (
+                    {faqs.map((faq) => (
                         <Collapse
-                            key={i}
+                            key={faq.id}
                             title={faq.title}
                             content={faq.content}
+                            defaultOpen={faq.id === viewId}
                         />
                     ))}
                 </div>
@@ -231,13 +247,20 @@ function Collapse({
     id,
     title,
     content,
+    defaultOpen = false,
 }: {
     id?: string
     title?: string
     content?: string
+    defaultOpen?: boolean
 }) {
     return (
-        <Disclosure as="div" id={id}>
+        <Disclosure
+            as="div"
+            id={id}
+            className="scroll-mt-20 lg:scroll-mt-36"
+            defaultOpen={defaultOpen}
+        >
             <DisclosureButton className="justify-between group btn btn-block btn-secondary no-animation">
                 {title}
                 <LuChevronDown className="w-6 h-6 group-data-[open]:rotate-180" />

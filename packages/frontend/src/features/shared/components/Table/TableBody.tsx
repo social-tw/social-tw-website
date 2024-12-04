@@ -23,7 +23,7 @@ export enum BodyCellType {
 
 interface BodyCellTextData {
     type: BodyCellType.Text
-    content: string
+    content: React.ReactNode
 }
 
 interface BodyCellLinkData {
@@ -46,7 +46,7 @@ interface BodyCellProps {
 }
 
 interface CellTextProps {
-    content: string
+    content: React.ReactNode
 }
 
 interface CellLinkProps {
@@ -123,7 +123,7 @@ function TableBodyNoData({ hint }: TableBodyNoDataProps) {
 function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
     const type = data.type
     return (
-        <div style={{ ...style, overflow: 'hidden', paddingRight: '20px' }}>
+        <div style={{ ...style, overflow: 'hidden', padding: '4px' }}>
             {type === BodyCellType.Text && (
                 <BodyCellText content={data.content} />
             )}
@@ -140,7 +140,7 @@ function BodyCell({ data, rowIndex, columnIndex, style }: BodyCellProps) {
 function BodyCellText({ content }: CellTextProps) {
     return (
         <div
-            className={`text-ellipsis overflow-hidden whitespace-nowrap text-white`}
+            className={`text-ellipsis overflow-hidden whitespace-nowrap text-white text-sm`}
         >
             {content}
         </div>
@@ -149,7 +149,7 @@ function BodyCellText({ content }: CellTextProps) {
 
 function BodyCellLink({ content, url }: CellLinkProps) {
     return (
-        <Link to={url} className={`text-[#2F9CAF] underline`}>
+        <Link to={url} className={`text-[#2F9CAF] underline text-sm`}>
             {content}
         </Link>
     )
