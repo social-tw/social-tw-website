@@ -83,7 +83,7 @@ function MobileLayoutHeader() {
             </div>
             {isContainingPosts && (
                 <section className="px-4 py-2 space-y-3">
-                    <div className="max-w-xs mx-auto">
+                    <div className="mx-auto">
                         <EpochInfo />
                     </div>
                     <ActionNotification />
