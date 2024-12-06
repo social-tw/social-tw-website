@@ -77,13 +77,17 @@ export function useNotificationById(id: string) {
 
 export function useSendNotification() {
     const notificationConfig = useNotificationConfig()
-    const addNotification = useNotificationStore((state) => state.addNotification)
+    const addNotification = useNotificationStore(
+        (state) => state.addNotification,
+    )
 
     const sendNotification = useCallback(
         (type: NotificationType, link?: string) => {
             const config = notificationConfig[type]
             if (!config) {
-                console.warn(`No configuration found for notification type: ${type}`)
+                console.warn(
+                    `No configuration found for notification type: ${type}`,
+                )
                 return
             }
 
