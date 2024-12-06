@@ -290,8 +290,6 @@ describe('POST /post', function () {
             return res.body
         })
 
-        console.log(posts)
-
         // every post is on-chain so the status must be 1
         for (let i = 0; i < posts.length; i++) {
             const post = posts[i]
@@ -318,12 +316,10 @@ describe('POST /post', function () {
     })
 
     it('should fetch posts by keyword', async function () {
-        let posts = await express
-            .get(`/api/post?page=1&keyword=content`)
-            .then((res) => {
-                expect(res).to.have.status(200)
-                return res.body
-            })
+        let posts = await express.get(`/api/post?q=content`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
 
         for (let i = 0; i < posts.length; i++) {
             const post = posts[i]
