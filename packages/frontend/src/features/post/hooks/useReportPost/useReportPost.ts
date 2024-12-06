@@ -13,7 +13,7 @@ import {
 import { ReportType } from '@/types/Report'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 
 export function useReportPost() {
@@ -21,6 +21,7 @@ export function useReportPost() {
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
     const { stateTransition } = useUserStateTransition()
+    const sendNotification = useSendNotification()
 
     const {
         mutateAsync: reportPost,

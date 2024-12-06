@@ -6,14 +6,14 @@ import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
 import { useAdjudicateStore } from '../../hooks/useAdjudicate/useAdjudicateStore'
-import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
 
     const { data: reports, refetch } = usePendingReports()
-
+    const sendNotification = useSendNotification()
     const activeReport = useMemo(() => {
         if (!reports || !userState) {
             return null

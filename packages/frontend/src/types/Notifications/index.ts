@@ -27,12 +27,13 @@ export interface NotificationData {
     message: string
     time: string
     isRead: boolean
-    targetId?: string
+    link?: string
+    txHash?: string
 }
 
 interface NotificationAction {
     label: string
-    type: string
+    execute: (data: NotificationData) => void
 }
 
 export interface NotificationMeta {

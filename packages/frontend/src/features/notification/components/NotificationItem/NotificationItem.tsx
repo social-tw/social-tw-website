@@ -1,9 +1,5 @@
-import { useAdjudicateStore } from '@/features/reporting/hooks/useAdjudicate/useAdjudicateStore'
-import { useCheckInStore } from '@/features/reporting/hooks/useCheckIn/useCheckInStore'
-import { useDialog } from '@/features/shared'
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getNotificationConfig } from '../../config/NotificationConfig'
+import { useNotificationConfig } from '../../config/NotificationConfig'
 import {
     useNotificationById,
     markAsRead,
@@ -17,52 +13,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ id }) => {
     const data = useNotificationById(id)
     const isRead = data.isRead
     const time = data.time
-    const config = getNotificationConfig(data.type)
+    const notificationConfig = useNotificationConfig()
+    const config = notificationConfig[data.type]
     const IconComponent = config.icon
     const message = config.message
     const actions = config.actions
-    const targetId = data.targetId
-
-    const navigate = useNavigate()
-
-    const { setAdjuducateDialogOpen } = useAdjudicateStore()
-    const { toggleCheckIn } = useCheckInStore()
-    const { setIsOpen } = useDialog()
-
-    const handleAction = (actionType: string, targetId?: string) => {
-        switch (actionType) {
-            case 'viewPost':
-                if (targetId) navigate(`/posts/${targetId}`)
-                break
-            case 'rewritePost':
-                navigate(`/?failedPostId=${targetId}`)
-                break
-            case 'viewComment':
-                navigate(`/posts/${targetId}`)
-                break
-            case 'rewriteComment':
-                navigate(`/posts/${targetId}`)
-                break
-            case 'reportDialog':
-                navigate(`${targetId}`)
-                setIsOpen(true)
-                break
-            case 'reportResult':
-                navigate(`/reports/${targetId}`)
-                break
-            case 'adjudicationDialog':
-                navigate(`/`)
-                setAdjuducateDialogOpen(true)
-                break
-            case 'checkIn':
-                navigate(`/`)
-                toggleCheckIn(true)
-                break
-            default:
-                console.warn('Unknown action type:', actionType)
-        }
-        markAsRead(id)
-    }
 
     return (
         <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
@@ -91,9 +46,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ id }) => {
                         {actions?.map((action, index) => (
                             <button
                                 key={index}
-                                onClick={() =>
-                                    handleAction(action.type, targetId)
-                                }
+                                onClick={() => {
+                                    action.execute(data)
+                                    markAsRead(id)
+                                }}
                                 className="text-xs underline text-[#4A9BAA]"
                             >
                                 {action.label}

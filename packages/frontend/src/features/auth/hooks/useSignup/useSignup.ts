@@ -5,10 +5,11 @@ import { relaySignUp } from '@/utils/api'
 import { SignupFailedError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { clearNotifications } from '@/features/notification/stores/useNotificationStore'
-import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 
 export function useSignup() {
+    const sendNotification = useSendNotification()
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()

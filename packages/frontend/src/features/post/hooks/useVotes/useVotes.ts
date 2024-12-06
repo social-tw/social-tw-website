@@ -3,16 +3,14 @@ import { useActionCount, useUserState, VoteService } from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 
 export function useVotes() {
     const queryClient = useQueryClient()
-
     const { getGuaranteedUserState } = useUserState()
-
     const actionCount = useActionCount()
-
+    const sendNotification = useSendNotification()
     const {
         isPending,
         error,

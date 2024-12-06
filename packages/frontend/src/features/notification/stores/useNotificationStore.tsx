@@ -2,8 +2,10 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { NotificationData } from '@/types/Notifications'
-import { getNotificationConfig } from '../config/NotificationConfig'
 import { NotificationType } from '@/types/Notifications'
+import { useNotificationConfig } from '../config/NotificationConfig'
+import { useCallback } from 'react'
+
 interface NotificationState {
     entities: Record<string, NotificationData>
     list: string[]
@@ -73,18 +75,32 @@ export function useNotificationById(id: string) {
     return useNotificationStore((state) => state.entities[id])
 }
 
-export function sendNotification(type: NotificationType, targetId?: string) {
-    const config = getNotificationConfig(type)
+export function useSendNotification() {
+    const notificationConfig = useNotificationConfig()
+    const addNotification = useNotificationStore((state) => state.addNotification)
 
-    const notification = {
-        id: Date.now().toString(),
-        type,
-        message: config.message,
-        time: new Date().toLocaleTimeString(),
-        isRead: false,
-        targetId,
-    }
-    useNotificationStore.getState().addNotification(notification)
+    const sendNotification = useCallback(
+        (type: NotificationType, link?: string) => {
+            const config = notificationConfig[type]
+            if (!config) {
+                console.warn(`No configuration found for notification type: ${type}`)
+                return
+            }
+
+            const notification: NotificationData = {
+                id: Date.now().toString(),
+                type,
+                message: config.message,
+                time: new Date().toLocaleTimeString(),
+                isRead: false,
+                link,
+            }
+            addNotification(notification)
+        },
+        [notificationConfig, addNotification],
+    )
+
+    return sendNotification
 }
 
 export function markAsRead(id: string) {

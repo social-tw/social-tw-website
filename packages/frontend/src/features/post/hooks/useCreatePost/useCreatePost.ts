@@ -14,10 +14,11 @@ import {
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
-import { sendNotification } from '@/features/notification/stores/useNotificationStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 
 export function useCreatePost() {
+    const sendNotification = useSendNotification()
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
