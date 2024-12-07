@@ -1,5 +1,3 @@
-export { default as ActionNotification } from './components/ActionNotification/ActionNotification'
-export { default as ActionTable } from './components/ActionTable/ActionTable'
 export { default as ActionWidget } from './components/ActionWidget/ActionWidget'
 export { default as QueryProvider } from './components/QueryProvider/QueryProvider'
 export { default as UITour } from './components/UITour/UITour'

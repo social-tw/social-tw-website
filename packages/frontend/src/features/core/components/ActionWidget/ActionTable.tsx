@@ -37,9 +37,9 @@ function getActionStatusLabel(status: ActionStatus) {
         [ActionStatus.Pending]: (
             <progress className="w-full h-3 rounded-none progress progress-primary" />
         ),
-        [ActionStatus.Success]: <span>存取交易成功！</span>,
+        [ActionStatus.Success]: <span>上鏈交易成功！</span>,
         [ActionStatus.Failure]: (
-            <span className="text-primary">存取交易失敗！</span>
+            <span className="text-primary">上鏈交易失敗！</span>
         ),
     }
     return actionStatusLabels[status]
@@ -76,7 +76,7 @@ function ActionLink({
 
     return (
         <Link
-            className="underline text-secondary"
+            className="font-light underline text-secondary"
             to={link}
             onClick={handleClick}
         >
@@ -89,20 +89,20 @@ const columnHelper = createColumnHelper<Action>()
 
 const columns = (onClose: () => void) => [
     columnHelper.accessor('submittedAt', {
-        header: 'Time',
+        header: '時間',
         cell: (info) => dayjs(info.getValue()).format('HH:mm:ss'),
     }),
     columnHelper.accessor('type', {
-        header: 'Action',
+        header: '操作',
         cell: (info) => getActionMessage(info.getValue()),
     }),
     columnHelper.accessor('status', {
-        header: 'Status',
+        header: '上鏈交易狀態',
         cell: (info) => getActionStatusLabel(info.getValue()),
     }),
     columnHelper.display({
         id: 'link',
-        header: 'Link',
+        header: '連結',
         cell: (props) => (
             <ActionLink action={props.row.original} onClose={onClose} />
         ),
@@ -119,45 +119,53 @@ export default function ActionTable({ onClose }: { onClose: () => void }) {
     })
 
     return (
-        <div className="h-64 overflow-y-auto p-11 bg-black/90">
-            <table className="w-full table-auto">
-                <thead className="sticky top-0 bg-black/90">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    className="px-2 py-1 text-xs font-semibold text-left text-white/50"
-                                >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext(),
-                                          )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className="px-2 py-1 text-xs font-medium text-left text-white/90"
-                                >
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext(),
-                                    )}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <article className="space-y-5">
+            <header>
+                <h1 className="text-sm font-semibold tracking-wider text-center text-white/90">
+                    當前 Epoch 上鏈交易紀錄
+                </h1>
+            </header>
+            <section className="h-64 overflow-y-auto">
+                <table className="w-full table-auto">
+                    <thead className="sticky top-0">
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        className="px-2 py-1 text-xs font-semibold text-left text-white/50"
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext(),
+                                              )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr key={row.id}>
+                                {row.getVisibleCells().map((cell) => (
+                                    <td
+                                        key={cell.id}
+                                        className="px-2 py-1 text-xs font-medium text-left text-white/90"
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext(),
+                                        )}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </section>
+        </article>
     )
 }

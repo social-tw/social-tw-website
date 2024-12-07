@@ -48,7 +48,7 @@ export default function DesktopAppLayout() {
                     </main>
                 </section>
                 <section>
-                    <div className="fixed top-0 h-full px-10 pt-20 w-[25rem]">
+                    <div className="fixed top-0 h-full px-10 py-20 w-[25rem]">
                         <Logo />
                         <MainSideNav />
                         <div className="mt-16 space-y-3">
