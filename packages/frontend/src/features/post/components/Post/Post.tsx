@@ -1,5 +1,10 @@
 import { useAuthStatus } from '@/features/auth'
-import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import {
+    LikeAnimation,
+    VoteFailureDialog,
+    usePostReportReason,
+    useVoteStore,
+} from '@/features/post'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -99,7 +104,8 @@ export default function Post({
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
-    const [show, setShow] = useState(false)
+    const [isShowAnimation, setIsShowAnimation] = useState(false)
+    const [isShowMask, setIsShowMask] = useState(isReported)
     const [imgType, setImgType] = useState<
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
@@ -121,6 +127,8 @@ export default function Post({
     }, [isMine, finalAction])
 
     const { isValidReputationScore } = useReputationScore()
+    const { reason } = usePostReportReason(id)
+
     const handleVote = async (voteType: VoteAction) => {
         if (!isValidReputationScore) {
             openForbidActionDialog()
@@ -132,14 +140,14 @@ export default function Post({
             return
         }
 
-        setShow(true)
+        setIsShowAnimation(true)
         setImgType(
             voteType === VoteAction.UPVOTE
                 ? VoteAction.UPVOTE
                 : VoteAction.DOWNVOTE,
         )
         setIsAction(voteType)
-        setTimeout(() => setShow(false), 500)
+        setTimeout(() => setIsShowAnimation(false), 500)
     }
 
     useEffect(() => {
@@ -151,6 +159,11 @@ export default function Post({
         setIsMineState(voteState.isMine)
         setIsAction(voteState.finalAction)
     }, [voteState])
+
+    useEffect(() => {
+        setIsMineState(isMine)
+        setIsAction(finalAction)
+    }, [isMine, finalAction])
 
     const postInfo = (
         <div className="space-y-3">
@@ -182,18 +195,31 @@ export default function Post({
     )
 
     const isShowReportedMasks = useMemo(() => {
-        return shouldShowMask(isReported, userState, epoch, epochKey)
-    }, [userState, epoch, epochKey, isReported])
+        return shouldShowMask(
+            isReported,
+            userState,
+            epoch,
+            epochKey,
+            isShowMask,
+        )
+    }, [userState, epoch, epochKey, isReported, isShowMask])
 
     const isShowBlockedMasks = useMemo(() => {
-        return shouldShowMask(isBlocked, userState, epoch, epochKey)
-    }, [userState, epoch, epochKey, isBlocked])
+        return shouldShowMask(isBlocked, userState, epoch, epochKey, isShowMask)
+    }, [userState, epoch, epochKey, isBlocked, isShowMask])
+
+    console.log(isShowReportedMasks, isShowBlockedMasks)
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isShowReportedMasks && <PostReportedMask />}
+            {isShowReportedMasks && (
+                <PostReportedMask
+                    onRemove={() => setIsShowMask(false)}
+                    reason={reason}
+                />
+            )}
             {isShowBlockedMasks && <PostBlockedMask />}
-            {<LikeAnimation isLiked={show} imgType={imgType} />}
+            {<LikeAnimation isLiked={isShowAnimation} imgType={imgType} />}
             {<ShareLinkTransition isOpen={hasCopied} />}
             <div className="flex-1 px-6 py-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
