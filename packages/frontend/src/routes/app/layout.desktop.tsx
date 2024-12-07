@@ -2,8 +2,8 @@ import LogoImage from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
 import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 import { PATHS } from '@/constants/paths'
-import { ErrorDialog } from '@/features/auth'
-import { ActionNotification, EpochInfo } from '@/features/core'
+import { ErrorDialog, SignupPending } from '@/features/auth'
+import { ActionWidget, UITour } from '@/features/core'
 import {
     AdjudicationNotification,
     CheckInNotification,
@@ -48,12 +48,11 @@ export default function DesktopAppLayout() {
                     </main>
                 </section>
                 <section>
-                    <div className="fixed top-0 h-full px-10 pt-20 w-[25rem]">
+                    <div className="fixed top-0 h-full px-10 py-20 w-[25rem]">
                         <Logo />
                         <MainSideNav />
                         <div className="mt-16 space-y-3">
-                            <EpochInfo />
-                            <ActionNotification />
+                            <ActionWidget />
                         </div>
                     </div>
                 </section>
@@ -67,6 +66,8 @@ export default function DesktopAppLayout() {
                 onClose={closeForbidActionDialog}
             />
             <ErrorDialog />
+            <SignupPending />
+            <UITour />
         </div>
     )
 }
