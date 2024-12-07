@@ -14,4 +14,5 @@ export enum UnirepSocialCircuit {
     reportIdentityProof = 'reportIdentityProof',
     reportNullifierProof = 'reportNullifierProof',
     reportNonNullifierProof = 'reportNonNullifierProof',
+    dailyClaimProof = 'dailyClaimProof',
 }
