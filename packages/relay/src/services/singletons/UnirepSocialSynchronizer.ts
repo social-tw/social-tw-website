@@ -13,7 +13,6 @@ import {
     ReportType,
     UserRegisterStatus,
 } from '../../types'
-import { postService } from '../PostService'
 import ActionCountManager from '../utils/ActionCountManager'
 import { socketManager } from '../utils/SocketManager'
 
@@ -282,9 +281,6 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 })
             }
         }
-
-        // update post order
-        await postService.updateOrder(this.db)
 
         return result
     }

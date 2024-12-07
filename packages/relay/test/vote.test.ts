@@ -7,7 +7,6 @@ import { deployContracts, startServer, stopServer } from './environment'
 
 import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { io } from 'socket.io-client'
-import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
 import { genAuthentication } from './utils/genAuthentication'
@@ -80,7 +79,6 @@ describe('POST /vote', function () {
             postResponses.map((txHash) => provider.waitForTransaction(txHash))
         )
         await sync.waitForSync()
-        await postService.updateOrder(db)
         // get the post ids
         const posts = await express.get('/api/post?page=1').then((res) => {
             expect(res).to.have.status(200)
