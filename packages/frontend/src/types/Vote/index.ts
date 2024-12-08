@@ -17,7 +17,7 @@ export interface VoteMsg {
     vote: VoteAction
 }
 
-// For fromat in profile/history
+// For format in profile/history
 export interface VoteHistoryMetaData {
     epochKey: string
     publishedAt: number

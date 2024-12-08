@@ -9,7 +9,7 @@ interface CyanButtonProps {
     title: string
     subTitle?: string
     start?: boolean
-    text: string
+    size: string
 }
 
 export default function CyanButton({
@@ -19,7 +19,7 @@ export default function CyanButton({
     title,
     subTitle,
     start,
-    text,
+    size,
     iconSize,
 }: CyanButtonProps) {
     return (
@@ -34,7 +34,7 @@ export default function CyanButton({
                 max-w-[44rem]           
                 items-center
                 rounded-xl
-                bg-[#2F9CAF]
+                bg-secondary
                 p-4
                 text-white
                 focus:outline-offset-0
@@ -53,7 +53,7 @@ export default function CyanButton({
                     `
                     text-white 
                     font-semibold 
-                    text-${text} 
+                    text-${size} 
                     tracking-wider
                     `,
                     Icon && 'mt-1',

@@ -1,13 +1,15 @@
 import { useUserState } from '@/features/core'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { useEffect, useMemo } from 'react'
+import { useToggle } from '@uidotdev/usehooks'
+import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
 import AdjudicateButton from './AdjudicateButton'
-import { useAdjudicateStore } from '../../hooks/useAdjudicate/useAdjudicateStore'
 import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
+import ConfirmationDialog from './ConfirmationDialog'
 
 function useActiveAdjudication() {
     const { userState } = useUserState()
@@ -83,12 +85,40 @@ function useActiveAdjudication() {
 
 export default function AdjudicationNotification() {
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
-    const { AdjuducateDialogOpen, setAdjuducateDialogOpen } =
-        useAdjudicateStore()
+    const [open, toggle] = useToggle(false)
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [buttonVisible, setButtonVisible] = useState(true)
 
-    const onClose = () => {
-        refetch() // Refetch data when closing the dialog if needed
-        setAdjuducateDialogOpen(false) // Close the dialog
+    useEffect(() => {
+        if (activeAdjudication) {
+            setButtonVisible(true)
+        }
+    }, [activeAdjudication])
+
+    const closeAdjudication = () => {
+        setButtonVisible(true)
+        toggle(false)
+    }
+
+    const closeConfirmation = () => {
+        setConfirmOpen(false)
+    }
+
+    const openConfirmation = () => {
+        setConfirmOpen(true)
+    }
+
+    const openAdjudication = () => {
+        toggle(true)
+        setButtonVisible(false)
+        setConfirmOpen(false)
+    }
+
+    const rejectAdjudication = () => {
+        toggle(false)
+        setConfirmOpen(false)
+        setButtonVisible(false)
+        refetch()
     }
 
     if (!activeAdjudication) {
@@ -97,11 +127,22 @@ export default function AdjudicationNotification() {
 
     return (
         <div data-testid="adjudication-notification">
-            <AdjudicateButton onClick={() => setAdjuducateDialogOpen(true)} />
+            {buttonVisible && (
+                <AdjudicateButton
+                    onClick={openAdjudication}
+                    onClose={openConfirmation}
+                />
+            )}
+            <ConfirmationDialog
+                open={confirmOpen}
+                onConfirm={rejectAdjudication}
+                onCancel={openAdjudication}
+                onClose={closeConfirmation}
+            />
             <Adjudicate
                 reportData={activeAdjudication}
-                open={AdjuducateDialogOpen}
-                onClose={onClose}
+                open={open}
+                onClose={closeAdjudication}
             />
         </div>
     )

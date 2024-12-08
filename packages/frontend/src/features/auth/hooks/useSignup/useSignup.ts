@@ -2,8 +2,11 @@ import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
 import { useAuthStatus } from '@/features/auth'
 import { useUserState, useWeb3Provider } from '@/features/core'
 import { relaySignUp } from '@/utils/api'
-import { SignupFailedError } from '@/utils/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+    resetSignupProgress,
+    startSignupProgress,
+} from '../../components/SignupProgress/signupProgressStore'
 import { clearNotifications } from '@/features/notification/stores/useNotificationStore'
 import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
@@ -33,31 +36,27 @@ export function useSignup() {
             accessToken: string
             fromServer: boolean
         }) => {
-            try {
-                if (isSignedUp) return
+            if (isSignedUp) return
+            startSignupProgress()
 
-                const provider = getGuaranteedProvider()
-                const userState = await getGuaranteedUserState()
+            const provider = getGuaranteedProvider()
+            const userState = await getGuaranteedUserState()
 
-                const proof = await userState.genUserSignUpProof()
+            const proof = await userState.genUserSignUpProof()
 
-                const data = await relaySignUp(
-                    proof,
-                    hashUserId,
-                    accessToken,
-                    fromServer,
-                )
+            const data = await relaySignUp(
+                proof,
+                hashUserId,
+                accessToken,
+                fromServer,
+            )
 
-                await provider.waitForTransaction(data.txHash)
-                await userState.waitForSync()
+            await provider.waitForTransaction(data.txHash)
+            await userState.waitForSync()
+            clearNotifications()
+            sendNotification(NotificationType.SIGN_UP_SUCCESS)
 
-                clearNotifications()
-                sendNotification(NotificationType.SIGN_UP_SUCCESS)
-
-                return data
-            } catch {
-                throw new SignupFailedError()
-            }
+            return data
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
@@ -66,6 +65,9 @@ export function useSignup() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
+        },
+        onError: () => {
+            resetSignupProgress()
         },
     })
 
