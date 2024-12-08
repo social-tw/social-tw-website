@@ -108,7 +108,7 @@ export function useVotes() {
                     : NotificationType.DOWNVOTE_SUCCEEDED
 
             sendNotification(notificationType, data.postId)
-        }
+        },
     })
 
     return {

@@ -66,26 +66,28 @@ export default function MainSideNav() {
                 )}
             </NavLink>
             <NavLink
-                className='flex items-center gap-5'
+                className="flex items-center gap-5"
                 to={PATHS.NOTIFICATION}
                 onClick={handleBellClick}
             >
                 {({ isActive }) => (
-                <>
-                    {isActive ? (
-                        <BellActiveIcon className="w-14 h-14" />
-                    ) : showNotificationDot ? (
-                        <BellWithDot className="w-14 h-14" />
-                    ) : (
-                        <BellIcon className="w-14 h-14" />
-                    )}
-                    <span className={clsx(
+                    <>
+                        {isActive ? (
+                            <BellActiveIcon className="w-14 h-14" />
+                        ) : showNotificationDot ? (
+                            <BellWithDot className="w-14 h-14" />
+                        ) : (
+                            <BellIcon className="w-14 h-14" />
+                        )}
+                        <span
+                            className={clsx(
                                 'text-xl font-bold',
                                 isActive ? 'text-secondary' : 'text-white',
-                            )}>
-                        通知中心
-                    </span>
-                </>
+                            )}
+                        >
+                            通知中心
+                        </span>
+                    </>
                 )}
             </NavLink>
             <NavLink className="flex items-center gap-5" to={PATHS.PROFILE}>
