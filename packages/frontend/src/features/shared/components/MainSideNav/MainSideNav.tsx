@@ -6,6 +6,7 @@ import { ReactComponent as BookUserActiveIcon } from '@/assets/svg/book-user-act
 import { ReactComponent as BookUserIcon } from '@/assets/svg/book-user.svg'
 import { ReactComponent as HomeParagraphActiveIcon } from '@/assets/svg/home-paragraph-active.svg'
 import { ReactComponent as HomeParagraphIcon } from '@/assets/svg/home-paragraph.svg'
+import { ReactComponent as BellWithDot } from '@/assets/svg/bell-with-dot.svg'
 import { PATHS } from '@/constants/paths'
 import clsx from 'clsx'
 import { NavLink } from 'react-router-dom'
@@ -65,25 +66,27 @@ export default function MainSideNav() {
                 )}
             </NavLink>
             <NavLink
-                className={({ isActive }) =>
-                    clsx(
-                        'relative flex items-center gap-8',
-                        isActive
-                            ? 'text-secondary'
-                            : 'text-white',
-                    )
-                }
+                className='flex items-center gap-5'
                 to={PATHS.NOTIFICATION}
                 onClick={handleBellClick}
             >
-                {showNotificationDot ? (
-                    <BellActiveIcon className="w-full h-full" />
-                ) : (
-                    <BellIcon className="w-full h-full" />
+                {({ isActive }) => (
+                <>
+                    {isActive ? (
+                        <BellActiveIcon className="w-14 h-14" />
+                    ) : showNotificationDot ? (
+                        <BellWithDot className="w-14 h-14" />
+                    ) : (
+                        <BellIcon className="w-14 h-14" />
+                    )}
+                    <span className={clsx(
+                                'text-xl font-bold',
+                                isActive ? 'text-secondary' : 'text-white',
+                            )}>
+                        通知中心
+                    </span>
+                </>
                 )}
-                <span className="text-xl font-bold">
-                    通知中心
-                </span>
             </NavLink>
             <NavLink className="flex items-center gap-5" to={PATHS.PROFILE}>
                 {({ isActive }) => (

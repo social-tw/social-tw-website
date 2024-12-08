@@ -53,9 +53,6 @@ export function useSignup() {
 
             await provider.waitForTransaction(data.txHash)
             await userState.waitForSync()
-            clearNotifications()
-            sendNotification(NotificationType.SIGN_UP_SUCCESS)
-
             return data
         },
         onSuccess: async () => {
@@ -65,6 +62,7 @@ export function useSignup() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
+            sendNotification(NotificationType.SIGN_UP_SUCCESS)
         },
         onError: () => {
             resetSignupProgress()
