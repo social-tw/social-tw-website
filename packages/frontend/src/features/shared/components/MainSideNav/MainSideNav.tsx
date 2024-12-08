@@ -73,11 +73,11 @@ export default function MainSideNav() {
                 {({ isActive }) => (
                     <>
                         {isActive ? (
-                            <BellActiveIcon className="w-14 h-14" />
+                            <BellActiveIcon className="w-12 h-12" />
                         ) : showNotificationDot ? (
-                            <BellWithDot className="w-14 h-14" />
+                            <BellWithDot className="w-12 h-12" />
                         ) : (
-                            <BellIcon className="w-14 h-14" />
+                            <BellIcon className="w-12 h-12" />
                         )}
                         <span
                             className={clsx(
