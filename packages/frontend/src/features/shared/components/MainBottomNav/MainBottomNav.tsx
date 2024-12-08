@@ -1,6 +1,7 @@
 import { ReactComponent as AddIcon } from '@/assets/svg/add.svg'
 import { ReactComponent as BellActiveIcon } from '@/assets/svg/bell-active.svg'
 import { ReactComponent as BellIcon } from '@/assets/svg/bell.svg'
+import { ReactComponent as BellWithDot } from '@/assets/svg/bell-with-dot.svg'
 import { ReactComponent as BookSearchActiveIcon } from '@/assets/svg/book-search-active.svg'
 import { ReactComponent as BookSearchIcon } from '@/assets/svg/book-search.svg'
 import { ReactComponent as BookUserActiveIcon } from '@/assets/svg/book-user-active.svg'
@@ -10,8 +11,17 @@ import { ReactComponent as HomeParagraphIcon } from '@/assets/svg/home-paragraph
 import { PATHS } from '@/constants/paths'
 import { motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 export default function MobileBottomNav() {
+    const showNotificationDot = useNotificationStore((state) => state.showDot)
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
+    const handleBellClick = () => {
+        clearNotificationDot()
+    }
+
     const navVariants = {
         start: { y: 100 },
         end: {
@@ -79,12 +89,15 @@ export default function MobileBottomNav() {
             <NavLink
                 className="flex items-center justify-center flex-1"
                 to={PATHS.NOTIFICATION}
+                onClick={handleBellClick}
             >
                 {({ isActive }) =>
                     isActive ? (
                         <BellActiveIcon className="w-14 h-14" />
+                    ) : showNotificationDot ? (
+                        <BellWithDot className="w-full h-full" />
                     ) : (
-                        <BellIcon className="w-14 h-14" />
+                        <BellIcon className="w-full h-full" />
                     )
                 }
             </NavLink>

@@ -7,8 +7,11 @@ import {
     resetSignupProgress,
     startSignupProgress,
 } from '../../components/SignupProgress/signupProgressStore'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useSignup() {
+    const sendNotification = useSendNotification()
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
@@ -49,7 +52,6 @@ export function useSignup() {
 
             await provider.waitForTransaction(data.txHash)
             await userState.waitForSync()
-
             return data
         },
         onSuccess: async () => {
@@ -59,6 +61,7 @@ export function useSignup() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
+            sendNotification(NotificationType.SIGN_UP_SUCCESS)
         },
         onError: () => {
             resetSignupProgress()
