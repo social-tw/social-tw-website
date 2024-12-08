@@ -59,7 +59,7 @@ export function useNotifyCheckIn() {
         ) {
             sendNotification(NotificationType.LOW_REPUTATION)
         }
-    }, [reputationScore, checkedInAt, discardedAt])
+    }, [reputationScore, checkedInAt, discardedAt, sendNotification])
 
     return {
         isOpen,

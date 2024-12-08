@@ -7,7 +7,6 @@ import {
     resetSignupProgress,
     startSignupProgress,
 } from '../../components/SignupProgress/signupProgressStore'
-import { clearNotifications } from '@/features/notification/stores/useNotificationStore'
 import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 

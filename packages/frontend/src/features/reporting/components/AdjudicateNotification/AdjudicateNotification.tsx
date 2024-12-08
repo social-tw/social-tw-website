@@ -75,7 +75,7 @@ function useActiveAdjudication() {
         if (activeReport) {
             sendNotification(NotificationType.NEW_REPORT_ADJUDICATE)
         }
-    }, [activeReport])
+    }, [activeReport, sendNotification])
 
     return {
         data: reportData,
