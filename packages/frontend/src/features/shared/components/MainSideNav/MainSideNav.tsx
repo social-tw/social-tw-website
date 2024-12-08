@@ -9,8 +9,17 @@ import { ReactComponent as HomeParagraphIcon } from '@/assets/svg/home-paragraph
 import { PATHS } from '@/constants/paths'
 import clsx from 'clsx'
 import { NavLink } from 'react-router-dom'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 export default function MainSideNav() {
+    const showNotificationDot = useNotificationStore((state) => state.showDot)
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
+    const handleBellClick = () => {
+        clearNotificationDot()
+    }
+
     return (
         <nav className="space-y-9">
             <NavLink className="flex items-center gap-5" to={PATHS.HOME}>
@@ -56,26 +65,25 @@ export default function MainSideNav() {
                 )}
             </NavLink>
             <NavLink
-                className="flex items-center gap-5"
+                className={({ isActive }) =>
+                    clsx(
+                        'relative flex items-center gap-8',
+                        isActive
+                            ? 'text-secondary'
+                            : 'text-white',
+                    )
+                }
                 to={PATHS.NOTIFICATION}
+                onClick={handleBellClick}
             >
-                {({ isActive }) => (
-                    <>
-                        {isActive ? (
-                            <BellActiveIcon className="w-12 h-12" />
-                        ) : (
-                            <BellIcon className="w-12 h-12" />
-                        )}
-                        <span
-                            className={clsx(
-                                'text-xl font-bold',
-                                isActive ? 'text-secondary' : 'text-white',
-                            )}
-                        >
-                            通知中心
-                        </span>
-                    </>
+                {showNotificationDot ? (
+                    <BellActiveIcon className="w-full h-full" />
+                ) : (
+                    <BellIcon className="w-full h-full" />
                 )}
+                <span className="text-xl font-bold">
+                    通知中心
+                </span>
             </NavLink>
             <NavLink className="flex items-center gap-5" to={PATHS.PROFILE}>
                 {({ isActive }) => (
