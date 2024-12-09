@@ -20,4 +20,3 @@ export { useLogout } from './hooks/useLogout/useLogout'
 export { useSignup } from './hooks/useSignup/useSignup'
 export { useSignupWithServer } from './hooks/useSignupWithServer/useSignupWithServer'
 export { useSignupWithWallet } from './hooks/useSignupWithWallet/useSignupWithWallet'
-
