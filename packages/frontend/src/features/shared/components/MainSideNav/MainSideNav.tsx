@@ -6,11 +6,21 @@ import { ReactComponent as BookUserActiveIcon } from '@/assets/svg/book-user-act
 import { ReactComponent as BookUserIcon } from '@/assets/svg/book-user.svg'
 import { ReactComponent as HomeParagraphActiveIcon } from '@/assets/svg/home-paragraph-active.svg'
 import { ReactComponent as HomeParagraphIcon } from '@/assets/svg/home-paragraph.svg'
+import { ReactComponent as BellWithDot } from '@/assets/svg/bell-with-dot.svg'
 import { PATHS } from '@/constants/paths'
 import clsx from 'clsx'
 import { NavLink } from 'react-router-dom'
+import { useNotificationStore } from '@/features/notification/stores/useNotificationStore'
 
 export default function MainSideNav() {
+    const showNotificationDot = useNotificationStore((state) => state.showDot)
+    const clearNotificationDot = useNotificationStore(
+        (state) => state.clearNotificationDot,
+    )
+    const handleBellClick = () => {
+        clearNotificationDot()
+    }
+
     return (
         <nav className="space-y-9">
             <NavLink className="flex items-center gap-5" to={PATHS.HOME}>
@@ -58,11 +68,14 @@ export default function MainSideNav() {
             <NavLink
                 className="flex items-center gap-5"
                 to={PATHS.NOTIFICATION}
+                onClick={handleBellClick}
             >
                 {({ isActive }) => (
                     <>
                         {isActive ? (
                             <BellActiveIcon className="w-12 h-12" />
+                        ) : showNotificationDot ? (
+                            <BellWithDot className="w-12 h-12" />
                         ) : (
                             <BellIcon className="w-12 h-12" />
                         )}

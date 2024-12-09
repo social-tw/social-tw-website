@@ -18,6 +18,7 @@ export enum QueryKeys {
     VoteHistory = 'vote_history',
     ReportHistory = 'ReportHistory',
     ReportsWaitingForTransaction = 'ReportsWaitingForTransaction',
+    Notifications = 'notifications',
 }
 
 export enum MutationKeys {

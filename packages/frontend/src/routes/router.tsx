@@ -1,8 +1,9 @@
 import { PATHS } from '@/constants/paths'
 import { ErrorBoundary, ResetStorage } from '@/features/shared'
-import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import AboutPage from './app/about/page'
 import AppLayout from './app/layout'
+import NotificationPage from './app/notification/page'
 import PostPage from './app/posts/[id]/page'
 import PostListPage from './app/posts/page'
 import HistoryPage from './app/profile/history/page'
@@ -95,17 +96,15 @@ const router = createBrowserRouter([
                         path: PATHS.HISTORY,
                         element: <HistoryPage />,
                     },
-                    {
-                        path: PATHS.NOTIFICATION,
-                        loader: () => {
-                            return redirect(PATHS.HOME)
-                        },
-                    },
                 ],
             },
             {
                 path: PATHS.ABOUT_US,
                 element: <AboutPage />,
+            },
+            {
+                path: PATHS.NOTIFICATION,
+                element: <NotificationPage />,
             },
         ],
     },
