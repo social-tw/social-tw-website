@@ -55,12 +55,7 @@ export default function AdjudicateForm({
             </header>
             <section className="px-6 md:px-14">
                 <p className="text-base font-medium leading-relaxed tracking-wider md:leading-slightly-loose">
-                    親愛的用戶：
-                    <br />
-                    恭喜你被選為本檢舉案件的評判員，一同維繫 Unirep Social
-                    Taiwan
-                    安全和平的匿名社群環境。請就以下文字內容判斷是否同意檢舉。集滿
-                    5 個評判後即評判結束。
+                    請就以下「被檢舉之內容」、「檢舉原因分類與詳情」仔細考量與判斷是否同意該檢舉，一同維護平台的自治與健康！
                 </p>
             </section>
             <section className="px-6 md:px-14">

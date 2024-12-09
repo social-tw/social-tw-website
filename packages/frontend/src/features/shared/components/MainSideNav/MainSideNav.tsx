@@ -10,7 +10,7 @@ import { PATHS } from '@/constants/paths'
 import clsx from 'clsx'
 import { NavLink } from 'react-router-dom'
 
-export default function MainNav() {
+export default function MainSideNav() {
     return (
         <nav className="space-y-9">
             <NavLink className="flex items-center gap-5" to={PATHS.HOME}>
@@ -32,7 +32,11 @@ export default function MainNav() {
                     </>
                 )}
             </NavLink>
-            <NavLink className="flex items-center gap-5" to={PATHS.ABOUT_US}>
+            <NavLink
+                className="flex items-center gap-5"
+                to={PATHS.ABOUT_US}
+                data-tour-step="6"
+            >
                 {({ isActive }) => (
                     <>
                         {isActive ? (

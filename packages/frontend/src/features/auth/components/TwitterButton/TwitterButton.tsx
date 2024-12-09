@@ -1,6 +1,6 @@
 import { BsTwitterX } from 'react-icons/bs'
-import { fetchLogin } from '../../../../utils/api'
-import { LocalStorageHelper } from '../../../../utils/helpers/LocalStorageHelper'
+import { fetchLogin } from '@/utils/api'
+import { LocalStorageHelper } from '@/utils/helpers/LocalStorageHelper'
 import LoginButton from '../LoginButton/LoginButton'
 
 interface TwitterButtonProps {
