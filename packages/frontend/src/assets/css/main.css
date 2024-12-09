@@ -37,3 +37,17 @@
         }
     }
 }
+
+@layer components {
+    .progress-gradient {
+        @apply bg-white;
+    }
+
+    .progress-gradient::-webkit-progress-value {
+        @apply bg-gradient-to-r from-[#52acbc] to-[#ff892a];
+    }
+
+    .progress-gradient::-moz-progress-bar {
+        @apply bg-gradient-to-r from-[#52acbc] to-[#ff892a];
+    }
+}

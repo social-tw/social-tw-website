@@ -16,6 +16,8 @@ import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
 import { useUserState } from '@/features/core'
 import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
+import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
+import { useCopy } from '@/features/shared/hooks/useCopy'
 
 export default function Post({
     id = '',
@@ -92,6 +94,8 @@ export default function Post({
         votedEpoch,
     ])
 
+    const { hasCopied, copyToClipboard } = useCopy()
+
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
@@ -102,6 +106,13 @@ export default function Post({
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
     const [isError, setIsError] = useState(false)
+
+    const handleShareClick = () => {
+        if (id) {
+            const postLink = `${window.location.origin}/posts/${id}`
+            copyToClipboard(postLink)
+        }
+    }
 
     // set isAction when finalAction is changed
     useEffect(() => {
@@ -183,6 +194,7 @@ export default function Post({
             {isShowReportedMasks && <PostReportedMask />}
             {isShowBlockedMasks && <PostBlockedMask />}
             {<LikeAnimation isLiked={show} imgType={imgType} />}
+            {<ShareLinkTransition isOpen={hasCopied} />}
             <div className="flex-1 px-6 py-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
@@ -203,6 +215,7 @@ export default function Post({
                     voteAction={isAction}
                     handleVote={handleVote}
                     handleComment={onComment}
+                    handleShare={handleShareClick}
                 />
             </div>
             {compact && imageUrl && (
