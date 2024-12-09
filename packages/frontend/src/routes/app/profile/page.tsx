@@ -83,9 +83,11 @@ function AccountInfo() {
 
 function HistoryButton() {
     const navigate = useNavigate()
+
     const handleLogout = () => {
         navigate('/profile/history')
     }
+
     return (
         <CyanButton
             isLoading={false}

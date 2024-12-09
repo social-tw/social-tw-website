@@ -14,8 +14,11 @@ import {
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useCreatePost() {
+    const sendNotification = useSendNotification()
     const queryClient = useQueryClient()
 
     const { getGuaranteedProvider } = useWeb3Provider()
@@ -76,6 +79,7 @@ export function useCreatePost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
+            sendNotification(NotificationType.POST_FAILED, context?.actionId)
         },
         onSuccess: (data, _variables, context) => {
             succeedActionById(context.actionId, {
@@ -91,6 +95,7 @@ export function useCreatePost() {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
+            sendNotification(NotificationType.POST_SUCCEEDED, data.postId)
         },
     })
 

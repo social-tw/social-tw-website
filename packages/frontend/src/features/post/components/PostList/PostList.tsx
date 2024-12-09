@@ -1,4 +1,5 @@
 import { QueryKeys } from '@/constants/queryKeys'
+
 import {
     ActionStatus,
     postActionsSelector,
@@ -25,6 +26,7 @@ import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { nanoid } from 'nanoid'
 import { Fragment, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ExamplePost from '../ExamplePost/ExamplePost'
 
 export default function PostList() {
     const { userState } = useUserState()
@@ -128,6 +130,15 @@ export default function PostList() {
 
     const { createVote } = useVotes()
 
+    const handleComment = (postId?: string) => {
+        if (!postId) return
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
+            return
+        }
+        gotoCommentsByPostId(postId)
+    }
+
     const handleVote = async (
         id: string,
         voteType: VoteAction,
@@ -168,8 +179,11 @@ export default function PostList() {
     const { isValidReputationScore } = useReputationScore()
 
     return (
-        <div className="px-4">
+        <div className="px-4 lg:px-0">
             <ul className="space-y-3 md:space-y-6">
+                <li>
+                    <ExamplePost />
+                </li>
                 {localPosts.map((post) => (
                     <li
                         key={post.id}
@@ -221,14 +235,7 @@ export default function PostList() {
                                     votedNonce={post.votedNonce}
                                     votedEpoch={post.votedEpoch}
                                     status={post.status}
-                                    onComment={() => {
-                                        if (!post.postId) return
-                                        if (!isValidReputationScore) {
-                                            openForbidActionDialog()
-                                            return
-                                        }
-                                        gotoCommentsByPostId(post.postId)
-                                    }}
+                                    onComment={() => handleComment(post.id)}
                                     onVote={(voteType) =>
                                         handleVote(post.postId!, voteType, post)
                                     }

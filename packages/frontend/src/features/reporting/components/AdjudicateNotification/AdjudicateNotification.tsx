@@ -1,8 +1,10 @@
+import { useAuthStatus } from '@/features/auth'
 import { useUserState } from '@/features/core'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useToggle } from '@uidotdev/usehooks'
-import { useMemo } from 'react'
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import Adjudicate from '../Adjudicate/Adjudicate'
@@ -13,7 +15,7 @@ function useActiveAdjudication() {
     const { userState } = useUserState()
 
     const { data: reports, refetch } = usePendingReports()
-
+    const sendNotification = useSendNotification()
     const activeReport = useMemo(() => {
         if (!reports || !userState) {
             return null
@@ -69,6 +71,12 @@ function useActiveAdjudication() {
         }
     }, [activeReport])
 
+    useEffect(() => {
+        if (activeReport) {
+            sendNotification(NotificationType.NEW_REPORT_ADJUDICATE)
+        }
+    }, [activeReport, sendNotification])
+
     return {
         data: reportData,
         refetch,
@@ -76,6 +84,7 @@ function useActiveAdjudication() {
 }
 
 export default function AdjudicationNotification() {
+    const { isLoggedIn } = useAuthStatus()
     const { data: activeAdjudication, refetch } = useActiveAdjudication()
     const [open, toggle] = useToggle(false)
     const [confirmOpen, setConfirmOpen] = useState(false)
@@ -113,7 +122,7 @@ export default function AdjudicationNotification() {
         refetch()
     }
 
-    if (!activeAdjudication) {
+    if (!activeAdjudication || !isLoggedIn) {
         return null
     }
 

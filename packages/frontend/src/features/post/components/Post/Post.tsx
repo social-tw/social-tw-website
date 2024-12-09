@@ -1,4 +1,6 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 import { useAuthStatus } from '@/features/auth'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useUserState } from '@/features/core'
 import {
     LikeAnimation,
@@ -17,13 +19,13 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import { useBlockMask } from '../../hooks/useBlockMask/useBlockMask'
+import { useReportMask } from '../../hooks/useReportMask/useReportMask'
 import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
-import { useReportMask } from '../../hooks/useReportMask/useReportMask'
-import { useBlockMask } from '../../hooks/useBlockMask/useBlockMask'
 
 export default function Post({
     id = '',
@@ -75,6 +77,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
     const { votes } = useVoteStore()
 
@@ -142,7 +145,17 @@ export default function Post({
     const { isValidReputationScore } = useReputationScore()
     const { reason } = usePostReportReason(id)
 
+    const handleComment = async () => {
+        try {
+            await checkAuth()
+            onComment()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleVote = async (voteType: VoteAction) => {
+        if (!isLoggedIn) return
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
@@ -207,15 +220,11 @@ export default function Post({
         </div>
     )
 
-    console.log('isShowReportMask', isShowReportMask)
-
     if (isShowReportMask) {
         return (
             <PostReportedMask
                 onRemove={() => updateIsShowReportMask(false)}
-                reason={
-                    'qwoekmsaldkmalksdmlaksmdlakmdslkasmduherfiufdskfsudhfiusafdmokfdgdjgksdjlfkgjsdlkfjgldskfjgldsjg'
-                }
+                reason={reason}
             />
         )
     }
@@ -244,7 +253,7 @@ export default function Post({
                     countComment={commentCount}
                     voteAction={isAction}
                     handleVote={handleVote}
-                    handleComment={onComment}
+                    handleComment={handleComment}
                     handleShare={handleShareClick}
                 />
             </div>

@@ -7,9 +7,11 @@ module.exports = {
                 'btn-signup': '#74C5F8',
                 'btn-login': '#DC832B',
                 link: '#5F8297',
+                content: '#080717',
             },
             spacing: {
                 30: '7.5rem',
+                85: '21.25rem',
             },
             boxShadow: {
                 base: '0px 0px 20px 0px rgba(0,0,0,0.03)',
