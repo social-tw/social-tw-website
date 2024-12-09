@@ -85,7 +85,7 @@ function MobileLayoutHeader() {
             </div>
             {isContainingPosts && (
                 <section className="px-4 py-2 space-y-3">
-                    <div className="max-w-[21rem] mx-auto">
+                    <div className="max-w-[22rem] mx-auto">
                         <ActionWidget />
                     </div>
                 </section>

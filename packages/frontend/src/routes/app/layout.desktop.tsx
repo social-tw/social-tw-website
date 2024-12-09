@@ -29,7 +29,7 @@ export default function DesktopAppLayout() {
 
     return (
         <div className="max-w-7xl min-h-screen mx-auto before:content-[' '] before:fixed before:top-0 before:left-0 before:-z-10 before:w-screen before:h-screen before:bg-[linear-gradient(200deg,#FF892A_-10%,#000000_15%,#2B2B2B_50%,#000000_85%,#52ACBC_110%)]">
-            <div className="grid grid-cols-[1fr_25rem] xl:grid-cols-[20rem_1fr_25rem] min-h-screen divide-x divide-neutral-600">
+            <div className="grid grid-cols-[1fr_27rem] xl:grid-cols-[20rem_1fr_27rem] min-h-screen divide-x divide-neutral-600">
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
                         <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
@@ -48,7 +48,7 @@ export default function DesktopAppLayout() {
                     </main>
                 </section>
                 <section>
-                    <div className="fixed top-0 h-full px-10 py-20 w-[25rem]">
+                    <div className="fixed top-0 h-full px-10 py-20 w-[27rem]">
                         <Logo />
                         <MainSideNav />
                         <div className="mt-16 space-y-3">
