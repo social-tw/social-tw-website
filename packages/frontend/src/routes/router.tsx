@@ -1,5 +1,4 @@
 import { PATHS } from '@/constants/paths'
-import { ProtectedRoute } from '@/features/auth'
 import { ErrorBoundary, ResetStorage } from '@/features/shared'
 import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
 import AboutPage from './app/about/page'
@@ -21,6 +20,7 @@ import LaunchPage from './start/launch/page'
 import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
+import { ProtectedRoute } from '@/features/auth'
 
 const router = createBrowserRouter([
     {

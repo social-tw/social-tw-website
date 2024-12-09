@@ -1,3 +1,4 @@
+import { PATHS } from '@/constants/paths'
 import { SIGNUP_METHODS } from '@/constants/signupMethods'
 import {
     AuthErrorDialog,
@@ -9,7 +10,7 @@ import {
     useLoginWithWallet,
 } from '@/features/auth'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 enum NoteStatus {
     Close = 'close',
@@ -19,6 +20,11 @@ enum NoteStatus {
 
 export default function LoginInternalPage() {
     const { selectedSignupMethod } = useParams()
+    const navigate = useNavigate()
+
+    const handleClose = () => {
+        navigate(PATHS.LAUNCH)
+    }
 
     const {
         isPending: isWalletLoginPending,
@@ -97,7 +103,11 @@ export default function LoginInternalPage() {
                 noteStatus={noteStatus}
                 onClose={() => setNoteStatus(NoteStatus.Close)}
             />
-            <AuthErrorDialog isOpen={!!error} message={error?.message} />
+            <AuthErrorDialog
+                isOpen={!!error}
+                message={error?.message}
+                onClose={handleClose}
+            />
         </div>
     )
 }
