@@ -3,9 +3,11 @@ import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
 
 export default function AdjudicationButton({
+    onCancel = () => {},
     onClick = () => {},
     onClose = () => {},
 }: {
+    onCancel?: () => void
     onClick?: () => void
     onClose?: () => void
 }) {
