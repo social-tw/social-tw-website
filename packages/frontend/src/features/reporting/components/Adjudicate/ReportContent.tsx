@@ -1,4 +1,4 @@
-export default function ReportContent({ content }: { content: string }) {
+export default function ReportContent({ content }: { content?: string }) {
     return (
         <div className="pt-3">
             <div className="relative rounded-lg bg-dark-gradient h-36">
@@ -7,7 +7,7 @@ export default function ReportContent({ content }: { content: string }) {
                 </h3>
                 <div className="h-full p-4 pt-5 overflow-auto">
                     <p className="text-sm font-medium leading-relaxed tracking-wider text-white md:leading-slightly-loose">
-                        {content}
+                        {content ? content : '無法加載內容'}
                     </p>
                 </div>
             </div>

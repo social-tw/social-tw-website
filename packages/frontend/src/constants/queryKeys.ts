@@ -1,6 +1,7 @@
 export enum QueryKeys {
     RelayConfig = 'relay_config',
     UserState = 'user_state',
+    UserInfo = 'user_info',
     HasSignedUp = 'has_signed_up',
     CurrentEpoch = 'current_epoch',
     EpochRemainingTime = 'epoch_remaining_time',

@@ -34,7 +34,7 @@ export default function CyanButton({
                 max-w-[44rem]           
                 items-center
                 rounded-xl
-                bg-[#2F9CAF]
+                bg-secondary
                 p-4
                 text-white
                 focus:outline-offset-0
