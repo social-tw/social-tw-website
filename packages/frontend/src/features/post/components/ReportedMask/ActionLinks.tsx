@@ -4,7 +4,7 @@ interface ActionLinksProps {
 
 export default function ActionLinks({ onClick }: ActionLinksProps) {
     return (
-        <nav className="flex gap-5 self-end text-right max-md:mt-10">
+        <nav className="flex gap-5 self-end text-right text-xs font-medium">
             <a href="/about" className="basis-auto underline">
                 為什麼會有內容被檢舉？
             </a>

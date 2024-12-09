@@ -1,4 +1,5 @@
 import { useAuthStatus } from '@/features/auth'
+import { useUserState } from '@/features/core'
 import {
     LikeAnimation,
     VoteFailureDialog,
@@ -7,6 +8,7 @@ import {
 } from '@/features/post'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
+import { useCopy } from '@/features/shared/hooks/useCopy'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
@@ -15,14 +17,13 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
 import { PostReportedMask } from './PostReportedMask'
-import { useUserState } from '@/features/core'
-import { shouldShowMask } from '@/utils/helpers/postMaskHelper'
-import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
-import { useCopy } from '@/features/shared/hooks/useCopy'
+import { useReportMask } from '../../hooks/useReportMask/useReportMask'
+import { useBlockMask } from '../../hooks/useBlockMask/useBlockMask'
 
 export default function Post({
     id = '',
@@ -105,7 +106,19 @@ export default function Post({
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
     const [isShowAnimation, setIsShowAnimation] = useState(false)
-    const [isShowMask, setIsShowMask] = useState(isReported)
+    const { isShowReportMask, updateIsShowReportMask } = useReportMask(
+        isReported,
+        userState,
+        epoch,
+        epochKey,
+    )
+    const { isShowBlockMask } = useBlockMask(
+        isBlocked,
+        userState,
+        epoch,
+        epochKey,
+    )
+
     const [imgType, setImgType] = useState<
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
@@ -194,31 +207,22 @@ export default function Post({
         </div>
     )
 
-    const isShowReportedMasks = useMemo(() => {
-        return shouldShowMask(
-            isReported,
-            userState,
-            epoch,
-            epochKey,
-            isShowMask,
+    console.log('isShowReportMask', isShowReportMask)
+
+    if (isShowReportMask) {
+        return (
+            <PostReportedMask
+                onRemove={() => updateIsShowReportMask(false)}
+                reason={
+                    'qwoekmsaldkmalksdmlaksmdlakmdslkasmduherfiufdskfsudhfiusafdmokfdgdjgksdjlfkgjsdlkfjgldskfjgldsjg'
+                }
+            />
         )
-    }, [userState, epoch, epochKey, isReported, isShowMask])
-
-    const isShowBlockedMasks = useMemo(() => {
-        return shouldShowMask(isBlocked, userState, epoch, epochKey, isShowMask)
-    }, [userState, epoch, epochKey, isBlocked, isShowMask])
-
-    console.log(isShowReportedMasks, isShowBlockedMasks)
+    }
 
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isShowReportedMasks && (
-                <PostReportedMask
-                    onRemove={() => setIsShowMask(false)}
-                    reason={reason}
-                />
-            )}
-            {isShowBlockedMasks && <PostBlockedMask />}
+            {isShowBlockMask && <PostBlockedMask />}
             {<LikeAnimation isLiked={isShowAnimation} imgType={imgType} />}
             {<ShareLinkTransition isOpen={hasCopied} />}
             <div className="flex-1 px-6 py-4 space-y-3">

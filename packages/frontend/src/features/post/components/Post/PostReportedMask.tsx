@@ -22,24 +22,24 @@ export function PostReportedMask({
     return (
         <div
             className={`
-                z-10 w-full h-full absolute top-0 left-0 text-white 
-                flex flex-col gap-2 px-4 items-center justify-center 
+                text-white 
+                flex flex-col px-6 pt-6 gap-6 items-center justify-center 
                 bg-gradient-to-br from-[#0c3037] via-[#131313] to-[#502a0c]
                 rounded-xl border-black border-2
             `}
         >
-            <header className="flex gap-2 items-center justify-center max-w-full pb-2">
-                <div className=" max-w-full">
+            <div className="flex gap-2 items-center justify-center w-full">
+                <div className="flex flex-col gap-2">
                     <h2 className="text-base font-bold tracking-wide">
                         此則貼文已被檢舉，正在審核中...
                     </h2>
                     <ReportReason reason={reason} />
                 </div>
-                <GavelIcon className="h-20 w-20" />
-            </header>
-            <div className="absolute bottom-2 right-3 text-xs font-medium">
-                <ActionLinks onClick={onDialogOpen} />
+                <div className="shrink-0">
+                    <GavelIcon className="h-20 w-20" />
+                </div>
             </div>
+            <ActionLinks onClick={onDialogOpen} />
             <ConfirmDialog
                 isOpen={isDialogOpen}
                 onClose={onDialogClose}
