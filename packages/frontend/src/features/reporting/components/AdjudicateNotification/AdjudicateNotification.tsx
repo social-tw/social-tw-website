@@ -3,8 +3,7 @@ import { useUserState } from '@/features/core'
 import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
-import { useToggle } from '@uidotdev/usehooks'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import AdjudicateFlow from '../Adjudicate/AdjudicateFlow';
@@ -76,9 +75,8 @@ export default function AdjudicationNotification() {
         }
     }, [activeReport, sendNotification]);
 
-    if (!activeAdjudication || !isLoggedIn) {
-        return null
     if (!isLoggedIn) {
+        return null;
     }
 
     return (
