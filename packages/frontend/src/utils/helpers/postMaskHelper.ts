@@ -6,11 +6,5 @@ export function shouldShowMask(
     epoch: any,
     epochKey: any,
 ) {
-    return (
-        condition &&
-        userState &&
-        epoch &&
-        epochKey &&
-        !isMyEpochKey(userState, epoch, epochKey)
-    )
+    return !!condition && !isMyEpochKey(userState, epoch, epochKey)
 }
