@@ -33,7 +33,7 @@ export default function DesktopAppLayout() {
             <div className="grid grid-cols-[1fr_27rem] xl:grid-cols-[20rem_1fr_27rem] min-h-screen divide-x divide-neutral-600">
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
-                        <SearchInput /> 
+                        <SearchInput />
                     </div>
                 </section>
                 <section>
