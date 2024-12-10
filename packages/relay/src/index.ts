@@ -17,7 +17,6 @@ import {
     provider,
     UNIREP_ADDRESS,
 } from './config'
-import { postService } from './services/PostService'
 import { SocketManager } from './services/utils/SocketManager'
 import TransactionManager from './services/utils/TransactionManager'
 
@@ -37,8 +36,6 @@ async function main() {
     if (DB_PATH.startsWith('postgres') && !IS_IN_TEST) {
         db = await PostgresConnector.create(schema, DB_PATH)
     } else db = await SQLiteConnector.create(schema, DB_PATH ?? ':memory:')
-
-    await postService.start(db)
 
     const app = express()
 
