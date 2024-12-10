@@ -4,7 +4,7 @@ import { useSendNotification } from '@/features/notification/stores/useNotificat
 import { NotificationType } from '@/types/Notifications'
 import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import { useEffect, useMemo } from 'react'
-import { usePendingReports } from '../../hooks/usePendingReports/usePendingReports'
+import { usePendingReports } from '@/features/reporting'
 import { isMyAdjudicateNullifier } from '../../utils/helpers'
 import AdjudicateFlow from '../Adjudicate/AdjudicateFlow';
 
