@@ -75,6 +75,7 @@ export class PostService extends RelayApiService {
             }),
         )
         const { txHash } = response.data
+
         return {
             txHash,
             epoch: Number(epoch),

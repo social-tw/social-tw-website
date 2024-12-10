@@ -25,7 +25,7 @@ export default function Backdrop({
         },
     }
 
-    const chidrenVarients = {
+    const childrenVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
@@ -63,7 +63,7 @@ export default function Backdrop({
                 h-full
                 mt-0
                 `}
-                variants={chidrenVarients}
+                variants={childrenVariants}
                 initial="hidden"
                 animate="visible"
             >

@@ -1,14 +1,11 @@
 import { PATHS } from '@/constants/paths'
-import { useAuthStatus, useLogout } from '@/features/auth'
+import { AuthErrorDialog, useAuthStatus, useLogout } from '@/features/auth'
 import { useIsFirstRender } from '@uidotdev/usehooks'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../../stores/authStore'
+import { Outlet, useNavigate } from 'react-router-dom'
 
-type ProtectedRouterProps = {
-    children: React.ReactNode
-}
-
-export default function ProtectedRoute({ children }: ProtectedRouterProps) {
+export default function ProtectedRoute() {
     const navigate = useNavigate()
 
     const {
@@ -20,7 +17,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     } = useAuthStatus()
 
     const { logout } = useLogout()
-
+    const { errorMessage, setErrorMessage } = useAuthStore()
     const isFirstRender = useIsFirstRender()
 
     useEffect(() => {
@@ -28,7 +25,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
             return
         }
         if (!isLoggedIn) {
-            navigate(PATHS.WELCOME)
+            navigate(PATHS.LAUNCH)
         }
     }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
 
@@ -38,7 +35,7 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         }
         if (isLoggedIn && !isSignedUp) {
             logout()
-            navigate(PATHS.WELCOME)
+            navigate(PATHS.LAUNCH)
         }
     }, [
         isCheckingSignedUp,
@@ -50,9 +47,16 @@ export default function ProtectedRoute({ children }: ProtectedRouterProps) {
         navigate,
     ])
 
-    if (!isLoggedIn) {
-        return null
-    }
-
-    return <>{children}</>
+    return (
+        <>
+            <Outlet />
+            {errorMessage && (
+                <AuthErrorDialog
+                    isOpen={!!errorMessage}
+                    message={errorMessage}
+                    onClose={() => setErrorMessage(null)}
+                />
+            )}
+        </>
+    )
 }
