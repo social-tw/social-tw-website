@@ -1,6 +1,8 @@
 import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg'
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
+import { motion, useReducedMotion } from 'framer-motion'
+import { useMediaQuery } from 'react-responsive'
 
 export default function AdjudicationButton({
     onCancel = () => {},
@@ -11,8 +13,36 @@ export default function AdjudicationButton({
     onClick?: () => void
     onClose?: () => void
 }) {
+    const shouldReduceMotion = useReducedMotion()
+    const isLargeScreen = useMediaQuery({ minWidth: 1024 })
+
+    const variants = {
+        initial: {
+            x: isLargeScreen ? -100 : 100,
+            opacity: 0,
+        },
+        animate: {
+            x: 0,
+            opacity: 1,
+        },
+        exit: {
+            x: isLargeScreen ? -100 : 100,
+            opacity: 0,
+        },
+    }
+
     return (
-        <div className="relative inline-block">
+        <motion.div
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{
+                duration: shouldReduceMotion ? 0 : 0.5,
+                ease: 'easeOut',
+            }}
+            className="relative inline-block"
+        >
             {/* Main Button */}
             <button
                 className="relative py-2 pl-12 pr-2 bg-black border border-white rounded-lg lg:py-3 lg:pr-4 lg:pl-14 drop-shadow"
@@ -32,12 +62,12 @@ export default function AdjudicationButton({
 
             {/* Close Button */}
             <button
-                className="absolute -top-3.5 -right-3.5 w-7 h-7 flex items-center justify-center 
+                className="absolute -top-3.5 -right-3.5 w-7 h-7 flex items-center justify-center
                         bg-white rounded-full border border-gray-300 shadow-md hover:bg-gray-100"
                 onClick={onClose}
             >
                 <CloseIcon className="w-4 h-4 text-black" />
             </button>
-        </div>
+        </motion.div>
     )
 }
