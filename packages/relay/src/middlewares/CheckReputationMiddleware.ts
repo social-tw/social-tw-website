@@ -13,7 +13,7 @@ export const base64ToJson = (base64String) => {
 }
 
 export const createCheckReputationMiddleware = (
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) =>
     async function (req, res, next) {
         const authentication = req.headers.authentication
@@ -26,7 +26,7 @@ export const createCheckReputationMiddleware = (
         const reputationProof = await ProofHelper.getAndVerifyReputationProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         // check negative reputation

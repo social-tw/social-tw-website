@@ -9,7 +9,7 @@ import { Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get(
         '/api/counter',
@@ -25,6 +25,6 @@ export default (
             const counter = await counterService.fetchActions(epks, db)
 
             res.json({ counter })
-        }),
+        })
     )
 }

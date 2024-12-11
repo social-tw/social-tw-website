@@ -14,8 +14,8 @@ export default (app: Express, db: DB) => {
             epks: string[],
             sortKey: 'publishedAt' | 'voteSum',
             direction: 'asc' | 'desc',
-            db: DB,
-        ) => Promise<any[] | null>,
+            db: DB
+        ) => Promise<any[] | null>
     ) => {
         const epks = req.query.epks as string | undefined
         const parsedEpks = epks?.split('_') || []
@@ -45,10 +45,10 @@ export default (app: Express, db: DB) => {
                         epks,
                         sortKey,
                         direction,
-                        db,
-                    ),
+                        db
+                    )
             )
-        }),
+        })
     )
 
     app.get(
@@ -62,10 +62,10 @@ export default (app: Express, db: DB) => {
                         epks,
                         sortKey,
                         direction,
-                        db,
-                    ),
+                        db
+                    )
             )
-        }),
+        })
     )
 
     app.get(
@@ -79,9 +79,9 @@ export default (app: Express, db: DB) => {
                         epks,
                         sortKey,
                         direction,
-                        db,
-                    ),
+                        db
+                    )
             )
-        }),
+        })
     )
 }

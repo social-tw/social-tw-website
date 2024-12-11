@@ -9,7 +9,7 @@ import { Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/checkin',
@@ -24,10 +24,10 @@ export default (
                 publicSignals,
                 proof,
                 db,
-                synchronizer,
+                synchronizer
             )
 
             res.json({ txHash })
-        }),
+        })
     )
 }

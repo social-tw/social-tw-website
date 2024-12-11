@@ -16,10 +16,7 @@ import {
 } from './ReportFormStep'
 
 class Option {
-    constructor(
-        public value: number,
-        public label: string,
-    ) {}
+    constructor(public value: number, public label: string) {}
 }
 
 interface ReportFormCategoriesProps {

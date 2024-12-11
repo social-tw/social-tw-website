@@ -33,7 +33,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
     const attesterId = BigInt(10210)
     const epoch = BigInt(120958)
     const tree: zkIncrementalMerkleTree = new utils.IncrementalMerkleTree(
-        STATE_TREE_DEPTH,
+        STATE_TREE_DEPTH
     )
     const data = randomData()
     const leaf = utils.genStateTreeLeaf(
@@ -41,7 +41,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         attesterId,
         epoch,
         data,
-        chainId,
+        chainId
     )
     tree.insert(leaf)
     const leafIndex = tree.indexOf(leaf)
@@ -66,17 +66,17 @@ describe('Prove report identity in Unirep Social-TW', function () {
         })
         const { isValid, proof, publicSignals } = await genProofAndVerify(
             circuit,
-            circuitInputs,
+            circuitInputs
         )
 
         const reportIdentityProof = new ReportIdentityProof(
             publicSignals,
-            proof,
+            proof
         )
 
         expect(isValid).to.be.true
         expect(reportIdentityProof.reportNullifier.toString()).to.be.equal(
-            poseidon2([identitySecret, reportId]).toString(),
+            poseidon2([identitySecret, reportId]).toString()
         )
         expect(reportIdentityProof.attesterId).to.be.equal(attesterId)
         expect(reportIdentityProof.epoch).to.be.equal(epoch)
@@ -106,7 +106,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 34\n',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 34\n'
             )
         }
     })
@@ -135,7 +135,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n'
             )
         }
     })
@@ -163,7 +163,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n',
+                'Error: Assert Failed. Error in template ReportIdentityProof_75 line: 38\n'
             )
         }
     })

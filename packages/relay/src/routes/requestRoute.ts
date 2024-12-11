@@ -8,7 +8,7 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/request',
@@ -18,7 +18,7 @@ export default (
             const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
                 publicSignals,
                 proof,
-                synchronizer,
+                synchronizer
             )
 
             const epoch = epochKeyProof.epoch
@@ -27,7 +27,7 @@ export default (
             if (keys.length === 1) {
                 txHash = await TransactionManager.callContract(
                     'submitAttestation',
-                    [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]],
+                    [epochKeyProof.epochKey, epoch, keys[0], reqData[keys[0]]]
                 )
             } else if (keys.length > 1) {
                 txHash = await TransactionManager.callContract(
@@ -37,11 +37,11 @@ export default (
                         epoch,
                         keys,
                         keys.map((k) => reqData[k]),
-                    ],
+                    ]
                 )
             }
 
             res.json({ txHash })
-        }),
+        })
     )
 }

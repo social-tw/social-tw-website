@@ -36,7 +36,7 @@ export class ReportService {
         reportData: ReportHistory,
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.POST) {
@@ -45,7 +45,7 @@ export class ReportService {
 
             const post = await postService.fetchSinglePost(
                 reportData.objectId.toString(),
-                db,
+                db
             )
             if (!post) throw Errors.POST_NOT_EXIST()
             if (post.status === PostStatus.REPORTED)
@@ -56,7 +56,7 @@ export class ReportService {
                 throw Errors.INVALID_COMMENT_ID()
             const comment = await commentService.fetchSingleComment(
                 reportData.objectId.toString(),
-                db,
+                db
             )
             if (!comment) throw Errors.COMMENT_NOT_EXIST()
             if (comment.status === CommentStatus.REPORTED)
@@ -69,7 +69,7 @@ export class ReportService {
         await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
         return reportData
     }
@@ -99,13 +99,13 @@ export class ReportService {
             postService.updatePostStatus(
                 reportData.objectId,
                 PostStatus.REPORTED,
-                db,
+                db
             )
         } else if (reportData.type === ReportType.COMMENT) {
             commentService.updateCommentStatus(
                 reportData.objectId,
                 CommentStatus.REPORTED,
-                db,
+                db
             )
         }
     }
@@ -113,7 +113,7 @@ export class ReportService {
     async fetchReports(
         status: ReportStatus,
         synchronizer: UnirepSocialSynchronizer,
-        db: DB,
+        db: DB
     ): Promise<ReportHistory[] | null> {
         const epoch = await synchronizer.loadCurrentEpoch()
 
@@ -175,7 +175,7 @@ export class ReportService {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         synchronizer: UnirepSocialSynchronizer,
-        db: DB,
+        db: DB
     ) {
         const report = await this.fetchSingleReport(reportId, db)
         const nullifier = publicSignals[0]
@@ -186,7 +186,7 @@ export class ReportService {
         await ProofHelper.getAndVerifyReportIdentityProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
         // check if user voted or not
         if (this.isVoted(nullifier, report)) throw Errors.USER_ALREADY_VOTED()
@@ -194,7 +194,7 @@ export class ReportService {
         const adjudicatorsNullifier = this.upsertAdjudicatorsNullifier(
             nullifier,
             adjudicateValue,
-            report,
+            report
         )
         // default value is 0, but insert statement doesn't have this field
         // if this field is undefined, assume no one has voted yet.
@@ -215,7 +215,7 @@ export class ReportService {
     upsertAdjudicatorsNullifier(
         nullifier: string,
         adjudicateValue: AdjudicateValue,
-        report: ReportHistory,
+        report: ReportHistory
     ): Adjudicator[] {
         const newAdjudicator = {
             nullifier: nullifier,
@@ -235,14 +235,14 @@ export class ReportService {
         // if nullifer is included in adjudicators, return true
         return adjudicators
             ? adjudicators.some(
-                  (adjudicator) => adjudicator.nullifier == nullifier,
+                  (adjudicator) => adjudicator.nullifier == nullifier
               )
             : false
     }
 
     async fetchSingleReport(
         reportId: string,
-        db: DB,
+        db: DB
     ): Promise<ReportHistory | null> {
         const report = await db.findOne('ReportHistory', {
             where: {
@@ -295,7 +295,7 @@ export class ReportService {
         change: RepChangeType,
         repType: ReputationType,
         reportId: string,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         await db.create('ReputationHistory', {
             transactionHash: txHash,
@@ -321,7 +321,7 @@ export class ReportService {
 
     getReputationType(
         isPassed: boolean,
-        repUserType: RepUserType,
+        repUserType: RepUserType
     ): ReputationType {
         switch (repUserType) {
             case RepUserType.ADJUDICATOR:
@@ -351,13 +351,13 @@ export class ReportService {
 
     checkAdjudicatorNullifier(
         report: ReportHistory,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (
             !report.adjudicatorsNullifier?.some(
                 (adj) =>
                     !(reportProof instanceof ReportNonNullifierProof) &&
-                    adj.nullifier === reportProof.reportNullifier.toString(),
+                    adj.nullifier === reportProof.reportNullifier.toString()
             )
         ) {
             throw new Error('Invalid adjudicator nullifier')
@@ -366,14 +366,14 @@ export class ReportService {
 
     checkAdjudicatorIsClaimed(
         report: ReportHistory,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (
             report.adjudicatorsNullifier?.some(
                 (adj) =>
                     !(reportProof instanceof ReportNonNullifierProof) &&
                     adj.nullifier === reportProof.reportNullifier.toString() &&
-                    adj.claimed,
+                    adj.claimed
             )
         ) {
             throw Errors.USER_ALREADY_CLAIMED()
@@ -382,7 +382,7 @@ export class ReportService {
 
     checkRespondentEpochKey(
         report: ReportHistory,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (
             !(reportProof instanceof ReportNonNullifierProof) ||
@@ -395,7 +395,7 @@ export class ReportService {
 
     checkReportorEpochKey(
         report: ReportHistory,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (
             !(reportProof instanceof ReportNonNullifierProof) ||
@@ -420,7 +420,7 @@ export class ReportService {
                     return ClaimMethods.CLAIM_NEGATIVE_REP
                 } else {
                     throw new Error(
-                        'Poster cannot claim reputation for failed reports',
+                        'Poster cannot claim reputation for failed reports'
                     )
                 }
             case RepUserType.REPORTER:
@@ -479,7 +479,7 @@ export class ReportService {
         reportId: string,
         repUserType: RepUserType,
         db: DB,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         const report = await this.fetchSingleReport(reportId, db)
         if (!report) throw new Error('Report not found')
@@ -532,7 +532,7 @@ export class ReportService {
         claimChange: RepChangeType,
         identifier: string,
         publicSignals: any,
-        proof: any,
+        proof: any
     ): Promise<string> {
         let txHash: string | undefined
 
@@ -546,7 +546,7 @@ export class ReportService {
 
             if (!txHash) {
                 throw new Error(
-                    'Transaction hash is undefined after contract call',
+                    'Transaction hash is undefined after contract call'
                 )
             }
 
@@ -560,7 +560,7 @@ export class ReportService {
     async validateClaimRequest(
         report: ReportHistory,
         repUserType: RepUserType,
-        reportProof: ReportNullifierProof | ReportNonNullifierProof,
+        reportProof: ReportNullifierProof | ReportNonNullifierProof
     ) {
         if (repUserType === RepUserType.ADJUDICATOR) {
             this.checkAdjudicatorNullifier(report, reportProof)
@@ -579,20 +579,20 @@ export class ReportService {
     async getEpochAndEpochKey(
         claimSignals: any,
         claimProof: any,
-        repUserType: RepUserType,
+        repUserType: RepUserType
     ) {
         let currentEpoch: any, currentEpochKey: any, reportedEpochKey: any
         if (repUserType === RepUserType.ADJUDICATOR) {
             const reportNullifierProof = new ReportNullifierProof(
                 claimSignals,
-                claimProof,
+                claimProof
             )
             currentEpoch = reportNullifierProof.epoch
             currentEpochKey = reportNullifierProof.currentEpochKey
         } else {
             const reportNonNullifierProof = new ReportNonNullifierProof(
                 claimSignals,
-                claimProof,
+                claimProof
             )
             currentEpoch = reportNonNullifierProof.epoch
             currentEpochKey = reportNonNullifierProof.currentEpochKey
@@ -606,19 +606,19 @@ export class ReportService {
         claimSignals: any,
         claimProof: any,
         repUserType: RepUserType,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportNullifierProof | ReportNonNullifierProof> {
         if (repUserType === RepUserType.ADJUDICATOR) {
             return new ReportNullifierProof(
                 claimSignals,
                 claimProof,
-                synchronizer.prover,
+                synchronizer.prover
             )
         } else {
             return new ReportNonNullifierProof(
                 claimSignals,
                 claimProof,
-                synchronizer.prover,
+                synchronizer.prover
             )
         }
     }

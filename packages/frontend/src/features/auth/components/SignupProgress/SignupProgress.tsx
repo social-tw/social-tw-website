@@ -9,8 +9,8 @@ export default function SignupProgress() {
     const message = isSignedUp
         ? '恭喜註冊成功！ 🙌🏻'
         : isSigningUp
-          ? '努力註冊中，先來認識平台的功能吧！'
-          : ''
+        ? '努力註冊中，先來認識平台的功能吧！'
+        : ''
 
     return (
         <div className="flex flex-col items-center justify-center gap-2">

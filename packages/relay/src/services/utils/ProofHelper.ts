@@ -14,13 +14,13 @@ class ProofHelper {
     async getAndVerifyEpochKeyProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyProof> {
         // verify epochKeyProof of user
         const epochKeyProof = new EpochKeyProof(
             publicSignals,
             proof,
-            synchronizer.prover,
+            synchronizer.prover
         )
 
         // check if attester id is valid
@@ -33,7 +33,7 @@ class ProofHelper {
         const isStateTreeValid = await synchronizer.stateTreeRootExists(
             epochKeyProof.stateTreeRoot,
             Number(epochKeyProof.epoch),
-            epochKeyProof.attesterId,
+            epochKeyProof.attesterId
         )
         if (!isStateTreeValid) throw Errors.INVALID_STATE_TREE()
 
@@ -48,12 +48,12 @@ class ProofHelper {
     async getAndVerifyEpochKeyLiteProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<EpochKeyLiteProof> {
         const epochKeyLiteProof = new EpochKeyLiteProof(
             publicSignals,
             proof,
-            synchronizer.prover,
+            synchronizer.prover
         )
 
         // check if attester id is valid
@@ -68,12 +68,12 @@ class ProofHelper {
     async getAndVerifyReputationProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<ReputationProof> {
         const reputationProof = new ReputationProof(
             publicSignals,
             proof,
-            synchronizer.prover,
+            synchronizer.prover
         )
 
         this.validateAttesterId(synchronizer, reputationProof)
@@ -90,12 +90,12 @@ class ProofHelper {
     async getAndVerifyReportIdentityProof(
         publicSignals: PublicSignals,
         proof: Groth16Proof,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ): Promise<ReportIdentityProof> {
         const reportIdentityProof = new ReportIdentityProof(
             publicSignals,
             proof,
-            synchronizer.prover,
+            synchronizer.prover
         )
 
         this.validateAttesterId(synchronizer, reportIdentityProof)
@@ -137,7 +137,7 @@ class ProofHelper {
 export function genVHelperIdentifier(identifier: string): string {
     const encodedId = ethers.utils.defaultAbiCoder.encode(
         ['string'],
-        [identifier],
+        [identifier]
     )
     return ethers.utils.keccak256(encodedId)
 }
