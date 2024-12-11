@@ -48,9 +48,8 @@ describe('POST /api/report', function () {
         this.timeout(600000)
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep: _unirep, app: _app } = await deployContracts(
-            EPOCH_LENGTH
-        )
+        const { unirep: _unirep, app: _app } =
+            await deployContracts(EPOCH_LENGTH)
         // start server
         const {
             db: _db,
@@ -104,7 +103,7 @@ describe('POST /api/report', function () {
                     await provider.waitForTransaction(txHash)
                     await sync.waitForSync()
                     nonce++
-                }
+                },
             )
 
             const testContent = 'test content'
@@ -122,13 +121,13 @@ describe('POST /api/report', function () {
                     await provider.waitForTransaction(res.txHash)
                     await sync.waitForSync()
                     nonce++
-                }
+                },
             )
 
             const resComment = await commentService.fetchSingleComment(
                 '0',
                 db,
-                CommentStatus.ON_CHAIN
+                CommentStatus.ON_CHAIN,
             )
             expect(resComment).to.be.exist
         }
@@ -163,7 +162,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then(async (res) => {
                 expect(res).to.have.status(200)
@@ -172,12 +171,12 @@ describe('POST /api/report', function () {
 
         // Verify that the post status is updated and content is filtered
         const afterReportResponse = await express.get(
-            `/api/post/${postId}?status=${PostStatus.REPORTED}`
+            `/api/post/${postId}?status=${PostStatus.REPORTED}`,
         )
         expect(afterReportResponse).to.have.status(200)
         expect(afterReportResponse.body).to.have.property(
             'status',
-            PostStatus.REPORTED
+            PostStatus.REPORTED,
         )
 
         // Verify that other properties are still present
@@ -188,7 +187,7 @@ describe('POST /api/report', function () {
         const allPostsResponse = await express.get('/api/post')
         expect(allPostsResponse).to.have.status(200)
         const reportedPost = allPostsResponse.body.find(
-            (post) => post.postId === postId
+            (post) => post.postId === postId,
         )
         expect(reportedPost).to.exist
         expect(reportedPost).to.have.property('content', 'test content')
@@ -223,7 +222,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -257,7 +256,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -268,13 +267,13 @@ describe('POST /api/report', function () {
         const afterReportComment = await commentService.fetchSingleComment(
             commentId,
             db,
-            CommentStatus.REPORTED
+            CommentStatus.REPORTED,
         )
         expect(afterReportComment).to.exist
         expect(afterReportComment).to.not.have.property('content')
         expect(afterReportComment).to.have.property(
             'status',
-            CommentStatus.REPORTED
+            CommentStatus.REPORTED,
         )
 
         // Verify that other properties are still present
@@ -285,17 +284,17 @@ describe('POST /api/report', function () {
 
         // Optionally, verify that the comment is still accessible but filtered when fetching all comments for a post
         const allCommentsResponse = await express.get(
-            `/api/comment?postId=${afterReportComment?.postId}`
+            `/api/comment?postId=${afterReportComment?.postId}`,
         )
         expect(allCommentsResponse).to.have.status(200)
         const reportedComment = allCommentsResponse.body.find(
-            (comment) => comment.commentId === commentId
+            (comment) => comment.commentId === commentId,
         )
         expect(reportedComment).to.exist
         expect(reportedComment).to.not.have.property('content')
         expect(reportedComment).to.have.property(
             'status',
-            CommentStatus.REPORTED
+            CommentStatus.REPORTED,
         )
     })
 
@@ -324,7 +323,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -357,7 +356,7 @@ describe('POST /api/report', function () {
                     _reportData: reportData,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -372,13 +371,13 @@ describe('POST /api/report', function () {
         })
 
         epochKeyLitePublicSignals = JSON.stringify(
-            stringifyBigInts(publicSignals)
+            stringifyBigInts(publicSignals),
         )
         epochKeyLiteProof = JSON.stringify(stringifyBigInts(proof))
 
         await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -393,7 +392,7 @@ describe('POST /api/report', function () {
 
         const reports = await express
             .get(
-                `/api/report?status=0&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=0&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -422,7 +421,7 @@ describe('POST /api/report', function () {
         const wrongStatus = 6
         await express
             .get(
-                `/api/report?status=${wrongStatus}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${wrongStatus}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -438,7 +437,7 @@ describe('POST /api/report', function () {
     it('should fail with invalid public signals or proof', async function () {
         await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -447,7 +446,7 @@ describe('POST /api/report', function () {
 
         await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}`,
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -462,8 +461,8 @@ describe('POST /api/report', function () {
                 `/api/report?status=${
                     ReportStatus.VOTING
                 }&publicSignals=${epochKeyLitePublicSignals}&proof=${JSON.stringify(
-                    wrongProof
-                )}`
+                    wrongProof,
+                )}`,
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -492,7 +491,7 @@ describe('POST /api/report', function () {
 
         const votingReports = await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -502,14 +501,14 @@ describe('POST /api/report', function () {
         // filter out the report whose objectId is '0' and type is POST
         const filteredReports = votingReports.filter(
             (report: any) =>
-                report.objectId !== '0' && report.type === ReportType.POST
+                report.objectId !== '0' && report.type === ReportType.POST,
         )
 
         expect(filteredReports.length).equal(0)
 
         const waitingForTxReports = await express
             .get(
-                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => res.body)
 
@@ -527,7 +526,7 @@ describe('POST /api/report', function () {
         // nobody vote on reports[1], it can be fetched on next epoch
         const reports = await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -563,7 +562,7 @@ describe('POST /api/report', function () {
 
         const reports = await express
             .get(
-                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -598,7 +597,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -612,7 +611,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(201)
@@ -652,7 +651,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -666,7 +665,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.DISAGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(201)
@@ -679,7 +678,7 @@ describe('POST /api/report', function () {
                 expect(res?.adjudicateCount).equal(2)
                 const adjudicator = res?.adjudicatorsNullifier![1]!
                 expect(adjudicator.adjudicateValue).equal(
-                    AdjudicateValue.DISAGREE
+                    AdjudicateValue.DISAGREE,
                 )
                 expect(adjudicator.nullifier).to.be.equal(publicSignals[0])
             })
@@ -708,7 +707,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
-            }
+            },
         )
 
         publicSignals[0] = '0'
@@ -724,7 +723,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -748,7 +747,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: notExistReportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -762,7 +761,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -793,7 +792,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -807,7 +806,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: wrongAdjucateValue,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -835,7 +834,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: report.reportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -849,7 +848,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -867,7 +866,7 @@ describe('POST /api/report', function () {
 
         const nullifier = genReportNullifier(
             users[2].id,
-            watingForTxReport.reportId
+            watingForTxReport.reportId,
         )
         const toEpoch = await userStateTransition(userState, {
             express,
@@ -881,7 +880,7 @@ describe('POST /api/report', function () {
                 chainId,
                 toEpoch,
                 reportId: watingForTxReport.reportId,
-            }
+            },
         )
 
         const authentication = await genAuthentication(userState)
@@ -895,7 +894,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -923,7 +922,7 @@ describe('POST /api/report', function () {
                     adjudicateValue: AdjudicateValue.AGREE,
                     publicSignals,
                     proof,
-                })
+                }),
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -962,14 +961,14 @@ describe('POST /api/report', function () {
 
         const report = await express
             .get(
-                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
                 const reports = res.body
                 expect(reports.length).to.be.equal(1)
                 expect(reports[0].status).to.be.equal(
-                    ReportStatus.WAITING_FOR_TRANSACTION
+                    ReportStatus.WAITING_FOR_TRANSACTION,
                 )
                 return reports[0]
             })
@@ -1018,7 +1017,7 @@ describe('POST /api/report', function () {
 
         const report = await express
             .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`,
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -1040,32 +1039,32 @@ describe('POST /api/report', function () {
             .then((res) => res.body)
         expect(reportCategories.length).equal(
             Object.keys(ReportCategory).filter((category) =>
-                isNaN(Number(category))
-            ).length
+                isNaN(Number(category)),
+            ).length,
         )
         expect(reportCategories[0].number).equal(ReportCategory.ATTACK)
         expect(reportCategories[0].description).to.be.equal(
-            '對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論'
+            '對使用者、特定個人、組織或群體發表中傷、歧視、挑釁、羞辱、謾罵、不雅字詞或人身攻擊等言論',
         )
         expect(reportCategories[1].number).equal(ReportCategory.SPAM)
         expect(reportCategories[1].description).to.be.equal(
-            '張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等'
+            '張貼商業廣告內容與連結、邀請碼或內含個人代碼的邀請連結等',
         )
         expect(reportCategories[2].number).equal(ReportCategory.R18)
         expect(reportCategories[2].description).to.be.equal(
-            '張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限'
+            '張貼色情裸露、性暗示意味濃厚的內容，惟內容具教育性者不在此限',
         )
         expect(reportCategories[3].number).equal(ReportCategory.VIOLATION)
         expect(reportCategories[3].description).to.be.equal(
-            '違反政府法令之情事'
+            '違反政府法令之情事',
         )
         expect(reportCategories[4].number).equal(ReportCategory.DUPLICATE)
         expect(reportCategories[4].description).to.be.equal(
-            '重複張貼他人已發表過且完全相同的內容'
+            '重複張貼他人已發表過且完全相同的內容',
         )
         expect(reportCategories[5].number).equal(ReportCategory.MEANINGLESS)
         expect(reportCategories[5].description).to.be.equal(
-            '文章內容空泛或明顯無意義內容'
+            '文章內容空泛或明顯無意義內容',
         )
         expect(reportCategories[6].number).equal(ReportCategory.OTHER)
         expect(reportCategories[6].description).to.be.equal('其他')

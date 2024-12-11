@@ -7,7 +7,7 @@ import { genUserState } from './userHelper'
 
 export async function signUp(
     user: IdentityObject,
-    context
+    context,
 ): Promise<UserState> {
     const { app, db, prover, provider, sync } = context
     const userState = await genUserState(user.id, app, prover)
@@ -18,7 +18,7 @@ export async function signUp(
         proof,
         user.hashUserId,
         false,
-        sync
+        sync,
     )
     await provider.waitForTransaction(txHash)
 

@@ -9,7 +9,7 @@ import { Errors, ReportStatus } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer
+    synchronizer: UnirepSocialSynchronizer,
 ) => {
     app.post(
         '/api/reputation/claim',
@@ -20,7 +20,7 @@ export default (
                 claimSignals,
                 claimProof,
                 userType,
-                synchronizer
+                synchronizer,
             )
 
             const isProofValid = await reportProof.verify()
@@ -43,7 +43,7 @@ export default (
             await reportService.validateClaimRequest(
                 report,
                 userType,
-                reportProof
+                reportProof,
             )
 
             const txHash = await reportService.claim(
@@ -51,14 +51,14 @@ export default (
                 claimChange,
                 identifier,
                 claimSignals,
-                claimProof
+                claimProof,
             )
 
             await reportService.updateReportStatus(
                 reportId,
                 userType,
                 db,
-                reportProof
+                reportProof,
             )
 
             await reportService.createReputationHistory(
@@ -67,7 +67,7 @@ export default (
                 claimChange,
                 repType,
                 reportId,
-                reportProof
+                reportProof,
             )
 
             res.json({
@@ -81,6 +81,6 @@ export default (
                     isPassed: isPassed,
                 },
             })
-        })
+        }),
     )
 }

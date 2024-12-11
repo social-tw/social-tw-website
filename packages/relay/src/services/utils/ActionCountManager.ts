@@ -7,7 +7,7 @@ export class ActionCountManager {
         db: DB,
         epochKey: string,
         epoch: number,
-        actionCount: number
+        actionCount: number,
     ): Promise<void> {
         const counter = await db.findOne('EpochKeyAction', {
             where: {

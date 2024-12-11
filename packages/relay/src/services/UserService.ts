@@ -28,7 +28,7 @@ export class UserService {
 
         try {
             const response = await TwitterClient.authClient.requestAccessToken(
-                code as string
+                code as string,
             )
             const userInfo = await TwitterClient.client.users.findMyUser()
             const userId = userInfo.data?.id
@@ -36,7 +36,7 @@ export class UserService {
             return await this.getLoginUser(
                 db,
                 userId,
-                response.token.access_token
+                response.token.access_token,
             )
         } catch (error: any) {
             console.error('Error in user login:', error)
@@ -85,12 +85,12 @@ export class UserService {
         proof: Groth16Proof,
         hashUserId: string,
         fromServer: boolean,
-        synchronizer: UnirepSocialSynchronizer
+        synchronizer: UnirepSocialSynchronizer,
     ) {
         const signupProof = new SignupProof(
             publicSignals,
             proof,
-            synchronizer.prover
+            synchronizer.prover,
         )
 
         // verify attesterId, should be the same as app
@@ -140,7 +140,7 @@ export class UserService {
 
         if (this.encodeUserId(response?.data?.id) != hashUserId) {
             console.error(
-                `AccessToken is invalid or user ${hashUserId} is not matched`
+                `AccessToken is invalid or user ${hashUserId} is not matched`,
             )
             throw Errors.INVALID_HASH_USER_ID()
         }

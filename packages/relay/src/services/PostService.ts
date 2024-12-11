@@ -14,7 +14,7 @@ export class PostService {
     async fetchOrderedPosts(
         db: DB,
         offset: number,
-        content: string | undefined
+        content: string | undefined,
     ): Promise<Post[]> {
         //  TODO i think this sql is not really maintainable for long term, should consider to refactor it
         //      if user just posted, get the first ten result from db
@@ -79,8 +79,8 @@ export class PostService {
                     postId
             ) AS c ON p.postId = c.postId
             WHERE p.status IN (${PostStatus.ON_CHAIN}, ${
-            PostStatus.REPORTED
-        }, ${PostStatus.DISAGREED}) 
+                PostStatus.REPORTED
+            }, ${PostStatus.DISAGREED}) 
             
             ${content ? `AND p.content LIKE '%${content}%'` : ''}
             
@@ -120,14 +120,14 @@ export class PostService {
         epks: string[] | undefined,
         page: number,
         keyword: string | undefined,
-        db: DB
+        db: DB,
     ): Promise<Partial<Post>[] | null> {
         let posts: Post[]
         if (!epks) {
             posts = await this.fetchOrderedPosts(
                 db,
                 (page - 1) * LOAD_POST_COUNT,
-                keyword
+                keyword,
             )
         } else {
             let whereClause = {
@@ -155,14 +155,14 @@ export class PostService {
                     where: { postId: post.postId },
                 })
                 return { ...post, votes }
-            })
+            }),
         )
     }
 
     async fetchSinglePost(
         postId: string,
         db: DB,
-        status?: PostStatus
+        status?: PostStatus,
     ): Promise<Post | null> {
         const whereClause: any = { postId }
         if (status !== undefined) {
@@ -192,7 +192,7 @@ export class PostService {
         epks: string[],
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
-        db: DB
+        db: DB,
     ): Promise<Post[] | null> {
         const posts = await db.findMany('Post', {
             where: {
@@ -218,7 +218,7 @@ export class PostService {
                     where: { postId: post.postId },
                 })
                 return { ...post, votes }
-            })
+            }),
         )
     }
 
@@ -228,12 +228,12 @@ export class PostService {
         proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer,
-        helia: Helia
+        helia: Helia,
     ): Promise<string> {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer
+            synchronizer,
         )
 
         // post content
@@ -268,7 +268,7 @@ export class PostService {
     async updatePostStatus(
         postId: string,
         status: number,
-        db: DB
+        db: DB,
     ): Promise<void> {
         await db.update('Post', {
             where: { postId },
@@ -279,7 +279,7 @@ export class PostService {
     async getPostHistory(
         fromEpoch: number,
         toEpoch: number,
-        db: DB
+        db: DB,
     ): Promise<Post[]> {
         if (fromEpoch > toEpoch || fromEpoch < 0 || toEpoch < 0)
             throw Errors.INVALID_EPOCH_RANGE()

@@ -36,7 +36,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             attesterId,
             reportedEpoch,
             reportedNonce,
-            chainId
+            chainId,
         )
 
         const circuitInputs = genReportNonNullifierCircuitInput({
@@ -51,24 +51,24 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
 
         const { isValid, proof, publicSignals } = await genProofAndVerify(
             circuit,
-            circuitInputs
+            circuitInputs,
         )
 
         const reportNonNullifierProof = new ReportNonNullifierProof(
             publicSignals,
-            proof
+            proof,
         )
 
         expect(isValid).to.be.true
         // decode other data
         expect(reportNonNullifierProof.epoch.toString()).to.be.equal(
-            currentEpoch.toString()
+            currentEpoch.toString(),
         )
         expect(reportNonNullifierProof.attesterId.toString()).to.be.equal(
-            attesterId.toString()
+            attesterId.toString(),
         )
         expect(reportNonNullifierProof.chainId.toString()).to.be.equal(
-            chainId.toString()
+            chainId.toString(),
         )
 
         // we don't reveal the nonce, so this is equal to BigInt(0)
@@ -80,11 +80,11 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
                 attesterId,
                 currentEpoch,
                 currentNonce,
-                chainId
-            )
+                chainId,
+            ),
         )
         expect(reportNonNullifierProof.reportedEpochKey).to.be.equal(
-            reportedEpochKey
+            reportedEpochKey,
         )
     })
 
@@ -102,7 +102,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             attesterId,
             reportedEpoch,
             reportedNonce,
-            chainId
+            chainId,
         )
         const identitySecret = BigInt(123)
 
@@ -122,7 +122,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n',
             )
         }
     })
@@ -141,7 +141,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             attesterId,
             correctReportedEpoch,
             reportedNonce,
-            chainId
+            chainId,
         )
         const reportedEpoch = 12
         const circuitInputs = genReportNonNullifierCircuitInput({
@@ -160,7 +160,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n',
             )
         }
     })
@@ -190,7 +190,7 @@ describe('Prove report non nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n',
             )
         }
     })

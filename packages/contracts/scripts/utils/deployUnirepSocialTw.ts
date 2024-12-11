@@ -24,12 +24,12 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const epkHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
-        Circuit.epochKey
+        Circuit.epochKey,
     )
     const epkLiteHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
-        Circuit.epochKeyLite
+        Circuit.epochKeyLite,
     )
 
     // deploy verifiers
@@ -55,7 +55,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const vHelperManager = await deploySingleContract(
         VHelperManager.abi,
         VHelperManager.bytecode,
-        deployer
+        deployer,
     )
 
     // register verifierHelpers in vHelperManager
@@ -74,7 +74,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     ].map(({ identifier, address }) => {
         const encodedId = ethers.utils.defaultAbiCoder.encode(
             ['string'],
-            [identifier]
+            [identifier],
         )
         const hashId = ethers.utils.keccak256(encodedId)
         return { identifier: hashId, address }
@@ -83,7 +83,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     await vHelperManager
         .owner()
         .then((owner) =>
-            console.log('Owner of verifier helper manager:', owner)
+            console.log('Owner of verifier helper manager:', owner),
         )
     // 2. register address into vHelperManager
     for (const vHelper of vHelpers) {
@@ -106,13 +106,13 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         epkLiteHelper.address,
         dataProofVerifier.address,
         vHelperManager.address,
-        epochLength
+        epochLength,
     )
 
     await app.deployTransaction.wait()
 
     console.log(
-        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`
+        `Unirep app with epoch length ${epochLength} is deployed to ${app.address}`,
     )
 
     return {

@@ -94,7 +94,7 @@ export class TransactionManager {
                 err
                     .toString()
                     .indexOf(
-                        'Your app has exceeded its compute units per second capacity'
+                        'Your app has exceeded its compute units per second capacity',
                     ) !== -1
             ) {
                 await new Promise((r) => setTimeout(r, 1000))
@@ -143,7 +143,7 @@ export class TransactionManager {
      */
     async queueTransaction(
         to: string,
-        data: string | any = {}
+        data: string | any = {},
     ): Promise<string> {
         const args = {} as any
         if (typeof data === 'string') {
@@ -165,10 +165,10 @@ export class TransactionManager {
                 })
             } catch (error: any) {
                 console.error(
-                    `${error.code} - Transaction error while estimating gas limit: ${error}`
+                    `${error.code} - Transaction error while estimating gas limit: ${error}`,
                 )
                 throw Errors.TRANSACTION_FAILED(
-                    `Transaction Error: ${error.message}`
+                    `Transaction Error: ${error.message}`,
                 )
             }
 
@@ -206,14 +206,14 @@ export class TransactionManager {
      */
     async callContract(
         functionSignature: string, // 'leaveComment' for example
-        args: any[]
+        args: any[],
     ): Promise<string> {
         if (!this.appContract) throw Errors.UNINITIALIZED()
         const appContract = this.appContract
 
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
-            [...args]
+            [...args],
         )
         const hash = await this.queueTransaction(appContract.address, calldata)
 
