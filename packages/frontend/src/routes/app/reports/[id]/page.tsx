@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { ReportService } from '@/features/core/services/ReportService/ReportService'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 
 const ReportDetailsPage: React.FC = () => {
     const { id } = useParams()
@@ -38,10 +38,7 @@ const ReportDetailsPage: React.FC = () => {
                     <div className="bg-white/10 rounded-xl p-4 space-y-2">
                         <p>
                             評判日期：
-                            {format(
-                                new Date(report.reportAt || ''),
-                                'yyyy.MM.dd',
-                            )}
+                            {dayjs(report.reportAt).format('YYYY/MM/DD')}
                         </p>
                         <p>檢舉評判：同意檢舉</p>
                         <p>最終結果：{getJudgementResult()}</p>
