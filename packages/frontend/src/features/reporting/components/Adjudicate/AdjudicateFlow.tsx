@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
-import { Dialog } from '@headlessui/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react'
+import { Dialog } from '@headlessui/react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { AdjudicateFormValues, ReportData } from './AdjudicateForm'
-import AdjudicateDialog from './AdjudicateDialog';
-import AdjudicatePending from './AdjudicatePending';
-import AdjudicateFailure from './AdjudicateFailure';
-import ConfirmationDialog from '../AdjudicateNotification/ConfirmationDialog';
-import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg';
-import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg';
-import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg';
+import AdjudicateDialog from './AdjudicateDialog'
+import AdjudicatePending from './AdjudicatePending'
+import AdjudicateFailure from './AdjudicateFailure'
+import ConfirmationDialog from '../AdjudicateNotification/ConfirmationDialog'
+import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg'
+import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
+import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
 
 interface IntroDialogProps {
-    onNext: () => void;
-    onClose: () => void;
+    onNext: () => void
+    onClose: () => void
 }
 
 interface AdjudicateButtonProps {
-    onClick: () => void;
-    onClose: () => void;
+    onClick: () => void
+    onClose: () => void
 }
 
-type AdjudicateStage = 'button' | 'intro' | 'details' | 'pending' | 'complete' | null;
-type AdjudicateStatus = 'idle' | 'pending' | 'success' | 'error';
+type AdjudicateStage =
+    | 'button'
+    | 'intro'
+    | 'details'
+    | 'pending'
+    | 'complete'
+    | null
+type AdjudicateStatus = 'idle' | 'pending' | 'success' | 'error'
 
 const IntroDialog: React.FC<IntroDialogProps> = ({ onNext, onClose }) => {
     return (
@@ -57,10 +63,13 @@ const IntroDialog: React.FC<IntroDialogProps> = ({ onNext, onClose }) => {
                 </Dialog.Panel>
             </div>
         </Dialog>
-    );
-};
+    )
+}
 
-const AdjudicateButton: React.FC<AdjudicateButtonProps> = ({ onClick, onClose }) => {
+const AdjudicateButton: React.FC<AdjudicateButtonProps> = ({
+    onClick,
+    onClose,
+}) => {
     return (
         <motion.div
             initial={{ x: 100, opacity: 0 }}
@@ -95,9 +104,8 @@ const AdjudicateButton: React.FC<AdjudicateButtonProps> = ({ onClick, onClose })
                 <CloseIcon className="w-4 h-4 text-black" />
             </button>
         </motion.div>
-    );
-};
-
+    )
+}
 
 const CompletionCard: React.FC = () => {
     return (
@@ -112,56 +120,62 @@ const CompletionCard: React.FC = () => {
                 感謝您的協助評判！您已獲得評判積分獎勵。
             </p>
         </motion.div>
-    );
-};
-
-interface AdjudicateFlowProps {
-    reportData?: ReportData;
-    onRefetch?: () => void;
+    )
 }
 
-export default function AdjudicateFlow({ reportData, onRefetch }: AdjudicateFlowProps) {
-    const [stage, setStage] = useState<AdjudicateStage>('button');
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [buttonVisible, setButtonVisible] = useState(true);
-    const [adjudicateStatus, setAdjudicateStatus] = useState<AdjudicateStatus>('idle');
+interface AdjudicateFlowProps {
+    reportData?: ReportData
+    onRefetch?: () => void
+}
+
+export default function AdjudicateFlow({
+    reportData,
+    onRefetch,
+}: AdjudicateFlowProps) {
+    const [stage, setStage] = useState<AdjudicateStage>('button')
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [buttonVisible, setButtonVisible] = useState(true)
+    const [adjudicateStatus, setAdjudicateStatus] =
+        useState<AdjudicateStatus>('idle')
 
     const handleAbandon = () => {
-        setConfirmOpen(false);
-        setButtonVisible(false);
-        onRefetch?.();
-    };
+        setConfirmOpen(false)
+        setButtonVisible(false)
+        onRefetch?.()
+    }
 
     const handleContinue = () => {
-        setConfirmOpen(false);
-        setStage('intro');
-    };
+        setConfirmOpen(false)
+        setStage('intro')
+    }
 
     const handleAdjudicateComplete = () => {
-        setAdjudicateStatus('success');
-        setStage('complete');
-        onRefetch?.();
-    };
+        setAdjudicateStatus('success')
+        setStage('complete')
+        onRefetch?.()
+    }
 
     const handleClose = () => {
-        setStage('button');
-        setButtonVisible(true);
-        setAdjudicateStatus('idle');
-    };
+        setStage('button')
+        setButtonVisible(true)
+        setAdjudicateStatus('idle')
+    }
 
     const openConfirmation = () => {
-        setConfirmOpen(true);
-    };
+        setConfirmOpen(true)
+    }
 
     const renderStageContent = () => {
         switch (stage) {
             case 'button':
-                return buttonVisible && (
-                    <AdjudicateButton
-                        onClick={() => setStage('intro')}
-                        onClose={openConfirmation}
-                    />
-                );
+                return (
+                    buttonVisible && (
+                        <AdjudicateButton
+                            onClick={() => setStage('intro')}
+                            onClose={openConfirmation}
+                        />
+                    )
+                )
 
             case 'intro':
                 return (
@@ -169,7 +183,7 @@ export default function AdjudicateFlow({ reportData, onRefetch }: AdjudicateFlow
                         onNext={() => setStage('details')}
                         onClose={handleClose}
                     />
-                );
+                )
 
             case 'details':
                 return reportData ? (
@@ -178,10 +192,10 @@ export default function AdjudicateFlow({ reportData, onRefetch }: AdjudicateFlow
                         open={true}
                         onClose={handleClose}
                         onSubmit={(values: AdjudicateFormValues) => {
-                            handleAdjudicateComplete();
+                            handleAdjudicateComplete()
                         }}
                     />
-                ) : null;
+                ) : null
 
             case 'pending':
                 return (
@@ -189,25 +203,23 @@ export default function AdjudicateFlow({ reportData, onRefetch }: AdjudicateFlow
                         open={adjudicateStatus === 'pending'}
                         onClose={handleClose}
                     />
-                );
+                )
 
             case 'complete':
-                return <CompletionCard />;
+                return <CompletionCard />
 
             default:
-                return null;
+                return null
         }
-    };
+    }
 
     if (!reportData) {
-        return null;
+        return null
     }
 
     return (
         <>
-            <AnimatePresence>
-                {renderStageContent()}
-            </AnimatePresence>
+            <AnimatePresence>{renderStageContent()}</AnimatePresence>
 
             <ConfirmationDialog
                 open={confirmOpen}
@@ -220,11 +232,11 @@ export default function AdjudicateFlow({ reportData, onRefetch }: AdjudicateFlow
                 <AdjudicateFailure
                     open={true}
                     onClose={() => {
-                        setAdjudicateStatus('idle');
-                        handleClose();
+                        setAdjudicateStatus('idle')
+                        handleClose()
                     }}
                 />
             )}
         </>
-    );
+    )
 }
