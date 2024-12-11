@@ -5,7 +5,6 @@ import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { APP_ABI as abi } from '../src/config'
-import { postService } from '../src/services/PostService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
@@ -228,8 +227,7 @@ describe('POST /post', function () {
         // insert random amount of votes into db
         await insertVotes(db)
 
-        await postService.updateOrder(db)
-
+        // since already fetch from db, no need to update order here
         const posts = await express.get(`/api/post?page=1`).then((res) => {
             expect(res).to.have.status(200)
             return res.body
@@ -286,8 +284,6 @@ describe('POST /post', function () {
         const txHash = await post(express, userState, authentication)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
-        await postService.updateOrder(db)
-
         // one page will have 10 posts
         let posts = await express.get(`/api/post?page=1`).then((res) => {
             expect(res).to.have.status(200)
@@ -295,9 +291,10 @@ describe('POST /post', function () {
         })
 
         // every post is on-chain so the status must be 1
-        for (let i = 0; i < post.length; i++) {
+        for (let i = 0; i < posts.length; i++) {
             const post = posts[i]
             expect(post.status).equal(1)
+            expect(post.content).include('test content')
         }
 
         // second page will be empty
@@ -316,6 +313,19 @@ describe('POST /post', function () {
         })
 
         expect(offChainPost.status).equal(0)
+    })
+
+    it('should fetch posts by keyword', async function () {
+        let posts = await express.get(`/api/post?q=content`).then((res) => {
+            expect(res).to.have.status(200)
+            return res.body
+        })
+
+        for (let i = 0; i < posts.length; i++) {
+            const post = posts[i]
+            expect(post.status).equal(1)
+            expect(post.content).include('test content')
+        }
     })
 
     it('should fetch post failed with incorrect input', async function () {

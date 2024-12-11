@@ -107,10 +107,12 @@ describe('POST /api/report', function () {
                 }
             )
 
+            const testContent = 'test content'
             await express.get('/api/post/0').then((res) => {
                 expect(res).to.have.status(200)
                 const curPost = res.body as Post
                 expect(curPost.status).to.equal(1)
+                expect(curPost.content).to.equal(testContent)
             })
         }
 
@@ -173,7 +175,6 @@ describe('POST /api/report', function () {
             `/api/post/${postId}?status=${PostStatus.REPORTED}`
         )
         expect(afterReportResponse).to.have.status(200)
-        expect(afterReportResponse.body).to.not.have.property('content')
         expect(afterReportResponse.body).to.have.property(
             'status',
             PostStatus.REPORTED
@@ -190,7 +191,7 @@ describe('POST /api/report', function () {
             (post) => post.postId === postId
         )
         expect(reportedPost).to.exist
-        expect(reportedPost).to.not.have.property('content')
+        expect(reportedPost).to.have.property('content', 'test content')
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
     })
 
@@ -976,7 +977,7 @@ describe('POST /api/report', function () {
         await express.get(`/api/post/${report.objectId}`).then((res) => {
             const curPost = res.body as Post
             expect(curPost.status).to.equal(PostStatus.DISAGREED)
-            expect(curPost).to.not.have.property('content')
+            expect(curPost.content).equal('test content')
         })
     })
 
