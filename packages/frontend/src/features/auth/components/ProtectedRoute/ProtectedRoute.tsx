@@ -28,7 +28,7 @@ export default function ProtectedRoute() {
         if (!isLoggedIn) {
             navigate(PATHS.LAUNCH)
         }
-    }, 100);
+    }, 100)
 
     const [, , resetCheckIsSignedUp] = useTimeoutFn(() => {
         if (isSigningUp || isCheckingSignedUp) {
@@ -38,7 +38,7 @@ export default function ProtectedRoute() {
             logout()
             navigate(PATHS.LAUNCH)
         }
-    }, 100);
+    }, 100)
 
     useEffect(() => {
         if (location.pathname) {
