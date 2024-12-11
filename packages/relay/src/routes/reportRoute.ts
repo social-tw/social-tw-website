@@ -102,4 +102,31 @@ export default (
             res.json(reportCategories)
         }),
     )
+
+    app.get(
+        '/api/report/:id',
+        errorHandler(createCheckReputationMiddleware(synchronizer)),
+        errorHandler(async (req: Request, res: Response) => {
+            const id = req.params.id
+            if (!Validator.isValidNumber(id)) throw Errors.INVALID_REPORT_ID()
+
+            const { publicSignals, proof } = req.query
+            if (!publicSignals) throw Errors.INVALID_PUBLIC_SIGNAL()
+            if (!proof) throw Errors.INVALID_PROOF()
+
+            await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                JSON.parse(publicSignals as string) as PublicSignals,
+                JSON.parse(proof as string) as Groth16Proof,
+                synchronizer,
+            )
+
+            const report = await reportService.fetchSingleReportWithDetails(
+                id,
+                db,
+            )
+            if (!report) throw Errors.REPORT_NOT_EXIST()
+
+            res.json(report)
+        }),
+    )
 }
