@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams} from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { ReportService } from '@/features/core/services/ReportService/ReportService'
