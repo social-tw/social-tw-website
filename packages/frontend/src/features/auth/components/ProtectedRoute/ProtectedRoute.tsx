@@ -23,6 +23,7 @@ export default function ProtectedRoute() {
 
     const [, , resetCheckIsLoggedIn] = useTimeoutFn(() => {
         if (isLoggingIn) {
+            resetCheckIsLoggedIn()
             return
         }
         if (!isLoggedIn) {
@@ -32,6 +33,7 @@ export default function ProtectedRoute() {
 
     const [, , resetCheckIsSignedUp] = useTimeoutFn(() => {
         if (isSigningUp || isCheckingSignedUp) {
+            resetCheckIsSignedUp()
             return
         }
         if (isLoggedIn && !isSignedUp) {
