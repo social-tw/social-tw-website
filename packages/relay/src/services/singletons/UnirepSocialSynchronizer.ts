@@ -37,7 +37,7 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             unirepAddress: string
             genesisBlock?: number
         },
-        unirepSocialContract: ethers.Contract
+        unirepSocialContract: ethers.Contract,
     ) {
         tempUnirepSocialContract = unirepSocialContract
         super(config)
@@ -133,8 +133,8 @@ export class UnirepSocialSynchronizer extends Synchronizer {
                 ? 2
                 : 1
             : content
-            ? 1
-            : 2
+              ? 1
+              : 2
 
         // Use upsert to either create a new comment or update an existing one
         db.upsert('Comment', {
@@ -249,11 +249,11 @@ export class UnirepSocialSynchronizer extends Synchronizer {
             const adjudicators = report.adjudicatorsNullifier || []
             const agreeVotes = adjudicators.filter(
                 (adj: Adjudicator) =>
-                    adj.adjudicateValue === AdjudicateValue.AGREE
+                    adj.adjudicateValue === AdjudicateValue.AGREE,
             ).length
             const disagreeVotes = adjudicators.filter(
                 (adj: Adjudicator) =>
-                    adj.adjudicateValue === AdjudicateValue.DISAGREE
+                    adj.adjudicateValue === AdjudicateValue.DISAGREE,
             ).length
             // If the current epoch > reportEpoch AND sum of votes > threshold AND vote value > 0
             if (

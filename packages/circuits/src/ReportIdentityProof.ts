@@ -23,7 +23,7 @@ export class ReportIdentityProof extends BaseProof {
     constructor(
         publicSignals: (bigint | string)[],
         proof: Groth16Proof,
-        prover?: Prover
+        prover?: Prover,
     ) {
         super(publicSignals, proof, prover)
         this.reportNullifier = this.publicSignals[this.input.reportNullifier]

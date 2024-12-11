@@ -6,7 +6,7 @@ export async function post(
     server: ChaiHttp.Agent,
     userState: UserState,
     authentication: string,
-    nonce?: number
+    nonce?: number,
 ): Promise<any> {
     const testContent = 'test content'
 
@@ -23,7 +23,7 @@ export async function post(
                 content: testContent,
                 publicSignals: epochKeyProof.publicSignals,
                 proof: epochKeyProof.proof,
-            })
+            }),
         )
 
     expect(res).to.have.status(200)

@@ -35,7 +35,7 @@ describe('Reputation', () => {
         await insertReputationHistory(db)
 
         const res = await express.get(
-            `/api/reputation/history?from_epoch=2&to_epoch=5`
+            `/api/reputation/history?from_epoch=2&to_epoch=5`,
         )
         const reputations = res.body
 

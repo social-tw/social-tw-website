@@ -17,7 +17,7 @@ import {
 const checkSignals = (signals, proof) => {
     expect(signals.epochKey.toString()).equal(proof.epochKey.toString())
     expect(signals.stateTreeRoot.toString()).equal(
-        proof.stateTreeRoot.toString()
+        proof.stateTreeRoot.toString(),
     )
     expect(signals.nonce.toString()).equal(proof.nonce.toString())
     expect(signals.epoch.toString()).equal(proof.epoch.toString())
@@ -67,7 +67,7 @@ describe('Claim Daily Login Reputation Test', function () {
             repVerifierHelper = await deployVerifierHelper(
                 unirep.address,
                 deployer,
-                Circuit.reputation
+                Circuit.reputation,
             )
 
             user = createRandomUserIdentity()
@@ -83,7 +83,7 @@ describe('Claim Daily Login Reputation Test', function () {
                     publicSignals,
                     proof,
                     user.hashUserId,
-                    false
+                    false,
                 )
                 await app
                     .userRegistry(user.hashUserId)
@@ -101,7 +101,7 @@ describe('Claim Daily Login Reputation Test', function () {
                 app.address,
                 epoch,
                 0,
-                chainId
+                chainId,
             )
             const field = userState.sync.settings.sumFieldCount
 
@@ -146,7 +146,7 @@ describe('Claim Daily Login Reputation Test', function () {
 
             const signals = await repVerifierHelper.verifyAndCheck(
                 proof.publicSignals,
-                proof.proof
+                proof.proof,
             )
             checkSignals(signals, proof)
 
@@ -182,7 +182,7 @@ describe('Claim Daily Login Reputation Test', function () {
         const { publicSignals, proof } = await userState.genEpochKeyProof()
 
         await expect(
-            app.connect(notOwner).claimDailyLoginRep(publicSignals, proof)
+            app.connect(notOwner).claimDailyLoginRep(publicSignals, proof),
         ).to.be.reverted
     })
 
@@ -208,7 +208,7 @@ describe('Claim Daily Login Reputation Test', function () {
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId
+            attesterId,
         )
 
         const { publicSignals, proof } = await genEpochKeyProof({
@@ -223,7 +223,7 @@ describe('Claim Daily Login Reputation Test', function () {
         })
 
         await expect(
-            app.claimDailyLoginRep(publicSignals, proof)
+            app.claimDailyLoginRep(publicSignals, proof),
         ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
         userState.stop()
