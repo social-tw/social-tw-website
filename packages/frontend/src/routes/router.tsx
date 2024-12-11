@@ -1,4 +1,5 @@
 import { PATHS } from '@/constants/paths'
+import { ProtectedRoute } from '@/features/auth'
 import { ErrorBoundary, ResetStorage } from '@/features/shared'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import AboutPage from './app/about/page'
@@ -21,7 +22,6 @@ import LaunchPage from './start/launch/page'
 import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
-import { ProtectedRoute } from '@/features/auth'
 import ReportDetailsPage from './app/reports/[id]/page'
 
 const router = createBrowserRouter([
@@ -97,15 +97,15 @@ const router = createBrowserRouter([
                         path: PATHS.HISTORY,
                         element: <HistoryPage />,
                     },
+                    {
+                        path: PATHS.NOTIFICATION,
+                        element: <NotificationPage />,
+                    },
                 ],
             },
             {
                 path: PATHS.ABOUT_US,
                 element: <AboutPage />,
-            },
-            {
-                path: PATHS.NOTIFICATION,
-                element: <NotificationPage />,
             },
             {
                 path: '/reports/:id',

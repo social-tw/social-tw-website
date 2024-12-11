@@ -7,6 +7,9 @@ export function isMyEpochKey(
     epoch: number,
     epochKey: string,
 ) {
+    if (!userState || !userState.sync) {
+        return false
+    }
     const numEpochKeyNoncePerEpoch =
         userState.sync.settings.numEpochKeyNoncePerEpoch
 
