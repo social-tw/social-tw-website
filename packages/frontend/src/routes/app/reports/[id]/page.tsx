@@ -1,33 +1,52 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { ReportService } from '@/features/core/services/ReportService/ReportService'
 import dayjs from 'dayjs'
+import { ReportStatus } from '@/types/Report'
+import { useFetchReportCategories } from '@/features/reporting'
 
 const ReportDetailsPage: React.FC = () => {
     const { id } = useParams()
-    const navigate = useNavigate()
-
+    const { reportCategories } = useFetchReportCategories()
     const { data: report } = useQuery({
         queryKey: [QueryKeys.SingleReport, id],
         queryFn: async () => {
             if (!id) return undefined
+
             const reportService = new ReportService()
             return reportService.fetchReportById(id)
         },
     })
 
+    const reportCategoryLabel = useMemo(() => {
+        if (!report) return ''
+        const reportCategory = reportCategories.find(
+            (c) => c.number === report?.category,
+        )
+        return reportCategory?.description ?? ''
+    }, [report, reportCategories])
+
     if (!report) return null
 
     const getJudgementResult = () => {
-        if (!report.adjudicatorsNullifier) return '評判中'
-        const agreeCount = report.adjudicatorsNullifier.filter(
-            (a) => a.adjudicateValue === 1,
-        ).length
-        const totalCount = report.adjudicatorsNullifier.length
-        if (totalCount === 0) return '評判中'
-        return agreeCount > totalCount / 2 ? '檢舉通過' : '檢舉不通過'
+        if (!report) return ''
+
+        switch (report.status) {
+            case ReportStatus.VOTING:
+                return '評判中'
+            case ReportStatus.WAITING_FOR_TRANSACTION:
+            case ReportStatus.COMPLETED:
+                const agreeCount =
+                    report.adjudicatorsNullifier?.filter(
+                        (a) => a.adjudicateValue === 1,
+                    ).length || 0
+                const totalCount = report.adjudicatorsNullifier?.length || 0
+                return agreeCount > totalCount / 2 ? '檢舉通過' : '檢舉不通過'
+            default:
+                return '評判中'
+        }
     }
 
     return (
@@ -62,7 +81,7 @@ const ReportDetailsPage: React.FC = () => {
                         <div>
                             <p className="font-bold">原因分類：</p>
                             <p className="text-white/80">
-                                張貼商業廣告內容與連結、激請碼或內含個人代碼的激請連結等。
+                                {reportCategoryLabel}
                             </p>
                         </div>
                         <div>
