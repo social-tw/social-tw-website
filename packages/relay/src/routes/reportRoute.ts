@@ -6,7 +6,6 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
-import { postService } from '../services/PostService'
 import ProofHelper from '../services/utils/ProofHelper'
 import Validator from '../services/utils/Validator'
 import { AdjudicateValue, Errors } from '../types'
@@ -36,8 +35,6 @@ export default (
             const reportId = await reportService.createReport(db, reportData)
             // 3. Adjust Post / Comment Status
             await reportService.updateObjectStatus(db, reportData)
-            // 4. Update post order
-            await postService.updateOrder(db)
             res.json({ reportId })
         })
     )

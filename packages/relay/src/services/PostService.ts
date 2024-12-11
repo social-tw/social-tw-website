@@ -2,12 +2,7 @@ import { DB } from 'anondb'
 import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
-import {
-    DAY_DIFF_STAEMENT,
-    DB_PATH,
-    LOAD_POST_COUNT,
-    UPDATE_POST_ORDER_INTERVAL,
-} from '../config'
+import { DAY_DIFF_STAEMENT, DB_PATH, LOAD_POST_COUNT } from '../config'
 import { Errors } from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -16,23 +11,12 @@ import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class PostService {
-    // TODO: modify the cache data structure to avoid memory leak
-    private cache: Post[] = []
-
-    async start(db: DB): Promise<void> {
-        const rows = await db.count('Post', {})
-        if (rows > 0) {
-            // fetch all posts during the initalization
-            await this.updateOrder(db)
-        }
-
-        // update the order of post table in the given interval
-        setInterval(async () => {
-            await this.updateOrder(db)
-        }, UPDATE_POST_ORDER_INTERVAL)
-    }
-
-    async updateOrder(db: DB): Promise<void> {
+    async fetchOrderedPosts(
+        db: DB,
+        offset: number,
+        content: string | undefined
+    ): Promise<Post[]> {
+        //  TODO i think this sql is not really maintainable for long term, should consider to refactor it
         //      if user just posted, get the first ten result from db
         //      pop last one and insert new post to the first element
 
@@ -94,7 +78,12 @@ export class PostService {
                 GROUP BY
                     postId
             ) AS c ON p.postId = c.postId
-            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED}, ${PostStatus.DISAGREED})
+            WHERE p.status IN (${PostStatus.ON_CHAIN}, ${
+            PostStatus.REPORTED
+        }, ${PostStatus.DISAGREED}) 
+            
+            ${content ? `AND p.content LIKE '%${content}%'` : ''}
+            
             ORDER BY 
                 CASE
                     WHEN ${DAY_DIFF_STAEMENT} <= 2 THEN 0
@@ -109,72 +98,50 @@ export class PostService {
                     ELSE COALESCE(c.daily_comments, 0)
                 END DESC,
                 CAST(p.publishedAt AS INTEGER) DESC
+            LIMIT ${LOAD_POST_COUNT} OFFSET ${offset}
         `
         // anondb does't provide add column api
         // use lower level db api directly from postgres / sqlite
         // for the complex sql statement
         if (DB_PATH.startsWith('postgres')) {
             const pg = db as PostgresConnector
-            this.cache = (await pg.db.query(statement)).rows
+            return (await pg.db.query(statement)).rows
         } else {
             const sq = db as SQLiteConnector
-            this.cache = await sq.db.all(statement)
+            return await sq.db.all(statement)
         }
-    }
-
-    private filterPostContent(post: Post): Partial<Post> {
-        if (post.status === PostStatus.ON_CHAIN) {
-            return post
-        } else if (
-            post.status === PostStatus.REPORTED ||
-            post.status === PostStatus.DISAGREED
-        ) {
-            const { content, ...restOfPost } = post
-            return restOfPost
-        }
-        return {}
     }
 
     // returns the LOAD_POST_COUNT posts of the given page
     // page 1
     // start = (1 - 1) * LOAD_POST_COUNT = 0 ... start index
     // end = page + LOAD_POST_COUNT ... end index
-    // slice(page, end) ... the end element will be excluded
     async fetchPosts(
         epks: string[] | undefined,
         page: number,
+        keyword: string | undefined,
         db: DB
     ): Promise<Partial<Post>[] | null> {
         let posts: Post[]
         if (!epks) {
-            const start = (page - 1) * LOAD_POST_COUNT
-            if (this.cache.length == 0) {
-                const statement = `
-                    SELECT * FROM Post 
-                    WHERE status IN (${PostStatus.ON_CHAIN}, ${PostStatus.REPORTED}, ${PostStatus.DISAGREED})
-                    ORDER BY CAST(publishedAt AS INTEGER) DESC 
-                    LIMIT ${LOAD_POST_COUNT} OFFSET ${start}
-                `
-                if (DB_PATH.startsWith('postgres')) {
-                    const pg = db as PostgresConnector
-                    posts = (await pg.db.query(statement)).rows
-                } else {
-                    const sq = db as SQLiteConnector
-                    posts = await sq.db.all(statement)
-                }
-            } else {
-                posts = this.cache.slice(start, start + LOAD_POST_COUNT)
-            }
+            posts = await this.fetchOrderedPosts(
+                db,
+                (page - 1) * LOAD_POST_COUNT,
+                keyword
+            )
         } else {
+            let whereClause = {
+                epochKey: epks,
+                status: [
+                    PostStatus.ON_CHAIN,
+                    PostStatus.REPORTED,
+                    PostStatus.DISAGREED,
+                ],
+                content: keyword ? { contains: keyword } : undefined,
+            }
+
             posts = await db.findMany('Post', {
-                where: {
-                    epochKey: epks,
-                    status: [
-                        PostStatus.ON_CHAIN,
-                        PostStatus.REPORTED,
-                        PostStatus.DISAGREED,
-                    ],
-                },
+                where: whereClause,
                 limit: LOAD_POST_COUNT,
             })
         }
@@ -183,11 +150,11 @@ export class PostService {
 
         return await Promise.all(
             posts.map(async (post) => {
+                // TODO should remove loop sql query and replace it as join
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-                const filteredPost = this.filterPostContent(post)
-                return { ...filteredPost, votes }
+                return { ...post, votes }
             })
         )
     }
@@ -196,7 +163,7 @@ export class PostService {
         postId: string,
         db: DB,
         status?: PostStatus
-    ): Promise<Partial<Post> | null> {
+    ): Promise<Post | null> {
         const whereClause: any = { postId }
         if (status !== undefined) {
             whereClause.status = status
@@ -214,13 +181,11 @@ export class PostService {
 
         if (!post) return null
 
-        const filteredPost = this.filterPostContent(post)
-
-        filteredPost.votes = await db.findMany('Vote', {
+        post.votes = await db.findMany('Vote', {
             where: { postId },
         })
 
-        return filteredPost
+        return post
     }
 
     async fetchMyAccountPosts(
@@ -228,7 +193,7 @@ export class PostService {
         sortKey: 'publishedAt' | 'voteSum',
         direction: 'asc' | 'desc',
         db: DB
-    ): Promise<Partial<Post>[] | null> {
+    ): Promise<Post[] | null> {
         const posts = await db.findMany('Post', {
             where: {
                 epochKey: epks,
@@ -248,11 +213,11 @@ export class PostService {
 
         return await Promise.all(
             posts.map(async (post) => {
+                // TODO should remove loop sql query and replace it as join
                 const votes = await db.findMany('Vote', {
                     where: { postId: post.postId },
                 })
-                const filteredPost = this.filterPostContent(post)
-                return { ...filteredPost, votes }
+                return { ...post, votes }
             })
         )
     }
