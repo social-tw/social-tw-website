@@ -11,17 +11,13 @@ import { RelayApiService } from '../RelayApiService/RelayApiService'
 export class PostService extends RelayApiService {
     async fetchPosts(page: number, query?: string) {
         const client = this.getClient()
+        const params = new URLSearchParams({ page: page.toString() })
+        if (query) {
+            params.append('q', query)
+        }
         const response = await client.get<FetchPostsResponse>(
-            `/post?page=${page}`,
+            `/post?${params.toString()}`,
         )
-        //TODO: After relay update change to
-        // const params = new URLSearchParams({ page: page.toString() })
-        // if (query) {
-        //     params.append('query', query)
-        // }
-        // const response = await client.get<FetchPostsResponse>(
-        //     `/post?page=${page}&query={query}`,
-        // )
         return response.data
     }
 

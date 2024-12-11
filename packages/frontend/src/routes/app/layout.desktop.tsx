@@ -1,6 +1,5 @@
 import LogoImage from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
-import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 import { PATHS } from '@/constants/paths'
 import { ErrorDialog, SignupPending } from '@/features/auth'
 import { ActionWidget, UITour } from '@/features/core'
