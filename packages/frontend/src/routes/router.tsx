@@ -22,6 +22,7 @@ import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
 import { ProtectedRoute } from '@/features/auth'
+import ReportDetailsPage from './app/reports/[id]/page'
 
 const router = createBrowserRouter([
     {
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
             {
                 path: PATHS.NOTIFICATION,
                 element: <NotificationPage />,
+            },
+            {
+                path: '/reports/:id',
+                element: <ReportDetailsPage />,
             },
         ],
     },

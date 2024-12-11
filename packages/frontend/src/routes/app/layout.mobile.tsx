@@ -95,6 +95,11 @@ function MobileLayoutHeader() {
 }
 
 function getHeaderTextByPath(path: string): string {
+    const reportMatch = /^\/reports\/[^/]+$/.test(path)
+    if (reportMatch) {
+        return '檢舉評判結果詳情'
+    }
+
     switch (path) {
         case PATHS.ABOUT_US: {
             return '平台說明'
