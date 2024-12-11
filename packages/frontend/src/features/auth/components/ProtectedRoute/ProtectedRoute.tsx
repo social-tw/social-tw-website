@@ -1,11 +1,13 @@
 import { PATHS } from '@/constants/paths'
 import { AuthErrorDialog, useAuthStatus, useLogout } from '@/features/auth'
-import { useIsFirstRender } from '@uidotdev/usehooks'
 import { useEffect } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useTimeoutFn } from 'react-use'
 import { useAuthStore } from '../../stores/authStore'
-import { Outlet, useNavigate } from 'react-router-dom'
 
 export default function ProtectedRoute() {
+    const location = useLocation()
+
     const navigate = useNavigate()
 
     const {
@@ -18,34 +20,37 @@ export default function ProtectedRoute() {
 
     const { logout } = useLogout()
     const { errorMessage, setErrorMessage } = useAuthStore()
-    const isFirstRender = useIsFirstRender()
 
-    useEffect(() => {
-        if (isFirstRender || isLoggingIn) {
+    const [, , resetCheckIsLoggedIn] = useTimeoutFn(() => {
+        if (isLoggingIn) {
             return
         }
         if (!isLoggedIn) {
             navigate(PATHS.LAUNCH)
         }
-    }, [isFirstRender, isLoggedIn, isLoggingIn, navigate])
+    }, 100);
 
-    useEffect(() => {
-        if (isFirstRender || isSigningUp || isCheckingSignedUp) {
+    const [, , resetCheckIsSignedUp] = useTimeoutFn(() => {
+        if (isSigningUp || isCheckingSignedUp) {
             return
         }
         if (isLoggedIn && !isSignedUp) {
             logout()
             navigate(PATHS.LAUNCH)
         }
-    }, [
-        isCheckingSignedUp,
-        isFirstRender,
-        isLoggedIn,
-        isSignedUp,
-        isSigningUp,
-        logout,
-        navigate,
-    ])
+    }, 100);
+
+    useEffect(() => {
+        if (location.pathname) {
+            resetCheckIsLoggedIn()
+        }
+    }, [location.pathname, resetCheckIsLoggedIn])
+
+    useEffect(() => {
+        if (location.pathname) {
+            resetCheckIsSignedUp()
+        }
+    }, [location.pathname, resetCheckIsSignedUp])
 
     return (
         <>
