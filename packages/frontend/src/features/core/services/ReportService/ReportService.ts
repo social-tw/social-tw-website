@@ -31,9 +31,8 @@ export class ReportService extends RelayApiService {
 
     async fetchReportCategories() {
         const client = this.getClient()
-        const response = await client.get<RelayRawReportCategory[]>(
-            `/report/category`,
-        )
+        const response =
+            await client.get<RelayRawReportCategory[]>(`/report/category`)
         return response.data
     }
 
@@ -128,6 +127,24 @@ export class ReportService extends RelayApiService {
             `/report?${searchParams.toString()}`,
         )
 
+        return response.data
+    }
+
+    async fetchReportById(reportId: string) {
+        const client = this.getAuthClient()
+        const userState = this.getUserState()
+        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+
+        const searchParams = new URLSearchParams()
+        searchParams.append(
+            'publicSignals',
+            JSON.stringify(stringifyBigInts(publicSignals)),
+        )
+        searchParams.append('proof', JSON.stringify(stringifyBigInts(proof)))
+
+        const response = await client.get<ReportHistory>(
+            `/report/${reportId}?${searchParams.toString()}`,
+        )
         return response.data
     }
 }
