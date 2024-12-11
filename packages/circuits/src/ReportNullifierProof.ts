@@ -31,15 +31,15 @@ export class ReportNullifierProof extends BaseProof {
     constructor(
         _publicSignals: PublicSignals,
         _proof: Groth16Proof,
-        prover?: Prover,
+        prover?: Prover
     ) {
         super(_publicSignals, _proof, prover)
         this.reportNullifier = BigInt(
-            _publicSignals[this.input.reportNullifier],
+            _publicSignals[this.input.reportNullifier]
         )
         this.reportId = BigInt(_publicSignals[this.input.reportId])
         this.currentEpochKey = BigInt(
-            _publicSignals[this.output.currentEpochKey],
+            _publicSignals[this.output.currentEpochKey]
         )
         this.control = BigInt(this.publicSignals[this.output.control])
 

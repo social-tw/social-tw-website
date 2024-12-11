@@ -31,7 +31,7 @@ export const decodeEpochKeyControl = (control: bigint): EpochKeyControl => {
 export const shiftBits = (
     data: bigint,
     shiftBits: bigint,
-    variableBits: bigint,
+    variableBits: bigint
 ): bigint => {
     return (data >> shiftBits) & ((BigInt(1) << variableBits) - BigInt(1))
 }

@@ -35,7 +35,7 @@ describe('Claim Report Negative Reputation Test', function () {
     const reporterPunishment: number = 1
     const circuit = 'reportNonNullifierProof'
     const identifier = genVHelperIdentifier(
-        'reportNonNullifierProofVerifierHelper',
+        'reportNonNullifierProofVerifierHelper'
     )
     let usedPublicSig: any
     let usedProof: any
@@ -71,7 +71,7 @@ describe('Claim Report Negative Reputation Test', function () {
                 posterPubSig,
                 posterPf,
                 poster.hashUserId,
-                false,
+                false
             )
             await app
                 .userRegistry(poster.hashUserId)
@@ -87,7 +87,7 @@ describe('Claim Report Negative Reputation Test', function () {
                 reporterPubSig,
                 reporterPf,
                 reporter.hashUserId,
-                false,
+                false
             )
             await app
                 .userRegistry(reporter.hashUserId)
@@ -151,7 +151,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNonNullifierCircuitInputs,
+            reportNonNullifierCircuitInputs
         )
 
         usedPublicSig = publicSignals
@@ -161,7 +161,7 @@ describe('Claim Report Negative Reputation Test', function () {
             usedPublicSig,
             usedProof,
             identifier,
-            posterPunishment,
+            posterPunishment
         )
         await expect(tx)
             .to.emit(app, 'ClaimNegRep')
@@ -184,8 +184,8 @@ describe('Claim Report Negative Reputation Test', function () {
                     usedPublicSig,
                     usedProof,
                     identifier,
-                    posterPunishment,
-                ),
+                    posterPunishment
+                )
         ).to.be.reverted
     })
 
@@ -195,8 +195,8 @@ describe('Claim Report Negative Reputation Test', function () {
                 usedPublicSig,
                 usedProof,
                 identifier,
-                posterPunishment,
-            ),
+                posterPunishment
+            )
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
 
@@ -240,7 +240,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNonNullifierCircuitInputs,
+            reportNonNullifierCircuitInputs
         )
 
         usedPublicSig = publicSignals
@@ -250,7 +250,7 @@ describe('Claim Report Negative Reputation Test', function () {
             usedPublicSig,
             usedProof,
             identifier,
-            reporterPunishment,
+            reporterPunishment
         )
         await expect(tx)
             .to.emit(app, 'ClaimNegRep')
@@ -270,8 +270,8 @@ describe('Claim Report Negative Reputation Test', function () {
                 usedPublicSig,
                 usedProof,
                 identifier,
-                posterPunishment,
-            ),
+                posterPunishment
+            )
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
 
@@ -299,7 +299,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNonNullifierCircuitInputs,
+            reportNonNullifierCircuitInputs
         )
         const flattenedProof = flattenProof(proof)
         flattenedProof[0] = BigInt(0)
@@ -309,8 +309,8 @@ describe('Claim Report Negative Reputation Test', function () {
                 publicSignals,
                 flattenedProof,
                 identifier,
-                posterPunishment,
-            ),
+                posterPunishment
+            )
         ).to.be.reverted
 
         posterState.stop()
@@ -340,7 +340,7 @@ describe('Claim Report Negative Reputation Test', function () {
 
         const { publicSignals, proof } = await genProofAndVerify(
             circuit,
-            reportNonNullifierCircuitInputs,
+            reportNonNullifierCircuitInputs
         )
 
         const flattenedProof = flattenProof(proof)
@@ -350,8 +350,8 @@ describe('Claim Report Negative Reputation Test', function () {
                 publicSignals,
                 flattenedProof,
                 identifier,
-                posterPunishment,
-            ),
+                posterPunishment
+            )
         ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
         posterState.stop()
@@ -388,7 +388,7 @@ describe('Claim Report Negative Reputation Test', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n',
+                'Error: Assert Failed. Error in template ReportNonNullifierProof_79 line: 42\n'
             )
         }
 

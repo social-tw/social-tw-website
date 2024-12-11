@@ -6,12 +6,12 @@ import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSyn
 export default (
     app: Express,
     _: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.get('/api/config', async (_, res) => {
         const epochLength =
             await synchronizer.unirepContract.attesterEpochLength(
-                BigInt(APP_ADDRESS).toString(),
+                BigInt(APP_ADDRESS).toString()
             )
 
         res.json({

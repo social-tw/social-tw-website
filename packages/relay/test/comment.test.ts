@@ -84,7 +84,7 @@ describe('COMMENT /comment', function () {
         const helia = await createHelia()
         const testContentHash = await IpfsHelper.createIpfsContent(
             helia,
-            'create comment',
+            'create comment'
         )
         let epochKeyProof = await userState.genEpochKeyProof({
             nonce: 1,
@@ -112,7 +112,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -159,7 +159,7 @@ describe('COMMENT /comment', function () {
 
     it('should get correct records from CommentHistory', async function () {
         const res = await express.get(
-            '/api/comment/commentHistory?from_epoch=0&to_epoch=5',
+            '/api/comment/commentHistory?from_epoch=0&to_epoch=5'
         )
         expect(res).to.have.status(200)
         expect(res.body).to.be.an('array').that.has.lengthOf(1)
@@ -184,7 +184,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -202,7 +202,7 @@ describe('COMMENT /comment', function () {
         const tree = await sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
-            attesterId,
+            attesterId
         )
         const id = userState.id
         const data = randomData()
@@ -227,7 +227,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -255,7 +255,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -280,7 +280,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
@@ -305,7 +305,7 @@ describe('COMMENT /comment', function () {
                     postId: 0,
                     publicSignals: epochKeyLiteProof.publicSignals,
                     proof: epochKeyLiteProof.proof,
-                }),
+                })
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -325,7 +325,7 @@ describe('COMMENT /comment', function () {
 
     it('should revert with invalid epoch range', async function () {
         const res = await express.get(
-            '/api/comment/commentHistory?from_epoch=2&to_epoch=1',
+            '/api/comment/commentHistory?from_epoch=2&to_epoch=1'
         )
         expect(res).to.have.status(400)
         expect(res.body.error).to.equal('Invalid epoch range')
@@ -333,11 +333,11 @@ describe('COMMENT /comment', function () {
 
     it('should return 404 when no comments found in the given epoch range', async function () {
         const res = await express.get(
-            '/api/comment/commentHistory?from_epoch=100&to_epoch=101',
+            '/api/comment/commentHistory?from_epoch=100&to_epoch=101'
         )
         expect(res).to.have.status(404)
         expect(res.body.error).to.equal(
-            'No comment history found for the given epoch range',
+            'No comment history found for the given epoch range'
         )
     })
 })

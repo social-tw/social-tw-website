@@ -9,7 +9,7 @@ export async function airdropReputation(
     userState: UserState,
     unirep: Unirep,
     express: any,
-    provider: any,
+    provider: any
 ): Promise<void> {
     const epoch = await userState.sync.loadCurrentEpoch()
 

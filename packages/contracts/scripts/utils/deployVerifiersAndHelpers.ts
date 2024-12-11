@@ -11,14 +11,14 @@ export async function deploySingleContract(
     abi: ethers.ContractInterface,
     bytecode: string,
     deployer: ethers.Signer,
-    constructorArgs: any[] = [], // default value is empty
+    constructorArgs: any[] = [] // default value is empty
 ): Promise<ethers.Contract> {
     try {
         // Create a new ContractFactory instance
         const ContractFactory = new ethers.ContractFactory(
             abi,
             bytecode,
-            deployer,
+            deployer
         )
 
         // TODO: uncomment this line after
@@ -44,19 +44,19 @@ export async function deployVerifiers(deployer: ethers.Signer) {
     const dataProofVerifier = await deploySingleContract(
         DataProofVerifier.abi,
         DataProofVerifier.bytecode,
-        deployer,
+        deployer
     )
     /// deploy reportNonNullifierProofVerifier
     const reportNonNullifierProofVerifier = await deploySingleContract(
         ReportNonNullifierProofVerifier.abi,
         ReportNonNullifierProofVerifier.bytecode,
-        deployer,
+        deployer
     )
     /// deploy reportNullifierProofVerifier
     const reportNullifierProofVerifier = await deploySingleContract(
         ReportNullifierProofVerifier.abi,
         ReportNullifierProofVerifier.bytecode,
-        deployer,
+        deployer
     )
 
     return {
@@ -72,7 +72,7 @@ export async function deployVHelpers(
     verifiers: {
         reportNonNullifierProofVerifier: any
         reportNullifierProofVerifier: any
-    },
+    }
 ) {
     const reportNonNullifierProofVerifier =
         verifiers.reportNonNullifierProofVerifier
@@ -83,7 +83,7 @@ export async function deployVHelpers(
         ReportNonNullifierVHelper.abi,
         ReportNonNullifierVHelper.bytecode,
         deployer,
-        [unirep, reportNonNullifierProofVerifier],
+        [unirep, reportNonNullifierProofVerifier]
     )
 
     /// deploy reportNullifierProofVHelper
@@ -91,7 +91,7 @@ export async function deployVHelpers(
         ReportNullifierVHelper.abi,
         ReportNullifierVHelper.bytecode,
         deployer,
-        [unirep, reportNullifierProofVerifier],
+        [unirep, reportNullifierProofVerifier]
     )
 
     return {

@@ -43,7 +43,7 @@ async function main() {
     app.use(
         cors({
             origin: CLIENT_URL,
-        }),
+        })
     )
 
     const httpServer = createServer(app)
@@ -64,7 +64,7 @@ async function main() {
             unirepAddress: UNIREP_ADDRESS,
             genesisBlock: parseInt(GENESIS_BLOCK),
         },
-        new ethers.Contract(APP_ADDRESS, APP_ABI, provider),
+        new ethers.Contract(APP_ADDRESS, APP_ABI, provider)
     )
 
     // reset all data if reset flag is true and evn is not production

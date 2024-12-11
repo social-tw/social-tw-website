@@ -82,7 +82,7 @@ describe('CheckReputation', function () {
 
         const { isValid, publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
-            circuitInputs,
+            circuitInputs
         )
 
         const authentication = jsonToBase64({
@@ -122,7 +122,7 @@ describe('CheckReputation', function () {
 
         const { isValid, publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
-            circuitInputs,
+            circuitInputs
         )
 
         const authentication = jsonToBase64({
@@ -145,7 +145,7 @@ describe('CheckReputation', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
 
         expect(res).to.have.status(400)
@@ -174,7 +174,7 @@ describe('CheckReputation', function () {
 
         const { isValid, publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
-            circuitInputs,
+            circuitInputs
         )
 
         proof.pi_a[0] = '0'
@@ -198,7 +198,7 @@ describe('CheckReputation', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
 
         expect(res).to.have.status(400)
@@ -221,7 +221,7 @@ describe('CheckReputation', function () {
                     content: testContent,
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
 
         expect(res).to.have.status(400)

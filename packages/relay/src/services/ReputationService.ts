@@ -13,7 +13,7 @@ export class ReputationService {
     async findManyReputationHistory(
         fromEpoch: number,
         toEpoch: number,
-        db: DB,
+        db: DB
     ): Promise<ReputationHistory[] | null> {
         const reputations = await db.findMany('ReputationHistory', {
             where: {
@@ -37,17 +37,17 @@ export class ReputationService {
         publicSignals: PublicSignals,
         proof: Groth16Proof,
         db: DB,
-        synchronizer: UnirepSocialSynchronizer,
+        synchronizer: UnirepSocialSynchronizer
     ) {
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
-            synchronizer,
+            synchronizer
         )
 
         const txHash = await TransactionManager.callContract(
             'claimDailyLoginRep',
-            [epochKeyProof.publicSignals, epochKeyProof.proof],
+            [epochKeyProof.publicSignals, epochKeyProof.proof]
         )
 
         db.create('ReputationHistory', {

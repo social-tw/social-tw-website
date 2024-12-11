@@ -21,7 +21,7 @@ export const randomData = () => [
         .map(
             () =>
                 poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** BigInt(253),
+                BigInt(2) ** BigInt(253)
         ),
 ]
 
@@ -52,7 +52,7 @@ export async function genEpochKeyProof(config: {
         {
             data: [],
         },
-        config,
+        config
     )
     const data = [..._data, ...Array(FIELD_COUNT - _data.length).fill(0)]
     const _proof = tree.createProof(leafIndex)
@@ -70,13 +70,13 @@ export async function genEpochKeyProof(config: {
     }
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKey,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }
@@ -125,7 +125,7 @@ export const genReputationCircuitInput = (config: {
             graffiti: 0,
             startBalance: [],
         },
-        config,
+        config
     )
 
     const startBalance = [
@@ -139,7 +139,7 @@ export const genReputationCircuitInput = (config: {
         BigInt(attesterId),
         epoch,
         startBalance as any,
-        chainId ?? 0,
+        chainId ?? 0
     )
     stateTree.insert(hashedLeaf)
     const stateTreeProof = stateTree.createProof(0) // if there is only one GST leaf, the index is 0
@@ -168,18 +168,18 @@ export const genReputationCircuitInput = (config: {
 
 export async function genProofAndVerify(
     circuit: string | Circuit,
-    circuitInputs: any,
+    circuitInputs: any
 ) {
     const startTime = new Date().getTime()
     const { proof, publicSignals } = await Prover.genProofAndPublicSignals(
         circuit,
-        circuitInputs,
+        circuitInputs
     )
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000,
-        )} s)`,
+            (endTime - startTime) / 1000
+        )} s)`
     )
     const isValid = await Prover.verifyProof(circuit, publicSignals, proof)
     return { isValid, proof, publicSignals }
@@ -198,7 +198,7 @@ export async function genProveReputationProof(type, config) {
         })
         const { isValid, publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
-            circuitInputs,
+            circuitInputs
         )
 
         return {
@@ -217,7 +217,7 @@ export async function genProveReputationProof(type, config) {
         })
         const { isValid, publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
-            circuitInputs,
+            circuitInputs
         )
 
         return {
@@ -232,8 +232,9 @@ export async function userStateTransition(userState, context) {
 
     const epoch = await sync.loadCurrentEpoch()
     const attesterId = sync.attesterId
-    const remainingTime =
-        await context.unirep.attesterEpochRemainingTime(attesterId)
+    const remainingTime = await context.unirep.attesterEpochRemainingTime(
+        attesterId
+    )
     // epoch transition
     await ethers.provider.send('evm_increaseTime', [remainingTime])
     await ethers.provider.send('evm_mine', [])
@@ -250,7 +251,7 @@ export async function userStateTransition(userState, context) {
             stringifyBigInts({
                 publicSignals,
                 proof,
-            }),
+            })
         )
         .then((res) => {
             return res.body.txHash
@@ -271,7 +272,7 @@ export async function genReportIdentityProof(userState, config) {
     const stateTree = await sync.genStateTree(toEpoch, attesterId)
     const leafIndex = await userState.latestStateTreeLeafIndex(
         toEpoch,
-        attesterId,
+        attesterId
     )
     const stateTreeProof = stateTree.createProof(leafIndex)
 
@@ -290,7 +291,7 @@ export async function genReportIdentityProof(userState, config) {
 
     const { isValid, proof, publicSignals } = await genProofAndVerify(
         'reportIdentityProof',
-        stringifyBigInts(circuitInput),
+        stringifyBigInts(circuitInput)
     )
     return {
         proof,

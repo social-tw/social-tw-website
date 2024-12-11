@@ -92,7 +92,7 @@ export async function genEpochKeyProof(config: {
         {
             data: [],
         },
-        config,
+        config
     )
     const data = [..._data, ...Array(FIELD_COUNT - _data.length).fill(0)]
     const _proof = tree.createProof(leafIndex)
@@ -110,13 +110,13 @@ export async function genEpochKeyProof(config: {
     }
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKey,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }
@@ -136,7 +136,7 @@ export async function genEpochKeyLiteProof(config: {
             {
                 data: [],
             },
-            config,
+            config
         )
     const circuitInputs = {
         identity_secret: id.secret,
@@ -150,13 +150,13 @@ export async function genEpochKeyLiteProof(config: {
 
     const r = await prover.genProofAndPublicSignals(
         Circuit.epochKeyLite,
-        circuitInputs,
+        circuitInputs
     )
 
     const { publicSignals, proof } = new EpochKeyLiteProof(
         r.publicSignals,
         r.proof,
-        prover,
+        prover
     )
 
     return { publicSignals, proof }
@@ -171,7 +171,7 @@ export const randomData = () => [
         .map(
             () =>
                 poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** BigInt(253),
+                BigInt(2) ** BigInt(253)
         ),
 ]
 
@@ -239,7 +239,7 @@ export function genReportNullifierCircuitInput(config: {
 
 export async function genProofAndVerify(
     circuit: Circuit | string,
-    circuitInputs: any,
+    circuitInputs: any
 ) {
     const startTime = new Date().getTime()
     let proof: any, publicSignals: any
@@ -247,7 +247,7 @@ export async function genProofAndVerify(
         ;({ proof, publicSignals } =
             await defaultProver.genProofAndPublicSignals(
                 circuit,
-                circuitInputs,
+                circuitInputs
             ))
     } catch (error) {
         if (error instanceof Error) {
@@ -259,13 +259,13 @@ export async function genProofAndVerify(
     const endTime = new Date().getTime()
     console.log(
         `Gen Proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000,
-        )} s)`,
+            (endTime - startTime) / 1000
+        )} s)`
     )
     const isValid = await defaultProver.verifyProof(
         circuit,
         publicSignals,
-        proof,
+        proof
     )
     return { isValid, proof, publicSignals }
 }
@@ -273,7 +273,7 @@ export async function genProofAndVerify(
 export function genVHelperIdentifier(identifier: string): string {
     const encodedId = ethers.utils.defaultAbiCoder.encode(
         ['string'],
-        [identifier],
+        [identifier]
     )
     return ethers.utils.keccak256(encodedId)
 }
@@ -298,7 +298,7 @@ export function genNullifier(identity: Identity, reportId: number | bigint) {
 export async function userStateTransition(
     userState: UserState,
     unirep: any,
-    app: any,
+    app: any
 ) {
     const latestEpoch = await unirep.attesterCurrentEpoch(app.address)
     const remainingTime = await unirep.attesterEpochRemainingTime(app.address)

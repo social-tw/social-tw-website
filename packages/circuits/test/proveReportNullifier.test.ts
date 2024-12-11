@@ -40,23 +40,23 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
         })
         const { isValid, proof, publicSignals } = await genProofAndVerify(
             circuit,
-            circuitInputs,
+            circuitInputs
         )
 
         const reportNullifierProof = new ReportNullifierProof(
             publicSignals,
-            proof,
+            proof
         )
         expect(isValid).to.be.true
         // decode other data
         expect(reportNullifierProof.epoch.toString()).to.be.equal(
-            currentEpoch.toString(),
+            currentEpoch.toString()
         )
         expect(reportNullifierProof.attesterId.toString()).to.be.equal(
-            attesterId.toString(),
+            attesterId.toString()
         )
         expect(reportNullifierProof.chainId.toString()).to.be.equal(
-            chainId.toString(),
+            chainId.toString()
         )
 
         // we don't reveal the nonce, so this is equal to BigInt(0)
@@ -68,11 +68,11 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
                 attesterId,
                 currentEpoch,
                 currentNonce,
-                chainId,
-            ),
+                chainId
+            )
         )
         expect(reportNullifierProof.reportNullifier).to.be.equal(
-            reportNullifier,
+            reportNullifier
         )
     })
 
@@ -99,7 +99,7 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 22\n',
+                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 22\n'
             )
         }
     })
@@ -127,7 +127,7 @@ describe('Prove report nullifier in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 22\n',
+                'Error: Assert Failed. Error in template ReportNullifierProof_79 line: 22\n'
             )
         }
     })

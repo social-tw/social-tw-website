@@ -13,7 +13,7 @@ import { AdjudicateValue, Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/report',
@@ -29,14 +29,14 @@ export default (
                 _reportData,
                 publicSignals,
                 proof,
-                synchronizer,
+                synchronizer
             )
             // 2. Create a report
             const reportId = await reportService.createReport(db, reportData)
             // 3. Adjust Post / Comment Status
             await reportService.updateObjectStatus(db, reportData)
             res.json({ reportId })
-        }),
+        })
     )
 
     app.get(
@@ -51,16 +51,16 @@ export default (
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 JSON.parse(publicSignals as string) as PublicSignals,
                 JSON.parse(proof as string) as Groth16Proof,
-                synchronizer,
+                synchronizer
             )
 
             const reports = await reportService.fetchReports(
                 Number(status),
                 synchronizer,
-                db,
+                db
             )
             res.json(reports)
-        }),
+        })
     )
 
     app.post(
@@ -88,11 +88,11 @@ export default (
                 publicSignals,
                 proof,
                 synchronizer,
-                db,
+                db
             )
 
             res.status(201).json({})
-        }),
+        })
     )
 
     app.get(
@@ -100,7 +100,7 @@ export default (
         errorHandler((req, res, next) => {
             const reportCategories = reportService.fetchReportCategory()
             res.json(reportCategories)
-        }),
+        })
     )
 
     app.get(
@@ -117,16 +117,16 @@ export default (
             await ProofHelper.getAndVerifyEpochKeyLiteProof(
                 JSON.parse(publicSignals as string) as PublicSignals,
                 JSON.parse(proof as string) as Groth16Proof,
-                synchronizer,
+                synchronizer
             )
 
             const report = await reportService.fetchSingleReportWithDetails(
                 id,
-                db,
+                db
             )
             if (!report) throw Errors.REPORT_NOT_EXIST()
 
             res.json(report)
-        }),
+        })
     )
 }

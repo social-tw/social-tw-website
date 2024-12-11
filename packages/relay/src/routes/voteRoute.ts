@@ -10,7 +10,7 @@ import { Errors } from '../types'
 export default (
     app: Express,
     db: DB,
-    synchronizer: UnirepSocialSynchronizer,
+    synchronizer: UnirepSocialSynchronizer
 ) => {
     app.post(
         '/api/vote',
@@ -35,10 +35,10 @@ export default (
                 publicSignals,
                 proof,
                 db,
-                synchronizer,
+                synchronizer
             )
             res.status(201).json({})
-        }),
+        })
     )
 
     app.get(
@@ -53,9 +53,9 @@ export default (
             const history = await voteService.getVoteHistory(
                 fromEpoch,
                 toEpoch,
-                db,
+                db
             )
             res.status(200).json(history)
-        }),
+        })
     )
 }

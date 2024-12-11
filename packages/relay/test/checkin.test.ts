@@ -28,8 +28,9 @@ describe('POST /api/checkin', function () {
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
         // deploy contracts
-        const { unirep: _unirep, app: _app } =
-            await deployContracts(EPOCH_LENGTH)
+        const { unirep: _unirep, app: _app } = await deployContracts(
+            EPOCH_LENGTH
+        )
         // start server
         const {
             db: _db,
@@ -77,13 +78,13 @@ describe('POST /api/checkin', function () {
             .set('content-type', 'application/json')
             .set(
                 'authentication',
-                jsonToBase64(stringifyBigInts({ publicSignals, proof })),
+                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
             )
             .send(
                 stringifyBigInts({
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then(async (res) => {
                 expect(res).to.have.status(200)
@@ -107,13 +108,13 @@ describe('POST /api/checkin', function () {
             .set('content-type', 'application/json')
             .set(
                 'authentication',
-                jsonToBase64(stringifyBigInts({ publicSignals, proof })),
+                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
             )
             .send(
                 stringifyBigInts({
                     publicSignals: epochKeyProof.publicSignals,
                     proof: epochKeyProof.proof,
-                }),
+                })
             )
             .then(async (res) => {
                 expect(res).to.have.status(400)
