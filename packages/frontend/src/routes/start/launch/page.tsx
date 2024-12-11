@@ -5,12 +5,17 @@ import { Link, useNavigate } from 'react-router-dom'
 
 export default function LaunchPage() {
     const navigate = useNavigate()
+
     const goToFeatures = () => {
         navigate('/features')
     }
 
+    const goToAboutPage = () => {
+        navigate('/about')
+    }
+
     return (
-        <main className="w-screen h-screen flex flex-col justify-center items-center gap-2">
+        <main className="flex flex-col items-center justify-center w-screen h-screen gap-2">
             <motion.img
                 src={LogoWhite}
                 alt="UniRep Logo"
@@ -60,9 +65,9 @@ export default function LaunchPage() {
                 嗨 🙌🏻 歡迎來到 Unirep Social TW <br />
                 提供你 100% 匿名身份、安全發言的社群！
             </motion.p>
-            <section className="w-full max-w-xl flex items-center justify-center mt-8">
+            <section className="flex items-center justify-center w-full max-w-xl mt-8">
                 <motion.div
-                    className="w-80 max-w-xl flex flex-col items-center justify-center gap-2"
+                    className="flex flex-col items-center justify-center max-w-xl gap-4 w-80"
                     initial={{
                         opacity: 0,
                         y: 100,
@@ -82,9 +87,15 @@ export default function LaunchPage() {
                         title="查看特色簡介"
                         onClick={goToFeatures}
                     />
+                    <CyanButton
+                        isLoading={false}
+                        size="lg"
+                        title="查看平台詳細說明"
+                        onClick={goToAboutPage}
+                    />
                     <Link
                         to="/welcome"
-                        className="text-white text-sm underline"
+                        className="text-sm text-white underline"
                     >
                         直接前往登入或註冊
                     </Link>
