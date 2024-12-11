@@ -1,6 +1,5 @@
 import LogoImage from '@/assets/img/logo.png'
 import { ReactComponent as ArrowLeftIcon } from '@/assets/svg/arrow-left.svg'
-import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 import { PATHS } from '@/constants/paths'
 import { ErrorDialog, SignupPending } from '@/features/auth'
 import { ActionWidget, UITour } from '@/features/core'
@@ -10,6 +9,7 @@ import {
 } from '@/features/reporting'
 import { MainSideNav, NotificationContainer } from '@/features/shared'
 import { ForbidActionDialog } from '@/features/shared/components/Dialog/ForbidActionDialog'
+import SearchInput from '@/features/shared/components/Inputs/SearchInput'
 import {
     closeForbidActionDialog,
     useDialogStore,
@@ -32,13 +32,7 @@ export default function DesktopAppLayout() {
             <div className="grid grid-cols-[1fr_27rem] xl:grid-cols-[20rem_1fr_27rem] min-h-screen divide-x divide-neutral-600">
                 <section className="hidden xl:block">
                     <div className="fixed top-0 h-full px-10 pt-20">
-                        <div className="h-10 px-4 flex items-center gap-2 bg-[#3E3E3E] rounded-full text-white">
-                            <SearchIcon className="w-5 h-5" />
-                            <input
-                                className="flex-1 text-base font-medium bg-transparent placeholder:text-white/60 focus:outline-none"
-                                placeholder="Search"
-                            />
-                        </div>
+                        <SearchInput />
                     </div>
                 </section>
                 <section>

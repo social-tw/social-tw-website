@@ -25,11 +25,13 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { nanoid } from 'nanoid'
 import { Fragment, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import ExamplePost from '../ExamplePost/ExamplePost'
 
 export default function PostList() {
     const { userState } = useUserState()
+    const [searchParams] = useSearchParams()
+    const query = searchParams.get('q') ?? ''
 
     const queryClient = useQueryClient()
 
@@ -40,10 +42,10 @@ export default function PostList() {
         QueryKey,
         number
     >({
-        queryKey: [QueryKeys.ManyPosts],
+        queryKey: [QueryKeys.ManyPosts, query],
         queryFn: async ({ pageParam }) => {
             const postService = new PostService()
-            const data = await postService.fetchPosts(pageParam)
+            const data = await postService.fetchPosts(pageParam, query)
 
             return data.map((item) => {
                 const voteCheck = userState
