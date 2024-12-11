@@ -2,7 +2,7 @@ import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg'
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useMediaQuery } from 'react-responsive'
+import { useMediaQuery } from '@uidotdev/usehooks'
 
 export default function AdjudicationButton({
     onCancel = () => {},
@@ -14,11 +14,11 @@ export default function AdjudicationButton({
     onClose?: () => void
 }) {
     const shouldReduceMotion = useReducedMotion()
-    const isLargeScreen = useMediaQuery({ minWidth: 1024 })
+    const isMobile = useMediaQuery('only screen and (max-width : 768px)')
 
     const variants = {
         initial: {
-            x: isLargeScreen ? -100 : 100,
+            x: isMobile ? -100 : 100,
             opacity: 0,
         },
         animate: {
@@ -26,7 +26,7 @@ export default function AdjudicationButton({
             opacity: 1,
         },
         exit: {
-            x: isLargeScreen ? -100 : 100,
+            x: isMobile ? -100 : 100,
             opacity: 0,
         },
     }
