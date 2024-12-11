@@ -14,6 +14,13 @@ export default function AdjudicationNotification() {
     const { data: reports, refetch } = usePendingReports()
     const sendNotification = useSendNotification()
 
+    const testReportData = {
+        id: 'test-report-1',
+        category: 1,
+        reason: '測試用檢舉理由',
+        content: '這是一個測試用的檢舉內容，用來測試評判功能。',
+    }
+
     const activeReport = useMemo(() => {
         if (!reports || !userState) {
             return null
@@ -81,7 +88,12 @@ export default function AdjudicationNotification() {
 
     return (
         <div data-testid="adjudication-notification">
-            <AdjudicateFlow reportData={reportData} onRefetch={refetch} />
+            <AdjudicateFlow
+                reportData={testReportData}
+                onRefetch={() => {
+                    console.log('refresh')
+                }}
+            />
         </div>
     )
 }

@@ -10,11 +10,6 @@ import { ReactComponent as ArrowRight } from '@/assets/svg/arrow-right.svg'
 import { ReactComponent as GavelRaisedIcon } from '@/assets/svg/gavel-raised.svg'
 import { ReactComponent as CloseIcon } from '@/assets/svg/close-button.svg'
 
-interface IntroDialogProps {
-    onNext: () => void
-    onClose: () => void
-}
-
 interface AdjudicateButtonProps {
     onClick: () => void
     onClose: () => void
@@ -28,43 +23,6 @@ type AdjudicateStage =
     | 'complete'
     | null
 type AdjudicateStatus = 'idle' | 'pending' | 'success' | 'error'
-
-const IntroDialog: React.FC<IntroDialogProps> = ({ onNext, onClose }) => {
-    return (
-        <Dialog open onClose={onClose} className="relative z-50">
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-xl bg-white rounded-xl p-6">
-                    <Dialog.Title className="text-xl font-bold mb-4">
-                        協助評判說明
-                    </Dialog.Title>
-
-                    <p className="mb-4">
-                        您即將協助評判一則檢舉案件。請仔細閱讀內容並做出公正判斷。
-                        您的決定將影響社群的健康發展。
-                    </p>
-                    <p className="mb-6">評判完成後將獲得評判積分獎勵。</p>
-
-                    <div className="flex justify-end gap-4">
-                        <button
-                            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
-                            onClick={onClose}
-                        >
-                            取消
-                        </button>
-                        <button
-                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-                            onClick={onNext}
-                        >
-                            查看案件詳情
-                        </button>
-                    </div>
-                </Dialog.Panel>
-            </div>
-        </Dialog>
-    )
-}
 
 const AdjudicateButton: React.FC<AdjudicateButtonProps> = ({
     onClick,
@@ -171,18 +129,10 @@ export default function AdjudicateFlow({
                 return (
                     buttonVisible && (
                         <AdjudicateButton
-                            onClick={() => setStage('intro')}
+                            onClick={() => setStage('details')}
                             onClose={openConfirmation}
                         />
                     )
-                )
-
-            case 'intro':
-                return (
-                    <IntroDialog
-                        onNext={() => setStage('details')}
-                        onClose={handleClose}
-                    />
                 )
 
             case 'details':
