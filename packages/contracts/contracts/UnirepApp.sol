@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-
+DailyClaimVHelper
 import { Unirep } from "@unirep/contracts/Unirep.sol";
 import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
 import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
-import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
+import { VerifierHelperManager, DailyClaimVHelper } from "./verifierHelpers/VerifierHelperManager.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 // Uncomment this line to use console.log
@@ -24,6 +24,12 @@ contract UnirepApp is Ownable {
         uint256 downVote;
     }
 
+    struct DailyEpochData {
+        uint48 startTimestamp;
+        uint48 currentEpoch;
+        uint48 epochLength;
+    }
+
     Unirep public unirep;
     IVerifier internal dataVerifier;
     EpochKeyVerifierHelper internal epkHelper;
@@ -38,6 +44,7 @@ contract UnirepApp is Ownable {
     mapping(bytes32 => bool) public proofNullifier;
 
     mapping(uint256 => bool) public userRegistry;
+    DailyEpochData public dailyEpochData;
 
     // Positive Reputation field index in Unirep protocol
     uint256 public immutable posRepFieldIndex = 0;
@@ -78,6 +85,10 @@ contract UnirepApp is Ownable {
         uint256 epoch    
     );
 
+    event DailyEpochEnded(
+
+    )
+
     uint160 immutable attesterId;
 
     event UserSignUp(uint256 indexed hashUserId, bool indexed fromServer);
@@ -89,6 +100,7 @@ contract UnirepApp is Ownable {
     error ArrMismatch();
     error InvalidCommentEpochKey(uint256 epochKey);
     error InvalidCommentId(uint256 commentId);
+    error NonNegetativeReputation();
 
     constructor(
         Unirep _unirep,
@@ -374,8 +386,11 @@ contract UnirepApp is Ownable {
      */
     function claimDailyLoginRep(
         uint256[] calldata publicSignals,
-        uint256[8] calldata proof
+        uint256[8] calldata proof,
+        bytes32 identifier
     ) public onlyOwner() {
+        _updateDailyEpochIfNeeded();
+
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -384,10 +399,8 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals
-            memory signals = epkHelper.decodeEpochKeySignals(
-                publicSignals
-            );
+        DailyClaimVHelper reputationVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
+        BaseVerifierHelper.ReputationSignals memory signals = reputationVHelpers.decodeReputationSignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -395,7 +408,11 @@ contract UnirepApp is Ownable {
             revert InvalidEpoch();
         }
 
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
+        reputationVHelpers.verifyAndCheck(publicSignals, proof);
+
+        if (signals.minRep - signals.maxRep < 0) {
+            revert NonNegetativeReputation();
+        }
 
         // attesting on Unirep contract:
         unirep.attest(
@@ -454,5 +471,29 @@ contract UnirepApp is Ownable {
         );
 
         emit ClaimNegRep(signals.epochKey, epoch);
+    }
+
+    function _updateDailyEpochIfNeeded() public returns (uint epoch) {
+        epoch = dailyCurrentEpoch(attesterId);
+        uint48 fromEpoch = dailyEpochData.currentEpoch;
+        if (epoch == fromEpoch) return epoch;
+
+        emit DailyEpochEnded(epoch - 1, attesterId);
+
+        attester.currentEpoch = epoch;
+    }
+
+    function dailyCurrentEpoch() public view returns (uint48) {
+        uint48 timestamp = dailyEpochData.startTimestamp;
+        uint48 epochLength = dailyEpochData.epochLength;
+        return (uint48(block.timestamp) - timestamp) / epochLength;
+    }
+
+    function dailyEpochRemainingTime() public view returns (uint48) {
+        uint48 timestamp = dailyEpochData.startTimestamp;
+        uint48 epochLength = dailyEpochData.epochLength;
+        uint48 blockTimestamp = uint48(block.timestamp);
+        uint48 _currentEpoch = (blockTimestamp - timestamp) / epochLength;
+        return timestamp + (_currentEpoch + 1) * epochLength - blockTimestamp;
     }
 }
