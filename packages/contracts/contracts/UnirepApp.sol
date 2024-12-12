@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-DailyClaimVHelper
 import { Unirep } from "@unirep/contracts/Unirep.sol";
 import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
 import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
-import { VerifierHelperManager, DailyClaimVHelper } from "./verifierHelpers/VerifierHelperManager.sol";
+import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { DailyClaimVHelper, DailyClaimSignals } from "./verifierHelpers/DailyClaimVHelper.sol";
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -86,8 +86,8 @@ contract UnirepApp is Ownable {
     );
 
     event DailyEpochEnded(
-
-    )
+        uint48 indexed epoch
+    );
 
     uint160 immutable attesterId;
 
@@ -101,6 +101,7 @@ contract UnirepApp is Ownable {
     error InvalidCommentEpochKey(uint256 epochKey);
     error InvalidCommentId(uint256 commentId);
     error NonNegetativeReputation();
+    error InvalidDailyEpoch();
 
     constructor(
         Unirep _unirep,
@@ -382,7 +383,7 @@ contract UnirepApp is Ownable {
     /**
      * Claim the daily login reputation
      * @param publicSignals: public signals
-     * @param proof: epoch key proof
+     * @param proof: daily claim proof
      */
     function claimDailyLoginRep(
         uint256[] calldata publicSignals,
@@ -391,16 +392,16 @@ contract UnirepApp is Ownable {
     ) public onlyOwner() {
         _updateDailyEpochIfNeeded();
 
+        DailyClaimVHelper dailyClaimVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
+        DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
+
         // check if proof is used before
-        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
+        bytes32 nullifier = signals.dailyNullifier;
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
 
         proofNullifier[nullifier] = true;
-
-        DailyClaimVHelper reputationVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
-        BaseVerifierHelper.ReputationSignals memory signals = reputationVHelpers.decodeReputationSignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -408,7 +409,12 @@ contract UnirepApp is Ownable {
             revert InvalidEpoch();
         }
 
-        reputationVHelpers.verifyAndCheck(publicSignals, proof);
+        uint48 dailyEpoch = dailyEpochData.currentEpoch;
+        if (signals.dailyCurrentEpoch > dailyEpoch) {
+            revert InvalidDailyEpoch();
+        }
+
+        dailyClaimVHelpers.verifyAndCheck(publicSignals, proof);
 
         if (signals.minRep - signals.maxRep < 0) {
             revert NonNegetativeReputation();
@@ -474,11 +480,11 @@ contract UnirepApp is Ownable {
     }
 
     function _updateDailyEpochIfNeeded() public returns (uint epoch) {
-        epoch = dailyCurrentEpoch(attesterId);
+        epoch = dailyCurrentEpoch();
         uint48 fromEpoch = dailyEpochData.currentEpoch;
         if (epoch == fromEpoch) return epoch;
 
-        emit DailyEpochEnded(epoch - 1, attesterId);
+        emit DailyEpochEnded(epoch - 1);
 
         attester.currentEpoch = epoch;
     }
