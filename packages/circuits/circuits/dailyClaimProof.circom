@@ -33,10 +33,13 @@ template DailyClaimProof(STATE_TREE_DEPTH, EPOCH_KEY_NONCE_PER_EPOCH, SUM_FIELD_
     signal input prove_max_rep;
     signal input prove_zero_rep;
 
+    signal output epoch_key;
+    signal output control[2];
+
     var REP_BITS = 64;
 
     // Step 1. Check reputation circuit and Check reputation < 0
-    (_, _, _) <== Reputation(STATE_TREE_DEPTH, EPOCH_KEY_NONCE_PER_EPOCH, SUM_FIELD_COUNT, FIELD_COUNT, REPL_NONCE_BITS)(
+    (epoch_key, _, control) <== Reputation(STATE_TREE_DEPTH, EPOCH_KEY_NONCE_PER_EPOCH, SUM_FIELD_COUNT, FIELD_COUNT, REPL_NONCE_BITS)(
         identity_secret,
         state_tree_indices,
         state_tree_elements,
