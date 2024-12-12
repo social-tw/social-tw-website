@@ -10,7 +10,7 @@ const Circuit = {
     dataProof: 'dataProof',
     reportNonNullifierProof: 'reportNonNullifierProof',
     reportNullifierProof: 'reportNullifierProof',
-    dailyClaimProof: 'dailyClaimProof'
+    dailyClaimProof: 'dailyClaimProof',
 }
 
 const main = async (): Promise<number> => {
