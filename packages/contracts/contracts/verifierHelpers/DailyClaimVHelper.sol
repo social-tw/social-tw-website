@@ -12,9 +12,25 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
         IVerifier _verifier
     ) BaseVerifierHelper(_unirep, _verifier) {}
 
+    struct DailyClaimSignals {
+        uint256 epochKey;
+        uint256 minRep;
+        uint256 maxRep;
+        uint160 attesterId;
+        uint48 epoch;
+        uint48 chainId;
+        uint8 nonce;
+        bool revealNonce;
+        bool proveMinRep;
+        bool proveMaxRep;
+        bool proveZeroRep;
+        bool proveGraffiti;
+        uint48 dailyEpoch;
+        uint256 dailyNullifier;
+    }
+
     /// @param publicSignals The public signals of the snark proof
     /// @return signals The EpochKeySignals
-    // TODO: check the signals indice
     function decodeSignals(
         uint256[] calldata publicSignals
     ) public pure returns (EpochKeySignals memory) {
@@ -25,8 +41,8 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
             signals.attesterId,
             signals.revealNonce,
             signals.chainId
-        ) = super.decodeEpochKeyControl(publicSignals[0]);
-        signals.epochKey = publicSignals[1];
+        ) = super.decodeEpochKeyControl(publicSignals[1]);
+        signals.epochKey = publicSignals[0];
         
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
 
@@ -36,15 +52,14 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
     /// @dev https://developer.unirep.io/docs/contracts-api/verifiers/reputation-verifier-helper#decodereputationsignals
     /// @param publicSignals The public signals of the snark proof
     /// @return signals The ReputationSignals
-    // TODO: check the signals indice
-    function decodeReputationSignals(
+    function decodeDailyClaimSignals(
         uint256[] calldata publicSignals
-    ) public pure returns (ReputationSignals memory) {
-        ReputationSignals memory signals;
+    ) public pure returns (DailyClaimSignals memory) {
+        DailyClaimSignals memory signals;
         signals.epochKey = publicSignals[0];
-        signals.stateTreeRoot = publicSignals[1];
-        signals.graffiti = publicSignals[4];
-        signals.data = publicSignals[5];
+        signals.dailyEpoch = uint48(publicSignals[3]);
+        signals.dailyNullifier = publicSignals[4];
+
         // now decode the control values
         (
             signals.nonce,
@@ -52,7 +67,7 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
             signals.attesterId,
             signals.revealNonce,
             signals.chainId
-        ) = super.decodeEpochKeyControl(publicSignals[2]);
+        ) = super.decodeEpochKeyControl(publicSignals[1]);
 
         (
             signals.minRep,
@@ -61,7 +76,7 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
             signals.proveMaxRep,
             signals.proveZeroRep,
             signals.proveGraffiti
-        ) = decodeReputationControl(publicSignals[3]);
+        ) = decodeReputationControl(publicSignals[2]);
 
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
         if (signals.attesterId >= type(uint160).max) revert AttesterInvalid();
