@@ -101,15 +101,15 @@ const router = createBrowserRouter([
                         path: PATHS.NOTIFICATION,
                         element: <NotificationPage />,
                     },
+                    {
+                        path: PATHS.REPORT_DETAIL,
+                        element: <ReportDetailsPage />,
+                    },
                 ],
             },
             {
                 path: PATHS.ABOUT_US,
                 element: <AboutPage />,
-            },
-            {
-                path: '/reports/:id',
-                element: <ReportDetailsPage />,
             },
         ],
     },

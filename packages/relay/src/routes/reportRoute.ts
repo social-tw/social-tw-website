@@ -105,7 +105,6 @@ export default (
 
     app.get(
         '/api/report/:id',
-        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req: Request, res: Response) => {
             const id = req.params.id
             if (!Validator.isValidNumber(id)) throw Errors.INVALID_REPORT_ID()
