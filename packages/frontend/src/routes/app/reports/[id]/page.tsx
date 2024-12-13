@@ -4,10 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { ReportService } from '@/features/core/services/ReportService/ReportService'
 import dayjs from 'dayjs'
-import { ReportHistory, ReportStatus, ReportType } from '@/types/Report'
+import { ReportHistory, ReportStatus } from '@/types/Report'
 import { useFetchReportCategories } from '@/features/reporting'
 import { genReportIdentityProof, useUserState } from '@/features/core'
-import { RelayRawPostStatus } from '@/types/Post'
 
 const ReportDetailsPage: React.FC = () => {
     const { userState } = useUserState()
