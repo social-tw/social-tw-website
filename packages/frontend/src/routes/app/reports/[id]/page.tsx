@@ -25,6 +25,31 @@ const ReportDetailsPage: React.FC = () => {
         },
     })
 
+    const getAdjudicationResult = async (report: ReportHistory) => {
+        if (!userState || !report) return '尚未評判'
+
+        try {
+            const { publicSignals } = await genReportIdentityProof(userState, {
+                reportId: report.reportId,
+            })
+
+            const nullifierStr = publicSignals[0].toString()
+
+            const userAdjudication = report.adjudicatorsNullifier?.find(
+                (adj) => adj.nullifier === nullifierStr,
+            )
+
+            if (!userAdjudication) {
+                return '尚未評判'
+            }
+
+            return userAdjudication.adjudicateValue === 1 ? '同意' : '不同意'
+        } catch (error) {
+            console.error('Error getting adjudication result:', error)
+            return '尚未評判'
+        }
+    }
+
     useEffect(() => {
         if (!report || !userState) return
 
@@ -62,31 +87,6 @@ const ReportDetailsPage: React.FC = () => {
                 return agreeCount > totalCount / 2 ? '檢舉通過' : '檢舉不通過'
             default:
                 return '評判中'
-        }
-    }
-
-    const getAdjudicationResult = async (report: ReportHistory) => {
-        if (!userState || !report) return '尚未評判'
-
-        try {
-            const { publicSignals } = await genReportIdentityProof(userState, {
-                reportId: report.reportId,
-            })
-
-            const nullifierStr = publicSignals[0].toString()
-
-            const userAdjudication = report.adjudicatorsNullifier?.find(
-                (adj) => adj.nullifier === nullifierStr,
-            )
-
-            if (!userAdjudication) {
-                return '尚未評判'
-            }
-
-            return userAdjudication.adjudicateValue === 1 ? '同意' : '不同意'
-        } catch (error) {
-            console.error('Error getting adjudication result:', error)
-            return '尚未評判'
         }
     }
 
