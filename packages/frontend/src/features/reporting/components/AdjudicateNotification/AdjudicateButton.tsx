@@ -18,7 +18,7 @@ export default function AdjudicationButton({
 
     const variants = {
         initial: {
-            x: isMobile ? -100 : 100,
+            x: isMobile ? 100 : -100,
             opacity: 0,
         },
         animate: {
@@ -26,7 +26,7 @@ export default function AdjudicationButton({
             opacity: 1,
         },
         exit: {
-            x: isMobile ? -100 : 100,
+            x: isMobile ? 100 : -100,
             opacity: 0,
         },
     }

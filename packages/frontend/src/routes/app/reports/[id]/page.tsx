@@ -1,24 +1,41 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
 import { ReportService } from '@/features/core/services/ReportService/ReportService'
 import dayjs from 'dayjs'
-import { ReportStatus } from '@/types/Report'
+import { ReportHistory, ReportStatus, ReportType } from '@/types/Report'
 import { useFetchReportCategories } from '@/features/reporting'
+import { genReportIdentityProof, useUserState } from '@/features/core'
+import { RelayRawPostStatus } from '@/types/Post'
 
 const ReportDetailsPage: React.FC = () => {
+    const { userState } = useUserState()
     const { id } = useParams()
     const { reportCategories } = useFetchReportCategories()
+    const [adjudicationResult, setAdjudicationResult] =
+        useState<string>('尚未評判')
+
     const { data: report } = useQuery({
         queryKey: [QueryKeys.SingleReport, id],
         queryFn: async () => {
-            if (!id) return undefined
-
-            const reportService = new ReportService()
-            return reportService.fetchReportById(id)
+            const reportId = Number(id)
+            if (isNaN(reportId) || reportId < 0) return undefined
+            const reportService = new ReportService(userState)
+            return reportService.fetchReportById(reportId.toString())
         },
     })
+
+    useEffect(() => {
+        if (!report || !userState) return
+
+        const fetchAdjudicationResult = async () => {
+            const result = await getAdjudicationResult(report)
+            setAdjudicationResult(result)
+        }
+
+        fetchAdjudicationResult()
+    }, [report, userState])
 
     const reportCategoryLabel = useMemo(() => {
         if (!report) return ''
@@ -49,25 +66,55 @@ const ReportDetailsPage: React.FC = () => {
         }
     }
 
+    const getAdjudicationResult = async (report: ReportHistory) => {
+        if (!userState || !report) return '尚未評判'
+
+        try {
+            const { publicSignals } = await genReportIdentityProof(userState, {
+                reportId: report.reportId,
+            })
+
+            const nullifierStr = publicSignals[0].toString()
+
+            const userAdjudication = report.adjudicatorsNullifier?.find(
+                (adj) => adj.nullifier === nullifierStr,
+            )
+
+            if (!userAdjudication) {
+                return '尚未評判'
+            }
+
+            return userAdjudication.adjudicateValue === 1 ? '同意' : '不同意'
+        } catch (error) {
+            console.error('Error getting adjudication result:', error)
+            return '尚未評判'
+        }
+    }
+
+    const formatDate = (date: string | undefined) => {
+        if (!date) return '尚未評判'
+        return dayjs(date).format('YYYY/MM/DD')
+    }
+
     return (
         <div className="text-white">
             <div className="p-4 space-y-6">
                 <section>
                     <h2 className="text-xl font-bold mb-4">評判詳情</h2>
-                    <div className="bg-white/10 rounded-xl p-4 space-y-2">
+                    <div className="bg-white rounded-xl p-4 space-y-2 text-content">
                         <p>
                             評判日期：
-                            {dayjs(report.reportAt).format('YYYY/MM/DD')}
+                            {formatDate(report.reportAt)}
                         </p>
-                        <p>檢舉評判：同意檢舉</p>
+                        <p>檢舉評判：{adjudicationResult}</p>
                         <p>最終結果：{getJudgementResult()}</p>
                     </div>
                 </section>
 
                 <section>
                     <h2 className="text-xl font-bold mb-4">被檢舉之內容</h2>
-                    <div className="bg-white/10 rounded-xl p-4">
-                        <p className="whitespace-pre-wrap text-white/80">
+                    <div className="bg-white rounded-xl p-4 text-content">
+                        <p className="whitespace-pre-wrap">
                             {report.object.content}
                         </p>
                     </div>
@@ -77,16 +124,14 @@ const ReportDetailsPage: React.FC = () => {
                     <h2 className="text-xl font-bold mb-4">
                         檢舉原因分類&詳情說明
                     </h2>
-                    <div className="bg-white/10 rounded-xl p-4 space-y-4">
+                    <div className="bg-white rounded-xl p-4 space-y-4 text-content">
                         <div>
                             <p className="font-bold">原因分類：</p>
-                            <p className="text-white/80">
-                                {reportCategoryLabel}
-                            </p>
+                            <p>{reportCategoryLabel}</p>
                         </div>
                         <div>
                             <p className="font-bold">詳情說明：</p>
-                            <p className="text-white/80">{report.reason}</p>
+                            <p>{report.reason}</p>
                         </div>
                     </div>
                 </section>
