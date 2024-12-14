@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { QueryKeys } from '@/constants/queryKeys'
@@ -25,30 +25,37 @@ const ReportDetailsPage: React.FC = () => {
         },
     })
 
-    const getAdjudicationResult = async (report: ReportHistory) => {
-        if (!userState || !report) return '尚未評判'
+    const getAdjudicationResult = useCallback(
+        async (report: ReportHistory) => {
+            if (!userState || !report) return '尚未評判'
 
-        try {
-            const { publicSignals } = await genReportIdentityProof(userState, {
-                reportId: report.reportId,
-            })
+            try {
+                const { publicSignals } = await genReportIdentityProof(
+                    userState,
+                    {
+                        reportId: report.reportId,
+                    },
+                )
 
-            const nullifierStr = publicSignals[0].toString()
+                const nullifierStr = publicSignals[0].toString()
+                const userAdjudication = report.adjudicatorsNullifier?.find(
+                    (adj) => adj.nullifier === nullifierStr,
+                )
 
-            const userAdjudication = report.adjudicatorsNullifier?.find(
-                (adj) => adj.nullifier === nullifierStr,
-            )
+                if (!userAdjudication) {
+                    return '尚未評判'
+                }
 
-            if (!userAdjudication) {
+                return userAdjudication.adjudicateValue === 1
+                    ? '同意'
+                    : '不同意'
+            } catch (error) {
+                console.error('Error getting adjudication result:', error)
                 return '尚未評判'
             }
-
-            return userAdjudication.adjudicateValue === 1 ? '同意' : '不同意'
-        } catch (error) {
-            console.error('Error getting adjudication result:', error)
-            return '尚未評判'
-        }
-    }
+        },
+        [userState],
+    )
 
     useEffect(() => {
         if (!report || !userState) return
@@ -59,7 +66,7 @@ const ReportDetailsPage: React.FC = () => {
         }
 
         fetchAdjudicationResult()
-    }, [report, userState])
+    }, [report, userState, getAdjudicationResult])
 
     const reportCategoryLabel = useMemo(() => {
         if (!report) return ''
