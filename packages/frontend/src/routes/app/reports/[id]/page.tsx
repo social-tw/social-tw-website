@@ -97,7 +97,7 @@ const ReportDetailsPage: React.FC = () => {
         }
     }
 
-    const formatDate = (date: string | undefined) => {
+    const formatDate = (date: number) => {
         if (!date) return '尚未評判'
         return dayjs(date).format('YYYY/MM/DD')
     }
@@ -109,8 +109,8 @@ const ReportDetailsPage: React.FC = () => {
                     <h2 className="text-xl font-bold mb-4">評判詳情</h2>
                     <div className="bg-white rounded-xl p-4 space-y-2 text-content">
                         <p>
-                            評判日期：
-                            {formatDate(report.reportAt)}
+                            檢舉日期：
+                            {formatDate(Number(report.reportAt))}
                         </p>
                         <p>檢舉評判：{adjudicationResult}</p>
                         <p>最終結果：{getJudgementResult()}</p>
