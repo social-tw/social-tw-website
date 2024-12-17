@@ -15,4 +15,5 @@ export const PATHS = {
     REPUTATION: '/profile/reputation',
     ABOUT_US: '/about',
     NOTIFICATION: '/notification',
+    REPORT_DETAIL: '/reports/:id',
 }

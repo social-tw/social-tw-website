@@ -22,6 +22,7 @@ import LaunchPage from './start/launch/page'
 import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
+import ReportDetailsPage from './app/reports/[id]/page'
 
 const router = createBrowserRouter([
     {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
                     {
                         path: PATHS.NOTIFICATION,
                         element: <NotificationPage />,
+                    },
+                    {
+                        path: PATHS.REPORT_DETAIL,
+                        element: <ReportDetailsPage />,
                     },
                 ],
             },

@@ -622,6 +622,29 @@ export class ReportService {
             )
         }
     }
+
+    async fetchSingleReportWithDetails(
+        reportId: string,
+        db: DB
+    ): Promise<ReportHistory | null> {
+        // Fetch the base report
+        const report = await this.fetchSingleReport(reportId, db)
+        if (!report) return null
+
+        // Fetch the associated object (post or comment)
+        const tableName = report.type == ReportType.POST ? 'Post' : 'Comment'
+        const object = await db.findOne(tableName, {
+            where: {
+                [`${tableName.toLowerCase()}Id`]: report.objectId,
+            },
+        })
+
+        // Return the report with its associated object
+        return {
+            ...report,
+            object: object,
+        } as ReportHistory
+    }
 }
 
 export const reportService = new ReportService()

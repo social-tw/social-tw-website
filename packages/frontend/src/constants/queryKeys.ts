@@ -19,6 +19,7 @@ export enum QueryKeys {
     ReportHistory = 'ReportHistory',
     ReportsWaitingForTransaction = 'ReportsWaitingForTransaction',
     Notifications = 'notifications',
+    SingleReport = 'singleReport',
 }
 
 export enum MutationKeys {

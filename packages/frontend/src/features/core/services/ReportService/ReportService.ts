@@ -130,4 +130,22 @@ export class ReportService extends RelayApiService {
 
         return response.data
     }
+
+    async fetchReportById(reportId: string) {
+        const client = this.getAuthClient()
+        const userState = this.getUserState()
+        const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
+
+        const searchParams = new URLSearchParams()
+        searchParams.append(
+            'publicSignals',
+            JSON.stringify(stringifyBigInts(publicSignals)),
+        )
+        searchParams.append('proof', JSON.stringify(stringifyBigInts(proof)))
+
+        const response = await client.get<ReportHistory>(
+            `/report/${reportId}?${searchParams.toString()}`,
+        )
+        return response.data
+    }
 }
