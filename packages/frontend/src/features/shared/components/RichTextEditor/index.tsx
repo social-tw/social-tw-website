@@ -59,7 +59,7 @@ export default function RichTextEditor({
 }) {
     let searchParams: URLSearchParams | null = null
     try {
-        [searchParams] = useSearchParams()
+        ;[searchParams] = useSearchParams()
     } catch (e) {
         console.warn('RichTextEditor is not within a Router context')
     }
@@ -153,13 +153,12 @@ export default function RichTextEditor({
                             </div>
                         }
                         ErrorBoundary={LexicalErrorBoundary}
-                        
                     />
                     <MarkdownShortcutPlugin />
                     <OnChangePlugin onChange={_onChange} />
                     <AutoFocusPlugin />
                     <HistoryPlugin />
-                    <ClearEditorPlugin /> 
+                    <ClearEditorPlugin />
                     <ClearAllPlugin
                         value={value}
                         onClear={() => {

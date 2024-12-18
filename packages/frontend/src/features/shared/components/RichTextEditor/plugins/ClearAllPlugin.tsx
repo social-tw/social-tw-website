@@ -18,12 +18,7 @@ export default function ClearAllPlugin({
                 const root = $getRoot()
                 const isContentEmpty = root.getTextContent() === ''
 
-                if (isContentEmpty) {
-                    console.log(
-                        'Editor already empty, skipping CLEAR_EDITOR_COMMAND',
-                    )
-                    return
-                }
+                if (isContentEmpty) return
 
                 editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
                 editor.focus()
