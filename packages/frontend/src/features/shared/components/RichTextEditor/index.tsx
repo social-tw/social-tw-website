@@ -59,7 +59,7 @@ export default function RichTextEditor({
 }) {
     let searchParams: URLSearchParams | null = null
     try {
-        ;[searchParams] = useSearchParams()
+        [searchParams] = useSearchParams()
     } catch (e) {
         console.warn('RichTextEditor is not within a Router context')
     }
@@ -126,7 +126,7 @@ export default function RichTextEditor({
     }
 
     return (
-        <div className={classes?.root}>
+        <div className={classes?.root} tabIndex={-1}>
             <LexicalComposer
                 initialConfig={initialConfig}
                 key={localFailedPostContent}
@@ -156,7 +156,7 @@ export default function RichTextEditor({
                     />
                     <MarkdownShortcutPlugin />
                     <OnChangePlugin onChange={_onChange} />
-                    <AutoFocusPlugin />
+                    {/* <AutoFocusPlugin /> */}
                     <HistoryPlugin />
                     <ClearEditorPlugin />
                     <ClearAllPlugin
