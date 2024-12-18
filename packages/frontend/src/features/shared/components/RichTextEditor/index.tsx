@@ -126,7 +126,7 @@ export default function RichTextEditor({
     }
 
     return (
-        <div className={classes?.root} tabIndex={-1}>
+        <div className={classes?.root}>
             <LexicalComposer
                 initialConfig={initialConfig}
                 key={localFailedPostContent}
@@ -153,12 +153,13 @@ export default function RichTextEditor({
                             </div>
                         }
                         ErrorBoundary={LexicalErrorBoundary}
+                        
                     />
                     <MarkdownShortcutPlugin />
                     <OnChangePlugin onChange={_onChange} />
-                    {/* <AutoFocusPlugin /> */}
+                    <AutoFocusPlugin />
                     <HistoryPlugin />
-                    <ClearEditorPlugin />
+                    <ClearEditorPlugin /> 
                     <ClearAllPlugin
                         value={value}
                         onClear={() => {
