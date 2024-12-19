@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, KeyboardEvent } from 'react'
+import { PATHS } from '@/constants/paths'
 import { ReactComponent as SearchIcon } from '@/assets/svg/search.svg'
 
 export default function SearchInput() {
@@ -8,12 +9,14 @@ export default function SearchInput() {
 
     const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            navigate(`?q=${encodeURIComponent(query.trim())}`)
+            e.preventDefault()
+            e.stopPropagation()
+            navigate(`${PATHS.HOME}?q=${encodeURIComponent(query.trim())}`)
         }
     }
 
     const onClick = () => {
-        navigate(`?q=${encodeURIComponent(query.trim())}`)
+        navigate(`${PATHS.HOME}?q=${encodeURIComponent(query.trim())}`)
     }
 
     return (
