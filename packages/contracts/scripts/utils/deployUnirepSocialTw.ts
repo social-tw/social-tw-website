@@ -38,6 +38,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         dataProofVerifier,
         reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
+        dailyClaimProofVerifier
     } = await deployVerifiers(deployer)
 
     // deploy verifierHelpers

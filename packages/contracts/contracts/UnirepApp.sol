@@ -410,7 +410,7 @@ contract UnirepApp is Ownable {
         }
 
         uint48 dailyEpoch = dailyEpochData.currentEpoch;
-        if (signals.dailyCurrentEpoch > dailyEpoch) {
+        if (signals.dailyCurrentEpoch != dailyEpoch) {
             revert InvalidDailyEpoch();
         }
 
