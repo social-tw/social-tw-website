@@ -1,5 +1,5 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { useActionCount, useUserState, VoteService } from '@/features/core'
+import { useActionCount, useUserState, useUserStateTransition, VoteService } from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -17,6 +17,8 @@ export function useVotes() {
     const { getGuaranteedUserState } = useUserState()
     const actionCount = useActionCount()
     const sendNotification = useSendNotification()
+    const { stateTransition } = useUserStateTransition()
+
     const getActionTypeFromVoteAction = (voteAction: VoteAction) => {
         switch (voteAction) {
             case VoteAction.UPVOTE:
@@ -51,6 +53,8 @@ export function useVotes() {
         }) => {
             const userState = await getGuaranteedUserState()
             const voteService = new VoteService(userState)
+
+            await stateTransition()
 
             const epoch = votedEpoch ?? undefined
             const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
