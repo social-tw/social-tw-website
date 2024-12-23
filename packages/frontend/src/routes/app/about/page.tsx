@@ -110,7 +110,7 @@ export default function AboutPage() {
 
 const githubLink = 'https://github.com/social-tw/social-tw-website'
 
-const discordLink = 'https://discord.gg/TESq3vqc'
+const discordLink = 'https://discord.gg/RSwXuVNZ4H'
 
 const features = [
     {
