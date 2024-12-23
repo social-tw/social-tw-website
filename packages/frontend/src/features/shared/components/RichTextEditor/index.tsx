@@ -3,7 +3,6 @@ import {
     $convertFromMarkdownString,
     $convertToMarkdownString,
 } from '@lexical/markdown'
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
@@ -156,7 +155,6 @@ export default function RichTextEditor({
                     />
                     <MarkdownShortcutPlugin />
                     <OnChangePlugin onChange={_onChange} />
-                    <AutoFocusPlugin />
                     <HistoryPlugin />
                     <ClearEditorPlugin />
                     <ClearAllPlugin
