@@ -84,7 +84,9 @@ export default function Comment({
                         )}
                     </div>
                 </header>
-                <p className="text-sm font-medium text-white whitespace-break-spaces">{content}</p>
+                <p className="text-sm font-medium text-white whitespace-break-spaces">
+                    {content}
+                </p>
             </article>
             {status === CommentStatus.Failure && (
                 <div className="mb-6">

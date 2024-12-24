@@ -138,7 +138,10 @@ export default function RichTextEditor({
                             <div className={classes?.content}>
                                 <ContentEditable
                                     ariaLabel={ariaLabel}
-                                    className={clsx("focus-visible:outline-none", classes?.editable)}
+                                    className={clsx(
+                                        'focus-visible:outline-none',
+                                        classes?.editable,
+                                    )}
                                 />
                             </div>
                         }

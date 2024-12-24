@@ -65,7 +65,7 @@ export default function CommentFormDesktop({
                                             content:
                                                 'overflow-auto text-black text-[15px] tracking-wider w-full rounded-xl h-[170px] bg-[#D9D9D9] p-4',
                                             placeholder: 'text-black',
-                                            editable: 'min-h-[170px]'
+                                            editable: 'min-h-[170px]',
                                         }}
                                     />
                                 )}
