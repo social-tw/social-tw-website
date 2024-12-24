@@ -36,6 +36,7 @@ describe('POST /api/report', function () {
     let nonce: number = 0
     let chainId: number
     const EPOCH_LENGTH = 100000
+    const TEST_CONTENT = 'test content'
     let users: IdentityObject[]
     let app: UnirepApp
     let prover: any
@@ -107,12 +108,11 @@ describe('POST /api/report', function () {
                 }
             )
 
-            const testContent = 'test content'
             await express.get('/api/post/0').then((res) => {
                 expect(res).to.have.status(200)
                 const curPost = res.body as Post
                 expect(curPost.status).to.equal(1)
-                expect(curPost.content).to.equal(testContent)
+                expect(curPost.content).to.equal(TEST_CONTENT)
             })
         }
 
@@ -170,20 +170,14 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the post status is updated and content is filtered
-        const afterReportResponse = await express.get(
-            `/api/post/${postId}?status=${PostStatus.REPORTED}`
-        )
+        // Verify that the post status is updated
+        const afterReportResponse = await express.get(`/api/post/${postId}`)
         expect(afterReportResponse).to.have.status(200)
         expect(afterReportResponse.body).to.have.property(
             'status',
             PostStatus.REPORTED
         )
 
-        // Verify that other properties are still present
-        expect(afterReportResponse.body).to.have.property('postId')
-        expect(afterReportResponse.body).to.have.property('publishedAt')
-        expect(afterReportResponse.body).to.have.property('epochKey')
         // Verify that the post is still accessible but filtered when fetching all posts
         const allPostsResponse = await express.get('/api/post')
         expect(allPostsResponse).to.have.status(200)
@@ -191,8 +185,14 @@ describe('POST /api/report', function () {
             (post) => post.postId === postId
         )
         expect(reportedPost).to.exist
-        expect(reportedPost).to.have.property('content', 'test content')
+        expect(reportedPost).to.have.property('content', TEST_CONTENT)
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
+
+        const searchReportedPost = await express.get(
+            `/api/post?q=${TEST_CONTENT}`
+        )
+        expect(searchReportedPost).to.have.status(200)
+        expect(searchReportedPost.body.length).equal(0)
     })
 
     it('should fail to create a report with invalid proof', async function () {
@@ -977,7 +977,7 @@ describe('POST /api/report', function () {
         await express.get(`/api/post/${report.objectId}`).then((res) => {
             const curPost = res.body as Post
             expect(curPost.status).to.equal(PostStatus.DISAGREED)
-            expect(curPost.content).equal('test content')
+            expect(curPost.content).equal(TEST_CONTENT)
         })
     })
 

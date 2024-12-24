@@ -148,6 +148,10 @@ export class PostService {
 
         if (!posts) return null
 
+        // if keyword is provided, filter posts where status is ON_CHAIN
+        if (keyword)
+            posts = posts.filter((post) => post.status === PostStatus.ON_CHAIN)
+
         return await Promise.all(
             posts.map(async (post) => {
                 // TODO should remove loop sql query and replace it as join
