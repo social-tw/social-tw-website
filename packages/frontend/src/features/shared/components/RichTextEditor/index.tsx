@@ -46,6 +46,7 @@ export default function RichTextEditor({
         root?: string
         content?: string
         placeholder?: string
+        editable?: string
     }
     ariaLabel?: string
     placeholder?: string
@@ -137,7 +138,7 @@ export default function RichTextEditor({
                             <div className={classes?.content}>
                                 <ContentEditable
                                     ariaLabel={ariaLabel}
-                                    className="focus-visible:outline-none"
+                                    className={clsx("focus-visible:outline-none", classes?.editable)}
                                 />
                             </div>
                         }
