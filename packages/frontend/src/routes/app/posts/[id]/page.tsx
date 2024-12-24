@@ -63,6 +63,7 @@ const PostDetailsPage: React.FC = () => {
             votedEpoch: voteCheck ? voteCheck.votedEpoch : null,
             status: PostStatus.Success,
             votes: data.votes,
+            epoch: data.epoch,
         }
     }, [data, userState])
 
@@ -141,6 +142,7 @@ const PostDetailsPage: React.FC = () => {
                         votedNonce={post.votedNonce}
                         votedEpoch={post.votedEpoch}
                         onVote={handleVote}
+                        epoch={post.epoch}
                     />
                 </section>
                 <section id="comments" className="px-6">
