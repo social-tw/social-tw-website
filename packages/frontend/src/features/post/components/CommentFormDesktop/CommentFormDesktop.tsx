@@ -1,7 +1,7 @@
+import { Backdrop, RichTextEditor } from '@/features/shared'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { GrFormClose } from 'react-icons/gr'
-import { Backdrop, RichTextEditor } from '@/features/shared'
 
 interface CommentFormValues {
     content: string
@@ -65,6 +65,7 @@ export default function CommentFormDesktop({
                                             content:
                                                 'overflow-auto text-black text-[15px] tracking-wider w-full rounded-xl h-[170px] bg-[#D9D9D9] p-4',
                                             placeholder: 'text-black',
+                                            editable: 'min-h-[170px]',
                                         }}
                                     />
                                 )}
