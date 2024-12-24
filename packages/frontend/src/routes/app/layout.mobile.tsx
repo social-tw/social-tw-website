@@ -114,7 +114,7 @@ function getHeaderTextByPath(path: string): string {
             return '歷史紀錄'
         }
         case PATHS.REPUTATION: {
-            return '信譽分數'
+            return '聲譽分數'
         }
         default: {
             return 'Unirep Social TW'

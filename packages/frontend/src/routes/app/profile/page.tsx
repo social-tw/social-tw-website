@@ -110,7 +110,7 @@ function ReputationButton() {
         <CyanButton
             isLoading={false}
             onClick={handleLogout}
-            title="信譽分數"
+            title="聲譽分數"
             icon={RiShieldStarLine}
             start={true}
             size="lg"
