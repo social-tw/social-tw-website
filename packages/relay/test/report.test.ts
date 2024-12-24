@@ -171,9 +171,7 @@ describe('POST /api/report', function () {
             })
 
         // Verify that the post status is updated
-        const afterReportResponse = await express.get(
-            `/api/post/${postId}`
-        )
+        const afterReportResponse = await express.get(`/api/post/${postId}`)
         expect(afterReportResponse).to.have.status(200)
         expect(afterReportResponse.body).to.have.property(
             'status',
@@ -190,7 +188,9 @@ describe('POST /api/report', function () {
         expect(reportedPost).to.have.property('content', TEST_CONTENT)
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
 
-        const searchReportedPost = await express.get(`/api/post?q=${TEST_CONTENT}`)
+        const searchReportedPost = await express.get(
+            `/api/post?q=${TEST_CONTENT}`
+        )
         expect(searchReportedPost).to.have.status(200)
         expect(searchReportedPost.body.length).equal(0)
     })
