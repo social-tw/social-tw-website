@@ -21,12 +21,4 @@ interface IVerifierHelper {
         uint256[] calldata publicSignals,
         uint256[8] calldata proof
     ) external view returns (BaseVerifierHelper.EpochKeySignals memory);
-
-    /// @param publicSignals The public signals of the snark proof
-    /// @param proof The proof data of the snark proof
-    /// @return signals The EpochKeySignals
-    function verifyAndCheck(
-        uint256[] calldata publicSignals,
-        uint256[8] calldata proof
-    ) external view returns (BaseVerifierHelper.ReputationSignals memory);
 }

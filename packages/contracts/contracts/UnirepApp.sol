@@ -6,10 +6,10 @@ import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/Ep
 import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { DailyClaimVHelper, DailyClaimSignals } from "./verifierHelpers/DailyClaimVHelper.sol";
+import { DailyClaimVHelper } from "./verifierHelpers/DailyClaimVHelper.sol";
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 interface IVerifier {
     function verifyProof(
@@ -125,6 +125,12 @@ contract UnirepApp is Ownable {
 
         // set verifierHelper manager
         verifierHelperManager = _verifierHelperManager;
+
+        dailyEpochData = DailyEpochData({
+            startTimestamp: uint48(block.timestamp),
+            currentEpoch: 0,
+            epochLength: 24*60*60
+        });
 
         // sign up as an attester
         attesterId = uint160(msg.sender);
@@ -393,10 +399,10 @@ contract UnirepApp is Ownable {
         _updateDailyEpochIfNeeded();
 
         DailyClaimVHelper dailyClaimVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
-        DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
+        DailyClaimVHelper.DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
 
         // check if proof is used before
-        bytes32 nullifier = signals.dailyNullifier;
+        bytes32 nullifier = bytes32(signals.dailyNullifier);
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
@@ -410,13 +416,13 @@ contract UnirepApp is Ownable {
         }
 
         uint48 dailyEpoch = dailyEpochData.currentEpoch;
-        if (signals.dailyCurrentEpoch != dailyEpoch) {
+        if (signals.dailyEpoch != dailyEpoch) {
             revert InvalidDailyEpoch();
         }
 
         dailyClaimVHelpers.verifyAndCheck(publicSignals, proof);
 
-        if (signals.minRep - signals.maxRep < 0) {
+        if (signals.maxRep <= signals.minRep) {
             revert NonNegetativeReputation();
         }
 
@@ -479,14 +485,14 @@ contract UnirepApp is Ownable {
         emit ClaimNegRep(signals.epochKey, epoch);
     }
 
-    function _updateDailyEpochIfNeeded() public returns (uint epoch) {
+    function _updateDailyEpochIfNeeded() public returns (uint48 epoch) {
         epoch = dailyCurrentEpoch();
         uint48 fromEpoch = dailyEpochData.currentEpoch;
         if (epoch == fromEpoch) return epoch;
 
         emit DailyEpochEnded(epoch - 1);
 
-        attester.currentEpoch = epoch;
+        dailyEpochData.currentEpoch = epoch;
     }
 
     function dailyCurrentEpoch() public view returns (uint48) {

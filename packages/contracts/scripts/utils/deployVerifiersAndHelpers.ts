@@ -1,9 +1,11 @@
 import { ethers } from 'ethers'
 
+import DailyClaimProofVerifier from '../../artifacts/contracts/verifiers/DailyClaimProofVerifier.sol/DailyClaimProofVerifier.json'
 import DataProofVerifier from '../../artifacts/contracts/verifiers/DataProofVerifier.sol/DataProofVerifier.json'
 import ReportNonNullifierProofVerifier from '../../artifacts/contracts/verifiers/ReportNonNullifierProofVerifier.sol/ReportNonNullifierProofVerifier.json'
 import ReportNullifierProofVerifier from '../../artifacts/contracts/verifiers/ReportNullifierProofVerifier.sol/ReportNullifierProofVerifier.json'
 
+import DailyClaimProofVHelper from '../../artifacts/contracts/verifierHelpers/DailyClaimVHelper.sol/DailyClaimVHelper.json'
 import ReportNonNullifierVHelper from '../../artifacts/contracts/verifierHelpers/ReportNonNullifierVHelper.sol/ReportNonNullifierVHelper.json'
 import ReportNullifierVHelper from '../../artifacts/contracts/verifierHelpers/ReportNullifierVHelper.sol/ReportNullifierVHelper.json'
 
@@ -58,11 +60,18 @@ export async function deployVerifiers(deployer: ethers.Signer) {
         ReportNullifierProofVerifier.bytecode,
         deployer
     )
+    /// deploy dailyClaimProofVerifier
+    const dailyClaimProofVerifier = await deploySingleContract(
+        DailyClaimProofVerifier.abi,
+        DailyClaimProofVerifier.bytecode,
+        deployer
+    )
 
     return {
         dataProofVerifier,
         reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
+        dailyClaimProofVerifier,
     }
 }
 
@@ -72,11 +81,13 @@ export async function deployVHelpers(
     verifiers: {
         reportNonNullifierProofVerifier: any
         reportNullifierProofVerifier: any
+        dailyClaimProofVerifier: any
     }
 ) {
     const reportNonNullifierProofVerifier =
         verifiers.reportNonNullifierProofVerifier
     const reportNullifierProofVerifier = verifiers.reportNullifierProofVerifier
+    const dailyClaimProofVerifier = verifiers.dailyClaimProofVerifier
 
     /// deploy reportNonNullifierProofVHelper
     const reportNonNullifierVHelper = await deploySingleContract(
@@ -94,8 +105,17 @@ export async function deployVHelpers(
         [unirep, reportNullifierProofVerifier]
     )
 
+    /// deploy reportNullifierProofVHelper
+    const dailyClaimProofVHelper = await deploySingleContract(
+        DailyClaimProofVHelper.abi,
+        DailyClaimProofVHelper.bytecode,
+        deployer,
+        [unirep, dailyClaimProofVerifier]
+    )
+
     return {
         reportNonNullifierVHelper,
         reportNullifierVHelper,
+        dailyClaimProofVHelper,
     }
 }
