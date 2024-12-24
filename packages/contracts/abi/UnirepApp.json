@@ -55,7 +55,9 @@
         "name": "InvalidCommentId",
         "type": "error"
     },
+    { "inputs": [], "name": "InvalidDailyEpoch", "type": "error" },
     { "inputs": [], "name": "InvalidEpoch", "type": "error" },
+    { "inputs": [], "name": "NonNegetativeReputation", "type": "error" },
     { "inputs": [], "name": "ProofHasUsed", "type": "error" },
     {
         "inputs": [
@@ -141,6 +143,19 @@
             }
         ],
         "name": "Comment",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint48",
+                "name": "epoch",
+                "type": "uint48"
+            }
+        ],
+        "name": "DailyEpochEnded",
         "type": "event"
     },
     {
@@ -250,6 +265,15 @@
         "type": "event"
     },
     {
+        "inputs": [],
+        "name": "_updateDailyEpochIfNeeded",
+        "outputs": [
+            { "internalType": "uint48", "name": "epoch", "type": "uint48" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256[]",
@@ -260,6 +284,11 @@
                 "internalType": "uint256[8]",
                 "name": "proof",
                 "type": "uint256[8]"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "identifier",
+                "type": "bytes32"
             }
         ],
         "name": "claimDailyLoginRep",
@@ -313,6 +342,43 @@
         "name": "claimReportPosRep",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "dailyCurrentEpoch",
+        "outputs": [{ "internalType": "uint48", "name": "", "type": "uint48" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "dailyEpochData",
+        "outputs": [
+            {
+                "internalType": "uint48",
+                "name": "startTimestamp",
+                "type": "uint48"
+            },
+            {
+                "internalType": "uint48",
+                "name": "currentEpoch",
+                "type": "uint48"
+            },
+            {
+                "internalType": "uint48",
+                "name": "epochLength",
+                "type": "uint48"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "dailyEpochRemainingTime",
+        "outputs": [{ "internalType": "uint48", "name": "", "type": "uint48" }],
+        "stateMutability": "view",
         "type": "function"
     },
     {
