@@ -237,7 +237,7 @@ export default function PostList() {
                                     votedNonce={post.votedNonce}
                                     votedEpoch={post.votedEpoch}
                                     status={post.status}
-                                    onComment={() => handleComment(post.id)}
+                                    onComment={() => handleComment(post.postId)}
                                     onVote={(voteType) =>
                                         handleVote(post.postId!, voteType, post)
                                     }
