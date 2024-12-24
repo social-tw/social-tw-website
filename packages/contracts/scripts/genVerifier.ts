@@ -1,5 +1,5 @@
-import path from 'path'
 import fs from 'fs'
+import path from 'path'
 
 import { config } from 'hardhat'
 
@@ -10,6 +10,7 @@ const Circuit = {
     dataProof: 'dataProof',
     reportNonNullifierProof: 'reportNonNullifierProof',
     reportNullifierProof: 'reportNullifierProof',
+    dailyClaimProof: 'dailyClaimProof',
 }
 
 const main = async (): Promise<number> => {
