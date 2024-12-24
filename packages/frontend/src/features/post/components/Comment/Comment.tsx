@@ -1,3 +1,5 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { Avatar } from '@/features/shared'
 import { CommentStatus } from '@/types/Comments'
 import formatDate from '@/utils/helpers/formatDate'
@@ -6,8 +8,6 @@ import { nanoid } from 'nanoid'
 import { CommentActionMenu } from './CommentActionMenu'
 import { CommentBlockedMask } from './CommentBlockedMask'
 import { CommentReportedMask } from './CommentReportedMask'
-import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
-import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 
 interface CommentProps {
     postId: string
@@ -84,7 +84,9 @@ export default function Comment({
                         )}
                     </div>
                 </header>
-                <p className="text-sm font-medium text-white">{content}</p>
+                <p className="text-sm font-medium text-white whitespace-break-spaces">
+                    {content}
+                </p>
             </article>
             {status === CommentStatus.Failure && (
                 <div className="mb-6">
