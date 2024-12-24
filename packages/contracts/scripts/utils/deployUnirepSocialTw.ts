@@ -38,7 +38,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         dataProofVerifier,
         reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
-        dailyClaimProofVerifier
+        dailyClaimProofVerifier,
     } = await deployVerifiers(deployer)
 
     // deploy verifierHelpers
@@ -47,9 +47,13 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         reportNonNullifierProofVerifier:
             reportNonNullifierProofVerifier.address,
         reportNullifierProofVerifier: reportNullifierProofVerifier.address,
+        dailyClaimProofVerifier: dailyClaimProofVerifier.address,
     }
-    const { reportNonNullifierVHelper, reportNullifierVHelper } =
-        await deployVHelpers(deployer, unirep.address, verifiers)
+    const {
+        reportNonNullifierVHelper,
+        reportNullifierVHelper,
+        dailyClaimProofVHelper,
+    } = await deployVHelpers(deployer, unirep.address, verifiers)
 
     // deploy verifierHelperManager
     console.log('Deploying vHelperManager')
@@ -71,6 +75,10 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         {
             identifier: 'reportNullifierProofVerifierHelper',
             address: reportNullifierVHelper.address,
+        },
+        {
+            identifier: 'dailyClaimProofVerifierHelper',
+            address: dailyClaimProofVHelper.address,
         },
     ].map(({ identifier, address }) => {
         const encodedId = ethers.utils.defaultAbiCoder.encode(
@@ -123,8 +131,10 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         // Verifier Helpers
         reportNonNullifierVHelper,
         reportNullifierVHelper,
+        dailyClaimProofVHelper,
         // Verifiers
         reportNonNullifierProofVerifier,
         reportNullifierProofVerifier,
+        dailyClaimProofVerifier,
     }
 }

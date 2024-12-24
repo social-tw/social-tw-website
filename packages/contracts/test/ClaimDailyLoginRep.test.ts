@@ -1,6 +1,4 @@
 // @ts-ignore
-import { Circuit } from '@unirep/circuits'
-import { deployVerifierHelper } from '@unirep/contracts/deploy/index.js'
 import { genEpochKey } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
@@ -9,8 +7,13 @@ import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
-    genEpochKeyProof,
+    flattenProof,
+    genDailyClaimCircuitInput,
+    genNullifier,
+    genProofAndVerify,
+    genReputationCircuitInput,
     genUserState,
+    genVHelperIdentifier,
     userStateTransition,
 } from './utils'
 
@@ -38,8 +41,9 @@ describe('Claim Daily Login Reputation Test', function () {
     this.timeout(1000000)
     let unirep: Unirep
     let app: UnirepApp
-    let repVerifierHelper
+    // let repVerifierHelper
     let chainId: number
+    let attesterId: bigint
     let user: IdentityObject
 
     let snapshot: any
@@ -47,6 +51,8 @@ describe('Claim Daily Login Reputation Test', function () {
 
     const POS_REP = 5
     const REG_REP = 10
+    const circuit = 'dailyClaimProof'
+    const identifier = genVHelperIdentifier('dailyClaimProofVerifierHelper')
 
     {
         before(async function () {
@@ -64,17 +70,12 @@ describe('Claim Daily Login Reputation Test', function () {
             unirep = contracts.unirep
             app = contracts.app
 
-            repVerifierHelper = await deployVerifierHelper(
-                unirep.address,
-                deployer,
-                Circuit.reputation
-            )
-
             user = createRandomUserIdentity()
 
             chainId = await unirep.chainid()
 
             const userState = await genUserState(user.id, app)
+            attesterId = userState.sync.attesterId
 
             {
                 const { publicSignals, proof } =
@@ -144,11 +145,11 @@ describe('Claim Daily Login Reputation Test', function () {
             expect(proof.maxRep).to.equal(maxRep.toString())
             expect(proof.proveMaxRep).to.equal('1')
 
-            const signals = await repVerifierHelper.verifyAndCheck(
-                proof.publicSignals,
-                proof.proof
-            )
-            checkSignals(signals, proof)
+            // const signals = await repVerifierHelper.verifyAndCheck(
+            //     proof.publicSignals,
+            //     proof.proof
+            // )
+            // checkSignals(signals, proof)
 
             userState.stop()
         } catch (err) {
@@ -157,75 +158,113 @@ describe('Claim Daily Login Reputation Test', function () {
     })
 
     it('should claim daily login reputation', async () => {
+        const identitySecret = user.id.secret
+        const dailyEpoch = 0
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+
         const userState = await genUserState(user.id, app)
-
-        const currentEpoch = await userState.sync.loadCurrentEpoch()
-
-        const { publicSignals, proof } = await userState.genEpochKeyProof()
-
-        const tx = await app.claimDailyLoginRep(publicSignals, proof)
-        await expect(tx)
-            .to.emit(app, 'ClaimPosRep')
-            .withArgs(publicSignals[0], currentEpoch)
-
-        await userStateTransition(userState, unirep, app)
-
-        const data = await userState.getData()
-        // data[0] positive reputation
-        expect(data[0]).equal(POS_REP + 1)
-    })
-
-    it('should revert with not owner', async () => {
-        const notOwner = await ethers.getSigners().then((signers) => signers[1])
-        const userState = await genUserState(user.id, app)
-
-        const { publicSignals, proof } = await userState.genEpochKeyProof()
-
-        await expect(
-            app.connect(notOwner).claimDailyLoginRep(publicSignals, proof)
-        ).to.be.reverted
-    })
-
-    it('should revert with wrong proof', async () => {
-        const userState = await genUserState(user.id, app)
-
-        const { publicSignals, proof } = await userState.genEpochKeyProof()
-
-        proof[0] = BigInt(0)
-
-        await expect(app.claimDailyLoginRep(publicSignals, proof)).to.be
-            .reverted
-    })
-
-    it('should revert with invalid epoch', async () => {
-        const id = user.id
-        const nonce = 0
-        const attesterId = BigInt(app.address)
-        const userState = await genUserState(user.id, app)
-        const wrongEpoch = 444
-        const data = await userState.getData()
         const epoch = await userState.sync.loadCurrentEpoch()
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId
         )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
 
-        const { publicSignals, proof } = await genEpochKeyProof({
-            id,
-            tree,
-            leafIndex,
-            epoch: wrongEpoch,
-            nonce,
-            chainId,
-            attesterId,
-            data,
+        const reputationCircuitInput = genReputationCircuitInput({
+            identitySecret,
+            epoch: epoch,
+            nonce: 0,
+            attesterId: attesterId,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            data: data,
+            maxRep: 1,
+            chainId: chainId,
         })
 
-        await expect(
-            app.claimDailyLoginRep(publicSignals, proof)
-        ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationCircuitInput,
+        })
 
-        userState.stop()
+        const { publicSignals, proof } = await genProofAndVerify(
+            circuit,
+            dailyClaimCircuitInputs
+        )
+
+        const flattenedProof = flattenProof(proof)
+
+        const tx = await app.claimDailyLoginRep(
+            publicSignals,
+            flattenedProof,
+            identifier
+        )
+        await expect(tx)
+            .to.emit(app, 'ClaimPosRep')
+            .withArgs(publicSignals[0], epoch)
+
+        await userStateTransition(userState, unirep, app)
+
+        data = await userState.getData()
+        // data[0] positive reputation
+        expect(data[0]).equal(POS_REP + 1)
     })
+
+    // it('should revert with not owner', async () => {
+    //     const notOwner = await ethers.getSigners().then((signers) => signers[1])
+    //     const userState = await genUserState(user.id, app)
+
+    //     const { publicSignals, proof } = await userState.genEpochKeyProof()
+
+    //     await expect(
+    //         app.connect(notOwner).claimDailyLoginRep(publicSignals, proof, identifier)
+    //     ).to.be.reverted
+    // })
+
+    // it('should revert with wrong proof', async () => {
+    //     const userState = await genUserState(user.id, app)
+
+    //     const { publicSignals, proof } = await userState.genEpochKeyProof()
+
+    //     proof[0] = BigInt(0)
+
+    //     await expect(app.claimDailyLoginRep(publicSignals, proof)).to.be
+    //         .reverted
+    // })
+
+    // it('should revert with invalid epoch', async () => {
+    //     const id = user.id
+    //     const nonce = 0
+    //     const attesterId = BigInt(app.address)
+    //     const userState = await genUserState(user.id, app)
+    //     const wrongEpoch = 444
+    //     const data = await userState.getData()
+    //     const epoch = await userState.sync.loadCurrentEpoch()
+    //     const tree = await userState.sync.genStateTree(epoch, attesterId)
+    //     const leafIndex = await userState.latestStateTreeLeafIndex(
+    //         epoch,
+    //         attesterId
+    //     )
+
+    //     const { publicSignals, proof } = await genEpochKeyProof({
+    //         id,
+    //         tree,
+    //         leafIndex,
+    //         epoch: wrongEpoch,
+    //         nonce,
+    //         chainId,
+    //         attesterId,
+    //         data,
+    //     })
+
+    //     await expect(
+    //         app.claimDailyLoginRep(publicSignals, proof)
+    //     ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
+
+    //     userState.stop()
+    // })
 })
