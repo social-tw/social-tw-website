@@ -68,7 +68,13 @@ export class VoteService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
+        console.log("====================== Voting ======================");
+        const votingStart = new Date().getTime();
+
+
         // get valid epoch key
+        
+        const genEpokProofStart = new Date().getTime()
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
             publicSignals,
             proof,
@@ -99,6 +105,10 @@ export class VoteService {
             post,
             voteAction
         )
+
+        const votingEnd = new Date().getTime();
+        console.log("Voting Cost: ", votingEnd - votingStart, "ms");
+        
     }
 
     /**

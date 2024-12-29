@@ -6,6 +6,7 @@ import { DAY_DIFF_STAEMENT, DB_PATH, LOAD_POST_COUNT } from '../config'
 import { Errors } from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
+import { provider } from '../config'
 import IpfsHelper from './utils/IpfsHelper'
 import ProofHelper from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
@@ -234,26 +235,45 @@ export class PostService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ): Promise<string> {
+        console.log("====================== Posting ======================");
+        
+        const postingStart = new Date().getTime();
+
+        const genEpkProofStart = new Date().getTime();
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
             synchronizer
         )
+        const genEpkProofEnd = new Date().getTime();
+
+        console.log("Generating Epoch Key Proof Cost", genEpkProofEnd - genEpkProofStart, "ms")
+
 
         // post content
+        const createCidStart = new Date().getTime();
         const cid = (
             await IpfsHelper.createIpfsContent(helia, content)
         ).toString()
+        const createCidEnd = new Date().getTime();
+
+        console.log("Creating CID cost", createCidEnd - createCidStart, "ms")
+        
+        const postOnChainStart = new Date().getTime();
         const txHash = await TransactionManager.callContract('post', [
             epochKeyProof.publicSignals,
             epochKeyProof.proof,
             cid,
         ])
-
+        // const _receipt = await provider.waitForTransaction(txHash)
+        const postOnChainEnd = new Date().getTime();
+        console.log("Posting on chain cost", postOnChainEnd - postOnChainStart, "ms");
+        
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
         // save post into db
+        const savePostInDBStart = new Date().getTime();
         await db.create('Post', {
             epochKey: epochKey,
             epoch: epoch,
@@ -265,7 +285,12 @@ export class PostService {
             commentCount: 0,
             cid: cid,
         })
-
+        const savePostInDBEnd = new Date().getTime();
+        console.log("Saving in DB cost", savePostInDBEnd - savePostInDBStart, "ms");
+        
+        const postingEnd = new Date().getTime();
+        console.log("Posting Total Cost: ", postingEnd - postingStart, "ms");
+        
         return txHash
     }
 

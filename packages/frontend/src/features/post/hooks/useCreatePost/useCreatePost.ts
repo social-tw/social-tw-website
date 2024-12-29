@@ -40,7 +40,11 @@ export function useCreatePost() {
             const provider = getGuaranteedProvider()
             const userState = await getGuaranteedUserState()
 
+            console.log('createPost', { content })
+            const startUST = new Date().getTime();
             await stateTransition()
+            const endUST = new Date().getTime();
+            console.log("State Transition Cost: ", endUST - startUST, "ms");
 
             const identityNonce = getEpochKeyNonce(Math.max(0, actionCount - 1))
 

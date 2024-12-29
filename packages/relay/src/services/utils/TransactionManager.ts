@@ -145,6 +145,9 @@ export class TransactionManager {
         to: string,
         data: string | any = {}
     ): Promise<string> {
+
+        console.log("==================== Queueing Transcation ======================");
+        const qStart = new Date().getTime();
         const args = {} as any
         if (typeof data === 'string') {
             // assume it's input data
@@ -176,9 +179,18 @@ export class TransactionManager {
                 gasLimit: gasLimit?.add(50000),
             })
         }
-        const nonce = await this.getNonce(this.wallet.address)
-        const gasPrice = await this.wallet.provider.getGasPrice()
-        const { chainId } = await this.wallet.provider.getNetwork()
+
+        const [nonce, gasPrice, {chainId}] = await Promise.all([
+            this.getNonce(this.wallet.address),
+            this.wallet.provider.getGasPrice(),
+            this.wallet.provider.getNetwork()
+        ])
+        
+        // const nonce = await this.getNonce(this.wallet.address)
+        // const gasPrice = await this.wallet.provider.getGasPrice()
+        // const { chainId } = await this.wallet.provider.getNetwork()
+        console.log("\t===================== signedData =====================");
+        const signedStart = new Date().getTime();
         const signedData = await this.wallet.signTransaction({
             nonce,
             to,
@@ -189,11 +201,18 @@ export class TransactionManager {
             type: 2, // 2 for EIP-1559
             ...args,
         })
+        const signedEnd = new Date().getTime();
+        console.log("========");
+        
+        console.log("\tSigning Transaction Cost: ", signedEnd - signedStart, "ms");
+        
         await this._db?.create('AccountTransaction', {
             address: this.wallet.address,
             signedData,
             nonce,
         })
+        const qEnd = new Date().getTime();
+        console.log("Queueing Transaction Cost: ", qEnd - qStart, "ms");
         return ethers.utils.keccak256(signedData)
     }
 
@@ -211,12 +230,15 @@ export class TransactionManager {
         if (!this.appContract) throw Errors.UNINITIALIZED()
         const appContract = this.appContract
 
+        const callingDataStart = new Date().getTime();
         const calldata = appContract.interface.encodeFunctionData(
             functionSignature,
             [...args]
         )
+        const callingDataEnd = new Date().getTime();
+        console.log("Calling Data Cost: ", callingDataEnd - callingDataStart, "ms");
+        
         const hash = await this.queueTransaction(appContract.address, calldata)
-
         return hash
     }
 }

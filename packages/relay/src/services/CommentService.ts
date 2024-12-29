@@ -1,6 +1,7 @@
 import { DB } from 'anondb'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
+import { provider } from '../config'
 import { Errors } from '../types'
 import { Comment, CommentStatus } from '../types/Comment'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -95,23 +96,31 @@ export class CommentService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ) {
+        console.log("====================== Commenting ======================");
+        const commentingStart = new Date().getTime();
         const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
             publicSignals,
             proof,
             synchronizer
         )
+        
 
         // store content into helia ipfs node with json plain
         const cid = (
             await IpfsHelper.createIpfsContent(helia, content)
         ).toString()
+
+        const txStart = new Date().getTime()
         const txHash = await TransactionManager.callContract('leaveComment', [
             publicSignals,
             proof,
             postId,
             cid,
         ])
-
+        const _receipt = await provider.waitForTransaction(txHash) 
+        const txEnd = new Date().getTime()
+        console.log("Comment tx cost: ", txEnd - txStart, "ms");
+        
         const epoch = Number(epochKeyProof.epoch)
         const epochKey = epochKeyProof.epochKey.toString()
 
@@ -125,6 +134,10 @@ export class CommentService {
             transactionHash: txHash,
             status: 0,
         })
+
+        const commentingEnd = new Date().getTime();
+        console.log("Comment Cost: ", commentingEnd - commentingStart, "ms");
+        
 
         return txHash
     }
@@ -202,3 +215,4 @@ export class CommentService {
 }
 
 export const commentService = new CommentService()
+    
