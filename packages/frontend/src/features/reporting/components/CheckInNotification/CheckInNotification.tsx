@@ -3,9 +3,10 @@ import { useNotifyCheckIn } from '../../hooks/useNotifyCheckIn/useNotifyCheckIn'
 import CheckIn from '../CheckIn/CheckIn'
 import DiscardCheckIn from '../DiscardCheckIn/DiscardCheckIn'
 import CheckInFloatingButton from './CheckFloatingButton'
+import { useCheckInStore } from '../../hooks/useCheckIn/useCheckInStore'
 
 export default function CheckInNotification() {
-    const [isOpenCheckIn, toggleCheckIn] = useToggle(false)
+    const { isOpenCheckIn, toggleCheckIn } = useCheckInStore()
     const [isOpenDiscardCheckIn, toggleDiscardCheckIn] = useToggle(false)
 
     const { isOpen, discardCheckIn } = useNotifyCheckIn()

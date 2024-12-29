@@ -1,13 +1,16 @@
 import ReputationHistory from '@/features/profile/components/ReputationHistory/ReputationHistory'
 import { useReputationScore } from '@/features/reporting'
-
-const CONTENT =
-    '為維護匿名平台的抗審查及自治特性，Reputation 代表著您在此平台上的信用分數，每位用戶在註冊時的分數都為０，當分數為負數時，平台將限制您的行為使您無法發文、留言、投票，若希望提高分數，請參閱平台政策。此分數受您的在平台上的行為所影響，若您受到他人檢舉，並且檢舉被判斷為有效時，您將會被扣分；若您檢舉他人成功、或是幫助平台裁定檢舉，您將會被加分。平台方保有最終解釋權'
+import { Link } from 'react-router-dom'
 
 function Hint() {
     return (
-        <div className={`bg-white text-black p-8 rounded-xl leading-8`}>
-            {CONTENT}
+        <div className="p-4 text-sm leading-6 text-black bg-white lg:p-6 rounded-xl">
+            聲譽分數（Reputation Score）為用戶在 Unirep Social Taiwan
+            上的所有操作行為所獲得的分數，作為去中心化與用戶自治的機制。每位用戶的聲譽分數起始分數為
+            0，當用戶的分數為負分時，平台將限制該用戶的操作行為，該用戶無法進行發文、按讚、倒讚、留言、檢舉和協助檢舉評判，僅能進行瀏覽。更多詳情請參閱
+            <Link className="underline text-secondary" to="/about">
+                平台說明
+            </Link>
         </div>
     )
 }
@@ -20,27 +23,25 @@ function Score() {
     const subHint = '＊聲譽分數會在每個 Epoch 開始時更新'
     return (
         <div>
-            <hr className="mb-8 border-gray-600" />
             <div className={myScoreStyle}>{myScore}</div>
-            <div className="mt-4 text-sm text-center text-white">{hint}</div>
-            <div className="mt-4 text-[12px] text-center text-gray-400">
+            <div className="mt-2 text-sm text-center text-white">{hint}</div>
+            <div className="mt-1 text-xs text-center text-gray-400">
                 {subHint}
             </div>
-            <hr className="mt-8 mb-8 border-gray-600" />
         </div>
     )
 }
 
 function getHintByScore(score: number) {
     return checkIsMyScoreNegative(score)
-        ? '您的 Reputation 分數為負值，行為權力已被限制'
-        : '您的 Reputation 分數良好，不會被限制行為權利'
+        ? '您的聲譽分數為負值，行為權力已被限制'
+        : '您的聲譽分數良好，不會被限制行為權利'
 }
 
 function getScoreStyle(score: number) {
     const isMyScoreNegative = checkIsMyScoreNegative(score)
     const textColor = isMyScoreNegative ? 'text-red-600' : 'text-white'
-    return `text-center ${textColor} text-9xl`
+    return `text-center ${textColor} text-7xl`
 }
 
 function checkIsMyScoreNegative(score: number) {
@@ -49,10 +50,10 @@ function checkIsMyScoreNegative(score: number) {
 
 export default function Reputation() {
     return (
-        <div>
+        <div className="px-4 py-8 space-y-8 lg:px-0">
             <Score />
-            <ReputationHistory />
             <Hint />
+            <ReputationHistory />
         </div>
     )
 }

@@ -36,6 +36,7 @@ describe('POST /api/report', function () {
     let nonce: number = 0
     let chainId: number
     const EPOCH_LENGTH = 100000
+    const TEST_CONTENT = 'test content'
     let users: IdentityObject[]
     let app: UnirepApp
     let prover: any
@@ -111,6 +112,7 @@ describe('POST /api/report', function () {
                 expect(res).to.have.status(200)
                 const curPost = res.body as Post
                 expect(curPost.status).to.equal(1)
+                expect(curPost.content).to.equal(TEST_CONTENT)
             })
         }
 
@@ -168,21 +170,14 @@ describe('POST /api/report', function () {
                 expect(res.body).to.have.property('reportId')
             })
 
-        // Verify that the post status is updated and content is filtered
-        const afterReportResponse = await express.get(
-            `/api/post/${postId}?status=${PostStatus.REPORTED}`
-        )
+        // Verify that the post status is updated
+        const afterReportResponse = await express.get(`/api/post/${postId}`)
         expect(afterReportResponse).to.have.status(200)
-        expect(afterReportResponse.body).to.not.have.property('content')
         expect(afterReportResponse.body).to.have.property(
             'status',
             PostStatus.REPORTED
         )
 
-        // Verify that other properties are still present
-        expect(afterReportResponse.body).to.have.property('postId')
-        expect(afterReportResponse.body).to.have.property('publishedAt')
-        expect(afterReportResponse.body).to.have.property('epochKey')
         // Verify that the post is still accessible but filtered when fetching all posts
         const allPostsResponse = await express.get('/api/post')
         expect(allPostsResponse).to.have.status(200)
@@ -190,8 +185,14 @@ describe('POST /api/report', function () {
             (post) => post.postId === postId
         )
         expect(reportedPost).to.exist
-        expect(reportedPost).to.not.have.property('content')
+        expect(reportedPost).to.have.property('content', TEST_CONTENT)
         expect(reportedPost).to.have.property('status', PostStatus.REPORTED)
+
+        const searchReportedPost = await express.get(
+            `/api/post?q=${TEST_CONTENT}`
+        )
+        expect(searchReportedPost).to.have.status(200)
+        expect(searchReportedPost.body.length).equal(0)
     })
 
     it('should fail to create a report with invalid proof', async function () {
@@ -470,13 +471,12 @@ describe('POST /api/report', function () {
             })
     })
 
-    it('should fetch report whose adjudication result is tie', async function () {
+    it('should not fetch report whose adjudication count has reached threshold', async function () {
         // update mock value into report
         const adjudicatorsNullifier = [
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -490,11 +490,7 @@ describe('POST /api/report', function () {
             },
         })
 
-        // epoch transition
-        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await provider.send('evm_mine', [])
-
-        const reports = await express
+        const votingReports = await express
             .get(
                 `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
             )
@@ -503,23 +499,31 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        // flatMap to [adjudicateValue1, adjucateValue2 ...]
-        // add all adjudicateValues (0: disagree, 1: agree)
-        const adjudicateResult = reports[0].adjudicatorsNullifier
-            .flatMap((nullifier) => nullifier.adjudicateValue)
-            .reduce((acc, value) => {
-                // disagree
-                if (Number(value) == 0) {
-                    return acc - 1
-                }
-                // agree
-                return acc + 1
-            })
-        expect(adjudicateResult).equal(0)
-        expect(reports[0].adjudicateCount).gt(5)
+        // filter out the report whose objectId is '0' and type is POST
+        const filteredReports = votingReports.filter(
+            (report: any) =>
+                report.objectId !== '0' && report.type === ReportType.POST
+        )
+
+        expect(filteredReports.length).equal(0)
+
+        const waitingForTxReports = await express
+            .get(
+                `/api/report?status=${ReportStatus.WAITING_FOR_TRANSACTION}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+            )
+            .then((res) => res.body)
+
+        // no report is waiting for transaction
+        // because the report is still in voting status
+        // and since the adjudication count has reached threshold
+        // so when querying voting reports, it will be filtered out
+        expect(waitingForTxReports.length).equal(0)
     })
 
     it('should fetch report whose adjudication count is less than 5', async function () {
+        // epoch transition
+        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
+        await provider.send('evm_mine', [])
         // nobody vote on reports[1], it can be fetched on next epoch
         const reports = await express
             .get(
@@ -530,10 +534,10 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        expect(reports[1].adjudicateCount).lt(5)
-        expect(reports[1].status).equal(0)
+        expect(reports[0].adjudicateCount).lt(5)
+        expect(reports[0].status).equal(0)
         const currentEpoch = await sync.loadCurrentEpoch()
-        const epochDiff = currentEpoch - reports[1].reportEpoch
+        const epochDiff = currentEpoch - reports[0].reportEpoch
         expect(epochDiff).gt(1)
     })
 
@@ -543,8 +547,6 @@ describe('POST /api/report', function () {
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -568,7 +570,7 @@ describe('POST /api/report', function () {
                 return res.body
             })
 
-        expect(reports[0].adjudicateCount).gt(5)
+        expect(reports[0].adjudicateCount).gte(5)
         expect(reports[0].status).equal(1)
         const currentEpoch = await sync.loadCurrentEpoch()
         const epochDiff = currentEpoch - reports[0].reportEpoch
@@ -935,10 +937,6 @@ describe('POST /api/report', function () {
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
             { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
             { adjudicateValue: AdjudicateValue.DISAGREE },
         ]
@@ -979,7 +977,7 @@ describe('POST /api/report', function () {
         await express.get(`/api/post/${report.objectId}`).then((res) => {
             const curPost = res.body as Post
             expect(curPost.status).to.equal(PostStatus.DISAGREED)
-            expect(curPost).to.not.have.property('content')
+            expect(curPost.content).equal(TEST_CONTENT)
         })
     })
 
@@ -1008,54 +1006,6 @@ describe('POST /api/report', function () {
             },
             update: {
                 status: PostStatus.REPORTED,
-            },
-        })
-        // epoch transition
-        await provider.send('evm_increaseTime', [EPOCH_LENGTH])
-        await provider.send('evm_mine', [])
-        const curEpoch = await sync.loadCurrentEpoch()
-        expect(curEpoch).equal(prevEpoch + 1)
-        await unirep.updateEpochIfNeeded(sync.attesterId).then((t) => t.wait())
-        await sync.waitForSync()
-
-        const report = await express
-            .get(
-                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
-            )
-            .then((res) => {
-                expect(res).to.have.status(200)
-                const reports = res.body
-                expect(reports.length).to.be.equal(2)
-                return reports
-            })
-
-        await express.get(`/api/post/${report[0].objectId}`).then((res) => {
-            expect(res).to.have.status(200)
-            const curPost = res.body as Post
-            expect(curPost.status).to.equal(PostStatus.REPORTED)
-        })
-    })
-
-    it('should not settle report if the vote is tie', async function () {
-        // insert mock value into report
-        const adjudicatorsNullifier = [
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.AGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-            { adjudicateValue: AdjudicateValue.DISAGREE },
-        ]
-        const prevEpoch = await sync.loadCurrentEpoch()
-        await db.update('ReportHistory', {
-            where: {
-                AND: [{ objectId: '0' }, { type: ReportType.POST }],
-            },
-            update: {
-                adjudicatorsNullifier,
-                adjudicateCount: adjudicatorsNullifier.length,
-                status: ReportStatus.VOTING,
-                reportEpoch: prevEpoch,
             },
         })
         // epoch transition

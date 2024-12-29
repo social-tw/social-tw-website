@@ -1,6 +1,7 @@
 export enum QueryKeys {
     RelayConfig = 'relay_config',
     UserState = 'user_state',
+    UserInfo = 'user_info',
     HasSignedUp = 'has_signed_up',
     CurrentEpoch = 'current_epoch',
     EpochRemainingTime = 'epoch_remaining_time',
@@ -17,10 +18,12 @@ export enum QueryKeys {
     VoteHistory = 'vote_history',
     ReportHistory = 'ReportHistory',
     ReportsWaitingForTransaction = 'ReportsWaitingForTransaction',
+    Notifications = 'notifications',
+    SingleReport = 'singleReport',
 }
 
 export enum MutationKeys {
-    ReuestData = 'request_data',
+    RequestData = 'request_data',
     ProveData = 'prove_data',
     Login = 'login',
     LoginWithServer = 'login_with_server',

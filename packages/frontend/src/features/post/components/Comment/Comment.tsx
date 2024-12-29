@@ -1,3 +1,5 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { Avatar } from '@/features/shared'
 import { CommentStatus } from '@/types/Comments'
 import formatDate from '@/utils/helpers/formatDate'
@@ -36,6 +38,17 @@ export default function Comment({
     onRepublish = () => {},
     onDelete = () => {},
 }: CommentProps) {
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
+    const handleDelete = async () => {
+        try {
+            await checkAuth()
+            onDelete()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     return (
         <>
             <article
@@ -64,14 +77,16 @@ export default function Comment({
                             <CommentActionMenu
                                 postId={postId}
                                 commentId={commentId}
-                                onDelete={onDelete}
+                                onDelete={handleDelete}
                                 canDelete={canDelete}
                                 canReport={canReport}
                             />
                         )}
                     </div>
                 </header>
-                <p className="text-sm font-medium text-white">{content}</p>
+                <p className="text-sm font-medium text-white whitespace-break-spaces">
+                    {content}
+                </p>
             </article>
             {status === CommentStatus.Failure && (
                 <div className="mb-6">

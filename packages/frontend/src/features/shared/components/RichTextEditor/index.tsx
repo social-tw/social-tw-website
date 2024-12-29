@@ -3,7 +3,6 @@ import {
     $convertFromMarkdownString,
     $convertToMarkdownString,
 } from '@lexical/markdown'
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
@@ -47,6 +46,7 @@ export default function RichTextEditor({
         root?: string
         content?: string
         placeholder?: string
+        editable?: string
     }
     ariaLabel?: string
     placeholder?: string
@@ -138,7 +138,10 @@ export default function RichTextEditor({
                             <div className={classes?.content}>
                                 <ContentEditable
                                     ariaLabel={ariaLabel}
-                                    className="focus-visible:outline-none"
+                                    className={clsx(
+                                        'focus-visible:outline-none',
+                                        classes?.editable,
+                                    )}
                                 />
                             </div>
                         }
@@ -156,7 +159,6 @@ export default function RichTextEditor({
                     />
                     <MarkdownShortcutPlugin />
                     <OnChangePlugin onChange={_onChange} />
-                    <AutoFocusPlugin />
                     <HistoryPlugin />
                     <ClearEditorPlugin />
                     <ClearAllPlugin

@@ -1,4 +1,5 @@
 import { QueryKeys } from '@/constants/queryKeys'
+
 import {
     ActionStatus,
     postActionsSelector,
@@ -24,10 +25,13 @@ import {
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { nanoid } from 'nanoid'
 import { Fragment, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import ExamplePost from '../ExamplePost/ExamplePost'
 
 export default function PostList() {
     const { userState } = useUserState()
+    const [searchParams] = useSearchParams()
+    const query = searchParams.get('q') ?? ''
 
     const queryClient = useQueryClient()
 
@@ -38,10 +42,10 @@ export default function PostList() {
         QueryKey,
         number
     >({
-        queryKey: [QueryKeys.ManyPosts],
+        queryKey: [QueryKeys.ManyPosts, query],
         queryFn: async ({ pageParam }) => {
             const postService = new PostService()
-            const data = await postService.fetchPosts(pageParam)
+            const data = await postService.fetchPosts(pageParam, query)
 
             return data.map((item) => {
                 const voteCheck = userState
@@ -56,6 +60,7 @@ export default function PostList() {
                     id: item.transactionHash!,
                     postId: item.postId,
                     epochKey: item.epochKey,
+                    epoch: item.epoch,
                     content: item.content,
                     publishedAt: new Date(Number(item.publishedAt)),
                     commentCount: item.commentCount,
@@ -100,6 +105,7 @@ export default function PostList() {
                     id: actionData?.transactionHash ?? nanoid(),
                     postId: actionData?.postId,
                     epochKey: actionData?.epochKey,
+                    epoch: actionData?.epoch,
                     content: actionData.content,
                     publishedAt: action.submittedAt,
                     commentCount: 0,
@@ -121,10 +127,19 @@ export default function PostList() {
     const navigate = useNavigate()
 
     function gotoCommentsByPostId(postId: string) {
-        navigate(`/posts/${postId}/#comments`)
+        navigate(`/posts/${postId}/?leaveComment=1`)
     }
 
     const { createVote } = useVotes()
+
+    const handleComment = (postId?: string) => {
+        if (!postId) return
+        if (!isValidReputationScore) {
+            openForbidActionDialog()
+            return
+        }
+        gotoCommentsByPostId(postId)
+    }
 
     const handleVote = async (
         id: string,
@@ -137,7 +152,6 @@ export default function PostList() {
                     post.finalAction === VoteAction.UPVOTE
                         ? VoteAction.CANCEL_UPVOTE
                         : VoteAction.CANCEL_DOWNVOTE
-
                 await createVote({
                     id,
                     voteAction: cancelAction,
@@ -158,7 +172,6 @@ export default function PostList() {
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }
@@ -168,8 +181,11 @@ export default function PostList() {
     const { isValidReputationScore } = useReputationScore()
 
     return (
-        <div className="px-4">
+        <div className="px-4 lg:px-0">
             <ul className="space-y-3 md:space-y-6">
+                <li>
+                    <ExamplePost />
+                </li>
                 {localPosts.map((post) => (
                     <li
                         key={post.id}
@@ -178,6 +194,7 @@ export default function PostList() {
                         <Post
                             id={post.postId}
                             epochKey={post.epochKey}
+                            epoch={post.epoch}
                             content={post.content}
                             publishedAt={post.publishedAt}
                             commentCount={post.commentCount}
@@ -206,6 +223,7 @@ export default function PostList() {
                                 <Post
                                     id={post.postId}
                                     epochKey={post.epochKey}
+                                    epoch={post.epoch}
                                     content={post.content}
                                     publishedAt={post.publishedAt}
                                     commentCount={post.commentCount}
@@ -219,14 +237,7 @@ export default function PostList() {
                                     votedNonce={post.votedNonce}
                                     votedEpoch={post.votedEpoch}
                                     status={post.status}
-                                    onComment={() => {
-                                        if (!post.postId) return
-                                        if (!isValidReputationScore) {
-                                            openForbidActionDialog()
-                                            return
-                                        }
-                                        gotoCommentsByPostId(post.postId)
-                                    }}
+                                    onComment={() => handleComment(post.postId)}
                                     onVote={(voteType) =>
                                         handleVote(post.postId!, voteType, post)
                                     }

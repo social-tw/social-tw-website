@@ -6,7 +6,6 @@ import { errorHandler } from '../services/utils/ErrorHandler'
 
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
-import { postService } from '../services/PostService'
 import ProofHelper from '../services/utils/ProofHelper'
 import Validator from '../services/utils/Validator'
 import { AdjudicateValue, Errors } from '../types'
@@ -36,8 +35,6 @@ export default (
             const reportId = await reportService.createReport(db, reportData)
             // 3. Adjust Post / Comment Status
             await reportService.updateObjectStatus(db, reportData)
-            // 4. Update post order
-            await postService.updateOrder(db)
             res.json({ reportId })
         })
     )
@@ -103,6 +100,32 @@ export default (
         errorHandler((req, res, next) => {
             const reportCategories = reportService.fetchReportCategory()
             res.json(reportCategories)
+        })
+    )
+
+    app.get(
+        '/api/report/:id',
+        errorHandler(async (req: Request, res: Response) => {
+            const id = req.params.id
+            if (!Validator.isValidNumber(id)) throw Errors.INVALID_REPORT_ID()
+
+            const { publicSignals, proof } = req.query
+            if (!publicSignals) throw Errors.INVALID_PUBLIC_SIGNAL()
+            if (!proof) throw Errors.INVALID_PROOF()
+
+            await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                JSON.parse(publicSignals as string) as PublicSignals,
+                JSON.parse(proof as string) as Groth16Proof,
+                synchronizer
+            )
+
+            const report = await reportService.fetchSingleReportWithDetails(
+                id,
+                db
+            )
+            if (!report) throw Errors.REPORT_NOT_EXIST()
+
+            res.json(report)
         })
     )
 }

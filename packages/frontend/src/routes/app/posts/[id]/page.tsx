@@ -1,5 +1,4 @@
 import { QueryKeys } from '@/constants/queryKeys'
-import { AuthErrorDialog, useAuthStatus } from '@/features/auth'
 import { PostService, useUserState } from '@/features/core'
 import {
     CommentList,
@@ -14,12 +13,12 @@ import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
 import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
 import { useQuery } from '@tanstack/react-query'
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 const PostDetailsPage: React.FC = () => {
     const { id } = useParams()
-
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
     if (!id) {
@@ -27,8 +26,6 @@ const PostDetailsPage: React.FC = () => {
     }
 
     const { userState } = useUserState()
-
-    const { isLoggedIn } = useAuthStatus()
 
     const { createVote } = useVotes()
 
@@ -52,6 +49,7 @@ const PostDetailsPage: React.FC = () => {
         return {
             id: data._id,
             postId: data.postId,
+            epoch: data.epoch,
             epochKey: data.epochKey,
             content: data.content,
             publishedAt: new Date(Number(data.publishedAt)),
@@ -69,23 +67,16 @@ const PostDetailsPage: React.FC = () => {
         }
     }, [data, userState])
 
-    const [isOpenComment, setIsOpenCommnet] = useState(false)
-
-    const [errorMessage, setErrorMessage] = useState<string>()
+    const [isOpenComment, setIsOpenComment] = useState(false)
 
     const { isValidReputationScore } = useReputationScore()
+
     const onWriteComment = () => {
-        if (!isLoggedIn) {
-            setErrorMessage(
-                '很抱歉通知您，您尚未登陸帳號，請返回註冊頁再次嘗試註冊，謝謝您！',
-            )
-            return
-        }
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
         }
-        setIsOpenCommnet((prev) => !prev)
+        setIsOpenComment((prev) => !prev)
     }
 
     const handleVote = async (voteType: VoteAction): Promise<boolean> => {
@@ -113,23 +104,31 @@ const PostDetailsPage: React.FC = () => {
                 })
             }
 
-            await refetch() // Refresh the post data after voting
+            await refetch()
 
             return true
         } catch (err) {
-            console.error(err)
             return false
         }
     }
+
+    useEffect(() => {
+        const leaveComment = searchParams.get('leaveComment')
+
+        if (leaveComment === '1') {
+            setIsOpenComment(true)
+        }
+    }, [searchParams])
 
     if (!id || !post) return null
 
     return (
         <>
-            <div className="px-4">
-                <section className="py-6">
+            <div className="px-4 py-6 space-y-6 lg:px-0">
+                <section>
                     <Post
                         id={post.postId}
+                        epoch={post.epoch}
                         epochKey={post.epochKey}
                         content={post.content}
                         publishedAt={post.publishedAt}
@@ -146,7 +145,7 @@ const PostDetailsPage: React.FC = () => {
                         onVote={handleVote}
                     />
                 </section>
-                <section id="comments">
+                <section id="comments" className="px-6">
                     <CommentList postId={id} />
                     <div className="h-[50vh]"></div>
                 </section>
@@ -154,14 +153,9 @@ const PostDetailsPage: React.FC = () => {
             <CreateComment
                 postId={id}
                 isOpen={isOpenComment}
-                onClose={() => setIsOpenCommnet(false)}
+                onClose={() => setIsOpenComment(false)}
             />
             <CommentNotification postId={id} />
-            <AuthErrorDialog
-                isOpen={!!errorMessage}
-                message={errorMessage}
-                buttonText="返回註冊/登入頁"
-            />
         </>
     )
 }

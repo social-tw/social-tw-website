@@ -1,7 +1,16 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 import { useAuthStatus } from '@/features/auth'
-import { LikeAnimation, VoteFailureDialog, useVoteStore } from '@/features/post'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
+import { useUserState } from '@/features/core'
+import {
+    LikeAnimation,
+    VoteFailureDialog,
+    usePostReportReason,
+    useVoteStore,
+} from '@/features/post'
 import { useReputationScore } from '@/features/reporting'
 import { Avatar } from '@/features/shared'
+import { useCopy } from '@/features/shared/hooks/useCopy'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
 import { PostStatus } from '@/types/Post'
 import { VoteAction } from '@/types/Vote'
@@ -10,6 +19,9 @@ import { nanoid } from 'nanoid'
 import { useEffect, useMemo, useState } from 'react'
 import LinesEllipsis from 'react-lines-ellipsis'
 import { Link } from 'react-router-dom'
+import { useBlockMask } from '../../hooks/useBlockMask/useBlockMask'
+import { useReportMask } from '../../hooks/useReportMask/useReportMask'
+import ShareLinkTransition from '../ShareLinkTransition/ShareLinkTransition'
 import { PostActionMenu } from './PostActionMenu'
 import { PostBlockedMask } from './PostBlockedMask'
 import PostFooter from './PostFooter'
@@ -17,6 +29,7 @@ import { PostReportedMask } from './PostReportedMask'
 
 export default function Post({
     id = '',
+    epoch,
     epochKey,
     content = '',
     imageUrl,
@@ -36,6 +49,7 @@ export default function Post({
     onVote = async (voteType: VoteAction) => false,
 }: {
     id?: string
+    epoch?: number
     epochKey?: string
     content?: string
     imageUrl?: string
@@ -54,6 +68,7 @@ export default function Post({
     onComment?: () => void
     onVote?: (voteType: VoteAction) => Promise<boolean>
 }) {
+    const { userState } = useUserState()
     const publishedTime = dayjs(publishedAt)
     const publishedLabel = publishedTime.isBefore(dayjs(), 'day')
         ? publishedTime.format('YYYY/MM/DD')
@@ -62,6 +77,7 @@ export default function Post({
         status === PostStatus.Pending ? '存取進行中' : publishedLabel
 
     const { isLoggedIn } = useAuthStatus()
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
 
     const { votes } = useVoteStore()
 
@@ -87,16 +103,38 @@ export default function Post({
         votedEpoch,
     ])
 
+    const { hasCopied, copyToClipboard } = useCopy()
+
     const [localUpCount, setLocalUpCount] = useState(upCount)
     const [localDownCount, setLocalDownCount] = useState(downCount)
 
-    const [show, setShow] = useState(false)
+    const [isShowAnimation, setIsShowAnimation] = useState(false)
+    const { isShowReportMask, updateIsShowReportMask } = useReportMask(
+        isReported,
+        userState,
+        epoch,
+        epochKey,
+    )
+    const { isShowBlockMask } = useBlockMask(
+        isBlocked,
+        userState,
+        epoch,
+        epochKey,
+    )
+
     const [imgType, setImgType] = useState<
         VoteAction.UPVOTE | VoteAction.DOWNVOTE
     >(VoteAction.UPVOTE)
     const [isAction, setIsAction] = useState(finalAction)
     const [isMineState, setIsMineState] = useState(isMine)
     const [isError, setIsError] = useState(false)
+
+    const handleShareClick = () => {
+        if (id) {
+            const postLink = `${window.location.origin}/posts/${id}`
+            copyToClipboard(postLink)
+        }
+    }
 
     // set isAction when finalAction is changed
     useEffect(() => {
@@ -105,7 +143,19 @@ export default function Post({
     }, [isMine, finalAction])
 
     const { isValidReputationScore } = useReputationScore()
+    const { reason } = usePostReportReason(id)
+
+    const handleComment = async () => {
+        try {
+            await checkAuth()
+            onComment()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     const handleVote = async (voteType: VoteAction) => {
+        if (!isLoggedIn) return
         if (!isValidReputationScore) {
             openForbidActionDialog()
             return
@@ -116,14 +166,14 @@ export default function Post({
             return
         }
 
-        setShow(true)
+        setIsShowAnimation(true)
         setImgType(
             voteType === VoteAction.UPVOTE
                 ? VoteAction.UPVOTE
                 : VoteAction.DOWNVOTE,
         )
         setIsAction(voteType)
-        setTimeout(() => setShow(false), 500)
+        setTimeout(() => setIsShowAnimation(false), 500)
     }
 
     useEffect(() => {
@@ -136,10 +186,15 @@ export default function Post({
         setIsAction(voteState.finalAction)
     }, [voteState])
 
+    useEffect(() => {
+        setIsMineState(isMine)
+        setIsAction(finalAction)
+    }, [isMine, finalAction])
+
     const postInfo = (
         <div className="space-y-3">
             <header className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-5">
                     <Avatar name={epochKey ?? nanoid()} />
                     <span className="text-xs font-medium tracking-wide text-black/80">
                         {subtitle}
@@ -165,12 +220,21 @@ export default function Post({
         </div>
     )
 
+    if (isShowReportMask) {
+        return (
+            <PostReportedMask
+                onRemove={() => updateIsShowReportMask(false)}
+                reason={reason}
+            />
+        )
+    }
+
     return (
         <article className="relative flex bg-white/90 rounded-xl shadow-base">
-            {isReported && <PostReportedMask />}
-            {isBlocked && <PostBlockedMask />}
-            {<LikeAnimation isLiked={show} imgType={imgType} />}
-            <div className="flex-1 p-4 space-y-3">
+            {isShowBlockMask && <PostBlockedMask />}
+            {<LikeAnimation isLiked={isShowAnimation} imgType={imgType} />}
+            {<ShareLinkTransition isOpen={hasCopied} />}
+            <div className="flex-1 px-6 py-4 space-y-3">
                 {compact && status === PostStatus.Success ? (
                     <Link to={`/posts/${id}`}>{postInfo}</Link>
                 ) : (
@@ -189,7 +253,8 @@ export default function Post({
                     countComment={commentCount}
                     voteAction={isAction}
                     handleVote={handleVote}
-                    handleComment={onComment}
+                    handleComment={handleComment}
+                    handleShare={handleShareClick}
                 />
             </div>
             {compact && imageUrl && (

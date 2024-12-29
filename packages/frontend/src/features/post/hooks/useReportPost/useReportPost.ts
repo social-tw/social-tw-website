@@ -13,16 +13,18 @@ import {
 import { ReportType } from '@/types/Report'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 
 export function useReportPost() {
     const queryClient = useQueryClient()
     const actionCount = useActionCount()
     const { getGuaranteedUserState } = useUserState()
     const { stateTransition } = useUserStateTransition()
+    const sendNotification = useSendNotification()
 
     const {
         mutateAsync: reportPost,
-        isIdle,
         isPending,
         isSuccess,
         isError,
@@ -68,6 +70,10 @@ export function useReportPost() {
             if (context?.actionId) {
                 failActionById(context.actionId)
             }
+            sendNotification(
+                NotificationType.REPORT_FAILED,
+                `/posts/${_variables.postId}`,
+            )
         },
         onSuccess: async (data, _variables, context) => {
             if (context?.actionId) {
@@ -85,8 +91,9 @@ export function useReportPost() {
             await queryClient.invalidateQueries({
                 queryKey: [QueryKeys.SinglePost, data.postId],
             })
+            sendNotification(NotificationType.REPORT_SUCCEEDED)
         },
     })
 
-    return { reportPost, isIdle, isPending, isSuccess, isError, reset }
+    return { reportPost, isPending, isSuccess, isError, reset }
 }

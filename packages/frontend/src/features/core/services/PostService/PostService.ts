@@ -9,10 +9,14 @@ import { stringifyBigInts } from '@unirep/utils'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class PostService extends RelayApiService {
-    async fetchPosts(page: number) {
+    async fetchPosts(page: number, query?: string) {
         const client = this.getClient()
+        const params = new URLSearchParams({ page: page.toString() })
+        if (query) {
+            params.append('q', query)
+        }
         const response = await client.get<FetchPostsResponse>(
-            `/post?page=${page}`,
+            `/post?${params.toString()}`,
         )
         return response.data
     }
@@ -85,6 +89,7 @@ export class PostService extends RelayApiService {
         /// ==========================================
 
         const { txHash } = response.data
+
         return {
             txHash,
             epoch: Number(epoch),

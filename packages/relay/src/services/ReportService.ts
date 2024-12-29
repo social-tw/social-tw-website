@@ -126,6 +126,11 @@ export class ReportService {
             [ReportStatus.VOTING]: {
                 where: {
                     AND: [
+                        {
+                            adjudicateCount: {
+                                lt: parseInt(REPORT_SETTLE_VOTE_THRESHOLD),
+                            },
+                        },
                         { reportEpoch: { lt: epoch } },
                         { status: ReportStatus.VOTING },
                     ],
@@ -205,15 +210,6 @@ export class ReportService {
                 adjudicateCount,
             },
         })
-
-        // check REPORT_SETTLE_VOTE_THRESHOLD and update status
-        if (adjudicateCount >= REPORT_SETTLE_VOTE_THRESHOLD) {
-            const status = ReportStatus.WAITING_FOR_TRANSACTION
-            await db.update('ReportHistory', {
-                where: { reportId },
-                update: { status },
-            })
-        }
     }
 
     upsertAdjudicatorsNullifier(
@@ -625,6 +621,29 @@ export class ReportService {
                 synchronizer.prover
             )
         }
+    }
+
+    async fetchSingleReportWithDetails(
+        reportId: string,
+        db: DB
+    ): Promise<ReportHistory | null> {
+        // Fetch the base report
+        const report = await this.fetchSingleReport(reportId, db)
+        if (!report) return null
+
+        // Fetch the associated object (post or comment)
+        const tableName = report.type == ReportType.POST ? 'Post' : 'Comment'
+        const object = await db.findOne(tableName, {
+            where: {
+                [`${tableName.toLowerCase()}Id`]: report.objectId,
+            },
+        })
+
+        // Return the report with its associated object
+        return {
+            ...report,
+            object: object,
+        } as ReportHistory
     }
 }
 
