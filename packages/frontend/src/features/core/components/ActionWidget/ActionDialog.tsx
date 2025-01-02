@@ -23,7 +23,7 @@ export default function ActionDialog({
                         <CloseButton className="absolute top-4 right-4 btn btn-sm btn-circle btn-ghost text-white/90">
                             <CloseIcon />
                         </CloseButton>
-                        <div className="p-6 overflow-y-auto h-72 rounded-xl">
+                        <div className="p-6 rounded-xl">
                             <ActionTable onClose={onClose} />
                         </div>
                     </DialogPanel>
