@@ -13,7 +13,13 @@ import {
     closeForbidActionDialog,
     useDialogStore,
 } from '@/features/shared/stores/dialog'
-import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import {
+    Outlet,
+    ScrollRestoration,
+    useLocation,
+    useMatch,
+    useNavigate,
+} from 'react-router-dom'
 
 export default function MobileAppLayout() {
     const isForbidActionDialogOpen = useDialogStore(
@@ -40,6 +46,7 @@ export default function MobileAppLayout() {
                 onClose={closeForbidActionDialog}
             />
             <ErrorDialog />
+            <ScrollRestoration />
         </div>
     )
 }
