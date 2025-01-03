@@ -1,4 +1,5 @@
 import { PATHS } from '@/constants/paths'
+import { useAuthStatus } from '@/features/auth'
 import { useUserState } from '@/features/core'
 import {
     BodyCellType,
@@ -15,9 +16,10 @@ import { ReputationType } from '@/types/Report'
 import { formatDateByEpoch } from '@/utils/helpers/formatDateByEpoch'
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useSessionStorage } from 'react-use'
 import { useMyReputationHistory } from '../../hooks/useMyReputationHistory/useMyReputationHistory'
 import SearchByDate from '../SearchByDate/SearchByDate'
 import { SearchDayLimitDialog } from './SearchDayLimitDialog'
@@ -26,7 +28,21 @@ interface ReputationTableProps {
     fromToEpoch: FromToEpoch
 }
 
+interface ReputationHistoryFilters {
+    startDate?: string
+    endDate?: string
+}
+
+const REPUTATION_HISTORY_FILTERS = 'reputation-history-filters'
+
 export default function ReputationHistory() {
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const [filters, setFilters] = useSessionStorage<ReputationHistoryFilters>(
+        REPUTATION_HISTORY_FILTERS,
+        {},
+    )
+
     const {
         startDate,
         endDate,
@@ -42,6 +58,52 @@ export default function ReputationHistory() {
 
     const shouldShow30DaysLimit =
         !!startDate && !!endDate && !isWithin30Days(startDate, endDate)
+
+    const { isLoggedIn } = useAuthStatus()
+
+    const [shouldInit, setShouldInit] = useState(true)
+
+    useEffect(() => {
+        if (startDate && endDate) {
+            setSearchParams(
+                (prev) => ({
+                    ...Object.fromEntries(prev),
+                    startDate: dayjs(startDate).format('YYYY-MM-DD'),
+                    endDate: dayjs(endDate).format('YYYY-MM-DD'),
+                }),
+                { replace: true },
+            )
+        }
+    }, [endDate, setSearchParams, startDate])
+
+    useEffect(() => {
+        if (searchParams.size > 0) {
+            setFilters(Object.fromEntries(searchParams))
+        }
+    }, [searchParams, setFilters])
+
+    useEffect(() => {
+        if (!startDate && !endDate && filters.startDate && filters.endDate) {
+            const startDate = dayjs(filters.startDate, 'YYYY-MM-DD').toDate()
+            const endDate = dayjs(filters.endDate, 'YYYY-MM-DD').toDate()
+            onChange([startDate, endDate])
+            setShouldInit(true)
+        }
+    }, [
+        endDate,
+        filters.endDate,
+        filters.startDate,
+        onChange,
+        startDate,
+        updateFromToEpoch,
+    ])
+
+    useEffect(() => {
+        if (isLoggedIn && shouldInit) {
+            updateFromToEpoch()
+            setShouldInit(false)
+        }
+    }, [isLoggedIn, shouldInit, updateFromToEpoch])
 
     return (
         <Wrapper>
