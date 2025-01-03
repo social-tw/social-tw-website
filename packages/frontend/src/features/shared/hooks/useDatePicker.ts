@@ -21,7 +21,7 @@ export function useDatePicker() {
         return config?.EPOCH_LENGTH ? config.EPOCH_LENGTH * 1000 : undefined
     }, [config])
 
-    const updateFromToEpoch = useCallback(async () => {
+    const updateFromToEpoch = useCallback(() => {
         if (!userState || !epochLength) {
             setFromToEpoch(new InvalidFromToEpoch())
             return
@@ -34,7 +34,7 @@ export function useDatePicker() {
                 epochLength,
             ),
         )
-    }, [startDate, endDate, userState, epochLength])
+    }, [endDate, epochLength, startDate, userState])
 
     const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates
