@@ -1,10 +1,10 @@
-import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
-import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { Avatar } from '@/features/shared'
 import { CommentStatus } from '@/types/Comments'
 import formatDate from '@/utils/helpers/formatDate'
 import clsx from 'clsx'
 import { nanoid } from 'nanoid'
+import { useEffect, useRef } from 'react'
+import { useTimeoutFn, useToggle } from 'react-use'
 import { CommentActionMenu } from './CommentActionMenu'
 import { CommentBlockedMask } from './CommentBlockedMask'
 import { CommentReportedMask } from './CommentReportedMask'
@@ -15,6 +15,7 @@ interface CommentProps {
     epochKey?: string
     content: string
     publishedAt: Date
+    isFocused?: boolean
     isReported?: boolean
     isBlocked?: boolean
     status: CommentStatus
@@ -22,6 +23,7 @@ interface CommentProps {
     canReport: boolean
     onRepublish?: () => void
     onDelete?: () => void
+    onFocusEnd?: () => void
 }
 
 export default function Comment({
@@ -30,6 +32,7 @@ export default function Comment({
     epochKey = nanoid(),
     content = '',
     publishedAt,
+    isFocused = false,
     isReported = false,
     isBlocked = false,
     status = CommentStatus.Success,
@@ -37,67 +40,95 @@ export default function Comment({
     canReport = true,
     onRepublish = () => {},
     onDelete = () => {},
+    onFocusEnd = () => {},
 }: CommentProps) {
-    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+    const { ref, focused } = useCommentFocused(isFocused, onFocusEnd)
 
-    const handleDelete = async () => {
-        try {
-            await checkAuth()
-            onDelete()
-        } catch (error) {
-            console.error(error)
-        }
+    if (isBlocked) {
+        return <CommentBlockedMask />
+    }
+
+    if (isReported) {
+        return <CommentReportedMask />
     }
 
     return (
-        <>
-            <article
-                id={commentId}
+        <article
+            ref={ref}
+            className="relative pt-4 pb-6 border-2 border-transparent"
+        >
+            <div
                 className={clsx(
-                    'pt-4 pb-6 space-y-2',
+                    'absolute top-0 left-0 -z-10 w-[calc(100%_+_24px)] h-full -ml-3 rounded-xl ring-2 ring-secondary transition-opacity duration-500',
+                    focused ? 'opacity-100' : 'opacity-0',
+                )}
+            />
+            <div
+                className={clsx(
                     status !== CommentStatus.Success && 'opacity-30',
-                    'relative',
                 )}
             >
-                {isReported && <CommentReportedMask />}
-                {isBlocked && <CommentBlockedMask />}
-                <header className="grid grid-cols-[1fr_auto] items-center">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-5">
-                            <Avatar name={epochKey} />
-                            <span className="text-xs font-medium tracking-wide text-white">
-                                {status === CommentStatus.Failure
-                                    ? '存取失敗，請再嘗試留言'
-                                    : formatDate(publishedAt)}
-                            </span>
-                        </div>
+                <header className="grid grid-cols-[1fr_auto] items-center mb-2">
+                    <div className="flex items-center gap-5">
+                        <Avatar name={epochKey} />
+                        <span className="text-xs font-medium tracking-wide text-white">
+                            {status === CommentStatus.Failure
+                                ? '存取失敗，請再嘗試留言'
+                                : formatDate(publishedAt)}
+                        </span>
                     </div>
-                    <div>
-                        {commentId && (
-                            <CommentActionMenu
-                                postId={postId}
-                                commentId={commentId}
-                                onDelete={handleDelete}
-                                canDelete={canDelete}
-                                canReport={canReport}
-                            />
-                        )}
-                    </div>
+                    {commentId && (
+                        <CommentActionMenu
+                            postId={postId}
+                            commentId={commentId}
+                            onDelete={onDelete}
+                            canDelete={canDelete}
+                            canReport={canReport}
+                        />
+                    )}
                 </header>
                 <p className="text-sm font-medium text-white whitespace-break-spaces">
                     {content}
                 </p>
-            </article>
+            </div>
             {status === CommentStatus.Failure && (
-                <div className="mb-6">
+                <footer className="mt-6">
                     <button
                         className="h-10 border-2 btn btn-sm btn-outline btn-primary"
                         onClick={onRepublish}
                     >
                         再次發佈這則留言
                     </button>
-                </div>
+                </footer>
             )}
-        </>
+        </article>
     )
+}
+
+function useCommentFocused(isFocused: boolean, onFocusEnd = () => {}) {
+    const ref = useRef<HTMLElement>(null)
+
+    const [focused, toggleFocused] = useToggle(isFocused)
+
+    const [, cancel, reset] = useTimeoutFn(() => {
+        toggleFocused(false)
+        onFocusEnd()
+    }, 5000)
+
+    useEffect(() => {
+        if (isFocused) {
+            toggleFocused(isFocused)
+            reset()
+            ref.current?.scrollIntoView()
+        }
+
+        return () => {
+            cancel()
+        }
+    }, [cancel, isFocused, reset, toggleFocused])
+
+    return {
+        ref,
+        focused,
+    }
 }

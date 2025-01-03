@@ -112,11 +112,8 @@ function getActionLink(action: Action) {
             return `/?failedPostId=${action.id}`
         }
     }
-    if (
-        action.type === ActionType.Comment ||
-        action.type === ActionType.DeleteComment
-    ) {
-        return `/posts/${action.data.postId}#${action.data.commentId}`
+    if (action.type === ActionType.Comment) {
+        return `/posts/${action.data.postId}?fc=${action.data.commentId}`
     }
     return '#'
 }

@@ -1,4 +1,6 @@
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
+import { useAuthCheck } from '@/features/auth'
 import {
     ActionType,
     addAction,
@@ -21,6 +23,8 @@ export function useRemoveComment() {
 
     const { stateTransition } = useUserStateTransition()
 
+    const checkAuth = useAuthCheck(AUTH_ERROR_MESSAGE.DEFAULT)
+
     const {
         isPending,
         error,
@@ -41,6 +45,7 @@ export function useRemoveComment() {
             const provider = getGuaranteedProvider()
             const userState = await getGuaranteedUserState()
 
+            await checkAuth()
             await stateTransition()
 
             const commentService = new CommentService(userState)

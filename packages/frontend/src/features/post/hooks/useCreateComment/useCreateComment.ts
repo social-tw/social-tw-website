@@ -10,12 +10,12 @@ import {
     useUserStateTransition,
     useWeb3Provider,
 } from '@/features/core'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ethers } from 'ethers'
 import { delay } from 'lodash'
-import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
-import { NotificationType } from '@/types/Notifications'
 
 export function useCreateComment() {
     const sendNotification = useSendNotification()
@@ -109,9 +109,10 @@ export function useCreateComment() {
                     queryKey: [QueryKeys.SinglePost, variables.postId],
                 })
             }, 1000)
+
             sendNotification(
                 NotificationType.COMMENT_SUCCEEDED,
-                `${variables.postId}#${data.commentId}`,
+                `${variables.postId}?fc=${data.commentId}`,
             )
         },
     })
