@@ -398,6 +398,7 @@ contract UnirepApp is Ownable {
     ) public onlyOwner() {
         _updateDailyEpochIfNeeded();
 
+
         DailyClaimVHelper dailyClaimVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
         DailyClaimVHelper.DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
 
@@ -420,11 +421,15 @@ contract UnirepApp is Ownable {
             revert InvalidDailyEpoch();
         }
 
-        dailyClaimVHelpers.verifyAndCheck(publicSignals, proof);
-
         if (signals.maxRep <= signals.minRep) {
             revert NonNegetativeReputation();
         }
+
+        verifierHelperManager.verifyProof(
+            publicSignals,
+            proof,
+            identifier
+        );
 
         // attesting on Unirep contract:
         unirep.attest(
