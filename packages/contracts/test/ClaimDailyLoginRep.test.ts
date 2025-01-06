@@ -1,4 +1,6 @@
 // @ts-ignore
+import { DailyClaimProof } from '@unirep-app/circuits'
+import { ReputationProof } from '@unirep/circuits'
 import { genEpochKey } from '@unirep/utils'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
@@ -17,26 +19,6 @@ import {
     userStateTransition,
 } from './utils'
 
-const checkSignals = (signals, proof) => {
-    expect(signals.epochKey.toString()).equal(proof.epochKey.toString())
-    expect(signals.stateTreeRoot.toString()).equal(
-        proof.stateTreeRoot.toString()
-    )
-    expect(signals.nonce.toString()).equal(proof.nonce.toString())
-    expect(signals.epoch.toString()).equal(proof.epoch.toString())
-    expect(signals.attesterId.toString()).equal(proof.attesterId.toString())
-    expect(signals.revealNonce).equal(Boolean(proof.revealNonce))
-    expect(signals.chainId.toString()).equal(proof.chainId.toString())
-    expect(signals.minRep.toString()).equal(proof.minRep.toString())
-    expect(signals.maxRep.toString()).equal(proof.maxRep.toString())
-    expect(signals.proveMinRep).equal(Boolean(proof.proveMinRep))
-    expect(signals.proveMaxRep).equal(Boolean(proof.proveMaxRep))
-    expect(signals.proveZeroRep).equal(Boolean(proof.proveZeroRep))
-    expect(signals.proveGraffiti).equal(Boolean(proof.proveGraffiti))
-    expect(signals.graffiti.toString()).equal(proof.graffiti.toString())
-    expect(signals.data.toString()).equal(proof.data.toString())
-}
-
 describe('Claim Daily Login Reputation Test', function () {
     this.timeout(1000000)
     let unirep: Unirep
@@ -48,6 +30,7 @@ describe('Claim Daily Login Reputation Test', function () {
 
     let snapshot: any
     const epochLength = 300
+    const dailyEpochLength = 24 * 60 * 60
 
     const POS_REP = 5
     const REG_REP = 10
@@ -145,12 +128,6 @@ describe('Claim Daily Login Reputation Test', function () {
             expect(proof.maxRep).to.equal(maxRep.toString())
             expect(proof.proveMaxRep).to.equal('1')
 
-            // const signals = await repVerifierHelper.verifyAndCheck(
-            //     proof.publicSignals,
-            //     proof.proof
-            // )
-            // checkSignals(signals, proof)
-
             userState.stop()
         } catch (err) {
             console.error(err)
@@ -158,14 +135,13 @@ describe('Claim Daily Login Reputation Test', function () {
     })
 
     /**
-        * 1. succeed to claim daily login reputation
-        * 2. revert with not owner
-        * 3. revert with wrong proof
-        * 4. revert with invalid epoch
-        * TODO
-        * 5. revert with claim daily reputation twice on the same daily epoch
-        * 6. revert with positive repuation user
-        * 7. revert with invalid daily epoch
+     * 1. succeed to claim daily login reputation
+     * 2. revert with not owner
+     * 3. revert with wrong proof
+     * 4. revert with invalid epoch
+     * 5. revert with claim daily reputation twice on the same daily epoch
+     * 6. revert with positive repuation user
+     * 7. revert with invalid daily epoch
      */
     it('should claim daily login reputation', async () => {
         const identitySecret = user.id.secret
@@ -268,7 +244,9 @@ describe('Claim Daily Login Reputation Test', function () {
         const flattenedProof = flattenProof(proof)
 
         await expect(
-            app.connect(notOwner).claimDailyLoginRep(publicSignals, flattenedProof, identifier)
+            app
+                .connect(notOwner)
+                .claimDailyLoginRep(publicSignals, flattenedProof, identifier)
         ).to.be.reverted
     })
 
@@ -315,18 +293,24 @@ describe('Claim Daily Login Reputation Test', function () {
 
         flattenedProof[0] = BigInt(0)
 
-        await expect(app.claimDailyLoginRep(publicSignals, flattenedProof, identifier)).to.be
-            .reverted
+        await expect(
+            app.claimDailyLoginRep(publicSignals, flattenedProof, identifier)
+        ).to.be.reverted
     })
 
     it('should revert with invalid epoch', async () => {
+        // elapsing 1 daily epoch
+        await ethers.provider.send('evm_increaseTime', [dailyEpochLength])
+        await ethers.provider.send('evm_mine', [])
+
         const wrongEpoch = 444
 
         const identitySecret = user.id.secret
-        const dailyEpoch = 0
+        const dailyEpoch = 1
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
 
         const userState = await genUserState(user.id, app)
+        await userStateTransition(userState, unirep, app)
         const epoch = await userState.sync.loadCurrentEpoch()
         const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
@@ -415,6 +399,108 @@ describe('Claim Daily Login Reputation Test', function () {
         ).to.be.revertedWithCustomError(app, 'ProofHasUsed')
     })
 
-    it('revert with positive repuation user', async () => {})
-    it('should revert with invalid daily epochq', async () => {})
+    it('revert with positive repuation user', async () => {
+        const identitySecret = user.id.secret
+        const dailyEpoch = 1
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+
+        const userState = await genUserState(user.id, app)
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
+
+        const reputationCircuitInput = genReputationCircuitInput({
+            identitySecret,
+            epoch: epoch,
+            nonce: 0,
+            attesterId: attesterId,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            data: data,
+            maxRep: 1,
+            chainId: chainId,
+        })
+
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationCircuitInput,
+        })
+
+        const { publicSignals, proof } = await genProofAndVerify(
+            circuit,
+            dailyClaimCircuitInputs
+        )
+
+        const dailyClaimProof = new DailyClaimProof(publicSignals, proof)
+        dailyClaimProof.minRep = BigInt(2)
+        const controls = ReputationProof.buildControl({
+            attesterId: dailyClaimProof.attesterId,
+            epoch: dailyClaimProof.epoch,
+            nonce: 0,
+            chainId,
+            minRep: dailyClaimProof.minRep,
+            maxRep: dailyClaimProof.maxRep,
+        })
+        publicSignals[1] = controls[0]
+        publicSignals[2] = controls[1]
+
+        const flattenedProof = flattenProof(proof)
+
+        await expect(
+            app.claimDailyLoginRep(publicSignals, flattenedProof, identifier)
+        ).to.be.revertedWithCustomError(app, 'NonNegetativeReputation')
+    })
+
+    it('should revert with invalid daily epoch', async () => {
+        const identitySecret = user.id.secret
+        const dailyEpoch = 2
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+
+        const userState = await genUserState(user.id, app)
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
+
+        const reputationCircuitInput = genReputationCircuitInput({
+            identitySecret,
+            epoch: epoch,
+            nonce: 0,
+            attesterId: attesterId,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+            data: data,
+            maxRep: 1,
+            chainId: chainId,
+        })
+
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationCircuitInput,
+        })
+
+        const { publicSignals, proof } = await genProofAndVerify(
+            circuit,
+            dailyClaimCircuitInputs
+        )
+
+        const flattenedProof = flattenProof(proof)
+
+        await expect(
+            app.claimDailyLoginRep(publicSignals, flattenedProof, identifier)
+        ).to.be.revertedWithCustomError(app, 'InvalidDailyEpoch')
+    })
 })
