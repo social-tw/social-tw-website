@@ -13,7 +13,9 @@ import {
     closeForbidActionDialog,
     useDialogStore,
 } from '@/features/shared/stores/dialog'
+import clsx from 'clsx'
 import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { useWindowScroll } from 'react-use'
 
 export default function MobileAppLayout() {
     const isForbidActionDialogOpen = useDialogStore(
@@ -65,8 +67,15 @@ function MobileLayoutHeader() {
 
     const isContainingPosts = isHomePage || isPostPage
 
+    const { y } = useWindowScroll()
+
     return (
-        <header className="sticky top-0 z-10 pt-8 backdrop-blur-sm backdrop-brightness-90">
+        <header
+            className={clsx(
+                'sticky top-0 z-10 pt-8 backdrop-blur-sm backdrop-brightness-90',
+                y > 16 && 'bg-[#1C1C1C]',
+            )}
+        >
             <div className="relative flex items-center justify-center h-12 gap-2 px-4">
                 {!isHomePage && (
                     <button
