@@ -49,6 +49,7 @@ const PostDetailsPage: React.FC = () => {
         return {
             id: data._id,
             postId: data.postId,
+            epoch: data.epoch,
             epochKey: data.epochKey,
             content: data.content,
             publishedAt: new Date(Number(data.publishedAt)),
@@ -127,6 +128,7 @@ const PostDetailsPage: React.FC = () => {
                 <section>
                     <Post
                         id={post.postId}
+                        epoch={post.epoch}
                         epochKey={post.epochKey}
                         content={post.content}
                         publishedAt={post.publishedAt}
