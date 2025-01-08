@@ -15,9 +15,11 @@ import { isMyEpochKey } from '@/utils/helpers/epochKey'
 import getNonceFromEpochKey from '@/utils/helpers/getNonceFromEpochKey'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 export default function CommentList({ postId }: { postId: string }) {
+    const [searchParams, setSearchParams] = useSearchParams()
+
     const { userState, getGuaranteedUserState } = useUserState()
 
     const { currentEpoch } = useEpoch()
@@ -41,6 +43,8 @@ export default function CommentList({ postId }: { postId: string }) {
                 const canDelete = isMine && item.epoch === currentEpoch
                 const canReport = true
 
+                const focusedComment = searchParams.get('fc')
+
                 return {
                     postId: postId,
                     commentId: item.commentId!,
@@ -50,13 +54,14 @@ export default function CommentList({ postId }: { postId: string }) {
                     publishedAt: new Date(Number(item.publishedAt)),
                     transactionHash: item.transactionHash,
                     status: CommentStatus.Success,
+                    isFocused: focusedComment === item.commentId,
                     isReported: item.status === RelayRawCommentStatus.REPORTED,
                     isBlocked: item.status === RelayRawCommentStatus.DISAGREED,
                     canDelete,
                     canReport,
                 }
             })
-    }, [data, userState, currentEpoch, postId])
+    }, [data, userState, currentEpoch, searchParams, postId])
 
     const commentActions = useActionStore(commentActionsSelector)
 
@@ -111,6 +116,10 @@ export default function CommentList({ postId }: { postId: string }) {
         )
     }
 
+    const onFocusEnd = () => {
+        setSearchParams({})
+    }
+
     return (
         <ul className="divide-y divide-neutral-600">
             {comments.map((comment) => (
@@ -122,6 +131,7 @@ export default function CommentList({ postId }: { postId: string }) {
                         content={comment.content}
                         publishedAt={comment.publishedAt}
                         status={comment.status}
+                        isFocused={comment.isFocused}
                         isReported={comment.isReported}
                         isBlocked={comment.isBlocked}
                         canDelete={comment.canDelete}
@@ -134,6 +144,7 @@ export default function CommentList({ postId }: { postId: string }) {
                                 comment.epochKey,
                             )
                         }}
+                        onFocusEnd={onFocusEnd}
                     />
                 </li>
             ))}
