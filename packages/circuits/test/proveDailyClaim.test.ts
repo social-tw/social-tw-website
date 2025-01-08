@@ -50,6 +50,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const identitySecret = user.id.secret
         const dailyEpoch = 0
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        data[1] = 1
 
         const reputationCircuitInput = genReputationCircuitInput({
             identitySecret,
@@ -59,7 +60,6 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: leafProof.pathIndices,
             stateTreeElements: leafProof.siblings,
             data: data,
-            maxRep: 1,
             chainId: chainId,
         })
 
@@ -89,6 +89,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const identitySecret = user.id.secret
         const dailyEpoch = 0
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        data[0] = 2
 
         const reputationCircuitInput = genReputationCircuitInput({
             identitySecret,
@@ -98,7 +99,6 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: leafProof.pathIndices,
             stateTreeElements: leafProof.siblings,
             data: data,
-            minRep: 1,
             chainId: chainId,
         })
 
@@ -115,7 +115,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template DailyClaimProof_97 line: 63\n'
+                'Error: Assert Failed. Error in template DailyClaimProof_97 line: 64\n'
             )
         }
     })
@@ -126,6 +126,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
         const wrongAttesterId =
             BigInt(2) ** CircuitConfig.default.ATTESTER_ID_BITS
+        data[0] = 0
 
         const reputationCircuitInput = genReputationCircuitInput({
             identitySecret,
@@ -135,7 +136,6 @@ describe('Prove report identity in Unirep Social-TW', function () {
             stateTreeIndices: leafProof.pathIndices,
             stateTreeElements: leafProof.siblings,
             data: data,
-            maxRep: 1,
             chainId: chainId,
         })
 
@@ -154,7 +154,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template Num2Bits_3 line: 38\nError in template Reputation_93 line: 111\nError in template DailyClaimProof_97 line: 42\n'
+                'Error: Assert Failed. Error in template Num2Bits_3 line: 38\nError in template Reputation_93 line: 111\nError in template DailyClaimProof_97 line: 43\n'
             )
         }
     })
@@ -190,7 +190,7 @@ describe('Prove report identity in Unirep Social-TW', function () {
             expect?.(error).to.be.an.instanceof(ProofGenerationError)
             expect?.(error).to.have.property(
                 'message',
-                'Error: Assert Failed. Error in template DailyClaimProof_97 line: 67\n'
+                'Error: Assert Failed. Error in template DailyClaimProof_97 line: 68\n'
             )
         }
     })

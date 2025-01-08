@@ -13,7 +13,6 @@ import {
     genDailyClaimCircuitInput,
     genNullifier,
     genProofAndVerify,
-    genReputationCircuitInput,
     genUserState,
     genVHelperIdentifier,
     userStateTransition,
@@ -157,24 +156,16 @@ describe('Claim Daily Login Reputation Test', function () {
         )
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
-
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -216,24 +207,16 @@ describe('Claim Daily Login Reputation Test', function () {
         )
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
-
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -264,24 +247,16 @@ describe('Claim Daily Login Reputation Test', function () {
         )
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
-
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -319,24 +294,17 @@ describe('Claim Daily Login Reputation Test', function () {
         )
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
-
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: wrongEpoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
+        reputationProof.epoch = BigInt(wrongEpoch)
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -367,24 +335,16 @@ describe('Claim Daily Login Reputation Test', function () {
         )
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
-
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -414,23 +374,16 @@ describe('Claim Daily Login Reputation Test', function () {
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
 
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(
@@ -446,7 +399,7 @@ describe('Claim Daily Login Reputation Test', function () {
             nonce: 0,
             chainId,
             minRep: dailyClaimProof.minRep,
-            maxRep: dailyClaimProof.maxRep,
+            proveMinRep: 1,
         })
         publicSignals[1] = controls[0]
         publicSignals[2] = controls[1]
@@ -455,7 +408,7 @@ describe('Claim Daily Login Reputation Test', function () {
 
         await expect(
             app.claimDailyLoginRep(publicSignals, flattenedProof, identifier)
-        ).to.be.revertedWithCustomError(app, 'NonNegetativeReputation')
+        ).to.be.revertedWithCustomError(app, 'NonNegativeReputation')
     })
 
     it('should revert with invalid daily epoch', async () => {
@@ -473,23 +426,16 @@ describe('Claim Daily Login Reputation Test', function () {
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
 
-        const reputationCircuitInput = genReputationCircuitInput({
-            identitySecret,
-            epoch: epoch,
-            nonce: 0,
-            attesterId: attesterId,
-            stateTreeIndices: leafProof.pathIndices,
-            stateTreeElements: leafProof.siblings,
-            data: data,
-            maxRep: 1,
-            chainId: chainId,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
             dailyNullifier,
             identitySecret,
-            reputationCircuitInput,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
         })
 
         const { publicSignals, proof } = await genProofAndVerify(

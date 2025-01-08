@@ -9,6 +9,7 @@ import {
     CircuitConfig,
     EpochKeyLiteProof,
     EpochKeyProof,
+    ReputationProof,
 } from '@unirep/circuits'
 import { userSchema as schema, UserState } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
@@ -306,35 +307,41 @@ export const genDailyClaimCircuitInput = (config: {
     identitySecret: any
     dailyEpoch: number | bigint
     dailyNullifier: number | bigint
-    reputationCircuitInput: any
+    reputationProof: ReputationProof
+    data: number[] | bigint[]
+    stateTreeIndices: any[]
+    stateTreeElements: any
 }) => {
     const {
         identitySecret,
         dailyEpoch,
         dailyNullifier,
-        reputationCircuitInput,
+        reputationProof,
+        data,
+        stateTreeIndices,
+        stateTreeElements,
     } = Object.assign(config)
 
     const circuitInputs = {
         identity_secret: identitySecret,
         daily_epoch: dailyEpoch,
         daily_nullifier: dailyNullifier,
-        state_tree_indices: reputationCircuitInput.state_tree_indices,
-        state_tree_elements: reputationCircuitInput.state_tree_elements,
-        data: reputationCircuitInput.data,
-        prove_graffiti: reputationCircuitInput.prove_graffiti,
-        graffiti: reputationCircuitInput.graffiti,
-        reveal_nonce: reputationCircuitInput.reveal_nonce,
-        attester_id: reputationCircuitInput.attester_id,
-        epoch: reputationCircuitInput.epoch,
-        nonce: reputationCircuitInput.nonce,
-        chain_id: reputationCircuitInput.chain_id,
-        sig_data: reputationCircuitInput.sig_data,
-        min_rep: reputationCircuitInput.min_rep,
-        max_rep: reputationCircuitInput.max_rep,
-        prove_min_rep: reputationCircuitInput.prove_min_rep,
-        prove_max_rep: reputationCircuitInput.prove_max_rep,
-        prove_zero_rep: reputationCircuitInput.prove_zero_rep,
+        state_tree_indices: stateTreeIndices,
+        state_tree_elements: stateTreeElements,
+        data: data,
+        prove_graffiti: reputationProof.proveGraffiti,
+        graffiti: reputationProof.graffiti,
+        reveal_nonce: reputationProof.revealNonce,
+        attester_id: reputationProof.attesterId,
+        epoch: reputationProof.epoch,
+        nonce: reputationProof.nonce,
+        chain_id: reputationProof.chainId,
+        sig_data: BigInt(0),
+        min_rep: reputationProof.minRep,
+        max_rep: reputationProof.maxRep,
+        prove_min_rep: reputationProof.proveMinRep,
+        prove_max_rep: reputationProof.proveMaxRep,
+        prove_zero_rep: reputationProof.proveZeroRep,
     }
 
     return stringifyBigInts(circuitInputs)

@@ -100,7 +100,7 @@ contract UnirepApp is Ownable {
     error ArrMismatch();
     error InvalidCommentEpochKey(uint256 epochKey);
     error InvalidCommentId(uint256 commentId);
-    error NonNegetativeReputation();
+    error NonNegativeReputation();
     error InvalidDailyEpoch();
 
     constructor(
@@ -398,7 +398,6 @@ contract UnirepApp is Ownable {
     ) public onlyOwner() {
         _updateDailyEpochIfNeeded();
 
-
         DailyClaimVHelper dailyClaimVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
         DailyClaimVHelper.DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
 
@@ -421,8 +420,8 @@ contract UnirepApp is Ownable {
             revert InvalidDailyEpoch();
         }
 
-        if (signals.maxRep <= signals.minRep) {
-            revert NonNegetativeReputation();
+        if (signals.minRep > 0 && signals.proveMinRep) {
+            revert NonNegativeReputation();
         }
 
         verifierHelperManager.verifyProof(
