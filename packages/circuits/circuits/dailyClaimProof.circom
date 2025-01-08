@@ -1,6 +1,7 @@
 pragma circom 2.1.0;
 
 include "../../../node_modules/@unirep/circuits/circuits/circomlib/circuits/comparators.circom";
+include "../../../node_modules/@unirep/circuits/circuits/circomlib/circuits/gates.circom";
 include "../../../node_modules/@unirep/circuits/circuits/reputation.circom";
 
 template DailyClaimProof(STATE_TREE_DEPTH, EPOCH_KEY_NONCE_PER_EPOCH, SUM_FIELD_COUNT, FIELD_COUNT, REPL_NONCE_BITS) {
@@ -59,7 +60,7 @@ template DailyClaimProof(STATE_TREE_DEPTH, EPOCH_KEY_NONCE_PER_EPOCH, SUM_FIELD_
         sig_data
     );
 
-    signal max_rep_check <== GreaterThan(REP_BITS)([max_rep, min_rep]);
+    signal max_rep_check <== GreaterThan(REP_BITS)([data[1], data[0]]);
     max_rep_check === 1;
 
     // Step 2: check daily nullifier

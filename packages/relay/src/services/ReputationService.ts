@@ -1,6 +1,7 @@
 import { DB } from 'anondb/node'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
+    ClaimHelpers,
     RepChangeType,
     ReputationHistory,
     ReputationType,
@@ -39,21 +40,23 @@ export class ReputationService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+        const dailyClaimProof = await ProofHelper.getAndVerifyDailyClaimProof(
             publicSignals,
             proof,
             synchronizer
         )
 
+        const identifier = ClaimHelpers.DailyClaimVHelper
+
         const txHash = await TransactionManager.callContract(
             'claimDailyLoginRep',
-            [epochKeyProof.publicSignals, epochKeyProof.proof]
+            [dailyClaimProof.publicSignals, dailyClaimProof.proof, identifier]
         )
 
         db.create('ReputationHistory', {
             transactionHash: txHash,
-            epoch: Number(epochKeyProof.epoch),
-            epochKey: String(epochKeyProof.epochKey),
+            epoch: Number(dailyClaimProof.epoch),
+            epochKey: String(dailyClaimProof.epochKey),
             score: RepChangeType.CHECK_IN_REP,
             type: ReputationType.CHECK_IN,
             reportId: null,

@@ -1,4 +1,5 @@
 import { ReportIdentityProof } from '@unirep-app/circuits'
+import { DailyClaimProof } from '@unirep-app/circuits/src'
 import {
     EpochKeyLiteProof,
     EpochKeyProof,
@@ -105,6 +106,28 @@ class ProofHelper {
         if (!isProofValid) throw Errors.INVALID_PROOF()
 
         return reportIdentityProof
+    }
+
+    async getAndVerifyDailyClaimProof(
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
+        synchronizer: UnirepSocialSynchronizer
+    ): Promise<DailyClaimProof> {
+        const dailyClaimProof = new DailyClaimProof(
+            publicSignals,
+            proof,
+            synchronizer.prover
+        )
+
+        this.validateAttesterId(synchronizer, dailyClaimProof)
+        await this.validateEpoch(synchronizer, dailyClaimProof)
+
+        const isProofValid = await dailyClaimProof.verify()
+        if (!isProofValid) {
+            throw Errors.INVALID_REPUTATION_PROOF()
+        }
+
+        return dailyClaimProof
     }
 
     /**
