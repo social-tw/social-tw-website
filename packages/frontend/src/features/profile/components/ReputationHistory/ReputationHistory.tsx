@@ -95,15 +95,14 @@ export default function ReputationHistory() {
         filters.startDate,
         onChange,
         startDate,
-        updateFromToEpoch,
     ])
 
     useEffect(() => {
-        if (isLoggedIn && shouldInit) {
+        if (isLoggedIn && startDate && endDate && shouldInit) {
             updateFromToEpoch()
             setShouldInit(false)
         }
-    }, [isLoggedIn, shouldInit, updateFromToEpoch])
+    }, [endDate, isLoggedIn, shouldInit, startDate, updateFromToEpoch])
 
     return (
         <Wrapper>

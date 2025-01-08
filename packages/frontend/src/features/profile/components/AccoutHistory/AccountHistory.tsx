@@ -93,15 +93,14 @@ export default function AccountHistory() {
         filters.startDate,
         onChange,
         startDate,
-        updateFromToEpoch,
     ])
 
     useEffect(() => {
-        if (isLoggedIn && shouldInit) {
+        if (isLoggedIn && startDate && endDate && shouldInit) {
             updateFromToEpoch()
             setShouldInit(false)
         }
-    }, [isLoggedIn, shouldInit, updateFromToEpoch])
+    }, [endDate, isLoggedIn, shouldInit, startDate, updateFromToEpoch])
 
     return (
         <div className="mb-8 space-y-8">
