@@ -89,13 +89,7 @@ export default function ReputationHistory() {
             onChange([startDate, endDate])
             setShouldInit(true)
         }
-    }, [
-        endDate,
-        filters.endDate,
-        filters.startDate,
-        onChange,
-        startDate,
-    ])
+    }, [endDate, filters.endDate, filters.startDate, onChange, startDate])
 
     useEffect(() => {
         if (isLoggedIn && startDate && endDate && shouldInit) {
