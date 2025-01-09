@@ -8,7 +8,6 @@ export {
 export { default as CommentList } from './components/CommentList/CommentList'
 export { default as CommentNotification } from './components/CommentNotification/CommentNotification'
 export { default as CommentPublishTransition } from './components/CommentPublishTransition/CommentPublishTransition'
-export { default as CommentReportDialog } from './components/CommentReportDialog/CommentReportDialog'
 export { default as CreateComment } from './components/CreateComment/CreateComment'
 export { default as CreatePost } from './components/CreatePost/CreatePost'
 export { default as PostFailureDialog } from './components/PostFailureDialog/PostFailureDialog'

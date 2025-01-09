@@ -12,6 +12,7 @@ export { default as SignupProgress } from './components/SignupProgress/SignupPro
 export { default as StepInfo } from './components/StepInfo/StepInfo'
 export * from './components/TwitterButton/TwitterButton'
 export { default as UserDropdown } from './components/UserDropdown/UserDropdown'
+export { useAuthCheck } from './hooks/useAuthCheck/useAuthCheck'
 export { useAuthStatus } from './hooks/useAuthStatus/useAuthStatus'
 export { useLogin } from './hooks/useLogin/useLogin'
 export { useLoginWithServer } from './hooks/useLoginWithServer/useLoginWithServer'
