@@ -14,6 +14,7 @@ import {
     closeForbidActionDialog,
     useDialogStore,
 } from '@/features/shared/stores/dialog'
+import clsx from 'clsx'
 import {
     Link,
     Outlet,
@@ -22,6 +23,7 @@ import {
     useMatch,
     useNavigate,
 } from 'react-router-dom'
+import { useWindowScroll } from 'react-use'
 
 export default function DesktopAppLayout() {
     const isForbidActionDialogOpen = useDialogStore(
@@ -96,8 +98,15 @@ function DesktopLayoutHeader() {
 
     const isHomePage = useMatch('/')
 
+    const { y } = useWindowScroll()
+
     return (
-        <div className="sticky top-0 z-10 gap-5 px-10 backdrop-blur">
+        <div
+            className={clsx(
+                'sticky top-0 z-10 gap-5 px-10 backdrop-blur',
+                y > 16 && 'bg-[linear-gradient(200deg,#000000,#1C1C1C)]',
+            )}
+        >
             <header className="flex items-center gap-5 pt-20 pb-6">
                 {!isHomePage && (
                     <button
