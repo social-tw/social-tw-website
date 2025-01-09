@@ -14,7 +14,13 @@ import {
     useDialogStore,
 } from '@/features/shared/stores/dialog'
 import clsx from 'clsx'
-import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import {
+    Outlet,
+    ScrollRestoration,
+    useLocation,
+    useMatch,
+    useNavigate,
+} from 'react-router-dom'
 import { useWindowScroll } from 'react-use'
 
 export default function MobileAppLayout() {
@@ -42,6 +48,7 @@ export default function MobileAppLayout() {
                 onClose={closeForbidActionDialog}
             />
             <ErrorDialog />
+            <ScrollRestoration />
         </div>
     )
 }

@@ -23,11 +23,8 @@ function getActionLink(action: Action) {
             return `/?failedPostId=${action.id}`
         }
     }
-    if (
-        action.type === ActionType.Comment ||
-        action.type === ActionType.DeleteComment
-    ) {
-        return `/posts/${action.data.postId}#${action.data.commentId}`
+    if (action.type === ActionType.Comment) {
+        return `/posts/${action.data.postId}?fc=${action.data.commentId}`
     }
     return '#'
 }
@@ -125,7 +122,7 @@ export default function ActionTable({ onClose }: { onClose: () => void }) {
                     當前 Epoch 上鏈交易紀錄
                 </h1>
             </header>
-            <section className="h-64 overflow-y-auto">
+            <section className="h-56 overflow-y-auto">
                 <table className="w-full table-auto">
                     <thead className="sticky top-0">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -133,7 +130,7 @@ export default function ActionTable({ onClose }: { onClose: () => void }) {
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="px-2 py-1 text-xs font-semibold text-left text-white/50"
+                                        className="px-2 py-1 text-xs font-semibold text-left text-white/50 bg-black/90"
                                     >
                                         {header.isPlaceholder
                                             ? null

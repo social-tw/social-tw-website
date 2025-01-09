@@ -18,6 +18,7 @@ import clsx from 'clsx'
 import {
     Link,
     Outlet,
+    ScrollRestoration,
     useLocation,
     useMatch,
     useNavigate,
@@ -64,6 +65,7 @@ export default function DesktopAppLayout() {
             <ErrorDialog />
             <SignupPending />
             <UITour />
+            <ScrollRestoration />
         </div>
     )
 }
