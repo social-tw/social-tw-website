@@ -26,7 +26,7 @@ export enum ClaimMethods {
 export enum ClaimHelpers {
     ReportNullifierVHelper = 'reportNullifierProofVerifierHelper',
     ReportNonNullifierVHelper = 'reportNonNullifierProofVerifierHelper',
-    DailyClaimVHelper = 'dailyClaimVerifierHelper',
+    DailyClaimVHelper = 'dailyClaimProofVerifierHelper',
 }
 
 // Reputation change amount

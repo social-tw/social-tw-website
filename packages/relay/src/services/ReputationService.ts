@@ -1,5 +1,4 @@
 import { DB } from 'anondb/node'
-import { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     ClaimHelpers,
     RepChangeType,
@@ -7,7 +6,7 @@ import {
     ReputationType,
 } from '../types/Reputation'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
-import ProofHelper from './utils/ProofHelper'
+import ProofHelper, { genVHelperIdentifier } from './utils/ProofHelper'
 import TransactionManager from './utils/TransactionManager'
 
 export class ReputationService {
@@ -35,8 +34,8 @@ export class ReputationService {
     }
 
     async claimCheckInReputation(
-        publicSignals: PublicSignals,
-        proof: Groth16Proof,
+        publicSignals: any,
+        proof: any,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
@@ -46,11 +45,11 @@ export class ReputationService {
             synchronizer
         )
 
-        const identifier = ClaimHelpers.DailyClaimVHelper
+        const identifier = genVHelperIdentifier(ClaimHelpers.DailyClaimVHelper)
 
         const txHash = await TransactionManager.callContract(
             'claimDailyLoginRep',
-            [dailyClaimProof.publicSignals, dailyClaimProof.proof, identifier]
+            [publicSignals, proof, identifier]
         )
 
         db.create('ReputationHistory', {

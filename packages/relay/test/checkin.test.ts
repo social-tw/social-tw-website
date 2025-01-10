@@ -1,5 +1,6 @@
 import { UnirepSocialCircuit } from '@unirep-app/circuits/src/types'
 import {
+    flattenProof,
     genDailyClaimCircuitInput,
     genNullifier,
     genProofAndVerify,
@@ -77,17 +78,16 @@ describe('POST /api/checkin', function () {
 
     it('should allow users with negative reputation to claim reputation', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epoch = await userState.sync.loadCurrentEpoch()
-        const tree = await userState.sync.genStateTree(epoch, attesterId)
         await airdropReputation(false, 1, userState, unirep, express, provider)
 
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ maxRep: 1 })
 
         const identitySecret = user.id.secret
-        const dailyEpoch = 0
+        const dailyEpoch = 1
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
-
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
         const leafIndex = await userState.latestStateTreeLeafIndex(
             epoch,
             attesterId
@@ -112,6 +112,8 @@ describe('POST /api/checkin', function () {
             dailyClaimCircuitInputs
         )
 
+        const flattenedProof = flattenProof(dailyClaimProof.proof)
+
         await express
             .post('/api/checkin')
             .set('content-type', 'application/json')
@@ -122,7 +124,7 @@ describe('POST /api/checkin', function () {
             .send(
                 stringifyBigInts({
                     publicSignals: dailyClaimProof.publicSignals,
-                    proof: dailyClaimProof.proof,
+                    proof: flattenedProof,
                 })
             )
             .then(async (res) => {
@@ -134,32 +136,64 @@ describe('POST /api/checkin', function () {
         userState.stop()
     })
 
-    // it('should fail if users with non-negative reputation tries to claim reputation', async function () {
-    //     const userState = await genUserState(users[0].id, app, prover)
-    //     await airdropReputation(true, 2, userState, unirep, express, provider)
-    //     const { publicSignals, _snarkProof: proof } =
-    //         await userState.genProveReputationProof({ minRep: 1 })
+    it('should fail if users with non-negative reputation tries to claim reputation', async function () {
+        const userState = await genUserState(user.id, app, prover)
+        await airdropReputation(true, 2, userState, unirep, express, provider)
 
-    //     const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+        const { publicSignals, _snarkProof: proof } =
+            await userState.genProveReputationProof({ minRep: 1 })
 
-    //     await express
-    //         .post('/api/checkin')
-    //         .set('content-type', 'application/json')
-    //         .set(
-    //             'authentication',
-    //             jsonToBase64(stringifyBigInts({ publicSignals, proof }))
-    //         )
-    //         .send(
-    //             stringifyBigInts({
-    //                 publicSignals: epochKeyProof.publicSignals,
-    //                 proof: epochKeyProof.proof,
-    //             })
-    //         )
-    //         .then(async (res) => {
-    //             expect(res).to.have.status(400)
-    //             expect(res.body.error).to.be.equal('Positive reputation user')
-    //         })
+        const identitySecret = user.id.secret
+        const dailyEpoch = 1
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
+        data[0] = BigInt(0)
 
-    //     userState.stop()
-    // })
+        const reputationProof = await userState.genProveReputationProof({})
+        console.log('Reputation Proof:', reputationProof)
+
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+        })
+
+        const dailyClaimProof = await genProofAndVerify(
+            DailyClaimProof,
+            dailyClaimCircuitInputs
+        )
+
+        const flattenedProof = flattenProof(dailyClaimProof.proof)
+
+        await express
+            .post('/api/checkin')
+            .set('content-type', 'application/json')
+            .set(
+                'authentication',
+                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
+            )
+            .send(
+                stringifyBigInts({
+                    publicSignals: dailyClaimProof.publicSignals,
+                    proof: flattenedProof,
+                })
+            )
+            .then(async (res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Positive reputation user')
+            })
+
+        userState.stop()
+    })
 })

@@ -14,11 +14,15 @@ export default (
                 BigInt(APP_ADDRESS).toString()
             )
 
+        const dailyCurrentEpoch =
+            await synchronizer.unirepSocialContract.dailyCurrentEpoch()
+
         res.json({
             UNIREP_ADDRESS,
             APP_ADDRESS,
             ETH_PROVIDER_URL,
             EPOCH_LENGTH: epochLength,
+            DAILY_CURRENT_EPOCH: dailyCurrentEpoch,
         })
     })
 }
