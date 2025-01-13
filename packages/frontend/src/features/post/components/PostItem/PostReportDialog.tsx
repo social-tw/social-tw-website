@@ -1,4 +1,6 @@
+import { usePostById } from '@/features/post/hooks/usePostById/usePostById'
 import ReportContent from '@/features/reporting/components/Adjudicate/ReportContent'
+import Dialog from '@/features/shared/components/Dialog/Dialog'
 import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useReportPost } from '../../hooks/useReportPost/useReportPost'
@@ -15,8 +17,6 @@ import {
     ReportFormSubmitBtn,
     ReportFormSubmitting,
 } from '../ReportForm'
-import Dialog from '@/features/shared/components/Dialog/Dialog'
-import { usePostById } from '@/features/post/hooks/usePostById/usePostById'
 
 interface PostReportDialogProps {
     postId: string
@@ -106,45 +106,41 @@ export function PostReportDialog({
 
     return (
         <>
-            {step === 1 && (
-                <InfoDialog
-                    isOpen={isOpen}
-                    onClose={onCloseDialog}
-                    onButtonClick={() => setStep(2)}
-                />
-            )}
-            {step === 2 && (
-                <Dialog isOpen={isOpen} onClose={onCloseDialog}>
-                    <ReportFormCtn onSubmit={onSubmit}>
-                        <ReportFormIntro />
-                        <ReportContent content={post?.content} />
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="1. 檢舉原因"
-                                isRequired
-                            />
-                            <ReportFormCategories
-                                register={register}
-                                errors={errors}
-                                setValue={setValue}
-                                getValues={getValues}
-                                trigger={trigger}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="2. 檢舉描述"
-                                isRequired
-                            />
-                            <ReportFormReason
-                                register={register}
-                                errors={errors}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormSubmitBtn />
-                    </ReportFormCtn>
-                </Dialog>
-            )}
+            <InfoDialog
+                isOpen={isOpen && step === 1}
+                onClose={onCloseDialog}
+                onButtonClick={() => setStep(2)}
+            />
+            <Dialog isOpen={isOpen && step === 2} onClose={onCloseDialog}>
+                <ReportFormCtn onSubmit={onSubmit}>
+                    <ReportFormIntro />
+                    <ReportContent content={post?.content} />
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel
+                            title="1. 檢舉原因"
+                            isRequired
+                        />
+                        <ReportFormCategories
+                            register={register}
+                            errors={errors}
+                            setValue={setValue}
+                            getValues={getValues}
+                            trigger={trigger}
+                        />
+                    </ReportFormStepGroup>
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel
+                            title="2. 檢舉描述"
+                            isRequired
+                        />
+                        <ReportFormReason
+                            register={register}
+                            errors={errors}
+                        />
+                    </ReportFormStepGroup>
+                    <ReportFormSubmitBtn />
+                </ReportFormCtn>
+            </Dialog>
             <ReportFormSubmitting
                 isOpen={isSubmitting}
                 onClose={onCloseDialog}

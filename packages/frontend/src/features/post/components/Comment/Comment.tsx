@@ -81,6 +81,7 @@ export default function Comment({
                         <CommentActionMenu
                             postId={postId}
                             commentId={commentId}
+                            content={content}
                             onDelete={onDelete}
                             canDelete={canDelete}
                             canReport={canReport}
