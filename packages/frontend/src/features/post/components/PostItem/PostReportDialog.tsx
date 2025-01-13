@@ -116,10 +116,7 @@ export function PostReportDialog({
                     <ReportFormIntro />
                     <ReportContent content={post?.content} />
                     <ReportFormStepGroup>
-                        <ReportFormStepLabel
-                            title="1. 檢舉原因"
-                            isRequired
-                        />
+                        <ReportFormStepLabel title="1. 檢舉原因" isRequired />
                         <ReportFormCategories
                             register={register}
                             errors={errors}
@@ -129,14 +126,8 @@ export function PostReportDialog({
                         />
                     </ReportFormStepGroup>
                     <ReportFormStepGroup>
-                        <ReportFormStepLabel
-                            title="2. 檢舉描述"
-                            isRequired
-                        />
-                        <ReportFormReason
-                            register={register}
-                            errors={errors}
-                        />
+                        <ReportFormStepLabel title="2. 檢舉描述" isRequired />
+                        <ReportFormReason register={register} errors={errors} />
                     </ReportFormStepGroup>
                     <ReportFormSubmitBtn />
                 </ReportFormCtn>
