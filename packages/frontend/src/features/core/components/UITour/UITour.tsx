@@ -33,7 +33,7 @@ export default function UITour() {
             }}
             styles={{
                 options: {
-                  overlayColor: 'rgba(0, 0, 0, 0.7)',
+                    overlayColor: 'rgba(0, 0, 0, 0.7)',
                 },
             }}
         />
