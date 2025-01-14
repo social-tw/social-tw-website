@@ -12,7 +12,7 @@ export function ReportedMask({
     postId: string
     onRemoveMask?: () => void
 }) {
-    const { reason } = usePostReportReason(postId)
+    const { category } = usePostReportReason(postId)
 
     const {
         isOpen: isDialogOpen,
@@ -27,7 +27,7 @@ export function ReportedMask({
                     <h2 className="text-base font-bold tracking-wide">
                         此則貼文已被檢舉，正在審核中...
                     </h2>
-                    <ReportReason reason={reason ?? ''} />
+                    <ReportReason reason={category ?? ''} />
                 </div>
                 <div className="shrink-0">
                     <GavelIcon className="w-20 h-20" />
