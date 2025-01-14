@@ -24,10 +24,17 @@ export default function UITour() {
             continuous
             disableCloseOnEsc
             disableOverlayClose
+            disableScrolling
+            disableScrollParentFix
             scrollToFirstStep
             showProgress
             floaterProps={{
                 hideArrow: true,
+            }}
+            styles={{
+                options: {
+                    overlayColor: 'rgba(0, 0, 0, 0.7)',
+                },
             }}
         />
     )
