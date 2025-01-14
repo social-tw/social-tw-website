@@ -15,11 +15,11 @@ import {
 } from '../ActionMenu'
 import { PostReportDialog } from './PostReportDialog'
 
-interface PostActionMenuProps {
+interface ActionMenuProps {
     postId: string
 }
 
-export function PostActionMenu({ postId }: PostActionMenuProps) {
+export function ActionMenu({ postId }: ActionMenuProps) {
     const {
         isOpen: isActionMenuOpen,
         onOpen: onActionMenuOpen,

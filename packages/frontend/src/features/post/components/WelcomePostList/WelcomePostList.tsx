@@ -1,5 +1,4 @@
 import { SERVER } from '@/constants/config'
-import Post from '@/features/post/components/Post/Post'
 import { FetchPostsResponse } from '@/types/api'
 import { PostInfo, PostStatus, RelayRawPostStatus } from '@/types/Post'
 import {
@@ -11,23 +10,22 @@ import {
 import { useIntersectionObserver, useMediaQuery } from '@uidotdev/usehooks'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Fragment, useEffect, useRef } from 'react'
+import PostItem from '../PostItem/PostItem'
 
 function WelcomePost({
-    id = '',
-    epochKey = '',
-    content = '',
+    postId,
+    epoch,
+    epochKey,
+    content,
     publishedAt = new Date(),
-    commentCount = 0,
-    upCount = 0,
-    downCount = 0,
+    status,
 }: {
-    id?: string
-    epochKey?: string
-    content?: string
+    postId: string
+    epoch: number
+    epochKey: string
+    content: string
     publishedAt: Date
-    commentCount: number
-    upCount: number
-    downCount: number
+    status: PostStatus
 }) {
     const ref = useRef(null)
 
@@ -46,14 +44,13 @@ function WelcomePost({
 
     return (
         <motion.div ref={ref} style={{ opacity: opacity }}>
-            <Post
-                id={id}
+            <PostItem
+                postId={postId}
+                epoch={epoch}
                 epochKey={epochKey}
                 content={content}
                 publishedAt={publishedAt}
-                commentCount={commentCount}
-                upCount={upCount}
-                downCount={downCount}
+                status={status}
                 compact
             />
         </motion.div>
@@ -120,13 +117,12 @@ export default function WelcomePostList() {
                         {group.map((post) => (
                             <li key={post.id}>
                                 <WelcomePost
-                                    id={post.postId}
-                                    epochKey={post.epochKey}
-                                    content={post.content}
+                                    postId={post.postId!}
+                                    epoch={post.epoch!}
+                                    epochKey={post.epochKey!}
+                                    content={post.content!}
                                     publishedAt={post.publishedAt}
-                                    commentCount={post.commentCount}
-                                    upCount={post.upCount}
-                                    downCount={post.downCount}
+                                    status={post.status}
                                 />
                             </li>
                         ))}
