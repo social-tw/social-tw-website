@@ -41,6 +41,14 @@ export enum RepUserType {
     ADJUDICATOR,
 }
 
+export enum RepChangeType {
+    REPORTER_REP = 3,
+    RESPONDENT_REP = 5,
+    FAILED_REPORTER_REP = 1,
+    ADJUDICATOR_REP = 1,
+    CHECK_IN_REP = 1,
+}
+
 export enum ReputationType {
     REPORT_SUCCESS,
     REPORT_FAILURE,

@@ -87,9 +87,9 @@ export function useBackgroundReputationClaim() {
                 await claimAdjucatorReputation(report.reportId)
             }
         }
-    }, [reports, userState, claimEpochKeyReputation, claimAdjucatorReputation])
+    }, [claimAdjucatorReputation, claimEpochKeyReputation, reports, userState])
 
     useEffect(() => {
         claimReputation()
-    }, [reports, claimReputation])
+    }, [claimReputation])
 }

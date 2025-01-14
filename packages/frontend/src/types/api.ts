@@ -1,6 +1,10 @@
 import { RelayRawComment } from './Comments'
 import { RelayRawPost } from './Post'
-import { RelayRawReputationHistory } from './Report'
+import {
+    RelayRawReputationHistory,
+    RepChangeType,
+    ReputationType,
+} from './Report'
 import { RelayRawVote } from './Vote'
 
 export enum Directions {
@@ -85,4 +89,16 @@ export interface RelayCreateVoteResponse {
 
 export interface RelayCreateReportResponse {
     reportId: string
+}
+
+export interface RelayClaimReputationResponse {
+    message: {
+        txHash: string
+        reportId: string
+        epoch: number
+        epochKey: string
+        type: ReputationType
+        score: RepChangeType
+        isPassed: true
+    }
 }
