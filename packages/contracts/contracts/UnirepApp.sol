@@ -9,7 +9,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { DailyClaimVHelper } from "./verifierHelpers/DailyClaimVHelper.sol";
 
 // Uncomment this line to use console.log
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 interface IVerifier {
     function verifyProof(
