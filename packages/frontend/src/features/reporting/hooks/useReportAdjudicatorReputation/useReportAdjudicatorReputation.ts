@@ -6,7 +6,9 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { genReportNullifierProof } from '@/features/core/utils/genReportNullifierProof'
-import { RepUserType } from '@/types/Report'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
+import { RepUserType, ReputationType } from '@/types/Report'
 import { relayClaimReputation } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -17,6 +19,7 @@ export function useReportAdjudicatorReputation() {
     const actionCount = useActionCount()
     const { getGuaranteedProvider } = useWeb3Provider()
     const queryClient = useQueryClient()
+    const sendNotification = useSendNotification()
 
     return useMutation({
         mutationKey: [MutationKeys.ClaimAdjudicatorReputation],
@@ -40,10 +43,31 @@ export function useReportAdjudicatorReputation() {
 
             return result
         },
-        onSuccess: () => {
+        onSuccess: (result) => {
             queryClient.invalidateQueries({
                 queryKey: [QueryKeys.ReputationScore],
             })
+            const reportId = result.message.reportId
+            const isPassed = result.message.isPassed
+            switch (result.message.type) {
+                case ReputationType.BE_REPORTED:
+                    sendNotification(NotificationType.BE_REPORTED, reportId)
+                    break
+                case ReputationType.REPORT_SUCCESS:
+                    sendNotification(NotificationType.REPORT_PASSED, reportId)
+                    break
+                case ReputationType.REPORT_FAILURE:
+                    sendNotification(NotificationType.REPORT_REJECTED, reportId)
+                    break
+                case ReputationType.ADJUDICATE:
+                    sendNotification(
+                        isPassed
+                            ? NotificationType.ADJUDICATE_RESULT_PASSED
+                            : NotificationType.ADJUDICATE_RESULT_REJECTED,
+                        reportId,
+                    )
+                    break
+            }
         },
     })
 }

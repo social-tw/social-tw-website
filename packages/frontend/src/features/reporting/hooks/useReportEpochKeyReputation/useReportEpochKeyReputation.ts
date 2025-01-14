@@ -6,13 +6,12 @@ import {
     useWeb3Provider,
 } from '@/features/core'
 import { genReportNonNullifierProof } from '@/features/core/utils/genReportNonNullifierProof'
-import { RepUserType } from '@/types/Report'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
+import { RepUserType, ReputationType } from '@/types/Report'
 import { relayClaimReputation } from '@/utils/api'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ReputationType } from '@/types/Report'
-import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
-import { NotificationType } from '@/types/Notifications'
 
 export function useReportEpochKeyReputation() {
     const { stateTransition } = useUserStateTransition()
