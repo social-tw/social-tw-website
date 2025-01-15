@@ -1,8 +1,10 @@
+import ReportContent from '@/features/reporting/components/Adjudicate/ReportContent'
 import { Dialog } from '@/features/shared'
 import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useReportComment } from '../../hooks/useReportComment/useReportComment'
 import {
+    InfoDialog,
     REGISTER_ID_DESC,
     REGISTER_ID_REASON,
     ReportFormCategories,
@@ -18,6 +20,7 @@ import {
 interface CommentReportDialogProps {
     postId: string
     commentId: string
+    content: string
     isOpen: boolean
     onClose: () => void
 }
@@ -30,10 +33,13 @@ const defaultValues = {
 export function CommentReportDialog({
     postId,
     commentId,
+    content,
     isOpen,
     onClose,
 }: CommentReportDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const [step, setStep] = useState<number>(1)
 
     const {
         register,
@@ -46,8 +52,9 @@ export function CommentReportDialog({
     } = useForm<FieldValues>({ defaultValues })
 
     const {
-        isIdle,
         isPending,
+        isError,
+        isSuccess,
         reportComment,
         reset: resetState,
     } = useReportComment()
@@ -92,39 +99,40 @@ export function CommentReportDialog({
         }
     }, [isPending, isSubmitting, onCloseDialog])
 
+    useEffect(() => {
+        if (isSuccess || isError) {
+            onCloseDialog()
+        }
+    }, [isSuccess, isError, onCloseDialog])
+
     return (
         <>
-            {isIdle && (
-                <Dialog isOpen={isOpen} onClose={onCloseDialog}>
-                    <ReportFormCtn onSubmit={onSubmit}>
-                        <ReportFormIntro />
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="1. 檢舉原因"
-                                isRequired
-                            />
-                            <ReportFormCategories
-                                register={register}
-                                errors={errors}
-                                setValue={setValue}
-                                getValues={getValues}
-                                trigger={trigger}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormStepGroup>
-                            <ReportFormStepLabel
-                                title="2. 檢舉描述"
-                                isRequired
-                            />
-                            <ReportFormReason
-                                register={register}
-                                errors={errors}
-                            />
-                        </ReportFormStepGroup>
-                        <ReportFormSubmitBtn />
-                    </ReportFormCtn>
-                </Dialog>
-            )}
+            <InfoDialog
+                isOpen={isOpen && step === 1}
+                onClose={onCloseDialog}
+                onButtonClick={() => setStep(2)}
+            />
+            <Dialog isOpen={isOpen && step === 2} onClose={onCloseDialog}>
+                <ReportFormCtn onSubmit={onSubmit}>
+                    <ReportFormIntro />
+                    <ReportContent content={content} />
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel title="1. 檢舉原因" isRequired />
+                        <ReportFormCategories
+                            register={register}
+                            errors={errors}
+                            setValue={setValue}
+                            getValues={getValues}
+                            trigger={trigger}
+                        />
+                    </ReportFormStepGroup>
+                    <ReportFormStepGroup>
+                        <ReportFormStepLabel title="2. 檢舉描述" isRequired />
+                        <ReportFormReason register={register} errors={errors} />
+                    </ReportFormStepGroup>
+                    <ReportFormSubmitBtn />
+                </ReportFormCtn>
+            </Dialog>
             <ReportFormSubmitting
                 isOpen={isSubmitting}
                 onClose={onCloseDialog}
