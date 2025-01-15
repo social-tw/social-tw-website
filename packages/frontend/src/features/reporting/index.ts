@@ -9,5 +9,6 @@ export { useFetchReportCategories } from './hooks/useFetchReportCategories/useFe
 export { useNotifyCheckIn } from './hooks/useNotifyCheckIn/useNotifyCheckIn'
 export { usePendingReports } from './hooks/usePendingReports/usePendingReports'
 export { useReportAdjudicatorReputation } from './hooks/useReportAdjudicatorReputation/useReportAdjudicatorReputation'
+export { useReportCategoryLabel } from './hooks/useReportCategoryLabel/useReportCategoryLabel'
 export { useReportEpochKeyReputation } from './hooks/useReportEpochKeyReputation/useReportEpochKeyReputation'
 export { useReputationScore } from './hooks/useReputationScore/useReputationScore'

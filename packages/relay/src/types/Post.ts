@@ -1,3 +1,5 @@
+import { ReportHistory } from './Report'
+
 export enum PostStatus {
     NOT_ON_CHAIN,
     ON_CHAIN,
@@ -19,5 +21,6 @@ export type Post = {
     status: PostStatus
     commentCount: number
     votes: any[]
+    report: ReportHistory | undefined | null
     _id: string
 }

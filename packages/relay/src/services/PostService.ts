@@ -3,6 +3,7 @@ import { PostgresConnector, SQLiteConnector } from 'anondb/node'
 import { Helia } from 'helia'
 import { Groth16Proof, PublicSignals } from 'snarkjs'
 import { DAY_DIFF_STAEMENT, DB_PATH, LOAD_POST_COUNT } from '../config'
+import { ReportType } from '../types'
 import { Errors } from '../types/InternalError'
 import { Post, PostStatus } from '../types/Post'
 import { UnirepSocialSynchronizer } from './singletons/UnirepSocialSynchronizer'
@@ -188,6 +189,14 @@ export class PostService {
         post.votes = await db.findMany('Vote', {
             where: { postId },
         })
+
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ type: ReportType.POST }, { objectId: post.postId }],
+            },
+        })
+
+        post.report = report ?? null
 
         return post
     }
