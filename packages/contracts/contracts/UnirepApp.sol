@@ -409,7 +409,7 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        // check the epoch != current epoch (ppl can only claim in current aepoch)
+        // check the epoch != current epoch (ppl can only claim in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch > epoch) {
             revert InvalidEpoch();
