@@ -1,4 +1,5 @@
 import { DB } from 'anondb/node'
+import type { Groth16Proof, PublicSignals } from 'snarkjs'
 import {
     ClaimHelpers,
     RepChangeType,
@@ -34,8 +35,8 @@ export class ReputationService {
     }
 
     async claimCheckInReputation(
-        publicSignals: any,
-        proof: any,
+        publicSignals: PublicSignals,
+        proof: Groth16Proof,
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
