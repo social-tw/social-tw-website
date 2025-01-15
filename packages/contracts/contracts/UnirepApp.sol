@@ -402,7 +402,7 @@ contract UnirepApp is Ownable {
         DailyClaimVHelper.DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
 
         // check if proof is used before
-        bytes32 nullifier = bytes32(abi.encodePacked(publicSignals, proof));
+        bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
