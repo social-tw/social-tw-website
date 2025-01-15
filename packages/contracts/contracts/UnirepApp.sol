@@ -402,14 +402,14 @@ contract UnirepApp is Ownable {
         DailyClaimVHelper.DailyClaimSignals memory signals = dailyClaimVHelpers.decodeDailyClaimSignals(publicSignals);
 
         // check if proof is used before
-        bytes32 nullifier = bytes32(signals.dailyNullifier);
+        bytes32 nullifier = bytes32(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
             revert ProofHasUsed();
         }
 
         proofNullifier[nullifier] = true;
 
-        // check the epoch != current epoch (ppl can only post in current aepoch)
+        // check the epoch != current epoch (ppl can only claim in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch > epoch) {
             revert InvalidEpoch();
