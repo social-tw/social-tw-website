@@ -1,7 +1,4 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import { VoteAction } from '@/types/Vote'
-import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     ActionType,
     addAction,
