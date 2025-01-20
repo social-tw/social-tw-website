@@ -6,6 +6,7 @@ export enum PostStatus {
     Failure = 'failure',
     Deleted = 'deleted',
     Reported = 'reported',
+    Blocked = 'blocked',
 }
 
 // For displaying in the main page components

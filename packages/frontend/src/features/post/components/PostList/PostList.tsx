@@ -8,24 +8,14 @@ import {
     useActionStore,
     useUserState,
 } from '@/features/core'
-import { Post, useVoteEvents, useVotes } from '@/features/post'
-import { useReputationScore } from '@/features/reporting'
-import { openForbidActionDialog } from '@/features/shared/stores/dialog'
-import { PostInfo, PostStatus, RelayRawPostStatus } from '@/types/Post'
-import { VoteAction } from '@/types/Vote'
+import { PostItem, useVoteEvents } from '@/features/post'
+import { PostStatus, RelayRawPostStatus } from '@/types/Post'
 import { handleVoteEvent } from '@/utils/handleVoteEvent'
-import checkVoteIsMine from '@/utils/helpers/checkVoteIsMine'
-import {
-    DefaultError,
-    InfiniteData,
-    QueryKey,
-    useInfiniteQuery,
-    useQueryClient,
-} from '@tanstack/react-query'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useIntersectionObserver } from '@uidotdev/usehooks'
 import { nanoid } from 'nanoid'
 import { Fragment, useEffect, useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import ExamplePost from '../ExamplePost/ExamplePost'
 
 export default function PostList() {
@@ -35,27 +25,13 @@ export default function PostList() {
 
     const queryClient = useQueryClient()
 
-    const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery<
-        PostInfo[],
-        DefaultError,
-        InfiniteData<PostInfo[]>,
-        QueryKey,
-        number
-    >({
+    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
         queryKey: [QueryKeys.ManyPosts, query],
         queryFn: async ({ pageParam }) => {
             const postService = new PostService()
             const data = await postService.fetchPosts(pageParam, query)
 
             return data.map((item) => {
-                const voteCheck = userState
-                    ? checkVoteIsMine(item.votes, userState)
-                    : {
-                          isMine: false,
-                          finalAction: null,
-                          votedNonce: null,
-                          votedEpoch: null,
-                      }
                 return {
                     id: item.transactionHash!,
                     postId: item.postId,
@@ -63,16 +39,12 @@ export default function PostList() {
                     epoch: item.epoch,
                     content: item.content,
                     publishedAt: new Date(Number(item.publishedAt)),
-                    commentCount: item.commentCount,
-                    upCount: item.upCount,
-                    downCount: item.downCount,
-                    isReported: item.status === RelayRawPostStatus.REPORTED,
-                    isBlocked: item.status === RelayRawPostStatus.DISAGREED,
-                    isMine: voteCheck.isMine,
-                    finalAction: voteCheck.finalAction,
-                    votedNonce: voteCheck.votedNonce,
-                    votedEpoch: voteCheck.votedEpoch,
-                    status: PostStatus.Success,
+                    status:
+                        item.status === RelayRawPostStatus.DISAGREED
+                            ? PostStatus.Blocked
+                            : item.status === RelayRawPostStatus.REPORTED
+                            ? PostStatus.Reported
+                            : PostStatus.Success,
                 }
             })
         },
@@ -108,15 +80,6 @@ export default function PostList() {
                     epoch: actionData?.epoch,
                     content: actionData.content,
                     publishedAt: action.submittedAt,
-                    commentCount: 0,
-                    upCount: 0,
-                    downCount: 0,
-                    isReported: false,
-                    isBlocked: false,
-                    isMine: true,
-                    finalAction: null,
-                    votedNonce: null,
-                    votedEpoch: null,
                     status: action.status as unknown as PostStatus,
                 }
             })
@@ -124,61 +87,7 @@ export default function PostList() {
             .sort((a, b) => a.publishedAt.valueOf() - b.publishedAt.valueOf())
     }, [postActions, data])
 
-    const navigate = useNavigate()
-
-    function gotoCommentsByPostId(postId: string) {
-        navigate(`/posts/${postId}/?leaveComment=1`)
-    }
-
-    const { createVote } = useVotes()
-
-    const handleComment = (postId?: string) => {
-        if (!postId) return
-        if (!isValidReputationScore) {
-            openForbidActionDialog()
-            return
-        }
-        gotoCommentsByPostId(postId)
-    }
-
-    const handleVote = async (
-        id: string,
-        voteType: VoteAction,
-        post: PostInfo,
-    ): Promise<boolean> => {
-        try {
-            if (post.isMine && post.finalAction !== null) {
-                const cancelAction =
-                    post.finalAction === VoteAction.UPVOTE
-                        ? VoteAction.CANCEL_UPVOTE
-                        : VoteAction.CANCEL_DOWNVOTE
-                await createVote({
-                    id,
-                    voteAction: cancelAction,
-                    votedNonce: post.votedNonce,
-                    votedEpoch: post.votedEpoch,
-                })
-            }
-            if (voteType !== post.finalAction) {
-                await createVote({
-                    id,
-                    voteAction: voteType,
-                    votedNonce: null,
-                    votedEpoch: null,
-                })
-            }
-
-            refetch() // Refresh the posts data after voting
-
-            return true
-        } catch (err) {
-            return false
-        }
-    }
-
     useVoteEvents((msg) => handleVoteEvent(queryClient, msg))
-
-    const { isValidReputationScore } = useReputationScore()
 
     return (
         <div className="px-4 lg:px-0">
@@ -191,25 +100,13 @@ export default function PostList() {
                         key={post.id}
                         className="transition-opacity duration-500"
                     >
-                        <Post
-                            id={post.postId}
-                            epochKey={post.epochKey}
-                            epoch={post.epoch}
-                            content={post.content}
-                            publishedAt={post.publishedAt}
-                            commentCount={post.commentCount}
-                            upCount={post.upCount}
-                            downCount={post.downCount}
+                        <PostItem
                             compact
-                            isMine={post.isMine}
-                            isReported={post.isReported}
-                            finalAction={post.finalAction}
-                            votedNonce={post.votedNonce}
-                            votedEpoch={post.votedEpoch}
+                            epoch={post.epoch!}
+                            epochKey={post.epochKey!}
+                            content={post.content!}
+                            publishedAt={post.publishedAt}
                             status={post.status}
-                            onVote={(voteType) =>
-                                handleVote(post.postId!, voteType, post)
-                            }
                         />
                     </li>
                 ))}
@@ -220,27 +117,15 @@ export default function PostList() {
                                 key={post.id}
                                 className="transition-opacity duration-500"
                             >
-                                <Post
-                                    id={post.postId}
-                                    epochKey={post.epochKey}
-                                    epoch={post.epoch}
-                                    content={post.content}
-                                    publishedAt={post.publishedAt}
-                                    commentCount={post.commentCount}
-                                    upCount={post.upCount}
-                                    downCount={post.downCount}
+                                <PostItem
                                     compact
-                                    isReported={post.isReported}
-                                    isBlocked={post.isBlocked}
-                                    isMine={post.isMine}
-                                    finalAction={post.finalAction}
-                                    votedNonce={post.votedNonce}
-                                    votedEpoch={post.votedEpoch}
+                                    link={`/posts/${post.postId}`}
+                                    postId={post.postId}
+                                    epoch={post.epoch!}
+                                    epochKey={post.epochKey!}
+                                    content={post.content!}
+                                    publishedAt={post.publishedAt}
                                     status={post.status}
-                                    onComment={() => handleComment(post.postId)}
-                                    onVote={(voteType) =>
-                                        handleVote(post.postId!, voteType, post)
-                                    }
                                 />
                             </li>
                         ))}

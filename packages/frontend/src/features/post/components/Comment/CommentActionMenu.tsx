@@ -1,4 +1,7 @@
 import { ReactComponent as BanIcon } from '@/assets/svg/ban.svg'
+import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
+import { useAuthStatus } from '@/features/auth'
+import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 import { useReputationScore } from '@/features/reporting'
 import { useDialog } from '@/features/shared'
 import { openForbidActionDialog } from '@/features/shared/stores/dialog'
@@ -13,12 +16,10 @@ import {
 } from '../ActionMenu'
 import CommentDeleteDialog from '../CommentDeleteDialog/CommentDeleteDialog'
 import { CommentReportDialog } from './CommentReportDialog'
-import { useAuthStatus } from '@/features/auth'
-import { AUTH_ERROR_MESSAGE } from '@/constants/errorMessage'
-import { useAuthCheck } from '@/features/auth/hooks/useAuthCheck/useAuthCheck'
 interface CommentActionMenuProps {
     postId: string
     commentId: string
+    content: string
     onDelete: () => void
     canDelete: boolean
     canReport: boolean
@@ -27,6 +28,7 @@ interface CommentActionMenuProps {
 export function CommentActionMenu({
     postId,
     commentId,
+    content,
     onDelete,
     canDelete,
     canReport,
@@ -109,6 +111,7 @@ export function CommentActionMenu({
             <CommentReportDialog
                 postId={postId}
                 commentId={commentId}
+                content={content}
                 isOpen={isReportDialogOpen}
                 onClose={onReportDialogClose}
             />

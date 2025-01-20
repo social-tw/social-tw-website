@@ -1,8 +1,8 @@
+import Avatar from '@/assets/img/avatar.png'
+import { RichTextEditor } from '@/features/shared'
 import { clsx } from 'clsx'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import Avatar from '@/assets/img/avatar.png'
-import { RichTextEditor } from '@/features/shared'
 
 export interface CommentFormValues {
     content: string
@@ -37,7 +37,7 @@ export default function CommentFormMobile({
     if (!isOpen) return null
 
     return (
-        <div className="fixed bottom-0 z-50 w-screen p-4 bg-gray-900 border-t-2 border-gray-400">
+        <div className="fixed bottom-0 left-0 z-50 w-screen p-4 bg-gray-900 border-t-2 border-gray-400">
             <form
                 className={clsx('space-y-6', disabled && 'opacity-20')}
                 onSubmit={handleSubmit(onSubmit)}
@@ -47,7 +47,7 @@ export default function CommentFormMobile({
                         <img src={Avatar} alt="Avatar" />
                     </div>
                     <button
-                        className="btn btn-sm btn-ghost"
+                        className="text-white btn btn-sm btn-ghost"
                         title="cancel a comment"
                         type="button"
                         disabled={disabled}

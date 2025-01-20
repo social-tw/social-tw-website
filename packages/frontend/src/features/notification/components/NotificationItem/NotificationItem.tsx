@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNotificationConfig } from '../../config/NotificationConfig'
 import {
-    useNotificationById,
     markAsRead,
+    useNotificationById,
 } from '../../stores/useNotificationStore'
 
 interface NotificationItemProps {
@@ -20,20 +20,20 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ id }) => {
     const actions = config.actions
 
     return (
-        <div className="relative flex items-center p-3 rounded-2xl shadow-md mb-4 bg-gray-100">
+        <div className="relative flex items-center p-3 mb-4 bg-gray-100 shadow-md rounded-2xl">
             {isRead && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 rounded-2xl z-20 pointer-events-none"></div>
+                <div className="absolute inset-0 z-10 bg-black pointer-events-none bg-opacity-40 rounded-2xl"></div>
             )}
 
-            <div className="flex items-center w-full z-10">
-                <div className="mr-4 flex-shrink-0 flex items-center justify-center h-full">
+            <div className="flex items-center w-full">
+                <div className="flex items-center justify-center flex-shrink-0 h-full mr-4">
                     {IconComponent ? (
                         <IconComponent className="w-8 h-8" />
                     ) : null}
                 </div>
 
                 <div className="flex-grow">
-                    <p className="text-xs mb-1 text-gray-500">{time}</p>
+                    <p className="mb-1 text-xs text-gray-500">{time}</p>
                     <p
                         className={`text-sm ${
                             isRead ? 'text-gray-500' : 'text-black'
@@ -42,7 +42,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ id }) => {
                         {message}
                     </p>
 
-                    <div className="flex justify-end space-x-4 mt-2">
+                    <div className="flex justify-end mt-2 space-x-4">
                         {actions?.map((action, index) => (
                             <button
                                 key={index}

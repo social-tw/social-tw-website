@@ -89,7 +89,7 @@ describe('useVotes', () => {
             votedEpoch: 1,
         }
         await act(async () => {
-            await result.current.createVote(vote)
+            await result.current.mutateAsync(vote)
         })
 
         expectation.done()
@@ -114,7 +114,7 @@ describe('useVotes', () => {
         }
 
         await act(async () => {
-            await result.current.createVote(vote).catch(() => null)
+            await result.current.mutateAsync(vote).catch(() => null)
         })
 
         expectation.done()

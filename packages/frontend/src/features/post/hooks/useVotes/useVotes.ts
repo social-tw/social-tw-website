@@ -1,10 +1,4 @@
 import { MutationKeys, QueryKeys } from '@/constants/queryKeys'
-import {
-    useActionCount,
-    useUserState,
-    useUserStateTransition,
-    VoteService,
-} from '@/features/core'
 import { VoteAction } from '@/types/Vote'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -13,9 +7,16 @@ import {
     addAction,
     failActionById,
     succeedActionById,
+    useUserStateTransition,
+    useActionCount,
+    useUserState,
+    VoteService,
 } from '@/features/core'
 import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
 import { NotificationType } from '@/types/Notifications'
+import { VoteAction } from '@/types/Vote'
+import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useVotes() {
     const queryClient = useQueryClient()
@@ -39,11 +40,7 @@ export function useVotes() {
         }
     }
 
-    const {
-        isPending,
-        error,
-        mutateAsync: createVote,
-    } = useMutation({
+    return useMutation({
         mutationKey: [MutationKeys.Vote],
         mutationFn: async ({
             id,
@@ -119,10 +116,4 @@ export function useVotes() {
             sendNotification(notificationType, data.postId)
         },
     })
-
-    return {
-        isPending,
-        error,
-        createVote,
-    }
 }

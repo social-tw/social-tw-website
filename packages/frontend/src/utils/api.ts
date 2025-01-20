@@ -10,6 +10,7 @@ import {
     FetchReputationHistoryResponse,
     FetchVotesByEpochKeysParams,
     FetchVotesByEpochKeysResponse,
+    RelayClaimReputationResponse,
     RelayCreateCommentResponse,
     RelayCreatePostResponse,
     RelayRemoveCommentResponse,
@@ -346,7 +347,7 @@ export async function relayClaimReputation(
     repUserType: RepUserType,
     publicSignals: bigint[],
     proof: bigint[],
-) {
+): Promise<RelayClaimReputationResponse> {
     const response = await fetch(`${SERVER}/api/reputation/claim`, {
         method: 'POST',
         headers: {

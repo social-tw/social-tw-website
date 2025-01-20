@@ -39,7 +39,7 @@ module.exports = {
                     'primary-content': '#FFFFFF',
                     secondary: '#52ACBC',
                     'secondary-content': '#FFFFFF',
-                    accent: '#3F3F3F',
+                    accent: '#3D3D3D',
                     error: '#FF1D1D',
                     '--rounded-btn': '0.75rem',
                 },
