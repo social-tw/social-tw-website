@@ -12,7 +12,7 @@ import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
     genReputationProof,
-    genUserState
+    genUserState,
 } from './utils'
 
 const { FIELD_COUNT } = CircuitConfig.default
@@ -120,8 +120,9 @@ describe('Unirep App', function () {
             repProof.proof[0] = BigInt(0)
             const content = 'Invalid Proof'
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content)).to.be
-                .reverted // revert in epkHelper.verifyAndCheck()
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            ).to.be.reverted // revert in epkHelper.verifyAndCheck()
 
             userState.stop()
         })
@@ -131,7 +132,9 @@ describe('Unirep App', function () {
             const userState = await genUserState(user.id, app)
             const repProof = await userState.genProveReputationProof({})
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content))
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            )
                 .to.emit(app, 'Post')
                 .withArgs(repProof.publicSignals[0], 0, 0, content)
 
@@ -146,7 +149,9 @@ describe('Unirep App', function () {
             inputPublicSig = repProof.publicSignals
             inputProof = repProof.proof
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content))
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            )
                 .to.emit(app, 'Post')
                 .withArgs(repProof.publicSignals[0], 1, 0, content)
 
@@ -187,7 +192,11 @@ describe('Unirep App', function () {
             })
 
             await expect(
-                app.post(repProof.publicSignals, repProof.proof, 'Invalid Epoch')
+                app.post(
+                    repProof.publicSignals,
+                    repProof.proof,
+                    'Invalid Epoch'
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
             userState.stop()

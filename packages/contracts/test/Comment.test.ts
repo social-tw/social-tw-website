@@ -9,7 +9,7 @@ import {
     createMultipleUserIdentity,
     genEpochKeyLiteProof,
     genReputationProof,
-    genUserState
+    genUserState,
 } from './utils'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
@@ -119,7 +119,12 @@ describe('Comment Test', function () {
             repProof.proof[0] = BigInt(0)
 
             await expect(
-                app.leaveComment(repProof.publicSignals, repProof.proof, BigInt(0), content)
+                app.leaveComment(
+                    repProof.publicSignals,
+                    repProof.proof,
+                    BigInt(0),
+                    content
+                )
             ).to.be.reverted
             userState.stop()
         })
@@ -137,7 +142,12 @@ describe('Comment Test', function () {
             inputProof = repProof.proof
 
             await expect(
-                app.leaveComment(repProof.publicSignals, repProof.proof, postId, content)
+                app.leaveComment(
+                    repProof.publicSignals,
+                    repProof.proof,
+                    postId,
+                    content
+                )
             )
                 .to.emit(app, 'Comment')
                 .withArgs(
