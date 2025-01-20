@@ -80,7 +80,7 @@ describe('CheckReputation', function () {
             revealNonce: 0,
         })
 
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
+        const { publicSignals, proof } = await genProofAndVerify(
             Circuit.reputation,
             circuitInputs
         )
