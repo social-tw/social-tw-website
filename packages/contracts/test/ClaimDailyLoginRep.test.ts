@@ -1,9 +1,9 @@
 // @ts-ignore
-import { ethers } from 'hardhat'
 import { DailyClaimProof } from '@unirep-app/circuits'
 import { ReputationProof } from '@unirep/circuits'
 import { genEpochKey } from '@unirep/utils'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import { IdentityObject } from './types'
