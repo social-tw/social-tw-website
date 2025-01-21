@@ -1,7 +1,7 @@
 //@ts-ignore
-import { ethers } from 'hardhat'
-import { expect } from 'chai'
 import { genEpochKey } from '@unirep/utils'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
@@ -15,7 +15,7 @@ import {
     genReportNullifierCircuitInput,
 } from './utils'
 
-describe('Verifier Helper Manager Test', function () {
+describe('Verifier Helper Test', function () {
     let unirep: Unirep
     let app: UnirepApp
     let reportNonNullifierVHelper: any

@@ -1,21 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import { Unirep } from "@unirep/contracts/Unirep.sol";
-import { EpochKeyVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
-import { EpochKeyLiteVerifierHelper } from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
-import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
-import { VerifierHelperManager } from "./verifierHelpers/VerifierHelperManager.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { DailyClaimVHelper } from "./verifierHelpers/DailyClaimVHelper.sol";
 
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import {Unirep} from "@unirep/contracts/Unirep.sol";
+import {ReputationVerifierHelper} from "@unirep/contracts/verifierHelpers/ReputationVerifierHelper.sol";
+import {EpochKeyLiteVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
+import {BaseVerifierHelper} from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
+import {VerifierHelperManager} from "./verifierHelpers/VerifierHelperManager.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {DailyClaimVHelper} from "./verifierHelpers/DailyClaimVHelper.sol";
 
 interface IVerifier {
-    function verifyProof(
-        uint256[] calldata publicSignals,
-        uint256[8] calldata proof
-    ) external view returns (bool);
+    function verifyProof(uint256[] calldata publicSignals, uint256[8] calldata proof) external view returns (bool);
 }
 
 contract UnirepApp is Ownable {
@@ -32,7 +27,7 @@ contract UnirepApp is Ownable {
 
     Unirep public unirep;
     IVerifier internal dataVerifier;
-    EpochKeyVerifierHelper internal epkHelper;
+    ReputationVerifierHelper internal repHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
     VerifierHelperManager internal verifierHelperManager;
 
@@ -52,42 +47,21 @@ contract UnirepApp is Ownable {
     // Nagative Reputation field index in Unirep protocol
     uint256 public immutable negRepFieldIndex = 1;
 
-    event Post(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed epoch,
-        string content
-    );
+    event Post(uint256 indexed epochKey, uint256 indexed postId, uint256 indexed epoch, string content);
 
     event Comment(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed commentId,
-        uint256 epoch,
-        string content
+        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string content
     );
 
     event UpdatedComment(
-        uint256 indexed epochKey,
-        uint256 indexed postId,
-        uint256 indexed commentId,
-        uint256 epoch,
-        string newContent
+        uint256 indexed epochKey, uint256 indexed postId, uint256 indexed commentId, uint256 epoch, string newContent
     );
 
-    event ClaimPosRep(
-        uint256 indexed epochKey,
-        uint256 epoch
-    );
+    event ClaimPosRep(uint256 indexed epochKey, uint256 epoch);
 
-    event ClaimNegRep(
-        uint256 indexed epochKey,
-        uint256 epoch    
-    );
+    event ClaimNegRep(uint256 indexed epochKey, uint256 epoch);
 
-    event DailyEpochEnded(
-        uint48 indexed epoch
-    );
+    event DailyEpochEnded(uint48 indexed epoch);
 
     uint160 immutable attesterId;
 
@@ -105,7 +79,7 @@ contract UnirepApp is Ownable {
 
     constructor(
         Unirep _unirep,
-        EpochKeyVerifierHelper _epkHelper,
+        ReputationVerifierHelper _repHelper,
         EpochKeyLiteVerifierHelper _epkLiteHelper,
         IVerifier _dataVerifier,
         VerifierHelperManager _verifierHelperManager,
@@ -114,8 +88,8 @@ contract UnirepApp is Ownable {
         // set unirep address
         unirep = _unirep;
 
-        // set epoch key verifier helper address
-        epkHelper = _epkHelper;
+        // set reputation verifier helper address
+        repHelper = _repHelper;
 
         // set epoch key lite verifier helper address
         epkLiteHelper = _epkLiteHelper;
@@ -126,18 +100,25 @@ contract UnirepApp is Ownable {
         // set verifierHelper manager
         verifierHelperManager = _verifierHelperManager;
 
-        dailyEpochData = DailyEpochData({
-            startTimestamp: uint48(block.timestamp),
-            currentEpoch: 0,
-            epochLength: 24*60*60
-        });
+        dailyEpochData =
+            DailyEpochData({startTimestamp: uint48(block.timestamp), currentEpoch: 0, epochLength: 24 * 60 * 60});
 
         // sign up as an attester
         attesterId = uint160(msg.sender);
         unirep.attesterSignUp(_epochLength);
     }
 
-    /** 
+    /// @dev Decode and verify the reputation proofs
+    /// @return proofSignals proof signals or fails
+    function decodeAndVerify(uint256[] calldata publicSignals, uint256[8] calldata proof)
+        internal
+        view
+        returns (ReputationVerifierHelper.ReputationSignals memory proofSignals)
+    {
+        return repHelper.verifyAndCheckCaller(publicSignals, proof);
+    }
+
+    /**
      * Sign up users in this app
      * @param publicSignals: public signals
      * @param proof: UserSignUpProof
@@ -163,14 +144,10 @@ contract UnirepApp is Ownable {
     /**
      * Post a content in this app
      * @param publicSignals: public signals
-     * @param proof: epockKeyProof from the user
+     * @param proof: reputationProof from the user
      * @param content: content of this post
-     */ 
-    function post(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
-        string memory content
-    ) public {
+     */
+    function post(uint256[] calldata publicSignals, uint256[8] calldata proof, string memory content) public {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -179,8 +156,7 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
-            .decodeEpochKeySignals(publicSignals);
+        ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -188,12 +164,8 @@ contract UnirepApp is Ownable {
             revert InvalidEpoch();
         }
 
-        // should check lastly
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
-
         emit Post(signals.epochKey, latestPostId, signals.epoch, content);
         latestPostId++;
-
     }
 
     /**
@@ -204,8 +176,8 @@ contract UnirepApp is Ownable {
      * @param content: comment content
      */
     function leaveComment(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
         uint256 postId,
         string memory content
     ) public {
@@ -216,29 +188,19 @@ contract UnirepApp is Ownable {
         }
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper
-            .decodeEpochKeySignals(publicSignals);
+        ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
 
-        // check the epoch != current epoch (ppl can only post in current aepoch)
+        // check the epoch != current epoch (ppl can only leave comment in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
         }
 
-        // check if the proof is valid
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
-
         uint256 commentId = postCommentIndex[postId];
         epochKeyCommentMap[postId][commentId] = signals.epochKey;
         postCommentIndex[postId] = commentId + 1;
 
-        emit Comment(
-            signals.epochKey,
-            postId,
-            commentId,
-            signals.epoch,
-            content
-        );
+        emit Comment(signals.epochKey, postId, commentId, signals.epoch, content);
     }
 
     /**
@@ -264,10 +226,8 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyLiteVerifierHelper.EpochKeySignals
-            memory signals = epkLiteHelper.decodeEpochKeyLiteSignals(
-                publicSignals
-            );
+        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals =
+            epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -286,29 +246,20 @@ contract UnirepApp is Ownable {
 
         epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
-        emit UpdatedComment(
-            signals.epochKey,
-            postId,
-            commentId,
-            signals.epoch,
-            newContent
-        );
+        emit UpdatedComment(signals.epochKey, postId, commentId, signals.epoch, newContent);
     }
 
     /// @param publicSignals The public signals of the snark proof
     /// @param proof The proof data of the snark proof
     /// @param identifier sha256(verifier_contract_name)
     /// @return signals The EpochKeySignals from BaseVerifierHelper
-    function verifyWithIdentifier(
-        uint256[] calldata publicSignals,
-        uint256[8] calldata proof,
-        bytes32 identifier
-    ) public view returns (BaseVerifierHelper.EpochKeySignals memory) {
-        BaseVerifierHelper.EpochKeySignals memory signal = verifierHelperManager.verifyProof(
-            publicSignals,
-            proof,
-            identifier
-        );
+    function verifyWithIdentifier(uint256[] calldata publicSignals, uint256[8] calldata proof, bytes32 identifier)
+        public
+        view
+        returns (BaseVerifierHelper.EpochKeySignals memory)
+    {
+        BaseVerifierHelper.EpochKeySignals memory signal =
+            verifierHelperManager.verifyProof(publicSignals, proof, identifier);
         return signal;
     }
 
@@ -327,19 +278,11 @@ contract UnirepApp is Ownable {
         }
     }
 
-    function submitAttestation(
-        uint256 epochKey,
-        uint48 targetEpoch,
-        uint256 fieldIndex,
-        uint256 val
-    ) public {
+    function submitAttestation(uint256 epochKey, uint48 targetEpoch, uint256 fieldIndex, uint256 val) public {
         unirep.attest(epochKey, targetEpoch, fieldIndex, val);
     }
 
-    function verifyDataProof(
-        uint256[] calldata publicSignals,
-        uint256[8] calldata proof
-    ) public view returns (bool) {
+    function verifyDataProof(uint256[] calldata publicSignals, uint256[8] calldata proof) public view returns (bool) {
         return dataVerifier.verifyProof(publicSignals, proof);
     }
 
@@ -354,7 +297,7 @@ contract UnirepApp is Ownable {
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public onlyOwner() {
+    ) public onlyOwner {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -363,11 +306,8 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        BaseVerifierHelper.EpochKeySignals memory signals = verifierHelperManager.verifyProof(
-            publicSignals,
-            proof,
-            identifier
-        );
+        BaseVerifierHelper.EpochKeySignals memory signals =
+            verifierHelperManager.verifyProof(publicSignals, proof, identifier);
 
         // check the epoch != current epoch (ppl can only claim in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -391,11 +331,10 @@ contract UnirepApp is Ownable {
      * @param publicSignals: public signals
      * @param proof: daily claim proof
      */
-    function claimDailyLoginRep(
-        uint256[] calldata publicSignals,
-        uint256[8] calldata proof,
-        bytes32 identifier
-    ) public onlyOwner() {
+    function claimDailyLoginRep(uint256[] calldata publicSignals, uint256[8] calldata proof, bytes32 identifier)
+        public
+        onlyOwner
+    {
         _updateDailyEpochIfNeeded();
 
         DailyClaimVHelper dailyClaimVHelpers = DailyClaimVHelper(verifierHelperManager.registeredVHelpers(identifier));
@@ -424,11 +363,7 @@ contract UnirepApp is Ownable {
             revert NonNegativeReputation();
         }
 
-        verifierHelperManager.verifyProof(
-            publicSignals,
-            proof,
-            identifier
-        );
+        verifierHelperManager.verifyProof(publicSignals, proof, identifier);
 
         // attesting on Unirep contract:
         unirep.attest(
@@ -438,10 +373,7 @@ contract UnirepApp is Ownable {
             1
         );
 
-        emit ClaimPosRep(
-            signals.epochKey,
-            epoch
-        );
+        emit ClaimPosRep(signals.epochKey, epoch);
     }
 
     /**
@@ -455,7 +387,7 @@ contract UnirepApp is Ownable {
         uint256[8] calldata proof,
         bytes32 identifier,
         uint256 change
-    ) public onlyOwner() {
+    ) public onlyOwner {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -464,11 +396,8 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        BaseVerifierHelper.EpochKeySignals memory signals = verifierHelperManager.verifyProof(
-            publicSignals,
-            proof,
-            identifier
-        );
+        BaseVerifierHelper.EpochKeySignals memory signals =
+            verifierHelperManager.verifyProof(publicSignals, proof, identifier);
 
         // check the epoch != current epoch (ppl can only claim in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -479,12 +408,7 @@ contract UnirepApp is Ownable {
         // attesting on Unirep contract:
         // 1. punishing poster   (5)
         // 2. punishing reporter (1)
-        unirep.attest(
-            signals.epochKey,
-            epoch,
-            negRepFieldIndex,
-            change
-        );
+        unirep.attest(signals.epochKey, epoch, negRepFieldIndex, change);
 
         emit ClaimNegRep(signals.epochKey, epoch);
     }
