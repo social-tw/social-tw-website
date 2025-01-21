@@ -1,4 +1,5 @@
 import { stringifyBigInts } from '@unirep/utils'
+import { genDailyClaimProof } from '../../utils/genDailyClaimProof'
 import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class UserService extends RelayApiService {
@@ -7,24 +8,32 @@ export class UserService extends RelayApiService {
 
         const userState = this.getUserState()
 
-        const { publicSignals, proof, epoch, epochKey } =
-            await userState.genEpochKeyProof({
-                nonce: identityNonce,
-            })
+        const dailyEpoch = await client.get('/config').then((res) => {
+            return res.data.DAILY_CURRENT_EPOCH
+        })
+
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: identityNonce,
+        })
+
+        const dailyClaimProof = await genDailyClaimProof(userState, {
+            dailyEpoch,
+            reputationProof,
+        })
 
         const response = await client.post(
             '/checkin',
             stringifyBigInts({
-                publicSignals,
-                proof,
+                publicSignals: dailyClaimProof.publicSignals,
+                proof: dailyClaimProof.proof,
             }),
         )
 
         const { txHash } = response.data
         return {
             txHash,
-            epoch: Number(epoch),
-            epochKey: epochKey.toString(),
+            epoch: Number(dailyClaimProof.epoch),
+            epochKey: dailyClaimProof.epochKey.toString(),
         }
     }
 }

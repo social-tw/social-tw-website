@@ -9,6 +9,7 @@ import {
     CircuitConfig,
     EpochKeyLiteProof,
     EpochKeyProof,
+    ReputationProof,
 } from '@unirep/circuits'
 import { userSchema as schema, UserState } from '@unirep/core'
 import { IncrementalMerkleTree, stringifyBigInts } from '@unirep/utils'
@@ -234,6 +235,115 @@ export function genReportNullifierCircuitInput(config: {
         chain_id: chainId,
         attester_id: attesterId,
     }
+    return stringifyBigInts(circuitInputs)
+}
+
+export const genReputationCircuitInput = (config: {
+    identitySecret: any
+    epoch: number
+    nonce: number
+    attesterId: number | bigint
+    stateTreeIndices: any[]
+    stateTreeElements: any
+    data: number[] | bigint[]
+    minRep?: number | bigint
+    maxRep?: number | bigint
+    proveMinRep?: number
+    proveMaxRep?: number
+    proveZeroRep?: number
+    proveGraffiti?: boolean | number
+    graffiti?: any
+    revealNonce?: number
+    chainId: number
+}) => {
+    const {
+        identitySecret,
+        epoch,
+        nonce,
+        attesterId,
+        stateTreeIndices,
+        stateTreeElements,
+        data,
+        minRep,
+        proveGraffiti,
+        graffiti,
+        maxRep,
+        proveMinRep,
+        proveMaxRep,
+        proveZeroRep,
+        revealNonce,
+        chainId,
+    } = Object.assign(
+        {
+            minRep: 0,
+            maxRep: 0,
+            graffiti: 0,
+        },
+        config
+    )
+    const circuitInputs = {
+        identity_secret: identitySecret,
+        state_tree_indices: stateTreeIndices,
+        state_tree_elements: stateTreeElements,
+        data: data,
+        graffiti: graffiti,
+        epoch,
+        nonce,
+        attester_id: attesterId,
+        prove_graffiti: proveGraffiti ? proveGraffiti : 0,
+        min_rep: minRep,
+        max_rep: maxRep,
+        prove_max_rep: proveMaxRep ?? 0,
+        prove_min_rep: proveMinRep ?? 0,
+        prove_zero_rep: proveZeroRep ?? 0,
+        reveal_nonce: revealNonce ?? 0,
+        sig_data: 0,
+        chain_id: chainId,
+    }
+    return stringifyBigInts(circuitInputs)
+}
+
+export const genDailyClaimCircuitInput = (config: {
+    identitySecret: any
+    dailyEpoch: number | bigint
+    dailyNullifier: number | bigint
+    reputationProof: ReputationProof
+    data: number[] | bigint[]
+    stateTreeIndices: any[]
+    stateTreeElements: any
+}) => {
+    const {
+        identitySecret,
+        dailyEpoch,
+        dailyNullifier,
+        reputationProof,
+        data,
+        stateTreeIndices,
+        stateTreeElements,
+    } = Object.assign(config)
+
+    const circuitInputs = {
+        identity_secret: identitySecret,
+        daily_epoch: dailyEpoch,
+        daily_nullifier: dailyNullifier,
+        state_tree_indices: stateTreeIndices,
+        state_tree_elements: stateTreeElements,
+        data: data,
+        prove_graffiti: reputationProof.proveGraffiti,
+        graffiti: reputationProof.graffiti,
+        reveal_nonce: reputationProof.revealNonce,
+        attester_id: reputationProof.attesterId,
+        epoch: reputationProof.epoch,
+        nonce: reputationProof.nonce,
+        chain_id: reputationProof.chainId,
+        sig_data: BigInt(0),
+        min_rep: reputationProof.minRep,
+        max_rep: reputationProof.maxRep,
+        prove_min_rep: reputationProof.proveMinRep,
+        prove_max_rep: reputationProof.proveMaxRep,
+        prove_zero_rep: reputationProof.proveZeroRep,
+    }
+
     return stringifyBigInts(circuitInputs)
 }
 

@@ -1,3 +1,10 @@
+import { UnirepSocialCircuit } from '@unirep-app/circuits/src/types'
+import {
+    flattenProof,
+    genDailyClaimCircuitInput,
+    genNullifier,
+    genProofAndVerify,
+} from '@unirep-app/contracts/test/utils'
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
@@ -9,7 +16,7 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { airdropReputation } from './utils/reputation'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
-import { createUserIdentities, genUserState } from './utils/userHelper'
+import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 
 describe('POST /api/checkin', function () {
     let snapshot: any
@@ -20,10 +27,12 @@ describe('POST /api/checkin', function () {
     let provider: any
     let sync: UnirepSocialSynchronizer
     let express: ChaiHttp.Agent
-    let users: IdentityObject[]
+    let user: IdentityObject
     let chainId: number
     let nonce: number = 0
+    let attesterId: bigint
     const EPOCH_LENGTH = 100000
+    const DailyClaimProof = UnirepSocialCircuit.dailyClaimProof
 
     before(async function () {
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -48,8 +57,8 @@ describe('POST /api/checkin', function () {
         sync = synchronizer
         express = chaiServer
 
-        users = createUserIdentities(1)
-        await signUp(users[0], {
+        user = createRandomUserIdentity()
+        const userState = await signUp(user, {
             app,
             db,
             prover,
@@ -58,6 +67,9 @@ describe('POST /api/checkin', function () {
         })
 
         chainId = await unirep.chainid()
+        attesterId = BigInt(sync.attesterId)
+
+        userState.stop()
     })
 
     after(async function () {
@@ -65,13 +77,42 @@ describe('POST /api/checkin', function () {
     })
 
     it('should allow users with negative reputation to claim reputation', async function () {
-        const userState = await genUserState(users[0].id, app, prover)
+        const userState = await genUserState(user.id, app, prover)
         await airdropReputation(false, 1, userState, unirep, express, provider)
 
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ maxRep: 1 })
 
-        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+        const identitySecret = user.id.secret
+        const dailyEpoch = 1
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
+
+        const reputationProof = await userState.genProveReputationProof({})
+
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+        })
+
+        const dailyClaimProof = await genProofAndVerify(
+            DailyClaimProof,
+            dailyClaimCircuitInputs
+        )
+
+        const flattenedProof = flattenProof(dailyClaimProof.proof)
 
         await express
             .post('/api/checkin')
@@ -82,8 +123,8 @@ describe('POST /api/checkin', function () {
             )
             .send(
                 stringifyBigInts({
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: dailyClaimProof.publicSignals,
+                    proof: flattenedProof,
                 })
             )
             .then(async (res) => {
@@ -96,12 +137,44 @@ describe('POST /api/checkin', function () {
     })
 
     it('should fail if users with non-negative reputation tries to claim reputation', async function () {
-        const userState = await genUserState(users[0].id, app, prover)
+        const userState = await genUserState(user.id, app, prover)
         await airdropReputation(true, 2, userState, unirep, express, provider)
+
         const { publicSignals, _snarkProof: proof } =
             await userState.genProveReputationProof({ minRep: 1 })
 
-        const epochKeyProof = await userState.genEpochKeyProof({ nonce })
+        const identitySecret = user.id.secret
+        const dailyEpoch = 1
+        const dailyNullifier = genNullifier(user.id, dailyEpoch)
+        const epoch = await userState.sync.loadCurrentEpoch()
+        const tree = await userState.sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const leafProof = tree.createProof(leafIndex)
+        let data = await userState.getData()
+        data[0] = BigInt(0)
+
+        const reputationProof = await userState.genProveReputationProof({})
+        console.log('Reputation Proof:', reputationProof)
+
+        const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
+            dailyEpoch,
+            dailyNullifier,
+            identitySecret,
+            reputationProof,
+            data,
+            stateTreeIndices: leafProof.pathIndices,
+            stateTreeElements: leafProof.siblings,
+        })
+
+        const dailyClaimProof = await genProofAndVerify(
+            DailyClaimProof,
+            dailyClaimCircuitInputs
+        )
+
+        const flattenedProof = flattenProof(dailyClaimProof.proof)
 
         await express
             .post('/api/checkin')
@@ -112,8 +185,8 @@ describe('POST /api/checkin', function () {
             )
             .send(
                 stringifyBigInts({
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: dailyClaimProof.publicSignals,
+                    proof: flattenedProof,
                 })
             )
             .then(async (res) => {

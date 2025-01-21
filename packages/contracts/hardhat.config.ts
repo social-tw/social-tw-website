@@ -1,7 +1,7 @@
-import '@typechain/hardhat'
-import '@nomiclabs/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
+import '@nomiclabs/hardhat-ethers'
 import * as tdly from '@tenderly/hardhat-tenderly'
+import '@typechain/hardhat'
 import * as dotenv from 'dotenv'
 
 dotenv.config()

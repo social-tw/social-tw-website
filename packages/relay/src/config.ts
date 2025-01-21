@@ -9,7 +9,7 @@ config()
 // Provide default values for process.env
 Object.assign(process.env, {
     UNIREP_ADDRESS: '0x83cB6AF63eAfEc7998cC601eC3f56d064892b386',
-    APP_ADDRESS: '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44',
+    APP_ADDRESS: '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F',
     ETH_PROVIDER_URL: 'http://127.0.0.1:8545',
     PRIVATE_KEY:
         process.env.PRIVATE_KEY ??
