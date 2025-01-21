@@ -88,7 +88,7 @@ contract UnirepApp is Ownable {
         // set unirep address
         unirep = _unirep;
 
-        // set epoch key verifier helper address
+        // set reputation verifier helper address
         repHelper = _repHelper;
 
         // set epoch key lite verifier helper address
@@ -115,7 +115,7 @@ contract UnirepApp is Ownable {
         view
         returns (ReputationVerifierHelper.ReputationSignals memory proofSignals)
     {
-        return repHelper.verifyAndCheck(publicSignals, proof);
+        return repHelper.verifyAndCheckCaller(publicSignals, proof);
     }
 
     /**
@@ -144,7 +144,7 @@ contract UnirepApp is Ownable {
     /**
      * Post a content in this app
      * @param publicSignals: public signals
-     * @param proof: epockKeyProof from the user
+     * @param proof: reputationProof from the user
      * @param content: content of this post
      */
     function post(uint256[] calldata publicSignals, uint256[8] calldata proof, string memory content) public {
@@ -190,7 +190,7 @@ contract UnirepApp is Ownable {
 
         ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
 
-        // check the epoch != current epoch (ppl can only post in current aepoch)
+        // check the epoch != current epoch (ppl can only leave comment in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
