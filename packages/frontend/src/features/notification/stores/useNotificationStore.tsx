@@ -2,7 +2,6 @@ import { NotificationData, NotificationType } from '@/types/Notifications'
 import { useCallback } from 'react'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
 import { useNotificationConfig } from '../config/NotificationConfig'
 
 interface NotificationState {
@@ -15,7 +14,7 @@ interface NotificationState {
     clearNotificationDot: () => void
 }
 
-const initialState: NotificationState = {
+export const initialState: NotificationState = {
     entities: {},
     list: [],
     showDot: false,
@@ -25,73 +24,93 @@ const initialState: NotificationState = {
     clearNotificationDot: () => {},
 }
 
+const getNotificationId = (notification: NotificationData): string => {
+    switch (notification.type) {
+        case NotificationType.NEW_REPORT_ADJUDICATE:
+            return notification.link || notification.id
+        case NotificationType.LOW_REPUTATION:
+            return `${notification.type}_${new Date().toDateString()}`
+        default:
+            return notification.id
+    }
+}
+
 // Helper to check if notification already exists
 const hasExistingNotification = (
     entities: Record<string, NotificationData>,
     notification: NotificationData,
 ): boolean => {
-    // For check-in notifications, check if there's one today
-    if (notification.type === NotificationType.LOW_REPUTATION) {
-        const today = new Date().toDateString()
-        return Object.values(entities).some(
-            (n) =>
-                n.type === NotificationType.LOW_REPUTATION &&
-                new Date(n.time).toDateString() === today,
-        )
+    switch (notification.type) {
+        case NotificationType.LOW_REPUTATION:
+            const today = new Date().toDateString()
+            return Object.values(entities).some(
+                (n) =>
+                    n.type === NotificationType.LOW_REPUTATION &&
+                    new Date(n.time).toDateString() === today,
+            )
+        case NotificationType.NEW_REPORT_ADJUDICATE:
+            return notification.link ? notification.link in entities : false
+        default:
+            return false
     }
-
-    // For adjudication notifications, check if same report exists
-    if (
-        notification.type === NotificationType.NEW_REPORT_ADJUDICATE &&
-        notification.link
-    ) {
-        return Object.values(entities).some(
-            (n) =>
-                n.type === NotificationType.NEW_REPORT_ADJUDICATE &&
-                n.link === notification.link,
-        )
-    }
-
-    return false
 }
 
 export const useNotificationStore = create<NotificationState>()(
     persist(
-        immer((set) => ({
-            ...initialState,
+        (set, get) => ({
+            entities: {},
+            list: [],
+            showDot: false,
             addNotification: (notification: NotificationData) => {
-                set((state) => {
-                    // Generate appropriate ID
-                    const id =
-                        notification.type ===
-                        NotificationType.NEW_REPORT_ADJUDICATE
-                            ? notification.link || Date.now().toString()
-                            : notification.id.toString()
+                const state = get()
+                const id = getNotificationId(notification)
 
-                    // Only add if no duplicate exists
-                    if (
-                        !hasExistingNotification(state.entities, notification)
-                    ) {
-                        state.entities[id] = notification
-                        state.list.push(id)
-                        state.showDot = true
-                    }
-                })
+                if (hasExistingNotification(state.entities, notification)) {
+                    return
+                }
+
+                const newNotification = {
+                    ...notification,
+                    id,
+                }
+
+                // Only update state if this is a new notification
+                if (!state.list.includes(id)) {
+                    set({
+                        entities: {
+                            ...state.entities,
+                            [id]: newNotification,
+                        },
+                        list: [...state.list, id],
+                        showDot: true,
+                    })
+                }
             },
             markAsRead: (id: string) => {
-                set((state) => {
-                    if (state.entities[id]) {
-                        state.entities[id].isRead = true
-                    }
-                })
+                const state = get()
+                if (state.entities[id]) {
+                    set({
+                        entities: {
+                            ...state.entities,
+                            [id]: {
+                                ...state.entities[id],
+                                isRead: true,
+                            },
+                        },
+                    })
+                }
             },
             reset: () => {
-                set({ ...initialState })
+                set({
+                    entities: {},
+                    list: [],
+                    showDot: false,
+                })
             },
             clearNotificationDot: () => {
                 set({ showDot: false })
             },
-        })),
+        }),
         {
             name: 'notifications-storage',
             storage: createJSONStorage(() => localStorage),
