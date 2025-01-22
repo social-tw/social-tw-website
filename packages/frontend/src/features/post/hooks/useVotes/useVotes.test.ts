@@ -65,6 +65,26 @@ jest.mock('@/features/core/hooks/useUserState/useUserState', () => ({
     }),
 }))
 
+// Mock useUserStateTransition
+jest.mock(
+    '@/features/core/hooks/useUserStateTransition/useUserStateTransition',
+    () => ({
+        useUserStateTransition: () => ({
+            stateTransition: jest.fn().mockResolvedValue(undefined),
+            isStateTransitionLoading: false,
+        }),
+    }),
+)
+
+// Mock useWeb3Provider
+jest.mock('@/features/core/hooks/useWeb3Provider/useWeb3Provider', () => ({
+    useWeb3Provider: () => ({
+        getGuaranteedProvider: () => ({
+            waitForTransaction: jest.fn().mockResolvedValue(true),
+        }),
+    }),
+}))
+
 describe('useVotes', () => {
     afterEach(() => {
         nock.cleanAll()
