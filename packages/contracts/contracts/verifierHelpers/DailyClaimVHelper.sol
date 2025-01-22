@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {BaseVerifierHelper} from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
-import {Unirep} from "@unirep/contracts/Unirep.sol";
-import {IVerifier} from "@unirep/contracts/interfaces/IVerifier.sol";
-import {IVerifierHelper} from "../interfaces/IVerifierHelper.sol";
+import { BaseVerifierHelper } from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
+import { Unirep } from "@unirep/contracts/Unirep.sol";
+import { IVerifier } from "@unirep/contracts/interfaces/IVerifier.sol";
+import { IVerifierHelper } from "../interfaces/IVerifierHelper.sol";
 
 contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
-    constructor(Unirep _unirep, IVerifier _verifier) BaseVerifierHelper(_unirep, _verifier) {}
+    constructor(
+        Unirep _unirep,
+        IVerifier _verifier
+    ) BaseVerifierHelper(_unirep, _verifier) {}
 
     struct DailyClaimSignals {
         uint256 epochKey;
@@ -28,12 +31,19 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
 
     /// @param publicSignals The public signals of the snark proof
     /// @return signals The EpochKeySignals
-    function decodeSignals(uint256[] calldata publicSignals) public pure returns (EpochKeySignals memory) {
+    function decodeSignals(
+        uint256[] calldata publicSignals
+    ) public pure returns (EpochKeySignals memory) {
         EpochKeySignals memory signals;
-        (signals.nonce, signals.epoch, signals.attesterId, signals.revealNonce, signals.chainId) =
-            super.decodeEpochKeyControl(publicSignals[1]);
+        (
+            signals.nonce,
+            signals.epoch,
+            signals.attesterId,
+            signals.revealNonce,
+            signals.chainId
+        ) = super.decodeEpochKeyControl(publicSignals[1]);
         signals.epochKey = publicSignals[0];
-
+        
         if (signals.epochKey >= SNARK_SCALAR_FIELD) revert InvalidEpochKey();
 
         return signals;
@@ -42,15 +52,22 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
     /// @dev https://developer.unirep.io/docs/contracts-api/verifiers/reputation-verifier-helper#decodereputationsignals
     /// @param publicSignals The public signals of the snark proof
     /// @return signals The ReputationSignals
-    function decodeDailyClaimSignals(uint256[] calldata publicSignals) public pure returns (DailyClaimSignals memory) {
+    function decodeDailyClaimSignals(
+        uint256[] calldata publicSignals
+    ) public pure returns (DailyClaimSignals memory) {
         DailyClaimSignals memory signals;
         signals.epochKey = publicSignals[0];
         signals.dailyEpoch = uint48(publicSignals[3]);
         signals.dailyNullifier = publicSignals[4];
 
         // now decode the control values
-        (signals.nonce, signals.epoch, signals.attesterId, signals.revealNonce, signals.chainId) =
-            super.decodeEpochKeyControl(publicSignals[1]);
+        (
+            signals.nonce,
+            signals.epoch,
+            signals.attesterId,
+            signals.revealNonce,
+            signals.chainId
+        ) = super.decodeEpochKeyControl(publicSignals[1]);
 
         (
             signals.minRep,
@@ -66,15 +83,14 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
 
         return signals;
     }
-
+    
     /// @param publicSignals The public signals of the snark proof
     /// @param proof The proof data of the snark proof
     /// @return signals The EpochKeySignals
-    function verifyAndCheck(uint256[] calldata publicSignals, uint256[8] calldata proof)
-        public
-        view
-        returns (EpochKeySignals memory)
-    {
+    function verifyAndCheck(
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof
+    ) public view returns (EpochKeySignals memory) {
         EpochKeySignals memory signals = decodeSignals(publicSignals);
 
         if (!verifier.verifyProof(publicSignals, proof)) revert InvalidProof();
@@ -90,7 +106,9 @@ contract DailyClaimVHelper is BaseVerifierHelper, IVerifierHelper {
     /// @return proveMaxRep Whether to prove maximum rep information in the control field
     /// @return proveZeroRep Whether to prove zero rep information in the control field
     /// @return proveGraffiti Whether to prove graffiti information in the control field
-    function decodeReputationControl(uint256 control)
+    function decodeReputationControl(
+        uint256 control
+    )
         public
         pure
         returns (
