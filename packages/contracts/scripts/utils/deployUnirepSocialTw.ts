@@ -21,12 +21,11 @@ const VHelperManager = VerifierHelperManager // alias for verifier helper manage
 export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const unirep = await deployUnirep(deployer)
 
-    const repHelper = await deployVerifierHelper(
+    const epkHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
-        Circuit.reputation
+        Circuit.epochKey
     )
-
     const epkLiteHelper = await deployVerifierHelper(
         unirep.address,
         deployer,
@@ -112,7 +111,7 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
 
     const app = await AppF.deploy(
         unirep.address,
-        repHelper.address,
+        epkHelper.address,
         epkLiteHelper.address,
         dataProofVerifier.address,
         vHelperManager.address,

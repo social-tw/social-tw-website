@@ -1,15 +1,16 @@
 //@ts-ignore
-import { CircuitConfig } from '@unirep/circuits'
-import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { expect } from 'chai'
+import { CircuitConfig } from '@unirep/circuits'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import {
     createMultipleUserIdentity,
     genEpochKeyLiteProof,
-    genReputationProof,
+    genEpochKeyProof,
     genUserState,
+    randomData,
 } from './utils'
 
 const { STATE_TREE_DEPTH } = CircuitConfig.default
@@ -67,8 +68,9 @@ describe('Comment Test', function () {
         // user 1 post something
         const content = 'something interesting'
         const userState = await genUserState(users[0].id, app)
-        const repProof = await userState.genProveReputationProof({})
-        await app.post(repProof.publicSignals, repProof.proof, content)
+        const { publicSignals: epochKeySig1, proof: epochKeyProof1 } =
+            await userState.genEpochKeyProof()
+        await app.post(epochKeySig1, epochKeyProof1, content)
 
         chainId = await unirep.chainid()
     })
@@ -77,18 +79,17 @@ describe('Comment Test', function () {
         it('should revert leaving comment with invalid epoch', async function () {
             const userState = await genUserState(users[1].id, app)
             const id = users[1].id
-            const attesterId = userState.sync.attesterId
-            const epoch = await userState.sync.loadCurrentEpoch()
             // generating a proof with wrong epoch
             const wrongEpoch = 44444
+            const attesterId = userState.sync.attesterId
+            const epoch = await userState.sync.loadCurrentEpoch()
             const tree = await userState.sync.genStateTree(epoch, attesterId)
             const leafIndex = await userState.latestStateTreeLeafIndex(
                 epoch,
                 attesterId
             )
-            const data = await userState.getProvableData()
-
-            const repProof = await genReputationProof({
+            const data = randomData()
+            const { publicSignals, proof } = await genEpochKeyProof({
                 id,
                 tree,
                 leafIndex,
@@ -98,60 +99,48 @@ describe('Comment Test', function () {
                 attesterId,
                 data,
             })
-
             const postId = 0
             await expect(
-                app.leaveComment(
-                    repProof.publicSignals,
-                    repProof.proof,
-                    postId,
-                    'Invalid Epoch'
-                )
+                app.leaveComment(publicSignals, proof, postId, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
             userState.stop()
         })
 
-        it('should revert leaving comment with invalid reputation proof', async function () {
+        it('should revert leaving comment with invalid epoch key proof', async function () {
             const userState = await genUserState(users[1].id, app)
-            const repProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
             const content = 'This is so interesting!'
 
-            repProof.proof[0] = BigInt(0)
+            proof[0] = BigInt(0)
 
             await expect(
-                app.leaveComment(
-                    repProof.publicSignals,
-                    repProof.proof,
-                    BigInt(0),
-                    content
-                )
+                app.leaveComment(publicSignals, proof, BigInt(0), content)
             ).to.be.reverted
             userState.stop()
         })
 
-        it('should comment with valid reputation proof and signals', async function () {
+        it('should comment with valid epoch key proof and signals', async function () {
             const userState = await genUserState(users[1].id, app)
-            const repProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } = await userState.genEpochKeyProof({
+                nonce: 0,
+            })
             const content = 'This is so interesting!'
             const postId = 0
             const commentId = 0
             const epoch = await userState.sync.loadCurrentEpoch()
 
             // record the used proof here
-            inputPublicSig = repProof.publicSignals
-            inputProof = repProof.proof
+            inputPublicSig = publicSignals
+            inputProof = proof
 
             await expect(
-                app.leaveComment(
-                    repProof.publicSignals,
-                    repProof.proof,
-                    postId,
-                    content
-                )
+                app.leaveComment(publicSignals, proof, postId, content)
             )
                 .to.emit(app, 'Comment')
                 .withArgs(
-                    repProof.publicSignals[0], // epochKey
+                    publicSignals[0], // epochKey
                     postId,
                     commentId,
                     epoch,
