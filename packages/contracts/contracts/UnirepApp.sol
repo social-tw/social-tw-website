@@ -2,12 +2,15 @@
 pragma solidity ^0.8.0;
 
 import {Unirep} from "@unirep/contracts/Unirep.sol";
-import {ReputationVerifierHelper} from "@unirep/contracts/verifierHelpers/ReputationVerifierHelper.sol";
+import {EpochKeyVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyVerifierHelper.sol";
 import {EpochKeyLiteVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import {BaseVerifierHelper} from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import {VerifierHelperManager} from "./verifierHelpers/VerifierHelperManager.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {DailyClaimVHelper} from "./verifierHelpers/DailyClaimVHelper.sol";
+
+// Uncomment this line to use console.log
+// import "hardhat/console.sol";
 
 interface IVerifier {
     function verifyProof(uint256[] calldata publicSignals, uint256[8] calldata proof) external view returns (bool);
