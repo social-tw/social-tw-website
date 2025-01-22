@@ -1,9 +1,7 @@
 import { ReactComponent as GavelIcon } from '@/assets/svg/gavel.svg'
-import { useDialog } from '@/features/shared'
-import { usePostReportReason } from '../../hooks/usePostReportReason/usePostReportReason'
-import ActionLinks from '../ReportedMask/ActionLinks'
-import ConfirmDialog from '../ReportedMask/ConfirmDialog'
-import ReportReason from '../ReportedMask/ReportReason'
+import { useReportCategoryLabel } from '@/features/reporting'
+import { usePostById } from '../../hooks/usePostById/usePostById'
+import { SeeContent } from './SeeContent'
 
 export function ReportedMask({
     postId,
@@ -12,33 +10,39 @@ export function ReportedMask({
     postId: string
     onRemoveMask?: () => void
 }) {
-    const { reason } = usePostReportReason(postId)
+    const { data: post } = usePostById(postId)
 
-    const {
-        isOpen: isDialogOpen,
-        onOpen: onDialogOpen,
-        onClose: onDialogClose,
-    } = useDialog()
+    const { label: reportCategoryLabel } = useReportCategoryLabel(
+        post?.report?.category,
+    )
 
     return (
-        <div className="text-white flex flex-col px-6 pt-6 gap-6 items-center justify-center bg-gradient-to-br from-[#0c3037] via-[#131313] to-[#502a0c] rounded-xl border-black border-2">
-            <div className="flex items-center justify-center w-full gap-2">
-                <div className="flex flex-col gap-2">
-                    <h2 className="text-base font-bold tracking-wide">
-                        此則貼文已被檢舉，正在審核中...
-                    </h2>
-                    <ReportReason reason={reason ?? ''} />
-                </div>
-                <div className="shrink-0">
-                    <GavelIcon className="w-20 h-20" />
-                </div>
-            </div>
-            <ActionLinks onClick={onDialogOpen} />
-            <ConfirmDialog
-                isOpen={isDialogOpen}
-                onClose={onDialogClose}
-                onConfirm={onRemoveMask}
-            />
-        </div>
+        <article className="py-5 space-y-4 bg-gradient-to-br from-[#0c3037] via-[#131313] to-[#502a0c] rounded-xl border-black border-2">
+            <header className="flex items-center justify-center h-10 px-5 lg:px-7">
+                <h2 className="text-base font-bold tracking-wide text-white">
+                    此則貼文已被檢舉，正在審核中
+                </h2>
+                <GavelIcon className="w-20 h-20" />
+            </header>
+            {!!reportCategoryLabel && (
+                <section className="px-5 lg:px-7">
+                    <h3 className="mb-1 text-sm font-medium tracking-wide text-white">
+                        被檢舉原因類別
+                    </h3>
+                    <p className="text-xs font-normal text-white break-words whitespace-break-spaces">
+                        {reportCategoryLabel}
+                    </p>
+                </section>
+            )}
+            <footer className="flex items-center justify-end gap-5 px-5 lg:px-7">
+                <a
+                    href="/about?viewId=feature-community"
+                    className="text-xs font-medium underline text-white/80"
+                >
+                    為什麼會有內容被檢舉？
+                </a>
+                <SeeContent onConfirm={onRemoveMask} />
+            </footer>
+        </article>
     )
 }
