@@ -4,6 +4,7 @@ import {
     addAction,
     failActionById,
     succeedActionById,
+    useUserStateTransition,
     useActionCount,
     useUserState,
     VoteService,
@@ -19,6 +20,8 @@ export function useVotes() {
     const { getGuaranteedUserState } = useUserState()
     const actionCount = useActionCount()
     const sendNotification = useSendNotification()
+    const { stateTransition } = useUserStateTransition()
+
     const getActionTypeFromVoteAction = (voteAction: VoteAction) => {
         switch (voteAction) {
             case VoteAction.UPVOTE:
@@ -49,6 +52,8 @@ export function useVotes() {
         }) => {
             const userState = await getGuaranteedUserState()
             const voteService = new VoteService(userState)
+
+            await stateTransition()
 
             const epoch = votedEpoch ?? undefined
             const nonce = votedNonce ?? getEpochKeyNonce(actionCount)
