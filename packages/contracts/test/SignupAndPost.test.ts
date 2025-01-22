@@ -1,21 +1,22 @@
 //@ts-ignore
+import { ethers } from 'hardhat'
 import { DataProof } from '@unirep-app/circuits'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { Circuit, CircuitConfig } from '@unirep/circuits'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
-    genReputationProof,
-    genUserState
+    genEpochKeyProof,
+    genUserState,
+    randomData,
 } from './utils'
 
-const { FIELD_COUNT } = CircuitConfig.default
+const { FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
 
 describe('Unirep App', function () {
     let unirep: any
@@ -114,13 +115,15 @@ describe('Unirep App', function () {
     describe('user post', function () {
         it('should fail to post with invalid proof', async function () {
             const userState = await genUserState(user.id, app)
-            const repProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } = await userState.genEpochKeyProof()
 
             // generate a fake proof
-            repProof.proof[0] = BigInt(0)
+            const concoctProof = [...proof]
+            const len = concoctProof[0].toString().length
+            concoctProof[0] = BigInt(2)
             const content = 'Invalid Proof'
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content)).to.be
+            await expect(app.post(publicSignals, concoctProof, content)).to.be
                 .reverted // revert in epkHelper.verifyAndCheck()
 
             userState.stop()
@@ -129,11 +132,14 @@ describe('Unirep App', function () {
         it('should post with valid proof', async function () {
             const content = 'Valid Proof'
             const userState = await genUserState(user.id, app)
-            const repProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } = await userState.genEpochKeyProof()
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content))
+            inputPublicSig = publicSignals
+            inputProof = proof
+
+            await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
-                .withArgs(repProof.publicSignals[0], 0, 0, content)
+                .withArgs(publicSignals[0], 0, 0, content)
 
             userState.stop()
         })
@@ -141,14 +147,14 @@ describe('Unirep App', function () {
         it('should post and have the correct postId', async function () {
             const content = 'Valid Proof'
             const userState = await genUserState(user.id, app)
-            const repProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } = await userState.genEpochKeyProof()
 
-            inputPublicSig = repProof.publicSignals
-            inputProof = repProof.proof
+            inputPublicSig = publicSignals
+            inputProof = proof
 
-            await expect(app.post(repProof.publicSignals, repProof.proof, content))
+            await expect(app.post(publicSignals, proof, content))
                 .to.emit(app, 'Post')
-                .withArgs(repProof.publicSignals[0], 1, 0, content)
+                .withArgs(publicSignals[0], 1, 0, content)
 
             userState.stop()
         })
@@ -172,10 +178,8 @@ describe('Unirep App', function () {
                 epoch,
                 attesterId
             )
-
-            const data = await userState.getProvableData()
-
-            const repProof = await genReputationProof({
+            const data = randomData()
+            const { publicSignals, proof } = await genEpochKeyProof({
                 id,
                 tree,
                 leafIndex,
@@ -185,9 +189,8 @@ describe('Unirep App', function () {
                 attesterId,
                 data,
             })
-
             await expect(
-                app.post(repProof.publicSignals, repProof.proof, 'Invalid Epoch')
+                app.post(publicSignals, proof, 'Invalid Epoch')
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
             userState.stop()
