@@ -53,7 +53,6 @@ describe('useNotificationStore', () => {
             useNotificationStore.getState().addNotification(notification)
             const state = useNotificationStore.getState()
 
-            // 直接檢查 id
             expect(state.entities['123']).toEqual({
                 ...notification,
                 id: '123',
