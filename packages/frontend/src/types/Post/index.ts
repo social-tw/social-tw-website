@@ -1,3 +1,4 @@
+import { ReportHistory } from '../Report'
 import { RelayRawVote, VoteAction } from '../Vote'
 
 export enum PostStatus {
@@ -62,4 +63,5 @@ export interface RelayRawPost {
     status: RelayRawPostStatus
     commentCount: number
     votes: RelayRawVote[]
+    report: ReportHistory | undefined
 }
