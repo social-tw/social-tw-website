@@ -154,15 +154,19 @@ export function useSendNotification() {
             }
 
             const notification: NotificationData = {
-                id: type === NotificationType.NEW_REPORT_ADJUDICATE && reportId 
-                    ? `report_${reportId}` 
-                    : Date.now().toString(),
+                id:
+                    type === NotificationType.NEW_REPORT_ADJUDICATE && reportId
+                        ? `report_${reportId}`
+                        : Date.now().toString(),
                 type,
                 message: config.message,
                 time: new Date().toLocaleTimeString(),
                 isRead: false,
                 link,
-                reportId: type === NotificationType.NEW_REPORT_ADJUDICATE ? reportId : undefined,
+                reportId:
+                    type === NotificationType.NEW_REPORT_ADJUDICATE
+                        ? reportId
+                        : undefined,
             }
             addNotification(notification)
         },
