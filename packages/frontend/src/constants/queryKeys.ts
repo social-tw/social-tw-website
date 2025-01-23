@@ -20,6 +20,7 @@ export enum QueryKeys {
     ReportsWaitingForTransaction = 'ReportsWaitingForTransaction',
     Notifications = 'notifications',
     SingleReport = 'singleReport',
+    Adjudicator = 'adjudicator',
 }
 
 export enum MutationKeys {
