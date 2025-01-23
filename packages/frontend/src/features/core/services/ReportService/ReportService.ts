@@ -132,7 +132,7 @@ export class ReportService extends RelayApiService {
     }
 
     async fetchReportById(reportId: string) {
-        const client = this.getAuthClient()
+        const client = this.getClient()
         const userState = this.getUserState()
         const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
 

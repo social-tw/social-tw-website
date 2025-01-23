@@ -10,6 +10,7 @@ import PostListPage from './app/posts/page'
 import HistoryPage from './app/profile/history/page'
 import ProfilePage from './app/profile/page'
 import ReputationPage from './app/profile/reputation/page'
+import ReportDetailsPage from './app/reports/[id]/page'
 import FullScreenLayout from './full-screen/layout'
 import WritePostPage from './full-screen/write-post/page'
 import OnboardingLayout from './onboarding/layout'
@@ -22,7 +23,6 @@ import LaunchPage from './start/launch/page'
 import StartLayout from './start/layout'
 import WelcomePage from './start/welcome/page'
 import TwitterCallbackPage from './twitter/callback/page'
-import ReportDetailsPage from './app/reports/[id]/page'
 
 const router = createBrowserRouter([
     {
@@ -101,11 +101,11 @@ const router = createBrowserRouter([
                         path: PATHS.NOTIFICATION,
                         element: <NotificationPage />,
                     },
-                    {
-                        path: PATHS.REPORT_DETAIL,
-                        element: <ReportDetailsPage />,
-                    },
                 ],
+            },
+            {
+                path: PATHS.REPORT_DETAIL,
+                element: <ReportDetailsPage />,
             },
             {
                 path: PATHS.ABOUT_US,
