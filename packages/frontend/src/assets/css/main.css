@@ -50,4 +50,14 @@
     .progress-gradient::-moz-progress-bar {
         @apply bg-gradient-to-r from-[#52acbc] to-[#ff892a];
     }
+
+    .progress-gradient:indeterminate {
+        background-image: linear-gradient(
+            90deg,
+            #52acbc -1%,
+            #ff892a 10%,
+            transparent 10%,
+            transparent 90%
+        );
+    }
 }
