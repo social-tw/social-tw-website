@@ -27,7 +27,7 @@ export const initialState: NotificationState = {
 const getNotificationId = (notification: NotificationData): string => {
     switch (notification.type) {
         case NotificationType.NEW_REPORT_ADJUDICATE:
-            return notification.link || notification.id
+            return `report_${notification.reportId || notification.id}`
         case NotificationType.LOW_REPUTATION:
             return `${notification.type}_${new Date().toDateString()}`
         default:
@@ -49,9 +49,14 @@ const hasExistingNotification = (
                     new Date(n.time).toDateString() === today,
             )
         case NotificationType.NEW_REPORT_ADJUDICATE:
-            return notification.link ? notification.link in entities : false
+            // use id to check if notification exists
+            return Object.values(entities).some(
+                (n) =>
+                    n.type === NotificationType.NEW_REPORT_ADJUDICATE &&
+                    n.id === notification.id,
+            )
         default:
-            return false
+            return notification.id in entities
     }
 }
 
@@ -139,7 +144,7 @@ export function useSendNotification() {
     )
 
     const sendNotification = useCallback(
-        (type: NotificationType, link?: string) => {
+        (type: NotificationType, link?: string, reportId?: string) => {
             const config = notificationConfig[type]
             if (!config) {
                 console.warn(
@@ -149,12 +154,15 @@ export function useSendNotification() {
             }
 
             const notification: NotificationData = {
-                id: Date.now().toString(),
+                id: type === NotificationType.NEW_REPORT_ADJUDICATE && reportId 
+                    ? `report_${reportId}` 
+                    : Date.now().toString(),
                 type,
                 message: config.message,
                 time: new Date().toLocaleTimeString(),
                 isRead: false,
                 link,
+                reportId: type === NotificationType.NEW_REPORT_ADJUDICATE ? reportId : undefined,
             }
             addNotification(notification)
         },

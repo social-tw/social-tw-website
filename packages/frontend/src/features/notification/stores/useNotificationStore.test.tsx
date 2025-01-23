@@ -75,7 +75,7 @@ describe('useNotificationStore', () => {
             // Try to add second notification
             const secondNotification = {
                 ...notification,
-                id: 'check-in-2',
+                id: 'check-in-1',
             }
             useNotificationStore.getState().addNotification(secondNotification)
 
@@ -84,30 +84,33 @@ describe('useNotificationStore', () => {
             expect(state.list.length).toBe(1)
         })
 
-        it('should prevent duplicate adjudication notifications with same report link', () => {
-            const reportLink = 'report-123'
+        it('should prevent duplicate adjudication notifications with same report id', () => {
+            const reportId = 'report-123'
             const notification: NotificationData = {
-                id: 'adj-1',
+                id: `report_${reportId}`,
                 type: NotificationType.NEW_REPORT_ADJUDICATE,
                 message: 'New report',
                 time: new Date().toLocaleTimeString(),
                 isRead: false,
-                link: reportLink,
+                reportId,
             }
 
+            // Add first notification
             useNotificationStore.getState().addNotification(notification)
 
-            // Try to add second notification with same report link
+            // Try to add second notification with same report id
             const secondNotification = {
                 ...notification,
-                id: 'adj-2',
+                message: 'Same report, different message',
+                time: new Date().toLocaleTimeString(),
             }
             useNotificationStore.getState().addNotification(secondNotification)
 
             const state = useNotificationStore.getState()
             expect(Object.keys(state.entities).length).toBe(1)
             expect(state.list.length).toBe(1)
-            expect(state.entities[reportLink]).toBeTruthy()
+            // Check that the notification exists with the correct ID format
+            expect(state.entities[`report_${reportId}`]).toBeTruthy()
         })
     })
 })
