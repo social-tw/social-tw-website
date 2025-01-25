@@ -1,10 +1,8 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import { NotificationData } from '@/types/Notifications'
-import { NotificationType } from '@/types/Notifications'
-import { useNotificationConfig } from '../config/NotificationConfig'
+import { NotificationData, NotificationType } from '@/types/Notifications'
 import { useCallback } from 'react'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import { useNotificationConfig } from '../config/NotificationConfig'
 
 interface NotificationState {
     entities: Record<string, NotificationData>
@@ -16,7 +14,7 @@ interface NotificationState {
     clearNotificationDot: () => void
 }
 
-const initialState: NotificationState = {
+export const initialState: NotificationState = {
     entities: {},
     list: [],
     showDot: false,
@@ -26,34 +24,98 @@ const initialState: NotificationState = {
     clearNotificationDot: () => {},
 }
 
+const getNotificationId = (notification: NotificationData): string => {
+    switch (notification.type) {
+        case NotificationType.NEW_REPORT_ADJUDICATE:
+            return `report_${notification.reportId || notification.id}`
+        case NotificationType.LOW_REPUTATION:
+            return `${notification.type}_${new Date().toDateString()}`
+        default:
+            return notification.id
+    }
+}
+
+// Helper to check if notification already exists
+const hasExistingNotification = (
+    entities: Record<string, NotificationData>,
+    notification: NotificationData,
+): boolean => {
+    switch (notification.type) {
+        case NotificationType.LOW_REPUTATION:
+            const today = new Date().toDateString()
+            return Object.values(entities).some(
+                (n) =>
+                    n.type === NotificationType.LOW_REPUTATION &&
+                    new Date(n.time).toDateString() === today,
+            )
+        case NotificationType.NEW_REPORT_ADJUDICATE:
+            // use id to check if notification exists
+            return Object.values(entities).some(
+                (n) =>
+                    n.type === NotificationType.NEW_REPORT_ADJUDICATE &&
+                    n.id === notification.id,
+            )
+        default:
+            return notification.id in entities
+    }
+}
+
 export const useNotificationStore = create<NotificationState>()(
     persist(
-        immer((set) => ({
-            ...initialState,
+        (set, get) => ({
+            entities: {},
+            list: [],
+            showDot: false,
             addNotification: (notification: NotificationData) => {
-                set((state) => {
-                    const id = notification.id.toString()
-                    if (!state.entities[id]) {
-                        state.entities[id] = notification
-                        state.list.push(id)
-                        state.showDot = true
-                    }
-                })
+                const state = get()
+                const id = getNotificationId(notification)
+
+                if (hasExistingNotification(state.entities, notification)) {
+                    return
+                }
+
+                const newNotification = {
+                    ...notification,
+                    id,
+                }
+
+                // Only update state if this is a new notification
+                if (!state.list.includes(id)) {
+                    set({
+                        entities: {
+                            ...state.entities,
+                            [id]: newNotification,
+                        },
+                        list: [...state.list, id],
+                        showDot: true,
+                    })
+                }
             },
             markAsRead: (id: string) => {
-                set((state) => {
-                    if (state.entities[id]) {
-                        state.entities[id].isRead = true
-                    }
-                })
+                const state = get()
+                if (state.entities[id]) {
+                    set({
+                        entities: {
+                            ...state.entities,
+                            [id]: {
+                                ...state.entities[id],
+                                isRead: true,
+                            },
+                        },
+                    })
+                }
             },
             reset: () => {
-                set({ ...initialState })
+                set({
+                    entities: {},
+                    list: [],
+                    showDot: false,
+                })
             },
             clearNotificationDot: () => {
                 set({ showDot: false })
             },
-        })),
+        }),
         {
             name: 'notifications-storage',
             storage: createJSONStorage(() => localStorage),
@@ -82,7 +144,7 @@ export function useSendNotification() {
     )
 
     const sendNotification = useCallback(
-        (type: NotificationType, link?: string) => {
+        (type: NotificationType, link?: string, reportId?: string) => {
             const config = notificationConfig[type]
             if (!config) {
                 console.warn(
@@ -92,12 +154,19 @@ export function useSendNotification() {
             }
 
             const notification: NotificationData = {
-                id: Date.now().toString(),
+                id:
+                    type === NotificationType.NEW_REPORT_ADJUDICATE && reportId
+                        ? `report_${reportId}`
+                        : Date.now().toString(),
                 type,
                 message: config.message,
                 time: new Date().toLocaleTimeString(),
                 isRead: false,
                 link,
+                reportId:
+                    type === NotificationType.NEW_REPORT_ADJUDICATE
+                        ? reportId
+                        : undefined,
             }
             addNotification(notification)
         },

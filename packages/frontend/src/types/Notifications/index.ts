@@ -29,6 +29,7 @@ export interface NotificationData {
     isRead: boolean
     link?: string
     txHash?: string
+    reportId?: string
 }
 
 interface NotificationAction {
