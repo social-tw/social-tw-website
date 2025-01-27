@@ -1,22 +1,21 @@
 //@ts-ignore
-import { ethers } from 'hardhat'
 import { DataProof } from '@unirep-app/circuits'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
 import { Circuit, CircuitConfig } from '@unirep/circuits'
 import { deployVerifierHelper } from '@unirep/contracts/deploy'
 import { stringifyBigInts } from '@unirep/utils'
 import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { describe } from 'node:test'
 import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { IdentityObject } from './types'
 import {
     createRandomUserIdentity,
-    genEpochKeyProof,
+    genReputationProof,
     genUserState,
-    randomData,
 } from './utils'
 
-const { FIELD_COUNT, STATE_TREE_DEPTH } = CircuitConfig.default
+const { FIELD_COUNT } = CircuitConfig.default
 
 describe('Unirep App', function () {
     let unirep: any
@@ -115,16 +114,15 @@ describe('Unirep App', function () {
     describe('user post', function () {
         it('should fail to post with invalid proof', async function () {
             const userState = await genUserState(user.id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyProof()
+            const repProof = await userState.genProveReputationProof({})
 
             // generate a fake proof
-            const concoctProof = [...proof]
-            const len = concoctProof[0].toString().length
-            concoctProof[0] = BigInt(2)
+            repProof.proof[0] = BigInt(0)
             const content = 'Invalid Proof'
 
-            await expect(app.post(publicSignals, concoctProof, content)).to.be
-                .reverted // revert in epkHelper.verifyAndCheck()
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            ).to.be.reverted // revert in epkHelper.verifyAndCheck()
 
             userState.stop()
         })
@@ -132,14 +130,13 @@ describe('Unirep App', function () {
         it('should post with valid proof', async function () {
             const content = 'Valid Proof'
             const userState = await genUserState(user.id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyProof()
+            const repProof = await userState.genProveReputationProof({})
 
-            inputPublicSig = publicSignals
-            inputProof = proof
-
-            await expect(app.post(publicSignals, proof, content))
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            )
                 .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 0, 0, content)
+                .withArgs(repProof.publicSignals[0], 0, 0, content)
 
             userState.stop()
         })
@@ -147,14 +144,16 @@ describe('Unirep App', function () {
         it('should post and have the correct postId', async function () {
             const content = 'Valid Proof'
             const userState = await genUserState(user.id, app)
-            const { publicSignals, proof } = await userState.genEpochKeyProof()
+            const repProof = await userState.genProveReputationProof({})
 
-            inputPublicSig = publicSignals
-            inputProof = proof
+            inputPublicSig = repProof.publicSignals
+            inputProof = repProof.proof
 
-            await expect(app.post(publicSignals, proof, content))
+            await expect(
+                app.post(repProof.publicSignals, repProof.proof, content)
+            )
                 .to.emit(app, 'Post')
-                .withArgs(publicSignals[0], 1, 0, content)
+                .withArgs(repProof.publicSignals[0], 1, 0, content)
 
             userState.stop()
         })
@@ -178,8 +177,8 @@ describe('Unirep App', function () {
                 epoch,
                 attesterId
             )
-            const data = randomData()
-            const { publicSignals, proof } = await genEpochKeyProof({
+            const data = await userState.getProvableData()
+            const repProof = await genReputationProof({
                 id,
                 tree,
                 leafIndex,
@@ -190,7 +189,11 @@ describe('Unirep App', function () {
                 data,
             })
             await expect(
-                app.post(publicSignals, proof, 'Invalid Epoch')
+                app.post(
+                    repProof.publicSignals,
+                    repProof.proof,
+                    'Invalid Epoch'
+                )
             ).to.be.revertedWithCustomError(app, 'InvalidEpoch')
 
             userState.stop()
