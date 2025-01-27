@@ -8,7 +8,6 @@ import {
     Circuit,
     CircuitConfig,
     EpochKeyLiteProof,
-    EpochKeyProof,
     ReputationProof,
 } from '@unirep/circuits'
 import { userSchema as schema, UserState } from '@unirep/core'
@@ -17,7 +16,7 @@ import { SQLiteConnector } from 'anondb/node'
 import crypto from 'crypto'
 import { ethers } from 'hardhat'
 
-import { poseidon1, poseidon2 } from 'poseidon-lite'
+import { poseidon2 } from 'poseidon-lite'
 import { ProofGenerationError } from './error'
 import { IdentityObject } from './types'
 
@@ -66,63 +65,6 @@ export async function genUserState(id, app) {
     return userState
 }
 
-export async function genEpochKeyProof(config: {
-    id: Identity
-    tree: IncrementalMerkleTree
-    leafIndex: number
-    epoch: number
-    nonce: number
-    chainId: number
-    attesterId: number | bigint
-    data?: bigint[]
-    sigData?: bigint
-    revealNonce?: number
-}) {
-    const {
-        id,
-        tree,
-        leafIndex,
-        epoch,
-        nonce,
-        chainId,
-        attesterId,
-        data: _data,
-        sigData,
-        revealNonce,
-    } = Object.assign(
-        {
-            data: [],
-        },
-        config
-    )
-    const data = [..._data, ...Array(FIELD_COUNT - _data.length).fill(0)]
-    const _proof = tree.createProof(leafIndex)
-    const circuitInputs = {
-        state_tree_elements: _proof.siblings,
-        state_tree_indices: _proof.pathIndices,
-        identity_secret: id.secret,
-        data,
-        sig_data: sigData ?? BigInt(0),
-        nonce,
-        epoch,
-        chain_id: chainId,
-        attester_id: attesterId,
-        reveal_nonce: revealNonce ?? 0,
-    }
-    const r = await prover.genProofAndPublicSignals(
-        Circuit.epochKey,
-        circuitInputs
-    )
-
-    const { publicSignals, proof } = new EpochKeyProof(
-        r.publicSignals,
-        r.proof,
-        prover
-    )
-
-    return { publicSignals, proof }
-}
-
 export async function genEpochKeyLiteProof(config: {
     id: Identity
     epoch: number
@@ -163,18 +105,74 @@ export async function genEpochKeyLiteProof(config: {
     return { publicSignals, proof }
 }
 
-export const randomData = () => [
-    ...Array(SUM_FIELD_COUNT)
-        .fill(0)
-        .map(() => poseidon1([Math.floor(Math.random() * 199191919)])),
-    ...Array(FIELD_COUNT - SUM_FIELD_COUNT)
-        .fill(0)
-        .map(
-            () =>
-                poseidon1([Math.floor(Math.random() * 199191919)]) %
-                BigInt(2) ** BigInt(253)
-        ),
-]
+export async function genReputationProof(config: {
+    id: Identity
+    tree: IncrementalMerkleTree
+    leafIndex: number
+    data?: bigint[]
+    graffiti?: any
+    revealNonce?: number
+    attesterId: number | bigint
+    epoch: number
+    nonce: number
+    minRep?: number
+    maxRep?: number
+    proveZeroRep?: boolean
+    sigData?: bigint
+    chainId: number
+}) {
+    const {
+        id,
+        tree,
+        leafIndex,
+        data,
+        graffiti,
+        revealNonce,
+        attesterId,
+        epoch,
+        nonce,
+        minRep,
+        maxRep,
+        proveZeroRep,
+        sigData,
+        chainId,
+    } = Object.assign(config)
+
+    const _proof = tree.createProof(leafIndex)
+
+    const circuitInputs = {
+        identity_secret: id.secret,
+        state_tree_indices: _proof.pathIndices,
+        state_tree_elements: _proof.siblings,
+        data,
+        prove_graffiti: graffiti ? 1 : 0,
+        graffiti: BigInt(graffiti ?? 0),
+        reveal_nonce: revealNonce ?? 0,
+        attester_id: attesterId,
+        epoch,
+        nonce,
+        min_rep: minRep ?? 0,
+        max_rep: maxRep ?? 0,
+        prove_min_rep: !!(minRep ?? 0) ? 1 : 0,
+        prove_max_rep: !!(maxRep ?? 0) ? 1 : 0,
+        prove_zero_rep: proveZeroRep ?? 0,
+        sig_data: sigData ?? 0,
+        chain_id: chainId,
+    }
+
+    const r = await prover.genProofAndPublicSignals(
+        Circuit.reputation,
+        circuitInputs
+    )
+
+    const { publicSignals, proof } = new ReputationProof(
+        r.publicSignals,
+        r.proof,
+        prover
+    )
+
+    return { publicSignals, proof }
+}
 
 export function genReportNonNullifierCircuitInput(config: {
     reportedEpochKey: any
@@ -234,71 +232,6 @@ export function genReportNullifierCircuitInput(config: {
         current_nonce: currentNonce,
         chain_id: chainId,
         attester_id: attesterId,
-    }
-    return stringifyBigInts(circuitInputs)
-}
-
-export const genReputationCircuitInput = (config: {
-    identitySecret: any
-    epoch: number
-    nonce: number
-    attesterId: number | bigint
-    stateTreeIndices: any[]
-    stateTreeElements: any
-    data: number[] | bigint[]
-    minRep?: number | bigint
-    maxRep?: number | bigint
-    proveMinRep?: number
-    proveMaxRep?: number
-    proveZeroRep?: number
-    proveGraffiti?: boolean | number
-    graffiti?: any
-    revealNonce?: number
-    chainId: number
-}) => {
-    const {
-        identitySecret,
-        epoch,
-        nonce,
-        attesterId,
-        stateTreeIndices,
-        stateTreeElements,
-        data,
-        minRep,
-        proveGraffiti,
-        graffiti,
-        maxRep,
-        proveMinRep,
-        proveMaxRep,
-        proveZeroRep,
-        revealNonce,
-        chainId,
-    } = Object.assign(
-        {
-            minRep: 0,
-            maxRep: 0,
-            graffiti: 0,
-        },
-        config
-    )
-    const circuitInputs = {
-        identity_secret: identitySecret,
-        state_tree_indices: stateTreeIndices,
-        state_tree_elements: stateTreeElements,
-        data: data,
-        graffiti: graffiti,
-        epoch,
-        nonce,
-        attester_id: attesterId,
-        prove_graffiti: proveGraffiti ? proveGraffiti : 0,
-        min_rep: minRep,
-        max_rep: maxRep,
-        prove_max_rep: proveMaxRep ?? 0,
-        prove_min_rep: proveMinRep ?? 0,
-        prove_zero_rep: proveZeroRep ?? 0,
-        reveal_nonce: revealNonce ?? 0,
-        sig_data: 0,
-        chain_id: chainId,
     }
     return stringifyBigInts(circuitInputs)
 }

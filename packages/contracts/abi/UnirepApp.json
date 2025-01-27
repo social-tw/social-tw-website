@@ -7,8 +7,8 @@
                 "type": "address"
             },
             {
-                "internalType": "contract EpochKeyVerifierHelper",
-                "name": "_epkHelper",
+                "internalType": "contract ReputationVerifierHelper",
+                "name": "_repHelper",
                 "type": "address"
             },
             {

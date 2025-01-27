@@ -30,7 +30,7 @@ contract UnirepApp is Ownable {
 
     Unirep public unirep;
     IVerifier internal dataVerifier;
-    EpochKeyVerifierHelper internal epkHelper;
+    ReputationVerifierHelper internal repHelper;
     EpochKeyLiteVerifierHelper internal epkLiteHelper;
     VerifierHelperManager internal verifierHelperManager;
 
@@ -82,7 +82,7 @@ contract UnirepApp is Ownable {
 
     constructor(
         Unirep _unirep,
-        EpochKeyVerifierHelper _epkHelper,
+        ReputationVerifierHelper _repHelper,
         EpochKeyLiteVerifierHelper _epkLiteHelper,
         IVerifier _dataVerifier,
         VerifierHelperManager _verifierHelperManager,
@@ -92,7 +92,7 @@ contract UnirepApp is Ownable {
         unirep = _unirep;
 
         // set epoch key verifier helper address
-        epkHelper = _epkHelper;
+        repHelper = _repHelper;
 
         // set epoch key lite verifier helper address
         epkLiteHelper = _epkLiteHelper;
@@ -109,6 +109,16 @@ contract UnirepApp is Ownable {
         // sign up as an attester
         attesterId = uint160(msg.sender);
         unirep.attesterSignUp(_epochLength);
+    }
+
+    /// @dev Decode and verify the reputation proofs
+    /// @return proofSignals proof signals or fails
+    function decodeAndVerify(uint256[] calldata publicSignals, uint256[8] calldata proof)
+        internal
+        view
+        returns (ReputationVerifierHelper.ReputationSignals memory proofSignals)
+    {
+        return repHelper.verifyAndCheckCaller(publicSignals, proof);
     }
 
     /**
@@ -140,7 +150,7 @@ contract UnirepApp is Ownable {
      * @param proof: epockKeyProof from the user
      * @param content: content of this post
      */
-    function post(uint256[] memory publicSignals, uint256[8] memory proof, string memory content) public {
+    function post(uint256[] calldata publicSignals, uint256[8] calldata proof, string memory content) public {
         // check if proof is used before
         bytes32 nullifier = keccak256(abi.encodePacked(publicSignals, proof));
         if (proofNullifier[nullifier]) {
@@ -149,16 +159,13 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+        ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
         }
-
-        // should check lastly
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
         emit Post(signals.epochKey, latestPostId, signals.epoch, content);
         latestPostId++;
@@ -172,8 +179,8 @@ contract UnirepApp is Ownable {
      * @param content: comment content
      */
     function leaveComment(
-        uint256[] memory publicSignals,
-        uint256[8] memory proof,
+        uint256[] calldata publicSignals,
+        uint256[8] calldata proof,
         uint256 postId,
         string memory content
     ) public {
@@ -184,16 +191,13 @@ contract UnirepApp is Ownable {
         }
         proofNullifier[nullifier] = true;
 
-        EpochKeyVerifierHelper.EpochKeySignals memory signals = epkHelper.decodeEpochKeySignals(publicSignals);
+        ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
 
-        // check the epoch != current epoch (ppl can only post in current aepoch)
+        // check the epoch != current epoch (ppl can only leave comment in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
         if (signals.epoch != epoch) {
             revert InvalidEpoch();
         }
-
-        // check if the proof is valid
-        epkHelper.verifyAndCheckCaller(publicSignals, proof);
 
         uint256 commentId = postCommentIndex[postId];
         epochKeyCommentMap[postId][commentId] = signals.epochKey;
