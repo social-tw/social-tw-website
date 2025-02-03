@@ -1,8 +1,10 @@
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
+import { Circuit } from '@unirep/circuits'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { commentService } from '../src/services/CommentService'
 import { reportService } from '../src/services/ReportService'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
@@ -20,7 +22,12 @@ import { deployContracts, startServer, stopServer } from './environment'
 import { comment } from './utils/comment'
 import { genAuthentication } from './utils/genAuthentication'
 import { genReportNullifier } from './utils/genNullifier'
-import { genReportIdentityProof, userStateTransition } from './utils/genProof'
+import {
+    genProofAndVerify,
+    genReportIdentityProof,
+    genReputationCircuitInput,
+    userStateTransition,
+} from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { resetReportResult } from './utils/sqlHelper'
@@ -97,8 +104,6 @@ describe('POST /api/report', function () {
 
         chainId = await unirep.chainid()
 
-        const authentication = await genAuthentication(userState)
-
         {
             await post(express, userState, nonce).then(async (txHash) => {
                 await provider.waitForTransaction(txHash)
@@ -145,20 +150,18 @@ describe('POST /api/report', function () {
             category: ReportCategory.SPAM,
             reportEpoch: sync.calcCurrentEpoch(),
         }
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
         })
-        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then(async (res) => {
@@ -201,29 +204,26 @@ describe('POST /api/report', function () {
             category: ReportCategory.SPAM,
             reportEpoch: sync.calcCurrentEpoch(),
         }
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
         })
 
         // Invalidate the proof
-        epochKeyProof.publicSignals[0] = BigInt(0)
-
-        const authentication = await genAuthentication(userState)
+        reputationProof.publicSignals[0] = BigInt(0)
 
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Invalid proof')
+                expect(res.body.error).to.be.equal('Invalid reputation proof')
             })
     })
 
@@ -238,21 +238,18 @@ describe('POST /api/report', function () {
             category: ReportCategory.SPAM,
             reportEpoch: sync.calcCurrentEpoch(),
         }
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
         })
-
-        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
@@ -305,21 +302,18 @@ describe('POST /api/report', function () {
             category: ReportCategory.SPAM,
             reportEpoch: sync.calcCurrentEpoch(),
         }
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
         })
-
-        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
@@ -338,21 +332,18 @@ describe('POST /api/report', function () {
             category: ReportCategory.SPAM,
             reportEpoch: sync.calcCurrentEpoch(),
         }
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
         })
-
-        const authentication = await genAuthentication(userState)
 
         await express
             .post('/api/report')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     _reportData: reportData,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
@@ -389,7 +380,7 @@ describe('POST /api/report', function () {
 
         const reports = await express
             .get(
-                `/api/report?status=0&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
+                `/api/report?status=${ReportStatus.VOTING}&publicSignals=${epochKeyLitePublicSignals}&proof=${epochKeyLiteProof}`
             )
             .then((res) => {
                 expect(res).to.have.status(200)
@@ -571,6 +562,186 @@ describe('POST /api/report', function () {
         const currentEpoch = await sync.loadCurrentEpoch()
         const epochDiff = currentEpoch - reports[0].reportEpoch
         expect(epochDiff).gt(1)
+    })
+
+    it('should fail to vote without authentication', async function () {
+        const userState = await genUserState(users[0].id, app, prover)
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        const nullifier = genReportNullifier(users[0].id, report.reportId)
+
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid authentication')
+            })
+    })
+
+    it('should fail to vote with wrong reputation proof', async function () {
+        const userState = await genUserState(users[0].id, app, prover)
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        const nullifier = genReportNullifier(users[0].id, report.reportId)
+
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
+
+        const epoch = await sync.loadCurrentEpoch()
+        const minRep = 2
+        const proveMinRep = 1
+        const startBalance = [5, 1]
+        const circuitInputs = genReputationCircuitInput({
+            id: userState.id,
+            epoch,
+            nonce: 1,
+            startBalance,
+            attesterId: sync.attesterId,
+            chainId,
+            minRep,
+            proveMinRep,
+            revealNonce: 0,
+        })
+
+        const reputationProof = await genProofAndVerify(
+            Circuit.reputation,
+            circuitInputs
+        )
+
+        reputationProof.publicSignals[0] = '0'
+
+        const authentication = jsonToBase64(
+            stringifyBigInts({
+                publicSignals: reputationProof.publicSignals,
+                proof: reputationProof.proof,
+            })
+        )
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .set('authentication', authentication)
+            .send(
+                stringifyBigInts({
+                    adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid reputation proof')
+            })
+    })
+
+    it('should fail to vote with negative reputation', async function () {
+        const userState = await genUserState(users[0].id, app, prover)
+        const report = await db.findOne('ReportHistory', {
+            where: {
+                AND: [{ objectId: '0' }, { type: ReportType.COMMENT }],
+            },
+        })
+
+        const nullifier = genReportNullifier(users[0].id, report.reportId)
+
+        const toEpoch = await userStateTransition(userState, {
+            express,
+            unirep,
+        })
+        const { proof, publicSignals } = await genReportIdentityProof(
+            userState,
+            {
+                nullifier,
+                chainId,
+                toEpoch,
+                reportId: report.reportId,
+            }
+        )
+
+        const epoch = await sync.loadCurrentEpoch()
+        const maxRep = 4
+        const proveMaxRep = 1
+        const startBalance = [5, 10]
+        const circuitInputs = genReputationCircuitInput({
+            id: userState.id,
+            epoch,
+            nonce: 1,
+            startBalance,
+            attesterId: sync.attesterId,
+            chainId,
+            maxRep,
+            proveMaxRep,
+            revealNonce: 0,
+        })
+
+        const reputationProof = await genProofAndVerify(
+            Circuit.reputation,
+            circuitInputs
+        )
+
+        const authentication = jsonToBase64(
+            stringifyBigInts({
+                publicSignals: reputationProof.publicSignals,
+                proof: reputationProof.proof,
+            })
+        )
+
+        await express
+            .post(`/api/report/${report.reportId}`)
+            .set('content-type', 'application/json')
+            .set('authentication', authentication)
+            .send(
+                stringifyBigInts({
+                    adjudicateValue: AdjudicateValue.AGREE,
+                    publicSignals,
+                    proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Negative reputation user')
+            })
     })
 
     it('should vote agree on the report', async function () {

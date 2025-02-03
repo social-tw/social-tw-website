@@ -17,11 +17,7 @@ export default (
 ) => {
     app.post(
         '/api/report',
-        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req: Request, res: Response) => {
-            if (res.locals.isNegativeReputation)
-                throw Errors.NEGATIVE_REPUTATION_USER()
-
             const { _reportData, publicSignals, proof } = req.body
             // 1. Validate request body
             const reportData = await reportService.verifyReportData(
