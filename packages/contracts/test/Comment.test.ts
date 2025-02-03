@@ -8,7 +8,7 @@ import {
     createMultipleUserIdentity,
     genReputationProof,
     genUserState,
-    userStateTransition
+    userStateTransition,
 } from './utils'
 
 describe('Comment Test', function () {
