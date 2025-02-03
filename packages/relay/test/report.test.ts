@@ -100,13 +100,11 @@ describe('POST /api/report', function () {
         const authentication = await genAuthentication(userState)
 
         {
-            await post(express, userState, nonce).then(
-                async (txHash) => {
-                    await provider.waitForTransaction(txHash)
-                    await sync.waitForSync()
-                    nonce++
-                }
-            )
+            await post(express, userState, nonce).then(async (txHash) => {
+                await provider.waitForTransaction(txHash)
+                await sync.waitForSync()
+                nonce++
+            })
 
             await express.get('/api/post/0').then((res) => {
                 expect(res).to.have.status(200)
@@ -117,13 +115,11 @@ describe('POST /api/report', function () {
         }
 
         {
-            await comment(express, userState, '0', nonce).then(
-                async (res) => {
-                    await provider.waitForTransaction(res.txHash)
-                    await sync.waitForSync()
-                    nonce++
-                }
-            )
+            await comment(express, userState, '0', nonce).then(async (res) => {
+                await provider.waitForTransaction(res.txHash)
+                await sync.waitForSync()
+                nonce++
+            })
 
             const resComment = await commentService.fetchSingleComment(
                 '0',
