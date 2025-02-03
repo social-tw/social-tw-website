@@ -8,7 +8,6 @@ import { createRandomUserIdentity, genUserState } from './utils/userHelper'
 import { Unirep, UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { DB } from 'anondb'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
-import { genAuthentication } from './utils/genAuthentication'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
 
@@ -46,15 +45,13 @@ describe('GET /counter', function () {
         sync = synchronizer
 
         user = createRandomUserIdentity()
-        const userState = await signUp(user, {
+        await signUp(user, {
             app,
             db,
             prover,
             provider,
             sync,
         })
-
-        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -63,7 +60,7 @@ describe('GET /counter', function () {
 
     it('should add the counter number increment after the user posted', async function () {
         const userState = await genUserState(user.id, app, prover)
-        let txHash = await post(express, userState, authentication)
+        let txHash = await post(express, userState)
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
 

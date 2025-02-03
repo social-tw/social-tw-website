@@ -7,7 +7,6 @@ import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocia
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -46,7 +45,7 @@ describe('Synchronize Post Test', function () {
 
         // Create users identity and signup users
         users = createUserIdentities(2)
-        const userState = await signUp(users[0], {
+        await signUp(users[0], {
             app,
             db,
             prover,
@@ -64,8 +63,6 @@ describe('Synchronize Post Test', function () {
                 sync,
             })
         }
-
-        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -75,7 +72,7 @@ describe('Synchronize Post Test', function () {
     describe('Synchronize Post', async function () {
         it('should synchronize post', async function () {
             const userState = await genUserState(users[0].id, app, prover)
-            const txHash = await post(express, userState, authentication)
+            const txHash = await post(express, userState)
             const { createHelia } = await eval("import('helia')")
             const helia = await createHelia()
             const contentHash = await IpfsHelper.createIpfsContent(
@@ -135,7 +132,7 @@ describe('Synchronize Comment Test', function () {
 
         // Create users identity and signup users
         users = createUserIdentities(2)
-        const userState = await signUp(users[0], {
+        await signUp(users[0], {
             app,
             db,
             prover,
@@ -153,8 +150,6 @@ describe('Synchronize Comment Test', function () {
                 sync,
             })
         }
-
-        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -166,7 +161,7 @@ describe('Synchronize Comment Test', function () {
             const userState = await genUserState(users[0].id, app, prover)
 
             {
-                const txHash = await post(express, userState, authentication)
+                const txHash = await post(express, userState)
                 await provider.waitForTransaction(txHash)
                 await sync.waitForSync()
             }
@@ -183,9 +178,7 @@ describe('Synchronize Comment Test', function () {
 
             const userState = await genUserState(users[1].id, app, prover)
             const epoch = await sync.loadCurrentEpoch()
-            const { publicSignals, proof } = await userState.genEpochKeyProof({
-                epoch,
-            })
+            const reputationProof = await userState.genProveReputationProof({})
 
             // set up socket listener
             const clientSocket = io(HTTP_SERVER)
@@ -198,10 +191,21 @@ describe('Synchronize Comment Test', function () {
             })
 
             await expect(
-                app.leaveComment(publicSignals, proof, 0, commentContent)
+                app.leaveComment(
+                    reputationProof.publicSignals,
+                    reputationProof.proof,
+                    0,
+                    commentContent
+                )
             )
                 .to.emit(app, 'Comment')
-                .withArgs(publicSignals[0], 0, 0, 0, commentContent)
+                .withArgs(
+                    reputationProof.publicSignals[0],
+                    0,
+                    0,
+                    0,
+                    commentContent
+                )
 
             await sync.waitForSync()
 
@@ -227,16 +231,22 @@ describe('Synchronize Comment Test', function () {
             // User 1 edit the comment
             const userState = await genUserState(users[1].id, app, prover)
             const newContent = "I'm not a comment what you want"
-            const { publicSignals, proof } =
-                await userState.genEpochKeyLiteProof()
+            const reputationProof = await userState.genProveReputationProof({})
 
             await expect(
-                app.editComment(publicSignals, proof, 0, 0, newContent, {
-                    gasLimit: 5000000,
-                })
+                app.editComment(
+                    reputationProof.publicSignals,
+                    reputationProof.proof,
+                    0,
+                    0,
+                    newContent,
+                    {
+                        gasLimit: 5000000,
+                    }
+                )
             )
                 .to.emit(app, 'UpdatedComment')
-                .withArgs(publicSignals[1], 0, 0, 0, newContent)
+                .withArgs(reputationProof.publicSignals[0], 0, 0, 0, newContent)
 
             await sync.waitForSync()
 
