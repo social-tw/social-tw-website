@@ -378,20 +378,22 @@ describe('Comment Test', function () {
 
         it('should update comment in another epoch', async function () {
             const userState = await genUserState(users[1].id, app)
-            const attesterId = userState.sync.attesterId
             const epoch = await userState.sync.loadCurrentEpoch()
+            console.log(epoch)
+
+            // user state transition
+            await userStateTransition(userState, unirep, app)
+
+            const attesterId = userState.sync.attesterId
+            const latestEpoch = await unirep.attesterCurrentEpoch(app.address)
+            console.log(latestEpoch)
+            const userEpoch = await userState.latestTransitionedEpoch()
+            console.log(userEpoch)
             const tree = await userState.sync.genStateTree(epoch, attesterId)
             const leafIndex = await userState.latestStateTreeLeafIndex(
                 epoch,
                 attesterId
             )
-
-            // epoch transition
-            await ethers.provider.send('evm_increaseTime', [epochLength])
-            await ethers.provider.send('evm_mine', [])
-
-            // user state transition
-            await userStateTransition(userState, unirep, app)
 
             const id = users[1].id
             const data = await userState.getProvableData()
