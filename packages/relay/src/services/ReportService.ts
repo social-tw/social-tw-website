@@ -65,12 +65,20 @@ export class ReportService {
         } else {
             throw Errors.REPORT_OBJECT_TYPE_NOT_EXISTS()
         }
-        // 1.b Check if the epoch key is valid
-        await ProofHelper.getAndVerifyEpochKeyProof(
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
             publicSignals,
             proof,
             synchronizer
         )
+
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+
+        if (maxRep > 0 && proveMaxRep > 0)
+            throw Errors.NEGATIVE_REPUTATION_USER()
+
         return reportData
     }
 
