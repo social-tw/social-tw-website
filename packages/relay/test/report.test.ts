@@ -100,7 +100,7 @@ describe('POST /api/report', function () {
         const authentication = await genAuthentication(userState)
 
         {
-            await post(express, userState, authentication, nonce).then(
+            await post(express, userState, nonce).then(
                 async (txHash) => {
                     await provider.waitForTransaction(txHash)
                     await sync.waitForSync()
@@ -117,7 +117,7 @@ describe('POST /api/report', function () {
         }
 
         {
-            await comment(express, userState, authentication, '0', nonce).then(
+            await comment(express, userState, '0', nonce).then(
                 async (res) => {
                     await provider.waitForTransaction(res.txHash)
                     await sync.waitForSync()
