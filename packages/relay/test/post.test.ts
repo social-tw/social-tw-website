@@ -1,16 +1,14 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
-
 import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 import { APP_ABI as abi } from '../src/config'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { deployContracts, startServer, stopServer } from './environment'
 import { postData } from './mocks/posts'
-import { genAuthentication } from './utils/genAuthentication'
-import { genEpochKeyProof, randomData } from './utils/genProof'
+import { genReputationProof } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { insertComments, insertPosts, insertVotes } from './utils/sqlHelper'
@@ -22,7 +20,6 @@ describe('POST /post', function () {
     let express: ChaiHttp.Agent
     let db: DB
     let chainId: number
-    let authentication: string
     let user: IdentityObject
     let app: UnirepApp
     let prover: any
@@ -49,7 +46,7 @@ describe('POST /post', function () {
         sync = synchronizer
 
         user = createRandomUserIdentity()
-        const userState = await signUp(user, {
+        await signUp(user, {
             app,
             db,
             prover,
@@ -58,8 +55,6 @@ describe('POST /post', function () {
         })
 
         chainId = await unirep.chainid()
-
-        authentication = await genAuthentication(userState)
     })
 
     after(async function () {
@@ -77,19 +72,17 @@ describe('POST /post', function () {
             helia,
             testContent
         )
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0,
-        })
+
+        const repProof = await userState.genProveReputationProof({})
 
         const res = await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
@@ -105,7 +98,7 @@ describe('POST /post', function () {
         //  uint256 epoch     [2]   BigInt
         //  string cid        [3]   String
         // }
-        const epk = epochKeyProof.epochKey as bigint
+        const epk = repProof.epochKey as bigint
         const receipt = await provider.waitForTransaction(res.txHash)
         const unirepAppInterface = new ethers.utils.Interface(abi)
         const rawEvent = receipt.logs
@@ -124,7 +117,7 @@ describe('POST /post', function () {
         await sync.waitForSync()
 
         let posts = await express
-            .get(`/api/post?epks=${epochKeyProof.epochKey}`)
+            .get(`/api/post?epks=${repProof.epochKey}`)
             .then((res) => {
                 expect(res).to.have.status(200)
                 return res.body
@@ -137,7 +130,7 @@ describe('POST /post', function () {
 
         expect(posts[0].cid).equal(testContentHash)
 
-        const mockEpk = epochKeyProof.epochKey + BigInt(1)
+        const mockEpk = repProof.epochKey + BigInt(1)
 
         posts = await express.get(`/api/post?epks=${mockEpk}`).then((res) => {
             expect(res).to.have.status(200)
@@ -151,26 +144,23 @@ describe('POST /post', function () {
         const userState = await genUserState(user.id, app, prover)
         const testContent = 'test content'
 
-        var epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0,
-        })
+        const repProof = await userState.genProveReputationProof({})
 
-        epochKeyProof.publicSignals[0] = BigInt(0)
+        repProof.publicSignals[0] = BigInt(0)
 
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid proof')
+                expect(res.body.error).equal('Invalid reputation proof')
             })
     })
 
@@ -179,6 +169,8 @@ describe('POST /post', function () {
         const testContent = 'invalid epoch'
 
         // generating a proof with wrong epoch
+        const id = userState.id
+        const data = await userState.getProvableData()
         const wrongEpoch = 44444
         const attesterId = sync.attesterId
         const epoch = await userState.latestTransitionedEpoch(attesterId)
@@ -187,9 +179,8 @@ describe('POST /post', function () {
             epoch,
             attesterId
         )
-        const id = userState.id
-        const data = randomData()
-        const epochKeyProof = await genEpochKeyProof({
+
+        const repProof = await genReputationProof({
             id,
             tree,
             leafIndex,
@@ -203,12 +194,11 @@ describe('POST /post', function () {
         await express
             .post('/api/post')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
@@ -281,7 +271,7 @@ describe('POST /post', function () {
     it('should fetch posts which are already on-chain', async function () {
         const userState = await genUserState(user.id, app, prover)
         // send a post
-        const txHash = await post(express, userState, authentication)
+        const txHash = await post(express, userState)
         // update the cache, the amount of posts is still 10
         // since the above post is not on-chain yet
         // one page will have 10 posts
@@ -299,6 +289,7 @@ describe('POST /post', function () {
 
         // second page will be empty
         posts = await express.get(`/api/post?page=2`).then((res) => {
+            console.log(res.body)
             expect(res).to.have.status(200)
             return res.body
         })

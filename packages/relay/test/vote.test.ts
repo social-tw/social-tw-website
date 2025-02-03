@@ -9,7 +9,6 @@ import { UnirepApp } from '@unirep-app/contracts/typechain-types'
 import { io } from 'socket.io-client'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { EventType, VoteAction, VoteMsg } from '../src/types'
-import { genAuthentication } from './utils/genAuthentication'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -65,13 +64,11 @@ describe('POST /vote', function () {
 
         chainId = await unirep.chainid()
 
-        authentication = await genAuthentication(userState)
-
         // produce three posts
         const postPromises = [
-            post(express, userState, authentication),
-            post(express, userState, authentication),
-            post(express, userState, authentication),
+            post(express, userState),
+            post(express, userState),
+            post(express, userState),
         ]
 
         const postResponses = await Promise.all(postPromises)
@@ -101,17 +98,16 @@ describe('POST /vote', function () {
         await stopServer('vote', snapshot, sync, express)
     })
 
-    async function voteForPost(postId, voteAction, epochKeyProof) {
+    async function voteForPost(postId, voteAction, reputationProof) {
         return express
             .post('/api/vote')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     postId: postId,
                     voteAction,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                     enableEpochValidation: true,
                 })
             )
@@ -129,9 +125,7 @@ describe('POST /vote', function () {
 
     it('should vote for post', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // check socket message
         socketClient.on(EventType.VOTE, (data: VoteMsg) => {
@@ -149,7 +143,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(201)
         // check the post is upvoted only
@@ -159,7 +153,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(downvoteResponse).to.have.status(201)
 
@@ -169,9 +163,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when vote again with the same type', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // make sure the post is already upvoted
         await verifyPostVote(upvotePostId, 1, 0)
@@ -179,7 +171,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid vote action')
@@ -190,7 +182,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -198,9 +190,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when vote again with different type', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // make sure the post is already upvoted
         await verifyPostVote(upvotePostId, 1, 0)
@@ -208,7 +198,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.DOWNVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -219,7 +209,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            reputationProof
         )
 
         expect(upvoteResponse).to.have.status(400)
@@ -228,9 +218,7 @@ describe('POST /vote', function () {
 
     it('should cancel vote for post', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // make sure the post is already upvoted
         await verifyPostVote(upvotePostId, 1, 0)
@@ -238,7 +226,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(201)
         // check the post is neither upvoted nor downvoted
@@ -250,7 +238,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(downvoteResponse).to.have.status(201)
         // check the post is neither upvoted nor downvoted
@@ -261,9 +249,7 @@ describe('POST /vote', function () {
 
     it('should vote failed when cancel upvote(downvote) for post w/o upvote(downvote)', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // make sure the post is not upvoted
         await verifyPostVote(upvotePostId, 0, 0)
@@ -271,7 +257,7 @@ describe('POST /vote', function () {
         const upvoteResponse = await voteForPost(
             upvotePostId,
             VoteAction.CANCEL_UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid vote action')
@@ -282,7 +268,7 @@ describe('POST /vote', function () {
         const downvoteResponse = await voteForPost(
             downvotePostId,
             VoteAction.CANCEL_DOWNVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(downvoteResponse).to.have.status(400)
         expect(downvoteResponse.body.error).equal('Invalid vote action')
@@ -290,33 +276,29 @@ describe('POST /vote', function () {
 
     it('should vote failed with wrong proof', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
-        epochKeyProof.publicSignals[0] = BigInt(0)
+        reputationProof.publicSignals[0] = BigInt(0)
 
         // upvote with the wrong proof
         const upvoteResponse = await voteForPost(
             otherPostId,
             VoteAction.UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(400)
-        expect(upvoteResponse.body.error).equal('Wrong attesterId')
+        expect(upvoteResponse.body.error).equal('Invalid reputation proof')
     })
 
     it('should vote failed with invalid post', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyProof = await userState.genEpochKeyLiteProof({
-            nonce: 0,
-        })
+        const reputationProof = await userState.genProveReputationProof({})
 
         // upvote with the wrong post id
         const upvoteResponse = await voteForPost(
             'invalid',
             VoteAction.UPVOTE,
-            epochKeyProof
+            reputationProof
         )
         expect(upvoteResponse).to.have.status(400)
         expect(upvoteResponse.body.error).equal('Invalid postId')

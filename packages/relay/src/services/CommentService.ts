@@ -95,25 +95,33 @@ export class CommentService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ) {
-        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
             publicSignals,
             proof,
             synchronizer
         )
+
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+
+        if (maxRep > 0 && proveMaxRep > 0)
+            throw Errors.NEGATIVE_REPUTATION_USER()
 
         // store content into helia ipfs node with json plain
         const cid = (
             await IpfsHelper.createIpfsContent(helia, content)
         ).toString()
         const txHash = await TransactionManager.callContract('leaveComment', [
-            publicSignals,
-            proof,
+            reputationProof.publicSignals,
+            reputationProof.proof,
             postId,
             cid,
         ])
 
-        const epoch = Number(epochKeyProof.epoch)
-        const epochKey = epochKeyProof.epochKey.toString()
+        const epoch = Number(reputationProof.epoch)
+        const epochKey = reputationProof.epochKey.toString()
 
         // save comment into db
         await db.create('Comment', {
@@ -146,19 +154,26 @@ export class CommentService {
         })
         if (!comment) throw Errors.COMMENT_NOT_EXIST()
 
-        const epochKeyLiteProof =
-            await ProofHelper.getAndVerifyEpochKeyLiteProof(
-                publicSignals,
-                proof,
-                synchronizer
-            )
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
+            publicSignals,
+            proof,
+            synchronizer
+        )
 
-        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey)
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+
+        if (maxRep > 0 && proveMaxRep > 0)
+            throw Errors.NEGATIVE_REPUTATION_USER()
+
+        if (reputationProof.epochKey.toString() !== comment.epochKey)
             throw Errors.INVALID_EPOCH_KEY()
 
         const txHash = await TransactionManager.callContract('editComment', [
-            epochKeyLiteProof.publicSignals,
-            epochKeyLiteProof.proof,
+            reputationProof.publicSignals,
+            reputationProof.proof,
             comment.postId,
             commentId,
             '',

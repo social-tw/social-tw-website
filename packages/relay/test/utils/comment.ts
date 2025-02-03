@@ -5,26 +5,24 @@ import { expect } from 'chai'
 export async function comment(
     server: ChaiHttp.Agent,
     userState: UserState,
-    authentication: string,
     postId: string,
-    nonce: number
+    nonce?: number
 ): Promise<any> {
     const testContent = 'test content'
 
-    const epochKeyProof = await userState.genEpochKeyProof({
-        nonce,
+    const repProof = await userState.genProveReputationProof({
+        epkNonce: nonce ?? 0,
     })
 
     return await server
         .post('/api/comment')
         .set('content-type', 'application/json')
-        .set('authentication', authentication)
         .send(
             stringifyBigInts({
                 content: testContent,
                 postId: postId,
-                publicSignals: epochKeyProof.publicSignals,
-                proof: epochKeyProof.proof,
+                publicSignals: repProof.publicSignals,
+                proof: repProof.proof,
             })
         )
         .then((res) => {

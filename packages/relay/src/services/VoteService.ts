@@ -68,12 +68,19 @@ export class VoteService {
         db: DB,
         synchronizer: UnirepSocialSynchronizer
     ) {
-        // get valid epoch key
-        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyLiteProof(
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
             publicSignals,
             proof,
             synchronizer
         )
+
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+
+        if (maxRep > 0 && proveMaxRep > 0)
+            throw Errors.NEGATIVE_REPUTATION_USER()
 
         // find post which is voted
         const post = await db.findOne('Post', {
@@ -83,7 +90,7 @@ export class VoteService {
         })
         if (!post) throw Errors.POST_NOT_EXIST()
 
-        const epochKey = epochKeyProof.epochKey.toString()
+        const epochKey = reputationProof.epochKey.toString()
         const findVote = await db.findOne('Vote', {
             where: {
                 postId: postId,
@@ -95,7 +102,7 @@ export class VoteService {
         await this.executeTx(
             db,
             epochKey,
-            Number(epochKeyProof.epoch),
+            Number(reputationProof.epoch),
             post,
             voteAction
         )

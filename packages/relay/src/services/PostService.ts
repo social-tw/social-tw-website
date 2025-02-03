@@ -243,24 +243,32 @@ export class PostService {
         synchronizer: UnirepSocialSynchronizer,
         helia: Helia
     ): Promise<string> {
-        const epochKeyProof = await ProofHelper.getAndVerifyEpochKeyProof(
+        // verify reputation proof
+        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
             publicSignals,
             proof,
             synchronizer
         )
+
+        // check negative reputation
+        const maxRep = reputationProof.maxRep
+        const proveMaxRep = reputationProof.proveMaxRep
+
+        if (maxRep > 0 && proveMaxRep > 0)
+            throw Errors.NEGATIVE_REPUTATION_USER()
 
         // post content
         const cid = (
             await IpfsHelper.createIpfsContent(helia, content)
         ).toString()
         const txHash = await TransactionManager.callContract('post', [
-            epochKeyProof.publicSignals,
-            epochKeyProof.proof,
+            reputationProof.publicSignals,
+            reputationProof.proof,
             cid,
         ])
 
-        const epoch = Number(epochKeyProof.epoch)
-        const epochKey = epochKeyProof.epochKey.toString()
+        const epoch = Number(reputationProof.epoch)
+        const epochKey = reputationProof.epochKey.toString()
 
         // save post into db
         await db.create('Post', {

@@ -10,8 +10,7 @@ import IpfsHelper from '../src/services/utils/IpfsHelper'
 import { Post, PostStatus } from '../src/types'
 import { HTTP_SERVER } from './configs'
 import { deployContracts, startServer, stopServer } from './environment'
-import { genAuthentication } from './utils/genAuthentication'
-import { genEpochKeyProof, randomData } from './utils/genProof'
+import { genReputationProof } from './utils/genProof'
 import { post } from './utils/post'
 import { signUp } from './utils/signup'
 import { IdentityObject } from './utils/types'
@@ -23,7 +22,7 @@ describe('COMMENT /comment', function () {
     let user: IdentityObject
     let chainId: number
     let testContent: String
-    let authentication: string
+    let commentEpoch: bigint
     let app: UnirepApp
     let prover: any
     let provider: any
@@ -61,9 +60,7 @@ describe('COMMENT /comment', function () {
             sync,
         })
 
-        authentication = await genAuthentication(userState)
-
-        const txHash = await post(express, userState, authentication)
+        const txHash = await post(express, userState)
         await provider.waitForTransaction(txHash)
         await sync.waitForSync()
 
@@ -86,9 +83,9 @@ describe('COMMENT /comment', function () {
             helia,
             'create comment'
         )
-        let epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 1,
-        })
+
+        const repProof = await userState.genProveReputationProof({})
+        commentEpoch = repProof.epoch
 
         // set up socket listener
         const clientSocket = io(HTTP_SERVER)
@@ -96,8 +93,8 @@ describe('COMMENT /comment', function () {
             const [comment] = args
             expect(comment.postId).equal('0')
             expect(comment.content).equal(testContent)
-            expect(comment.epochKey).equal(epochKeyProof.epochKey)
-            expect(comment.epoch).equal(epochKeyProof.epoch)
+            expect(comment.epochKey).equal(repProof.epochKey)
+            expect(comment.epoch).equal(repProof.epoch)
             clientSocket.close()
         })
 
@@ -105,13 +102,12 @@ describe('COMMENT /comment', function () {
         const txHash = await express
             .post('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
@@ -128,7 +124,7 @@ describe('COMMENT /comment', function () {
         //  uint256 epoch     [3]   BigInt
         //  string cid        [4]   String
         // }
-        const epk = epochKeyProof.epochKey as bigint
+        const epk = repProof.epochKey as bigint
         const receipt = await provider.waitForTransaction(txHash)
         const unirepAppInterface = new ethers.utils.Interface(abi)
         const rawEvent = receipt.logs
@@ -168,27 +164,24 @@ describe('COMMENT /comment', function () {
     it('should comment failed with wrong proof', async function () {
         const userState = await genUserState(user.id, app, prover)
         testContent = 'comment with wrong proof'
-        const epochKeyProof = await userState.genEpochKeyProof({
-            nonce: 2,
-        })
+        const repProof = await userState.genProveReputationProof({})
 
-        epochKeyProof.publicSignals[0] = BigInt(0)
+        repProof.publicSignals[0] = BigInt(0)
 
         await express
             .post('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid proof')
+                expect(res.body.error).equal('Invalid reputation proof')
             })
     })
 
@@ -205,13 +198,13 @@ describe('COMMENT /comment', function () {
             attesterId
         )
         const id = userState.id
-        const data = randomData()
-        const epochKeyProof = await genEpochKeyProof({
+        const data = await userState.getProvableData()
+        const repProof = await genReputationProof({
             id,
             tree,
             leafIndex,
             epoch: wrongEpoch,
-            nonce: 2,
+            nonce: 0,
             chainId,
             attesterId,
             data,
@@ -220,13 +213,12 @@ describe('COMMENT /comment', function () {
         await express
             .post('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     content: testContent,
                     postId: 0,
-                    publicSignals: epochKeyProof.publicSignals,
-                    proof: epochKeyProof.proof,
+                    publicSignals: repProof.publicSignals,
+                    proof: repProof.proof,
                 })
             )
             .then((res) => {
@@ -237,49 +229,47 @@ describe('COMMENT /comment', function () {
 
     it('delete the comment failed with wrong proof', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
-            nonce: 1,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: 1,
         })
 
         // invalidate the proof
-        epochKeyLiteProof.publicSignals[1] = BigInt(0)
+        reputationProof.publicSignals[1] = BigInt(0)
 
         // delete a comment
         await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,
                     postId: 0,
-                    publicSignals: epochKeyLiteProof.publicSignals,
-                    proof: epochKeyLiteProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
                 expect(res).to.have.status(400)
-                expect(res.body.error).equal('Invalid proof')
+                expect(res.body.error).equal('Invalid reputation proof')
             })
     })
 
     it('delete the comment failed with wrong epoch key', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
-            nonce: 2,
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: 2,
         })
 
         // delete a comment
         await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,
                     postId: 0,
-                    publicSignals: epochKeyLiteProof.publicSignals,
-                    proof: epochKeyLiteProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
@@ -290,21 +280,36 @@ describe('COMMENT /comment', function () {
 
     it('delete the comment success', async function () {
         const userState = await genUserState(user.id, app, prover)
-        const epochKeyLiteProof = await userState.genEpochKeyLiteProof({
-            nonce: 1,
+        const attesterId = sync.attesterId
+        const epoch = Number(commentEpoch)
+        const tree = await sync.genStateTree(epoch, attesterId)
+        const leafIndex = await userState.latestStateTreeLeafIndex(
+            epoch,
+            attesterId
+        )
+        const id = userState.id
+        const data = await userState.getProvableData()
+        const reputationProof = await genReputationProof({
+            id,
+            tree,
+            leafIndex,
+            epoch,
+            nonce: 0,
+            chainId,
+            attesterId,
+            data,
         })
 
         // delete a comment
         const txHash = await express
             .delete('/api/comment')
             .set('content-type', 'application/json')
-            .set('authentication', authentication)
             .send(
                 stringifyBigInts({
                     commentId: 0,
                     postId: 0,
-                    publicSignals: epochKeyLiteProof.publicSignals,
-                    proof: epochKeyLiteProof.proof,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
                 })
             )
             .then((res) => {
