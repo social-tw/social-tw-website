@@ -26,11 +26,6 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
         deployer,
         Circuit.reputation
     )
-    const epkLiteHelper = await deployVerifierHelper(
-        unirep.address,
-        deployer,
-        Circuit.epochKeyLite
-    )
 
     // deploy verifiers
     console.log('Deploying Verifiers')
@@ -112,7 +107,6 @@ export async function deployApp(deployer: ethers.Signer, epochLength: number) {
     const app = await AppF.deploy(
         unirep.address,
         repHelper.address,
-        epkLiteHelper.address,
         dataProofVerifier.address,
         vHelperManager.address,
         epochLength
