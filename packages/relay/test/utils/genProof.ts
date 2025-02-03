@@ -1,9 +1,14 @@
 import { Identity } from '@semaphore-protocol/identity'
 import { defaultProver as prover } from '@unirep-app/circuits/provers/defaultProver'
-import { Circuit, CircuitConfig, EpochKeyProof } from '@unirep/circuits'
 import {
-    IncrementalMerkleTree,
+    Circuit,
+    CircuitConfig,
+    EpochKeyProof,
+    ReputationProof,
+} from '@unirep/circuits'
+import {
     genStateTreeLeaf,
+    IncrementalMerkleTree,
     stringifyBigInts,
 } from '@unirep/utils'
 import { ethers } from 'hardhat'
@@ -166,6 +171,75 @@ export const genReputationCircuitInput = (config: {
     return stringifyBigInts(circuitInputs)
 }
 
+export async function genReputationProof(config: {
+    id: Identity
+    tree: IncrementalMerkleTree
+    leafIndex: number
+    data?: bigint[]
+    graffiti?: any
+    revealNonce?: number
+    attesterId: number | bigint
+    epoch: number
+    nonce: number
+    minRep?: number
+    maxRep?: number
+    proveZeroRep?: boolean
+    sigData?: bigint
+    chainId: number
+}) {
+    const {
+        id,
+        tree,
+        leafIndex,
+        data,
+        graffiti,
+        revealNonce,
+        attesterId,
+        epoch,
+        nonce,
+        minRep,
+        maxRep,
+        proveZeroRep,
+        sigData,
+        chainId,
+    } = Object.assign(config)
+
+    const _proof = tree.createProof(leafIndex)
+
+    const circuitInputs = {
+        identity_secret: id.secret,
+        state_tree_indices: _proof.pathIndices,
+        state_tree_elements: _proof.siblings,
+        data,
+        prove_graffiti: graffiti ? 1 : 0,
+        graffiti: BigInt(graffiti ?? 0),
+        reveal_nonce: revealNonce ?? 0,
+        attester_id: attesterId,
+        epoch,
+        nonce,
+        min_rep: minRep ?? 0,
+        max_rep: maxRep ?? 0,
+        prove_min_rep: !!(minRep ?? 0) ? 1 : 0,
+        prove_max_rep: !!(maxRep ?? 0) ? 1 : 0,
+        prove_zero_rep: proveZeroRep ?? 0,
+        sig_data: sigData ?? 0,
+        chain_id: chainId,
+    }
+
+    const r = await prover.genProofAndPublicSignals(
+        Circuit.reputation,
+        circuitInputs
+    )
+
+    const { publicSignals, proof } = new ReputationProof(
+        r.publicSignals,
+        r.proof,
+        prover
+    )
+
+    return { publicSignals, proof }
+}
+
 export async function genProofAndVerify(
     circuit: string | Circuit,
     circuitInputs: any
@@ -183,48 +257,6 @@ export async function genProofAndVerify(
     )
     const isValid = await Prover.verifyProof(circuit, publicSignals, proof)
     return { isValid, proof, publicSignals }
-}
-
-export async function genProveReputationProof(type, config) {
-    if (type == ReputationType.POSITIVE) {
-        const minRep = 2
-        const proveMinRep = 1
-        const startBalance = [5, 1]
-        const circuitInputs = genReputationCircuitInput({
-            ...config,
-            startBalance,
-            minRep,
-            proveMinRep,
-        })
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
-            Circuit.reputation,
-            circuitInputs
-        )
-
-        return {
-            publicSignals,
-            proof,
-        }
-    } else {
-        const maxRep = 4
-        const proveMaxRep = 1
-        const startBalance = [5, 10]
-        const circuitInputs = genReputationCircuitInput({
-            ...config,
-            startBalance,
-            maxRep,
-            proveMaxRep,
-        })
-        const { isValid, publicSignals, proof } = await genProofAndVerify(
-            Circuit.reputation,
-            circuitInputs
-        )
-
-        return {
-            publicSignals,
-            proof,
-        }
-    }
 }
 
 export async function userStateTransition(userState, context) {

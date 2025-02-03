@@ -1,7 +1,6 @@
 import type { Helia } from '@helia/interface'
 import { DB } from 'anondb/node'
 import { Express } from 'express'
-import { createCheckReputationMiddleware } from '../middlewares/CheckReputationMiddleware'
 import { postService } from '../services/PostService'
 import { UnirepSocialSynchronizer } from '../services/singletons/UnirepSocialSynchronizer'
 import { errorHandler } from '../services/utils/ErrorHandler'
@@ -36,11 +35,7 @@ export default (
 
     app.post(
         '/api/post',
-        errorHandler(createCheckReputationMiddleware(synchronizer)),
         errorHandler(async (req, res) => {
-            if (res.locals.isNegativeReputation)
-                throw Errors.NEGATIVE_REPUTATION_USER()
-
             const { content, publicSignals, proof } = req.body
             if (!content) throw Errors.EMPTY_POST()
 
