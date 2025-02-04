@@ -1,5 +1,6 @@
 import { DB } from 'anondb/node'
 import type { Groth16Proof, PublicSignals } from 'snarkjs'
+import { Errors } from '../types'
 import {
     ClaimHelpers,
     RepChangeType,
@@ -45,6 +46,13 @@ export class ReputationService {
             proof,
             synchronizer
         )
+
+        // check positive reputation
+        const maxRep = dailyClaimProof.maxRep
+        const proveMaxRep = dailyClaimProof.proveMaxRep
+
+        if (!(maxRep > 0 && proveMaxRep > 0))
+            throw Errors.POSITIVE_REPUTATION_USER()
 
         const identifier = genVHelperIdentifier(ClaimHelpers.DailyClaimVHelper)
 
