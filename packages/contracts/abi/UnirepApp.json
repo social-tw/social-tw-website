@@ -12,6 +12,11 @@
                 "type": "address"
             },
             {
+                "internalType": "contract EpochKeyLiteVerifierHelper",
+                "name": "_epkLiteHelper",
+                "type": "address"
+            },
+            {
                 "internalType": "contract IVerifier",
                 "name": "_dataVerifier",
                 "type": "address"

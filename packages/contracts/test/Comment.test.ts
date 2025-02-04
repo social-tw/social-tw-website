@@ -6,9 +6,9 @@ import { deployApp } from '../scripts/utils/deployUnirepSocialTw'
 import { Unirep, UnirepApp } from '../typechain-types'
 import {
     createMultipleUserIdentity,
+    genEpochKeyLiteProof,
     genReputationProof,
     genUserState,
-    userStateTransition,
 } from './utils'
 
 describe('Comment Test', function () {
@@ -168,34 +168,23 @@ describe('Comment Test', function () {
         it('should revert editing comment with invalid epoch', async function () {
             const userState = await genUserState(users[1].id, app)
             const id = users[1].id
-            const epoch = 0
             // generating a proof with wrong epoch
             const wrongEpoch = 44444
             const attesterId = userState.sync.attesterId
             const postId = 0
             const commentId = 0
             const content = 'Invalid Epoch'
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
+            const { publicSignals, proof } = await genEpochKeyLiteProof({
                 id,
-                tree,
-                leafIndex,
                 epoch: wrongEpoch,
                 nonce: 0,
-                chainId,
                 attesterId,
-                data,
+                chainId,
             })
-
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     content
@@ -206,32 +195,18 @@ describe('Comment Test', function () {
 
         it('should revert with invalid comment id', async function () {
             const userState = await genUserState(users[1].id, app)
-            const id = users[1].id
-            const epoch = 0
-            const attesterId = userState.sync.attesterId
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
-                id,
-                tree,
-                leafIndex,
-                epoch,
-                nonce: 0,
-                chainId,
-                attesterId,
-                data,
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
             const postId = 0
             const commentId = 1
             const newContent = 'Invalid Comment Id'
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     newContent
@@ -242,32 +217,19 @@ describe('Comment Test', function () {
 
         it('should revert with invalid epochKey', async function () {
             const userState = await genUserState(users[1].id, app)
-            const id = users[1].id
-            const epoch = 0
-            const attesterId = userState.sync.attesterId
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
-                id,
-                tree,
-                leafIndex,
-                epoch,
-                nonce: 2,
-                chainId,
-                attesterId,
-                data,
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
+            publicSignals[1] = BigInt(0)
             const postId = 0
             const commentId = 0
             const newContent = 'Invalid Comment Epoch Key'
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     newContent
@@ -276,35 +238,21 @@ describe('Comment Test', function () {
             userState.stop()
         })
 
-        it('should revert editing comment with invalid reputation proof', async function () {
+        it('should revert editing comment with invalid epoch key lite proof', async function () {
             const userState = await genUserState(users[1].id, app)
-            const id = users[1].id
-            const epoch = 0
-            const attesterId = userState.sync.attesterId
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
-                id,
-                tree,
-                leafIndex,
-                epoch,
-                nonce: 0,
-                chainId,
-                attesterId,
-                data,
-            })
-            repProof.proof[0] = BigInt(0)
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({
+                    epoch: 0,
+                    nonce: 0,
+                })
+            proof[0] = BigInt(0)
             const postId = 0
             const commentId = 0
             const newContent = 'Invalid Proof'
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     newContent
@@ -315,36 +263,19 @@ describe('Comment Test', function () {
 
         it('should update comment with same epoch and nonce', async function () {
             const userState = await genUserState(users[1].id, app)
-            const id = users[1].id
-            const epoch = 0
-            const attesterId = userState.sync.attesterId
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
-                id,
-                tree,
-                leafIndex,
-                epoch,
-                nonce: 0,
-                chainId,
-                attesterId,
-                data,
-            })
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof()
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
 
-            inputPublicSig = repProof.publicSignals
-            inputProof = repProof.proof
+            inputPublicSig = publicSignals
+            inputProof = proof
 
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     newContent
@@ -352,7 +283,7 @@ describe('Comment Test', function () {
             )
                 .to.emit(app, 'UpdatedComment')
                 .withArgs(
-                    repProof.publicSignals[0], // epochKey
+                    publicSignals[1], // epochKey
                     postId,
                     commentId,
                     0, // epoch
@@ -377,42 +308,41 @@ describe('Comment Test', function () {
         })
 
         it('should update comment in another epoch', async function () {
-            const userState = await genUserState(users[1].id, app)
-            const attesterId = userState.sync.attesterId
-            const epoch = await userState.sync.loadCurrentEpoch()
-            const tree = await userState.sync.genStateTree(epoch, attesterId)
-            const leafIndex = await userState.latestStateTreeLeafIndex(
-                epoch,
-                attesterId
-            )
-
             // epoch transition
             await ethers.provider.send('evm_increaseTime', [epochLength])
             await ethers.provider.send('evm_mine', [])
 
             // user state transition
-            await userStateTransition(userState, unirep, app)
+            const userState2 = await genUserState(users[1].id, app)
+            const attesterId = userState2.sync.attesterId
+            const toEpoch = await unirep.attesterCurrentEpoch(attesterId)
 
-            const id = users[1].id
-            const data = await userState.getProvableData()
-            const repProof = await genReputationProof({
-                id,
-                tree,
-                leafIndex,
-                epoch,
-                nonce: 0,
-                chainId,
-                attesterId,
-                data,
-            })
+            await userState2.waitForSync()
+            const {
+                publicSignals: userTransitionSignals,
+                proof: userTransitiionProof,
+            } = await userState2.genUserStateTransitionProof({ toEpoch })
+            await unirep
+                .userStateTransition(
+                    userTransitionSignals,
+                    userTransitiionProof
+                )
+                .then((tx) => tx.wait())
+
+            userState2.stop()
+
+            const userState = await genUserState(users[1].id, app)
+            userState.waitForSync()
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof({ epoch: 0 })
             const postId = 0
             const commentId = 0
             const newContent = 'Nice content, bruh!'
 
             await expect(
                 app.editComment(
-                    repProof.publicSignals,
-                    repProof.proof,
+                    publicSignals,
+                    proof,
                     postId,
                     commentId,
                     newContent
@@ -420,7 +350,7 @@ describe('Comment Test', function () {
             )
                 .to.emit(app, 'UpdatedComment')
                 .withArgs(
-                    repProof.publicSignals[0], // epochKey
+                    publicSignals[1], // epochKey
                     postId,
                     commentId,
                     0, // epoch

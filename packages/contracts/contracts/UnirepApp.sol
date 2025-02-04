@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Unirep} from "@unirep/contracts/Unirep.sol";
 import {ReputationVerifierHelper} from "@unirep/contracts/verifierHelpers/ReputationVerifierHelper.sol";
+import {EpochKeyLiteVerifierHelper} from "@unirep/contracts/verifierHelpers/EpochKeyLiteVerifierHelper.sol";
 import {BaseVerifierHelper} from "@unirep/contracts/verifierHelpers/BaseVerifierHelper.sol";
 import {VerifierHelperManager} from "./verifierHelpers/VerifierHelperManager.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -27,6 +28,7 @@ contract UnirepApp is Ownable {
     Unirep public unirep;
     IVerifier internal dataVerifier;
     ReputationVerifierHelper internal repHelper;
+    EpochKeyLiteVerifierHelper internal epkLiteHelper;
     VerifierHelperManager internal verifierHelperManager;
 
     // a global variable to store the latest postId
@@ -78,6 +80,7 @@ contract UnirepApp is Ownable {
     constructor(
         Unirep _unirep,
         ReputationVerifierHelper _repHelper,
+        EpochKeyLiteVerifierHelper _epkLiteHelper,
         IVerifier _dataVerifier,
         VerifierHelperManager _verifierHelperManager,
         uint48 _epochLength
@@ -85,8 +88,11 @@ contract UnirepApp is Ownable {
         // set unirep address
         unirep = _unirep;
 
-        // set epoch key verifier helper address
+        // set reputation verifier helper address
         repHelper = _repHelper;
+
+        // set epoch key lite verifier helper address
+        epkLiteHelper = _epkLiteHelper;
 
         // set verifier address
         dataVerifier = _dataVerifier;
@@ -220,7 +226,8 @@ contract UnirepApp is Ownable {
 
         proofNullifier[nullifier] = true;
 
-        ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
+        EpochKeyLiteVerifierHelper.EpochKeySignals memory signals =
+            epkLiteHelper.decodeEpochKeyLiteSignals(publicSignals);
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -236,6 +243,8 @@ contract UnirepApp is Ownable {
         if (epochKeyCommentMap[postId][commentId] != signals.epochKey) {
             revert InvalidCommentEpochKey(signals.epochKey);
         }
+
+        epkLiteHelper.verifyAndCheckCaller(publicSignals, proof);
 
         emit UpdatedComment(signals.epochKey, postId, commentId, signals.epoch, newContent);
     }

@@ -154,26 +154,19 @@ export class CommentService {
         })
         if (!comment) throw Errors.COMMENT_NOT_EXIST()
 
-        // verify reputation proof
-        const reputationProof = await ProofHelper.getAndVerifyReputationProof(
-            publicSignals,
-            proof,
-            synchronizer
-        )
+        const epochKeyLiteProof =
+            await ProofHelper.getAndVerifyEpochKeyLiteProof(
+                publicSignals,
+                proof,
+                synchronizer
+            )
 
-        // check negative reputation
-        const maxRep = reputationProof.maxRep
-        const proveMaxRep = reputationProof.proveMaxRep
-
-        if (maxRep > 0 && proveMaxRep > 0)
-            throw Errors.NEGATIVE_REPUTATION_USER()
-
-        if (reputationProof.epochKey.toString() !== comment.epochKey)
+        if (epochKeyLiteProof.epochKey.toString() !== comment.epochKey)
             throw Errors.INVALID_EPOCH_KEY()
 
         const txHash = await TransactionManager.callContract('editComment', [
-            reputationProof.publicSignals,
-            reputationProof.proof,
+            epochKeyLiteProof.publicSignals,
+            epochKeyLiteProof.proof,
             comment.postId,
             commentId,
             '',
