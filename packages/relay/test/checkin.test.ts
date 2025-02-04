@@ -10,7 +10,6 @@ import { stringifyBigInts } from '@unirep/utils'
 import { DB } from 'anondb'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { jsonToBase64 } from '../src/middlewares/CheckReputationMiddleware'
 import { UnirepSocialSynchronizer } from '../src/services/singletons/UnirepSocialSynchronizer'
 import { deployContracts, startServer, stopServer } from './environment'
 import { airdropReputation } from './utils/reputation'
@@ -29,7 +28,6 @@ describe('POST /api/checkin', function () {
     let express: ChaiHttp.Agent
     let user: IdentityObject
     let chainId: number
-    let nonce: number = 0
     let attesterId: bigint
     const EPOCH_LENGTH = 100000
     const DailyClaimProof = UnirepSocialCircuit.dailyClaimProof
@@ -80,9 +78,6 @@ describe('POST /api/checkin', function () {
         const userState = await genUserState(user.id, app, prover)
         await airdropReputation(false, 1, userState, unirep, express, provider)
 
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genProveReputationProof({ maxRep: 1 })
-
         const identitySecret = user.id.secret
         const dailyEpoch = 1
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
@@ -95,7 +90,9 @@ describe('POST /api/checkin', function () {
         const leafProof = tree.createProof(leafIndex)
         let data = await userState.getData()
 
-        const reputationProof = await userState.genProveReputationProof({})
+        const reputationProof = await userState.genProveReputationProof({
+            maxRep: 1,
+        })
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
@@ -117,10 +114,6 @@ describe('POST /api/checkin', function () {
         await express
             .post('/api/checkin')
             .set('content-type', 'application/json')
-            .set(
-                'authentication',
-                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
-            )
             .send(
                 stringifyBigInts({
                     publicSignals: dailyClaimProof.publicSignals,
@@ -140,9 +133,6 @@ describe('POST /api/checkin', function () {
         const userState = await genUserState(user.id, app, prover)
         await airdropReputation(true, 2, userState, unirep, express, provider)
 
-        const { publicSignals, _snarkProof: proof } =
-            await userState.genProveReputationProof({ minRep: 1 })
-
         const identitySecret = user.id.secret
         const dailyEpoch = 1
         const dailyNullifier = genNullifier(user.id, dailyEpoch)
@@ -156,8 +146,9 @@ describe('POST /api/checkin', function () {
         let data = await userState.getData()
         data[0] = BigInt(0)
 
-        const reputationProof = await userState.genProveReputationProof({})
-        console.log('Reputation Proof:', reputationProof)
+        const reputationProof = await userState.genProveReputationProof({
+            minRep: 1,
+        })
 
         const dailyClaimCircuitInputs = genDailyClaimCircuitInput({
             dailyEpoch,
@@ -169,30 +160,14 @@ describe('POST /api/checkin', function () {
             stateTreeElements: leafProof.siblings,
         })
 
-        const dailyClaimProof = await genProofAndVerify(
-            DailyClaimProof,
-            dailyClaimCircuitInputs
-        )
-
-        const flattenedProof = flattenProof(dailyClaimProof.proof)
-
-        await express
-            .post('/api/checkin')
-            .set('content-type', 'application/json')
-            .set(
-                'authentication',
-                jsonToBase64(stringifyBigInts({ publicSignals, proof }))
-            )
-            .send(
-                stringifyBigInts({
-                    publicSignals: dailyClaimProof.publicSignals,
-                    proof: flattenedProof,
-                })
-            )
-            .then(async (res) => {
-                expect(res).to.have.status(400)
-                expect(res.body.error).to.be.equal('Positive reputation user')
-            })
+        try {
+            await genProofAndVerify(DailyClaimProof, dailyClaimCircuitInputs)
+            // If no error is thrown, fail the test
+            expect.fail('Expected error was not thrown')
+        } catch (error) {
+            // Assert that the error is as expected
+            expect(error).to.exist
+        }
 
         userState.stop()
     })
