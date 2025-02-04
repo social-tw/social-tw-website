@@ -231,22 +231,16 @@ describe('Synchronize Comment Test', function () {
             // User 1 edit the comment
             const userState = await genUserState(users[1].id, app, prover)
             const newContent = "I'm not a comment what you want"
-            const reputationProof = await userState.genProveReputationProof({})
+            const { publicSignals, proof } =
+                await userState.genEpochKeyLiteProof()
 
             await expect(
-                app.editComment(
-                    reputationProof.publicSignals,
-                    reputationProof.proof,
-                    0,
-                    0,
-                    newContent,
-                    {
-                        gasLimit: 5000000,
-                    }
-                )
+                app.editComment(publicSignals, proof, 0, 0, newContent, {
+                    gasLimit: 5000000,
+                })
             )
                 .to.emit(app, 'UpdatedComment')
-                .withArgs(reputationProof.publicSignals[0], 0, 0, 0, newContent)
+                .withArgs(publicSignals[1], 0, 0, 0, newContent)
 
             await sync.waitForSync()
 
