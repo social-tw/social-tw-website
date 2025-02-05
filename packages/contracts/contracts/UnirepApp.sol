@@ -76,6 +76,7 @@ contract UnirepApp is Ownable {
     error InvalidCommentId(uint256 commentId);
     error NonNegativeReputation();
     error InvalidDailyEpoch();
+    error NegativeReputationUser();
 
     constructor(
         Unirep _unirep,
@@ -144,7 +145,7 @@ contract UnirepApp is Ownable {
     /**
      * Post a content in this app
      * @param publicSignals: public signals
-     * @param proof: epockKeyProof from the user
+     * @param proof: reputationProof from the user
      * @param content: content of this post
      */
     function post(uint256[] calldata publicSignals, uint256[8] calldata proof, string memory content) public {
@@ -157,6 +158,10 @@ contract UnirepApp is Ownable {
         proofNullifier[nullifier] = true;
 
         ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
+
+        if (signals.maxRep > 0 && signals.proveMaxRep) {
+            revert NegativeReputationUser();
+        }
 
         // check the epoch != current epoch (ppl can only post in current aepoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
@@ -171,7 +176,7 @@ contract UnirepApp is Ownable {
     /**
      * Leave a comment under a post
      * @param publicSignals: public signals
-     * @param proof: epockKeyProof from the user
+     * @param proof: reputationProof from the user
      * @param postId: postId where the comment wanna leave
      * @param content: comment content
      */
@@ -189,6 +194,10 @@ contract UnirepApp is Ownable {
         proofNullifier[nullifier] = true;
 
         ReputationVerifierHelper.ReputationSignals memory signals = decodeAndVerify(publicSignals, proof);
+
+        if (signals.maxRep > 0 && signals.proveMaxRep) {
+            revert NegativeReputationUser();
+        }
 
         // check the epoch != current epoch (ppl can only leave comment in current epoch)
         uint48 epoch = unirep.attesterCurrentEpoch(signals.attesterId);
