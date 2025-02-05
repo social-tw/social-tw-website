@@ -57,6 +57,7 @@
     },
     { "inputs": [], "name": "InvalidDailyEpoch", "type": "error" },
     { "inputs": [], "name": "InvalidEpoch", "type": "error" },
+    { "inputs": [], "name": "NegativeReputationUser", "type": "error" },
     { "inputs": [], "name": "NonNegativeReputation", "type": "error" },
     { "inputs": [], "name": "ProofHasUsed", "type": "error" },
     {
