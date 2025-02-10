@@ -4,7 +4,7 @@ import { RelayApiService } from '../RelayApiService/RelayApiService'
 
 export class UserService extends RelayApiService {
     async checkIn({ identityNonce = 0 }: { identityNonce: number }) {
-        const client = this.getAuthClient()
+        const client = this.getClient()
 
         const userState = this.getUserState()
 
@@ -12,13 +12,10 @@ export class UserService extends RelayApiService {
             return res.data.DAILY_CURRENT_EPOCH
         })
 
-        const reputationProof = await userState.genProveReputationProof({
-            epkNonce: identityNonce,
-        })
-
         const dailyClaimProof = await genDailyClaimProof(userState, {
             dailyEpoch,
-            reputationProof,
+            epkNonce: identityNonce,
+            maxRep: 1,
         })
 
         const response = await client.post(

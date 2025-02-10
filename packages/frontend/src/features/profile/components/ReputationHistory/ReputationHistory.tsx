@@ -1,4 +1,5 @@
 import { PATHS } from '@/constants/paths'
+import { QueryKeys } from '@/constants/queryKeys'
 import { useAuthStatus } from '@/features/auth'
 import { useUserState } from '@/features/core'
 import {
@@ -14,6 +15,7 @@ import { FromToEpoch } from '@/features/shared/services/EpochDateService'
 import { FetchReputationHistoryResponse } from '@/types/api'
 import { ReputationType } from '@/types/Report'
 import { formatDateByEpoch } from '@/utils/helpers/formatDateByEpoch'
+import { useQueryClient } from '@tanstack/react-query'
 import { UserState } from '@unirep/core'
 import dayjs from 'dayjs'
 import { ReactNode, useEffect, useState } from 'react'
@@ -63,6 +65,16 @@ export default function ReputationHistory() {
 
     const [shouldInit, setShouldInit] = useState(true)
 
+    const queryClient = useQueryClient()
+
+    const onClickSearch = async () => {
+        updateFromToEpoch()
+
+        await queryClient.invalidateQueries({
+            queryKey: [QueryKeys.ReputationHistory]
+        })
+    }
+
     useEffect(() => {
         if (startDate && endDate) {
             setSearchParams(
@@ -105,7 +117,7 @@ export default function ReputationHistory() {
                 endDate={endDate}
                 isDateSelected={isDateSelected}
                 onChange={onChange}
-                onClickSearch={updateFromToEpoch}
+                onClickSearch={onClickSearch}
                 setToday={setToday}
                 setPast7Days={setPast7Days}
                 setPast30Days={setPast30Days}
