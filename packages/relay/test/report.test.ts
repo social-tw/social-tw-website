@@ -139,12 +139,45 @@ describe('POST /api/report', function () {
         await stopServer('report', snapshot, sync, express)
     })
 
+    it('should fail to create a report on commentwith empty postId', async function () {
+        const postId = '0'
+        const userState = await genUserState(users[0].id, app, prover)
+        const reportData: ReportHistory = {
+            type: ReportType.POST,
+            objectId: postId,
+            postId: "0",
+            reportorEpochKey: 'epochKey1',
+            reason: 'Inappropriate content',
+            category: ReportCategory.SPAM,
+            reportEpoch: sync.calcCurrentEpoch(),
+        }
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
+        })
+
+        await express
+            .post('/api/report')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Invalid postId')
+            })
+    })
+
     it('should create a report and update post status', async function () {
         const postId = '0'
         const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
+            postId: "",
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
@@ -230,6 +263,39 @@ describe('POST /api/report', function () {
             })
     })
 
+    it('should fail to create a report on commentwith empty postId', async function () {
+        const userState = await genUserState(users[0].id, app, prover)
+        const commentId = '0'
+        const postId = ''
+        const reportData: ReportHistory = {
+            type: ReportType.COMMENT,
+            objectId: commentId,
+            postId: postId,
+            reportorEpochKey: 'epochKey1',
+            reason: 'Spam',
+            category: ReportCategory.SPAM,
+            reportEpoch: sync.calcCurrentEpoch(),
+        }
+        const reputationProof = await userState.genProveReputationProof({
+            epkNonce: nonce,
+        })
+
+        await express
+            .post('/api/report')
+            .set('content-type', 'application/json')
+            .send(
+                stringifyBigInts({
+                    _reportData: reportData,
+                    publicSignals: reputationProof.publicSignals,
+                    proof: reputationProof.proof,
+                })
+            )
+            .then((res) => {
+                expect(res).to.have.status(400)
+                expect(res.body.error).to.be.equal('Missing postId')
+            })
+    })
+
     it('should create a report and update comment status', async function () {
         const commentId = '0'
         const postId = '0'
@@ -302,6 +368,7 @@ describe('POST /api/report', function () {
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: '0',
+            postId: '',
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
@@ -332,6 +399,7 @@ describe('POST /api/report', function () {
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: 'non-existent',
+            postId: '',
             reportorEpochKey: 'epochKey1',
             reason: 'Non-existent post',
             category: ReportCategory.SPAM,

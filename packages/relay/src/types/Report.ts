@@ -29,7 +29,7 @@ export interface ReportHistory {
     reportId?: string
     type: number // 0: Post, 1: Comment
     objectId: string // PostId or CommentId
-    postId?: string // PostId of the reported object
+    postId: string // PostId of the reported object
     reportorEpochKey: string // Epoch Key of the person who reported
     reportorClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed
     respondentEpochKey?: string // Epoch Key of the person who was reported

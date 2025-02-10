@@ -40,6 +40,7 @@ export class ReportService {
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.POST) {
+            if (reportData.postId) throw Errors.INVALID_POST_ID()
             if (!Validator.isValidNumber(reportData.objectId))
                 throw Errors.INVALID_POST_ID()
 
@@ -93,7 +94,7 @@ export class ReportService {
             reportId: reportId,
             type: reportData.type,
             objectId: reportData.objectId,
-            postId: reportData.postId ? reportData.postId : undefined,
+            postId: reportData.postId,
             reportorEpochKey: reportData.reportorEpochKey,
             respondentEpochKey: reportData.respondentEpochKey,
             reason: reportData.reason,
