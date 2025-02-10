@@ -145,7 +145,7 @@ describe('POST /api/report', function () {
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
-            postId: "0",
+            postId: '0',
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
@@ -177,7 +177,7 @@ describe('POST /api/report', function () {
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
-            postId: "",
+            postId: '',
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,

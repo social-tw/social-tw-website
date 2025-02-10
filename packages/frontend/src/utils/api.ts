@@ -327,7 +327,7 @@ export async function relayReport({
                 _reportData: {
                     type,
                     objectId,
-                    postId: postId ?? "",
+                    postId: postId ?? '',
                     reportorEpochKey,
                     reason,
                     category,

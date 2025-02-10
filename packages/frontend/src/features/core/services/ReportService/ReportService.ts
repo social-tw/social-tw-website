@@ -47,7 +47,7 @@ export class ReportService extends RelayApiService {
     }: {
         type: ReportType
         objectId: string
-        postId? : string
+        postId?: string
         reason: string
         category: number
         identityNonce: number
@@ -67,7 +67,7 @@ export class ReportService extends RelayApiService {
                 _reportData: {
                     type,
                     objectId,
-                    postId: postId ?? "",
+                    postId: postId ?? '',
                     reason,
                     category,
                     reportEpoch: Number(epoch),
