@@ -644,10 +644,13 @@ export class ReportService {
 
         // Fetch the associated object (post or comment)
         const tableName = report.type == ReportType.POST ? 'Post' : 'Comment'
+        const whereClause: any = {
+            [`${tableName.toLowerCase()}Id`]: report.objectId,
+        }
+        if (report.postId) whereClause.postId = report.postId
+
         const object = await db.findOne(tableName, {
-            where: {
-                [`${tableName.toLowerCase()}Id`]: report.objectId,
-            },
+            where: whereClause,
         })
 
         // Return the report with its associated object
