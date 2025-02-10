@@ -56,13 +56,11 @@ describe('Reputation Claim', function () {
     let repoterUserState: UserState
     let repoterEpochKey: EpochKeyLiteProof
     let posterEpochKey: EpochKeyLiteProof
-    let voterEpochKey: EpochKeyLiteProof
     let attesterId: bigint
     let reportedEpochKey: bigint
     let nullifier: BigInt
     let voter2: IdentityObject
     let voter2UserState: UserState
-    let voter2EpochKey: EpochKeyLiteProof
     let nullifier2: BigInt
 
     const EPOCH_LENGTH = 3000
@@ -89,26 +87,6 @@ describe('Reputation Claim', function () {
             : [newAdjudicator]
     }
 
-    async function findReportWithNullifier(
-        db: DB,
-        epoch: number,
-        nullifier: string,
-        status: ReportStatus
-    ) {
-        const reports = await db.findMany('ReportHistory', {
-            where: {
-                reportEpoch: epoch,
-                status: status,
-            },
-        })
-
-        return reports.find((report) =>
-            report.adjudicatorsNullifier.some(
-                (adj) => adj.nullifier === nullifier
-            )
-        )
-    }
-
     before(async function () {
         this.timeout(6000000)
         snapshot = await ethers.provider.send('evm_snapshot', [])
@@ -127,9 +105,7 @@ describe('Reputation Claim', function () {
         sync = synchronizer
         unirep = _unirep
 
-        // poster = await userService.getLoginUser(db, 'poster', undefined)
         poster = createRandomUserIdentity()
-        const wallet = ethers.Wallet.createRandom()
         posterUserState = await signUp(poster, {
             app,
             db,
@@ -142,9 +118,7 @@ describe('Reputation Claim', function () {
         expect(hasSignedUp).equal(true)
         console.log('poster register success...')
 
-        // reporter = await userService.getLoginUser(db, 'reporter', undefined)
         reporter = createRandomUserIdentity()
-        const wallet2 = ethers.Wallet.createRandom()
         repoterUserState = await signUp(reporter, {
             app,
             db,
@@ -157,9 +131,7 @@ describe('Reputation Claim', function () {
         expect(hasSignedUp2).equal(true)
         console.log('reporter register success...')
 
-        // voter = await userService.getLoginUser(db, 'voter', undefined)
         voter = createRandomUserIdentity()
-        const wallet3 = ethers.Wallet.createRandom()
         voterUserState = await signUp(voter, {
             app,
             db,
@@ -173,7 +145,6 @@ describe('Reputation Claim', function () {
         console.log('voter register success...')
 
         voter2 = createRandomUserIdentity()
-        const wallet4 = ethers.Wallet.createRandom()
         voter2UserState = await signUp(voter2, {
             app,
             db,
@@ -186,13 +157,10 @@ describe('Reputation Claim', function () {
         expect(hasSignedUp4).equal(true)
         console.log('voter2 register success...')
 
-        voter2EpochKey = await voter2UserState.genEpochKeyLiteProof()
-
         chainId = await unirep.chainid()
 
         repoterEpochKey = await repoterUserState.genEpochKeyLiteProof()
         posterEpochKey = await posterUserState.genEpochKeyLiteProof()
-        voterEpochKey = await voterUserState.genEpochKeyLiteProof()
 
         attesterId = posterUserState.sync.attesterId
 
@@ -211,6 +179,7 @@ describe('Reputation Claim', function () {
             reportId,
             type: ReportType.POST,
             objectId: postId,
+            postId: '',
             reportorEpochKey: repoterEpochKey.epochKey.toString(),
             respondentEpochKey: posterEpochKey.epochKey.toString(),
             reason: 'Test reason',
@@ -291,6 +260,7 @@ describe('Reputation Claim', function () {
             reportId: reportId2,
             type: ReportType.POST,
             objectId: postId2,
+            postId: '',
             reportorEpochKey: repoterEpochKey.epochKey.toString(),
             respondentEpochKey: posterEpochKey.epochKey.toString(),
             reason: 'Test reason for failed report',
