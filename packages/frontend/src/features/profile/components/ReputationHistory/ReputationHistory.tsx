@@ -71,7 +71,7 @@ export default function ReputationHistory() {
         updateFromToEpoch()
 
         await queryClient.invalidateQueries({
-            queryKey: [QueryKeys.ReputationHistory]
+            queryKey: [QueryKeys.ReputationHistory],
         })
     }
 

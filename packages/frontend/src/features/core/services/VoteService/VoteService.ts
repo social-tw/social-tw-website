@@ -47,10 +47,11 @@ export class VoteService extends RelayApiService {
         const client = this.getClient()
 
         const userState = this.getUserState()
-        const { publicSignals, proof } = await userState.genProveReputationProof({
-            epkNonce: identityNonce,
-            minRep: 0,
-        })
+        const { publicSignals, proof } =
+            await userState.genProveReputationProof({
+                epkNonce: identityNonce,
+                minRep: 0,
+            })
 
         const response = await client.post<RelayCreateVoteResponse>(
             '/vote',

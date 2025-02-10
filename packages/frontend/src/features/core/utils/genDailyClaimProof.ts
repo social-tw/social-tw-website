@@ -11,13 +11,13 @@ export function genDailyClaimNullifier(idSecret: bigint, dailyEpoch: string) {
 export async function genDailyClaimProof(
     userState: UserState,
     params: {
-        dailyEpoch: string,
-        graffiti?: bigint | string,
-        revealNonce?: boolean,
-        epkNonce?: number,
-        minRep?: number | bigint | string,
-        maxRep?: number | bigint | string,
-        proveZeroRep?: boolean,
+        dailyEpoch: string
+        graffiti?: bigint | string
+        revealNonce?: boolean
+        epkNonce?: number
+        minRep?: number | bigint | string
+        maxRep?: number | bigint | string
+        proveZeroRep?: boolean
     },
     options: {
         epoch?: number
@@ -39,7 +39,10 @@ export async function genDailyClaimProof(
     const proof = tree.createProof(leafIndex)
     const identitySecret = userState.id.secret
 
-    const dailyNullifier = genDailyClaimNullifier(identitySecret, params.dailyEpoch)
+    const dailyNullifier = genDailyClaimNullifier(
+        identitySecret,
+        params.dailyEpoch,
+    )
 
     const circuitInputs = {
         identity_secret: identitySecret,
