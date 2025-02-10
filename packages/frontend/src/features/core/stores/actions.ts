@@ -78,6 +78,7 @@ export interface ReportPostData {
 
 export interface ReportCommentData {
     commentId: string
+    postId: string
     epoch?: number
     epochKey?: string
 }
