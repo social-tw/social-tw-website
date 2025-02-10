@@ -52,6 +52,7 @@ export class ReportService {
                 throw Errors.POST_REPORTED()
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.COMMENT) {
+            if (!reportData.postId) throw Errors.MISSING_POST_ID()
             if (!Validator.isValidNumber(reportData.objectId))
                 throw Errors.INVALID_COMMENT_ID()
             const comment = await commentService.fetchSingleComment(
@@ -92,6 +93,7 @@ export class ReportService {
             reportId: reportId,
             type: reportData.type,
             objectId: reportData.objectId,
+            postId: reportData.postId ? reportData.postId : undefined,
             reportorEpochKey: reportData.reportorEpochKey,
             respondentEpochKey: reportData.respondentEpochKey,
             reason: reportData.reason,

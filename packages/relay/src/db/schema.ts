@@ -147,6 +147,7 @@ const _schema = [
             ['reportId', 'String'],
             ['type', 'Int'],
             ['objectId', 'String'], // PostId or CommentId
+            ['postId', 'String', { optional: true }], // PostId of the reported object
             ['reportorEpochKey', 'String'], // Epoch Key of the person who reported
             {
                 name: 'reportorClaimedRep',

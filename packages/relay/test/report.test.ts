@@ -196,9 +196,12 @@ describe('POST /api/report', function () {
 
     it('should fail to create a report with invalid proof', async function () {
         const userState = await genUserState(users[0].id, app, prover)
+        const commentId = '0'
+        const postId = '0'
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
-            objectId: '0',
+            objectId: commentId,
+            postId: postId,
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
@@ -229,10 +232,12 @@ describe('POST /api/report', function () {
 
     it('should create a report and update comment status', async function () {
         const commentId = '0'
+        const postId = '0'
         const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.COMMENT,
             objectId: commentId,
+            postId: postId,
             reportorEpochKey: 'epochKey1',
             reason: 'Spam',
             category: ReportCategory.SPAM,
