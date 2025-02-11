@@ -184,8 +184,8 @@ docker run --network="host" --rm -p 8000:8000 test-relay:0.1
 Before diving into the codebase:
 
 1. **Read the CONTRIBUTING.md**: Please ensure you've reviewed our [CONTRIBUTING.md](CONTRIBUTING.md). It contains crucial information on our coding standards, the pull request process, and more.
-2. **Search Existing Issues**: We use the GitHub issue tracker to manage our tasks and bugs. Please spend a few minutes searching for issues to see if someone else has already reported the same problem or suggested the same change.
-3. **Reporting New Issues**: If you don't find an existing issue that addresses your concern, feel free to open a new one. Provide as much detail as possible to help us understand the context and importance.
+2. **Search Existing Issues**: We use the GitHub issue tracker to manage our tasks and bugs. Please spend a few minutes searching for issues to see if someone else has already reported the same problem or suggested the same change. If you have ideas for fixing the problem or would like to pick up the issue, please feel free to comment on it, and we will reach out to you for further instructions. 
+3. **Reporting New Issues**: If you don't find an existing issue that addresses your concern, feel free to propose a new one. Provide as much detail as possible to help us understand the context and importance (Please feel free to refer to previous issues for the format). Unirep Social team will further assess the requirements and discuss the grant/prize with you. 
 
 ### Steps for Contributing
 
