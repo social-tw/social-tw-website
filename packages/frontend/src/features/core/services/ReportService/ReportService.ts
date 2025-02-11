@@ -10,7 +10,7 @@ import { stringifyBigInts } from '@unirep/utils'
 
 export class ReportService extends RelayApiService {
     async fetchPendingReports() {
-        const client = this.getAuthClient()
+        const client = this.getClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
@@ -50,12 +50,13 @@ export class ReportService extends RelayApiService {
         category: number
         identityNonce: number
     }) {
-        const client = this.getAuthClient()
+        const client = this.getClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epoch, epochKey } =
-            await userState.genEpochKeyProof({
-                nonce: identityNonce,
+            await userState.genProveReputationProof({
+                epkNonce: identityNonce,
+                minRep: 0,
             })
 
         const response = await client.post<RelayCreateReportResponse>(
@@ -110,7 +111,7 @@ export class ReportService extends RelayApiService {
     }
 
     async fetchWaitFotTransactionReports() {
-        const client = this.getAuthClient()
+        const client = this.getClient()
         const userState = this.getUserState()
         const { publicSignals, proof } = await userState.genEpochKeyLiteProof()
 

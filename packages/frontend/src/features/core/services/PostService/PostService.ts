@@ -54,12 +54,13 @@ export class PostService extends RelayApiService {
         content: string
         identityNonce: number
     }) {
-        const client = this.getAuthClient()
+        const client = this.getClient()
 
         const userState = this.getUserState()
         const { publicSignals, proof, epoch, epochKey } =
-            await userState.genEpochKeyProof({
-                nonce: identityNonce,
+            await userState.genProveReputationProof({
+                epkNonce: identityNonce,
+                minRep: 0,
             })
 
         const response = await client.post<RelayCreatePostResponse>(
