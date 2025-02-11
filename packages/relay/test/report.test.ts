@@ -139,13 +139,13 @@ describe('POST /api/report', function () {
         await stopServer('report', snapshot, sync, express)
     })
 
-    it('should fail to create a report on commentwith empty postId', async function () {
+    it('should fail to create a report on post with empty postId', async function () {
         const postId = '0'
         const userState = await genUserState(users[0].id, app, prover)
         const reportData: ReportHistory = {
             type: ReportType.POST,
             objectId: postId,
-            postId: '0',
+            postId: postId,
             reportorEpochKey: 'epochKey1',
             reason: 'Inappropriate content',
             category: ReportCategory.SPAM,
