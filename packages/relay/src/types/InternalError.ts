@@ -159,6 +159,7 @@ export const Errors = {
         400,
         'REPORT_OBJECT_TYPE_NOT_EXISTS'
     ),
+    MISSING_POST_ID: createErrorType('Missing postId', 400, 'MISSING_POST_ID'),
     INVALID_REPORT_STATUS: createErrorType(
         'Invalid report status',
         400,

@@ -40,6 +40,7 @@ export class ReportService {
     ): Promise<ReportHistory> {
         // 1.a Check if the post / comment exists is not reported already(post status = 1 / comment status = 1)
         if (reportData.type === ReportType.POST) {
+            if (reportData.postId) throw Errors.INVALID_POST_ID()
             if (!Validator.isValidNumber(reportData.objectId))
                 throw Errors.INVALID_POST_ID()
 
@@ -52,6 +53,7 @@ export class ReportService {
                 throw Errors.POST_REPORTED()
             reportData.respondentEpochKey = post.epochKey
         } else if (reportData.type === ReportType.COMMENT) {
+            if (!reportData.postId) throw Errors.MISSING_POST_ID()
             if (!Validator.isValidNumber(reportData.objectId))
                 throw Errors.INVALID_COMMENT_ID()
             const comment = await commentService.fetchSingleComment(
@@ -92,6 +94,7 @@ export class ReportService {
             reportId: reportId,
             type: reportData.type,
             objectId: reportData.objectId,
+            postId: reportData.postId,
             reportorEpochKey: reportData.reportorEpochKey,
             respondentEpochKey: reportData.respondentEpochKey,
             reason: reportData.reason,
@@ -641,10 +644,13 @@ export class ReportService {
 
         // Fetch the associated object (post or comment)
         const tableName = report.type == ReportType.POST ? 'Post' : 'Comment'
+        const whereClause: any = {
+            [`${tableName.toLowerCase()}Id`]: report.objectId,
+        }
+        if (report.postId) whereClause.postId = report.postId
+
         const object = await db.findOne(tableName, {
-            where: {
-                [`${tableName.toLowerCase()}Id`]: report.objectId,
-            },
+            where: whereClause,
         })
 
         // Return the report with its associated object

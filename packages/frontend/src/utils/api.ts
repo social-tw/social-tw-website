@@ -304,6 +304,7 @@ export async function relayReport({
     proof,
     type,
     objectId,
+    postId,
     reportorEpochKey,
     reason,
     category,
@@ -312,6 +313,7 @@ export async function relayReport({
     proof: EpochKeyLiteProof
     type: ReportType
     objectId: string
+    postId?: string
     reportorEpochKey: string
     reason: string
     category: number
@@ -325,6 +327,7 @@ export async function relayReport({
                 _reportData: {
                     type,
                     objectId,
+                    postId: postId ?? '',
                     reportorEpochKey,
                     reason,
                     category,

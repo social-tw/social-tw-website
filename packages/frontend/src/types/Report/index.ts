@@ -11,6 +11,7 @@ export interface ReportHistory {
     reportId: string
     type: ReportType // 0: Post, 1: Comment
     objectId: string // PostId or CommentId
+    postId: string // PostId of the reported object, should be empty for post report
     object: RelayRawPost | RelayRawComment
     reportorEpochKey: string // Epoch Key of the person who reported
     reportorClaimedRep?: boolean // TRUE: claimed, FALSE: not claimed

@@ -10,11 +10,11 @@ import {
     useUserState,
     useUserStateTransition,
 } from '@/features/core'
+import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
+import { NotificationType } from '@/types/Notifications'
 import { ReportType } from '@/types/Report'
 import { getEpochKeyNonce } from '@/utils/helpers/getEpochKeyNonce'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useSendNotification } from '@/features/notification/stores/useNotificationStore'
-import { NotificationType } from '@/types/Notifications'
 
 export function useReportComment() {
     const queryClient = useQueryClient()
@@ -50,6 +50,7 @@ export function useReportComment() {
             const { epoch, epochKey } = await reportService.createReport({
                 type: ReportType.COMMENT,
                 objectId: commentId,
+                postId,
                 reason,
                 category,
                 identityNonce,
@@ -64,6 +65,7 @@ export function useReportComment() {
         onMutate: (variables) => {
             const reportCommentData: ReportCommentData = {
                 commentId: variables.commentId,
+                postId: variables.postId,
                 epoch: undefined,
                 epochKey: undefined,
             }
@@ -86,6 +88,7 @@ export function useReportComment() {
             if (context?.actionId) {
                 succeedActionById(context.actionId, {
                     commentId: data.commentId,
+                    postId: data.postId,
                     epoch: data.epoch,
                     epochKey: data.epochKey,
                 })
