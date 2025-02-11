@@ -263,7 +263,7 @@ describe('POST /api/report', function () {
             })
     })
 
-    it('should fail to create a report on commentwith empty postId', async function () {
+    it('should fail to create a report on comment with empty postId', async function () {
         const userState = await genUserState(users[0].id, app, prover)
         const commentId = '0'
         const postId = ''
