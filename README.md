@@ -184,8 +184,19 @@ docker run --network="host" --rm -p 8000:8000 test-relay:0.1
 Before diving into the codebase:
 
 1. **Read the CONTRIBUTING.md**: Please ensure you've reviewed our [CONTRIBUTING.md](CONTRIBUTING.md). It contains crucial information on our coding standards, the pull request process, and more.
-2. **Search Existing Issues**: We use the GitHub issue tracker to manage our tasks and bugs. Please spend a few minutes searching for issues to see if someone else has already reported the same problem or suggested the same change.
-3. **Reporting New Issues**: If you don't find an existing issue that addresses your concern, feel free to open a new one. Provide as much detail as possible to help us understand the context and importance.
+
+2. **Search Existing Issues**: We use the GitHub issue tracker to manage our tasks and bugs. Please spend a few minutes searching for issues to see if someone else has already reported the same problem or suggested the same change. For existing issues, we’ve already assigned story points based on their complexity and the estimated time required to complete them. These story points are essential for the following:
+  - **Prize**: Story points indicate the reward you will receive once the issue is completed and merged by our core team.
+  - **Time Estimate**: Story points also give an estimate of the time required to complete the issue.
+
+To claim an issue, simply comment on the issue thread to let the core team know you’d like to work on it. Please ensure you can complete the issue within the designated timeframe. If you are unable to meet the deadline, we may reassign the issue to other contributors to keep the progress on track.
+
+3. **Reporting New Issues**: If you don't find an existing issue that addresses your concern, feel free to open a new one. Provide as much detail as possible to help us understand the context and importance. When creating a new issue, please follow these guidelines:
+  - **Provide a Descriptive Title**: Make sure the title clearly describes the issue or feature request.
+  - **Include Detailed Information**: Provide a clear description of the problem or feature, the steps to reproduce it (if applicable), and any additional context (such as error messages or logs).
+  - **Proposed Solution (if applicable)**: If you have a potential solution or an idea on how to resolve the issue, feel free to include that in the description.
+
+The core team will review your issue description, and we will assign appropriate story points. These points reflect the estimated time required to resolve the issue, as well as the reward you’ll receive once the task is completed, reviewed, and merged.
 
 ### Steps for Contributing
 
@@ -203,8 +214,8 @@ Please follow the following branch naming scheme when creating your branch:
 -   `test-foo-bar` when the change concerns only the test suite
 -   `refactor-foo-bar` when refactoring code without any behavior change
 
-## Community
-
-Join the conversation and help the community.
-
--   [Discord](https://discord.gg/RSwXuVNZ4H)
+## Communication and Collaboration
+- Engage with the Team: Don’t hesitate to ask questions in the issue discussions or PR comments if you need clarification. Collaboration is key to ensuring high-quality contributions.
+- Be Respectful and Professional: While working together, please maintain a respectful and professional tone in all communications. It’s important to create a positive and supportive environment for all contributors.
+- Join the conversation and help the community.
+  -   [Discord](https://discord.gg/RSwXuVNZ4H)
